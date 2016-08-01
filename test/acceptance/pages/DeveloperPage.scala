@@ -25,4 +25,10 @@ object DeveloperPage extends WebPage {
     currentUrl == url
   }
 
+  def emailDeveloperLink = find(linkText("Click here")).get
+
+  def emailDevelopers() = {
+    click on emailDeveloperLink
+  }
+
 }

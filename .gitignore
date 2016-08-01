@@ -11,6 +11,10 @@ dist
 /*.iml
 /*.ipr
 /out
+.DS_Store
+chromedriver
+project/.DS_Store
+test/.DS_Store
 /.idea_modules
 /.classpath
 /.project

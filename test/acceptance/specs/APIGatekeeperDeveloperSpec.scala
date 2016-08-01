@@ -31,12 +31,12 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("View details of the developer") {
 
       stubApplicationListAndDevelopers
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
+      //stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
+       // .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
 
       signInGatekeeper
       on(DashboardPage)
-      click on linkText("Developer List")
+      DashboardPage.selectDeveloperList
       on(DeveloperPage)
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
                                                         s"$dev2FirstName$dev2LastName $verifiedUser2",
