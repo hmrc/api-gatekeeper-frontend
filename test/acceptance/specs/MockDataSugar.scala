@@ -46,6 +46,14 @@ trait MockDataSugar {
   val lastName = "Test"
   val fullName = s"$firstName $lastName"
 
+  val verifiedUser1 = "purnima.shanti@mail.com"
+  val devFirstName = "Purnima"
+  val devLastName = "Shanti"
+  val verifiedUser2 = "imran.akram@mail.com"
+  val dev2FirstName = "Imran"
+  val dev2LastName = " Akram"
+
+
   val applicationsPendingApproval =
     s"""
        |[
@@ -235,6 +243,22 @@ trait MockDataSugar {
        |}
     """.stripMargin
   }
+
+  val verifiedUsers =
+    s"""
+       |[
+       |  {
+       |    "email": "$verifiedUser1",
+       |    "firstName": "$devFirstName",
+       |    "lastName": "$devLastName"
+       |  },
+       |  {
+       |  "email": "$verifiedUser2",
+       |  "firstName": "$dev2FirstName",
+       | "lastName": "$dev2LastName"
+       |  }
+       |]
+   """.stripMargin
 
   def administrator(email: String = adminEmail, firstName: String = firstName, lastName: String = lastName) =
     s"""
