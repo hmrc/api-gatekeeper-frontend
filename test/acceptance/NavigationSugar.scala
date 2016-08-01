@@ -23,6 +23,7 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.selenium.WebBrowser
 import org.scalatest.selenium.WebBrowser.{go => goo}
 import org.scalatest.time.{Millis, Seconds, Span}
+import component.matchers.CustomMatchers
 
 trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 
@@ -73,6 +74,17 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
 
   def verifyLinkPresent(attributeName: String, expectedUrl: String)(implicit webDriver: WebDriver) = {
     webDriver.findElement(By.cssSelector(s"[$attributeName]")).getAttribute("href") contains expectedUrl
+  }
+
+  def getDeveloperName(implicit webDriver: WebDriver) = {
+    //find(cssSelector(s"[$attributeName]")).get
+    //print(cssSelector(s"[$attributeName]").element.text)
+    //webDriver.findElement(By.cssSelector(s"[$attributeName]")).getText
+   // webDriver.findElement(By.cssSelector("tbody > tr:nth-child(1)")).getText
+   // webDriver.findElement(By.cssSelector("tbody > tr:nth-child(2)")).getText
+   // webDriver.findElement(By.cssSelector(componentName + ":nth-child(" + row + ")))
+    //webDriver.findElements(By.cssSelector("tbody > tr")).size()
+    webDriver.findElement(By.cssSelector("tbody"))
   }
 
   def verifyText(attributeName: String, expected: String)(implicit webDriver: WebDriver) = {
