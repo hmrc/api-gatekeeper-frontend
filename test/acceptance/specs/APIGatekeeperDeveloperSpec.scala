@@ -38,8 +38,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       click on linkText("Developer List")
       on(DeveloperPage)
-      DashboardPage.bodyText should containInOrder(List("Purnima","Shnti","purnima.shanti@mail.com","Imran","Akr","imran.akram@mail.com"))
-     // DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1", s"$dev2FirstName$dev2LastName $verifiedUser2"))
+      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
+                                                        s"$dev2FirstName$dev2LastName $verifiedUser2",
+                                                        s"$dev3FirstName$dev3LastName $verifiedUser3"))
    }
   }
 
