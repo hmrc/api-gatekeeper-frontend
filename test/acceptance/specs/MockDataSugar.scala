@@ -52,6 +52,9 @@ trait MockDataSugar {
   val verifiedUser2 = "imran.akram@mail.com"
   val dev2FirstName = "Imran"
   val dev2LastName = " Akram"
+  val verifiedUser3 = "gurpreet.bhamra@mail.com"
+  val dev3FirstName = "Gurpreet"
+  val dev3LastName = " Bhamra"
 
 
   val applicationsPendingApproval =
@@ -255,9 +258,14 @@ trait MockDataSugar {
        |    "lastName": "$devLastName"
        |  },
        |  {
-       |  "email": "$verifiedUser2",
-       |  "firstName": "$dev2FirstName",
-       | "lastName": "$dev2LastName"
+       |    "email": "$verifiedUser2",
+       |    "firstName": "$dev2FirstName",
+       |    "lastName": "$dev2LastName"
+       |  },
+       |  {
+       |    "email": "$verifiedUser3",
+       |    "firstName": "$dev3FirstName",
+       |    "lastName": "$dev3LastName"
        |  }
        |]
    """.stripMargin
