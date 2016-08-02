@@ -20,6 +20,8 @@ import acceptance.WebPage
 
 object DeveloperPage extends WebPage {
 
+  val apiFilterList = Map("Any" -> "One", "None" -> "two", "Individual PAYE" -> "ipaye")
+
   override val url: String = "http://localhost:9000/api-gatekeeper/developers"
   override def isCurrentPage: Boolean = {
     currentUrl == url
@@ -27,8 +29,21 @@ object DeveloperPage extends WebPage {
 
   def emailDeveloperLink = find(linkText("Click here")).get
 
+  def APIDropdown = find(name("filter_options")).get
+
   def emailDevelopers() = {
     click on emailDeveloperLink
   }
+
+  def selectAPIDropdown() = {
+    click on APIDropdown
+  }
+
+  def selectSelfAssessmentAPI() = {
+    singleSel("filter_options").value = "selfass"
+    singleSel("filter_options").value = apiFilterList.get("Any").toString
+  }
+
+
 
 }

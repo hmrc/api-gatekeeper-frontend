@@ -39,9 +39,34 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
-                                                        s"$dev2FirstName$dev2LastName $verifiedUser2",
-                                                        s"$dev3FirstName$dev3LastName $verifiedUser3"))
+                                                        s"$dev2FirstName$dev2LastName $verifiedUser2"))
+                                                      //  s"$dev3FirstName$dev3LastName $verifiedUser3"))
+
+      DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
    }
+
+    scenario("Filter developer by Self Assessment API") {
+
+      stubApplicationListAndDevelopers
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
+                                                        s"$dev2FirstName$dev2LastName $verifiedUser2"))
+                                                       // s"$dev3FirstName$dev3LastName $verifiedUser3"))
+      DeveloperPage.selectAPIDropdown()
+      DeveloperPage.selectSelfAssessmentAPI()
+    }
+  }
+
+  feature("View Page returns x number of users"){
+
+    scenario("View 10, 50 and 100 number of developers in the Developer Page"){
+
+    }
+
   }
 
   def stubApplicationListAndDevelopers() = {
