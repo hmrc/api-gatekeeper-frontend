@@ -22,6 +22,7 @@ import acceptance.pages.{ApprovedPage, DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
+import org.openqa.selenium.By
 import org.scalatest.Matchers
 
 class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
@@ -31,8 +32,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("View details of the developer") {
 
       stubApplicationListAndDevelopers
-      //stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-       // .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
 
       signInGatekeeper
       on(DashboardPage)
@@ -43,6 +42,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
                                                       //  s"$dev3FirstName$dev3LastName $verifiedUser3"))
 
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
+
    }
 
     scenario("Filter developer by Self Assessment API") {
@@ -56,8 +56,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
                                                         s"$dev2FirstName$dev2LastName $verifiedUser2"))
                                                        // s"$dev3FirstName$dev3LastName $verifiedUser3"))
-      DeveloperPage.selectAPIDropdown()
-      DeveloperPage.selectSelfAssessmentAPI()
     }
   }
 
@@ -65,7 +63,41 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("View 10, 50 and 100 number of developers in the Developer Page"){
 
+      stubApplicationListAndDevelopers
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      // stub 100 users in the page
+
+      DeveloperPage.selectNoofRows("10")
+
+      //assert the no of users in the page and the entry status shown in the page
+      assertNumberOfDevelopersDisplayedInthePage(10)
+      DeveloperPage.selectNoofRows("50")
+      assertNumberOfDevelopersDisplayedInthePage(50)
+      DeveloperPage.selectNoofRows("100")
+      assertNumberOfDevelopersDisplayedInthePage(100)
+
     }
+  }
+
+  feature("Pagination of email list") {
+
+    info("AS A Product Owner")
+    info("I WANT any list of email recipients that is too large to fit on one page to be paginated")
+    info("SO THAT The view of recipients is displayed in an easy to read way")
+
+    scenario("Number of pages and Page in view (e.g. Page 1 of XX)"){
+
+
+    }
+
+    scenario(""){
+
+    }
+
 
   }
 
@@ -85,6 +117,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
       .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
+  }
+
+  def assertNumberOfDevelopersDisplayedInthePage(expected: Int) = {
+    webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
+  }
+
+  def assertEntriesStatusInthePage(expected: String) = {
+    webDriver.findElement(By.cssSelector("#content > .grid-layout__column.grid-layout__column--1-3.entries_status")).getText shouldBe expected
   }
 
 

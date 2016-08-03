@@ -17,10 +17,9 @@
 package acceptance.pages
 
 import acceptance.WebPage
+import acceptance.pages.DeveloperPage.APIFilter.APIFilterList
 
 object DeveloperPage extends WebPage {
-
-  val apiFilterList = Map("Any" -> "One", "None" -> "two", "Individual PAYE" -> "ipaye")
 
   override val url: String = "http://localhost:9000/api-gatekeeper/developers"
   override def isCurrentPage: Boolean = {
@@ -31,17 +30,51 @@ object DeveloperPage extends WebPage {
 
   def APIDropdown = find(name("filter_options")).get
 
+  def rowsDropdowwn = find(name("perpage")).get.toString()
+
   def emailDevelopers() = {
     click on emailDeveloperLink
   }
 
-  def selectAPIDropdown() = {
-    click on APIDropdown
+  def selectAPI (api: APIFilterList) = {
+    singleSel("filter_options").value = api.name
   }
 
-  def selectSelfAssessmentAPI() = {
-    singleSel("filter_options").value = "selfass"
-    singleSel("filter_options").value = apiFilterList.get("Any").toString
+  def selectNoofRows(noOfRows: String) = {
+    click on rowsDropdowwn
+    singleSel(rowsDropdowwn).value = noOfRows
+  }
+
+  object APIFilter  {
+
+    sealed abstract class APIFilterList(val name: String) {}
+
+    case object ANY extends APIFilterList("one")
+
+    case object NONE extends APIFilterList("two")
+
+    case object INDIVIDUALPAYE extends APIFilterList("ipaye")
+
+    case object INDIVIDUALEMPLOYMENT extends APIFilterList("iemp")
+
+    case object INDIVIDUALINCOME extends APIFilterList("iincome")
+
+    case object INDIVIDUALTAX extends APIFilterList("itax")
+
+    case object MARRIAGEALLOWANCE extends APIFilterList("marriageallowance")
+
+    case object NATIONALINSURANCE extends APIFilterList("ni")
+
+    case object PAYECHARGES extends APIFilterList("payech")
+
+    case object PAYECREDITS extends APIFilterList("payecr")
+
+    case object PAYEINTEREST extends APIFilterList("payei")
+
+    case object PAYEPAYMENTS extends APIFilterList("payep")
+
+    case object SELFASSESSMENT extends APIFilterList("selfass")
+
   }
 
 
