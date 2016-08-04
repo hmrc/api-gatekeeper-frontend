@@ -18,7 +18,8 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApprovedPage, DashboardPage, DeveloperPage}
+import acceptance.pages.DeveloperPage.APIFilter._
+import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -47,6 +48,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
                                                         s"$dev4FirstName $dev4LastName $verifiedUser4"))
 
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
+
+
 
    }
 
