@@ -16,6 +16,7 @@
 
 package acceptance
 
+import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
 import org.openqa.selenium.{HasCapabilities, WebDriver}
 
@@ -24,9 +25,11 @@ import scala.util.Try
 trait Env {
 
   val driver: WebDriver with HasCapabilities = {
-    val profile = new FirefoxProfile
-    profile.setAcceptUntrustedCertificates(true)
-    new FirefoxDriver(profile)
+
+ // val driver:WebDriver = new ChromeDriver()
+  val profile = new FirefoxProfile
+  profile.setAcceptUntrustedCertificates(true)
+   new FirefoxDriver(profile)
   }
 
   sys addShutdownHook {
