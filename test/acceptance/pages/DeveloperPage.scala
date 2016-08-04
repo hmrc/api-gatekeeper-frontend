@@ -32,6 +32,10 @@ object DeveloperPage extends WebPage {
 
   def rowsDropdowwn = find(name("perpage")).get.toString()
 
+  def previousButton = find(className("paginate_button.previous")).get  // try using linktext
+
+  def nextButton = find(className("paginate_button.next")).get  // tyr using linktext
+
   def emailDevelopers() = {
     click on emailDeveloperLink
   }
@@ -43,6 +47,14 @@ object DeveloperPage extends WebPage {
   def selectNoofRows(noOfRows: String) = {
     click on rowsDropdowwn
     singleSel(rowsDropdowwn).value = noOfRows
+  }
+
+  def showPreviousEntries() ={
+    click on previousButton
+  }
+
+  def showNextEntries() ={
+    click on nextButton
   }
 
   object APIFilter  {

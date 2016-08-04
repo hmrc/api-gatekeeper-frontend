@@ -23,13 +23,17 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.Matchers
+import org.scalatest.{Assertions, Matchers}
 
-class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with Assertions {
 
-  feature("View Developer List") {
+  info(" AS A Product Owner")
+  info("I WANT The SDST (Software Developer Support Team) to be able to select Users with an interest in a particular API")
+  info("SO THAT The SDST can create and send email communications to Selected users")
 
-    scenario("View details of the developer") {
+  feature("API Filter for Email Recipients") {
+
+    scenario("Ensure a user can view a list of Registered developers for a subscribing API") {
 
       stubApplicationListAndDevelopers
 
@@ -38,94 +42,121 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
-                                                        s"$dev2FirstName$dev2LastName $verifiedUser2"))
-                                                      //  s"$dev3FirstName$dev3LastName $verifiedUser3"))
+                                                        s"$dev2FirstName $dev2LastName $verifiedUser2",
+                                                        s"$dev3FirstName $dev3LastName $verifiedUser3",
+                                                        s"$dev4FirstName $dev4LastName $verifiedUser4"))
 
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
 
    }
 
-    scenario("Filter developer by Self Assessment API") {
+    scenario("Ensure a user can filter by an API Subscription") {
 
       stubApplicationListAndDevelopers
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
-
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
-                                                        s"$dev2FirstName$dev2LastName $verifiedUser2"))
-                                                       // s"$dev3FirstName$dev3LastName $verifiedUser3"))
+                                                        s"$dev2FirstName $dev2LastName $verifiedUser2",
+                                                        s"$dev3FirstName $dev3LastName $verifiedUser3",
+                                                        s"$dev4FirstName $dev4LastName $verifiedUser4"))
+    }
+
+    scenario("Any API") {
+
+    }
+
+    scenario("None") {
+
+    }
+
+    scenario("No results returned for a specific API") {
+
     }
   }
 
-  feature("View Page returns x number of users"){
+  info("AS A Product Owner")
+  info("I WANT any list of email recipients that is too large to fit on one page to be paginated")
+  info("SO THAT The view of recipients is displayed in an easy to read way")
 
-    scenario("View 10, 50 and 100 number of developers in the Developer Page"){
+  feature("Pagination of Email Recipients") {
 
-      stubApplicationListAndDevelopers
+    scenario("Ensure a user can view segments of 10, 50 and 100 results entries") {
+
+      stubRandomDevelopers(10)
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
-      // stub 100 users in the page
-
-      DeveloperPage.selectNoofRows("10")
-
-      //assert the no of users in the page and the entry status shown in the page
-      assertNumberOfDevelopersDisplayedInthePage(10)
-      DeveloperPage.selectNoofRows("50")
-      assertNumberOfDevelopersDisplayedInthePage(50)
-      DeveloperPage.selectNoofRows("100")
-      assertNumberOfDevelopersDisplayedInthePage(100)
-
-    }
-  }
-
-  feature("Pagination of email list") {
-
-    info("AS A Product Owner")
-    info("I WANT any list of email recipients that is too large to fit on one page to be paginated")
-    info("SO THAT The view of recipients is displayed in an easy to read way")
-
-    scenario("Number of pages and Page in view (e.g. Page 1 of XX)"){
-
-
+      DeveloperPage.selectNoofRows("one")
+      assertNumberOfDevelopersPerPage(10)
+      assertResult(getResultEntriesCount)("Showing 1 to 10 of 100 entries")
+      DeveloperPage.selectNoofRows("two")
+      assertNumberOfDevelopersPerPage(50)
+      assertResult(getResultEntriesCount)("Showing 1 to 50 of 100 entries")
+      DeveloperPage.selectNoofRows("three")
+      assertNumberOfDevelopersPerPage(100)
+      assertResult(getResultEntriesCount)("Showing 1 to 100 of 100 entries")
     }
 
-    scenario(""){
+    scenario("Ensure user can navigate to Next and Previous pages to view result entries") {
+
+      stubRandomDevelopers(30)
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      // check if the Previous button is disabled
+      assertNumberOfDevelopersPerPage(10)
+      assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
+      DeveloperPage.showNextEntries()
+      assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
+      DeveloperPage.showNextEntries()
+      assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
+      // check if the Next button is disabled
+      DeveloperPage.showPreviousEntries()
+      assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
 
     }
 
+    scenario("") {
 
+    }
   }
 
   def stubApplicationListAndDevelopers() = {
-    val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-    val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
-    val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
-
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(verifiedUsers).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-      .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
-      .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
   }
 
-  def assertNumberOfDevelopersDisplayedInthePage(expected: Int) = {
+  def stubRandomDevelopers(randomUsers: Int) = {
+    stubFor(get(urlEqualTo("/gatekeeper/applications"))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+
+    stubFor(get(urlEqualTo("/developers/all"))
+      .willReturn(aResponse().withBody(userListJsonGenerator(randomUsers).get).withStatus(200)))
+  }
+
+   private def assertNumberOfDevelopersPerPage(expected: Int) = {
     webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
   }
 
-  def assertEntriesStatusInthePage(expected: String) = {
-    webDriver.findElement(By.cssSelector("#content > .grid-layout__column.grid-layout__column--1-3.entries_status")).getText shouldBe expected
+   def getResultEntriesCount() : String = {
+    val resultEntriesText = webDriver.findElement(By.cssSelector("#content > .grid-layout__column.grid-layout__column--1-3.entries_status")).getText
+    return resultEntriesText
   }
+
+  private def assertLinkIsDisabled() = {
+    webDriver.findElement(By.linkText("previouslink")).isEnabled shouldBe false
+  }
+
+
 
 
 }

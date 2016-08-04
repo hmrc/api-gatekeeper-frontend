@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2016 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package acceptance.specs
+
+import model.User
+import org.scalacheck.Gen
+import play.api.libs.json.Json
 
 trait MockDataSugar {
   val appPendingApprovalId1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -52,11 +41,15 @@ trait MockDataSugar {
 
   val verifiedUser2 = "imran.akram@mail.com"
   val dev2FirstName = "Imran"
-  val dev2LastName = " Akram"
+  val dev2LastName = "Akram"
 
-//  val emaildev3 = "gurpreet.bhamra@mail.com"
-//  val firstName3 = "Gurpreet"
-//  val lastName3 = " Bhamra"
+  val verifiedUser3 = "gurpreet.bhamra@mail.com"
+  val dev3FirstName = "Gurpreet"
+  val dev3LastName =  "Bhamra"
+
+  val verifiedUser4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
+  val dev4FirstName = "HannahHmrcSdstusercollaboratir"
+  val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
 
   val applicationsPendingApproval =
@@ -184,20 +177,20 @@ trait MockDataSugar {
 
     val state = if (verified) {
       s"""
-        |    "state": {
-        |      "name": "PRODUCTION",
-        |      "requestedByEmailAddress": "$adminEmail",
-        |      "updatedOn": 1459868573962
-        |    }
+         |    "state": {
+         |      "name": "PRODUCTION",
+         |      "requestedByEmailAddress": "$adminEmail",
+         |      "updatedOn": 1459868573962
+         |    }
       """.stripMargin
     } else {
       s"""
-        |    "state": {
-        |      "name": "PENDING_REQUESTER_VERIFICATION",
-        |      "requestedByEmailAddress": "$adminEmail",
-        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-        |      "updatedOn": 1459868573962
-        |    }
+         |    "state": {
+         |      "name": "PENDING_REQUESTER_VERIFICATION",
+         |      "requestedByEmailAddress": "$adminEmail",
+         |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+         |      "updatedOn": 1459868573962
+         |    }
       """.stripMargin
     }
 
@@ -263,9 +256,35 @@ trait MockDataSugar {
        |    "email": "$verifiedUser2",
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName"
-       |  }
+       |  },
+       |    {
+       |    "email": "$verifiedUser3",
+       |    "firstName": "$dev3FirstName",
+       |    "lastName": "$dev3LastName"
+       |  },
+       |  {
+       |    "email": "$verifiedUser4",
+       |    "firstName": "$dev4FirstName",
+       |    "lastName": "$dev4LastName"
+       |   }
        |]
    """.stripMargin
+
+  val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
+
+  private val UserGenerator: Gen[User] = for {
+    forename <- StringGenerator(5)
+    surname <- StringGenerator(5)
+    email =  forename + "." + surname +"@example.com"
+  } yield User(email, forename, surname)
+
+
+  private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, UserGenerator)
+
+  def userListJsonGenerator(number:Int): Option[String] = userListGenerator(number)
+    .sample
+    .map(userList => Json.toJson(userList))
+    .map(Json.stringify)
 
   def administrator(email: String = adminEmail, firstName: String = firstName, lastName: String = lastName) =
     s"""

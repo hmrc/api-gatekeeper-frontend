@@ -40,7 +40,8 @@ private object AppDependencies {
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
       "uk.gov.hmrc" %% "hmrctest" % "1.4.0" % scope,
       "com.github.tomakehurst" % "wiremock" % "1.57" % scope,
-      "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % scope
+      "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % scope,
+      "org.scalacheck" %% "scalacheck" % "1.12.5" % scope
     )
   }
 
