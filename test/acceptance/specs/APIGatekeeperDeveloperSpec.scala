@@ -16,9 +16,6 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
-import acceptance.pages.DeveloperPage.APIFilter._
 import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -155,7 +152,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     return resultEntriesText
   }
 
-  private def assertLinkIsDisabled() = {
+  private def assertLinkIsDisabled(linkText: String) = {
     webDriver.findElement(By.linkText("previouslink")).isEnabled shouldBe false
   }
 
