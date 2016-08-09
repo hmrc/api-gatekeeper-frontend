@@ -46,7 +46,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
 
-
+      assertNumberOfDevelopersPerPage(4)
 
    }
 
@@ -65,13 +65,31 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Any API") {
 
+      stubApplicationListAndDevelopers
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
     }
 
     scenario("None") {
 
+      stubApplicationListAndDevelopers
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
     }
 
     scenario("No results returned for a specific API") {
+
+      stubApplicationListAndDevelopers
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
 
     }
   }
@@ -82,9 +100,21 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   feature("Pagination of Email Recipients") {
 
+    scenario("Ensure that the page displays 10 developers by default") {
+
+      stubRandomDevelopers(11)
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      assertNumberOfDevelopersPerPage(10)
+
+    }
+
     scenario("Ensure a user can view segments of 10, 50 and 100 results entries") {
 
-      stubRandomDevelopers(10)
+      stubRandomDevelopers(10)   //need to stub more than 100 devs
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
@@ -110,13 +140,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       // check if the Previous button is disabled
-      assertNumberOfDevelopersPerPage(10)
+      assertLinkIsDisabled("Previous")
+      assertNumberOfDevelopersPerPage(30)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
       DeveloperPage.showNextEntries()
       assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
       DeveloperPage.showNextEntries()
       assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
       // check if the Next button is disabled
+      assertLinkIsDisabled("Next")
       DeveloperPage.showPreviousEntries()
       assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
 
@@ -153,10 +185,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   private def assertLinkIsDisabled(linkText: String) = {
-    webDriver.findElement(By.linkText("previouslink")).isEnabled shouldBe false
+    webDriver.findElement(By.linkText(s"[$linkText]")).isEnabled shouldBe false
   }
-
-
 
 
 }
