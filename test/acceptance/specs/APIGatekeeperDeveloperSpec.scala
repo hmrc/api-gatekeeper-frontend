@@ -39,12 +39,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
+      DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
                                                         s"$dev2FirstName $dev2LastName $verifiedUser2",
                                                         s"$dev3FirstName $dev3LastName $verifiedUser3",
                                                         s"$dev4FirstName $dev4LastName $verifiedUser4"))
-
-      DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
       assertNumberOfDevelopersPerPage(4)
 
    }
