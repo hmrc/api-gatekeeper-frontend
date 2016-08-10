@@ -6,6 +6,7 @@ target
 lib_managed
 tmp
 .history
+.gi
 dist
 /.idea
 /*.iml
