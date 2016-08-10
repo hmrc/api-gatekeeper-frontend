@@ -248,22 +248,28 @@ trait MockDataSugar {
        |  {
        |    "email": "$verifiedUser1",
        |    "firstName": "$devFirstName",
-       |    "lastName": "$devLastName"
+       |    "lastName": "$devLastName",
+       |    "verified": true
        |  },
        |  {
        |    "email": "$verifiedUser2",
        |    "firstName": "$dev2FirstName",
-       |    "lastName": "$dev2LastName"
+       |    "lastName": "$dev2LastName",
+       |    "verified": false
        |  },
        |    {
        |    "email": "$verifiedUser3",
        |    "firstName": "$dev3FirstName",
-       |    "lastName": "$dev3LastName"
+       |    "lastName": "$dev3LastName",
+       |    "verified": false
+       |
        |  },
        |  {
        |    "email": "$verifiedUser4",
        |    "firstName": "$dev4FirstName",
-       |    "lastName": "$dev4LastName"
+       |    "lastName": "$dev4LastName",
+       |    "verified": true
+       |
        |   }
        |]
    """.stripMargin
