@@ -33,37 +33,40 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure a user can view a list of Registered developers for a subscribing API") {
 
-      stubApplicationListAndDevelopers
+      stubApplicationList
+
+      stubFor(get(urlEqualTo("/developers/all"))
+        .willReturn(aResponse().withBody(developerList).withStatus(200)))
 
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
-      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
-                                                        s"$dev2FirstName $dev2LastName $verifiedUser2",
-                                                        s"$dev3FirstName $dev3LastName $verifiedUser3",
-                                                        s"$dev4FirstName $dev4LastName $verifiedUser4"))
+      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer",
+                                                        s"$dev2FirstName $dev2LastName $developer2",
+                                                        s"$dev3FirstName $dev3LastName $developer3",
+                                                        s"$dev4FirstName $dev4LastName $developer4"))
       assertNumberOfDevelopersPerPage(4)
 
    }
 
     scenario("Ensure a user can filter by an API Subscription") {
 
-      stubApplicationListAndDevelopers
+      stubApplicationList
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
-      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $verifiedUser1",
-                                                        s"$dev2FirstName $dev2LastName $verifiedUser2",
-                                                        s"$dev3FirstName $dev3LastName $verifiedUser3",
-                                                        s"$dev4FirstName $dev4LastName $verifiedUser4"))
+      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer",
+                                                        s"$dev2FirstName $dev2LastName $developer2",
+                                                        s"$dev3FirstName $dev3LastName $developer3",
+                                                        s"$dev4FirstName $dev4LastName $developer4"))
     }
 
     scenario("Any API") {
 
-      stubApplicationListAndDevelopers
+      stubApplicationList
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
@@ -73,7 +76,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("None") {
 
-      stubApplicationListAndDevelopers
+      stubApplicationList
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
@@ -83,7 +86,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("No results returned for a specific API") {
 
-      stubApplicationListAndDevelopers
+      stubApplicationList
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
@@ -158,20 +161,17 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
   }
 
-  def stubApplicationListAndDevelopers() = {
+  def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(verifiedUsers).withStatus(200)))
   }
 
-  def stubRandomDevelopers(randomUsers: Int) = {
+  def stubRandomDevelopers(randomDevelopers: Int) = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(userListJsonGenerator(randomUsers).get).withStatus(200)))
+      .willReturn(aResponse().withBody(developerListJsonGenerator(randomDevelopers).get).withStatus(200)))
   }
 
    private def assertNumberOfDevelopersPerPage(expected: Int) = {

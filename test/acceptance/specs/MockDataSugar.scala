@@ -35,19 +35,19 @@ trait MockDataSugar {
   val lastName = "Test"
   val fullName = s"$firstName $lastName"
 
-  val verifiedUser1 = "purnima.shanti@mail.com"
+  val developer = "purnima.shanti@mail.com"
   val devFirstName = "Purnima"
   val devLastName = "Shanti"
 
-  val verifiedUser2 = "imran.akram@mail.com"
+  val developer2 = "imran.akram@mail.com"
   val dev2FirstName = "Imran"
   val dev2LastName = "Akram"
 
-  val verifiedUser3 = "gurpreet.bhamra@mail.com"
+  val developer3 = "gurpreet.bhamra@mail.com"
   val dev3FirstName = "Gurpreet"
   val dev3LastName =  "Bhamra"
 
-  val verifiedUser4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
+  val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
@@ -242,30 +242,30 @@ trait MockDataSugar {
     """.stripMargin
   }
 
-  val verifiedUsers =
+  val developerList =
     s"""
        |[
        |  {
-       |    "email": "$verifiedUser1",
+       |    "email": "$developer",
        |    "firstName": "$devFirstName",
        |    "lastName": "$devLastName",
        |    "verified": true
        |  },
        |  {
-       |    "email": "$verifiedUser2",
+       |    "email": "$developer2",
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
        |    "verified": false
        |  },
        |    {
-       |    "email": "$verifiedUser3",
+       |    "email": "$developer3",
        |    "firstName": "$dev3FirstName",
        |    "lastName": "$dev3LastName",
        |    "verified": false
        |
        |  },
        |  {
-       |    "email": "$verifiedUser4",
+       |    "email": "$developer4",
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": true
@@ -276,16 +276,16 @@ trait MockDataSugar {
 
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
-  private val UserGenerator: Gen[User] = for {
+  private val DeveloperGenerator: Gen[User] = for {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
     email =  forename + "." + surname +"@example.com"
   } yield User(email, forename, surname)
 
 
-  private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, UserGenerator)
+  private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 
-  def userListJsonGenerator(number:Int): Option[String] = userListGenerator(number)
+  def developerListJsonGenerator(number:Int): Option[String] = userListGenerator(number)
     .sample
     .map(userList => Json.toJson(userList))
     .map(Json.stringify)
