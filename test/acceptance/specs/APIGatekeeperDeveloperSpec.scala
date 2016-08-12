@@ -21,17 +21,19 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.{Assertions, Matchers}
+import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 
-class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with Assertions {
+class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
-  info(" AS A Product Owner")
+  info("AS A Product Owner")
   info("I WANT The SDST (Software Developer Support Team) to be able to select Users with an interest in a particular API")
   info("SO THAT The SDST can create and send email communications to Selected users")
 
   feature("API Filter for Email Recipients") {
 
     scenario("Ensure a user can view a list of Registered developers for a subscribing API") {
+
+      Given("I have successfully logged in to the API gatekeeper")
 
       stubApplicationList
 
@@ -40,7 +42,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       signInGatekeeper
       on(DashboardPage)
+
+      When("I select the developer list link on the Dashboard page")
       DashboardPage.selectDeveloperList
+
+      Then("I am successfully navigated to the Developer Page where I can view the developer list details")
       on(DeveloperPage)
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer",
@@ -104,12 +110,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure that the page displays 10 developers by default") {
 
+      Given("I have successfull logged in to the API Gatekeeper")
       stubRandomDevelopers(11)
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.selectDeveloperList
-      on(DeveloperPage)
 
+      When("I select the developer list link on the Dashboard page")
+      DashboardPage.selectDeveloperList
+
+      Then("I can view the default number of developers per page")
+      on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
 
     }
