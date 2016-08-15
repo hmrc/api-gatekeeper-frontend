@@ -110,7 +110,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure that the page displays 10 developers by default") {
 
-      Given("I have successfull logged in to the API Gatekeeper")
+      Given("I have successfully logged in to the API Gatekeeper")
       stubRandomDevelopers(11)
       signInGatekeeper
       on(DashboardPage)
@@ -126,19 +126,31 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure a user can view segments of 10, 50 and 100 results entries") {
 
+      Given("I have successfully logged in to the API gatekeeper and I am on the Dashboard Page")
       stubRandomDevelopers(10)   //need to stub more than 100 devs
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
+      When("I select select a to view 10 result entries")
       DeveloperPage.selectNoofRows("one")
+
+      Then("Then 10 developers are successfully displayed on the page")
       assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 100 entries")
+
+      When("I select select a to view 50 result entries")
       DeveloperPage.selectNoofRows("two")
+
+      Then("50 developers are successfully displayed on the page")
       assertNumberOfDevelopersPerPage(50)
       assertResult(getResultEntriesCount)("Showing 1 to 50 of 100 entries")
+
+      When("I select select a to view 50 result entries")
       DeveloperPage.selectNoofRows("three")
+
+      Then("100 developers are successfully displayed on the page")
       assertNumberOfDevelopersPerPage(100)
       assertResult(getResultEntriesCount)("Showing 1 to 100 of 100 entries")
     }
