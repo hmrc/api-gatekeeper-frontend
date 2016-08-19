@@ -133,21 +133,21 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
-      When("I select select a to view 10 result entries")
+      When("I select to view 10 result entries")
       DeveloperPage.selectNoofRows("one")
 
-      Then("Then 10 developers are successfully displayed on the page")
+      Then("10 developers are successfully displayed on the page")
       assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 100 entries")
 
-      When("I select select a to view 50 result entries")
+      When("I select to view 50 result entries")
       DeveloperPage.selectNoofRows("two")
 
       Then("50 developers are successfully displayed on the page")
       assertNumberOfDevelopersPerPage(50)
       assertResult(getResultEntriesCount)("Showing 1 to 50 of 100 entries")
 
-      When("I select select a to view 50 result entries")
+      When("I select to view 50 result entries")
       DeveloperPage.selectNoofRows("three")
 
       Then("100 developers are successfully displayed on the page")
@@ -157,6 +157,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure user can navigate to Next and Previous pages to view result entries") {
 
+      Given("I have successfully logged in to the API gatekeeper and I am on the Dashboard Page")
       stubRandomDevelopers(30)
       signInGatekeeper
       on(DashboardPage)
@@ -164,6 +165,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       // check if the Previous button is disabled
+
       assertLinkIsDisabled("Previous")
       assertNumberOfDevelopersPerPage(30)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
