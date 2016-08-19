@@ -1,10 +1,9 @@
-@import model.ApprovedApplication
-@import org.joda.time.format.DateTimeFormat
-@(developers: Seq[model.User], emails: String)(implicit request: Request[_], userFullName: Option[String])
+@import include._
+@(users: model.PageableCollection[model.User], emails: String, apis: Seq[model.APIDefinition], filter: Option[String])(implicit request: Request[_], userFullName: Option[String])
 
-@main(title = "API Gatekeeper Dashboard",userFullName = userFullName ) {
+@main(title = "API Gatekeeper Developer List",userFullName = userFullName) {
 
-<div class="content__body">
+<article class="content__body full-width">
     <nav class="breadcrumb-nav">
         <ul>
             <li class="breadcrumb-nav__item"><a href="dashboard">Dashboard</a></li>
@@ -17,24 +16,100 @@
         <h1 class="flush--top">Developers</h1>
     </header>
 
-    <a href="mailto:?bcc=@emails">Click here</a> to open your external email client and create a new email with all emails as bcc.
+    <form action="developers" method="post">
+        <div class="grid-layout" style="margin-left:0">
+            <div class="grid-layout__column--2-3">
+                <div class="form-group">
+                    <label class="form-label bold" for="filter">Filter by API Subscription
+                        <select class="form-control" id="filter" name="filter"
+                                value="@filter" onchange="this.form.submit()"
+                                style="margin:0">
+                            <option value="">ALL</option>
+                            @for(api <- apis.sortBy(a => a.name.toLowerCase)) {
+                                @defining(filter match {
+                                    case Some(f) if f == api.context => "selected"
+                                    case _ => ""
+                                }) { selected => <option @selected value="@api.context">@api.name</option> }
+                            }
+                        </select>
+                    </label>
+                </div>
+            </div>
 
-    <table>
-        <caption class="visuallyhidden">Table showing all developers</caption>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-        </thead>
-        <tbody>
-        @for(developer <- developers) {
-        <tr data-admin-@developer.email>
-            <td>@developer.fullName</td>
-            <td>@developer.email</td>
-        </tr>
-        }
-        </tbody>
-    </table>
-</div>
+            <div class="grid-layout__column--1-3">
+                <div class="form-group">
+                    <label class="form-label bold" for="pageSize">Show Rows
+                        <select class="form-control input--small" id="pageSize" name="pageSize"
+                                value="@users.pageSize" onchange="this.form.submit()"
+                                style="margin:0">
+                            @for(n <- List(10,20,100)) {
+                                <option value="@n" @if(users.pageSize == n){selected}>@n</option>
+                            }
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <caption class="visuallyhidden">Table showing all developers</caption>
+            <thead>
+                <tr role="row">
+                    <th tabindex="0">Name</th>
+                    <th tabindex="0">Email</th>
+                    <th tabindex="0" class="text--right hard--right" data-orderable="false" data-search="false">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(developer <- users.projection) {
+                <tr role="row">
+                    <td>@developer.fullName</td>
+                    <td>@developer.email</td>
+                    <td class="text--right hard--right">
+                        @defining(developer.verified match {
+                            case true => ("flag flag--soon", "Verified")
+                            case false => ("flag flag--urgent", "Unverified")
+                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</td> }
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <div class="grid-layout" style="margin-left:0">
+            <div class="grid-layout__column--1-3 text--left">
+                @paginateButton("Previous", "page-nav__link page-nav__link--prev", users, filter, -1)
+            </div>
+
+            <div class="grid-layout__column--1-3 text--center">
+                @entry(users)
+            </div>
+
+            <div class="grid-layout__column--1-3 text--right">
+                @paginateButton("Next", "page-nav__link page-nav__link--next", users, filter, 1)
+            </div>
+        </div>
+
+        <input type="hidden" name="pageNumber" value="@users.pageNumber"/>
+
+        @helper.CSRF.formField
+    </form>
+
+    @if(users.length > 0) {
+    <div class="form-group>">
+        <p><a class="button" href="mailto:?bcc=@emails">Email @{users.length} developers</a></p>
+    </div>
+    }
+    <div class="form-group>">
+        <a class="back-to-top-link" href="#">Back to Top</a>
+    </div>
+</article>
+}
+
+@paginateButton(text: String, cssClass: String, content: model.PageableCollection[_], filter: Option[String], direction: Int) = {
+    @if(direction < 0 && content.hasPrevious || direction > 0 && content.hasNext) {
+        <a class="@cssClass"
+           rel="@if(direction < 0) {prev} else {next}"
+           href="@routes.DevelopersController.developersPage(filter, content.pageNumber + direction, content.pageSize)">
+            <span class="page-nav-title">@text</span></a>
+    }
 }

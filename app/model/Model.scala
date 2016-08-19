@@ -95,16 +95,18 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
-                               state: ApplicationState) {
+                               state: ApplicationState,
+                               subscriptions: Seq[APIIdentifier]) {
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 }
 
 object ApplicationResponse {
-  implicit val format1 = Json.format[Collaborator]
-  implicit val format2 = Json.format[ApplicationState]
-  implicit val format3 = EnumJson.enumFormat(State)
-  implicit val format4 = Json.format[ApplicationResponse]
+  implicit val format1 = Json.format[APIIdentifier]
+  implicit val format2 = Json.format[Collaborator]
+  implicit val format3 = Json.format[ApplicationState]
+  implicit val format4 = EnumJson.enumFormat(State)
+  implicit val format5 = Json.format[ApplicationResponse]
 
 }
 
@@ -116,7 +118,7 @@ object ApplicationWithHistory {
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
 
-case class User(email: String, firstName: String, lastName: String) {
+case class User(email: String, firstName: String, lastName: String, verified: Boolean) {
   def fullName = s"$firstName $lastName"
 }
 
@@ -182,3 +184,9 @@ case class ApprovedApplication(details: ApplicationDetails, admins: Seq[User], a
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
+
+case class DeveloperFilter(filter: String, pageNumber: Int, pageSize: Int)
+
+object DeveloperFilter {
+  implicit val jsonFormat = Json.format[DeveloperFilter]
+}

@@ -44,4 +44,11 @@ package object Forms {
       "password" -> nonEmptyText
     )(LoginDetails.make)(LoginDetails.unmake))
 
+
+  val developerFilterForm: Form[DeveloperFilter] = Form(
+    mapping(
+      "filter" -> text(maxLength = 70),
+      "pageNumber" -> number(),
+      "pageSize" -> number()
+    )(DeveloperFilter.apply)(DeveloperFilter.unapply))
 }

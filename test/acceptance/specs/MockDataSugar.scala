@@ -132,7 +132,8 @@ trait MockDataSugar {
        |      "requestedByEmailAddress": "$adminEmail",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
-       |    }
+       |    },
+       |    "subscriptions": []
        |  },
        |  "history": [
        |      {
@@ -215,6 +216,7 @@ trait MockDataSugar {
        |    ],
        |    "createdOn": 1459866628433,
        |    "redirectUris": [],
+       |    "subscriptions": [],
        |    $state
        |  },
        |  "history": [
@@ -297,7 +299,8 @@ trait MockDataSugar {
        |"firstName": "$firstName",
        |"lastName": "$lastName",
        |"registrationTime": 1458300873012,
-       |"lastModified": 1458300877382
+       |"lastModified": 1458300877382,
+       |"verified": true
        |}
      """.stripMargin
 }

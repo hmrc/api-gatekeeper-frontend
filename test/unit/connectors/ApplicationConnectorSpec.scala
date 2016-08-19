@@ -95,12 +95,12 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     }
   }
 
-  "fetchApplications" should {
+  "fetchApplicationsWithUpliftRequest" should {
     "retrieve all applications pending uplift approval" in new Setup {
       stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(200)
         .withBody("[]")))
 
-      val result = await(connector.fetchApplications())
+      val result = await(connector.fetchApplicationsWithUpliftRequest())
 
       verify(1, getRequestedFor(urlPathEqualTo("/gatekeeper/applications"))
         .withHeader("Authorization", equalTo(authToken)))
@@ -109,9 +109,51 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     "propagate FetchApplicationsFailed exception" in new Setup {
       stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApplicationsFailed](await(connector.fetchApplications()))
+      intercept[FetchApplicationsFailed](await(connector.fetchApplicationsWithUpliftRequest()))
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/gatekeeper/applications"))
+        .withHeader("Authorization", equalTo(authToken)))
+    }
+  }
+
+  "fetchAllApplicationsBySubscription" should {
+    "retrieve all applications subscribed to a specific API" in new Setup {
+      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(200)
+        .withBody("[]")))
+
+      val result = await(connector.fetchAllApplicationsBySubscription("some-context"))
+
+      verify(1, getRequestedFor(urlPathEqualTo("/application?subscribesTo=some-context"))
+        .withHeader("Authorization", equalTo(authToken)))
+    }
+
+    "propagate fetchAllApplicationsBySubscription exception" in new Setup {
+      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(500)))
+
+      intercept[FetchApplicationsFailed](await(connector.fetchAllApplicationsBySubscription("some-context")))
+
+      verify(1, getRequestedFor(urlPathEqualTo(s"/application?subscribesTo="))
+        .withHeader("Authorization", equalTo(authToken)))
+    }
+  }
+
+  "fetchAllApplications" should {
+    "retrieve all applications" in new Setup {
+      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withStatus(200)
+        .withBody("[]")))
+
+      val result = await(connector.fetchAllApplications())
+
+      verify(1, getRequestedFor(urlPathEqualTo("/application"))
+        .withHeader("Authorization", equalTo(authToken)))
+    }
+
+    "propagate fetchAllApplications exception" in new Setup {
+      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withStatus(500)))
+
+      intercept[FetchApplicationsFailed](await(connector.fetchAllApplications()))
+
+      verify(1, getRequestedFor(urlPathEqualTo(s"/application"))
         .withHeader("Authorization", equalTo(authToken)))
     }
   }

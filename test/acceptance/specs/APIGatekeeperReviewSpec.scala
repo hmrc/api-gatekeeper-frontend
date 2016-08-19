@@ -118,7 +118,7 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       clickOnLink(s"data-review-$appPendingApprovalId1")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("reject-app")
-      verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/name-guidelines")
+      verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
       clickOnSubmit()
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       verifyText("data-global-error","This field is required")

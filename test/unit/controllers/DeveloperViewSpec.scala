@@ -23,11 +23,13 @@ import play.api.test.FakeRequest
 class DeveloperViewSpec extends PlaySpec {
 
   "developersView" must {
-    val users = Seq(User("sample@email.com", "Sample", "Email"), User("another@email.com", "Sample2", "Email"))
+    val users = Seq(
+      User("sample@email.com", "Sample", "Email", false),
+      User("another@email.com", "Sample2", "Email", true))
 
     "list all developers" in new App {
       implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(users, "", FakeRequest(), None)
+      val result = views.html.developers.developers.render(PageableCollection(users, 1, 10), "", Nil, None, FakeRequest(), None)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

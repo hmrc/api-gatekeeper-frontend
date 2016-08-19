@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 object DashboardController extends DashboardController {
   override val applicationConnector = ApplicationConnector
-  override val developerConnector: DeveloperConnector = DeveloperConnector
+  override val developerConnector = DeveloperConnector
 
   override def authProvider = GatekeeperAuthProvider
 
@@ -61,7 +61,7 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
       }
 
       for {
-        apps <- applicationConnector.fetchApplications()
+        apps <- applicationConnector.fetchApplicationsWithUpliftRequest()
         mappedApps = applicationsForDashboard(apps)
       } yield Ok(dashboard(mappedApps))
   }

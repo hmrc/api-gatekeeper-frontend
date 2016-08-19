@@ -7,9 +7,11 @@ GET         /logout                                controllers.AccountController
 
 GET         /dashboard                             controllers.DashboardController.dashboardPage
 GET         /review                                controllers.DashboardController.reviewPage(id: String)
+
 GET         /approved                              controllers.DashboardController.approvedApplicationPage(id: String)
 
-GET         /developers                            controllers.DevelopersController.developersPage
+GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String] ?= None, pageNumber: Int ?= 1, pageSize: Int ?= 10)
+POST        /developers                            controllers.DevelopersController.submitDeveloperFilter
 
 ->          /template                              template.Routes
 

@@ -16,13 +16,15 @@
 
 package unit.controllers
 
+import java.util.UUID
+
 import connectors.AuthConnector.InvalidCredentials
-import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
+import connectors.{ApiDefinitionConnector, ApplicationConnector, AuthConnector, DeveloperConnector}
 import controllers.DevelopersController
+import services.DeveloperService
 import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
 import model._
 import org.joda.time.DateTime
-import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
@@ -37,16 +39,21 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class DeveloperControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   Helpers.running(fakeApplication) {
 
     trait Setup {
+      val testDeveloperService = new DeveloperService {
+        val applicationConnector = mock[ApplicationConnector]
+        val developerConnector = mock[DeveloperConnector]
+        val apiDefinitionConnector = mock[ApiDefinitionConnector]
+      }
       val underTest = new DevelopersController {
         val authConnector = mock[AuthConnector]
         val authProvider = mock[AuthenticationProvider]
-        val applicationConnector = mock[ApplicationConnector]
-        val developerConnector = mock[DeveloperConnector]
+        val apiDefinitionConnector = mock[ApiDefinitionConnector]
+        val developerService = testDeveloperService
       }
 
       implicit val encryptedStringFormats = JsonStringEncryption
@@ -60,6 +67,7 @@ class DeveloperControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
       val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       val aLoggedOutRequest = FakeRequest().withSession(csrfToken)
 
+      val userName = "userName"
     }
 
     "developersPage" should {
@@ -68,7 +76,7 @@ class DeveloperControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
 
-        val result = await(underTest.developersPage()(aLoggedOutRequest))
+        val result = await(underTest.developersPage(None, 1, 10)(aLoggedOutRequest))
 
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
@@ -80,13 +88,17 @@ class DeveloperControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-        given(underTest.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[User]))
+        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[User]))
+        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationResponse]))
+        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-        val result = await(underTest.developersPage()(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 200
         bodyOf(result) should include("Dashboard")
       }
+
 
       "go to unauthorised page if user is not authorised" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
@@ -95,35 +107,42 @@ class DeveloperControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
 
-        val result = await(underTest.developersPage()(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
       }
 
-    }
 
-    "developersPage" should {
-      val applicationId = "applicationId"
-      val userName = "userName"
-
-      "call developer api and list all developers" in new Setup {
+      "list all developers when filtering off" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
+        val successfulAuthentication = SuccessfulAuthentication(
+          BearerToken("bearer-token", DateTime.now().plusMinutes(10)),
+          userName, None)
 
-        val users = Seq(User("sample@email.com", "Sample", "Email"), User("another@email.com", "Sample2", "Email"))
+        val users = Seq(
+          User("sample@email.com", "Sample", "Email", false),
+          User("another@email.com", "Sample2", "Email", true),
+          User("someone@email.com", "Sample3", "Email", true))
+
+
+        val collaborators = Set(
+          Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
+          Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(),
+          "application", None, collaborators, DateTime.now(), ApplicationState(), Nil))
 
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-        given(underTest.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
+        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
+        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(applications))
+        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-
-        val result = await(underTest.developersPage()(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 200
-        users.foreach(user => bodyOf(result) should include(user.email))
+        collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
     }
 

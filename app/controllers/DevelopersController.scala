@@ -16,29 +16,58 @@
 
 package controllers
 
-import connectors.{AuthConnector, DeveloperConnector}
+import connectors.{ApiDefinitionConnector, ApplicationConnector, AuthConnector, DeveloperConnector}
+import services.DeveloperService
 import model._
-import play.api.mvc.{Action, AnyContent}
+import model.Forms._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.developers
+import services.DeveloperService
+
+import scala.concurrent.Future
 
 object DevelopersController extends DevelopersController {
-  override val developerConnector: DeveloperConnector = DeveloperConnector
+  override val developerService: DeveloperService = DeveloperService
+  override val apiDefinitionConnector: ApiDefinitionConnector = ApiDefinitionConnector
   override def authConnector = AuthConnector
   override def authProvider = GatekeeperAuthProvider
 }
 
+
 trait DevelopersController extends FrontendController with GatekeeperAuthWrapper {
 
-  val developerConnector: DeveloperConnector
+  val developerService: DeveloperService
+  val apiDefinitionConnector: ApiDefinitionConnector
 
-  def developersPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      for {
-        devs: Seq[User] <- developerConnector.fetchAll
-        emails: String = devs.map(dev => dev.email).mkString(",")
-      } yield Ok(developers(devs, emails))
+  private def redirect(filter: Option[String], pageNumber: Int, pageSize: Int) = {
+    val pageParams = Map(
+      "pageNumber" -> Seq(pageNumber.toString),
+      "pageSize" -> Seq(pageSize.toString)
+    )
+
+    val queryParams = filter.fold(pageParams) { flt: String => Map("filter" -> Seq(flt)) }
+    Redirect("", queryParams, 303)
   }
 
+  def developersPage(filter: Option[String], pageNumber: Int, pageSize: Int) = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+      for {
+        apps <- developerService.filteredApps(filter)
+        devs <- developerService.fetchDevelopers
+        apis <- apiDefinitionConnector.fetchAll
+        users = developerService.getApplicationUsers(devs, apps)
+        emails = developerService.emailList(users)
+        page = PageableCollection(users, pageNumber, pageSize)
+      } yield {
+        if (page.valid) Ok(developers(page, emails, apis, filter))
+        else redirect(filter, 1, pageSize)
+      }
+  }
+
+  def submitDeveloperFilter = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+      val form = developerFilterForm.bindFromRequest.get
+      Future.successful(redirect(Option(form.filter), form.pageNumber, form.pageSize))
+    }
 }
