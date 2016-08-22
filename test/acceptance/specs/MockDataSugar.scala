@@ -158,6 +158,71 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
+  val applicationTest =
+    s"""
+       |{
+       |  "application": {
+       |    "id": "$appPendingApprovalId1",
+       |    "name": "First Application",
+       |    "description": "$applicationDescription",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1459866628433,
+       |    "redirectUris": [],
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$developer",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+       |}
+    """.stripMargin
+
+  val applicationResponse =
+    s"""
+       |  {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Purnima Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": "PRODUCTION"
+       |    "subscriptions": []
+       |  }
+    """.stripMargin
+
+
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {
       s""",
@@ -282,7 +347,7 @@ trait MockDataSugar {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
     email =  forename + "." + surname +"@example.com"
-  } yield User(email, forename, surname)
+  } yield User(email, forename, surname,true)
 
 
   private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
