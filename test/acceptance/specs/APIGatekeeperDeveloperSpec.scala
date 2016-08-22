@@ -20,6 +20,7 @@ import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
+import model.APIDefinition
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 
@@ -35,20 +36,22 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Given("I have successfully logged in to the API gatekeeper")
 
-      stubApplicationList
+      //stubApplicationList
+
+      stubRandomDevelopers(20)
 
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerList).withStatus(200)))
+        .willReturn(aResponse().withBody(randomApps()).withStatus(200)))
 
       signInGatekeeper
       on(DashboardPage)
 
       When("I select the developer list link on the Dashboard page")
-      Thread.sleep(10000)
       DashboardPage.selectDeveloperList
 
       Then("I am successfully navigated to the Developer Page where I can view the developer list details")
       on(DeveloperPage)
+      Thread.sleep(20000)
       DeveloperPage.bodyText should include("to open your external email client and create a new email with all emails as bcc.")
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer",
                                                         s"$dev2FirstName $dev2LastName $developer2",
@@ -199,41 +202,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
+    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+      .withBody(applicationResponse).withStatus(200)))
+
     stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse()
       .withBody(applicationResponse).withStatus(200)))
 
-    stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-      """
-        |[
-        | {
-        |   "serviceName": "dummyAPI",
-        |   "serviceBaseUrl": "http://dummy-api.service/",
-        |   "name": "dummyAPI",
-        |   "description": "dummy api.",
-        |   "context": "dummy-api",
-        |   "versions": [
-        |     {
-        |       "version": "1.0",
-        |       "status": "PUBLISHED",
-        |       "access": {
-        |         "type": "PUBLIC"
-        |       },
-        |       "endpoints": [
-        |         {
-        |           "uriPattern": "/arrgh",
-        |           "endpointName": "dummyAPI",
-        |           "method": "GET",
-        |           "authType": "USER",
-        |           "throttlingTier": "UNLIMITED",
-        |           "scope": "read:dummy-api-2"
-        |         }
-        |       ]
-        |     }
-        |   ],
-        |   "requiresTrust": false
-        | }
-        |]
-      """.stripMargin)))
+
+    stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
 
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(developerListJsonGenerator(randomDevelopers).get).withStatus(200)))
