@@ -22,5 +22,5 @@ test/.DS_Store
 /RUNNING_PID
 /.settings
 *.iws
-
+*.DS_Store
     
