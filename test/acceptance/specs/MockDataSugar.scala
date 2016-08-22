@@ -51,7 +51,6 @@ trait MockDataSugar {
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
-
   val applicationsPendingApproval =
     s"""
        |[
@@ -158,68 +157,89 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
-  val applicationTest =
+  val applicationResponse =
     s"""
-       |{
-       |  "application": {
-       |    "id": "$appPendingApprovalId1",
-       |    "name": "First Application",
-       |    "description": "$applicationDescription",
-       |    "collaborators": [
-       |      {
-       |        "emailAddress": "$developer",
-       |        "role": "ADMINISTRATOR"
-       |      }
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer"
+       |     "role": "ADMINISTRATOR"
+       |    }
        |    ],
-       |    "createdOn": 1459866628433,
-       |    "redirectUris": [],
+       |    "createdOn": 1458832690624,
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": []
-       |  },
-       |  "history": [
-       |      {
-       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
-       |      "state": "PENDING_GATEKEEPER_APPROVAL",
-       |      "actor": {
-       |        "id": "$developer",
-       |        "actorType": "COLLABORATOR"
-       |      },
-       |      "changedAt": 1458659208000
-       |    },
+       |    "subscriptions": [
        |    {
-       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
-       |      "state": "PENDING_REQUESTER_VERIFICATION",
-       |      "actor": {
-       |        "id": "gatekeeper.username",
-       |        "actorType": "GATEKEEPER"
-       |      },
-       |      "changedAt": 1459868522961
-       |    }
-       |  ]
-       |}
-    """.stripMargin
-
-  val applicationResponse =
-    s"""
-       |  {
+       |     "context": "any-api",
+       |     "version": "1.0"
+       |     }
+       |     ]
+       |  },
+       |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Purnima Application",
+       |    "name": "Imrans Application",
        |    "description": "application for test",
        |   "collaborators": [
        |    {
-       |      "emailAddress": "$developer",
+       |      "emailAddress": "$developer2",
        |     "role": "ADMINISTRATOR"
        |    }
        |    ],
        |    "createdOn": 1458832690624,
-       |    "state": "PRODUCTION"
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer2",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
        |    "subscriptions": []
-       |  }
+       |  },
+       |      {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Gurpreets Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer3",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer3",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |        {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Long Persons Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer4",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer4",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  }]
     """.stripMargin
 
 
@@ -322,13 +342,13 @@ trait MockDataSugar {
        |    "email": "$developer2",
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
-       |    "verified": false
+       |    "verified": true
        |  },
        |    {
        |    "email": "$developer3",
        |    "firstName": "$dev3FirstName",
        |    "lastName": "$dev3LastName",
-       |    "verified": false
+       |    "verified": true
        |
        |  },
        |  {
@@ -341,14 +361,102 @@ trait MockDataSugar {
        |]
    """.stripMargin
 
+
+  val apiDefinition =
+    s"""
+    |[
+    | {
+    |   "serviceName": "anyAPI",
+    |   "serviceBaseUrl": "http://any.service/",
+    |   "name": "Any",
+    |   "description": "any api.",
+    |   "context": "any-api",
+    |   "versions": [
+    |     {
+    |       "version": "1.0",
+    |       "status": "PUBLISHED",
+    |       "access": {
+    |         "type": "PUBLIC"
+    |       },
+    |       "endpoints": [
+    |         {
+    |           "uriPattern": "/qwerty",
+    |           "endpointName": "anyAPI",
+    |           "method": "GET",
+    |           "authType": "USER",
+    |           "throttlingTier": "UNLIMITED",
+    |           "scope": "read:any-api-1"
+    |         }
+    |       ]
+    |     }
+    |   ],
+    |   "requiresTrust": false
+    | },
+    |  {
+    |   "serviceName": "noneAPI",
+    |   "serviceBaseUrl": "http://none.service/",
+    |   "name": "None",
+    |   "description": "none api.",
+    |   "context": "none-api",
+    |   "versions": [
+    |     {
+    |       "version": "1.0",
+    |       "status": "PUBLISHED",
+    |       "access": {
+    |         "type": "PUBLIC"
+    |       },
+    |       "endpoints": [
+    |         {
+    |           "uriPattern": "/qwerty",
+    |           "endpointName": "noneAPI",
+    |           "method": "GET",
+    |           "authType": "USER",
+    |           "throttlingTier": "UNLIMITED",
+    |           "scope": "read:none-api-1"
+    |         }
+    |       ]
+    |     }
+    |   ],
+    |   "requiresTrust": false
+    | },
+    |   {
+    |   "serviceName": "individualpaye",
+    |   "serviceBaseUrl": "http://individualpaye.service/",
+    |   "name": "Individual PAYE",
+    |   "description": "individual paye.",
+    |   "context": "individual-paye",
+    |   "versions": [
+    |     {
+    |       "version": "1.0",
+    |       "status": "PUBLISHED",
+    |       "access": {
+    |         "type": "PUBLIC"
+    |       },
+    |       "endpoints": [
+    |         {
+    |           "uriPattern": "/qwerty",
+    |           "endpointName": "individualpaye",
+    |           "method": "GET",
+    |           "authType": "USER",
+    |           "throttlingTier": "UNLIMITED",
+    |           "scope": "read:individual-paye-1"
+    |         }
+    |       ]
+    |     }
+    |   ],
+    |   "requiresTrust": false
+    | }
+    |]
+  """.stripMargin
+
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private val DeveloperGenerator: Gen[User] = for {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
     email =  forename + "." + surname +"@example.com"
-  } yield User(email, forename, surname,true)
-
+    verified = true
+  } yield User(email, forename, surname, verified)
 
   private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 
@@ -368,4 +476,83 @@ trait MockDataSugar {
        |"verified": true
        |}
      """.stripMargin
+
+  def randomApps(appId: String = approvedApp1, emailAddress: String = developer, requestedEmailAddress: String = developer)  = {
+
+    var a = 0;
+
+    for (a <- 1 to 20) {
+      s"""
+       |  {
+       |    "id": "$appId",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$emailAddress"
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$requestedEmailAddress",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": [
+       |    {
+       |     "context": "any-api",
+       |     "version": "1.0"
+       |     }
+       |     ]
+       |  }
+     """.stripMargin
+  }
+    }
+
+  //
+//  def stuff = {
+//    val users = Seq(DeveloperGenerator.sample.get, DeveloperGenerator.sample.get, DeveloperGenerator.sample.get,
+//      DeveloperGenerator.sample.get, DeveloperGenerator.sample.get, DeveloperGenerator.sample.get)
+//    users.foldLeft("[")((json:String, user:User) => json + "," + createApplication(user))
+//  }
+
+
+
+  def createApplication(user:User) = {
+    var a = 0;
+    for (a <- 1 to 5) {
+      s"""
+       |  {
+       |    "id": "$approvedApp1
+",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "${user.email}
+"
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "${user.email}
+",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": [
+       |    {
+       |     "context": "any-api",
+       |     "version": "1.0"
+       |     }
+       |     ]
+       |  }
+         """.stripMargin
+  }
+    }
+
 }
