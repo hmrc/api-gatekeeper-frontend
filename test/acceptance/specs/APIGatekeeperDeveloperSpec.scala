@@ -41,7 +41,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubRandomDevelopers(20)
 
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(randomApps()).withStatus(200)))
+        .willReturn(aResponse().withBody(developerList).withStatus(200)))
 
       signInGatekeeper
       on(DashboardPage)
@@ -207,7 +207,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse()
       .withBody(applicationResponse).withStatus(200)))
-
 
     stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
 

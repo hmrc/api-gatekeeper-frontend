@@ -51,6 +51,11 @@ trait MockDataSugar {
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
+  val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
+
+  val randomFirstName = s"John${System.currentTimeMillis}"
+  val randomLastName = s"Smith${System.currentTimeMillis}"
+
   val applicationsPendingApproval =
     s"""
        |[
@@ -165,7 +170,7 @@ trait MockDataSugar {
        |    "description": "application for test",
        |   "collaborators": [
        |    {
-       |      "emailAddress": "$developer"
+       |      "emailAddress": "$developer",
        |     "role": "ADMINISTRATOR"
        |    }
        |    ],
@@ -202,7 +207,7 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": []
        |  },
-       |      {
+       |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "name": "Gurpreets Application",
        |    "description": "application for test",
@@ -221,7 +226,7 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": []
        |  },
-       |        {
+       |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "name": "Long Persons Application",
        |    "description": "application for test",
@@ -239,6 +244,30 @@ trait MockDataSugar {
        |      "updatedOn": 1459868573962
        |    },
        |    "subscriptions": []
+       |  },
+       |    {
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$randomEmail",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$randomEmail",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": [
+       |    {
+       |     "context": "any-api",
+       |     "version": "1.0"
+       |     }
+       |     ]
        |  }]
     """.stripMargin
 
@@ -351,13 +380,54 @@ trait MockDataSugar {
        |    "verified": true
        |
        |  },
-       |  {
+       |    {
        |    "email": "$developer4",
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
+       |    "verified": false
+       |  },
+       |    {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": false
+       |    },
+       | {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
        |    "verified": true
-       |
-       |   }
+       |    },
+       |     {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": true
+       |    },
+       |     {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": true
+       |    },
+       |     {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": true
+       |    },
+       |     {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": false
+       |    },
+       |    {
+       |    "email": "$randomEmail",
+       |    "firstName": "John",
+       |    "lastName": "Smith",
+       |    "verified": false
+       |    }
        |]
    """.stripMargin
 
@@ -518,11 +588,7 @@ trait MockDataSugar {
 //    users.foldLeft("[")((json:String, user:User) => json + "," + createApplication(user))
 //  }
 
-
-
   def createApplication(user:User) = {
-    var a = 0;
-    for (a <- 1 to 5) {
       s"""
        |  {
        |    "id": "$approvedApp1
@@ -553,6 +619,5 @@ trait MockDataSugar {
        |  }
          """.stripMargin
   }
-    }
 
 }
