@@ -28,44 +28,39 @@ object DeveloperPage extends WebPage {
 
   def emailDeveloperLink = find(linkText("Click here")).get
 
-  def APIDropdown = find(name("filter_options")).get
+  def previousLink = find(linkText("Previous")).get
 
-  def rowsDropdowwn = find(name("perpage")).get.toString()
-
-  def previousButton = find(className("paginate_button.previous")).get  // try using linktext
-
-  def nextButton = find(className("paginate_button.next")).get  // tyr using linktext
+  def nextLink = find(linkText("Next")).get
 
   def emailDevelopers() = {
     click on emailDeveloperLink
   }
 
   def selectAPI (api: APIFilterList) = {
-    singleSel("filter_options").value = api.name
+    singleSel("filter").value = api.name
   }
 
   def selectNoofRows(noOfRows: String) = {
-    click on rowsDropdowwn
-    singleSel(rowsDropdowwn).value = noOfRows
+    singleSel("pageSize").value = noOfRows
   }
 
-  def showPreviousEntries() ={
-    click on previousButton
+  def showPreviousEntries() = {
+    click on previousLink
   }
 
-  def showNextEntries() ={
-    click on nextButton
+  def showNextEntries() = {
+    click on nextLink
   }
 
   object APIFilter  {
 
     sealed abstract class APIFilterList(val name: String) {}
 
-    case object ANY extends APIFilterList("one")
+    case object ANY extends APIFilterList("any-api")
 
-    case object NONE extends APIFilterList("two")
+    case object NONE extends APIFilterList("none-api")
 
-    case object INDIVIDUALPAYE extends APIFilterList("ipaye")
+    case object INDIVIDUALPAYE extends APIFilterList("individual-paye")
 
     case object INDIVIDUALEMPLOYMENT extends APIFilterList("iemp")
 
