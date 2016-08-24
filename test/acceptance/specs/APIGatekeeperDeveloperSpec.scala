@@ -17,6 +17,7 @@
 package acceptance.specs
 
 import acceptance.pages.DeveloperPage.APIFilter._
+import acceptance.pages.DeveloperPage._
 import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -211,19 +212,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
+      Thread.sleep(3000)
+      assertLinkIsDisabled("Previous")
 
-      // check if the Previous button is disabled
-
-      //assertLinkIsDisabled("Previous")
       assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 12 entries")
       DeveloperPage.showNextEntries()
       assertResult(getResultEntriesCount)("Showing 11 to 12 of 12 entries")
       //DeveloperPage.showNextEntries()
       //assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
-
-      // check if the Next button is disabled
-     // assertLinkIsDisabled("Next")
       DeveloperPage.showPreviousEntries()
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 12 entries")
 
@@ -263,9 +260,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     return resultEntriesText
   }
 
-  private def assertLinkIsDisabled(link : String) = {
-    webDriver.findElement(By.linkText(s"[$link]"))
-
+  private def assertLinkIsDisabled(link: String) = {
+    assertResult(find(linkText(s"[$link]")).isDefined)(false)
   }
 
 
