@@ -46,7 +46,12 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
       "pageSize" -> Seq(pageSize.toString)
     )
 
-    val queryParams = filter.fold(pageParams) { flt: String => Map("filter" -> Seq(flt)) }
+    val actualFilter = filter match {
+      case Some(x) => if (x == "") None else Some(x)
+      case None => None
+    }
+
+    val queryParams = actualFilter.fold(pageParams) { flt: String => Map("filter" -> Seq(flt)) }
     Redirect("", queryParams, 303)
   }
 
@@ -60,8 +65,12 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
         emails = developerService.emailList(users)
         page = PageableCollection(users, pageNumber, pageSize)
       } yield {
-        if (page.valid) Ok(developers(page, emails, apis, filter))
-        else redirect(filter, 1, pageSize)
+        if (page.valid) {
+          Ok(developers(page, emails, apis, filter))
+        }
+        else {
+          redirect(filter, 1, pageSize)
+        }
       }
   }
 
