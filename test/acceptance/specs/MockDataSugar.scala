@@ -414,48 +414,6 @@ trait MockDataSugar {
        |    "firstName": "John",
        |    "lastName": "Smith",
        |    "verified": false
-       |    },
-       | {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": true
-       |    },
-       |     {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": true
-       |    },
-       |     {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": true
-       |    },
-       |     {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": true
-       |    },
-       |     {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": false
-       |    },
-       |    {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": false
-       |    },
-       |    {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": false
        |    }
        |]
    """.stripMargin
@@ -566,7 +524,7 @@ trait MockDataSugar {
   private val DeveloperGenerator: Gen[User] = for {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
-    email =  forename + "." + surname +"@example.com"
+    email =  randomEmail
     verified = true
   } yield User(email, forename, surname, verified)
 
@@ -588,78 +546,5 @@ trait MockDataSugar {
        |"verified": true
        |}
      """.stripMargin
-
-  def randomApps(appId: String = approvedApp1, emailAddress: String = developer, requestedEmailAddress: String = developer)  = {
-
-    var a = 0;
-
-    for (a <- 1 to 20) {
-      s"""
-       |  {
-       |    "id": "$appId",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$emailAddress"
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$requestedEmailAddress",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [
-       |    {
-       |     "context": "any-api",
-       |     "version": "1.0"
-       |     }
-       |     ]
-       |  }
-     """.stripMargin
-  }
-    }
-
-  //
-//  def stuff = {
-//    val users = Seq(DeveloperGenerator.sample.get, DeveloperGenerator.sample.get, DeveloperGenerator.sample.get,
-//      DeveloperGenerator.sample.get, DeveloperGenerator.sample.get, DeveloperGenerator.sample.get)
-//    users.foldLeft("[")((json:String, user:User) => json + "," + createApplication(user))
-//  }
-
-  def createApplication(user:User) = {
-      s"""
-       |  {
-       |    "id": "$approvedApp1
-",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "${user.email}
-"
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "${user.email}
-",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [
-       |    {
-       |     "context": "any-api",
-       |     "version": "1.0"
-       |     }
-       |     ]
-       |  }
-         """.stripMargin
-  }
 
 }
