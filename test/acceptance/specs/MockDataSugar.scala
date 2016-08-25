@@ -53,6 +53,9 @@ trait MockDataSugar {
 
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
+  val statusVerified = "Verified"
+  val statusUnverified = "Unverified"
+
   val applicationsPendingApproval =
     s"""
        |[
@@ -355,32 +358,6 @@ trait MockDataSugar {
     """.stripMargin
   }
 
-
-  val tempDeveloperList =
-    s"""
-       |[
-       |  {
-       |    "email": "$developer",
-       |    "firstName": "$devFirstName",
-       |    "lastName": "$devLastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer2",
-       |    "firstName": "$dev2FirstName",
-       |    "lastName": "$dev2LastName",
-       |    "verified": true
-       |  },
-       |    {
-       |    "email": "$developer3",
-       |    "firstName": "$dev3FirstName",
-       |    "lastName": "$dev3LastName",
-       |    "verified": true
-       |
-       |  }
-       |]
-   """.stripMargin
-
   val developerList =
     s"""
        |[
@@ -400,7 +377,7 @@ trait MockDataSugar {
        |    "email": "$developer3",
        |    "firstName": "$dev3FirstName",
        |    "lastName": "$dev3LastName",
-       |    "verified": true
+       |    "verified": false
        |
        |  },
        |    {
@@ -408,29 +385,9 @@ trait MockDataSugar {
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": false
-       |  },
-       |    {
-       |    "email": "$randomEmail",
-       |    "firstName": "John",
-       |    "lastName": "Smith",
-       |    "verified": false
-       |    }
-       |]
-   """.stripMargin
-
-
-  val developerList1 =
-    s"""
-       |[
-       |  {
-       |    "email": "$developer",
-       |    "firstName": "$devFirstName",
-       |    "lastName": "$devLastName",
-       |    "verified": true
        |  }
        |]
    """.stripMargin
-
 
   val apiDefinition =
     s"""
