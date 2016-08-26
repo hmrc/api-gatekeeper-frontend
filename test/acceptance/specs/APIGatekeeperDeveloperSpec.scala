@@ -44,7 +44,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select the developer list link on the Dashboard page")
       DashboardPage.selectDeveloperList
 
-      Then("I am successfully navigated to the Developer Page where I can view developer list details")
+      Then("I am successfully navigated to the Developer Page where I can view all developer list details by default")
       on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 10 entries")
@@ -65,7 +65,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select Individual PAYE from the API filter drop down")
       DeveloperPage.selectAPI(INDIVIDUALPAYE)
 
-      Then("All developers subscriving to the Individual PAYE API are successfully displayed")
+      Then("All developers subscribing to the Individual PAYE API are successfully displayed")
       DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer $statusVerified",
                                                         s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
                                                         s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
@@ -126,19 +126,22 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("No results returned for a specific API") {  //NOT YET IMPLEMENTED
 
+      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList
       stubAPISubscription("none-api")
-
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(developerList).withStatus(200)))
-
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
+      When("I select National Insurance from the API filter drop down")
       DeveloperPage.selectAPI(NONE)
 
+      Then("No subscribing developers are displayed for the National Insurance API")
+      //Assert correct page / user friendly message is displayed: There are no developers for your selected filter.
+      //                                                          Try selecting a different filter
     }
   }
 
@@ -168,12 +171,13 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     scenario("Ensure a user can view segments of 10, 20 and 100 results entries") {
 
-      Given("I have successfully logged in to the API gatekeeper and I am on the Dashboard Page")
+      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList
       stubAPISubscription("individual-paye")
       stubRandomDevelopers(100)
       signInGatekeeper
       on(DashboardPage)
+      //Thread.sleep(500000)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
@@ -193,9 +197,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertResult(getResultEntriesCount)("Showing 1 to 100 of 100 entries")
     }
 
-    scenario("Ensure user can navigate to Next and Previous pages to view result entries") {
+    scenario("Ensure that a user can navigate to Next and Previous pages to view result entries") {
 
-      Given("I have successfully logged in to the API gatekeeper and I am on the Dashboard Page")
+      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList
       stubAPISubscription("individual-paye")
       stubRandomDevelopers(30)
@@ -205,14 +209,28 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
       assertLinkIsDisabled("Previous")
-
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
+
+      When("I select to to view the the next set of result entries")
       DeveloperPage.showNextEntries()
+
+      Then("The the page successfully displays the correct subsequent set of developers")
+      assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
+
+      When("I select to to view the the last set of result entries")
       DeveloperPage.showNextEntries()
-      assertLinkIsDisabled("Next")
+
+      Then("The the page successfully displays the last subsequent set of developers")
       assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
+      assertNumberOfDevelopersPerPage(10)
+      assertLinkIsDisabled("Next")
+
+      When("I select to to view the the previous set of result entries")
       DeveloperPage.showPreviousEntries()
+
+      Then("The page successfully displays the previous set of developers")
+      assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
     }
   }
