@@ -95,8 +95,7 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
-                               state: ApplicationState,
-                               subscriptions: Seq[APIIdentifier]) {
+                               state: ApplicationState) {
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 }

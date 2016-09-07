@@ -130,7 +130,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
           Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(UUID.randomUUID(),
-          "application", None, collaborators, DateTime.now(), ApplicationState(), Nil))
+          "application", None, collaborators, DateTime.now(), ApplicationState()))
 
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
