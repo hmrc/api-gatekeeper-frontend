@@ -21,6 +21,7 @@ import model._
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object DeveloperService extends DeveloperService {
   override val developerConnector: DeveloperConnector = DeveloperConnector
@@ -51,6 +52,6 @@ trait DeveloperService  {
   }
 
   def fetchDevelopers(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchAll
+    developerConnector.fetchAll.map(_.sorted)
   }
 }
