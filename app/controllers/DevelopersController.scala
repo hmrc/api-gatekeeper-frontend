@@ -46,12 +46,12 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
       "pageSize" -> Seq(pageSize.toString)
     )
 
-    val actualFilter = filter match {
-      case Some(x) => if (x == "") None else Some(x)
-      case None => None
+    val filterParams = filter match {
+      case Some("") | None => Map.empty
+      case Some(flt) => Map("filter" -> Seq(flt))
     }
 
-    val queryParams = actualFilter.fold(pageParams) { flt: String => Map("filter" -> Seq(flt)) }
+    val queryParams = pageParams ++ filterParams
     Redirect("", queryParams, 303)
   }
 
