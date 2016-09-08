@@ -124,7 +124,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
 
-    scenario("No results returned for a specific API") {  //NOT YET IMPLEMENTED
+    ignore("No results returned for a specific API") {  //NOT YET IMPLEMENTED
 
       Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList

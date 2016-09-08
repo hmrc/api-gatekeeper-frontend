@@ -31,7 +31,7 @@ object DashboardPage extends WebPage {
 
   def developerListLink = find(linkText("Developer List")).get
 
-  def selectDeveloperList = {
+  def selectDeveloperList() = {
     click on developerListLink
   }
 
