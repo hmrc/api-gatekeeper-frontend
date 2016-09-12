@@ -35,21 +35,21 @@ trait MockDataSugar {
   val lastName = "Test"
   val fullName = s"$firstName $lastName"
 
-  val developer = "purnima.shanti@mail.com"
-  val devFirstName = "Purnima"
-  val devLastName = "Shanti"
+  val developer = "imran.akram@mail.com"
+  val devFirstName = "Imran"
+  val devLastName = "Akram"
 
-  val developer2 = "imran.akram@mail.com"
-  val dev2FirstName = "Imran"
-  val dev2LastName = "Akram"
+  val developer2 = "gurpreet.bhamra@mail.com"
+  val dev2FirstName = "Gurpreet"
+  val dev2LastName =  "Bhamra"
 
-  val developer3 = "gurpreet.bhamra@mail.com"
-  val dev3FirstName = "Gurpreet"
-  val dev3LastName =  "Bhamra"
+  val developer3 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
+  val dev3FirstName = "HannahHmrcSdstusercollaboratir"
+  val dev3LastName = "Kassidyhmrcdevusercollaborato"
 
-  val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
-  val dev4FirstName = "HannahHmrcSdstusercollaboratir"
-  val dev4LastName = "Kassidyhmrcdevusercollaborato"
+  val developer4 = "purnima.shanti@mail.com"
+  val dev4FirstName = "Purnima"
+  val dev4LastName = "Shanti"
 
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
