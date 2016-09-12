@@ -76,11 +76,7 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
         page = PageableCollection(users, pageNumber, pageSize)
       } yield {
         if (page.valid) {
-<<<<<<< HEAD
-          Ok(developers(page, emails, apis, filter))
-=======
           Ok(developers(page, emails, groupApisByStatus(apis), filter))
->>>>>>> b8fa63e9de284ac7a84cc2458be375293a9c763b
         }
         else {
           redirect(filter, 1, pageSize)

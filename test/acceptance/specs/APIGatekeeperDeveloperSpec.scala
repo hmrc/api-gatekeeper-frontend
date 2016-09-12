@@ -61,6 +61,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
+      Thread.sleep(40000)
 
       When("I select Individual PAYE from the API filter drop down")
       DeveloperPage.selectAPI(INDIVIDUALPAYE)
