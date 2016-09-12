@@ -24,6 +24,7 @@ import scala.util.Try
 
 trait Env {
 
+<<<<<<< HEAD
   val driver: WebDriver with HasCapabilities = {
 
  // val driver:WebDriver = new ChromeDriver()
@@ -31,6 +32,15 @@ trait Env {
   profile.setAcceptUntrustedCertificates(true)
    new FirefoxDriver(profile)
   }
+=======
+ // val driver: WebDriver with HasCapabilities = {
+
+  val driver:WebDriver = new ChromeDriver()
+  //val profile = new FirefoxProfile
+  //profile.setAcceptUntrustedCertificates(true)
+  // new FirefoxDriver(profile)
+  //}
+>>>>>>> b8fa63e9de284ac7a84cc2458be375293a9c763b
 
   sys addShutdownHook {
     Try(driver.quit())

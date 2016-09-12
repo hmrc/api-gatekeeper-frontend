@@ -95,8 +95,7 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
-                               state: ApplicationState,
-                               subscriptions: Seq[APIIdentifier]) {
+                               state: ApplicationState) {
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 }
@@ -118,8 +117,10 @@ object ApplicationWithHistory {
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
 
-case class User(email: String, firstName: String, lastName: String, verified: Boolean) {
-  def fullName = s"$firstName $lastName"
+case class User(email: String, firstName: String, lastName: String, verified: Boolean) extends Ordered[User] {
+  val fullName = s"$firstName $lastName"
+  val sortName = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
+  def compare(that: User) = this.sortName.compare(that.sortName)
 }
 
 object User {

@@ -38,7 +38,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
   def app(name: String, collaborators: Set[Collaborator]): ApplicationResponse = {
     ApplicationResponse(UUID.randomUUID(),
-      name, None, collaborators, DateTime.now(), ApplicationState(), Nil)
+      name, None, collaborators, DateTime.now(), ApplicationState())
   }
 
   trait Setup {
@@ -60,18 +60,18 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
     val allApplications = Seq(
       ApplicationResponse(UUID.randomUUID(),
-        "application1", None, collaborators, DateTime.now(), ApplicationState(), Nil),
+        "application1", None, collaborators, DateTime.now(), ApplicationState()),
       ApplicationResponse(UUID.randomUUID(),
-        "application2", None, collaborators, DateTime.now(), ApplicationState(), Nil),
+        "application2", None, collaborators, DateTime.now(), ApplicationState()),
       ApplicationResponse(UUID.randomUUID(),
-        "application3", None, collaborators, DateTime.now(), ApplicationState(), Nil)
+        "application3", None, collaborators, DateTime.now(), ApplicationState())
     )
 
     val filteredApplications = Seq(
       ApplicationResponse(UUID.randomUUID(),
-        "application1", None, collaborators, DateTime.now(), ApplicationState(), Nil),
+        "application1", None, collaborators, DateTime.now(), ApplicationState()),
       ApplicationResponse(UUID.randomUUID(),
-        "application3", None, collaborators, DateTime.now(), ApplicationState(), Nil)
+        "application3", None, collaborators, DateTime.now(), ApplicationState())
     )
 
     given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(

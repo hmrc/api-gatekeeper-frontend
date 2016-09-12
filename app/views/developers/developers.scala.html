@@ -1,5 +1,5 @@
 @import include._
-@(users: model.PageableCollection[model.User], emails: String, apis: Seq[model.APIDefinition], filter: Option[String])(implicit request: Request[_], userFullName: Option[String])
+@(users: model.PageableCollection[model.User], emails: String, apis: Map[model.APIStatus.APIStatus, Seq[model.VersionSummary]], filter: Option[String])(implicit request: Request[_], userFullName: Option[String])
 
 @main(title = "API Gatekeeper Developer List",userFullName = userFullName) {
 
@@ -25,11 +25,16 @@
                                 value="@filter" onchange="this.form.submit()"
                                 style="margin:0">
                             <option value="">ALL</option>
-                            @for(api <- apis.sortBy(a => a.name.toLowerCase)) {
-                                @defining(filter match {
-                                    case Some(f) if f == api.context => "selected"
-                                    case _ => ""
-                                }) { selected => <option @selected value="@api.context">@api.name</option> }
+
+                            @for((status, versions) <- apis) {
+                                <optgroup label="@status">
+                                    @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
+                                        @defining(filter match {
+                                            case Some(f) if f == version.apiIdentifier.context => "selected"
+                                            case _ => ""
+                                        }) { selected => <option @selected value="@version.apiIdentifier.context">@version.name (@version.apiIdentifier.version)</option> }
+                                    }
+                                </optgroup>
                             }
                         </select>
                     </label>
