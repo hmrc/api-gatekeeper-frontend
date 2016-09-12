@@ -70,8 +70,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
         s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
         s"$dev4FirstName $dev4LastName $developer4 $statusUnverified"))
-      //assertNumberOfDevelopersPerPage(4)
-      //assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
+      assertNumberOfDevelopersPerPage(4)
+      assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
     }
 
     scenario("Ensure registered developers which are subscribing to any API are successfully displayed") {
