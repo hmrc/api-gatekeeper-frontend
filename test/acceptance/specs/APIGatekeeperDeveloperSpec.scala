@@ -65,13 +65,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select Individual PAYE from the API filter drop down")
       DeveloperPage.selectAPI(INDIVIDUALPAYE)
 
-      Then("All developers subscribing to the Individual PAYE API are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer $statusVerified",
-        s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
+      Then("All developers subscribing to the Individual PAYE API are successfully displayed and sorted correctly")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
         s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified"))
+        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
+        s"$devFirstName $devLastName $developer $statusVerified"))
       assertNumberOfDevelopersPerPage(4)
       assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
+
+
     }
 
     scenario("Ensure registered developers which are subscribing to any API are successfully displayed") {
@@ -89,11 +91,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select Any from the API filter drop down")
       DeveloperPage.selectAPI(ANY)
 
-      Then("All developers subscribing to any API are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer $statusVerified",
-        s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
+      Then("All developers subscribing to any API are successfully displayed and sorted correctly")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
         s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified"))
+        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
+        s"$devFirstName $devLastName $developer $statusVerified"))
       assertNumberOfDevelopersPerPage(4)
       assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
     }
