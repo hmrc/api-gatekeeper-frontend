@@ -258,19 +258,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         .willReturn(aResponse().withBody(developerListJsonGenerator(randomDevelopers).get).withStatus(200)))
     }
 
-    private def assertNumberOfDevelopersPerPage(expected: Int) =
-    {
+    private def assertNumberOfDevelopersPerPage(expected: Int) = {
       webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
     }
 
-    private def getResultEntriesCount(): String =
-    {
+    private def getResultEntriesCount(): String = {
       val resultEntriesText = webDriver.findElement(By.cssSelector(".grid-layout__column--1-3.text--center")).getText
       return resultEntriesText
     }
 
-    private def assertLinkIsDisabled(link: String) =
-    {
+    private def assertLinkIsDisabled(link: String) = {
       assertResult(find(linkText(s"[$link]")).isDefined)(false)
     }
 }
