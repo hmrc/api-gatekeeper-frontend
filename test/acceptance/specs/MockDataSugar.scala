@@ -51,7 +51,13 @@ trait MockDataSugar {
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
+  val developer5 = "John.Dave@mail.com"
+  val dev5FirstName = "John"
+  val dev5LastName =  "Dave"
 
+  val developer6 = "Vijaya.Vasantha@mail.com"
+  val dev6FirstName = "Vijaya"
+  val dev6LastName =  "Vasantha"
 
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
@@ -228,9 +234,9 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": []
        |  },
-       |    {
+       |      {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Long Persons Application",
+       |    "name": "Gurpreets Application",
        |    "description": "application for test",
        |   "collaborators": [
        |    {
@@ -242,6 +248,44 @@ trait MockDataSugar {
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer4",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |      {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Gurpreets Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer5",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer5",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |    {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Long Persons Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer6",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer6",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
@@ -272,6 +316,59 @@ trait MockDataSugar {
        |     ]
        |  }]
     """.stripMargin
+
+  val applicationResponsewithAPI =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer5",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer5",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": [
+       |    {
+       |     "context": "individual-paye",
+       |     "version": "1.0"
+       |     }
+       |     ]
+       |  },
+       |    {
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer6",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer6",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": [
+       |    {
+       |     "context": "any-api",
+       |     "version": "1.0"
+       |     }
+       |     ]
+       |  }]
+    """.stripMargin
+
 
 
   def approvedApplication(description: String = "", verified: Boolean = false) = {
@@ -387,6 +484,19 @@ trait MockDataSugar {
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": false
+       |  },
+       |  {
+       |    "email": "$developer5",
+       |    "firstName": "$dev5FirstName",
+       |    "lastName": "$dev5LastName",
+       |    "verified": true
+       |
+       |  },
+       |  {
+       |    "email": "$developer6",
+       |    "firstName": "$dev6FirstName",
+       |    "lastName": "$dev6LastName",
+       |    "verified": true
        |  }
        |]
    """.stripMargin
@@ -395,11 +505,11 @@ trait MockDataSugar {
     s"""
     |[
     | {
-    |   "serviceName": "anyAPI",
-    |   "serviceBaseUrl": "http://any.service/",
-    |   "name": "Any",
-    |   "description": "any api.",
-    |   "context": "any-api",
+    |   "serviceName": "employersPayeAPI",
+    |   "serviceBaseUrl": "http://employerspaye-api.service/",
+    |   "name": "Employers PAYE",
+    |   "description": "EMPLOYERS PAYE API.",
+    |   "context": "employers-paye",
     |   "versions": [
     |     {
     |       "version": "1.0",
@@ -410,11 +520,11 @@ trait MockDataSugar {
     |       "endpoints": [
     |         {
     |           "uriPattern": "/qwerty",
-    |           "endpointName": "anyAPI",
+    |           "endpointName": "employersPayeAPI",
     |           "method": "GET",
     |           "authType": "USER",
     |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:any-api-1"
+    |           "scope": "read:employers-paye-1"
     |         }
     |       ]
     |     }
@@ -422,11 +532,38 @@ trait MockDataSugar {
     |   "requiresTrust": false
     | },
     |  {
-    |   "serviceName": "noneAPI",
-    |   "serviceBaseUrl": "http://none.service/",
-    |   "name": "None",
-    |   "description": "none api.",
-    |   "context": "none-api",
+    |   "serviceName": "payeCreditsAPI",
+    |   "serviceBaseUrl": "http://payecredits-api.service/",
+    |   "name": "Paye Credits",
+    |   "description": "PAYE CREDITS API",
+    |   "context": "paye-credits",
+    |   "versions": [
+    |     {
+    |       "version": "1.0",
+    |       "status": "DEPRECATED",
+    |       "access": {
+    |         "type": "PUBLIC"
+    |       },
+    |       "endpoints": [
+    |         {
+    |           "uriPattern": "/qwerty",
+    |           "endpointName": "payeCreditsAPI",
+    |           "method": "GET",
+    |           "authType": "USER",
+    |           "throttlingTier": "UNLIMITED",
+    |           "scope": "read:paye-credits-1"
+    |         }
+    |       ]
+    |     }
+    |   ],
+    |   "requiresTrust": false
+    | },
+    |  {
+    |   "serviceName": "individualBenefitsAPI",
+    |   "serviceBaseUrl": "http://individualbenefits-api.service/",
+    |   "name": "Individual Benefits",
+    |   "description": "INDIVIDUAL BENEFITS API.",
+    |   "context": "individual-benefits",
     |   "versions": [
     |     {
     |       "version": "1.0",
@@ -437,11 +574,11 @@ trait MockDataSugar {
     |       "endpoints": [
     |         {
     |           "uriPattern": "/qwerty",
-    |           "endpointName": "noneAPI",
+    |           "endpointName": "individualBenefitsAPI",
     |           "method": "GET",
     |           "authType": "USER",
     |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:none-api-1"
+    |           "scope": "read:individual-benefits-1"
     |         }
     |       ]
     |     }
@@ -449,11 +586,11 @@ trait MockDataSugar {
     |   "requiresTrust": false
     | },
     |   {
-    |   "serviceName": "individualpaye",
-    |   "serviceBaseUrl": "http://individualpaye.service/",
-    |   "name": "Individual PAYE",
-    |   "description": "individual paye.",
-    |   "context": "individual-paye",
+    |   "serviceName": "selfAssessmentAPI",
+    |   "serviceBaseUrl": "http://selfassessment-api.service/",
+    |   "name": "Self Assessment",
+    |   "description": "SELF ASSESSMENT API.",
+    |   "context": "self-assessment",
     |   "versions": [
     |     {
     |       "version": "1.0",
@@ -464,11 +601,11 @@ trait MockDataSugar {
     |       "endpoints": [
     |         {
     |           "uriPattern": "/qwerty",
-    |           "endpointName": "individualpaye",
+    |           "endpointName": "selfAssessmentAPI",
     |           "method": "GET",
     |           "authType": "USER",
     |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:individual-paye-1"
+    |           "scope": "read:self-assessment-1"
     |         }
     |       ]
     |     }

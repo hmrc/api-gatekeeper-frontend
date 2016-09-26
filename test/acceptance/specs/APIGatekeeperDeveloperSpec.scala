@@ -36,7 +36,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Given("I have successfully logged in to the API gatekeeper")
       stubApplicationList
-      stubAPISubscription("individual-paye")
+      stubDevelopersListAndAPISubscription()
       stubRandomDevelopers(10)
       signInGatekeeper
       on(DashboardPage)
@@ -54,97 +54,59 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList
-      stubAPISubscription("individual-paye")
+      stubDevelopersListAndAPISubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(developerList).withStatus(200)))
+      stubAPISubscription("employers-paye")
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
-      When("I select Individual PAYE from the API filter drop down")
-      DeveloperPage.selectAPI(INDIVIDUALPAYE)
-
-      Then("All developers subscribing to the Individual PAYE API are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
-        s"$devFirstName $devLastName $developer $statusVerified"))
-      assertNumberOfDevelopersPerPage(4)
-      assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
+      When("I select Employers PAYE from the API filter drop down")
+      DeveloperPage.selectAPI(EMPLOYERSPAYE)
 
 
+      Then("All developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      assertNumberOfDevelopersPerPage(2)
+      assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
     }
 
-    scenario("Ensure registered developers which are subscribing to any API are successfully displayed") {
+    scenario("ALL Developers") {
 
       Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
       stubApplicationList
-      stubAPISubscription("any-api")
+      stubDevelopersListAndAPISubscription
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(developerList).withStatus(200)))
+      stubAPISubscription("self-assessment")
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
       When("I select Any from the API filter drop down")
-      DeveloperPage.selectAPI(ANY)
+      DeveloperPage.selectAPI(SELFASSESSMENT)
 
+      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+
+      assertNumberOfDevelopersPerPage(2)
+      assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
+
+      DeveloperPage.selectAPI(ALL)
       Then("All developers subscribing to any API are successfully displayed and sorted correctly")
       DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
-        s"$devFirstName $devLastName $developer $statusVerified"))
-      assertNumberOfDevelopersPerPage(4)
-      assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
+                                                        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
+                                                        s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
+                                                        s"$devFirstName $devLastName $developer $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      assertNumberOfDevelopersPerPage(6)
+      assertResult(getResultEntriesCount)("Showing 1 to 6 of 6 entries")
     }
-
-    ignore("Ensure registered developers which are NOT subscribing to any API are successfully displayed") {
-
-      // This needs to be improved. Need a way have a developer not subscribing to an api with out stubbing to an api context
-      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
-      stubApplicationList
-      stubAPISubscription("none")
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerList).withStatus(200)))
-      signInGatekeeper
-      on(DashboardPage)
-      DashboardPage.selectDeveloperList
-      on(DeveloperPage)
-
-      When("I select None from the API filter drop down")
-      DeveloperPage.selectAPI(NONE) // As per above comments, developers to be displayed here with out subscribing to the none - api context
-
-      Then("All developers who are not subscribing to an API are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$devFirstName $devLastName $developer $statusVerified",
-        s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified"))
-      assertNumberOfDevelopersPerPage(4)
-      assertResult(getResultEntriesCount)("Showing 1 to 4 of 4 entries")
-    }
-
-        ignore("No results returned for a specific API") {
-          //NOT YET IMPLEMENTED
-
-          Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
-          stubApplicationList
-          stubAPISubscription("none-api")
-          stubFor(get(urlEqualTo("/developers/all"))
-            .willReturn(aResponse().withBody(developerList).withStatus(200)))
-          signInGatekeeper
-          on(DashboardPage)
-          DashboardPage.selectDeveloperList
-          on(DeveloperPage)
-
-          When("I select National Insurance from the API filter drop down")
-          DeveloperPage.selectAPI(NONE)
-
-          Then("No subscribing developers are displayed for the National Insurance API")
-          //Assert correct page / user friendly message is displayed: There are no developers for your selected filter.
-          //                                                          Try selecting a different filter
-        }
       }
 
     info("AS A Product Owner")
@@ -157,8 +119,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
         Given("I have successfully logged in to the API Gatekeeper")
         stubApplicationList
-        stubAPISubscription("individual-paye")
-        stubRandomDevelopers(10)
+        stubDevelopersListAndAPISubscription
+        stubRandomDevelopers(11)
         signInGatekeeper
         on(DashboardPage)
 
@@ -175,11 +137,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
         Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
         stubApplicationList
-        stubAPISubscription("individual-paye")
+        stubDevelopersListAndAPISubscription
         stubRandomDevelopers(100)
         signInGatekeeper
         on(DashboardPage)
-        //Thread.sleep(500000)
         DashboardPage.selectDeveloperList
         on(DeveloperPage)
         assertNumberOfDevelopersPerPage(10)
@@ -203,7 +164,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
         Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
         stubApplicationList
-        stubAPISubscription("individual-paye")
+        stubDevelopersListAndAPISubscription
         stubRandomDevelopers(30)
         signInGatekeeper
         on(DashboardPage)
@@ -246,11 +207,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     def stubAPISubscription(apiContext: String) = {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-        .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
+       stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
+         .willReturn(aResponse().withBody(applicationResponsewithAPI).withStatus(200)))
+    }
 
-      stubFor(get(urlEqualTo(s"/api-definition"))
-        .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+    def stubDevelopersListAndAPISubscription() = {
+       stubFor(get(urlEqualTo(s"/application?subscribesTo="))
+         .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
+
+       stubFor(get(urlEqualTo(s"/api-definition"))
+         .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
     }
 
     def stubRandomDevelopers(randomDevelopers: Int) = {
@@ -270,5 +236,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     private def assertLinkIsDisabled(link: String) = {
       assertResult(find(linkText(s"[$link]")).isDefined)(false)
     }
+
 }
 
