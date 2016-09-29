@@ -52,6 +52,10 @@ object DeveloperPage extends WebPage {
     click on nextLink
   }
 
+  def emailButton() {
+     find(cssSelector("#content div p a:nth-child(1)")).get
+  }
+
   object APIFilter  {
 
     sealed abstract class APIFilterList(val name: String) {}

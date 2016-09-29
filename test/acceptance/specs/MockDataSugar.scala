@@ -624,12 +624,13 @@ trait MockDataSugar {
     verified = true
   } yield User(email, forename, surname, verified)
 
-  private def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
+  def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 
   def developerListJsonGenerator(number:Int): Option[String] = userListGenerator(number)
-    .sample
+    .sample.map(_.sortWith((userA, userB) => userA.lastName > userB.lastName))
     .map(userList => Json.toJson(userList))
     .map(Json.stringify)
+
 
   def administrator(email: String = adminEmail, firstName: String = firstName, lastName: String = lastName) =
     s"""
