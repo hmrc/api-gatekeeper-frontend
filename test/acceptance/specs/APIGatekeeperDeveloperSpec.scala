@@ -16,16 +16,13 @@
 
 package acceptance.specs
 
-import java.util
-
 import acceptance.pages.DeveloperPage.APIFilter._
 import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.{By, WebElement}
-import org.scalacheck.Gen
+import org.openqa.selenium.{By}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
 
@@ -46,7 +43,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       signInGatekeeper
       on(DashboardPage)
 
-      When("I select the developer list link on the Dashboard page")
+      When("I select to navigate to the Developer List page")
       DashboardPage.selectDeveloperList
 
       Then("I am successfully navigated to the Developer Page where I can view all developer list details by default")
@@ -71,7 +68,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select Employers PAYE from the API filter drop down")
       DeveloperPage.selectAPI(EMPLOYERSPAYE)
 
-      Then("All developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
+      Then("all developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
       DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
                                                         s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
       assertNumberOfDevelopersPerPage(2)
@@ -114,43 +111,44 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertResult(getResultEntriesCount)("Showing 1 to 6 of 6 entries")
     }
 
-    scenario("Ensure a user can view Email and Copy to Clipboard buttons in the Developer page") {
+    scenario("Ensure a user can view the Email and Copy to Clipboard buttons on the Developer page") {
 
-      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
+      Given("I have successfully logged in to the API gatekeeper")
       stubApplicationList
       stubDevelopersListAndAPISubscription
       stubRandomDevelopers(24)
-      stubAPISubscription("self-assessment")
       signInGatekeeper
       on(DashboardPage)
+
+      When("I select to navigate to the Developer List page")
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
       Then("I should be able to view the Email and Copy to Clipboard buttons")
-      assertButtonIsPresent("#content div p a:nth-child(1)")
-      assertButtonIsPresent("#content div p a:nth-child(2)")
-
+      assertButtonIsPresent("#content div a:nth-child(1)")
+      // assertButtonIsPresent("#content div p a:nth-child(2)")
     }
 
-   scenario("Email Text in the Developer Page") {
+   scenario("Ensure the correct number of developers is displayed on the Email Developers button ") {
 
-    Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
+    Given("I have successfully logged in to the API gatekeeper")
     stubApplicationList
     stubDevelopersListAndAPISubscription
     stubRandomDevelopers(24)
-    stubAPISubscription("self-assessment")
     signInGatekeeper
     on(DashboardPage)
+
+    When("I select to navigate to the Developer List page")
     DashboardPage.selectDeveloperList
     on(DeveloperPage)
 
-    Then("Email text")
+    Then("the Email Developers button should display the corrent number of developers matching the total number of results")
     assertTextPresent("#content div p a:nth-child(1)", "Email 24 developers")
-     
-  }
-    scenario("Email Addresses in the bcc") {
+   }
 
-      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
+    scenario("Ensure all developer email addresses are successfully loaded into bcc") {
+
+      Given("I have successfully logged in to the API gatekeeper")
       stubApplicationList
       stubDevelopersListAndAPISubscription
       stubFor(get(urlEqualTo("/developers/all"))
@@ -158,22 +156,17 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubAPISubscription("self-assessment")
       signInGatekeeper
       on(DashboardPage)
+
+      When("I select to navigate to the Developer List page")
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
 
-      Then("all developers are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-        s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
-        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
-        s"$devFirstName $devLastName $developer $statusVerified",
-        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
-
-      And("the email button should contain all the lists of the developers")
+      Then("the email button should contain all of the developers email addresses")
       verifyUsersEmailAddress("a:nth-child(1).button","href",s"mailto:?bcc=$developer2,$developer3,$developer5,$developer4,$developer,$developer6")
 
-      And("the copy to clipbard button should contain the list of the developers")
-     // verifyUsersEmailAddress("a:nth-child(2).button","onclick","copyTextToClipboard('imran.akram@mail.com,gurpreet.bhamra@mail.com,John.Dave@mail.com,a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com,purnima.shanti@mail.com,Vijaya.Vasantha@mail.com')")
+      And("the copy to clipbard button should contain all of the developers email addresses")
+      //verifyUsersEmail(".//*[@id='content']/article/div[1]/p/a[2]")
+      //verifyUsersEmailAddress("#content div p a:nth-child(2).button","onclick","copyTextToClipboard('imran.akram@mail.com,gurpreet.bhamra@mail.com,John.Dave@mail.com,a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com,purnima.shanti@mail.com,Vijaya.Vasantha@mail.com')")
     }
   }
 
@@ -192,7 +185,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         signInGatekeeper
         on(DashboardPage)
 
-        When("I select the developer list link on the Dashboard page")
+        When("I select to navigate to the Developer List page")
         DashboardPage.selectDeveloperList
 
         Then("I can view the default number of developers per page")
@@ -242,34 +235,26 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         assertNumberOfDevelopersPerPage(10)
         assertLinkIsDisabled("Previous")
         assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
-
         val first10: List[User] = developers.get.take(10)
-
-        Then("all developers are successfully displayed and sorted correctly")
         DeveloperPage.bodyText should containInOrder(generateUsersList(first10))
 
         When("I select to to view the the next set of result entries")
         DeveloperPage.showNextEntries()
 
-        Then("The the page successfully displays the correct subsequent set of developers")
+        Then("the page successfully displays the correct subsequent set of developers")
         assertNumberOfDevelopersPerPage(10)
         assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
-
         val second10 : List[User] = developers.get.slice(11,20)
-
         DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
 
         When("I select to to view the the last set of result entries")
         DeveloperPage.showNextEntries()
 
-        Then("The the page successfully displays the last subsequent set of developers")
+        Then("the page successfully displays the last subsequent set of developers")
         assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
         assertNumberOfDevelopersPerPage(10)
-
         val third10 : List[User] = developers.get.slice(21,30)
-
         DeveloperPage.bodyText should containInOrder(generateUsersList(third10))
-
         assertLinkIsDisabled("Next")
 
         When("I select to to view the the previous set of result entries")
@@ -278,7 +263,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         Then("The page successfully displays the previous set of developers")
         assertNumberOfDevelopersPerPage(10)
         assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
-
+        DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
       }
     }
 
@@ -344,6 +329,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
     }
 
+    private def verifyUsersEmail(button : String) {
+      val emailAddresses = webDriver.findElement(By.xpath(button)).getAttribute("value")
+    }
 
 
 }
