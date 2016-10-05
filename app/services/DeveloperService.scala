@@ -31,6 +31,7 @@ object DeveloperService extends DeveloperService {
 }
 
 trait DeveloperService  {
+
   val developerConnector: DeveloperConnector
   val apiDefinitionConnector: ApiDefinitionConnector
   val applicationConnector: ApplicationConnector
@@ -48,7 +49,8 @@ trait DeveloperService  {
   }
 
   def emailList(users: Seq[User]) = {
-    users.map(_.email).mkString(",")
+    val DELIMITER = "; "  // Outlook requires email addresses separated by semi-colons
+    users.map(_.email).mkString(DELIMITER)
   }
 
   def fetchDevelopers(implicit hc: HeaderCarrier) = {

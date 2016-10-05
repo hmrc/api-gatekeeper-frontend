@@ -102,7 +102,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     "Turn a list of users into an email list" in new Setup {
       val result = testDeveloperService.emailList(users)
 
-      result shouldBe "Bob@example.net,Brian@example.net,Sheila@example.net"
+      result shouldBe "Bob@example.net; Brian@example.net; Sheila@example.net"
     }
 
     "Get the list of users that have access to the given applications" in new Setup {

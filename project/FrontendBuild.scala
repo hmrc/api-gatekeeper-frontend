@@ -19,13 +19,12 @@ private object AppDependencies {
   import play.core.PlayVersion
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "6.4.0",
-    "uk.gov.hmrc" %% "play-auditing" % "1.5.1",
-    "uk.gov.hmrc" %% "play-authorised-frontend" % "4.6.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "6.7.0",
+    "uk.gov.hmrc" %% "play-authorised-frontend" % "5.5.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "uk.gov.hmrc" %% "play-config" % "2.0.1",
     "uk.gov.hmrc" %% "play-json-logger" % "2.1.1",
-    "uk.gov.hmrc" %% "json-encryption" % "2.0.0",
+    "uk.gov.hmrc" %% "json-encryption" % "2.1.0",
     "uk.gov.hmrc" %% "play-health" % "1.1.0",
     "uk.gov.hmrc" %% "govuk-template" % "4.0.0",
     "uk.gov.hmrc" %% "play-ui" % "4.10.0"

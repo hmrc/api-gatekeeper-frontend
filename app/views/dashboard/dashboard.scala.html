@@ -1,15 +1,21 @@
 @import model.State._
 @import org.joda.time.format.DateTimeFormat
 @import model.CategorisedApplications
+@import include._
+
 @(applications: CategorisedApplications)(implicit request: Request[_], userFullName: Option[String])
 
 @main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
-        <div class="content__body full-width">
+        <article class="content__body full-width">
+
             <header>
-                <h1>Application names</h1>
+                <h1>Dashboard</h1>
             </header>
+
+            @tabList(0)
+
             <div class="two-col-list full-width">
                 <section class="section--branded two-col-list__col two-col-list__col--left">
 
@@ -60,10 +66,6 @@
                     }
                 </section>
             </div>
-            <header>
-                <h1>Developer list</h1>
-            </header>
-            <a <a data-view-developers href="@{routes.DevelopersController.developersPage()}">Developer List</a>
-        </div>
+        </article>
     }
 }
