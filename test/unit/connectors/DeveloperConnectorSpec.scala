@@ -51,7 +51,7 @@ class DeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures wi
 
     def encode(str: String) = URLEncoder.encode(str, "UTF-8")
 
-    def aUserResponse(email: String) = User(email, "first", "last", false)
+    def aUserResponse(email: String) = User(email, "first", "last", Some(false), None)
 
     def verifyUserResponse(userResponse: User,
                            expectedEmail: String, expectedFirstName: String, expectedLastName: String) = {

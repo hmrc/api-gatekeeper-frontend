@@ -76,7 +76,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
 
-        val result = await(underTest.developersPage(None, 1, 10)(aLoggedOutRequest))
+        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedOutRequest))
 
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
@@ -93,7 +93,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 200
         bodyOf(result) should include("Dashboard")
@@ -107,7 +107,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
 
-        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
@@ -121,9 +121,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           userName, None)
 
         val users = Seq(
-          User("sample@email.com", "Sample", "Email", false),
-          User("another@email.com", "Sample2", "Email", true),
-          User("someone@email.com", "Sample3", "Email", true))
+          User("sample@email.com", "Sample", "Email", Some(false)),
+          User("another@email.com", "Sample2", "Email", Some(true)),
+          User("someone@email.com", "Sample3", "Email", Some(true)))
 
 
         val collaborators = Set(
@@ -139,7 +139,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-        val result = await(underTest.developersPage(None, 1, 10)(aLoggedInRequest))
+        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
 
         status(result) shouldBe 200
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))

@@ -39,7 +39,7 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
   val developerService: DeveloperService
   val apiDefinitionConnector: ApiDefinitionConnector
 
-  private def redirect(filter: Option[String], pageNumber: Int, pageSize: Int) = {
+  private def redirect(filter: Option[String], status: Option[String], pageNumber: Int, pageSize: Int) = {
     val pageParams = Map(
       "pageNumber" -> Seq(pageNumber.toString),
       "pageSize" -> Seq(pageSize.toString)
@@ -50,7 +50,12 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
       case Some(flt) => Map("filter" -> Seq(flt))
     }
 
-    val queryParams = pageParams ++ filterParams
+    val statusParams = status match {
+      case Some("") | None => Map.empty
+      case Some(stat) => Map("status" -> Seq(stat))
+    }
+
+    val queryParams = pageParams ++ filterParams ++ statusParams
     Redirect("", queryParams, 303)
   }
 
@@ -65,21 +70,26 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
     versions.groupBy(_.status)
   }
 
-  def developersPage(filter: Option[String], pageNumber: Int, pageSize: Int) = requiresRole(Role.APIGatekeeper) {
+  def developersPage(filter: Option[String], status: Option[String], pageNumber: Int, pageSize: Int) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
+      val apiFilter = ApiFilter(filter)
+      val statusFilter = StatusFilter(status)
+
       for {
-        apps <- developerService.filteredApps(filter)
-        devs <- developerService.fetchDevelopers
+        apps <- developerService.fetchApplications(apiFilter)
         apis <- apiDefinitionConnector.fetchAll
-        users = developerService.getApplicationUsers(devs, apps)
+        filterOps = (developerService.filterUsersBy(apiFilter, apps) _
+                     andThen developerService.filterUsersBy(statusFilter) _)
+        devs <- developerService.fetchDevelopers
+        users = filterOps(devs)
         emails = developerService.emailList(users)
         page = PageableCollection(users, pageNumber, pageSize)
       } yield {
         if (page.valid) {
-          Ok(developers(page, emails, groupApisByStatus(apis), filter))
+          Ok(developers(page, emails, groupApisByStatus(apis), filter, status))
         }
         else {
-          redirect(filter, 1, pageSize)
+          redirect(filter, status, 1, pageSize)
         }
       }
   }
@@ -87,6 +97,6 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
   def submitDeveloperFilter = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       val form = developerFilterForm.bindFromRequest.get
-      Future.successful(redirect(Option(form.filter), form.pageNumber, form.pageSize))
+      Future.successful(redirect(Option(form.filter), Option(form.status), form.pageNumber, form.pageSize))
     }
 }

@@ -36,16 +36,28 @@ trait DeveloperService  {
   val apiDefinitionConnector: ApiDefinitionConnector
   val applicationConnector: ApplicationConnector
 
-  def filteredApps(filter: Option[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     filter match {
-      case Some(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
-      case None => applicationConnector.fetchAllApplications()
+      case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
+      case _ => applicationConnector.fetchAllApplications()
     }
   }
 
-  def getApplicationUsers(allUsers: Seq[User], apps: Seq[ApplicationResponse]): Seq[User] = {
-      val collaborators = apps.flatMap(_.collaborators).map(_.emailAddress).toSet
-      allUsers.filter(u => collaborators.contains(u.email))
+  def filterUsersBy(filter: ApiFilter[String], apps: Seq[ApplicationResponse])(users: Seq[User]): Seq[User] = {
+    val collaborators = apps.flatMap(_.collaborators).map(_.emailAddress).toSet
+
+    filter match {
+      case NoSubscriptions => users.filterNot(u => collaborators.contains(u.email))
+      case _ => users.filter(u => collaborators.contains(u.email))
+    }
+  }
+
+  def filterUsersBy(filter: StatusFilter)(users: Seq[User]): Seq[User] = {
+    filter match {
+      case AnyStatus => users
+      case VerifiedStatus => users.filter(u => u.verified.getOrElse(false))
+      case UnverifiedStatus => users.filterNot(u => u.verified.getOrElse(false))
+    }
   }
 
   def emailList(users: Seq[User]) = {

@@ -1,5 +1,12 @@
+@import controllers._
+@import model._
 @import include._
-@(users: model.PageableCollection[model.User], emails: String, apis: Map[model.APIStatus.APIStatus, Seq[model.VersionSummary]], filter: Option[String])(implicit request: Request[_], userFullName: Option[String])
+
+@(users: PageableCollection[User],
+  emails: String,
+  apis: Map[APIStatus.APIStatus, Seq[VersionSummary]],
+  filter: Option[String],
+  status: Option[String])(implicit request: Request[_], userFullName: Option[String])
 
 @main(title = "API Gatekeeper Dashboard",userFullName = userFullName) {
 
@@ -9,17 +16,17 @@
         <h1>Dashboard</h1>
     </header>
 
-    @tabList(1)
+    @tabList(activeTab = 1)
 
     <form action="developers" method="post">
         <div class="grid-layout" style="margin-left:0">
-            <div class="grid-layout__column--2-3">
+            <div class="grid-layout__column--1-3">
                 <div class="form-group">
                     <label class="form-label bold" for="filter">Filter by API Subscription
                         <select class="form-control" id="filter" name="filter"
-                                value="@filter" onchange="this.form.submit()"
-                                style="margin:0">
-                            <option value="">ALL</option>
+                                value="@filter" onchange="this.form.submit()" style="margin:0;width:85%">
+                            <option @if(filter == None || filter == Some("ALL")) {selected} value="ALL">ALL</option>
+                            <option @if(filter == Some("NONE")) {selected} value="NONE">NONE</option>
 
                             @for((status, versions) <- apis) {
                                 <optgroup label="@status">
@@ -38,10 +45,22 @@
 
             <div class="grid-layout__column--1-3">
                 <div class="form-group">
+                    <label class="form-label bold" for="status">Filter by Status
+                        <select class="form-control" id="status" name="status"
+                                value="@status" onchange="this.form.submit()" style="margin:0;width:85%">
+                            @for((value,label) <- Map("ALL" -> "ALL", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Unverified")) {
+                                <option value="@value" @if(Some(value) == status){selected}>@label</option>
+                            }
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid-layout__column--1-3">
+                <div class="form-group">
                     <label class="form-label bold" for="pageSize">Show Rows
                         <select class="form-control input--small" id="pageSize" name="pageSize"
-                                value="@users.pageSize" onchange="this.form.submit()"
-                                style="margin:0">
+                                value="@users.pageSize" onchange="this.form.submit()" style="margin:0">
                             @for(n <- List(10,20,100)) {
                                 <option value="@n" @if(users.pageSize == n){selected}>@n</option>
                             }
@@ -67,8 +86,8 @@
                     <td>@developer.email</td>
                     <td class="text--right hard--right">
                         @defining(developer.verified match {
-                            case true => ("status status--verified", "verified")
-                            case false => ("status status--not-verified", "not yet verified")
+                            case Some(true) => ("status status--verified", "verified")
+                            case _ => ("status status--not-verified", "not yet verified")
                         }) { case(cssStyle, text) => <span class="@cssStyle">@text</td> }
                 </tr>
             }
@@ -77,7 +96,7 @@
 
         <div class="grid-layout" style="margin-left:0">
             <div class="grid-layout__column--1-3 text--left">
-                @paginateButton("Previous", "page-nav__link page-nav__link--previous", users, filter, -1)
+                @paginateButton("Previous", "page-nav__link page-nav__link--previous", users, filter, status, -1)
             </div>
 
             <div class="grid-layout__column--1-3 text--center">
@@ -85,7 +104,7 @@
             </div>
 
             <div class="grid-layout__column--1-3 text--right">
-                @paginateButton("Next", "page-nav__link page-nav__link--next", users, filter, 1)
+                @paginateButton("Next", "page-nav__link page-nav__link--next", users, filter, status, 1)
             </div>
         </div>
 
@@ -137,11 +156,11 @@
 </article>
 }
 
-@paginateButton(text: String, cssClass: String, content: model.PageableCollection[_], filter: Option[String], direction: Int) = {
+@paginateButton(text: String, cssClass: String, content: model.PageableCollection[_], filter: Option[String], status: Option[String], direction: Int) = {
     @if(direction < 0 && content.hasPrevious || direction > 0 && content.hasNext) {
         <a class="@cssClass"
            rel="@if(direction < 0) {prev} else {next}"
-           href="@routes.DevelopersController.developersPage(filter, content.pageNumber + direction, content.pageSize)">
+           href="@routes.DevelopersController.developersPage(filter, status, content.pageNumber + direction, content.pageSize)">
             <span class="page-nav__label">@text</span></a>
     }
 }

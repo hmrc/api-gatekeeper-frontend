@@ -32,9 +32,8 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 
 class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
-  def user(name: String, verified: Boolean = true): User ={
-    User(s"$name@example.net", name, s"${name}son", verified)
-  }
+  def user(name: String, verified: Boolean = true) =
+    User(s"$name@example.net", name, s"${name}son", Some(verified))
 
   def app(name: String, collaborators: Set[Collaborator]): ApplicationResponse = {
     ApplicationResponse(UUID.randomUUID(),
@@ -85,7 +84,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
       given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-      val result: Seq[ApplicationResponse] = await(testDeveloperService.filteredApps(None)(new HeaderCarrier()))
+      val result: Seq[ApplicationResponse] = await(testDeveloperService.fetchApplications(AllUsers)(new HeaderCarrier()))
 
       result shouldEqual allApplications
     }
@@ -94,7 +93,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
       given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
-      val result = await(testDeveloperService.filteredApps(Some("subscription"))(new HeaderCarrier()))
+      val result = await(testDeveloperService.fetchApplications(Value("subscription"))(new HeaderCarrier()))
 
       result shouldBe filteredApplications
     }
@@ -106,16 +105,15 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "Get the list of users that have access to the given applications" in new Setup {
-      val _users = Seq( user("Bob"), user("Jim"), user("Jacob"))
+      val _users = Seq(user("Bob"), user("Jim"), user("Jacob"))
       val _allApplications = Seq(
         app("application1", Set(
           Collaborator("Bob@example.net", CollaboratorRole.ADMINISTRATOR),
           Collaborator("Jacob@example.net", CollaboratorRole.DEVELOPER)))
       )
 
-      val result = testDeveloperService.getApplicationUsers(users, allApplications)
-
-      result shouldBe _users.filter{u => Seq("Sample", "Sample3").contains(u.firstName)}
+      val result = testDeveloperService.filterUsersBy(AllUsers,_allApplications)(_users)
+      result shouldBe _users.filter{u => Set("Bob", "Jacob").contains(u.firstName)}
     }
 
     "Get the list of users that have access to different applications" in new Setup {
@@ -131,7 +129,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
           Collaborator("Jim@example.net", CollaboratorRole.DEVELOPER))
         ))
 
-      val result = testDeveloperService.getApplicationUsers(_users, _allApplications)
+      val result = testDeveloperService.filterUsersBy(AllUsers, _allApplications)(_users)
       result shouldBe _users
     }
 
@@ -149,7 +147,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
             Collaborator("Jim@example.net", CollaboratorRole.DEVELOPER))
           ))
 
-        val result = testDeveloperService.getApplicationUsers(_users, _allApplications)
+        val result = testDeveloperService.filterUsersBy(AllUsers, _allApplications)(_users)
         result shouldBe Seq()
       }
 
@@ -157,8 +155,40 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val _users = Seq( user("Shirley"), user("Gaia"), user("Jimbob"))
       val _allApplications = Seq()
 
-      val result = testDeveloperService.getApplicationUsers(_users, _allApplications)
+      val result = testDeveloperService.filterUsersBy(AllUsers, _allApplications)(_users)
       result shouldBe Seq()
+    }
+
+    "fetch users who have no subscriptions" in new Setup {
+      val _users = Seq( user("Shirley"), user("Gaia"), user("Jimbob"), user("Jim"))
+      val _allApplications = Seq(
+        app("application1", Set(
+          Collaborator("Bob@example.net", CollaboratorRole.ADMINISTRATOR),
+          Collaborator("Jacob@example.net", CollaboratorRole.DEVELOPER)
+        )
+        ),
+        app("application2", Set(
+          Collaborator("Julia@example.net", CollaboratorRole.ADMINISTRATOR),
+          Collaborator("Jim@example.net", CollaboratorRole.DEVELOPER))
+        ))
+
+      val result = testDeveloperService.filterUsersBy(NoSubscriptions, _allApplications)(_users)
+      result shouldBe Seq(user("Shirley"), user("Gaia"), user("Jimbob"))
+    }
+
+    "filter by status does no filtering when any status" in new Setup {
+      val result = testDeveloperService.filterUsersBy(AnyStatus)(users)
+      result shouldBe users
+    }
+
+    "filter by status only returns verified users when Verified status" in new Setup {
+      val result = testDeveloperService.filterUsersBy(VerifiedStatus)(users)
+      result shouldBe Seq(user("Brian"), user("Sheila"))
+    }
+
+    "filter by status only returns unverified users when Unverified status" in new Setup {
+      val result = testDeveloperService.filterUsersBy(UnverifiedStatus)(users)
+      result shouldBe Seq(user("Bob", verified = false))
     }
   }
 }

@@ -117,10 +117,14 @@ object ApplicationWithHistory {
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
 
-case class User(email: String, firstName: String, lastName: String, verified: Boolean) extends Ordered[User] {
+case class User(email: String, firstName: String, lastName: String, verified: Option[Boolean], registered: Option[Boolean] = Some(true)) extends Ordered[User] {
   val fullName = s"$firstName $lastName"
-  val sortName = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
-  def compare(that: User) = this.sortName.compare(that.sortName)
+  val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
+  def compare(that: User) = this.sortField.compare(that.sortField)
+}
+
+case object UnregisteredCollaborator {
+  def apply(email: String) = User(email, "n/a", "", verified = None, registered = None)
 }
 
 object User {
@@ -185,9 +189,3 @@ case class ApprovedApplication(details: ApplicationDetails, admins: Seq[User], a
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
-
-case class DeveloperFilter(filter: String, pageNumber: Int, pageSize: Int)
-
-object DeveloperFilter {
-  implicit val jsonFormat = Json.format[DeveloperFilter]
-}
