@@ -29,7 +29,7 @@ object DashboardPage extends WebPage {
     find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
   }
 
-  def developerListLink = find(linkText("Developer List")).get
+  def developerListLink = find(id("tab1")).get
 
   def selectDeveloperList() = {
     click on developerListLink
