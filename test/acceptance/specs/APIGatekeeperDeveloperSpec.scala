@@ -17,12 +17,13 @@
 package acceptance.specs
 
 import acceptance.pages.DeveloperPage.APIFilter._
+import acceptance.pages.DeveloperPage.StatusFilter._
 import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.{By}
+import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
 
@@ -58,7 +59,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList
       stubDevelopersListAndAPISubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerList).withStatus(200)))
+        .willReturn(aResponse().withBody(developerListWithApp).withStatus(200)))
       stubAPISubscription("employers-paye")
       signInGatekeeper
       on(DashboardPage)
@@ -66,7 +67,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       When("I select Employers PAYE from the API filter drop down")
-      DeveloperPage.selectAPI(EMPLOYERSPAYE)
+      DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
 
       Then("all developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
       DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
@@ -81,7 +82,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList
       stubDevelopersListAndAPISubscription
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerList).withStatus(200)))
+        .willReturn(aResponse().withBody(developerListWithApp).withStatus(200)))
       stubAPISubscription("self-assessment")
       signInGatekeeper
       on(DashboardPage)
@@ -89,7 +90,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       When("I select Self Assessment from the API filter drop down")
-      DeveloperPage.selectAPI(SELFASSESSMENT)
+      DeveloperPage.selectBySubscription(SELFASSESSMENT)
 
       DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
                                                         s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
@@ -98,7 +99,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
 
       And("I select ALL from the API filter drop down")
-      DeveloperPage.selectAPI(ALL)
+      DeveloperPage.selectBySubscription(ALL)
 
       Then("all developers are successfully displayed and sorted correctly")
       DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
@@ -131,19 +132,19 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
    scenario("Ensure the correct number of developers is displayed on the Email Developers button ") {
 
-    Given("I have successfully logged in to the API gatekeeper")
-    stubApplicationList
-    stubDevelopersListAndAPISubscription
-    stubRandomDevelopers(24)
-    signInGatekeeper
-    on(DashboardPage)
+      Given("I have successfully logged in to the API gatekeeper")
+      stubApplicationList
+      stubDevelopersListAndAPISubscription
+      stubRandomDevelopers(24)
+      signInGatekeeper
+      on(DashboardPage)
 
-    When("I select to navigate to the Developer List page")
-    DashboardPage.selectDeveloperList
-    on(DeveloperPage)
+      When("I select to navigate to the Developer List page")
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
 
-    Then("the Email Developers button should display the corrent number of developers matching the total number of results")
-    assertTextPresent("#content div p a:nth-child(1)", "Email 24 developers")
+      Then("the Email Developers button should display the corrent number of developers matching the total number of results")
+      assertTextPresent("#content div p a:nth-child(1)", "Email 24 developers")
    }
 
     scenario("Ensure all developer email addresses are successfully loaded into bcc") {
@@ -152,8 +153,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList
       stubDevelopersListAndAPISubscription
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerList).withStatus(200)))
-      stubAPISubscription("self-assessment")
+        .willReturn(aResponse().withBody(developerListWithApp).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
 
@@ -162,11 +162,41 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the email button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("a:nth-child(1).button","href",s"mailto:?bcc=$developer2,$developer3,$developer5,$developer4,$developer,$developer6")
+      verifyUsersEmailAddress("a:nth-child(1).button","href",s"mailto:?bcc=$developer2 $developer3 $developer5 $developer4 $developer $developer6")
 
       And("the copy to clipbard button should contain all of the developers email addresses")
       //verifyUsersEmail(".//*[@id='content']/article/div[1]/p/a[2]")
       //verifyUsersEmailAddress("#content div p a:nth-child(2).button","onclick","copyTextToClipboard('imran.akram@mail.com,gurpreet.bhamra@mail.com,John.Dave@mail.com,a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com,purnima.shanti@mail.com,Vijaya.Vasantha@mail.com')")
+    }
+
+    scenario("NONE ALL") {
+
+      Given("I have successfully logged in to the API gatekeeper")
+      stubApplicationList
+      stubDevelopersListAndAPISubscription
+      stubFor(get(urlEqualTo("/developers/all"))
+        .willReturn(aResponse().withBody(developerListWithoutApp).withStatus(200)))
+      signInGatekeeper
+      on(DashboardPage)
+
+      When("I select to navigate to the Developer List page")
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      When("I select NONE and ALL from the filter drop down")
+      DeveloperPage.selectBySubscription(NONE)
+      DeveloperPage.selectByStatus(ALLSTATUS)
+
+      Then("all developers are successfully displayed and sorted correctly")
+//      DeveloperPage.bodyText should containInOrder(List(s"$dev11FirstName $dev11LastName $developer11 $statusVerified",
+//                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
+//                                                        s"$dev9FirstName $dev9LastName $developer9 $statusUnverified",
+//                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
+//                                                        s"$dev10FirstName $dev10LastName $developer10 $statusVerified"))
+
+      DeveloperPage.selectByStatus(UNVERIFIED)
+      DeveloperPage.selectByStatus(VERIFIED)
+
     }
   }
 
@@ -330,7 +360,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     private def verifyUsersEmail(button : String) {
-      val emailAddresses = webDriver.findElement(By.xpath(button)).getAttribute("value")
+      val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
     }
 
 

@@ -59,10 +59,30 @@ trait MockDataSugar {
   val dev6FirstName = "Vijaya"
   val dev6LastName =  "Vasantha"
 
+  val developer7 = "Kerri Ruffo"
+  val dev7FirstName = "Kerri"
+  val dev7LastName = "Ruffo"
+
+  val developer8 = "Dixie Upton"
+  val dev8FirstName = "Dixie"
+  val dev8LastName = "Upton"
+
+  val developer9 = "Marvella Shumpert"
+  val dev9FirstName = "Marvella"
+  val dev9LastName = "Shumpert"
+
+  val developer10 = "Glen Zaleski"
+  val dev10FirstName = "Glen"
+  val dev10LastName = "Zaleski"
+
+  val developer11 = "Toni Gillins"
+  val dev11FirstName = "Toni"
+  val dev11LastName = "Gillins"
+
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
-  val statusVerified = "Verified"
-  val statusUnverified = "Unverified"
+  val statusVerified = "verified"
+  val statusUnverified = "not yet verified"
 
   val applicationsPendingApproval =
     s"""
@@ -291,6 +311,25 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": []
        |  },
+       |      {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Shanti Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "ADMINISTRATOR"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer8",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
        |    {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
@@ -360,12 +399,7 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": [
-       |    {
-       |     "context": "any-api",
-       |     "version": "1.0"
-       |     }
-       |     ]
+       |    "subscriptions": []
        |  }]
     """.stripMargin
 
@@ -457,7 +491,7 @@ trait MockDataSugar {
     """.stripMargin
   }
 
-  val developerList =
+  val developerListWithApp =
     s"""
        |[
        |  {
@@ -496,6 +530,43 @@ trait MockDataSugar {
        |    "email": "$developer6",
        |    "firstName": "$dev6FirstName",
        |    "lastName": "$dev6LastName",
+       |    "verified": true
+       |  }
+       |]
+   """.stripMargin
+
+  val developerListWithoutApp =
+    s"""
+       |[
+       |  {
+       |    "email": "$developer7",
+       |    "firstName": "$dev7FirstName",
+       |    "lastName": "$dev7LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer8",
+       |    "firstName": "$dev8FirstName",
+       |    "lastName": "$dev8LastName",
+       |    "verified": true
+       |  },
+       |    {
+       |    "email": "$developer9",
+       |    "firstName": "$dev9FirstName",
+       |    "lastName": "$dev9LastName",
+       |    "verified": false
+       |
+       |  },
+       |    {
+       |    "email": "$developer10",
+       |    "firstName": "$dev10FirstName",
+       |    "lastName": "$dev10LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer11",
+       |    "firstName": "$dev11FirstName",
+       |    "lastName": "$dev11LastName",
        |    "verified": true
        |  }
        |]
@@ -621,8 +692,9 @@ trait MockDataSugar {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
     email =  randomEmail
-    verified = true
-  } yield User(email, forename, surname, verified)
+    verified = Option(true)
+    registered = None
+  } yield User(email, forename, surname, verified, registered)
 
   def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 
@@ -643,5 +715,6 @@ trait MockDataSugar {
        |"verified": true
        |}
      """.stripMargin
+
 
 }

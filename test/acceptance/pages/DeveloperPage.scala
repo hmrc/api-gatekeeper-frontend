@@ -18,6 +18,7 @@ package acceptance.pages
 
 import acceptance.WebPage
 import acceptance.pages.DeveloperPage.APIFilter.APIFilterList
+import acceptance.pages.DeveloperPage.StatusFilter.StatusFilterList
 
 object DeveloperPage extends WebPage {
 
@@ -36,8 +37,12 @@ object DeveloperPage extends WebPage {
     click on emailDeveloperLink
   }
 
-  def selectAPI (api: APIFilterList) = {
+  def selectBySubscription(api: APIFilterList) = {
     singleSel("filter").value = api.name
+  }
+
+  def selectByStatus(status: StatusFilterList) = {
+    singleSel("status").value = status.name
   }
 
   def selectNoofRows(noOfRows: String) = {
@@ -70,7 +75,9 @@ object DeveloperPage extends WebPage {
 
     case object INDIVIDUALINCOME extends APIFilterList("iincome")
 
-    case object ALL extends APIFilterList("")
+    case object ALL extends APIFilterList("ALL")
+
+    case object NONE extends APIFilterList("NONE")
 
     case object INDIVIDUALTAX extends APIFilterList("itax")
 
@@ -87,6 +94,18 @@ object DeveloperPage extends WebPage {
     case object PAYEPAYMENTS extends APIFilterList("payep")
 
     case object SELFASSESSMENT extends APIFilterList("self-assessment")
+
+  }
+
+  object StatusFilter  {
+
+    sealed abstract class StatusFilterList(val name: String) {}
+
+    case object ALLSTATUS extends StatusFilterList("ALL")
+
+    case object VERIFIED extends StatusFilterList("VERIFIED")
+
+    case object UNVERIFIED extends StatusFilterList("UNVERIFIED")
 
   }
 
