@@ -311,25 +311,6 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": []
        |  },
-       |      {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Shanti Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer8",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer8",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": []
-       |  },
        |    {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
@@ -402,8 +383,6 @@ trait MockDataSugar {
        |    "subscriptions": []
        |  }]
     """.stripMargin
-
-
 
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {
@@ -548,7 +527,7 @@ trait MockDataSugar {
        |    "email": "$developer8",
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
-       |    "verified": true
+       |    "verified": false
        |  },
        |    {
        |    "email": "$developer9",

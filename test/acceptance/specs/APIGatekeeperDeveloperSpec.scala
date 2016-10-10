@@ -53,6 +53,88 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 11 entries")
     }
 
+    scenario("Ensure a SDST can view ALL verified users, verified and unverified collaborators") {
+
+      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
+      stubApplicationList
+      stubDevelopersListAndAPISubscription
+      stubFor(get(urlEqualTo("/developers/all"))
+        .willReturn(aResponse().withBody(developerListWithApp).withStatus(200)))
+      stubAPISubscription("self-assessment")
+      signInGatekeeper
+      on(DashboardPage)
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      Then("all developers are successfully displayed and sorted correctly")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
+                                                        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
+                                                        s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
+                                                        s"$devFirstName $devLastName $developer $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+
+      When("I select Verified from the Status filter drop down")
+      DeveloperPage.selectByStatus(VERIFIED)
+
+      Then("all the verified users and collaborators are displayed")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
+                                                        s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$devFirstName $devLastName $developer $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+
+      When("I select Unverified from the Status filter drop down")
+      DeveloperPage.selectByStatus(UNVERIFIED)
+
+      Then("all the verified users and collaborators are displayed")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
+                                                        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified"))
+
+    }
+
+    scenario("Ensure a SDST can view verified users, verified and unverified collaborators who has no association with an API") {
+
+      Given("I have successfully logged in to the API gatekeeper")
+      stubApplicationList
+      stubDevelopersListAndAPISubscription
+      stubFor(get(urlEqualTo("/developers/all"))
+        .willReturn(aResponse().withBody(developerListWithoutApp).withStatus(200)))
+      signInGatekeeper
+      on(DashboardPage)
+
+      When("I select to navigate to the Developer List page")
+      DashboardPage.selectDeveloperList
+      on(DeveloperPage)
+
+      When("I select NONE and ALL from the filter drop down")
+      DeveloperPage.selectBySubscription(NONE)
+      DeveloperPage.selectByStatus(ALLSTATUS)
+
+      Then("all developers are successfully displayed and sorted correctly")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev11FirstName $dev11LastName $developer11 $statusVerified",
+                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
+                                                        s"$dev9FirstName $dev9LastName $developer9 $statusUnverified",
+                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
+                                                        s"$dev10FirstName $dev10LastName $developer10 $statusVerified"))
+
+      When("I select Verified from the Status filter drop down")
+      DeveloperPage.selectByStatus(VERIFIED)
+
+      Then("all verified users and collaborators are displayed successfully")
+
+      When("I select Unverified from the Status filter drop down")
+      DeveloperPage.selectByStatus(UNVERIFIED)
+
+      Then("all unverified users and collaborators are displayed successfully")
+
+    }
+
+    scenario("Ensure a user who is associated with an app but has no subscription to an API are listed under NONE filter"){
+
+      //have to stub users and collaborators with an app but no API.
+
+    }
+
     scenario("Ensure a user can filter by an API Subscription") {
 
       Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
@@ -74,42 +156,17 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
                                                         s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
       assertNumberOfDevelopersPerPage(2)
       assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
-    }
 
-    scenario("ALL Developers") {
+      When("I select verified from the Status filter drop down")
+      DeveloperPage.selectByStatus(VERIFIED)
 
-      Given("I have successfully logged in to the API gatekeeper and I am on the Developer List page")
-      stubApplicationList
-      stubDevelopersListAndAPISubscription
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerListWithApp).withStatus(200)))
-      stubAPISubscription("self-assessment")
-      signInGatekeeper
-      on(DashboardPage)
-      DashboardPage.selectDeveloperList
-      on(DeveloperPage)
+      Then("all verified users and collaborators are successfully displayed")
 
-      When("I select Self Assessment from the API filter drop down")
-      DeveloperPage.selectBySubscription(SELFASSESSMENT)
+      When("I select unverified from the Status filter drop down")
+      DeveloperPage.selectByStatus(UNVERIFIED)
 
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      Then("all unverified collaborators are displayed")
 
-      assertNumberOfDevelopersPerPage(2)
-      assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
-
-      And("I select ALL from the API filter drop down")
-      DeveloperPage.selectBySubscription(ALL)
-
-      Then("all developers are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev3FirstName $dev3LastName $developer3 $statusUnverified",
-                                                        s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
-                                                        s"$dev4FirstName $dev4LastName $developer4 $statusUnverified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
-      assertNumberOfDevelopersPerPage(6)
-      assertResult(getResultEntriesCount)("Showing 1 to 6 of 6 entries")
     }
 
     scenario("Ensure a user can view the Email and Copy to Clipboard buttons on the Developer page") {
@@ -127,7 +184,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I should be able to view the Email and Copy to Clipboard buttons")
       assertButtonIsPresent("#content div a:nth-child(1)")
-      // assertButtonIsPresent("#content div p a:nth-child(2)")
+      assertButtonIsPresent("#content div a:nth-child(2)")
+
     }
 
    scenario("Ensure the correct number of developers is displayed on the Email Developers button ") {
@@ -145,6 +203,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("the Email Developers button should display the corrent number of developers matching the total number of results")
       assertTextPresent("#content div p a:nth-child(1)", "Email 24 developers")
+
    }
 
     scenario("Ensure all developer email addresses are successfully loaded into bcc") {
@@ -162,42 +221,13 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the email button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("a:nth-child(1).button","href",s"mailto:?bcc=$developer2 $developer3 $developer5 $developer4 $developer $developer6")
+      verifyUsersEmailAddress("a:nth-child(1).button","href", s"mailto:?bcc=$developer2;%20$developer3;%20$developer5;%20$developer4;%20$developer;%20$developer6")
 
       And("the copy to clipbard button should contain all of the developers email addresses")
-      //verifyUsersEmail(".//*[@id='content']/article/div[1]/p/a[2]")
-      //verifyUsersEmailAddress("#content div p a:nth-child(2).button","onclick","copyTextToClipboard('imran.akram@mail.com,gurpreet.bhamra@mail.com,John.Dave@mail.com,a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com,purnima.shanti@mail.com,Vijaya.Vasantha@mail.com')")
-    }
-
-    scenario("NONE ALL") {
-
-      Given("I have successfully logged in to the API gatekeeper")
-      stubApplicationList
-      stubDevelopersListAndAPISubscription
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developerListWithoutApp).withStatus(200)))
-      signInGatekeeper
-      on(DashboardPage)
-
-      When("I select to navigate to the Developer List page")
-      DashboardPage.selectDeveloperList
-      on(DeveloperPage)
-
-      When("I select NONE and ALL from the filter drop down")
-      DeveloperPage.selectBySubscription(NONE)
-      DeveloperPage.selectByStatus(ALLSTATUS)
-
-      Then("all developers are successfully displayed and sorted correctly")
-//      DeveloperPage.bodyText should containInOrder(List(s"$dev11FirstName $dev11LastName $developer11 $statusVerified",
-//                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-//                                                        s"$dev9FirstName $dev9LastName $developer9 $statusUnverified",
-//                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
-//                                                        s"$dev10FirstName $dev10LastName $developer10 $statusVerified"))
-
-      DeveloperPage.selectByStatus(UNVERIFIED)
-      DeveloperPage.selectByStatus(VERIFIED)
+      // have to input the copy to clipboard text
 
     }
+
   }
 
     info("AS A Product Owner")
