@@ -147,6 +147,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       DashboardPage.selectDeveloperList
       on(DeveloperPage)
+      Thread.sleep(700000)
 
       When("I select Employers PAYE from the API filter drop down")
       DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
@@ -161,6 +162,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified users and collaborators are successfully displayed")
+      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusVerified",
+                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      assertNumberOfDevelopersPerPage(2)
+      assertResult(getResultEntriesCount)("Showing 1 to 2 of 2 entries")
 
       When("I select unverified from the Status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)

@@ -256,7 +256,7 @@ trait MockDataSugar {
        |  },
        |      {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Gurpreets Application",
+       |    "name": "Long name's Application",
        |    "description": "application for test",
        |   "collaborators": [
        |    {
@@ -275,7 +275,7 @@ trait MockDataSugar {
        |  },
        |      {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Gurpreets Application",
+       |    "name": "John's Application",
        |    "description": "application for test",
        |   "collaborators": [
        |    {
@@ -294,7 +294,7 @@ trait MockDataSugar {
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Long Persons Application",
+       |    "name": "`vijaya's Application",
        |    "description": "application for test",
        |   "collaborators": [
        |    {
