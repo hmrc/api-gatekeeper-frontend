@@ -60,12 +60,11 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       implicit val decryptedStringFormats = JsonStringDecryption
       implicit val format = Json.format[LoginDetails]
 
-      val csrfToken = "csrfToken" -> SignedTokenProvider.generateToken
       val authToken = SessionKeys.authToken -> "some-bearer-token"
       val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 
-      val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-      val aLoggedOutRequest = FakeRequest().withSession(csrfToken)
+      val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
+      val aLoggedOutRequest = FakeRequest().withSession()
 
       val userName = "userName"
     }
@@ -145,6 +144,5 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
     }
-
   }
 }

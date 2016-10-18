@@ -19,20 +19,25 @@ package model
 
 sealed trait ApiFilter[+A]
 case class Value[A](a: A) extends ApiFilter[A]
+case object NoApplications extends ApiFilter[Nothing]
 case object NoSubscriptions extends ApiFilter[Nothing]
+case object OneOrMoreSubscriptions extends ApiFilter[Nothing]
 case object AllUsers extends ApiFilter[Nothing]
 
 case object ApiFilter extends ApiFilter[String] {
   def apply(value: Option[String]): ApiFilter[String] = {
     value match {
-      case Some("ALL") | None => AllUsers
-      case Some("NONE") => NoSubscriptions
+      case Some("ALL") | Some("") | None => AllUsers
+      case Some("ANYSUB") => OneOrMoreSubscriptions
+      case Some("NOSUB") => NoSubscriptions
+      case Some("NOAPP") => NoApplications
       case Some(flt) => Value(flt)
     }
   }
 }
 
 sealed trait StatusFilter
+case object UnregisteredStatus extends StatusFilter
 case object UnverifiedStatus extends StatusFilter
 case object VerifiedStatus extends StatusFilter
 case object AnyStatus extends StatusFilter
@@ -40,6 +45,7 @@ case object AnyStatus extends StatusFilter
 case object StatusFilter extends StatusFilter {
   def apply(value: Option[String]): StatusFilter = {
     value match {
+      case Some("UNREGISTERED") => UnregisteredStatus
       case Some("UNVERIFIED") => UnverifiedStatus
       case Some("VERIFIED") => VerifiedStatus
       case _ => AnyStatus

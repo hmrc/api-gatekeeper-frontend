@@ -20,6 +20,7 @@ import java.util.UUID
 
 import model.CollaboratorRole.CollaboratorRole
 import model.State.State
+import model.User.UserStatus
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
@@ -117,19 +118,26 @@ object ApplicationWithHistory {
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
 
-case class User(email: String, firstName: String, lastName: String, verified: Option[Boolean], registered: Option[Boolean] = Some(true)) extends Ordered[User] {
+case class User(email: String, firstName: String, lastName: String, verified: Option[Boolean]) extends Ordered[User] {
   val fullName = s"$firstName $lastName"
   val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
+  val status: UserStatus = verified match {
+    case Some(true) => VerifiedStatus
+    case Some(false) => UnverifiedStatus
+    case None => UnregisteredStatus
+  }
   def compare(that: User) = this.sortField.compare(that.sortField)
-}
-
-case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "", verified = None, registered = None)
 }
 
 object User {
   implicit val format = Json.format[User]
+  type UserStatus = StatusFilter
 }
+
+case object UnregisteredCollaborator {
+  def apply(email: String) = User(email, "n/a", "", verified = None)
+}
+
 
 object ApplicationWithUpliftRequest {
 

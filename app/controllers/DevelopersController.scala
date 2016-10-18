@@ -93,10 +93,4 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
         }
       }
   }
-
-  def submitDeveloperFilter = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      val form = developerFilterForm.bindFromRequest.get
-      Future.successful(redirect(Option(form.filter), Option(form.status), form.pageNumber, form.pageSize))
-    }
 }

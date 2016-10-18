@@ -70,6 +70,14 @@ trait ApplicationConnector {
       }
   }
 
+  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/application?noSubscriptions=true")
+      .recover {
+	case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+      }
+  }
+
+
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/application")
       .recover {

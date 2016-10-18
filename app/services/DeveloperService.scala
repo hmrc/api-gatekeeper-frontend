@@ -38,6 +38,7 @@ trait DeveloperService  {
 
   def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     filter match {
+      case NoSubscriptions => applicationConnector.fetchAllApplicationsWithNoSubscriptions()
       case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
       case _ => applicationConnector.fetchAllApplications()
     }
@@ -45,18 +46,19 @@ trait DeveloperService  {
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[ApplicationResponse])(users: Seq[User]): Seq[User] = {
     val collaborators = apps.flatMap(_.collaborators).map(_.emailAddress).toSet
+    val unregistered = collaborators.diff(users.map(_.email).toSet).map(UnregisteredCollaborator(_))
 
     filter match {
-      case NoSubscriptions => users.filterNot(u => collaborators.contains(u.email))
-      case _ => users.filter(u => collaborators.contains(u.email))
+      case AllUsers => users ++ unregistered
+      case NoApplications => users.filterNot(u => collaborators.contains(u.email))
+      case NoSubscriptions | OneOrMoreSubscriptions | Value(_) => users.filter(u => collaborators.contains(u.email)) ++ unregistered
     }
   }
 
   def filterUsersBy(filter: StatusFilter)(users: Seq[User]): Seq[User] = {
     filter match {
       case AnyStatus => users
-      case VerifiedStatus => users.filter(u => u.verified.getOrElse(false))
-      case UnverifiedStatus => users.filterNot(u => u.verified.getOrElse(false))
+      case _ => users.filter(u => u.status == filter)
     }
   }
 
