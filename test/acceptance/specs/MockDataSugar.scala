@@ -673,7 +673,7 @@ trait MockDataSugar {
     email =  randomEmail
     verified = Option(true)
     registered = None
-  } yield User(email, forename, surname, verified, registered)
+  } yield User(email, forename, surname, verified)
 
   def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 

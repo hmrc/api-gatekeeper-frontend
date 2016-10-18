@@ -49,6 +49,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developer Page where I can view all developer list details by default")
       on(DeveloperPage)
+      Thread.sleep(70000)
       assertNumberOfDevelopersPerPage(10)
       assertResult(getResultEntriesCount)("Showing 1 to 10 of 11 entries")
     }
@@ -107,7 +108,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       When("I select NONE and ALL from the filter drop down")
-      DeveloperPage.selectBySubscription(NONE)
+      //DeveloperPage.selectBySubscription(NONE)
       DeveloperPage.selectByStatus(ALLSTATUS)
 
       Then("all developers are successfully displayed and sorted correctly")

@@ -65,19 +65,19 @@ object DeveloperPage extends WebPage {
 
     sealed abstract class APIFilterList(val name: String) {}
 
+    case object ALL extends APIFilterList("ALL")
+
+    case object ONEORMORESUBSCRIPTION extends APIFilterList("ANYSUB")
+
+    case object NOSUBSCRIPTION extends APIFilterList("NOSUB")
+
+    case object NOAPPLICATIONS extends APIFilterList("NOAPP")
+
     case object INDIVIDUALPAYE extends APIFilterList("individual-paye")
 
     case object INDIVIDUALBENEFITS extends APIFilterList("individual-benefits")
 
     case object EMPLOYERSPAYE extends APIFilterList("employers-paye")
-
-    case object INDIVIDUALEMPLOYMENT extends APIFilterList("iemp")
-
-    case object INDIVIDUALINCOME extends APIFilterList("iincome")
-
-    case object ALL extends APIFilterList("ALL")
-
-    case object NONE extends APIFilterList("NONE")
 
     case object INDIVIDUALTAX extends APIFilterList("itax")
 
