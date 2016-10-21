@@ -21,7 +21,6 @@ import java.net.URLEncoder
 import acceptance.pages.{ApprovedPage, DashboardPage, ReviewPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.sun.corba.se.spi.ior.iiop.GIOPVersion
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers}

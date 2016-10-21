@@ -67,22 +67,14 @@ trait MockDataSugar {
   val dev8FirstName = "Dixie"
   val dev8LastName = "Upton"
 
-  val developer9 = "Marvella Shumpert"
-  val dev9FirstName = "Marvella"
-  val dev9LastName = "Shumpert"
-
-  val developer10 = "Glen Zaleski"
-  val dev10FirstName = "Glen"
-  val dev10LastName = "Zaleski"
-
-  val developer11 = "Toni Gillins"
-  val dev11FirstName = "Toni"
-  val dev11LastName = "Gillins"
+  val developer9 = "fred@example.com"
+  val dev9name = "n/a"
 
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
   val statusVerified = "verified"
   val statusUnverified = "not yet verified"
+  val statusUnregistered = "not registered"
 
   val applicationsPendingApproval =
     s"""
@@ -200,6 +192,10 @@ trait MockDataSugar {
        |    {
        |      "emailAddress": "$developer",
        |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |     "role": "DEVELOPER"
        |    }
        |    ],
        |    "createdOn": 1458832690624,
@@ -209,12 +205,7 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": [
-       |    {
-       |     "context": "individual-paye",
-       |     "version": "1.0"
-       |     }
-       |     ]
+       |    "subscriptions": []
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
@@ -224,6 +215,14 @@ trait MockDataSugar {
        |    {
        |      "emailAddress": "$developer2",
        |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "$developer7",
+       |     "role": "DEVELOPER"
+       |    },
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "DEVELOPER"
        |    }
        |    ],
        |    "createdOn": 1458832690624,
@@ -234,106 +233,6 @@ trait MockDataSugar {
        |      "updatedOn": 1459868573962
        |    },
        |    "subscriptions": []
-       |  },
-       |    {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Gurpreets Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer3",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer3",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": []
-       |  },
-       |      {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "Long name's Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer4",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer4",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": []
-       |  },
-       |      {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "John's Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer5",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer5",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": []
-       |  },
-       |    {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "name": "`vijaya's Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer6",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer6",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": []
-       |  },
-       |    {
-       |    "id": "$approvedApp1",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$randomEmail",
-       |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$randomEmail",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [
-       |    {
-       |     "context": "any-api",
-       |     "version": "1.0"
-       |     }
-       |     ]
        |  }]
     """.stripMargin
 
@@ -383,6 +282,103 @@ trait MockDataSugar {
        |    "subscriptions": []
        |  }]
     """.stripMargin
+
+  val allUsers =
+    s"""
+       |[
+       |  {
+       |    "email": "$developer",
+       |    "firstName": "$devFirstName",
+       |    "lastName": "$devLastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer2",
+       |    "firstName": "$dev2FirstName",
+       |    "lastName": "$dev2LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer4",
+       |    "firstName": "$dev4FirstName",
+       |    "lastName": "$dev4LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer5",
+       |    "firstName": "$dev5FirstName",
+       |    "lastName": "$dev5LastName",
+       |    "verified": false
+       |  },
+       |  {
+       |    "email": "$developer6",
+       |    "firstName": "$dev6FirstName",
+       |    "lastName": "$dev6LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer7",
+       |    "firstName": "$dev7FirstName",
+       |    "lastName": "$dev7LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer8",
+       |    "firstName": "$dev8FirstName",
+       |    "lastName": "$dev8LastName",
+       |    "verified": false
+       |  }
+       |]
+   """.stripMargin
+
+  val usersWithNoSubscription =
+    s"""
+       |[
+       |  {
+       |    "email": "$developer",
+       |    "firstName": "$devFirstName",
+       |    "lastName": "$devLastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer2",
+       |    "firstName": "$dev2FirstName",
+       |    "lastName": "$dev2LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer4",
+       |    "firstName": "$dev4FirstName",
+       |    "lastName": "$dev4LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer5",
+       |    "firstName": "$dev5FirstName",
+       |    "lastName": "$dev5LastName",
+       |    "verified": false
+       |  },
+       |  {
+       |    "email": "$developer6",
+       |    "firstName": "$dev6FirstName",
+       |    "lastName": "$dev6LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer7",
+       |    "firstName": "$dev7FirstName",
+       |    "lastName": "$dev7LastName",
+       |    "verified": true
+       |  },
+       |  {
+       |    "email": "$developer8",
+       |    "firstName": "$dev8FirstName",
+       |    "lastName": "$dev8LastName",
+       |    "verified": false
+       |  }
+       |]
+   """.stripMargin
+
 
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {
@@ -469,87 +465,6 @@ trait MockDataSugar {
        |}
     """.stripMargin
   }
-
-  val developerListWithApp =
-    s"""
-       |[
-       |  {
-       |    "email": "$developer",
-       |    "firstName": "$devFirstName",
-       |    "lastName": "$devLastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer2",
-       |    "firstName": "$dev2FirstName",
-       |    "lastName": "$dev2LastName",
-       |    "verified": true
-       |  },
-       |    {
-       |    "email": "$developer3",
-       |    "firstName": "$dev3FirstName",
-       |    "lastName": "$dev3LastName",
-       |    "verified": false
-       |
-       |  },
-       |    {
-       |    "email": "$developer4",
-       |    "firstName": "$dev4FirstName",
-       |    "lastName": "$dev4LastName",
-       |    "verified": false
-       |  },
-       |  {
-       |    "email": "$developer5",
-       |    "firstName": "$dev5FirstName",
-       |    "lastName": "$dev5LastName",
-       |    "verified": true
-       |
-       |  },
-       |  {
-       |    "email": "$developer6",
-       |    "firstName": "$dev6FirstName",
-       |    "lastName": "$dev6LastName",
-       |    "verified": true
-       |  }
-       |]
-   """.stripMargin
-
-  val developerListWithoutApp =
-    s"""
-       |[
-       |  {
-       |    "email": "$developer7",
-       |    "firstName": "$dev7FirstName",
-       |    "lastName": "$dev7LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer8",
-       |    "firstName": "$dev8FirstName",
-       |    "lastName": "$dev8LastName",
-       |    "verified": false
-       |  },
-       |    {
-       |    "email": "$developer9",
-       |    "firstName": "$dev9FirstName",
-       |    "lastName": "$dev9LastName",
-       |    "verified": false
-       |
-       |  },
-       |    {
-       |    "email": "$developer10",
-       |    "firstName": "$dev10FirstName",
-       |    "lastName": "$dev10LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer11",
-       |    "firstName": "$dev11FirstName",
-       |    "lastName": "$dev11LastName",
-       |    "verified": true
-       |  }
-       |]
-   """.stripMargin
 
   val apiDefinition =
     s"""

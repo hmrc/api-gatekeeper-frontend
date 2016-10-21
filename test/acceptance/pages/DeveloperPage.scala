@@ -65,7 +65,7 @@ object DeveloperPage extends WebPage {
 
     sealed abstract class APIFilterList(val name: String) {}
 
-    case object ALL extends APIFilterList("ALL")
+    case object ALLUSERS extends APIFilterList("ALL")
 
     case object ONEORMORESUBSCRIPTION extends APIFilterList("ANYSUB")
 
@@ -101,11 +101,13 @@ object DeveloperPage extends WebPage {
 
     sealed abstract class StatusFilterList(val name: String) {}
 
-    case object ALLSTATUS extends StatusFilterList("ALL")
+    case object ALL extends StatusFilterList("ALL")
 
     case object VERIFIED extends StatusFilterList("VERIFIED")
 
     case object UNVERIFIED extends StatusFilterList("UNVERIFIED")
+
+    case object UNREGISTEREDCOLLABORATOR extends StatusFilterList("UNREGISTERED")
 
   }
 
