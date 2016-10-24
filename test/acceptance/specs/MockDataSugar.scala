@@ -59,11 +59,11 @@ trait MockDataSugar {
   val dev6FirstName = "Vijaya"
   val dev6LastName =  "Vasantha"
 
-  val developer7 = "Kerri Ruffo"
+  val developer7 = "Kerri.Ruffo@mail.com"
   val dev7FirstName = "Kerri"
   val dev7LastName = "Ruffo"
 
-  val developer8 = "Dixie Upton"
+  val developer8 = "Dixie.Upton@mail.com"
   val dev8FirstName = "Dixie"
   val dev8LastName = "Upton"
 
@@ -284,54 +284,6 @@ trait MockDataSugar {
     """.stripMargin
 
   val allUsers =
-    s"""
-       |[
-       |  {
-       |    "email": "$developer",
-       |    "firstName": "$devFirstName",
-       |    "lastName": "$devLastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer2",
-       |    "firstName": "$dev2FirstName",
-       |    "lastName": "$dev2LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer4",
-       |    "firstName": "$dev4FirstName",
-       |    "lastName": "$dev4LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer5",
-       |    "firstName": "$dev5FirstName",
-       |    "lastName": "$dev5LastName",
-       |    "verified": false
-       |  },
-       |  {
-       |    "email": "$developer6",
-       |    "firstName": "$dev6FirstName",
-       |    "lastName": "$dev6LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer7",
-       |    "firstName": "$dev7FirstName",
-       |    "lastName": "$dev7LastName",
-       |    "verified": true
-       |  },
-       |  {
-       |    "email": "$developer8",
-       |    "firstName": "$dev8FirstName",
-       |    "lastName": "$dev8LastName",
-       |    "verified": false
-       |  }
-       |]
-   """.stripMargin
-
-  val usersWithNoSubscription =
     s"""
        |[
        |  {

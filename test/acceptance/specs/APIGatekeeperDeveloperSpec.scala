@@ -23,9 +23,10 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.By
+import org.openqa.selenium.{By}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
+import scala.collection.immutable.List
 
 class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
@@ -233,7 +234,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(UNREGISTEREDCOLLABORATOR)
 
       Then("No results should be displayed")
-      println("No results retrned for this selection")
+      println("No results returned for this selection")
 
     }
 
@@ -329,10 +330,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the email button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("a:nth-child(1).button","href", s"mailto:?bcc=$developer2;%20$developer3;%20$developer5;%20$developer4;%20$developer;%20$developer6")
+      verifyUsersEmailAddress("#content p a:nth-child(1)","href", s"mailto:?bcc=$developer2;%20$developer5;%20$developer4;%20$developer7;%20$developer;%20$developer8;%20$developer6;%20$developer9")
 
       And("the copy to clipbard button should contain all of the developers email addresses")
-      // have to input the copy to clipboard text
+      verifyUsersEmailAddress("#content p a:nth-child(2)","onclick", s"copyTextToClipboard('$developer2; $developer5; $developer4; $developer7; $developer; $developer8; $developer6; $developer9'); return false;")
 
     }
   }
@@ -357,7 +358,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
         Then("I can view the default number of developers per page")
         on(DeveloperPage)
-        Thread.sleep(70000)
         assertNumberOfDevelopersPerPage(10)
         assertResult(getResultEntriesCount)("Showing 1 to 10 of 10 entries")
       }
