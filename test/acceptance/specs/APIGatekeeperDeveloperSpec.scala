@@ -34,7 +34,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   info("I WANT The SDST (Software Developer Support Team) to be able to select Users with an interest in a particular API")
   info("SO THAT The SDST can create and send email communications to Selected users")
 
-  feature("API Filter for Email Recipients") {
+  feature("API Filter for Email Recipients") {     
 
     scenario("Ensure a user can view a list of Registered developers") {
 
