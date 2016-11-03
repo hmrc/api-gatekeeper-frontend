@@ -73,6 +73,8 @@ object DeveloperPage extends WebPage {
 
     case object NOAPPLICATIONS extends APIFilterList("NOAPP")
 
+    case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
+
     case object INDIVIDUALPAYE extends APIFilterList("individual-paye")
 
     case object INDIVIDUALBENEFITS extends APIFilterList("individual-benefits")

@@ -527,7 +527,7 @@ trait MockDataSugar {
     |       ]
     |     }
     |   ],
-    |   "requiresTrust": false
+    |   "requiresTrust": false    
     | }
     |]
   """.stripMargin
