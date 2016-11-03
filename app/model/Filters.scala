@@ -20,6 +20,7 @@ package model
 sealed trait ApiFilter[+A]
 case class Value[A](a: A) extends ApiFilter[A]
 case object NoApplications extends ApiFilter[Nothing]
+case object OneOrMoreApplications extends ApiFilter[Nothing]
 case object NoSubscriptions extends ApiFilter[Nothing]
 case object OneOrMoreSubscriptions extends ApiFilter[Nothing]
 case object AllUsers extends ApiFilter[Nothing]
@@ -29,6 +30,7 @@ case object ApiFilter extends ApiFilter[String] {
     value match {
       case Some("ALL") | Some("") | None => AllUsers
       case Some("ANYSUB") => OneOrMoreSubscriptions
+      case Some("ANYAPP") => OneOrMoreApplications
       case Some("NOSUB") => NoSubscriptions
       case Some("NOAPP") => NoApplications
       case Some(flt) => Value(flt)

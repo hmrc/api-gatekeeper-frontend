@@ -25,19 +25,23 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object DeveloperService extends DeveloperService {
   override val developerConnector: DeveloperConnector = DeveloperConnector
-  override val apiDefinitionConnector = ApiDefinitionConnector
   override val applicationConnector = ApplicationConnector
 
 }
 
-trait DeveloperService  {
+trait DeveloperService {
 
   val developerConnector: DeveloperConnector
-  val apiDefinitionConnector: ApiDefinitionConnector
   val applicationConnector: ApplicationConnector
 
   def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     filter match {
+      case OneOrMoreSubscriptions => for {
+        all <- applicationConnector.fetchAllApplications()
+        noSubs <- applicationConnector.fetchAllApplicationsWithNoSubscriptions()
+      } yield {
+        all.filterNot(app => noSubs.contains(app))
+      }
       case NoSubscriptions => applicationConnector.fetchAllApplicationsWithNoSubscriptions()
       case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
       case _ => applicationConnector.fetchAllApplications()
@@ -51,7 +55,7 @@ trait DeveloperService  {
     filter match {
       case AllUsers => users ++ unregistered
       case NoApplications => users.filterNot(u => collaborators.contains(u.email))
-      case NoSubscriptions | OneOrMoreSubscriptions | Value(_) => users.filter(u => collaborators.contains(u.email)) ++ unregistered
+      case NoSubscriptions | OneOrMoreSubscriptions | OneOrMoreApplications | Value(_) => users.filter(u => collaborators.contains(u.email)) ++ unregistered
     }
   }
 
@@ -63,7 +67,7 @@ trait DeveloperService  {
   }
 
   def emailList(users: Seq[User]) = {
-    val DELIMITER = "; "  // Outlook requires email addresses separated by semi-colons
+    val DELIMITER = "; " // Outlook requires email addresses separated by semi-colons
     users.map(_.email).mkString(DELIMITER)
   }
 

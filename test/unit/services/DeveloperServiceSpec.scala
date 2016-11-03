@@ -44,12 +44,12 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     val testDeveloperService = new DeveloperService {
       val applicationConnector = mock[ApplicationConnector]
       val developerConnector = mock[DeveloperConnector]
-      val apiDefinitionConnector = mock[ApiDefinitionConnector]
     }
-    
     val collaborators = Set(
       Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+
+    implicit val hc = HeaderCarrier()
   }
 
   "developerService" should {
@@ -65,13 +65,12 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
           "application3", None, collaborators, DateTime.now(), ApplicationState()))
 
       given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApplications))
-      given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
-      given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-      val result: Seq[ApplicationResponse] = await(testDeveloperService.fetchApplications(AllUsers)(new HeaderCarrier()))
+      given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApplications))
+      val result: Seq[ApplicationResponse] = await(testDeveloperService.fetchApplications(AllUsers))
       result shouldEqual allApplications
     }
 
-    "list filtered developers when filtering is provided" in new Setup {
+    "list filtered developers when specific subscription filtering is provided" in new Setup {
       val users = Seq(user("Bob", false), user("Brian"), user("Sheila"))
 
       val filteredApplications = Seq(
@@ -81,10 +80,45 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
           "application3", None, collaborators, DateTime.now(), ApplicationState()))
 
       given(testDeveloperService.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier])).willReturn(Future.successful(filteredApplications))
-      given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
-      given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-      val result = await(testDeveloperService.fetchApplications(Value("subscription"))(new HeaderCarrier()))
+      given(testDeveloperService.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier])).willReturn(Future.successful(filteredApplications))
+      val result = await(testDeveloperService.fetchApplications(Value("subscription")))
       result shouldBe filteredApplications
+    }
+
+    "list filtered developers when OneOrMoreSubscriptions filtering is provided" in new Setup {
+      val users = Seq(user("Bob", false), user("Brian"), user("Sheila"))
+
+      val noSubscriptions = Seq(
+        ApplicationResponse(UUID.randomUUID(),
+          "application1", None, collaborators, DateTime.now(), ApplicationState()),
+        ApplicationResponse(UUID.randomUUID(),
+          "application3", None, collaborators, DateTime.now(), ApplicationState()))
+
+      val subscriptions = Seq(
+        ApplicationResponse(UUID.randomUUID(),
+          "application2", None, collaborators, DateTime.now(), ApplicationState()),
+        ApplicationResponse(UUID.randomUUID(),
+          "application4", None, collaborators, DateTime.now(), ApplicationState()))
+
+      val allApps = noSubscriptions ++ subscriptions
+      given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApps))
+      given(testDeveloperService.applicationConnector.fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier])).willReturn(Future.successful(noSubscriptions))
+      val result = await(testDeveloperService.fetchApplications(OneOrMoreSubscriptions))
+      result shouldBe subscriptions
+    }
+
+    "list filtered developers when OneOrMoreApplications filtering is provided" in new Setup {
+      val users = Seq(user("Bob", false), user("Brian"), user("Sheila"))
+
+      val allApps = Seq(
+        ApplicationResponse(UUID.randomUUID(),
+          "application1", None, collaborators, DateTime.now(), ApplicationState()),
+        ApplicationResponse(UUID.randomUUID(),
+          "application3", None, collaborators, DateTime.now(), ApplicationState()))
+
+      given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApps))
+       val result = await(testDeveloperService.fetchApplications(OneOrMoreApplications))
+      result shouldBe allApps
     }
 
     "Turn a list of users into an email list" in new Setup {
@@ -93,7 +127,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       result shouldBe "Bob@example.net; Brian@example.net; Sheila@example.net"
     }
 
-    "filter all users (no unregisted collaborators)" in new Setup {
+    "filter all users (no unregistered collaborators)" in new Setup {
       val users = Seq(user("Bob"), user("Jim"), user("Jacob"))
       val applications = Seq(
         app("application1", Set(
@@ -105,7 +139,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "filter all users (including unregistered collaborators)" in new Setup {
-      val users = Seq( user("Bob"), user("Jim"), user("Jacob"))
+      val users = Seq(user("Bob"), user("Jim"), user("Jacob"))
       val applications = Seq(
         app("application1", Set(
           Collaborator("Bob@example.net", CollaboratorRole.ADMINISTRATOR),
@@ -115,11 +149,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
           Collaborator("Jim@example.net", CollaboratorRole.DEVELOPER))))
 
       val result = testDeveloperService.filterUsersBy(AllUsers, applications)(users)
-      result shouldBe Seq( user("Bob"), user("Jim"), user("Jacob"), UnregisteredCollaborator("Julia@example.net"))
+      result shouldBe Seq(user("Bob"), user("Jim"), user("Jacob"), UnregisteredCollaborator("Julia@example.net"))
     }
 
     "filter users that have access to 1 or more applications" in new Setup {
-      val users = Seq( user("Bob"), user("Jim"), user("Jacob"))
+      val users = Seq(user("Bob"), user("Jim"), user("Jacob"))
       val applications = Seq(
         app("application1", Set(
           Collaborator("Bob@example.net", CollaboratorRole.ADMINISTRATOR),
@@ -129,12 +163,12 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
           Collaborator("Jim@example.net", CollaboratorRole.DEVELOPER))))
 
       val result = testDeveloperService.filterUsersBy(OneOrMoreSubscriptions, applications)(users)
-      result shouldBe Seq( user("Bob"), user("Jim"), user("Jacob"), UnregisteredCollaborator("Julia@example.net"))
+      result shouldBe Seq(user("Bob"), user("Jim"), user("Jacob"), UnregisteredCollaborator("Julia@example.net"))
     }
 
     "filter users that are not associated with any applications" in
       new Setup {
-        val users = Seq( user("Shirley"), user("Gaia"), user("Jimbob"))
+        val users = Seq(user("Shirley"), user("Gaia"), user("Jimbob"))
         val applications = Seq(
           app("application1", Set(
             Collaborator("Shirley@example.net", CollaboratorRole.ADMINISTRATOR),
@@ -148,7 +182,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       }
 
     "filter users who have no subscriptions" in new Setup {
-      val users = Seq( user("Shirley"), user("Gaia"), user("Jimbob"), user("Jim"))
+      val users = Seq(user("Shirley"), user("Gaia"), user("Jimbob"), user("Jim"))
       val _allApplications = Seq(
         app("application1", Set(
           Collaborator("Bob@example.net", CollaboratorRole.ADMINISTRATOR),
