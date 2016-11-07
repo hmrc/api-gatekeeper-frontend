@@ -79,7 +79,7 @@
                     <label class="form-label bold" for="status">Filter by Status
                         <select class="form-control input-select input-select--large" id="status" name="status"
                                 value="@status" onchange="this.form.submit()">
-                            @for((value,label) <- Map("ALL" -> "All", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Unverified", "UNREGISTERED" -> "Unregistered")) {
+                            @for((value,label) <- Map("ALL" -> "All", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Unverified", "UNREGISTERED" -> "Not registered")) {
                                 <option value="@value" @if(Some(value) == status){selected}>@label</option>
                             }
                         </select>
