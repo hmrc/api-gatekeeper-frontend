@@ -51,7 +51,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       Then("I am successfully navigated to the Developer Page where I can view all developer list details by default")
       on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
-      assertResult(getResultEntriesCount)("Showing 1 to 10 of 11 entries")
+      assertResult(getResultEntriesCount)("Showing 1 to 10 of 16 entries")
     }
 
     scenario("Ensure a SDST can view ALL users") {
@@ -235,7 +235,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("No results should be displayed")
       println("No results returned for this selection")
-
     }
 
     scenario("Ensure a SDST can view all users who are subscribed to Employers-PAYE") {
@@ -359,7 +358,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         Then("I can view the default number of developers per page")
         on(DeveloperPage)
         assertNumberOfDevelopersPerPage(10)
-        assertResult(getResultEntriesCount)("Showing 1 to 10 of 10 entries")
+        assertResult(getResultEntriesCount)("Showing 1 to 10 of 15 entries")
       }
 
       scenario("Ensure a user can view segments of 10, 20 and 100 results entries") {
