@@ -70,6 +70,9 @@ trait MockDataSugar {
   val developer9 = "fred@example.com"
   val dev9name = "n/a"
 
+  val developer10 = "peter.parker@mail.com"
+  val dev10name = "n/a"
+
   val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
 
   val statusVerified = "verified"
@@ -236,7 +239,25 @@ trait MockDataSugar {
        |  }]
     """.stripMargin
 
-  val applicationResponsewithAPI =
+  val applicationResponseWithNoUsers =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  }]
+    """.stripMargin
+
+  val applicationResponsewithNoSubscription =
     s"""
        |  [{
        |    "id": "$approvedApp1",
@@ -244,38 +265,26 @@ trait MockDataSugar {
        |    "description": "application for test",
        |   "collaborators": [
        |    {
-       |      "emailAddress": "$developer5",
+       |      "emailAddress": "$developer4",
        |     "role": "ADMINISTRATOR"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer5",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": [
        |    {
-       |     "context": "individual-paye",
-       |     "version": "1.0"
-       |     }
-       |     ]
-       |  },
-       |    {
-       |    "id": "$approvedApp1",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |   "collaborators": [
+       |      "emailAddress": "$developer5",
+       |     "role": "DEVELOPER"
+       |    },
        |    {
        |      "emailAddress": "$developer6",
-       |     "role": "ADMINISTRATOR"
+       |     "role": "DEVELOPER"
+       |    },
+       |    {
+       |      "emailAddress": "peter.parker@mail.com",
+       |     "role": "DEVELOPER"
        |    }
        |    ],
        |    "createdOn": 1458832690624,
        |    "state": {
        |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer6",
+       |      "requestedByEmailAddress": "$developer4",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },

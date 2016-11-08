@@ -109,7 +109,7 @@ object DeveloperPage extends WebPage {
 
     case object UNVERIFIED extends StatusFilterList("UNVERIFIED")
 
-    case object UNREGISTEREDCOLLABORATOR extends StatusFilterList("UNREGISTERED")
+    case object NOTREGISTERED extends StatusFilterList("UNREGISTERED")
 
   }
 
