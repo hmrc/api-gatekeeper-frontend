@@ -272,7 +272,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("No results should be displayed")
-      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "No developers for your selected filters")
+      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "No developers for your selected filter")
     }
 
     scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API") {
