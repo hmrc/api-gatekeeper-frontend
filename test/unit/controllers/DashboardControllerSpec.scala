@@ -129,6 +129,5 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         gatekeeperIdCaptor.getValue shouldBe userName
       }
     }
-
   }
 }

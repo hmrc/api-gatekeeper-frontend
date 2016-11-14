@@ -51,6 +51,13 @@ trait ApplicationConnector {
         case e: Upstream4xxResponse if (e.upstreamResponseCode == 412) => throw new PreconditionFailed
       }
 
+  def resendVerification(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] =
+    http.POST(s"$applicationBaseUrl/application/$applicationId/resend-verification",
+      ResendVerificationRequest(gatekeeperUserId), Seq("Content-Type" -> "application/json"))
+      .map(_ => ResendVerificationSuccessful)
+      .recover {
+        case e: Upstream4xxResponse if (e.upstreamResponseCode == 412) => throw new PreconditionFailed
+      }
 
   def fetchApplicationsWithUpliftRequest()(implicit hc: HeaderCarrier): Future[Seq[ApplicationWithUpliftRequest]] = {
     http.GET[Seq[ApplicationWithUpliftRequest]](s"$applicationBaseUrl/gatekeeper/applications")
@@ -73,7 +80,7 @@ trait ApplicationConnector {
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/application?noSubscriptions=true")
       .recover {
-	case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
 

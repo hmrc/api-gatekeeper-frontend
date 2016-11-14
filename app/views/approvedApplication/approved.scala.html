@@ -1,6 +1,6 @@
 @import model.ApprovedApplication
 @import org.joda.time.format.DateTimeFormat
-@(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String])
+@(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String], flash: Flash)
 
 @main(title = "API Gatekeeper Dashboard",userFullName = userFullName ) {
 
@@ -16,6 +16,11 @@
             </nav>
 
             <header>
+                @if(flash.get("success").isDefined) {
+                    <div class="alert alert--success" role="alert">
+                        <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+                    </div>
+                }
                 <h1 class="flush--top">@application.details.name</h1>
             </header>
 
@@ -33,6 +38,7 @@
                 } else {
                     <summary>
                         <span data-status class="status--not-verified">Not Verified</span>
+                        <span>(<a resend-email href="@routes.ApplicationController.resendVerification(application.details.id)">Resend verify email</a>)</span>
                     </summary>
                     <div>
                         <p data-summary class="panel-indent">

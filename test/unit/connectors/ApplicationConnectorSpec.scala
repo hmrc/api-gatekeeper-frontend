@@ -19,7 +19,7 @@ package unit.connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
-import model.{FetchApplicationsFailed, PreconditionFailed, ApproveUpliftSuccessful}
+import model.{ApproveUpliftSuccessful, FetchApplicationsFailed, PreconditionFailed, ResendVerificationSuccessful}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -94,6 +94,34 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
           s"""{"gatekeeperUserId":"$gatekeeperId","reason":"$rejectionReason"}""")))
     }
   }
+
+  "resend verification email" should {
+    "send Verification request and return OK if the resend was successful on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      val gatekeeperId = "loggedin.gatekeeper"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/resend-verification")).willReturn(aResponse().withStatus(204)))
+      val result = await(connector.resendVerification(applicationId, gatekeeperId))
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/resend-verification"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
+
+      result shouldBe ResendVerificationSuccessful
+    }
+
+    "handle 412 precondition failed" in new Setup {
+      val applicationId = "anApplicationId"
+      val gatekeeperId = "loggedin.gatekeeper"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/resend-verification")).willReturn(aResponse().withStatus(412)
+        .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_REQUESTOR_VERIFICATION'"}""")))
+
+      intercept[PreconditionFailed](await(connector.resendVerification(applicationId, gatekeeperId)))
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/resend-verification"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
+    }
+  }
+
 
   "fetchApplicationsWithUpliftRequest" should {
     "retrieve all applications pending uplift approval" in new Setup {
