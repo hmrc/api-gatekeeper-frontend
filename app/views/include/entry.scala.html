@@ -1,4 +1,4 @@
-@(content: model.PageableCollection[_])
+@(content: model.PageableCollection[_],emptyMessage: String = "No entries")
 @if(content.projection.length > 0) {
     Showing
     @if(content.start + 1 == content.end) {
@@ -8,6 +8,6 @@
     }
     of @{content.length} entries
 } else {
-    No entries
+    @{emptyMessage}
 }
 

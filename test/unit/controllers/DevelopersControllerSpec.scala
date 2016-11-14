@@ -143,6 +143,31 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         status(result) shouldBe 200
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
+
+      "display message if no developers found by filter" in new Setup{
+        val loginDetails = LoginDetails("userName", Protected("password"))
+        val successfulAuthentication = SuccessfulAuthentication(
+          BearerToken("bearer-token", DateTime.now().plusMinutes(10)),
+          userName, None)
+
+        val users = Seq[User]()
+
+        val collaborators = Set[Collaborator]()
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(),
+          "application", None, collaborators, DateTime.now(), ApplicationState()))
+
+        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
+        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
+        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(applications))
+        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+
+        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
+
+        status(result) shouldBe 200
+        bodyOf(result) should include("No developers for your selected filter")
+      }
     }
   }
 }
