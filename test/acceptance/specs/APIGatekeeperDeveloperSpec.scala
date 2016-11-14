@@ -51,7 +51,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
       assertNumberOfDevelopersPerPage(10)
-      assertResult(getResultEntriesCount)("Showing 1 to 10 of 16 entries")
+      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 16 entries")
     }
 
     scenario("Ensure a user can view ALL developers") {
@@ -272,7 +272,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("No results should be displayed")
-      println("No results returned for this selection")
+      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "No developers for your selected filters")
     }
 
     scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API") {
@@ -397,7 +397,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         Then("I can view the default number of developers (10) per page")
         on(DeveloperPage)
         assertNumberOfDevelopersPerPage(10)
-        assertResult(getResultEntriesCount)("Showing 1 to 10 of 10 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 10 entries")
+
       }
 
       scenario("Ensure a user can view segments of 10, 50 and 100 results entries") {
@@ -411,21 +412,21 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         DashboardPage.selectDevelopers
         on(DeveloperPage)
         assertNumberOfDevelopersPerPage(10)
-        assertResult(getResultEntriesCount)("Showing 1 to 10 of 100 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 100 entries")
 
         When("I select to view 50 result entries")
         DeveloperPage.selectNoofRows("50")
 
         Then("50 developers are successfully displayed on the page")
         assertNumberOfDevelopersPerPage(50)
-        assertResult(getResultEntriesCount)("Showing 1 to 50 of 100 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 50 of 100 entries")
 
         When("I select to view 100 result entries")
         DeveloperPage.selectNoofRows("100")
 
         Then("100 developers are successfully displayed on the page")
         assertNumberOfDevelopersPerPage(100)
-        assertResult(getResultEntriesCount)("Showing 1 to 100 of 100 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 100 entries")
       }
 
       scenario("Ensure that a user can navigate to Next and Previous pages to view result entries") {
@@ -442,7 +443,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         on(DeveloperPage)
         assertNumberOfDevelopersPerPage(10)
         assertLinkIsDisabled("Previous")
-        assertResult(getResultEntriesCount)("Showing 1 to 10 of 30 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 30 entries")
         val first10: List[User] = developers.get.take(10)
         DeveloperPage.bodyText should containInOrder(generateUsersList(first10))
 
@@ -451,7 +452,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
         Then("the page successfully displays the correct subsequent set of developers")
         assertNumberOfDevelopersPerPage(10)
-        assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 11 to 20 of 30 entries")
         val second10 : List[User] = developers.get.slice(11,20)
         DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
 
@@ -459,7 +460,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         DeveloperPage.showNextEntries()
 
         Then("the page successfully displays the last subsequent set of developers")
-        assertResult(getResultEntriesCount)("Showing 21 to 30 of 30 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 21 to 30 of 30 entries")
         assertNumberOfDevelopersPerPage(10)
         val third10 : List[User] = developers.get.slice(21,30)
         DeveloperPage.bodyText should containInOrder(generateUsersList(third10))
@@ -469,8 +470,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         DeveloperPage.showPreviousEntries()
 
         Then("The page successfully displays the previous set of developers")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 11 to 20 of 30 entries")
         assertNumberOfDevelopersPerPage(10)
-        assertResult(getResultEntriesCount)("Showing 11 to 20 of 30 entries")
         DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
       }
     }
@@ -522,9 +523,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
     }
 
-    private def getResultEntriesCount(): String = {
-      val resultEntriesText = webDriver.findElement(By.cssSelector(".grid-layout__column--1-3.entries_status")).getText
-      return resultEntriesText
+    private def getResultEntriesCount(locator:String, expected:String) = {
+      val resultEntriesText = webDriver.findElement(By.cssSelector(locator)).getText shouldBe expected
     }
 
     private def assertLinkIsDisabled(link: String) = {
