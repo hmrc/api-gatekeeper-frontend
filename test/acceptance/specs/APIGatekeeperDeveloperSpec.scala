@@ -273,6 +273,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("No results should be displayed")
       getResultEntriesCount(".grid-layout__column--1-3.entries_status", "No developers for your selected filter")
+
+      And("The email developer and copy to clipboard buttons are disabled")
+      assertEmailCopyToClipboardButtonIsDisabled("#content div a.button")
     }
 
     scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API") {
@@ -432,7 +435,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       scenario("Ensure that a user can navigate to Next and Previous pages to view result entries") {
 
         Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-        //stubApplicationList
         stubApplicationListWithNoDevelopers
         stubApiDefinition
         val developers: Option[List[User]] = userListGenerator(30).sample.map(_.sortWith((userA, userB) => userB.lastName.toLowerCase > userA.lastName.toLowerCase))
@@ -529,6 +531,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     private def assertLinkIsDisabled(link: String) = {
       assertResult(find(linkText(link)).isDefined)(false)
+    }
+
+    private def assertEmailCopyToClipboardButtonIsDisabled(button:String) = {
+      assertResult(find(cssSelector(button)).isDefined)(false)
     }
 
     private def assertButtonIsPresent(button: String) = {
