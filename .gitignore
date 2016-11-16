@@ -1,4 +1,6 @@
 
+.cache-main
+.cache-tests
 logs
 project/project
 project/target
@@ -17,5 +19,4 @@ dist
 /RUNNING_PID
 /.settings
 *.iws
-
-    
+/bin/

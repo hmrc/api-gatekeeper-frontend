@@ -149,7 +149,6 @@
     @if(users.length > 0) {
     <div class="form-group>">
         <p>
-            <a class="button" href="mailto:?bcc=@emails" title="Opens external mail client BCC'ing all @{users.length} email addresses.">Email @{users.length} developers</a>
             <a class="button" href="#" title="Copies all @{users.length} email addresses into the system clipboard." onclick="copyTextToClipboard('@emails'); return false;">Copy to clipboard</a>
         </p>
     </div>
