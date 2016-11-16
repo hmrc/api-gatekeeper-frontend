@@ -26,6 +26,8 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.developers
 
 import scala.concurrent.Future
+import play.api.mvc.Request
+import play.api.mvc.Result
 
 object DevelopersController extends DevelopersController {
   override val developerService: DeveloperService = DeveloperService
@@ -70,11 +72,18 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
     versions.groupBy(_.status)
   }
 
-  def developersPage(filter: Option[String], status: Option[String], pageNumber: Int, pageSize: Int) = requiresRole(Role.APIGatekeeper) {
+  protected def validPageResult(page: PageableCollection[User], emails: String, apis: Seq[APIDefinition], filter: Option[String], status: Option[String])(implicit request: Request[_]): Result =
+    Ok(developers(page, emails, groupApisByStatus(apis), filter, status))
+  
+  def developersPage(filter: Option[String], status: Option[String], optionalPageNumber: Option[Int], optionalPageSize: Option[Int]) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
+      
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
 
+      val pageSize = optionalPageSize.getOrElse(100)
+      val pageNumber = optionalPageNumber.getOrElse(1)
+      
       for {
         apps <- developerService.fetchApplications(apiFilter)
         apis <- apiDefinitionConnector.fetchAll
@@ -86,7 +95,7 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
         page = PageableCollection(users, pageNumber, pageSize)
       } yield {
         if (page.valid) {
-          Ok(developers(page, emails, groupApisByStatus(apis), filter, status))
+          validPageResult(page, emails, apis, filter, status)
         }
         else {
           redirect(filter, status, 1, pageSize)

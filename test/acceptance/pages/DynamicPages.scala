@@ -35,3 +35,8 @@ case class ApprovedPage(applicationId: String, applicationName: String) extends 
   override val pageHeading = applicationName
   override val url: String = s"http://localhost:9000/api-gatekeeper/approved?id=$applicationId"
 }
+
+case class ResendVerificationPage(applicationId: String, applicationName: String) extends DynamicPage {
+  override val pageHeading = applicationName
+  override val url: String = s"http://localhost:9000/api-gatekeeper/applications/$applicationId/resend-verification"
+}

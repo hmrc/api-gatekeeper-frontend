@@ -10,8 +10,9 @@ GET         /review                                controllers.DashboardControll
 
 GET         /approved                              controllers.DashboardController.approvedApplicationPage(id: String)
 
-GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String] ?= None, status: Option[String] ?= None, pageNumber: Int ?= 1, pageSize: Int ?= 10)
+GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], pageNumber: Option[Int], pageSize: Option[Int])
 
 ->          /template                              template.Routes
 
 POST        /applications/:id/handle-uplift        controllers.DashboardController.handleUplift(id: String)
+GET         /applications/:id/resend-verification  controllers.ApplicationController.resendVerification(id: String)

@@ -18,7 +18,7 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApprovedPage, DashboardPage}
+import acceptance.pages.{ApprovedPage, DashboardPage, ResendVerificationPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -51,6 +51,8 @@ class APIGatekeeperApprovedSpec  extends BaseSpec with SignInSugar with Matchers
       stubApplicationListAndDevelopers
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description")).withStatus(200)))
+      stubFor(post(urlMatching(s"/application/$approvedApp1/resend-verification"))
+        .willReturn(aResponse().withStatus(204)))
 
       signInGatekeeper
       on(DashboardPage)
@@ -58,9 +60,15 @@ class APIGatekeeperApprovedSpec  extends BaseSpec with SignInSugar with Matchers
       on(ApprovedPage(approvedApp1, "Application"))
 
       verifyText("data-status", "Not Verified")
+      verifyLinkPresent("resend-email", s"/gatekeeper/application/$approvedApp1/resend-verification")
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has not verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
+      assertApplicationDetails
+
+      clickOnLink("resend-email")
+      on(ResendVerificationPage(approvedApp1, "Application"))
+      verifyText("success-message", "Verification email has been sent")
       assertApplicationDetails
     }
 

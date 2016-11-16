@@ -1,6 +1,7 @@
 
 .cache-main
 .cache-tests
+bin/
 logs
 project/project
 project/target
@@ -8,6 +9,8 @@ target
 lib_managed
 tmp
 .history
+.cache-main
+.cache-tests
 dist
 /.idea
 /*.iml
@@ -19,4 +22,3 @@ dist
 /RUNNING_PID
 /.settings
 *.iws
-/bin/

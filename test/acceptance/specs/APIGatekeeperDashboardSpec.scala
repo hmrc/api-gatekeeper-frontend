@@ -89,11 +89,10 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
 
       signInGatekeeper
       on(DashboardPage)
-
-      DashboardPage.bodyText should containInOrder(List("Application", "BApplication", "RApplication", "ZApplication"))
+      DashboardPage.bodyText should containInOrder(List("Application", "BApplication", "rapplication", "ZApplication"))
       assertApprovedApplication(approvedApp1, "Application submitted: 24.03.2016 not yet verified")
       assertApprovedApplication(approvedApp4, "BApplication submitted: 24.03.2016 verified")
-      assertApprovedApplication(approvedApp3, "RApplication submitted: 24.03.2016 not yet verified")
+      assertApprovedApplication(approvedApp3, "rapplication submitted: 24.03.2016 not yet verified")
       assertApprovedApplication(approvedApp2, "ZApplication submitted: 22.03.2016 verified")
     }
 

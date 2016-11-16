@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package services
 
-case class TabLink(label: String, href: String, active: Boolean = false)
+import connectors.ApplicationConnector
+import model.ResendVerificationSuccessful
+import uk.gov.hmrc.play.http.HeaderCarrier
 
-object TabHelper {
-  def dashboardTabs(activeTab: Int) = Seq(
-    TabLink("Applications", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None, None, None).url, activeTab == 1))
+import scala.concurrent.Future
+
+object ApplicationService extends ApplicationService {
+  override val applicationConnector = ApplicationConnector
+}
+
+trait ApplicationService {
+  val applicationConnector: ApplicationConnector
+
+  def resendVerification(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
+    applicationConnector.resendVerification(applicationId, gatekeeperUserId)
+  }
 }
