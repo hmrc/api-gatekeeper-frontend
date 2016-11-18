@@ -38,61 +38,109 @@ import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import org.mockito.cglib.proxy.Proxy
+import org.mockito.Mock
+import play.api.mvc.Result
+import play.api.mvc.Request
 
 class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   Helpers.running(fakeApplication) {
 
     trait Setup {
-      val testDeveloperService = new DeveloperService {
-        val applicationConnector = mock[ApplicationConnector]
-        val developerConnector = mock[DeveloperConnector]
-        val apiDefinitionConnector = mock[ApiDefinitionConnector]
-      }
-      val underTest = new DevelopersController {
-        val authConnector = mock[AuthConnector]
-        val authProvider = mock[AuthenticationProvider]
-        val apiDefinitionConnector = mock[ApiDefinitionConnector]
-        val developerService = testDeveloperService
+      
+      val mockAuthConnector = mock[AuthConnector]
+      val mockAuthProvider = mock[AuthenticationProvider]
+      val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
+      val mockDeveloperService = mock[DeveloperService]
+      
+      val developersController = new DevelopersController {
+        val authConnector = mockAuthConnector
+        val authProvider = mockAuthProvider
+        val apiDefinitionConnector = mockApiDefinitionConnector
+        val developerService = mockDeveloperService
       }
 
       implicit val encryptedStringFormats = JsonStringEncryption
       implicit val decryptedStringFormats = JsonStringDecryption
       implicit val format = Json.format[LoginDetails]
 
+      val userName = "userName"
       val authToken = SessionKeys.authToken -> "some-bearer-token"
       val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
-
       val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
       val aLoggedOutRequest = FakeRequest().withSession()
+      val noUsers = Seq.empty[User];
+      
+      def givenAUnsucessfulLogin(): Unit = {
+        givenALogin(false)
+      }
 
-      val userName = "userName"
+      def givenASucessfulLogin(): Unit = {
+        givenALogin(true)
+      }
+
+      def givenALogin(sucessful: Boolean): Unit = {
+        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
+        given(mockAuthConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
+        given(mockAuthConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(sucessful))
+      }
+
+      def givenNoDataSuppliedDelegateServices(): Unit = {
+        givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noUsers, noUsers)
+      }
+
+      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], users: Seq[User], developers: Seq[User]): Unit = {
+        val apiFiler = ApiFilter(None)
+        val statusFilter = StatusFilter(None)
+        given(mockDeveloperService.fetchApplications(org.mockito.Matchers.eq(apiFiler))(any[HeaderCarrier])).willReturn(Future.successful(apps))
+        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockDeveloperService.filterUsersBy(apiFiler, apps)(users)).willReturn(users)
+        given(mockDeveloperService.filterUsersBy(statusFilter)(users)).willReturn(users)
+        given(mockDeveloperService.fetchDevelopers(any[HeaderCarrier])).willReturn(Future.successful(developers))
+        given(mockDeveloperService.emailList(users)).willReturn("")
+      }
     }
-
+    
     "developersPage" should {
 
-      "go to loginpage with error if user is not authenticated" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
+      "default to page 1 with 100 items in table" in new Setup {
 
-        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedOutRequest))
+        val overridenDevelopersController = new DevelopersController {
+          val authConnector = mockAuthConnector
+          val authProvider = mockAuthProvider
+          val apiDefinitionConnector = mockApiDefinitionConnector
+          val developerService = mockDeveloperService
+          
+          override def validPageResult(page: PageableCollection[User], emails: String, apis: Seq[APIDefinition], filter: Option[String], status: Option[String])(implicit request: Request[_]): Result = {
+            page.pageNumber shouldBe 1
+            page.pageSize shouldBe 100
+            Ok
+          }
+        }
+
+        givenASucessfulLogin
+        givenNoDataSuppliedDelegateServices
+        await(overridenDevelopersController.developersPage(None, None, None, None)(aLoggedInRequest))
+      }
+
+      "go to loginpage with error if user is not authenticated" in new Setup {
+        
+        val loginDetails = LoginDetails("userName", Protected("password"))
+        given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
+
+        val result = await(developersController.developersPage(None, None, Some(1), Some(10))(aLoggedOutRequest))
 
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
 
 
       "load successfully if user is authenticated and authorised" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
+        
+        givenASucessfulLogin
+        givenNoDataSuppliedDelegateServices
 
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[User]))
-        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationResponse]))
-        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-
-        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, Some(1), Some(10))(aLoggedInRequest))
 
         status(result) shouldBe 200
         bodyOf(result) should include("Dashboard")
@@ -100,13 +148,10 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
 
       "go to unauthorised page if user is not authorised" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
 
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
+        givenAUnsucessfulLogin
 
-        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, Some(1), Some(10))(aLoggedInRequest))
 
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
@@ -114,56 +159,33 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
 
       "list all developers when filtering off" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(
-          BearerToken("bearer-token", DateTime.now().plusMinutes(10)),
-          userName, None)
 
         val users = Seq(
           User("sample@email.com", "Sample", "Email", Some(false)),
           User("another@email.com", "Sample2", "Email", Some(true)),
           User("someone@email.com", "Sample3", "Email", Some(true)))
 
+        val collaborators = Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
 
-        val collaborators = Set(
-          Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
-          Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(),
-          "application", None, collaborators, DateTime.now(), ApplicationState()))
+        givenASucessfulLogin
+        givenDelegateServicesSupply(applications, users, users);
 
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
-        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(applications))
-        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-
-        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, Some(1), Some(10))(aLoggedInRequest))
 
         status(result) shouldBe 200
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
 
       "display message if no developers found by filter" in new Setup{
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(
-          BearerToken("bearer-token", DateTime.now().plusMinutes(10)),
-          userName, None)
-
-        val users = Seq[User]()
 
         val collaborators = Set[Collaborator]()
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(),
-          "application", None, collaborators, DateTime.now(), ApplicationState()))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
 
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-        given(testDeveloperService.developerConnector.fetchAll()(any[HeaderCarrier])).willReturn(Future.successful(users))
-        given(testDeveloperService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(applications))
-        given(underTest.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(testDeveloperService.apiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-
-        val result = await(underTest.developersPage(None, None, 1, 10)(aLoggedInRequest))
+        givenASucessfulLogin
+        givenDelegateServicesSupply(applications, noUsers, noUsers);
+        
+        val result = await(developersController.developersPage(None, None, Some(1), Some(10))(aLoggedInRequest))
 
         status(result) shouldBe 200
         bodyOf(result) should include("No developers for your selected filter")

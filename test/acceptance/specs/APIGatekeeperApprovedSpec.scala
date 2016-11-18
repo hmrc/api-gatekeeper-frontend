@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.scalatest.Matchers
 
-class APIGatekeeperApprovedSpec  extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
 
   feature("View approved application details") {
 
@@ -119,7 +119,7 @@ class APIGatekeeperApprovedSpec  extends BaseSpec with SignInSugar with Matchers
   def assertApplicationDetails() = {
     verifyText("data-submitter-name", s"$firstName $lastName")
     verifyText("data-submitter-email", adminEmail)
-    tagName("tbody").element.text should containInOrder(List(s"$firstName $lastName $adminEmail", s"Admin McAdmin $admin2Email"))
+    tagName("tbody").element.text should containInOrder(List(s"$firstName $lastName", adminEmail, "Admin McAdmin", admin2Email))
     verifyText("data-submitted-on", "Submitted: 22 March 2016")
     verifyText("data-approved-on", "Approved: 05 April 2016")
     verifyText("data-approved-by", "Approved by: gatekeeper.username")

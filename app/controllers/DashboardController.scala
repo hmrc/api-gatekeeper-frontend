@@ -57,7 +57,7 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
         val pendingApproval = grouped.getOrElse(PENDING_GATEKEEPER_APPROVAL, Seq())
         val pendingVerification = grouped.getOrElse(PENDING_REQUESTER_VERIFICATION, Seq()) ++ grouped.getOrElse(PRODUCTION, Seq())
 
-        CategorisedApplications(pendingApproval.sortBy(_.submittedOn), pendingVerification.sortBy(_.name))
+        CategorisedApplications(pendingApproval.sortBy(_.submittedOn), pendingVerification.sortBy(_.name.toLowerCase))
       }
 
       for {

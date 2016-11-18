@@ -23,7 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.{By}
+import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
 import scala.collection.immutable.List
@@ -41,7 +41,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
       stubApiDefinition()
-      stubRandomDevelopers(11)
+      stubRandomDevelopers(100)
       signInGatekeeper
       on(DashboardPage)
 
@@ -50,8 +50,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
-      assertNumberOfDevelopersPerPage(10)
-      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 16 entries")
+      assertNumberOfDevelopersPerPage(100)
+      getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 105 entries")
     }
 
     scenario("Ensure a user can view ALL developers") {
@@ -69,37 +69,50 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev5FirstName $dev5LastName $developer5 $statusUnverified",
-                                                        s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified",
-                                                        s"$dev9name $developer9 $statusUnregistered"))
+      val developers: Seq[(String, String, String,String)] = List((dev2FirstName,dev2LastName,developer2,statusVerified),
+                                                                 (dev5FirstName, dev5LastName, developer5,statusUnverified),
+                                                                 (dev4FirstName, dev4LastName, developer4,statusVerified),
+                                                                 (dev7FirstName, dev7LastName, developer7,statusVerified),
+                                                                 (devFirstName, devLastName, developer,statusVerified),
+                                                                 (dev8FirstName, dev8LastName, developer8,statusUnverified),
+                                                                 (dev6FirstName, dev6LastName, developer6,statusVerified),
+                                                                 (dev9name,"", developer9,statusUnregistered))
+
+
+        val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+
+      assertDevelopersList(allDevs)
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all the verified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      val developers2:Seq[(String, String, String,String)]=List((dev2FirstName, dev2LastName, developer2, statusVerified),
+                                                                (dev4FirstName, dev4LastName, developer4, statusVerified),
+                                                                (dev7FirstName, dev7LastName, developer7, statusVerified),
+                                                                (devFirstName, devLastName, developer, statusVerified),
+                                                                (dev6FirstName, dev6LastName, developer6, statusVerified))
+
+      val verifiedDevs = developers2.zipWithIndex
+
+      assertDevelopersList(verifiedDevs)
 
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all the unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusUnverified",
-                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified"))
+      val developers3:Seq[(String, String, String,String)] = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
+                                                                  (dev8FirstName,dev8LastName, developer8, statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("all the unregistered developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev9name $developer9 $statusUnregistered"))
+      val developers4 = List((dev9name,"", developer9, statusUnregistered))
+      val unregisteredDev = developers4.zipWithIndex
+      assertDevelopersList(unregisteredDev)
     }
 
     scenario("Ensure a user can view all developers who are subscribed to one or more API") {
@@ -121,31 +134,45 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
-                                                        s"$dev9name $developer9 $statusUnregistered"))
+      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
+                            (dev7FirstName, dev7LastName,developer7,statusVerified),
+                            (devFirstName, devLastName,developer,statusVerified),
+                            (dev8FirstName, dev8LastName,developer8, statusUnverified),
+                            (dev9name,"",developer9,statusUnregistered))
+
+      val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+
+      assertDevelopersList(allDevs)
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers are displayed successfully")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified"))
+      val developers2 = List((dev2FirstName, dev2LastName, developer2, statusVerified),
+                             (dev7FirstName, dev7LastName, developer7,statusVerified),
+                             (devFirstName, devLastName, developer, statusVerified))
+
+      val verifiedDevs = developers2.zipWithIndex
+
+      assertDevelopersList(verifiedDevs)
+
 
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all the unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev8FirstName $dev8LastName $developer8 $statusUnverified"))
+      val developers3 = List((dev8FirstName, dev8LastName,developer8,statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("all the unregistered developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev9name $developer9 $statusUnregistered"))
+      val developers4 = List((dev9name,"",developer9, statusUnregistered))
+      val unregisteredDev = developers4.zipWithIndex
+      assertDevelopersList(unregisteredDev)
+
     }
 
     scenario("Ensure a user can view all developers who have no subscription to an API"){
@@ -161,35 +188,45 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
-      When("I select no subscriptions from the filter drop down")
       DeveloperPage.selectBySubscription(NOSUBSCRIPTION)
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusUnverified",
-                                                        s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified",
-                                                        s"$dev10name $developer10 $statusUnregistered"))
+      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
+                            (dev4FirstName, dev4LastName, developer4,statusVerified),
+                            (dev6FirstName, dev6LastName, developer6, statusVerified),
+                            (dev10name, "",developer10, statusUnregistered))
+
+      val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+
+      assertDevelopersList(allDevs)
+
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers and collaborators are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      val developers2 = List((dev4FirstName, dev4LastName, developer4, statusVerified),
+                             (dev6FirstName, dev6LastName, developer6, statusVerified))
+
+      val verifiedDevs = developers2.zipWithIndex
+      assertDevelopersList(verifiedDevs)
 
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusUnverified"))
-
+      val developers3 = List((dev5FirstName, dev5LastName, developer5,statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("all unregistered developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev10name $developer10 $statusUnregistered"))
+      val developers4 = List((dev10name, "",developer10, statusUnregistered))
+      val unregisteredDev = developers4.zipWithIndex
+      assertDevelopersList(unregisteredDev)
     }
 
     scenario("Ensure a user can view all developers who has one or more application") {
@@ -208,31 +245,41 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(ONEORMOREAPPLICATIONS)
 
       Then("all verified developers and unverified developers are displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
-                                                        s"$dev9name $developer9 $statusUnregistered"))
+      val developers = List((dev2FirstName,dev2LastName,developer2,statusVerified),
+                            (dev7FirstName, dev7LastName, developer7, statusVerified),
+                            (devFirstName, devLastName, developer, statusVerified),
+                            (dev8FirstName, dev8LastName, developer8, statusUnverified),
+                            (dev9name,"", developer9, statusUnregistered))
+
+      val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+      assertDevelopersList(allDevs)
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified"))
+      val developers2 = List((dev2FirstName, dev2LastName, developer2,statusVerified),
+                             (dev7FirstName, dev7LastName, developer7, statusVerified),
+                             (devFirstName, devLastName, developer, statusVerified))
+      val verifiedDevs = developers2.zipWithIndex
+      assertDevelopersList(verifiedDevs)
 
       When("I select Unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev8FirstName $dev8LastName $developer8 $statusUnverified"))
+      val developers3 = List((dev8FirstName, dev8LastName, developer8, statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the Status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("All unregistered developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev9name $developer9 $statusUnregistered"))
+      val developers4 = List((dev9name,"",developer9,statusUnregistered))
+      val unregisteredDev = developers4.zipWithIndex
+      assertDevelopersList(unregisteredDev)
+
     }
 
     scenario("Ensure a SDST can view all users who has no application") {
@@ -251,22 +298,30 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(NOAPPLICATIONS)
 
       Then("all verified users and unverified developers are displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusUnverified",
-                                                        s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
+                           (dev4FirstName, dev4LastName, developer4, statusVerified),
+                           (dev6FirstName, dev6LastName, developer6, statusVerified))
+
+      val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+      assertDevelopersList(allDevs)
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev4FirstName $dev4LastName $developer4 $statusVerified",
-                                                        s"$dev6FirstName $dev6LastName $developer6 $statusVerified"))
+      val developers2 = List((dev4FirstName, dev4LastName, developer4,statusVerified),
+                             (dev6FirstName, dev6LastName, developer6, statusVerified))
+
+      val verifiedDevs = developers2.zipWithIndex
+      assertDevelopersList(verifiedDevs)
 
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev5FirstName $dev5LastName $developer5 $statusUnverified"))
+      val developers3 = List((dev5FirstName ,dev5LastName, developer5,statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
@@ -275,7 +330,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       getResultEntriesCount(".grid-layout__column--1-3.entries_status", "No developers for your selected filter")
 
       And("The email developer and copy to clipboard buttons are disabled")
-      assertEmailCopyToClipboardButtonIsDisabled("#content div a.button")
+      assertCopyToClipboardButtonIsDisabled("#content div a.button")
     }
 
     scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API") {
@@ -295,34 +350,45 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
 
       Then("all verified and unverified developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified",
-                                                        s"$dev8FirstName $dev8LastName $developer8 $statusUnverified",
-                                                        s"$dev9name $developer9 $statusUnregistered"))
+      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
+                           (dev7FirstName, dev7LastName,developer7,statusVerified),
+                           (devFirstName, devLastName,developer,statusVerified),
+                           (dev8FirstName, dev8LastName,developer8, statusUnverified),
+                           (dev9name,"",developer9,statusUnregistered))
+
+      val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
+
+      assertDevelopersList(allDevs)
 
       When("I select verified from the status filter drop down")
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers are successfully displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev2FirstName $dev2LastName $developer2 $statusVerified",
-                                                        s"$dev7FirstName $dev7LastName $developer7 $statusVerified",
-                                                        s"$devFirstName $devLastName $developer $statusVerified"))
+      val developers2 = List((dev2FirstName, dev2LastName, developer2, statusVerified),
+                            (dev7FirstName, dev7LastName, developer7, statusVerified),
+                            (devFirstName, devLastName, developer, statusVerified))
+
+      val verifiedDevs: Seq[((String, String, String, String), Int)] = developers2.zipWithIndex
+      assertDevelopersList(verifiedDevs)
 
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all unverified developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev8FirstName $dev8LastName $developer8 $statusUnverified"))
+      val developers3 = List((dev8FirstName, dev8LastName, developer8, statusUnverified))
+      val unverifiedDevs = developers3.zipWithIndex
+      assertDevelopersList(unverifiedDevs)
 
       When("I select not registered from the status filter drop down")
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("all unregistered developers are displayed")
-      DeveloperPage.bodyText should containInOrder(List(s"$dev9name $developer9 $statusUnregistered"))
+      val developers4 = List((dev9name,"",developer9,statusUnregistered))
+      val unregisteredDev = developers4.zipWithIndex
+      assertDevelopersList(unregisteredDev)
     }
 
-    scenario("Ensure a user can view the Email and Copy to Clipboard buttons on the Developers page") {
+    scenario("Ensure a user can view the Copy to Clipboard buttons on the Developers page") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationListWithNoDevelopers
@@ -335,27 +401,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
-      Then("I should be able to view the Email and Copy to Clipboard buttons")
-      assertButtonIsPresent("#content div a:nth-child(1)")
-      assertButtonIsPresent("#content div a:nth-child(2)")
+      Then("I should be able to view the Copy to Clipboard buttons")
+      assertButtonIsPresent("#content a.button")
     }
-
-    scenario("Ensure the correct number of developers is displayed on the Email Developers button") {
-
-      Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationListWithNoDevelopers
-      stubApiDefinition
-      stubRandomDevelopers(25)
-      signInGatekeeper
-      on(DashboardPage)
-
-      When("I select to navigate to the Developers page")
-      DashboardPage.selectDevelopers
-      on(DeveloperPage)
-
-      Then("the Email Developers button should display the correct number of developers matching the total number of results")
-      assertTextPresent("#content div p a:nth-child(1)", "Email 25 developers")
-   }
 
     scenario("Ensure all developer email addresses are successfully loaded into bcc") {
 
@@ -371,11 +419,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
-      Then("the email button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("#content p a:nth-child(1)","href", s"mailto:?bcc=$developer2;%20$developer5;%20$developer4;%20$developer7;%20$developer;%20$developer8;%20$developer6;%20$developer9")
-
-      And("the copy to clipboard button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("#content p a:nth-child(2)","onclick", s"copyTextToClipboard('$developer2; $developer5; $developer4; $developer7; $developer; $developer8; $developer6; $developer9'); return false;")
+      Then("the copy to clipboard button should contain all of the developers email addresses")
+      verifyUsersEmailAddress("#content a.button","onclick", s"copyTextToClipboard('$developer2; $developer5; $developer4; $developer7; $developer; $developer8; $developer6; $developer9'); return false;")
     }
   }
 
@@ -385,51 +430,67 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     feature("Pagination of Email Recipients") {
 
-      scenario("Ensure that the page displays 10 developers by default") {
+      scenario("Ensure that the page displays 100 developers by default") {
 
         Given("I have successfully logged in to the API Gatekeeper")
         stubApplicationListWithNoDevelopers
         stubApiDefinition
-        stubRandomDevelopers(10)
+        stubRandomDevelopers(101)
         signInGatekeeper
         on(DashboardPage)
 
         When("I select to navigate to the Developers page")
         DashboardPage.selectDevelopers
 
-        Then("I can view the default number of developers (10) per page")
+        Then("I can view the default number of developers (100) per page")
         on(DeveloperPage)
-        assertNumberOfDevelopersPerPage(10)
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 10 entries")
+        assertNumberOfDevelopersPerPage(100)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 101 entries")
 
       }
 
-      scenario("Ensure a user can view segments of 10, 50 and 100 results entries") {
+      scenario("Ensure a user can view segments of 10, 50, 100,200 and 300 results entries") {
 
         Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
         stubApplicationListWithNoDevelopers
         stubApiDefinition
-        stubRandomDevelopers(100)
+        stubRandomDevelopers(301)
         signInGatekeeper
         on(DashboardPage)
         DashboardPage.selectDevelopers
         on(DeveloperPage)
-        assertNumberOfDevelopersPerPage(10)
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 100 entries")
+        assertNumberOfDevelopersPerPage(100)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 301 entries")
 
         When("I select to view 50 result entries")
         DeveloperPage.selectNoofRows("50")
 
         Then("50 developers are successfully displayed on the page")
         assertNumberOfDevelopersPerPage(50)
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 50 of 100 entries")
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 50 of 301 entries")
 
-        When("I select to view 100 result entries")
-        DeveloperPage.selectNoofRows("100")
+        When("I select to view 200 result entries")
+        DeveloperPage.selectNoofRows("200")
 
-        Then("100 developers are successfully displayed on the page")
-        assertNumberOfDevelopersPerPage(100)
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 100 entries")
+        Then("200 developers are successfully displayed on the page")
+        assertNumberOfDevelopersPerPage(200)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 200 of 301 entries")
+
+        When("I select to view 10 result entries")
+        DeveloperPage.selectNoofRows("10")
+
+        Then("10 developers are successfully displayed on the page")
+        assertNumberOfDevelopersPerPage(10)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 301 entries")
+
+        When("I select to view 300 result entries")
+        DeveloperPage.selectNoofRows("300")
+
+        Then("300 developers are successfully displayed on the page")
+        assertNumberOfDevelopersPerPage(300)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 300 of 301 entries")
+
+
       }
 
       scenario("Ensure that a user can navigate to Next and Previous pages to view result entries") {
@@ -437,44 +498,51 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
         stubApplicationListWithNoDevelopers
         stubApiDefinition
-        val developers: Option[List[User]] = userListGenerator(30).sample.map(_.sortWith((userA, userB) => userB.lastName.toLowerCase > userA.lastName.toLowerCase))
+        val developers: Option[List[User]] = userListGenerator(300).sample
+          .map(_.sortWith((userA, userB) => userB.lastName.toLowerCase > userA.lastName.toLowerCase))
         stubDevelopers(developers)
         signInGatekeeper
         on(DashboardPage)
         DashboardPage.selectDevelopers
         on(DeveloperPage)
-        assertNumberOfDevelopersPerPage(10)
+        assertNumberOfDevelopersPerPage(100)
         assertLinkIsDisabled("Previous")
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 10 of 30 entries")
-        val first10: List[User] = developers.get.take(10)
-        DeveloperPage.bodyText should containInOrder(generateUsersList(first10))
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 1 to 100 of 300 entries")
+        val first20: List[User] = developers.get.take(20)
 
+        val devList1: List[(TestUser, Int)] = generateUsersTuple(first20).zipWithIndex
+        assertDevelopersRandomList(devList1)
         When("I select to to view the the next set of result entries")
         DeveloperPage.showNextEntries()
 
         Then("the page successfully displays the correct subsequent set of developers")
-        assertNumberOfDevelopersPerPage(10)
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 11 to 20 of 30 entries")
-        val second10 : List[User] = developers.get.slice(11,20)
-        DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
+        assertNumberOfDevelopersPerPage(100)
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 101 to 200 of 300 entries")
+        val second20 : List[User] = developers.get.slice(100,120)
+
+        val devList2: List[(TestUser, Int)] = generateUsersTuple(second20).zipWithIndex
+
+        assertDevelopersRandomList(devList2)
 
         When("I select to to view the the last set of result entries")
         DeveloperPage.showNextEntries()
 
         Then("the page successfully displays the last subsequent set of developers")
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 21 to 30 of 30 entries")
-        assertNumberOfDevelopersPerPage(10)
-        val third10 : List[User] = developers.get.slice(21,30)
-        DeveloperPage.bodyText should containInOrder(generateUsersList(third10))
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 201 to 300 of 300 entries")
+        assertNumberOfDevelopersPerPage(100)
+        val third20 : List[User] = developers.get.slice(200,220)
+        val devList3: List[(TestUser, Int)] = generateUsersTuple(third20).zipWithIndex
+
+        assertDevelopersRandomList(devList3)
         assertLinkIsDisabled("Next")
 
         When("I select to to view the the previous set of result entries")
         DeveloperPage.showPreviousEntries()
 
         Then("The page successfully displays the previous set of developers")
-        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 11 to 20 of 30 entries")
-        assertNumberOfDevelopersPerPage(10)
-        DeveloperPage.bodyText should containInOrder(generateUsersList(second10))
+        getResultEntriesCount(".grid-layout__column--1-3.entries_status", "Showing 101 to 200 of 300 entries")
+        assertNumberOfDevelopersPerPage(100)
+        assertDevelopersRandomList(devList2)
       }
     }
 
@@ -533,12 +601,12 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertResult(find(linkText(link)).isDefined)(false)
     }
 
-    private def assertEmailCopyToClipboardButtonIsDisabled(button:String) = {
+    private def assertCopyToClipboardButtonIsDisabled(button:String) = {
       assertResult(find(cssSelector(button)).isDefined)(false)
     }
 
     private def assertButtonIsPresent(button: String) = {
-     webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
+      webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
     }
 
     private def assertTextPresent(attributeName: String, expected: String) = {
@@ -546,7 +614,13 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     private def generateUsersList(users : List[User]) = {
-      users.map(user => s"${user.firstName} ${user.lastName} ${user.email}")
+      users.map(user => s"${user.firstName} ${user.lastName}${user.email}")
+    }
+
+    case class TestUser(firstName: String, lastName:String, emailAddress:String)
+
+    private def generateUsersTuple(users : List[User]): List[TestUser] = {
+      users.map(user => TestUser(user.firstName, user.lastName, user.email))
     }
 
     private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
@@ -556,6 +630,24 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     private def verifyUsersEmail(button : String) {
       val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
     }
+
+    private def assertDevelopersRandomList(devList: List[(TestUser, Int)]) = {
+      for((dev, index) <- devList) {
+        val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev.firstName
+        val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev.lastName
+        val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev.emailAddress
+      }
+    }
+
+    private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
+      for ((dev, index) <- devList) {
+        val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
+        val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
+        val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
+        val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
+      }
+    }
+
 
 }
 

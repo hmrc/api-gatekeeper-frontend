@@ -16,13 +16,10 @@
 
 package controllers
 
-import config.FrontendAppConfig
-import play.api.libs.json.Json
-
 case class TabLink(label: String, href: String, active: Boolean = false)
 
 object TabHelper {
   def dashboardTabs(activeTab: Int) = Seq(
     TabLink("Applications", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None, 1, 10).url, activeTab == 1))
+    TabLink("Developers", routes.DevelopersController.developersPage(None, None, None, None).url, activeTab == 1))
 }

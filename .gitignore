@@ -1,4 +1,7 @@
 
+.cache-main
+.cache-tests
+bin/
 logs
 project/project
 project/target
@@ -6,21 +9,16 @@ target
 lib_managed
 tmp
 .history
-.gi
+.cache-main
+.cache-tests
 dist
 /.idea
 /*.iml
 /*.ipr
 /out
-.DS_Store
-chromedriver
-project/.DS_Store
-test/.DS_Store
 /.idea_modules
 /.classpath
 /.project
 /RUNNING_PID
 /.settings
 *.iws
-*.DS_Store
-    

@@ -19,6 +19,9 @@ package acceptance.pages
 import acceptance.WebPage
 import acceptance.pages.DeveloperPage.APIFilter.APIFilterList
 import acceptance.pages.DeveloperPage.StatusFilter.StatusFilterList
+import com.gargoylesoftware.htmlunit.WebClient
+import com.gargoylesoftware.htmlunit.html.{HtmlOption, HtmlPage, HtmlSelect}
+import org.openqa.selenium.{By, WebElement}
 
 object DeveloperPage extends WebPage {
 

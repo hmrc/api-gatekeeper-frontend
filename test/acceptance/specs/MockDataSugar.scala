@@ -126,7 +126,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "$approvedApp3",
-       |    "name": "RApplication",
+       |    "name": "rapplication",
        |    "submittedOn": 1458831410657,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
