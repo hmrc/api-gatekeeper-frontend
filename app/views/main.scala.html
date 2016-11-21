@@ -25,7 +25,6 @@
   @layouts.footer(
     analyticsToken = Some(appConfig.analyticsToken),
     analyticsHost = appConfig.analyticsHost,
-    assetsPrefix = appConfig.assetsPrefix,
     ssoUrl = None,
     scriptElem = None,
     gaCalls = None)
@@ -44,7 +43,7 @@
 @views.html.layouts.govuk_template(
   title = Some(title),
   bodyClasses = None)(
-  head = layouts.head(assetsPrefix = appConfig.assetsPrefix, linkElem = None, headScripts = None),
+  head = layouts.head(linkElem = None, headScripts = None),
   bodyEnd = bodyEnd,
   insideHeader = insideHeader,
   afterHeader = HtmlFormat.empty,
