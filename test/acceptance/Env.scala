@@ -16,21 +16,40 @@
 
 package acceptance
 
-import java.util.logging.Level
+import java.util.logging.{Level, Logger}
 
+import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.openqa.selenium.remote.DesiredCapabilities
-import org.openqa.selenium.WebDriver
+import org.openqa.selenium.{HasCapabilities, WebDriver}
+import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
 
 import scala.util.Try
 
 trait Env {
 
-  val driver: WebDriver = {
-    val capabilities = DesiredCapabilities.htmlUnit()
-    capabilities.setJavascriptEnabled(true)
-    java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF)
-    new HtmlUnitDriver(capabilities)
+  val webDriverConfig = System.getProperty("test.driver", "HtmlUnitDriver").toLowerCase
+  val driver = if (webDriverConfig == "firefox") {
+    val driver: WebDriver with HasCapabilities = {
+      val profile = new FirefoxProfile
+      profile.setAcceptUntrustedCertificates(true)
+      new FirefoxDriver(profile)
+    }
+    driver
+  } else if (webDriverConfig == "chrome"){
+    val driver: WebDriver = {
+      new ChromeDriver()
+    }
+    driver
+  } else {
+    val driver: WebDriver = {
+      val capabilities = DesiredCapabilities.htmlUnit()
+      capabilities.setJavascriptEnabled(true)
+      Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF)
+      Logger.getLogger("com.gargoylesoftware.htmlunit.javascript.StrictErrorReporter").setLevel(Level.OFF)
+      new HtmlUnitDriver(capabilities)
+    }
+    driver
   }
 
   sys addShutdownHook {
@@ -39,3 +58,4 @@ trait Env {
 }
 
 object Env extends Env
+
