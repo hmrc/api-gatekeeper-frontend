@@ -21,18 +21,11 @@ import java.util.logging.Level
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.chrome.ChromeDriver
 
 import scala.util.Try
 
 trait Env {
 
-//    val driver: WebDriver = {
-//      val driver = new ChromeDriver()
-//      driver.manage().window().maximize()
-//      driver
-//    }
-//
   val driver: WebDriver = {
     val capabilities = DesiredCapabilities.htmlUnit()
     capabilities.setJavascriptEnabled(true)
