@@ -46,8 +46,8 @@ object ApplicationResponse {
   implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = Json.format[ApplicationState]
-  implicit val format4 = EnumJson.enumFormat(State)
+  implicit val format3 = EnumJson.enumFormat(State)
+  implicit val format4 = Json.format[ApplicationState]
   implicit val format5 = Json.format[ApplicationResponse]
 }
 

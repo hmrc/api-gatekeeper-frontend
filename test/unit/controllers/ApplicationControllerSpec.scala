@@ -16,22 +16,19 @@
 
 package unit.controllers
 
-import connectors.AuthConnector
+import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
-import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
 import model._
-import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
-import services.ApplicationService
+import play.api.test.Helpers._
 import uk.gov.hmrc.crypto.Protected
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -40,37 +37,57 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
   implicit val materializer = fakeApplication.materializer
 
-  Helpers.running(fakeApplication) {
+  running(fakeApplication) {
 
-    trait Setup {
+    trait Setup extends ControllerSetupBase {
+
       val underTest = new ApplicationController {
-        val authConnector = mock[AuthConnector]
-        val authProvider = mock[AuthenticationProvider]
-        val applicationService = mock[ApplicationService]
+        val authConnector = mockAuthConnector
+        val authProvider = mockAuthProvider
+        val applicationService = mockApplicationService
       }
-
-      implicit val encryptedStringFormats = JsonStringEncryption
-      implicit val decryptedStringFormats = JsonStringDecryption
-      implicit val format = Json.format[LoginDetails]
-
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
-      val authToken = SessionKeys.authToken -> "some-bearer-token"
-      val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
-
-      val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-      val aLoggedOutRequest = FakeRequest().withSession(csrfToken)
     }
 
     "applicationController" should {
-      val applicationId = "applicationId"
-      val userName = "userName"
+
+      "on request all applications supplied" in new Setup {
+        givenASuccessfulLogin
+
+        val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
+
+        Helpers.status(eventualResult) should be(OK)
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody should include("Dashboard")
+        responseBody should include("Test Application")
+        responseBody should include("id=app-1")
+      }
+
+      "go to unauthorised page if user is not authorised" in new Setup {
+
+        givenAUnsuccessfulLogin
+
+        val result = await(underTest.applicationsPage(aLoggedInRequest))
+
+        status(result) shouldBe 401
+        bodyOf(result) should include("Only Authorised users can access the requested page")
+      }
+
+      "go to loginpage with error if user is not authenticated" in new Setup {
+
+        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier]))
+          .willReturn(Future.failed(new InvalidCredentials))
+
+        val result = await(underTest.applicationsPage(aLoggedOutRequest))
+
+        redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
+      }
+
 
       "call backend with correct application id and gatekeeper id when resend verification is invoked" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
 
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+        val applicationId = "applicationId"
+        givenASuccessfulLogin
 
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])

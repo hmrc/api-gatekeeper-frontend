@@ -1,0 +1,25 @@
+@import org.joda.time.format.DateTimeFormat
+@import model.ApplicationResponse
+@import include._
+
+@(applications: Seq[ApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
+
+@main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
+
+    @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
+        <article class="content__body full-width">
+
+            <header>
+                <h1>Dashboard</h1>
+            </header>
+
+            @tabList(activeTab = 0)
+
+            <div class="two-col-list full-width">
+                @for(app <- applications) {
+                    <h1>app.name</h1>
+                }
+            </div>
+        </article>
+    }
+}

@@ -18,40 +18,34 @@ package unit.controllers
 
 import java.util.UUID
 
+import connectors.ApiDefinitionConnector
 import connectors.AuthConnector.InvalidCredentials
-import connectors.{ApiDefinitionConnector, AuthConnector}
 import controllers.DevelopersController
-import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.Json
+import play.api.test.Helpers
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
 import services.{ApplicationService, DeveloperService}
 import uk.gov.hmrc.crypto.Protected
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFakeApplication {
 
   implicit val materializer = fakeApplication.materializer
 
   Helpers.running(fakeApplication) {
 
-    trait Setup {
-      
-      val mockAuthConnector = mock[AuthConnector]
-      val mockAuthProvider = mock[AuthenticationProvider]
+    trait Setup extends ControllerSetupBase {
+
       val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
       val mockDeveloperService = mock[DeveloperService]
-      val mockApplicationService = mock[ApplicationService]
 
       val developersController = new DevelopersController {
         val authConnector = mockAuthConnector
@@ -59,31 +53,6 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val apiDefinitionConnector = mockApiDefinitionConnector
         val developerService = mockDeveloperService
         val applicationService = mockApplicationService
-      }
-
-      implicit val encryptedStringFormats = JsonStringEncryption
-      implicit val decryptedStringFormats = JsonStringDecryption
-      implicit val format = Json.format[LoginDetails]
-
-      val userName = "userName"
-      val authToken = SessionKeys.authToken -> "some-bearer-token"
-      val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
-      val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
-      val aLoggedOutRequest = FakeRequest().withSession()
-      val noUsers = Seq.empty[ApplicationDeveloper]
-      
-      def givenAUnsucessfulLogin(): Unit = {
-        givenALogin(false)
-      }
-
-      def givenASucessfulLogin(): Unit = {
-        givenALogin(true)
-      }
-
-      def givenALogin(sucessful: Boolean): Unit = {
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
-        given(mockAuthConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(mockAuthConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(sucessful))
       }
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -113,7 +82,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           val applicationService: ApplicationService = mockApplicationService
         }
 
-        givenASucessfulLogin
+        givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
         await(overridenDevelopersController.developersPage(None, None)(aLoggedInRequest))
       }
@@ -131,7 +100,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "load successfully if user is authenticated and authorised" in new Setup {
         
-        givenASucessfulLogin
+        givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
 
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
@@ -143,7 +112,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "go to unauthorised page if user is not authorised" in new Setup {
 
-        givenAUnsucessfulLogin
+        givenAUnsuccessfulLogin
 
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
 
@@ -164,7 +133,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
         val devs = users.map(Developer.createFromUser(_, applications))
 
-        givenASucessfulLogin
+        givenASuccessfulLogin
         givenDelegateServicesSupply(applications, devs, devs)
 
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
@@ -178,8 +147,8 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
 
-        givenASucessfulLogin
-        givenDelegateServicesSupply(applications, noUsers, noUsers);
+        givenASuccessfulLogin
+        givenDelegateServicesSupply(applications, noUsers, noUsers)
         
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
 

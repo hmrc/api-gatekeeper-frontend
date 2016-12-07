@@ -30,12 +30,16 @@ class TabHelperSpec extends UnitSpec with Matchers {
 
   "TabHelper" should {
 
-    "have developer's tab href set to developers" in {
-      hrefOfTab("Developers", dashboardTabs(0)) endsWith "developers"
+    "have developers' tab href set to developers" in {
+      hrefOfTab("Developers", dashboardTabs(0)) should endWith("developers")
     }
 
-    "have applications's tab href set to dashboard" in {
-      hrefOfTab("Applications", dashboardTabs(0)) endsWith "dashboard"
+    "have applications' tab href set to applications" in {
+      hrefOfTab("Applications", dashboardTabs(0)) should endWith("applications")
+    }
+
+    "have dashboard's tab href set to dashboard" in {
+      hrefOfTab("Dashboard", dashboardTabs(0)) should endWith("dashboard")
     }
   }
 }

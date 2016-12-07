@@ -22,6 +22,10 @@ import play.api.mvc.{Action, AnyContent}
 import services.ApplicationService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import views.html.applications.applications
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+
 
 object ApplicationController extends ApplicationController {
   override val applicationService: ApplicationService = ApplicationService
@@ -34,6 +38,14 @@ object ApplicationController extends ApplicationController {
 trait ApplicationController extends FrontendController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
+
+  def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+
+      for {
+        apps <- applicationService.fetchApplications
+      } yield Ok(applications(apps))
+  }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>

@@ -20,6 +20,7 @@ case class TabLink(label: String, href: String, active: Boolean = false)
 
 object TabHelper {
   def dashboardTabs(activeTab: Int) = Seq(
-    TabLink("Applications", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None).url, activeTab == 1))
+    TabLink("Dashboard", routes.DashboardController.dashboardPage.url, activeTab == 0),
+    TabLink("Applications", routes.ApplicationController.applicationsPage.url, activeTab == 1),
+    TabLink("Developers", routes.DevelopersController.developersPage(None, None).url, activeTab == 2))
 }
