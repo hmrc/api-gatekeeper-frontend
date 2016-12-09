@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import model.SubscribedApplicationResponse
 
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
@@ -50,5 +51,9 @@ trait ApplicationService {
       case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
       case _ => applicationConnector.fetchAllApplications()
     }
+  }
+  
+  def fetchAllSubscribedApplications(implicit hc:HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
+    applicationConnector.fetchAllSubscribedApplications()
   }
 }

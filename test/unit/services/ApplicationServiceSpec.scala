@@ -42,9 +42,28 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val collaborators = Set(
       Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+
+    val allApplications = Seq(
+      ApplicationResponse(UUID.randomUUID(),
+        "application1", None, collaborators, DateTime.now(), ApplicationState()),
+      ApplicationResponse(UUID.randomUUID(),
+        "application2", None, collaborators, DateTime.now(), ApplicationState()),
+      ApplicationResponse(UUID.randomUUID(),
+        "application3", None, collaborators, DateTime.now(), ApplicationState()))
   }
 
   "applicationService" should {
+    
+    "list all subscribed applications" in new Setup {
+      val allSubcribedApplications = allApplications.map(
+          a => SubscribedApplicationResponse(a.id,a.name,a.description,a.collaborators,a.createdOn,a.state,Seq("name")))
+
+      given(testApplicationService.applicationConnector.fetchAllSubscribedApplications()(any[HeaderCarrier])).willReturn(Future.successful(allSubcribedApplications))
+
+      val result = await(testApplicationService.fetchAllSubscribedApplications)
+      result shouldEqual allSubcribedApplications
+    }
+    
     "call applicationConnector with appropriate parameters" in new Setup {
       val applicationId = "applicationId"
       val userName = "userName"
@@ -60,14 +79,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "list all applications when filtering not provided" in new Setup {
-      val allApplications = Seq(
-        ApplicationResponse(UUID.randomUUID(),
-          "application1", None, collaborators, DateTime.now(), ApplicationState()),
-        ApplicationResponse(UUID.randomUUID(),
-          "application2", None, collaborators, DateTime.now(), ApplicationState()),
-        ApplicationResponse(UUID.randomUUID(),
-          "application3", None, collaborators, DateTime.now(), ApplicationState()))
-
       given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApplications))
 
       val result: Seq[ApplicationResponse] = await(testApplicationService.fetchApplications)

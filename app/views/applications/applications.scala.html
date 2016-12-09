@@ -1,8 +1,8 @@
 @import org.joda.time.format.DateTimeFormat
-@import model.ApplicationResponse
+@import model.SubscribedApplicationResponse
 @import include._
 
-@(applications: Seq[ApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
+@(applications: Seq[SubscribedApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
 
 @main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
 
@@ -10,10 +10,10 @@
         <article class="content__body full-width">
 
             <header>
-                <h1>Dashboard</h1>
+                <h1>Applications</h1>
             </header>
 
-            @tabList(activeTab = 0)
+            @tabList(activeTab = 1)
 
             <div class="two-col-list full-width">
                 @for(app <- applications) {

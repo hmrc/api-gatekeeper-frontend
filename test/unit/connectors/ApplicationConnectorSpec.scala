@@ -24,6 +24,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import model.SubscribedApplicationResponse
 
 class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
@@ -34,6 +35,17 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     val connector = new ApplicationConnector {
       override val http = WSHttp
       override val applicationBaseUrl: String = wireMockUrl
+    }
+  }
+  
+  "fetchAllSubscribedApplications" should {
+    "retrieve all applications" in new Setup {
+      val uri = "/applications/subscribed"
+      val body = "[{\n    \"id\": \"a97541e8-f93d-4d0a-ab0b-862e63204b7d\",\n    \"name\": \"My new app\",\n    \"description\": \"my description\",\n    \"collaborators\": [\n      {\n        \"emailAddress\": \"thomas.vandevelde@digital.hmrc.gov.uk\",\n        \"role\": \"ADMINISTRATOR\"\n      }\n    ],\n    \"createdOn\": 1460111080651,\n    \"redirectUris\": [\n      \"http://localhost:8080/callback\"\n    ],\n    \"termsAndConditionsUrl\": \"http://terms\",\n    \"privacyPolicyUrl\": \"http://privacypolicy\",\n    \"access\": {\n      \"redirectUris\": [\n        \"http://localhost:8080/callback\"\n      ],\n      \"termsAndConditionsUrl\": \"http://terms\",\n      \"privacyPolicyUrl\": \"http://privacypolicy\",\n      \"overrides\": [],\n      \"accessType\": \"STANDARD\"\n    },\n    \"state\": {\n      \"name\": \"PRODUCTION\",\n      \"requestedByEmailAddress\": \"thomas.vandevelde@digital.hmrc.gov.uk\",\n      \"verificationCode\": \"8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw\",\n      \"updatedOn\": 1460113878463\n    },\n    \"trusted\": false,\n    \"subscriptionNames\" : [\"Individual Benefits\", \"Individual Tax\"]\n  }]"
+      stubFor(get(urlEqualTo(uri)).willReturn(aResponse().withStatus(200).withBody(body)))
+      val result: Seq[SubscribedApplicationResponse] = await(connector.fetchAllSubscribedApplications())
+      verify(1, getRequestedFor(urlPathEqualTo(uri)).withHeader("Authorization", equalTo(authToken)))
+      result.head.name shouldBe "My new app"
     }
   }
 

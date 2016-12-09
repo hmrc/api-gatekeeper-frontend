@@ -30,7 +30,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
@@ -53,14 +53,15 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "on request all applications supplied" in new Setup {
         givenASuccessfulLogin
 
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
 
         Helpers.status(eventualResult) should be(OK)
 
         val responseBody = Helpers.contentAsString(eventualResult)
-        responseBody should include("Dashboard")
-        responseBody should include("Test Application")
-        responseBody should include("id=app-1")
+        responseBody should include("Applications")
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {

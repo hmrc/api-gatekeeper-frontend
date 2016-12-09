@@ -43,7 +43,7 @@ trait ApplicationController extends FrontendController with GatekeeperAuthWrappe
     implicit request => implicit hc =>
 
       for {
-        apps <- applicationService.fetchApplications
+        apps <- applicationService.fetchAllSubscribedApplications
       } yield Ok(applications(apps))
   }
 
