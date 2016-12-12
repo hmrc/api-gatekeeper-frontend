@@ -1,6 +1,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import model.SubscribedApplicationResponse
 @import include._
+@import model.State._
 
 @(applications: Seq[SubscribedApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
 
@@ -15,11 +16,43 @@
 
             @tabList(activeTab = 1)
 
-            <div class="two-col-list full-width">
-                @for(app <- applications) {
-                    <h1>app.name</h1>
+            <table id="applications-table"
+                   class="dataTable no-footer application-list"
+                   width="100%"
+                   data-dom="t<'text--center'lip>"
+                   data-order='[0,"asc"]'
+                   data-page-length="100"
+                   data-paginate="true"
+                   data-length-change="true"
+                   data-length-menu="[10,50,100, 200, 300]"
+                   data-responsive="true"
+                   data-column-defs='[{"targets": [0,1,2,3], "orderable": true}]'
+                   data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+                <thead>
+                <tr role="row">
+                    <th tabindex="0" class="sorting_left-aligned">Name</th>
+                    <th tabindex="1" class="sorting_left-aligned">Submitted</th>
+                    <th tabindex="2" class="sorting_left-aligned">API Subscription</th>
+                    <th tabindex="3" class="sorting_left-aligned">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for((application, index) <- applications.zipWithIndex) {
+                <tr role="row">
+                    <td id="dev-email-@index">@application.name</td>
+                    <td id="dev-fn-@index">@application.createdOn</td>
+                    <td id="dev-sn-@index">@application.subscriptionNames</td>
+                    <td class="text--right hard--right" id="dev-status-@index">
+                        @defining(application.state.name match {
+                        case PRODUCTION => ("status status--verified", "Approved")
+                        case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
+                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+                    </td>
+                </tr>
                 }
-            </div>
+                </tbody>
+            </table>
+
         </article>
     }
 }
