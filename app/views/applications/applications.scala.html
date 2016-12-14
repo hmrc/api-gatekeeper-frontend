@@ -1,10 +1,7 @@
-@ @
-import include._
+@import include._
 @import model.State._
-@
-import model.SubscribedApplicationResponse
-@
-import org.joda.time.format.DateTimeFormat
+@import model.SubscribedApplicationResponse
+@import org.joda.time.format.DateTimeFormat
 
 @(applications: Seq[SubscribedApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
 
@@ -78,13 +75,12 @@ import org.joda.time.format.DateTimeFormat
                         </tr>
                     }
                     </tbody>
-
-                    <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left: 0">
-                        <div class="grid-layout__column--1-3 text--center">
-                        @if(applications.isEmpty) {"No developers for your selected filter"}
-        </div>
-        </div>
-        </table>
+                </table>
+                <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left: 0">
+                    <div class="grid-layout__column--1-3 text--center">
+                    @if(applications.isEmpty) {"No developers for your selected filter"}
+                    </div>
+                </div>
         </form>
 
             <div class="form-group>">
