@@ -42,14 +42,13 @@ $(function(undefined) {
 
   // DataTables
   (function() {
-    var DEVELOPER_TABLE = 'developer-table';
     var dataTables = [
-      DEVELOPER_TABLE
+      'developer-table', 'applications-table'
     ];
 
     var getAllFilters = function (table) {
       return $('*[data-datatable-filter="' + table + '"]');
-    }
+    };
 
     var getTableFilters = function (table) {
       return $('*[data-datatable-filter="' + table + '"]')

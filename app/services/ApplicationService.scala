@@ -17,12 +17,11 @@
 package services
 
 import connectors.ApplicationConnector
-import model.{ResendVerificationSuccessful, ApplicationResponse, ApiFilter, OneOrMoreSubscriptions, NoSubscriptions, Value}
+import model._
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import model.SubscribedApplicationResponse
 
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
@@ -35,7 +34,7 @@ trait ApplicationService {
     applicationConnector.resendVerification(applicationId, gatekeeperUserId)
   }
 
-  def fetchApplications(implicit hc:HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplications(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     applicationConnector.fetchAllApplications()
   }
 
@@ -52,8 +51,21 @@ trait ApplicationService {
       case _ => applicationConnector.fetchAllApplications()
     }
   }
-  
-  def fetchAllSubscribedApplications(implicit hc:HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
-    applicationConnector.fetchAllSubscribedApplications()
+
+  def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
+
+    def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {
+      applications.map(ar => {
+        val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
+          .map(_.apiIdentifier.context.capitalize.replace("-", " ")).sorted
+        SubscribedApplicationResponse.createFrom(ar, filteredSubs)
+      })
+    }
+
+    for {
+      apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
+      subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
+      subscribedApplications = addSubscriptionsToApplications(apps, subs)
+    } yield subscribedApplications
   }
 }

@@ -57,7 +57,10 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 
     val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-    val aLoggedOutRequest = FakeRequest().withSession(csrfToken)
+    val aLoggedOutRequest = FakeRequest().withSession(csrfToken).withBody("TURNIPS").
+    with
+
+
 
   }
 

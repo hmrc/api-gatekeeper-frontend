@@ -91,3 +91,10 @@ case class APISubscriptionStatus(name: String, serviceName: String,
 class FetchApiDefinitionsFailed extends Throwable
 
 case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
+
+case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
+
+object SubscriptionResponse {
+  implicit val format1 = Json.format[APIIdentifier]
+  implicit val format2 = Json.format[SubscriptionResponse]
+}

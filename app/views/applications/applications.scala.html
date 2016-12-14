@@ -1,13 +1,17 @@
-@import org.joda.time.format.DateTimeFormat
-@import model.SubscribedApplicationResponse
-@import include._
+@ @
+import include._
 @import model.State._
+@
+import model.SubscribedApplicationResponse
+@
+import org.joda.time.format.DateTimeFormat
 
 @(applications: Seq[SubscribedApplicationResponse])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
 
 @main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
+
         <article class="content__body full-width">
 
             <header>
@@ -16,43 +20,76 @@
 
             @tabList(activeTab = 1)
 
-            <table id="applications-table"
-                   class="dataTable no-footer application-list"
-                   width="100%"
-                   data-dom="t<'text--center'lip>"
-                   data-order='[0,"asc"]'
-                   data-page-length="100"
-                   data-paginate="true"
-                   data-length-change="true"
-                   data-length-menu="[10,50,100, 200, 300]"
-                   data-responsive="true"
-                   data-column-defs='[{"targets": [0,1,2,3], "orderable": true}]'
-                   data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
-                <thead>
-                <tr role="row">
-                    <th tabindex="0" class="sorting_left-aligned">Name</th>
-                    <th tabindex="1" class="sorting_left-aligned">Submitted</th>
-                    <th tabindex="2" class="sorting_left-aligned">API Subscription</th>
-                    <th tabindex="3" class="sorting_left-aligned">Status</th>
-                </tr>
-                </thead>
-                <tbody>
-                @for((application, index) <- applications.zipWithIndex) {
-                <tr role="row">
-                    <td id="dev-email-@index">@application.name</td>
-                    <td id="dev-fn-@index">@application.createdOn</td>
-                    <td id="dev-sn-@index">@application.subscriptionNames</td>
-                    <td class="text--right hard--right" id="dev-status-@index">
-                        @defining(application.state.name match {
-                        case PRODUCTION => ("status status--verified", "Approved")
-                        case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
-                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
-                    </td>
-                </tr>
-                }
-                </tbody>
-            </table>
+            <form name="developer-filters"
+            action="@routes.ApplicationController.applicationsPage().url"
+            method="get">
 
+                <div class="grid-layout grid-layout--stacked push--sides">
+                    <div class="float-right js-hidden">
+                        <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
+                    </div>
+                </div>
+                @*<div class="grid-layout__column--1-3">*@
+                @*<label class="bold centered-content hard--left">*@
+                @*<span class="label__text bold">Search</span>*@
+                @*<input class="form-control-7-8 input--cleared input-select--large"*@
+                @*data-datatable-filter="applications-table"*@
+                @*name="example"*@
+                @*type="text"*@
+                @*placeholder="Name, Subscribed APIs..." />*@
+                @*</label>*@
+                @*</div>*@
+                <table id="applications-table"
+                class="dataTable no-footer application-list"
+                width="100%"
+                data-dom="t<'text--center'lip>"
+                data-order='[0,"asc"]'
+                data-page-length="100"
+                data-paginate="true"
+                data-length-change="true"
+                data-length-menu="[10, 50, 100, 200, 300]"
+                data-responsive="true"
+                data-column-defs='[{"targets": [0,1,2,3], "orderable": true}, {"targets": [4], "visible": false, "searchable": true}]'
+                data-language='{"sSearchPlaceholder":"Application name, subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+                    <thead>
+                        <tr role="row">
+                            <th tabindex="0" class="sorting_left-aligned">Name</th>
+                            <th tabindex="0" class="sorting_left-aligned">Submitted</th>
+                            <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
+                            <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                            <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">All Subscriptions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for((application, index) <- applications.zipWithIndex) {
+                        <tr role="row">
+                            <td id="app-name-@index">@application.name</td>
+                            <td id="app-created-@index">@{
+                                dateFormatter.print(application.createdOn)
+                            }</td>
+                            <td id="app-subs-@index" title="@application.subscriptionNames.mkString(", ")">@application.subscriptionNames.take(3).mkString(", ") @if(application.subscriptionNames.size > 3) {...}</td>
+                            <td class="text--right hard--right" id="app-status-@index">
+                            @defining(application.state.name match {
+                                case PRODUCTION => ("status status--verified", "Approved")
+                                case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
+                                case _ => ("status status--not-verified", "Sandbox")
+                            }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+                            <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">@application.subscriptionNames.mkString(",")</td>
+                        </tr>
+                    }
+                    </tbody>
+
+                    <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left: 0">
+                        <div class="grid-layout__column--1-3 text--center">
+                        @if(applications.isEmpty) {"No developers for your selected filter"}
+        </div>
+        </div>
+        </table>
+        </form>
+
+            <div class="form-group>">
+                <a class="back-to-top-link" href="#">Back to Top</a>
+            </div>
         </article>
     }
 }
