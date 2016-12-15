@@ -18,27 +18,11 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object DashboardPage extends WebPage {
+object ApplicationPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/dashboard"
+  override val url: String = "http://localhost:9000/api-gatekeeper/applications"
   override def isCurrentPage: Boolean = {
     currentUrl == url
-  }
-
-  def isUnauthorised() = {
-    find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
-  }
-
-  def developersTabLink = find(linkText("Developers")).get
-
-  def applicationsTabLink = find(linkText("Applications")).get
-
-  def selectDevelopers() = {
-    click on developersTabLink
-  }
-
-  def selectApplications() = {
-    click on applicationsTabLink
   }
 
 

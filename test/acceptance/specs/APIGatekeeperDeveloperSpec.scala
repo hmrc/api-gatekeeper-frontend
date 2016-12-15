@@ -42,7 +42,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
-      stubApiDefinition()
+      stubApiDefinition
       stubRandomDevelopers(100)
       signInGatekeeper
       on(DashboardPage)

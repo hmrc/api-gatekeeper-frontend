@@ -572,4 +572,130 @@ trait MockDataSugar {
      """.stripMargin
 
 
+  val applicationSubscription =
+    s"""
+       [
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "individual-benefits",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
+       |      "4bf49df9-523a-4aa3-a446-683ff24b619f",
+       |      "42695949-c7e8-4de9-a443-15c0da43143a"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "individual-employment",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "4bf49df9-523a-4aa3-a446-683ff24b619f",
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "95b381b8-499d-41e9-99b4-dbfed6a05752"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "individual-tax",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "individual-income",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "inheritance-tax",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8",
+       |      "58dd6642-08c9-4422-8a84-058e8731d44a"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "national-insurance",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "national-insurance-record",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "marriage-allowance",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "42695949-c7e8-4de9-a443-15c0da43143a",
+       |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8",
+       |      "ac1db09b-f8cf-440a-a3d2-86a81bc6b303"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "api-simulator",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "b69cfde4-3e62-48a3-93fd-cf5a1f5fd1be",
+       |      "4fecb42e-15cb-4e91-8292-55ae406878e9",
+       |      "58dd6642-08c9-4422-8a84-058e8731d44a",
+       |      "af57d193-c9dd-4fdb-a790-656429c2f1dc",
+       |      "ab349380-17cc-4de0-a7ac-c76baedd7133"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "employers-paye",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "e55def1d-763c-4a26-a44e-82a63f4cb70b",
+       |      "10ff725b-9555-4919-a596-0850a3e83caa",
+       |      "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
+       |      "4afc248d-1c3e-4274-a77b-e89a25b4d764"
+       |    ]
+       |  },
+       |  {
+       |    "apiIdentifier": {
+       |      "context": "self-assessment-api",
+       |      "version": "1.0"
+       |    },
+       |    "applications": [
+       |      "e55def1d-763c-4a26-a44e-82a63f4cb70b",
+       |      "10ff725b-9555-4919-a596-0850a3e83caa",
+       |      "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
+       |      "42695949-c7e8-4de9-a443-15c0da43143a"
+       |    ]
+       |  }
+       |]
+   """.stripMargin
+
 }
