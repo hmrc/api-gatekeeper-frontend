@@ -23,13 +23,12 @@ import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.Json
 import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.Helpers
 import play.api.test.Helpers._
-import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -45,6 +44,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService
+        val apiDefinitionConnector = mockApiDefinitionConnector
       }
     }
 
@@ -55,6 +55,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
 
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
 

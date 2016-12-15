@@ -16,7 +16,7 @@
 
 package unit.controllers
 
-import connectors.AuthConnector
+import connectors.{ApiDefinitionConnector, AuthConnector}
 import model._
 import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
 import org.joda.time.DateTime
@@ -36,6 +36,7 @@ trait ControllerSetupBase extends MockitoSugar {
   val mockAuthConnector = mock[AuthConnector]
   val mockAuthProvider = mock[AuthenticationProvider]
   val mockApplicationService = mock[ApplicationService]
+  val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
 
   implicit val encryptedStringFormats = JsonStringEncryption
   implicit val decryptedStringFormats = JsonStringDecryption
