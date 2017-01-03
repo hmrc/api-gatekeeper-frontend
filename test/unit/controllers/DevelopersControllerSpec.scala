@@ -18,7 +18,6 @@ package unit.controllers
 
 import java.util.UUID
 
-import connectors.ApiDefinitionConnector
 import connectors.AuthConnector.InvalidCredentials
 import controllers.DevelopersController
 import model._
@@ -36,7 +35,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFakeApplication {
+class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   implicit val materializer = fakeApplication.materializer
 
@@ -44,7 +43,6 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFake
 
     trait Setup extends ControllerSetupBase {
 
-      val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
       val mockDeveloperService = mock[DeveloperService]
 
       val developersController = new DevelopersController {
@@ -69,7 +67,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFake
         given(mockDeveloperService.fetchDevelopers(Matchers.eq(apps))(any[HeaderCarrier])).willReturn(Future.successful(developers))
       }
     }
-    
+
     "developersPage" should {
 
       "default to page 1 with 100 items in table" in new Setup {
@@ -88,7 +86,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFake
       }
 
       "go to loginpage with error if user is not authenticated" in new Setup {
-        
+
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
 
@@ -99,7 +97,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFake
 
 
       "load successfully if user is authenticated and authorised" in new Setup {
-        
+
         givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
 
@@ -142,14 +140,14 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar  with WithFake
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
 
-        "display message if no developers found by filter" in new Setup{
+      "display message if no developers found by filter" in new Setup {
 
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
 
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, noUsers, noUsers)
-        
+
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
 
         status(result) shouldBe 200

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2016 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package acceptance.pages
 
-case class TabLink(label: String, href: String, active: Boolean = false)
+import acceptance.WebPage
 
-object TabHelper {
-  def dashboardTabs(activeTab: Int) = Seq(
-    TabLink("Dashboard", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Applications", routes.ApplicationController.applicationsPage.url, activeTab == 1),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None).url, activeTab == 2))
+object ApplicationPage extends WebPage {
+
+  override val url: String = "http://localhost:9000/api-gatekeeper/applications"
+  override def isCurrentPage: Boolean = {
+    currentUrl == url
+  }
+
+
 }

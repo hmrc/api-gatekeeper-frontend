@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package controllers
 
-import connectors.AuthConnector
-import model.Role
+import connectors.{ApiDefinitionConnector, AuthConnector}
+import model.APIStatus.APIStatus
+import model.{APIDefinition, APIIdentifier, Role, VersionSummary}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
@@ -29,6 +30,7 @@ import views.html.applications.applications
 
 object ApplicationController extends ApplicationController {
   override val applicationService: ApplicationService = ApplicationService
+  override val apiDefinitionConnector: ApiDefinitionConnector = ApiDefinitionConnector
 
   override def authConnector = AuthConnector
 
@@ -38,12 +40,14 @@ object ApplicationController extends ApplicationController {
 trait ApplicationController extends FrontendController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
+  val apiDefinitionConnector: ApiDefinitionConnector
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {
         apps <- applicationService.fetchAllSubscribedApplications
-      } yield Ok(applications(apps))
+        apis <- apiDefinitionConnector.fetchAll
+      } yield Ok(applications(apps, groupApisByStatus(apis)))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -54,5 +58,15 @@ trait ApplicationController extends FrontendController with GatekeeperAuthWrappe
         Redirect(controllers.routes.DashboardController.approvedApplicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
+  }
+
+  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[APIStatus, Seq[VersionSummary]] = {
+
+    val versions = for {
+      api <- apis
+      version <- api.versions
+    } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
+
+    versions.groupBy(_.status)
   }
 }
