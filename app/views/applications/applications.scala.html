@@ -64,7 +64,7 @@
                         <label class="form-label bold centered-content hard--right" for="status">Filter by Status
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
-                            data-datatable-column-filter="3"
+                            data-datatable-column-filter="4"
                             id="status"
                             name="status"
                             value="">
@@ -90,12 +90,16 @@
                 data-length-change="true"
                 data-length-menu="[10, 50, 100, 200, 300]"
                 data-responsive="true"
-                data-column-defs='[{"targets": [0,1,2], "orderable": true}, {"targets": [4], "visible": false, "searchable": true}]'
+                data-column-defs='[{"targets": [0,3], "orderable": true},
+                                   {"targets": [1], "orderable": true, "orderData": [2]},
+                                   {"targets": [2], "visible": false, "searchable": false},
+                                   {"targets": [5], "visible": false, "searchable": true}]'
                 data-language='{"sSearchPlaceholder":"Application name, subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
                     <thead>
                         <tr role="row">
                             <th tabindex="0" class="sorting_left-aligned">Name</th>
                             <th tabindex="0" class="sorting_left-aligned">Submitted</th>
+                            <th tabindex="0">Unformatted Submitted Dates</th>
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
                             <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">All Subscriptions</th>
@@ -108,6 +112,7 @@
                             <td id="app-created-@index">@{
                                 dateFormatter.print(application.createdOn)
                             }</td>
+                            <td>@application.createdOn</td>
                             <td id="app-subs-@index" title="@application.subscriptionNames.mkString(", ")">@application.subscriptionNames.take(3).mkString(", ") @if(application.subscriptionNames.size > 3) {...}</td>
                             <td class="text--right hard--right" id="app-status-@index">
                             @defining(application.state.name match {
