@@ -1,15 +1,11 @@
 $(function(undefined) {
   // DataTables
   (function() {
-    var dataTables = [
-      'developer-table', 'applications-table'
-    ];
-
-    var getAllFilters = function (table) {
+    function getAllFilters (table) {
       return $('*[data-datatable-filter="' + table + '"]');
     };
 
-    var getTableFilters = function (table) {
+    function getTableFilters (table) {
       return $('*[data-datatable-filter="' + table + '"]')
                .not('[data-datatable-column-filter]');
     };
@@ -82,10 +78,17 @@ $(function(undefined) {
       }
     }
 
+    // Initialize all datatables with filters
+    var dataTables = $('table.dataTable');
     $.each(dataTables, function (index, table) {
-      var filters = getAllFilters(table);
+      var id = $(table).attr('id');
+      var filters = getAllFilters(id);
+
+      // trigger table updates on filter changes
       $.each(filters, dataTableEvents);
-      $('#' + table).DataTable();
+
+      // initialize the table
+      $(table).DataTable();
     });
   })();
 });
