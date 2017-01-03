@@ -33,9 +33,7 @@ trait MicroService {
     .settings(
       Concat.groups := Seq(
         "javascripts/apis-app.js" -> group(
-          Seq(
-             "javascripts/developers.js"
-          )
+          (baseDirectory.value / "app" / "assets" / "javascripts") ** "*.js"
         )
       ),
       UglifyKeys.compressOptions := Seq(

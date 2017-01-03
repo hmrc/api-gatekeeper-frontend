@@ -25,47 +25,6 @@ form[name=developer-filters] {
     }
 }
 
-.js-enabled {
-    .dataTables_length {
-        display: inline;
-        float: left;
-
-        select {
-            display: inline;
-            margin-top: 0;
-        }
-    }
-
-    .dataTables_info {
-        display: inline;
-        float: none;
-    }
-
-    .dataTables_paginate {
-        display: inline;
-        float: right;
-    }
-
-    .dataTables_wrapper {
-        margin-top: 0;
-    }
-
-    .dataTable thead {
-        th.sorting_left-aligned {
-            padding-left: 1.2em;
-            background-position-x: left;
-        }
-
-        th.sorting_disabled {
-            cursor: default;
-        }
-    }
-
-    .grid-layout__column--1-3:nth-of-type(3) .form-label.right {
-        padding-right: 0;
-    }
-}
-
 @media (max-width: 640px) {
     article li {
         margin-left: 0;
