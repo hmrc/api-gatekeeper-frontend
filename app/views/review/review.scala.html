@@ -1,9 +1,9 @@
 @import model.ApplicationDetails
-@import config.FrontendAppConfig
+@import config.AppConfig
 @import include._
 
-@(form: Form[controllers.HandleUpliftForm], application: ApplicationDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages)
-@main(title = "API Gatekeeper Dashboard",userFullName = userFullName ) {
+@(form: Form[controllers.HandleUpliftForm], application: ApplicationDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@main(title = "{appConfig.title} - Dashboard", userFullName = userFullName) {
 <div class="content__body">
 
     <nav class="breadcrumb-nav">
@@ -64,7 +64,7 @@
                  aria-expanded="false"
                  aria-visible="false">
                 <label for="reason"><strong>Enter reason for rejection:</strong></label>
-                <p class="form-hint flush--top">Insert applicable guideline from <a data-naming-guidelines href="@{FrontendAppConfig.devHubBaseUrl}/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines</a>.</p>
+                <p class="form-hint flush--top">Insert applicable guideline from <a data-naming-guidelines href="@{appConfig.devHubBaseUrl}/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines</a>.</p>
                 @fieldError(form.errors, "reason", true)
                 <textarea id="reason" name="reason" class="textarea--3-4 flush--top @if(form.errors("reason").nonEmpty) {error-field}">@form.data.get("reason")</textarea>
             </div>

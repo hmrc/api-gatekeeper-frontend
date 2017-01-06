@@ -1,6 +1,7 @@
+@import config.AppConfig
 @(loginForm: Form[model.LoginDetails])(implicit request: Request[_], messages: Messages)
 
-@main(title = "API Gatekeeper login", userFullName = None ) {
+@main(title = "{AppConfig.title} - Login", userFullName = None ) {
 
     <header>
         <h1>Sign in</h1>

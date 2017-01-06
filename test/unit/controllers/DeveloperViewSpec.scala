@@ -16,6 +16,7 @@
 
 package unit.controllers
 
+import config.AppConfig
 import model._
 import org.scalatestplus.play.PlaySpec
 import play.api.Play.current
@@ -33,7 +34,7 @@ class DeveloperViewSpec extends PlaySpec {
 
     "list all developers" in new App {
       implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages)
+      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages, AppConfig)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

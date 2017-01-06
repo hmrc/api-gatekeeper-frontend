@@ -1,7 +1,7 @@
 @(title: String,
   mainContentHeader: Html = HtmlFormat.empty,
   userFullName: Option[String] = None,
-  appConfig: config.AppConfig = config.FrontendAppConfig)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+  appConfig: config.AppConfig = config.AppConfig)(mainContent: Html)(implicit request: Request[_], messages: Messages)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
@@ -36,7 +36,7 @@
 
 @insideHeader = {
   @layouts.header_nav(
-    navTitle = Some("API Gatekeeper"),
+    navTitle = Some(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
     navLinks = Some(include.headerNavLinks(NavigationHelper.navLinks(userFullName)))
@@ -48,7 +48,7 @@
 
 @views.html.layouts.govuk_template(
   title = Some(title),
-  bodyClasses = None)(
+  bodyClasses = if(appConfig.isExternalTestEnvironment) { Some("sandbox") } else None)(
   head = layouts.head(linkElem = None, headScripts = None),
   bodyEnd = bodyEnd,
   insideHeader = insideHeader,

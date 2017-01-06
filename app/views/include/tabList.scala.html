@@ -1,16 +1,19 @@
 @import controllers.TabHelper._
 
-@(activeTab: Int)
+@(activeTab: Int)(implicit appConfig: config.AppConfig)
 
 
 <ul class="tabs-nav" role="tablist">
 @for((tab, idx) <- dashboardTabs(activeTab).zipWithIndex) {
-   <li id="tab@idx" role="tab" data-tab-link="tab@idx" aria-selected="@tab.active">
-       @if(tab.active) {
-            <span class="tabs-nav__tab tabs-nav__tab--active">@tab.label</span>
-       } else {
-            <a class="tabs-nav__tab" href="@tab.href">@tab.label</a>
-       }
-   </li>
+
+    @if(!appConfig.isExternalTestEnvironment || idx > 0) {
+       <li id="tab@idx" role="tab" data-tab-link="tab@idx" aria-selected="@tab.active">
+           @if(tab.active) {
+                <span class="tabs-nav__tab tabs-nav__tab--active">@tab.label</span>
+           } else {
+                <a class="tabs-nav__tab" href="@tab.href">@tab.label</a>
+           }
+       </li>
+    }
 }
 </ul>

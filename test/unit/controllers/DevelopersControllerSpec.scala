@@ -51,6 +51,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val apiDefinitionConnector = mockApiDefinitionConnector
         val developerService = mockDeveloperService
         val applicationService = mockApplicationService
+        val appConfig = mockConfig
       }
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -71,85 +72,71 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     "developersPage" should {
 
       "default to page 1 with 100 items in table" in new Setup {
-
-        val overridenDevelopersController = new DevelopersController {
-          val authConnector = mockAuthConnector
-          val authProvider = mockAuthProvider
-          val apiDefinitionConnector = mockApiDefinitionConnector
-          val developerService = mockDeveloperService
-          val applicationService: ApplicationService = mockApplicationService
-        }
-
         givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
-        await(overridenDevelopersController.developersPage(None, None)(aLoggedInRequest))
+        await(developersController.developersPage(None, None)(aLoggedInRequest))
+        // TODO: Should assert something here
       }
 
       "go to loginpage with error if user is not authenticated" in new Setup {
-
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
-
         val result = await(developersController.developersPage(None, None)(aLoggedOutRequest))
-
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
 
-
       "load successfully if user is authenticated and authorised" in new Setup {
-
         givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
-
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
-
         status(result) shouldBe 200
-        bodyOf(result) should include("Dashboard")
+        bodyOf(result) should include("<h1>Developers</h1>")
+        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/applications\">Applications</a>")
+        bodyOf(result) should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Developers</span>")
       }
 
 
-      "go to unauthorised page if user is not authorised" in new Setup {
-
-        givenAUnsuccessfulLogin
-
+      "load successfully if user is authenticated and authorised, but not show dashboard tab if external test" in new Setup {
+        givenASuccessfulLogin
+        givenNoDataSuppliedDelegateServices
+        given(developersController.appConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        status(result) shouldBe 200
+        bodyOf(result) should include("<h1>Developers</h1>")
+        bodyOf(result) shouldNot include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/applications\">Applications</a>")
+        bodyOf(result) should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Developers</span>")
+      }
 
+      "go to unauthorised page if user is not authorised" in new Setup {
+        givenAUnsuccessfulLogin
+        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
       }
 
-
       "list all developers when filtering off" in new Setup {
-
         val users = Seq(
           User("sample@email.com", "Sample", "Email", Some(false)),
           User("another@email.com", "Sample2", "Email", Some(true)),
           User("someone@email.com", "Sample3", "Email", Some(true)))
-
         val collaborators = Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
-
         val devs = users.map(Developer.createFromUser(_, applications))
-
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, devs, devs)
-
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
-
         status(result) shouldBe 200
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
       }
 
       "display message if no developers found by filter" in new Setup {
-
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), ApplicationState()))
-
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, noUsers, noUsers)
-
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
-
         status(result) shouldBe 200
         bodyOf(result) should include("No developers for your selected filter")
       }

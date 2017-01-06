@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.AppConfig
 import connectors.{ApiDefinitionConnector, AuthConnector}
 import model.APIStatus.APIStatus
 import model._
@@ -27,21 +28,19 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.developers
 
 object DevelopersController extends DevelopersController {
-  override val developerService: DeveloperService = DeveloperService
-  override val applicationService: ApplicationService = ApplicationService
-  override val apiDefinitionConnector: ApiDefinitionConnector = ApiDefinitionConnector
-
+  override val developerService = DeveloperService
+  override val applicationService = ApplicationService
+  override val apiDefinitionConnector = ApiDefinitionConnector
+  override val appConfig = AppConfig
   override def authConnector = AuthConnector
-
   override def authProvider = GatekeeperAuthProvider
 }
 
 trait DevelopersController extends FrontendController with GatekeeperAuthWrapper {
-
   val applicationService: ApplicationService
   val developerService: DeveloperService
   val apiDefinitionConnector: ApiDefinitionConnector
-
+  implicit val appConfig: AppConfig
 
   def developersPage(filter: Option[String], status: Option[String]) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
