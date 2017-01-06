@@ -1,9 +1,8 @@
 @import model.ApplicationDetails
-@import config.AppConfig
 @import include._
 
 @(form: Form[controllers.HandleUpliftForm], application: ApplicationDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
-@main(title = "{appConfig.title} - Dashboard", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Review Application", userFullName = userFullName) {
 <div class="content__body">
 
     <nav class="breadcrumb-nav">
