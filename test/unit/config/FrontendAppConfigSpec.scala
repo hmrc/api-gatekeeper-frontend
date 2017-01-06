@@ -16,11 +16,11 @@
 
 package unit.config
 
-import config.FrontendAppConfig
+import config.AppConfig
 import play.api.test.{FakeApplication, TestServer}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class FrontendAppConfigSpec extends UnitSpec {
+class AppConfigSpec extends UnitSpec {
   var port = sys.env.getOrElse("MICROSERVICE_PORT", "9001").toInt
 
   "appContext" should {
@@ -28,7 +28,7 @@ class FrontendAppConfigSpec extends UnitSpec {
       val app = FakeApplication(additionalConfiguration = Map())
       val server = TestServer(port, app)
       server.start()
-      FrontendAppConfig.nameDisplayLimit shouldBe 20
+      AppConfig.nameDisplayLimit shouldBe 20
       server.stop()
     }
   }

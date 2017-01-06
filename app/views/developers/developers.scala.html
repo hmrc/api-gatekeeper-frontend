@@ -6,9 +6,9 @@
   emails: String,
   apis: Map[APIStatus.APIStatus, Seq[VersionSummary]],
   filter: Option[String],
-  status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
+  status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Gatekeeper Dashboard",userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
 
 <article class="content__body full-width">
     <header>

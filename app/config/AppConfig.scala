@@ -25,9 +25,11 @@ trait AppConfig {
   val analyticsHost: String
   val nameDisplayLimit: Int
   val devHubBaseUrl: String
+  val isExternalTestEnvironment: Boolean
+  val title: String
 }
 
-object FrontendAppConfig extends AppConfig with ServicesConfig {
+object AppConfig extends AppConfig with ServicesConfig {
 
   override lazy val nameDisplayLimit = getConfInt("name.display.limit", 20)
 
@@ -37,4 +39,6 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
   override lazy val analyticsToken = loadConfig("google-analytics.token")
   override lazy val analyticsHost = loadConfig("google-analytics.host")
   override lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
+  override lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  override lazy val title = if (isExternalTestEnvironment) "API Gatekeeper (External Test)" else "API Gatekeeper"
 }

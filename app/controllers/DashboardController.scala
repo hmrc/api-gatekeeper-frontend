@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import model.State.{State, _}
 import model.UpliftAction._
@@ -25,7 +26,7 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
@@ -38,9 +39,8 @@ import scala.concurrent.Future
 object DashboardController extends DashboardController {
   override val applicationConnector = ApplicationConnector
   override val developerConnector = DeveloperConnector
-
+  override val appConfig = AppConfig
   override def authProvider = GatekeeperAuthProvider
-
   override def authConnector = AuthConnector
 }
 
@@ -48,11 +48,11 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
 
   val applicationConnector: ApplicationConnector
   val developerConnector: DeveloperConnector
-
+  implicit val appConfig: AppConfig
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def dashboardPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
+  def dashboardPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
 
       def applicationsForDashboard(apps: Seq[ApplicationWithUpliftRequest]) = {
         val grouped: Map[State, Seq[ApplicationWithUpliftRequest]] = apps.groupBy(_.state)
@@ -66,11 +66,13 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
         apps <- applicationConnector.fetchApplicationsWithUpliftRequest()
         mappedApps = applicationsForDashboard(apps)
       } yield Ok(dashboard(mappedApps))
+    }
   }
 
-  def reviewPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
+  def reviewPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
       fetchApplicationDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
+    }
   }
 
   private def fetchApplicationDetails(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationDetails] = {
@@ -94,9 +96,8 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
     } yield applicationDetails(app.application, submission)
   }
 
-  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-
+  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
       def lastApproval(app: ApplicationWithHistory): StateHistory = {
         app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
           .sortWith(StateHistory.ascendingDateForAppId)
@@ -122,6 +123,7 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
         admins <- administrators(app)
         approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
       } yield Ok(approved(approvedApp))
+    }
   }
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
@@ -137,8 +139,8 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
     ApplicationDetails(app.id.toString, app.name, app.description.getOrElse(""), submission)
   }
 
-  def handleUplift(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
+  def handleUplift(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
       val requestForm = HandleUpliftForm.form.bindFromRequest
 
       def errors(errors: Form[HandleUpliftForm]) =
@@ -163,5 +165,13 @@ trait DashboardController extends FrontendController with GatekeeperAuthWrapper 
       }
 
       requestForm.fold(errors, addApplicationWithValidForm)
+    }
+  }
+
+  private def redirectIfExternalTestEnvironment(body: => Future[Result]) = {
+    appConfig.isExternalTestEnvironment match {
+      case true => Future.successful(Redirect( routes.ApplicationController.applicationsPage))
+      case false => body
+    }
   }
 }

@@ -16,6 +16,7 @@
 
 package unit.controllers
 
+import config.AppConfig
 import connectors.{ApiDefinitionConnector, AuthConnector}
 import model._
 import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
@@ -37,6 +38,7 @@ trait ControllerSetupBase extends MockitoSugar {
   val mockAuthProvider = mock[AuthenticationProvider]
   val mockApplicationService = mock[ApplicationService]
   val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
+  val mockConfig = mock[AppConfig]
 
   implicit val encryptedStringFormats = JsonStringEncryption
   implicit val decryptedStringFormats = JsonStringDecryption

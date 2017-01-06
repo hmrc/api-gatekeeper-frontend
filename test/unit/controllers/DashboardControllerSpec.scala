@@ -16,6 +16,7 @@
 
 package unit.controllers
 
+import config.AppConfig
 import connectors.AuthConnector.InvalidCredentials
 import connectors.{ApiDefinitionConnector, ApplicationConnector, AuthConnector, DeveloperConnector}
 import controllers.DashboardController
@@ -27,6 +28,7 @@ import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -45,6 +47,7 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
     trait Setup {
       val underTest = new DashboardController {
+        val appConfig = mock[AppConfig]
         val authConnector = mock[AuthConnector]
         val authProvider = mock[AuthenticationProvider]
         val applicationConnector = mock[ApplicationConnector]
@@ -62,7 +65,6 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
       val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       val aLoggedOutRequest = FakeRequest().withSession(csrfToken)
-
     }
 
 
@@ -71,40 +73,46 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
       "go to loginpage with error if user is not authenticated" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
-
         val result = await(underTest.dashboardPage()(aLoggedOutRequest))
-
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
-
 
       "load successfully if user is authenticated and authorised" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
         given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
-
+        given(underTest.appConfig.title).willReturn("Unit Test Title")
         val result = await(underTest.dashboardPage()(aLoggedInRequest))
-
         status(result) shouldBe 200
-        bodyOf(result) should include("Dashboard")
+        titleOf(result) shouldBe "Unit Test Title - Dashboard"
+        bodyOf(result) should include("<h1>Dashboard</h1>")
+        bodyOf(result) should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Dashboard</span>")
+        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/applications\">Applications</a>")
+        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+      }
+
+      "go to application page if authenticated & authorised, but configured as external test" in new Setup {
+        val loginDetails = LoginDetails("userName", Protected("password"))
+        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
+        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
+        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+        given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
+        given(underTest.appConfig.isExternalTestEnvironment).willReturn(true)
+        val result = await(underTest.dashboardPage()(aLoggedInRequest))
+        redirectLocation(result) shouldBe Some("/api-gatekeeper/applications")
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
-
         val result = await(underTest.dashboardPage()(aLoggedInRequest))
-
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
       }
-
     }
 
     "handleUplift" should {
@@ -114,22 +122,22 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
-
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-
         given(underTest.applicationConnector.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
-
-        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(
-          ("action", "APPROVE")
-        )))
-
+        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
       }
     }
+  }
+
+  def titleOf(result: Result) = {
+    val titleRegEx = """<title[^>]*>(.*)</title>""".r
+    val title = titleRegEx.findFirstMatchIn(bodyOf(result)).map(_.group(1))
+    title.isDefined shouldBe true
+    title.get
   }
 }

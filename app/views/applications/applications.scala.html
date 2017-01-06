@@ -5,9 +5,9 @@
 @import org.joda.time.format.DateTimeFormat
 
 @(applications: Seq[SubscribedApplicationResponse],
-        apis: Map[APIStatus.APIStatus, Seq[VersionSummary]])(implicit request: Request[_], userFullName: Option[String], messages: Messages)
+        apis: Map[APIStatus.APIStatus, Seq[VersionSummary]])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
 

@@ -16,6 +16,7 @@
 
 package unit.controllers
 
+import config.AppConfig
 import connectors.AuthConnector
 import connectors.AuthConnector.InvalidCredentials
 import controllers.AccountController
@@ -43,8 +44,8 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
   trait Setup {
     val underTest = new AccountController {
+      val appConfig = mock[AppConfig]
       val authConnector = mock[AuthConnector]
-
       def authProvider = mock[AuthenticationProvider]
     }
 
@@ -78,21 +79,15 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       val loginDetails = LoginDetails("userName", Protected("password"))
       val aValidFormJson = Json.toJson(loginDetails)
       val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-
       given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-
-      val result = await(underTest.authenticate()(
-        aLoggedOutRequest.withJsonBody(aValidFormJson)))
+      val result = await(underTest.authenticate()(aLoggedOutRequest.withJsonBody(aValidFormJson)))
       redirectLocation(result) shouldBe Some("/api-gatekeeper/dashboard")
-
       result.header.headers.get("Set-Cookie") shouldBe defined
-
       session(result).get(SessionKeys.authToken) shouldBe Some("bearer-token")
     }
 
     "give 400 when an invalid login form is posted" in new Setup {
-      val result = await(addToken(underTest.authenticate())(
-        aLoggedOutRequest.withJsonBody(Json.toJson(LoginDetails("", Protected("password"))))))
+      val result = await(addToken(underTest.authenticate())(aLoggedOutRequest.withJsonBody(Json.toJson(LoginDetails("", Protected("password"))))))
       status(result) shouldBe 400
     }
 
@@ -100,10 +95,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       val loginDetails = LoginDetails("userName", Protected("password"))
       val aValidFormJson = Json.toJson(loginDetails)
       given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
-
-      val result = await(addToken(underTest.authenticate())(
-        aLoggedOutRequest.withJsonBody(aValidFormJson)))
-
+      val result = await(addToken(underTest.authenticate())(aLoggedOutRequest.withJsonBody(aValidFormJson)))
       status(result) shouldBe 401
       bodyOf(result) should include("Invalid user ID or password. Try again.")
     }
