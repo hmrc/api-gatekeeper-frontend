@@ -73,6 +73,7 @@ trait MicroService {
       testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter)),
       unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest)(base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest)(base => Seq(base / "test")),
+      unmanagedResourceDirectories in AcceptanceTest <+=  baseDirectory ( _ /"target/web/public/test" ),
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
       addTestReportOption(AcceptanceTest, "acceptance-test-reports")
