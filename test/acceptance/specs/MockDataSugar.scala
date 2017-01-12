@@ -239,6 +239,139 @@ trait MockDataSugar {
        |  }]
     """.stripMargin
 
+  val applications =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |    {
+       |    "id": "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
+       |    "name": "My new app",
+       |    "description": "my description",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer5",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1460111080651,
+       |    "redirectUris": [
+       |      "http://localhost:8080/callback"
+       |    ],
+       |    "termsAndConditionsUrl": "http://terms",
+       |    "privacyPolicyUrl": "http://privacypolicy",
+       |    "access": {
+       |      "redirectUris": [
+       |        "http://localhost:8080/callback"
+       |      ],
+       |      "termsAndConditionsUrl": "http://terms",
+       |      "privacyPolicyUrl": "http://privacypolicy",
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+       |      "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+       |      "updatedOn": 1460113878463
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
+       |    "name": "An application for my user",
+       |    "description": "And my user has a very tricky email address",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer6",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1465388917873,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "TESTING",
+       |      "updatedOn": 1476374382580
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "c9736f52-4202-4d14-85b5-cbd29601fa99",
+       |    "name": "Mango",
+       |    "description": "a",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer9",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1469113456930,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "updatedOn": 1469113456930
+       |    },
+       |    "trusted": false
+       |  },
+       |    {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Imrans Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer2",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "$developer7",
+       |     "role": "DEVELOPER"
+       |    },
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer2",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  }]
+    """.stripMargin
+
   val applicationResponseWithNoUsers =
     s"""
        |  [{
