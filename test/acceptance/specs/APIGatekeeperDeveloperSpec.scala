@@ -189,6 +189,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
+      When("I select no subscription from the filter drop down")
       DeveloperPage.selectBySubscription(NOSUBSCRIPTION)
       DeveloperPage.selectByStatus(ALL)
 
