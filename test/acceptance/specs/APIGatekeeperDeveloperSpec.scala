@@ -37,7 +37,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   feature("API Filter for Email Recipients") {
 
-    scenario("Ensure a user can view a list of registered developers") {
+    scenario("Ensure a user can view the list of registered developers") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
