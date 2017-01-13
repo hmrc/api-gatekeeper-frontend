@@ -33,6 +33,7 @@ trait Env {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile
       profile.setAcceptUntrustedCertificates(true)
+      profile.setPreference("javascript.enabled", true)
       new FirefoxDriver(profile)
     }
     driver
