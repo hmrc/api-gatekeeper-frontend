@@ -23,8 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.By
-import org.openqa.selenium.support.ui.{ExpectedConditions, WebDriverWait}
+import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
 
@@ -52,7 +51,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
-      assertNumberOfDevelopersPerPage(105)
+      assertNumberOfDevelopersPerPage(100)
     }
 
     scenario("Ensure a user can view ALL developers") {
@@ -70,14 +69,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
-      val developers: Seq[(String, String, String,String)] = List((dev2FirstName,dev2LastName,developer2,statusVerified),
-                                                                 (dev5FirstName, dev5LastName, developer5,statusUnverified),
-                                                                 (dev4FirstName, dev4LastName, developer4,statusVerified),
-                                                                 (dev7FirstName, dev7LastName, developer7,statusVerified),
-                                                                 (devFirstName, devLastName, developer,statusVerified),
-                                                                 (dev8FirstName, dev8LastName, developer8,statusUnverified),
-                                                                 (dev6FirstName, dev6LastName, developer6,statusVerified),
-                                                                 (dev9name, dev9name, developer9,statusUnregistered))
+      val developers: Seq[(String, String, String,String)] = List((dev4FirstName,dev4LastName,developer4,statusVerified),
+                                                                  (dev8FirstName, dev8LastName, developer8,statusUnverified),
+                                                                  (dev9name, dev9name, developer9,statusUnregistered),
+                                                                  (dev2FirstName, dev2LastName, developer2,statusVerified),
+                                                                  (dev5FirstName, dev5LastName, developer5,statusUnverified),
+                                                                  (dev7FirstName, dev7LastName, developer7,statusVerified),
+                                                                  (devFirstName, devLastName, developer,statusVerified),
+                                                                  (dev6FirstName, dev6LastName, developer6,statusVerified))
 
 
         val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
@@ -88,8 +87,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all the verified developers are displayed")
-      val developers2:Seq[(String, String, String,String)]=List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                                                                (dev4FirstName, dev4LastName, developer4, statusVerified),
+      val developers2:Seq[(String, String, String,String)]=List((dev4FirstName, dev4LastName, developer4, statusVerified),
+                                                                (dev2FirstName, dev2LastName, developer2, statusVerified),
                                                                 (dev7FirstName, dev7LastName, developer7, statusVerified),
                                                                 (devFirstName, devLastName, developer, statusVerified),
                                                                 (dev6FirstName, dev6LastName, developer6, statusVerified))
@@ -102,8 +101,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all the unverified developers are displayed")
-      val developers3:Seq[(String, String, String,String)] = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                                                                  (dev8FirstName,dev8LastName, developer8, statusUnverified))
+      val developers3:Seq[(String, String, String,String)] = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+                                                                  (dev5FirstName,dev5LastName, developer5, statusUnverified))
       val unverifiedDevs = developers3.zipWithIndex
       assertDevelopersList(unverifiedDevs)
 
@@ -135,11 +134,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are successfully displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                            (dev7FirstName, dev7LastName,developer7,statusVerified),
-                            (devFirstName, devLastName,developer,statusVerified),
-                            (dev8FirstName, dev8LastName,developer8, statusUnverified),
-                            (dev9name, dev9name, developer9,statusUnregistered))
+      val developers = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+                            (dev9name, dev9name, developer9,statusUnregistered),
+                            (dev2FirstName, dev2LastName,developer2,statusVerified),
+                            (dev7FirstName, dev7LastName,developer7, statusVerified),
+                            (devFirstName, devLastName, developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -189,14 +188,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
+      When("I select no subscription from the filter drop down")
       DeveloperPage.selectBySubscription(NOSUBSCRIPTION)
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are displayed and sorted correctly")
-      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                            (dev4FirstName, dev4LastName, developer4,statusVerified),
-                            (dev6FirstName, dev6LastName, developer6, statusVerified),
-                            (dev10name, dev10name, developer10, statusUnregistered))
+      val developers = List((dev4FirstName, dev4LastName, developer4, statusVerified),
+                            (dev5FirstName, dev5LastName, developer5,statusUnverified),
+                            (dev10name, dev10name, developer10, statusUnregistered),
+                            (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -242,15 +242,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
-      When("I select no applications from the filter drop down")
+      When("I select one or more applications from the filter drop down")
       DeveloperPage.selectBySubscription(ONEORMOREAPPLICATIONS)
 
       Then("all verified developers and unverified developers are displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
+      val developers = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+                            (dev9name, dev9name, developer9, statusUnregistered),
+                            (dev2FirstName, dev2LastName, developer2, statusVerified),
                             (dev7FirstName, dev7LastName, developer7, statusVerified),
-                            (devFirstName, devLastName, developer, statusVerified),
-                            (dev8FirstName, dev8LastName, developer8, statusUnverified),
-                            (dev9name, dev9name, developer9, statusUnregistered))
+                            (devFirstName, devLastName, developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
       assertDevelopersList(allDevs)
@@ -299,9 +299,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(NOAPPLICATIONS)
 
       Then("all verified users and unverified developers are displayed and sorted correctly")
-      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                           (dev4FirstName, dev4LastName, developer4, statusVerified),
-                           (dev6FirstName, dev6LastName, developer6, statusVerified))
+      val developers = List((dev4FirstName, dev4LastName, developer4, statusVerified),
+                            (dev5FirstName ,dev5LastName, developer5,statusUnverified),
+                            (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
       assertDevelopersList(allDevs)
@@ -350,11 +350,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
 
       Then("all verified and unverified developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                           (dev7FirstName, dev7LastName,developer7,statusVerified),
-                           (devFirstName, devLastName,developer,statusVerified),
-                           (dev8FirstName, dev8LastName,developer8, statusUnverified),
-                           (dev9name, dev9name, developer9,statusUnregistered))
+      val developers = List((dev8FirstName, dev8LastName,developer8, statusUnverified),
+                            (dev9name, dev9name, developer9,statusUnregistered),
+                            (dev2FirstName, dev2LastName,developer2,statusVerified),
+                            (dev7FirstName, dev7LastName,developer7,statusVerified),
+                            (devFirstName, devLastName,developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -420,7 +420,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the copy to clipboard button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("#content a.button","data-clip-text", s"$developer2; $developer5; $developer4; $developer7; $developer; $developer8; $developer6; $developer9")
+      verifyUsersEmailAddress("#content a.button","data-clip-text", s"$developer4; $developer8; $developer9; $developer2; $developer5; $developer7; $developer; $developer6")
     }
   }
 
@@ -468,7 +468,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     private def assertNumberOfDevelopersPerPage(expected: Int) = {
-      webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
+      import scala.collection.JavaConversions._
+      val elements: Seq[WebElement] = webDriver.findElements(By.cssSelector("tbody > tr"))
+
+      elements.count(we => we.isDisplayed) shouldBe expected
     }
 
     private def assertLinkIsDisabled(link: String) = {
