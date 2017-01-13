@@ -23,6 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
+import org.openqa.selenium.support.ui.{ExpectedConditions, WebDriverWait}
 import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
@@ -469,6 +470,12 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     private def assertNumberOfDevelopersPerPage(expected: Int) = {
       import scala.collection.JavaConversions._
+
+      val ec = ExpectedConditions.presenceOfElementLocated(By.id("developer-table_info"))
+
+      val wait = new WebDriverWait(webDriver, 15)
+      wait.until(ec)
+
       val elements: Seq[WebElement] = webDriver.findElements(By.cssSelector("tbody > tr"))
 
       elements.count(we => we.isDisplayed) shouldBe expected
