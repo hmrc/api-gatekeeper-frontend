@@ -65,27 +65,7 @@ object ApplicationPage extends WebPage {
 
     case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
 
-    case object INDIVIDUALPAYE extends APIFilterList("individual-paye")
-
-    case object INDIVIDUALBENEFITS extends APIFilterList("individual-benefits")
-
-    case object EMPLOYERSPAYE extends APIFilterList("employers-paye")
-
-    case object INDIVIDUALTAX extends APIFilterList("itax")
-
-    case object MARRIAGEALLOWANCE extends APIFilterList("marriageallowance")
-
-    case object NATIONALINSURANCE extends APIFilterList("ni")
-
-    case object PAYECHARGES extends APIFilterList("payech")
-
-    case object PAYECREDITS extends APIFilterList("paye-credits")
-
-    case object PAYEINTEREST extends APIFilterList("payei")
-
-    case object PAYEPAYMENTS extends APIFilterList("payep")
-
-    case object SELFASSESSMENT extends APIFilterList("self-assessment")
+    case object EMPLOYERSPAYE extends APIFilterList("Employers PAYE")
 
   }
 
