@@ -55,8 +55,9 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
         filterOps = (developerService.filterUsersBy(apiFilter, apps) _
           andThen developerService.filterUsersBy(statusFilter))
         filteredUsers = filterOps(devs)
-        emails = filteredUsers.map(_.email).mkString("; ")
-      } yield Ok(developers(filteredUsers, emails, groupApisByStatus(apis), filter, status))
+        sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
+        emails = sortedUsers.map(_.email).mkString("; ")
+      } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
   }
 
 
