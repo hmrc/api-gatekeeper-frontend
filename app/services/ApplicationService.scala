@@ -66,6 +66,6 @@ trait ApplicationService {
       apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
       subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
       subscribedApplications = addSubscriptionsToApplications(apps, subs)
-    } yield subscribedApplications
+    } yield subscribedApplications.sortBy(_.name.toLowerCase)
   }
 }
