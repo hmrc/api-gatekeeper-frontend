@@ -23,7 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
-import org.openqa.selenium.By
+import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers}
 import play.api.libs.json.Json
 
@@ -37,7 +37,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   feature("API Filter for Email Recipients") {
 
-    scenario("Ensure a user can view a list of registered developers") {
+    scenario("Ensure a user can view the list of registered developers") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
@@ -51,7 +51,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
-
+      assertNumberOfDevelopersPerPage(100)
     }
 
     scenario("Ensure a user can view ALL developers") {
@@ -69,14 +69,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
-      val developers: Seq[(String, String, String,String)] = List((dev2FirstName,dev2LastName,developer2,statusVerified),
-                                                                 (dev5FirstName, dev5LastName, developer5,statusUnverified),
-                                                                 (dev4FirstName, dev4LastName, developer4,statusVerified),
-                                                                 (dev7FirstName, dev7LastName, developer7,statusVerified),
-                                                                 (devFirstName, devLastName, developer,statusVerified),
-                                                                 (dev8FirstName, dev8LastName, developer8,statusUnverified),
-                                                                 (dev6FirstName, dev6LastName, developer6,statusVerified),
-                                                                 (dev9name, dev9name, developer9,statusUnregistered))
+      val developers: Seq[(String, String, String,String)] = List((dev4FirstName,dev4LastName,developer4,statusVerified),
+        (dev8FirstName, dev8LastName, developer8,statusUnverified),
+        (dev9name, dev9name, developer9,statusUnregistered),
+        (dev2FirstName, dev2LastName, developer2,statusVerified),
+        (dev5FirstName, dev5LastName, developer5,statusUnverified),
+        (dev7FirstName, dev7LastName, developer7,statusVerified),
+        (devFirstName, devLastName, developer,statusVerified),
+        (dev6FirstName, dev6LastName, developer6,statusVerified))
 
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
@@ -87,11 +87,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all the verified developers are displayed")
-      val developers2:Seq[(String, String, String,String)]=List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                                                                (dev4FirstName, dev4LastName, developer4, statusVerified),
-                                                                (dev7FirstName, dev7LastName, developer7, statusVerified),
-                                                                (devFirstName, devLastName, developer, statusVerified),
-                                                                (dev6FirstName, dev6LastName, developer6, statusVerified))
+      val developers2:Seq[(String, String, String,String)]=List((dev4FirstName, dev4LastName, developer4, statusVerified),
+        (dev2FirstName, dev2LastName, developer2, statusVerified),
+        (dev7FirstName, dev7LastName, developer7, statusVerified),
+        (devFirstName, devLastName, developer, statusVerified),
+        (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val verifiedDevs = developers2.zipWithIndex
 
@@ -101,8 +101,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all the unverified developers are displayed")
-      val developers3:Seq[(String, String, String,String)] = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                                                                  (dev8FirstName,dev8LastName, developer8, statusUnverified))
+      val developers3:Seq[(String, String, String,String)] = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+        (dev5FirstName,dev5LastName, developer5, statusUnverified))
       val unverifiedDevs = developers3.zipWithIndex
       assertDevelopersList(unverifiedDevs)
 
@@ -134,11 +134,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are successfully displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                            (dev7FirstName, dev7LastName,developer7,statusVerified),
-                            (devFirstName, devLastName,developer,statusVerified),
-                            (dev8FirstName, dev8LastName,developer8, statusUnverified),
-                            (dev9name, dev9name, developer9,statusUnregistered))
+      val developers = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+        (dev9name, dev9name, developer9,statusUnregistered),
+        (dev2FirstName, dev2LastName,developer2,statusVerified),
+        (dev7FirstName, dev7LastName,developer7, statusVerified),
+        (devFirstName, devLastName, developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -149,8 +149,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("all verified developers are displayed successfully")
       val developers2 = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                             (dev7FirstName, dev7LastName, developer7,statusVerified),
-                             (devFirstName, devLastName, developer, statusVerified))
+        (dev7FirstName, dev7LastName, developer7,statusVerified),
+        (devFirstName, devLastName, developer, statusVerified))
 
       val verifiedDevs = developers2.zipWithIndex
 
@@ -193,10 +193,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(ALL)
 
       Then("all verified and unverified developers are displayed and sorted correctly")
-      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                            (dev4FirstName, dev4LastName, developer4,statusVerified),
-                            (dev6FirstName, dev6LastName, developer6, statusVerified),
-                            (dev10name, dev10name, developer10, statusUnregistered))
+      val developers = List((dev4FirstName, dev4LastName, developer4, statusVerified),
+        (dev5FirstName, dev5LastName, developer5,statusUnverified),
+        (dev10name, dev10name, developer10, statusUnregistered),
+        (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -208,7 +208,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("all verified developers and collaborators are successfully displayed")
       val developers2 = List((dev4FirstName, dev4LastName, developer4, statusVerified),
-                             (dev6FirstName, dev6LastName, developer6, statusVerified))
+        (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val verifiedDevs = developers2.zipWithIndex
       assertDevelopersList(verifiedDevs)
@@ -242,15 +242,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
-      When("I select no applications from the filter drop down")
+      When("I select one or more applications from the filter drop down")
       DeveloperPage.selectBySubscription(ONEORMOREAPPLICATIONS)
 
       Then("all verified developers and unverified developers are displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                            (dev7FirstName, dev7LastName, developer7, statusVerified),
-                            (devFirstName, devLastName, developer, statusVerified),
-                            (dev8FirstName, dev8LastName, developer8, statusUnverified),
-                            (dev9name, dev9name, developer9, statusUnregistered))
+      val developers = List((dev8FirstName, dev8LastName, developer8, statusUnverified),
+        (dev9name, dev9name, developer9, statusUnregistered),
+        (dev2FirstName, dev2LastName, developer2, statusVerified),
+        (dev7FirstName, dev7LastName, developer7, statusVerified),
+        (devFirstName, devLastName, developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
       assertDevelopersList(allDevs)
@@ -260,8 +260,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("all verified developers are successfully displayed")
       val developers2 = List((dev2FirstName, dev2LastName, developer2,statusVerified),
-                             (dev7FirstName, dev7LastName, developer7, statusVerified),
-                             (devFirstName, devLastName, developer, statusVerified))
+        (dev7FirstName, dev7LastName, developer7, statusVerified),
+        (devFirstName, devLastName, developer, statusVerified))
       val verifiedDevs = developers2.zipWithIndex
       assertDevelopersList(verifiedDevs)
 
@@ -299,9 +299,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(NOAPPLICATIONS)
 
       Then("all verified users and unverified developers are displayed and sorted correctly")
-      val developers = List((dev5FirstName, dev5LastName, developer5, statusUnverified),
-                           (dev4FirstName, dev4LastName, developer4, statusVerified),
-                           (dev6FirstName, dev6LastName, developer6, statusVerified))
+      val developers = List((dev4FirstName, dev4LastName, developer4, statusVerified),
+        (dev5FirstName ,dev5LastName, developer5,statusUnverified),
+        (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
       assertDevelopersList(allDevs)
@@ -311,7 +311,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("all verified developers are successfully displayed")
       val developers2 = List((dev4FirstName, dev4LastName, developer4,statusVerified),
-                             (dev6FirstName, dev6LastName, developer6, statusVerified))
+        (dev6FirstName, dev6LastName, developer6, statusVerified))
 
       val verifiedDevs = developers2.zipWithIndex
       assertDevelopersList(verifiedDevs)
@@ -350,11 +350,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
 
       Then("all verified and unverified developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
-      val developers = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                           (dev7FirstName, dev7LastName,developer7,statusVerified),
-                           (devFirstName, devLastName,developer,statusVerified),
-                           (dev8FirstName, dev8LastName,developer8, statusUnverified),
-                           (dev9name, dev9name, developer9,statusUnregistered))
+      val developers = List((dev8FirstName, dev8LastName,developer8, statusUnverified),
+        (dev9name, dev9name, developer9,statusUnregistered),
+        (dev2FirstName, dev2LastName,developer2,statusVerified),
+        (dev7FirstName, dev7LastName,developer7,statusVerified),
+        (devFirstName, devLastName,developer, statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -365,8 +365,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("all verified developers are successfully displayed")
       val developers2 = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-                            (dev7FirstName, dev7LastName, developer7, statusVerified),
-                            (devFirstName, devLastName, developer, statusVerified))
+        (dev7FirstName, dev7LastName, developer7, statusVerified),
+        (devFirstName, devLastName, developer, statusVerified))
 
       val verifiedDevs: Seq[((String, String, String, String), Int)] = developers2.zipWithIndex
       assertDevelopersList(verifiedDevs)
@@ -420,107 +420,110 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the copy to clipboard button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("#content a.button","data-clip-text", s"$developer2; $developer5; $developer4; $developer7; $developer; $developer8; $developer6; $developer9")
+      verifyUsersEmailAddress("#content a.button","data-clip-text", s"$developer4; $developer8; $developer9; $developer2; $developer5; $developer7; $developer; $developer6")
     }
   }
 
-    def stubApplicationList() = {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationResponse).withStatus(200)))
-    }
-
-    def stubApplicationListWithNoDevelopers() = {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
+  def stubApplicationList() = {
+    stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationResponseWithNoUsers).withStatus(200)))
-    }
+    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+      .withBody(applicationResponse).withStatus(200)))
+  }
 
-    def stubAPISubscription(apiContext: String) = {
-       stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-         .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
-    }
+  def stubApplicationListWithNoDevelopers() = {
+    stubFor(get(urlEqualTo("/gatekeeper/applications"))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
-    def stubNoAPISubscription() = {
-       stubFor(get(urlEqualTo(s"/application?noSubscriptions=true"))
-         .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
-    }
+    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+      .withBody(applicationResponseWithNoUsers).withStatus(200)))
+  }
 
-    def stubApiDefinition() = {
-       stubFor(get(urlEqualTo(s"/api-definition"))
-         .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
-    }
+  def stubAPISubscription(apiContext: String) = {
+    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
+      .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
+  }
 
-    def stubRandomDevelopers(randomDevelopers: Int) = {
-      val developersList: String = developerListJsonGenerator(randomDevelopers).get
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developersList).withStatus(200)))
-    }
+  def stubNoAPISubscription() = {
+    stubFor(get(urlEqualTo(s"/application?noSubscriptions=true"))
+      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
+  }
 
-    def stubDevelopers(developers: Option[List[User]]) = {
-      val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(developersJson).withStatus(200)))
-    }
+  def stubApiDefinition() = {
+    stubFor(get(urlEqualTo(s"/api-definition"))
+      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+  }
 
-    private def assertNumberOfDevelopersPerPage(expected: Int) = {
-      webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
-    }
+  def stubRandomDevelopers(randomDevelopers: Int) = {
+    val developersList: String = developerListJsonGenerator(randomDevelopers).get
+    stubFor(get(urlEqualTo("/developers/all"))
+      .willReturn(aResponse().withBody(developersList).withStatus(200)))
+  }
 
-    private def assertLinkIsDisabled(link: String) = {
-      assertResult(find(linkText(link)).isDefined)(false)
-    }
+  def stubDevelopers(developers: Option[List[User]]) = {
+    val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
+    stubFor(get(urlEqualTo("/developers/all"))
+      .willReturn(aResponse().withBody(developersJson).withStatus(200)))
+  }
 
-    private def assertCopyToClipboardButtonIsDisabled(button:String) = {
-      assertResult(find(cssSelector(button)).isDefined)(false)
-    }
+  private def assertNumberOfDevelopersPerPage(expected: Int) = {
+    import scala.collection.JavaConversions._
+    val elements: Seq[WebElement] = webDriver.findElements(By.cssSelector("tbody > tr"))
 
-    private def assertButtonIsPresent(button: String) = {
-      webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
-    }
+    elements.count(we => we.isDisplayed) shouldBe expected
+  }
 
-    private def assertTextPresent(attributeName: String, expected: String) = {
-      webDriver.findElement(By.cssSelector(attributeName)).getText shouldBe expected
-    }
+  private def assertLinkIsDisabled(link: String) = {
+    assertResult(find(linkText(link)).isDefined)(false)
+  }
 
-    private def generateUsersList(users : List[User]) = {
-      users.map(user => s"${user.firstName} ${user.lastName}${user.email}")
-    }
+  private def assertCopyToClipboardButtonIsDisabled(button:String) = {
+    assertResult(find(cssSelector(button)).isDefined)(false)
+  }
 
-    case class TestUser(firstName: String, lastName:String, emailAddress:String)
+  private def assertButtonIsPresent(button: String) = {
+    webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
+  }
 
-    private def generateUsersTuple(users : List[User]): List[TestUser] = {
-      users.map(user => TestUser(user.firstName, user.lastName, user.email))
-    }
+  private def assertTextPresent(attributeName: String, expected: String) = {
+    webDriver.findElement(By.cssSelector(attributeName)).getText shouldBe expected
+  }
 
-    private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
-      val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
-    }
+  private def generateUsersList(users : List[User]) = {
+    users.map(user => s"${user.firstName} ${user.lastName}${user.email}")
+  }
 
-    private def verifyUsersEmail(button : String) {
-      val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
-    }
+  case class TestUser(firstName: String, lastName:String, emailAddress:String)
 
-    private def assertDevelopersRandomList(devList: List[(TestUser, Int)]) = {
-      for((dev, index) <- devList) {
-        val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev.firstName
-        val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev.lastName
-        val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev.emailAddress
-      }
-    }
+  private def generateUsersTuple(users : List[User]): List[TestUser] = {
+    users.map(user => TestUser(user.firstName, user.lastName, user.email))
+  }
 
-    private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
-      for ((dev, index) <- devList) {
-        val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
-        val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
-        val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
-        val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
-      }
+  private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
+    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
+  }
+
+  private def verifyUsersEmail(button : String) {
+    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
+  }
+
+  private def assertDevelopersRandomList(devList: List[(TestUser, Int)]) = {
+    for((dev, index) <- devList) {
+      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev.firstName
+      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev.lastName
+      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev.emailAddress
     }
+  }
+
+  private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
+    for ((dev, index) <- devList) {
+      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
+      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
+      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
+      val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
+    }
+  }
 
 
 }
