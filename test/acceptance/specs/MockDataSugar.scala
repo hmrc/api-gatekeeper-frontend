@@ -239,6 +239,357 @@ trait MockDataSugar {
        |  }]
     """.stripMargin
 
+  val applications =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |    {
+       |    "id": "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
+       |    "name": "My new app",
+       |    "description": "my description",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer5",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1460111080651,
+       |    "redirectUris": [
+       |      "http://localhost:8080/callback"
+       |    ],
+       |    "termsAndConditionsUrl": "http://terms",
+       |    "privacyPolicyUrl": "http://privacypolicy",
+       |    "access": {
+       |      "redirectUris": [
+       |        "http://localhost:8080/callback"
+       |      ],
+       |      "termsAndConditionsUrl": "http://terms",
+       |      "privacyPolicyUrl": "http://privacypolicy",
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+       |      "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+       |      "updatedOn": 1460113878463
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
+       |    "name": "An application for my user",
+       |    "description": "And my user has a very tricky email address",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer6",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1465388917873,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "TESTING",
+       |      "updatedOn": 1476374382580
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "c9736f52-4202-4d14-85b5-cbd29601fa99",
+       |    "name": "Mango",
+       |    "description": "a",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer9",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1469113456930,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "updatedOn": 1469113456930
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
+       |    "name": "Mark App",
+       |    "description": "anything",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1464686294991,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "TESTING",
+       |      "updatedOn": 1464686294991
+       |    },
+       |    "trusted": false
+       |  },
+       |   {
+       |    "id": "4afc248d-1c3e-4274-a77b-e89a25b4d764",
+       |    "name": "A Wonderful Application",
+       |    "description": "I would like to see this wonderful application in production",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "third-party-developer.hmrc@mailinator.com",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "bill.hmrc@mailinator.com",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1460114002204,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "updatedOn": 1460114644291
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "e55def1d-763c-4a26-a44e-82a63f4cb70b",
+       |    "name": "Any App",
+       |    "description": "Stuff",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "james.morris@digital.hmrc.gov.uk",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1460623310886,
+       |    "redirectUris": [
+       |      "http://localhost:9000",
+       |      "https://localhost:9000",
+       |      "https://www-qa.tax.service.gov.uk/business-account/liabilitiesAndPaymentsPocView?year=2013"
+       |    ],
+       |    "access": {
+       |      "redirectUris": [
+       |        "http://localhost:9000",
+       |        "https://localhost:9000",
+       |        "https://www-qa.tax.service.gov.uk/business-account/liabilitiesAndPaymentsPocView?year=2013"
+       |      ],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "james.morris@digital.hmrc.gov.uk",
+       |      "verificationCode": "OHn8PF9xcLllK5G3DN3vYIAyeZAceHyjvd2aG_Is8fQ",
+       |      "updatedOn": 1475154623761
+       |    },
+       |    "trusted": false
+       |  },
+       |    {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Imrans Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer2",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "$developer7",
+       |     "role": "DEVELOPER"
+       |    },
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer2",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  }]
+    """.stripMargin
+
+  val applicationWithNoSubscription =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "subscriptions": []
+       |  },
+       |  {
+       |    "id": "414660d0-9b0c-49dc-ad7f-c36f32772c10",
+       |    "name": "Tim",
+       |    "description": "Tim paye tests",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "admin@email.com",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1460553066047,
+       |    "redirectUris": [
+       |      "http://localhost:9000"
+       |    ],
+       |    "access": {
+       |      "redirectUris": [
+       |        "http://localhost:9000"
+       |      ],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "TESTING",
+       |      "updatedOn": 1460553066047
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "7800ee15-ccc1-4103-b21f-81ddde793be1",
+       |    "name": "Test Application",
+       |    "description": "My test app",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "edgar.jimenez@digital.hmrc.gov.uk",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1469698551644,
+       |    "redirectUris": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "updatedOn": 1469698551644
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "d22cc11f-59e6-4148-b0d4-1751e9181d45",
+       |    "name": "QA User App 2",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "mtd-qa-test-user@mailinator.com",
+       |        "role": "ADMINISTRATOR"
+       |      }
+       |    ],
+       |    "createdOn": 1469694187353,
+       |    "redirectUris": [
+       |      "http://localhost:9000"
+       |    ],
+       |    "termsAndConditionsUrl": "http://localhost:9000/terms",
+       |    "privacyPolicyUrl": "http://localhost:9000/privacy",
+       |    "access": {
+       |      "redirectUris": [
+       |        "http://localhost:9000"
+       |      ],
+       |      "termsAndConditionsUrl": "http://localhost:9000/terms",
+       |      "privacyPolicyUrl": "http://localhost:9000/privacy",
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "updatedOn": 1469694187353
+       |    },
+       |    "trusted": false
+       |  },
+       |  {
+       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "name": "Imrans Application",
+       |    "description": "application for test",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer2",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "$developer7",
+       |     "role": "DEVELOPER"
+       |    },
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer2",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |   },
+       |    "subscriptions": []
+       |  }]
+    """.stripMargin
+
+
   val applicationResponseWithNoUsers =
     s"""
        |  [{
@@ -624,6 +975,7 @@ trait MockDataSugar {
        |    "applications": [
        |      "42695949-c7e8-4de9-a443-15c0da43143a",
        |      "1abf06bf-45d7-47a9-aa1c-61fe4729f5b8",
+       |      "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
        |      "58dd6642-08c9-4422-8a84-058e8731d44a"
        |    ]
        |  },
@@ -689,9 +1041,8 @@ trait MockDataSugar {
        |      "version": "1.0"
        |    },
        |    "applications": [
-       |      "e55def1d-763c-4a26-a44e-82a63f4cb70b",
+       |      "c9736f52-4202-4d14-85b5-cbd29601fa99",
        |      "10ff725b-9555-4919-a596-0850a3e83caa",
-       |      "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
        |      "42695949-c7e8-4de9-a443-15c0da43143a"
        |    ]
        |  }
