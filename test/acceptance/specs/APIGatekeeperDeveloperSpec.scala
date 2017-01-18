@@ -51,7 +51,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
-      assertNumberOfDevelopersPerPage(195)
+      assertNumberOfDevelopersPerPage(105)
     }
 
     scenario("Ensure a user can view ALL developers") {

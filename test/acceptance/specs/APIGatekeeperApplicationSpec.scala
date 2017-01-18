@@ -52,7 +52,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       DashboardPage.selectApplications()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationPage)
-      assertNumberOfApplicationsPerPage(105)
+      assertNumberOfApplicationsPerPage(195)
     }
 
 //    scenario("Ensure a user can view ALL applications") {
