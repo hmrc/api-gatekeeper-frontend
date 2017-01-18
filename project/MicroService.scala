@@ -53,13 +53,14 @@ trait MicroService {
     .settings(defaultSettings(): _*)
     .settings(
       targetJvm := "jvm-1.8",
-      scalaVersion := "2.11.7",
+      scalaVersion := "2.11.8",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-      routesGenerator := StaticRoutesGenerator
+      routesGenerator := StaticRoutesGenerator,
+      shellPrompt := (_ => "> ")
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in Test := Seq(Tests.Filter(unitFilter)),
