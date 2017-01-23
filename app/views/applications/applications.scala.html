@@ -69,7 +69,7 @@
                             name="status"
                             value="">
                             @for((value,label) <- Map("ALL" -> "All", "APPROVED" -> "Approved", "PENDING" -> "Pending", "SANDBOX" -> "Sandbox")) {
-                                <option value="@value" {selected}>@label</option>
+                                <option value="@value" @if(value == "ALL") {@{"selected"}}>@label</option>
                             }
                             </select>
                         </label>
