@@ -10,6 +10,10 @@ $(function(undefined) {
                .not('[data-datatable-column-filter]');
     };
 
+    function getCustomFilters (table) {
+      return $('*[data-datatable-custom-filter="' + table + '"]');
+    }
+
     function getTableFilterValues (filters) {
       var filterValues = [];
 
@@ -78,6 +82,18 @@ $(function(undefined) {
       }
     }
 
+    function customDraw (e) {
+      var table = $(this).data('datatable-custom-filter');
+      table = $('#' + table).DataTable();
+      table.draw();
+    }
+
+    function customEvents (index, filter) {
+      var $filter = $(filter);
+
+      $filter.on('keyup', customDraw);
+    }
+
     // Initialize all datatables with filters
     var dataTables = $('table.dataTable');
     $.each(dataTables, function (index, table) {
@@ -87,8 +103,27 @@ $(function(undefined) {
       // trigger table updates on filter changes
       $.each(filters, dataTableEvents);
 
+      // hook up a custom filter triggers
+      var customFilters = getCustomFilters(id);
+      $.each(customFilters, customEvents);
+
       // initialize the table
       $(table).DataTable();
     });
+
+    // Register custom search with dataTables
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+      var table = settings.sTableId;
+      var filterValue = buildFilter( getTableFilterValues( getCustomFilters(table) ) )
+                          .toLowerCase();
+
+      if (~data[0].toLowerCase().indexOf(filterValue)) return true;
+      if (~data[1].toLowerCase().indexOf(filterValue)) return true;
+      if (~data[3].toLowerCase().indexOf(filterValue)) return true;
+      if (~data[5].toLowerCase().indexOf(filterValue)) return true;
+
+      return false;
+    })
+
   })();
 });
