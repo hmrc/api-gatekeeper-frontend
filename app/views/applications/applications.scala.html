@@ -29,7 +29,7 @@
                         <label class="bold centered-content hard--left">
                             <span class="label__text bold">Search</span>
                             <input class="form-control-7-8 input--cleared input-select--large"
-                            data-datatable-filter="applications-table"
+                            data-datatable-custom-filter="applications-table"
                             name="example"
                             type="text"
                             placeholder="Name" />
@@ -93,8 +93,8 @@
                 data-column-defs='[{"targets": [0,3], "orderable": true},
                                    {"targets": [1], "orderable": true, "orderData": [2]},
                                    {"targets": [2], "visible": false, "searchable": false},
-                                   {"targets": [4], "visible": true, "searchable": false},
-                                   {"targets": [5], "visible": false, "searchable": true}]'
+                                   {"targets": [4], "visible": true, "searchable": true, "orderable": false},
+                                   {"targets": [5], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
                     <thead>
                         <tr role="row">
@@ -102,8 +102,8 @@
                             <th tabindex="0" class="sorting_left-aligned">Submitted</th>
                             <th tabindex="0">Unformatted Submitted Dates</th>
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
-                            <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
-                            <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">All Subscriptions</th>
+                            <th class="text--right hard--right" tabindex="0">Status</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
                         </tr>
                     </thead>
                     <tbody>
