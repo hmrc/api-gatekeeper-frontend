@@ -17,20 +17,33 @@
 package unit.config
 
 import config.AppConfig
-import play.api.test.{FakeApplication, TestServer}
+import org.mockito.Mockito.when
+import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneServerPerTest
+import play.api.{Configuration}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AppConfigSpec extends UnitSpec {
-  var port = sys.env.getOrElse("MICROSERVICE_PORT", "9001").toInt
+class AppConfigSpec extends UnitSpec with OneServerPerTest with MockitoSugar {
 
   "appContext" should {
     "be initialized with properties" in {
-      val app = FakeApplication(additionalConfiguration = Map())
-      val server = TestServer(port, app)
-      server.start()
       AppConfig.nameDisplayLimit shouldBe 20
-      server.stop()
+      AppConfig.isExternalTestEnvironment should be(false)
+      AppConfig.title should be("API Gatekeeper")
     }
   }
 
+  "appContext" should {
+    "be initialized with properties for external test environment" in {
+      val mockConfiguration = mock[Configuration]
+      when(mockConfiguration.getBoolean("isExternalTestEnvironment")).thenReturn(Some(true))
+
+      val appConfig = new AppConfig {
+        override protected val configuration: Configuration = mockConfiguration
+      }
+
+      appConfig.isExternalTestEnvironment should be(true)
+      appConfig.title should be("API Gatekeeper - Developer Sandbox")
+    }
+  }
 }
