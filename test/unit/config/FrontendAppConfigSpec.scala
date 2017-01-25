@@ -17,13 +17,13 @@
 package unit.config
 
 import config.AppConfig
-import org.scalatest.TestData
+import org.mockito.Mockito.when
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerTest
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Configuration}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AppConfigSpec extends UnitSpec with OneServerPerTest {
+class AppConfigSpec extends UnitSpec with OneServerPerTest with MockitoSugar {
 
   "appContext" should {
     "be initialized with properties" in {
@@ -32,17 +32,18 @@ class AppConfigSpec extends UnitSpec with OneServerPerTest {
       AppConfig.title should be("API Gatekeeper")
     }
   }
-}
-
-class AppConfigForEtSpec extends UnitSpec with OneServerPerTest {
-
-  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder().configure("isExternalTestEnvironment" -> true).build()
 
   "appContext" should {
     "be initialized with properties for external test environment" in {
-      AppConfig.nameDisplayLimit shouldBe 20
-      AppConfig.isExternalTestEnvironment should be(true)
-      AppConfig.title should be("API Gatekeeper - Developer Sandbox")
+      val mockConfiguration = mock[Configuration]
+      when(mockConfiguration.getBoolean("isExternalTestEnvironment")).thenReturn(Some(true))
+
+      val appConfig = new AppConfig {
+        override protected val configuration: Configuration = mockConfiguration
+      }
+
+      appConfig.isExternalTestEnvironment should be(true)
+      appConfig.title should be("API Gatekeeper - Developer Sandbox")
     }
   }
 }
