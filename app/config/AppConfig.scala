@@ -16,29 +16,26 @@
 
 package config
 
+import config.AppConfig.getConfInt
+import play.api.Configuration
 import play.api.Play.{configuration, current}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 trait AppConfig {
-  val assetsPrefix: String
-  val analyticsToken: String
-  val analyticsHost: String
-  val nameDisplayLimit: Int
-  val devHubBaseUrl: String
-  val isExternalTestEnvironment: Boolean
-  val title: String
-}
 
-object AppConfig extends AppConfig with ServicesConfig {
-
-  override lazy val nameDisplayLimit = getConfInt("name.display.limit", 20)
+  protected val configuration: Configuration
 
   private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
-  override lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
-  override lazy val analyticsToken = loadConfig("google-analytics.token")
-  override lazy val analyticsHost = loadConfig("google-analytics.host")
-  override lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
-  override lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  override lazy val title = if (isExternalTestEnvironment) "API Gatekeeper (External Test)" else "API Gatekeeper"
+  lazy val nameDisplayLimit = getConfInt("name.display.limit", 20)
+  lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
+  lazy val analyticsToken = loadConfig("google-analytics.token")
+  lazy val analyticsHost = loadConfig("google-analytics.host")
+  lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
+  lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  lazy val title = if (isExternalTestEnvironment) "API Gatekeeper - Developer Sandbox" else "API Gatekeeper"
+}
+
+object AppConfig extends AppConfig with ServicesConfig {
+  override val configuration = play.api.Play.configuration
 }
