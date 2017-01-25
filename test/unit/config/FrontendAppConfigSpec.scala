@@ -17,20 +17,32 @@
 package unit.config
 
 import config.AppConfig
-import play.api.test.{FakeApplication, TestServer}
+import org.scalatest.TestData
+import org.scalatestplus.play.OneServerPerTest
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AppConfigSpec extends UnitSpec {
-  var port = sys.env.getOrElse("MICROSERVICE_PORT", "9001").toInt
+class AppConfigSpec extends UnitSpec with OneServerPerTest {
 
   "appContext" should {
     "be initialized with properties" in {
-      val app = FakeApplication(additionalConfiguration = Map())
-      val server = TestServer(port, app)
-      server.start()
       AppConfig.nameDisplayLimit shouldBe 20
-      server.stop()
+      AppConfig.isExternalTestEnvironment should be(false)
+      AppConfig.title should be("API Gatekeeper")
     }
   }
+}
 
+class AppConfigForEtSpec extends UnitSpec with OneServerPerTest {
+
+  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder().configure("isExternalTestEnvironment" -> true).build()
+
+  "appContext" should {
+    "be initialized with properties for external test environment" in {
+      AppConfig.nameDisplayLimit shouldBe 20
+      AppConfig.isExternalTestEnvironment should be(true)
+      AppConfig.title should be("API Gatekeeper - Developer Sandbox")
+    }
+  }
 }
