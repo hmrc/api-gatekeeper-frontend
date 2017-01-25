@@ -40,5 +40,5 @@ object AppConfig extends AppConfig with ServicesConfig {
   override lazy val analyticsHost = loadConfig("google-analytics.host")
   override lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
   override lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  override lazy val title = if (isExternalTestEnvironment) "API Gatekeeper (External Test)" else "API Gatekeeper"
+  override lazy val title = if (isExternalTestEnvironment) "API Gatekeeper - Developer Sandbox" else "API Gatekeeper"
 }
