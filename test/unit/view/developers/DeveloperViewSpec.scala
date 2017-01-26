@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.controllers
+package unit.view.developers
 
 import config.AppConfig
 import model._
