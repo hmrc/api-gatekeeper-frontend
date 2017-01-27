@@ -1,0 +1,73 @@
+@import model.APIDefinitionSummary
+@import config.FrontendAppConfig
+@import include._
+
+@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIDefinitionSummary)(implicit request: Request[_], userFullName: Option[String])
+@main(title = "API Gatekeeper Dashboard",userFullName = userFullName ) {
+<div class="content__body">
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="/api-gatekeeper/pending">Unapproved Services</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@{apiDefinition.name}</li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1 class="flush--top">API Approval</h1>
+    </header>
+
+    @if(form.hasErrors) {
+        <div class="flash error-summary error-summary--show" role="group" aria-labelledby="errorSummaryHeading" tabindex="-1">
+            <h2 id="errorSummaryHeading" class="flush--top">There are errors on the page.</h2>
+            <ul>
+            @for(error <- form.errors) {
+                <li role="tooltip">
+                    <a href="#@error.key" data-global-error>@Messages(error.message)</a>
+                </li>
+            }
+            </ul>
+        </div>
+    }
+
+    <h2>Service ID:</h2>
+    <p class="flush--top" data-service-name>@{apiDefinition.serviceName}</p>
+
+    <h2>API Name:</h2>
+    <p class="flush--top" data-description>@{apiDefinition.name}</p>
+
+    <h2>Description:</h2>
+    <p class="flush--top" data-description>@{apiDefinition.description}</p>
+
+    @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName),
+        'class -> "form") {
+
+        <div data-journey-dynamic-radios>
+            @helper.CSRF.formField
+
+            <fieldset class="form-field-group js-toggle"
+                data-target="rejection-reason"
+                data-trigger="js-toggle-trigger"
+                data-open="reject-deployment"
+                data-close="approve-deployment"
+                aria-hidden="true">
+                <legend class="visuallyhidden">Choose approve or reject deployment</legend>
+                <label class="block-label--stacked">
+                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved" {checked}/>Approve
+                </label>
+                <label class="block-label--stacked">
+                    <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" {checked}/>Reject
+                </label>
+            </fieldset>
+
+            <div class="form-field">
+                <input id="submit" type="submit" class="button" role="button" value="Submit" data-journey-target/>
+                <a href="/api-gatekeeper/pending" class="button button--link">Cancel</a>
+            </div>
+
+        </div>
+    }
+
+</div>
+}

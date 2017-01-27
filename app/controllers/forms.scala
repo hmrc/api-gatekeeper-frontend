@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,26 @@ object HandleUpliftForm {
   )
 
   def unrecognisedAction(form: Form[HandleUpliftForm]) = {
+    form
+      .withError("submissionError", "true")
+      .withGlobalError("Action is not recognised")
+  }
+}
+
+case class HandleApprovalForm(action: String)
+
+object HandleApprovalForm {
+
+  private def actionValidator =
+    Forms.text.verifying("invalid.action", action => UpliftAction.from(action).isDefined)
+
+  lazy val form = Form(
+    mapping(
+      "action" -> actionValidator
+    )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
+  )
+
+  def unrecognisedAction(form: Form[HandleApprovalForm]) = {
     form
       .withError("submissionError", "true")
       .withGlobalError("Action is not recognised")

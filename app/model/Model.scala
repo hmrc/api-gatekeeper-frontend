@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -207,3 +207,22 @@ case class ApprovedApplication(details: ApplicationDetails, admins: Seq[User], a
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
+
+case class ApproveServiceRequest(serviceName: String)
+
+object ApproveServiceRequest {
+  implicit val format = Json.format[ApproveServiceRequest]
+}
+
+sealed trait ApproveServiceSuccessful
+
+case object ApproveServiceSuccessful extends ApproveServiceSuccessful
+
+object ApprovalAction extends Enumeration {
+  type ApprovalAction = Value
+  val APPROVE, REJECT = Value
+
+  def from(action: String) = ApprovalAction.values.find(e => e.toString == action.toUpperCase)
+
+  implicit val format = EnumJson.enumFormat(ApprovalAction)
+}

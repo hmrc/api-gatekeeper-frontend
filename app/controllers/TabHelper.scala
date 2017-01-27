@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,6 @@ case class TabLink(label: String, href: String, active: Boolean = false)
 object TabHelper {
   def dashboardTabs(activeTab: Int) = Seq(
     TabLink("Applications", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None, None, None).url, activeTab == 1))
+    TabLink("Developers", routes.DevelopersController.developersPage(None, None, None, None).url, activeTab == 1),
+    TabLink("API Approval", routes.DeploymentApprovalController.pendingPage(None,None).url, activeTab == 2))
 }

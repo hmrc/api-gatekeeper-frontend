@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package connectors
 
 import config.WSHttp
 import model._
-import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,12 +31,35 @@ object ApiDefinitionConnector extends ApiDefinitionConnector with ServicesConfig
 
 trait ApiDefinitionConnector {
   val serviceBaseUrl: String
-  val http: HttpGet
+  val http: HttpGet with HttpPost
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+      }
+  }
+
+  def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIDefinitionSummary]] = {
+    http.GET[Seq[APIDefinitionSummary]](s"$serviceBaseUrl/api-definition/unapproved")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+      }
+  }
+
+  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier) : Future[APIDefinitionSummary] = {
+    http.GET[APIDefinitionSummary](s"$serviceBaseUrl/api-definition/$serviceName/summary")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+      }
+  }
+
+  def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[ApproveServiceSuccessful] = {
+    http.POST(s"$serviceBaseUrl/api-definition/$serviceName/approve",
+      ApproveServiceRequest(serviceName), Seq("Content-Type" -> "application/json"))
+      .map(_ => ApproveServiceSuccessful)
+      .recover {
+        case e: Upstream5xxResponse => throw new UpdateApiDefinitionsFailed
       }
   }
 }
