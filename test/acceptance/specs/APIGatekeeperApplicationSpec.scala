@@ -16,15 +16,13 @@
 
 package acceptance.specs
 
-import acceptance.pages.ApplicationPage.APIFilter.{EMPLOYERSPAYE, NOSUBSCRIPTION, ONEORMORESUBSCRIPTION}
-import acceptance.pages.ApplicationPage.StatusFilter._
 import acceptance.pages.{ApplicationPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers}
-import scala.collection.immutable.List
+
 import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {

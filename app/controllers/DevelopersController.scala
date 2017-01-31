@@ -61,13 +61,13 @@ trait DevelopersController extends FrontendController with GatekeeperAuthWrapper
   }
 
 
-  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[APIStatus, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
     val versions = for {
       api <- apis
       version <- api.versions
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
-    versions.groupBy(_.status)
+    versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
 }
