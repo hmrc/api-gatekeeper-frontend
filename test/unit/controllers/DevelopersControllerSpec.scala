@@ -74,8 +74,8 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       "default to page 1 with 100 items in table" in new Setup {
         givenASuccessfulLogin
         givenNoDataSuppliedDelegateServices
-        await(developersController.developersPage(None, None)(aLoggedInRequest))
-        // TODO: Should assert something here
+        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        bodyOf(result) should include("data-page-length=\"100\"")
       }
 
       "go to loginpage with error if user is not authenticated" in new Setup {
