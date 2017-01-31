@@ -16,15 +16,12 @@
 
 package acceptance.specs
 
-import acceptance.pages.ApplicationPage.APIFilter.{EMPLOYERSPAYE, NOSUBSCRIPTION, ONEORMORESUBSCRIPTION}
-import acceptance.pages.ApplicationPage.StatusFilter._
 import acceptance.pages.{ApplicationPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Matchers}
-import scala.collection.immutable.List
+import org.scalatest.{GivenWhenThen, Matchers, Tag}
 import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
@@ -35,7 +32,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
     info("I WANT The SDST (Software Developer Support Team) to be able to search for applications")
     info("SO THAT The SDST can review the status of the applications")
 
-    scenario("Ensure a user can view a list of Applications") {
+    scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
@@ -52,7 +49,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       DashboardPage.selectApplications()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationPage)
-      assertNumberOfApplicationsPerPage(195)
     }
 
 //    scenario("Ensure a user can view ALL applications") {
