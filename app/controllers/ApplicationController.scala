@@ -19,7 +19,7 @@ package controllers
 import config.AppConfig
 import connectors.{ApiDefinitionConnector, AuthConnector}
 import model.APIStatus.APIStatus
-import model.{APIDefinition, APIIdentifier, Role, VersionSummary}
+import model.{APIDefinition, APIIdentifier, APIStatus, Role, VersionSummary}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
@@ -61,13 +61,13 @@ trait ApplicationController extends FrontendController with GatekeeperAuthWrappe
       }
   }
 
-  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[APIStatus, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
     val versions = for {
       api <- apis
       version <- api.versions
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
-    versions.groupBy(_.status)
+    versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
 }
