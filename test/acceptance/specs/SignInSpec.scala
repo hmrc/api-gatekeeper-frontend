@@ -148,9 +148,9 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       var actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "API Gatekeeper - Login"
 
-      And("The application header colour is rgba(0, 94, 165, 1)")
-      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
-      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
+//      And("The application header colour is rgba(0, 94, 165, 1)")
+//      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
+//      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
 
       When("the users signs in")
       SignInPage.signIn("joe.test", "password")
@@ -163,8 +163,8 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "API Gatekeeper - Dashboard"
 
-      And("the application header colour is rgba(0, 94, 165, 1)")
-      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
+//      And("the application header colour is rgba(0, 94, 165, 1)")
+//      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
     }
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
