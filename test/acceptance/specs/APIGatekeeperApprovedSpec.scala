@@ -22,13 +22,13 @@ import acceptance.pages.{ApprovedPage, DashboardPage, ResendVerificationPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import org.scalatest.Matchers
+import org.scalatest.{Matchers, Tag}
 
 class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
 
   feature("View approved application details") {
 
-    scenario("View details for an application in production") {
+    scenario("View details for an application in production", Tag("NonSandboxTest")) {
 
       stubApplicationListAndDevelopers
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
@@ -46,7 +46,7 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       assertApplicationDetails
      }
 
-    scenario("View details for an application pending verification") {
+    scenario("View details for an application pending verification", Tag("NonSandboxTest")) {
 
       stubApplicationListAndDevelopers
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
@@ -72,7 +72,7 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       assertApplicationDetails
     }
 
-    scenario("View details for an application with no description"){
+    scenario("View details for an application with no description", Tag("NonSandboxTest")){
 
       stubApplicationListAndDevelopers
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
@@ -87,7 +87,7 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       assertApplicationDetails
     }
 
-    scenario("Navigate back to the dashboard page") {
+    scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
       stubApplicationListAndDevelopers
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
