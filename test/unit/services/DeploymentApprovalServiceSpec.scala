@@ -29,7 +29,8 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class DeploymentApprovalServiceSpec extends UnitSpec with MockitoSugar{
+class DeploymentApprovalServiceSpec extends UnitSpec with MockitoSugar {
+
   trait Setup {
     val testDeploymentApprovalService = new DeploymentApprovalService {
       val apiDefinitionConnector = mock[ApiDefinitionConnector]
@@ -53,7 +54,7 @@ class DeploymentApprovalServiceSpec extends UnitSpec with MockitoSugar{
     "fetchAPIDefintionSummary calls apiDefintionConnector with appropriate parameters" in new Setup {
 
       val apiDefinitionSummary = APIDefinitionSummary("api-calendar", "My Calendar", "My Calendar API")
-      val serviceName= "api-calendar"
+      val serviceName = "api-calendar"
 
       val serviceNameCaptor = ArgumentCaptor.forClass(classOf[String])
 
@@ -69,7 +70,7 @@ class DeploymentApprovalServiceSpec extends UnitSpec with MockitoSugar{
 
     "approveService calls the apiDefinitionConnector with appropriate parameters" in new Setup {
       val apiDefinitionSummary = APIDefinitionSummary("api-calendar", "My Calendar", "My Calendar API")
-      val serviceName= "api-calendar"
+      val serviceName = "api-calendar"
 
       val serviceNameCaptor = ArgumentCaptor.forClass(classOf[String])
 
@@ -82,9 +83,5 @@ class DeploymentApprovalServiceSpec extends UnitSpec with MockitoSugar{
       serviceNameCaptor.getValue shouldBe serviceName
     }
 
- }
-
-
-
-
+  }
 }
