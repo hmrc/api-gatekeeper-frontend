@@ -18,11 +18,11 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ReviewPage, DashboardPage}
-import acceptance.{SignInSugar, BaseSpec}
+import acceptance.pages.{DashboardPage, ReviewPage}
+import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import org.scalatest.Matchers
+import org.scalatest.{Matchers, Tag}
 
 class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
 
@@ -43,7 +43,7 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
 
   feature("Approve a request to uplift an application") {
 
-    scenario("I see the review page and I am able to approve the uplift request") {
+    scenario("I see the review page and I am able to approve the uplift request", Tag("NonSandboxTest")) {
 
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
@@ -68,7 +68,7 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       on(DashboardPage)
     }
 
-    scenario("I see the dashboard page when the request to uplift the application fails with a 412") {
+    scenario("I see the dashboard page when the request to uplift the application fails with a 412", Tag("NonSandboxTest")) {
 
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
@@ -96,7 +96,7 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
 
   feature("Reject a request to uplift an application") {
 
-    scenario("I see the review page and I am able to reject the uplift request with a reason") {
+    scenario("I see the review page and I am able to reject the uplift request with a reason", Tag("NonSandboxTest")) {
 
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
