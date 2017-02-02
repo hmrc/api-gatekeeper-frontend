@@ -25,7 +25,6 @@ import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
-import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.SessionKeys
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.login._
@@ -38,11 +37,10 @@ object AccountController extends AccountController {
   override def authProvider = GatekeeperAuthProvider
 }
 
-trait AccountController extends FrontendController with GatekeeperAuthWrapper {
+trait AccountController extends BaseController with GatekeeperAuthWrapper {
 
   val authConnector: AuthConnector
   val welcomePage = routes.DashboardController.dashboardPage
-  implicit val appConfig: AppConfig
 
   val loginPage: Action[AnyContent] = redirectIfLoggedIn(welcomePage) {
     implicit request => implicit hc => Future.successful(Ok(login(loginForm)))

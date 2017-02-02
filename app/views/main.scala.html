@@ -1,7 +1,6 @@
-@(title: String,
-  mainContentHeader: Html = HtmlFormat.empty,
-  userFullName: Option[String] = None,
-  appConfig: config.AppConfig = config.AppConfig)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+@import config.AppConfig
+@(title: String, mainContentHeader: Html = HtmlFormat.empty, userFullName: Option[String] = None)(mainContent: Html)(
+         implicit messages: Messages, appConfig: AppConfig)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
@@ -27,19 +26,19 @@
 
 @bodyEnd = {
   @layouts.footer(
-    analyticsToken = Some(appConfig.analyticsToken),
+    analyticsToken = Option(appConfig.analyticsToken),
     analyticsHost = appConfig.analyticsHost,
     ssoUrl = None,
-    scriptElem = Some(scriptElem),
+    scriptElem = Option(scriptElem),
     gaCalls = None)
 }
 
 @insideHeader = {
   @layouts.header_nav(
-    navTitle = Some(appConfig.title),
+    navTitle = Option(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
-    navLinks = Some(include.headerNavLinks(NavigationHelper.navLinks(userFullName)))
+    navLinks = Option(include.headerNavLinks(NavigationHelper.navLinks(userFullName)))
   )
 
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
@@ -47,13 +46,12 @@
 
 
 @views.html.layouts.govuk_template(
-  title = Some(title),
+  title = Option(title),
   bodyClasses = if(appConfig.isExternalTestEnvironment) { Some("sandbox") } else None)(
   head = layouts.head(linkElem = None, headScripts = None),
   bodyEnd = bodyEnd,
   insideHeader = insideHeader,
   afterHeader = HtmlFormat.empty,
   footerTop = HtmlFormat.empty,
-  footerLinks = Some(layouts.footer_links()),
+  footerLinks = Option(layouts.footer_links()),
   nav = true)(content)
-
