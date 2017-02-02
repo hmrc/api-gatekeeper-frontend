@@ -16,7 +16,6 @@
 
 package unit.controllers
 
-import config.AppConfig
 import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
 import model._
@@ -42,7 +41,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     trait Setup extends ControllerSetupBase {
 
       val underTest = new ApplicationController {
-        val appConfig = mockConfig
+        override val appConfig = mockConfig
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService

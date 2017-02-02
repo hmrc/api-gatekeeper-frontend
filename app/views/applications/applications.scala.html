@@ -6,7 +6,7 @@
 
 @import model.APIStatus.APIStatus
 @(applications: Seq[SubscribedApplicationResponse],
-        apis: Map[String, Seq[VersionSummary]])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+        apis: Map[String, Seq[VersionSummary]])(implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
 

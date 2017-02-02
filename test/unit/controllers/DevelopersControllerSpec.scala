@@ -51,7 +51,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val apiDefinitionConnector = mockApiDefinitionConnector
         val developerService = mockDeveloperService
         val applicationService = mockApplicationService
-        val appConfig = mockConfig
+        override val appConfig = mockConfig
       }
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
