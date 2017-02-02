@@ -30,17 +30,13 @@ import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 
-trait WithConfig {
-  implicit val appConfig: AppConfig
-}
-
 object FrontendGlobal
-  extends DefaultFrontendGlobal with WithConfig {
+  extends DefaultFrontendGlobal {
 
   override val auditConnector = FrontendAuditConnector
   override val loggingFilter = LoggingFilter
   override val frontendAuditFilter = AuditFilter
-  override implicit lazy val appConfig: AppConfig = AppConfig
+  implicit lazy val appConfig: AppConfig = AppConfig
 
   override def onStart(app: Application) {
     super.onStart(app)
