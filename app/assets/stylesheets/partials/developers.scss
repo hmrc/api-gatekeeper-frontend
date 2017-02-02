@@ -1,0 +1,32 @@
+.developer-list tr {
+    word-break: break-all;
+}
+
+.input-select {
+    margin: 0;
+}
+
+.input-select--large {
+    padding: 0 1em;
+    width: 100%;
+}
+
+form[name=developer-filters] {
+    margin-bottom: 1.5em;
+
+    input[name=main-submit] {
+        margin-top: 1em;
+        margin-left: 1.5em;
+    }
+
+    select[name=pageSize] {
+        margin: 0 0.6em;
+        float: right;
+    }
+}
+
+@media (max-width: 640px) {
+    article li {
+        margin-left: 0;
+    }
+}

@@ -91,4 +91,11 @@ trait ApplicationConnector {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
+
+  def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
+    http.GET[Seq[SubscriptionResponse]](s"$applicationBaseUrl/application/subscriptions")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+      }
+  }
 }

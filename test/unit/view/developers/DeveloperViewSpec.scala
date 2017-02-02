@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package unit.controllers
+package unit.view.developers
 
+import config.AppConfig
 import model._
-import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
 
-class DeveloperViewSpec extends PlaySpec {
+class DeveloperViewSpec extends PlaySpec with OneServerPerSuite {
+
+  val users = Seq(
+    User("sample@email.com", "Sample", "Email", Some(false)),
+    User("another@email.com", "Sample2", "Email", Some(true)),
+    UnregisteredCollaborator("something@email.com"))
+  val devs = users.map(u => Developer.createFromUser(u, Seq.empty))
 
   "developersView" must {
-    val users = Seq(
-      User("sample@email.com", "Sample", "Email", Some(false)),
-      User("another@email.com", "Sample2", "Email", Some(true)),
-      UnregisteredCollaborator("something@email.com"))
 
-    "list all developers" in new App {
+    "list all developers" in {
       implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(PageableCollection(users, 1, 10), "", Map.empty, None, None, FakeRequest(), None)
+      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages, AppConfig)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

@@ -1,0 +1,140 @@
+@import include._
+@import model.State._
+@import model.{SubscribedApplicationResponse, _}
+@import org.joda.time.format.DateTimeFormat
+
+@(applications: Seq[SubscribedApplicationResponse],
+        apis: Map[APIStatus.APIStatus, Seq[VersionSummary]])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+
+@main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
+
+    @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
+
+        <article class="content__body full-width">
+
+            <header>
+                <h1>Applications</h1>
+            </header>
+
+            @tabList(activeTab = 1)
+
+            <form name="developer-filters"
+            action="@routes.ApplicationController.applicationsPage().url"
+            method="get">
+
+                <div class="grid-layout grid-layout--stacked push--sides js-visible">
+
+                    <div class="grid-layout__column--1-4">
+                        <label class="bold centered-content hard--left">
+                            <span class="label__text bold">Search</span>
+                            <input class="form-control-7-8 input--cleared input-select--large"
+                            data-datatable-custom-filter="applications-table"
+                            name="example"
+                            type="text"
+                            placeholder="Name" />
+                        </label>
+                    </div>
+
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold" for="filter">Filter by API Subscription
+                            <select class="form-control input-select input-select--large"
+                            data-datatable-filter="applications-table"
+                            id="filter"
+                            name="filter"
+                            value="">
+
+                                <option value>All applications</option>
+                                <option value="ANYSUB">One or more subscriptions</option>
+                                <option value="NOSUB">No subscriptions</option>
+
+                                @for((status, versions) <- apis) {
+                                    <optgroup label="@status">
+                                    @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
+                                        <option
+                                        value="@version.name">@version.name (@version.apiIdentifier.version)</option>
+                                    }
+                                    </optgroup>
+                                }
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="grid-layout__column--1-4">
+                        <label class="form-label bold centered-content hard--right" for="status">Filter by Status
+                            <select class="form-control input-select input-select--large"
+                            data-datatable-filter="applications-table"
+                            data-datatable-column-filter="4"
+                            id="status"
+                            name="status"
+                            value="">
+                            @for((value,label) <- Map("ALL" -> "All", "APPROVED" -> "Approved", "PENDING" -> "Pending", "SANDBOX" -> "Sandbox")) {
+                                <option value="@value" @if(value == "ALL") {@{"selected"}}>@label</option>
+                            }
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="float-right js-hidden">
+                        <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
+                    </div>
+                </div>
+
+                <table id="applications-table"
+                class="dataTable no-footer application-list"
+                width="100%"
+                data-dom="t<'text--center'lip>"
+                data-order='[0,"asc"]'
+                data-page-length="100"
+                data-paginate="true"
+                data-length-change="true"
+                data-length-menu="[10, 50, 100, 200, 300]"
+                data-responsive="true"
+                data-column-defs='[{"targets": [0,3], "orderable": true},
+                                   {"targets": [1], "orderable": true, "orderData": [2]},
+                                   {"targets": [2], "visible": false, "searchable": false},
+                                   {"targets": [4], "visible": true, "searchable": true, "orderable": false},
+                                   {"targets": [5], "visible": false, "searchable": true, "orderable": false}]'
+                data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+                    <thead>
+                        <tr role="row">
+                            <th tabindex="0" class="sorting_left-aligned">Name</th>
+                            <th tabindex="0" class="sorting_left-aligned">Submitted</th>
+                            <th tabindex="0">Unformatted Submitted Dates</th>
+                            <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
+                            <th class="text--right hard--right" tabindex="0">Status</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for((application, index) <- applications.zipWithIndex) {
+                        <tr role="row">
+                            <td id="app-name-@index">@application.name</td>
+                            <td id="app-created-@index">@{
+                                dateFormatter.print(application.createdOn)
+                            }</td>
+                            <td>@application.createdOn</td>
+                            <td id="app-subs-@index" title="@application.subscriptionNames.mkString(", ")">@application.subscriptionNames.take(3).mkString(", ") @if(application.subscriptionNames.size > 3) {...}</td>
+                            <td class="text--right hard--right" id="app-status-@index">
+                            @defining(application.state.name match {
+                                case PRODUCTION => ("status status--verified", "Approved")
+                                case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
+                                case _ => ("status", "Sandbox")
+                            }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+                            <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">@if(application.subscriptionNames.isEmpty){NOSUB}else{ANYSUB,@application.subscriptionNames.mkString(",")}</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left: 0">
+                    <div class="grid-layout__column--1-3 text--center">
+                    @if(applications.isEmpty) {"No developers for your selected filter"}
+                    </div>
+                </div>
+        </form>
+
+            <div class="form-group>">
+                <a class="back-to-top-link" href="#">Back to Top</a>
+            </div>
+        </article>
+    }
+}

@@ -1,197 +1,132 @@
 @import controllers._
-@import model._
 @import include._
+@import model._
 
-@(users: PageableCollection[User],
+@(users: Seq[ApplicationDeveloper],
   emails: String,
   apis: Map[APIStatus.APIStatus, Seq[VersionSummary]],
   filter: Option[String],
-  status: Option[String])(implicit request: Request[_], userFullName: Option[String])
+  status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Gatekeeper Dashboard",userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
 
 <article class="content__body full-width">
-
-    <style>
-        .developer-list tr {
-          word-break: break-all;
-        }
-
-        .input-select {
-           margin: 0;
-        }
-
-        .input-select--large {
-          width: 85%;
-        }
-
-        .dataTables_info .label--inlineDropDown {
-            margin-top: 0;
-        }
-
-        select.perpage {
-            margin: 0 0 0 9px;
-            float: right;
-        }
-    </style>
-
     <header>
-        <h1>Dashboard</h1>
+        <h1>Developers</h1>
     </header>
 
     @tabList(activeTab = 2)
 
-    <form action="@routes.DevelopersController.developersPage(filter, status, Some(users.pageNumber), Some(users.pageSize)).url" method="get">
-        <div class="grid-layout" style="margin-left:0">
-            <div class="grid-layout__column--1-3">
-                <div class="form-group">
-                    @defining(ApiFilter(filter)) { apiFilter =>
-                        <label class="form-label bold" for="filter">Filter by API Subscription
-                            <select class="form-control input-select input-select--large" id="filter" name="filter"
-                                    value="@filter" onchange="this.form.submit()">
+    <form name="developer-filters"
+          action="@routes.DevelopersController.developersPage(filter, status).url"
+          method="get">
 
-                                <option @if(apiFilter == AllUsers) {selected} value="ALL">All users</option>
-                                <option @if(apiFilter == OneOrMoreSubscriptions) {selected} value="ANYSUB">One or more subscriptions</option>
-                                <option @if(apiFilter == NoSubscriptions) {selected} value="NOSUB">No subscriptions</option>
-                                <option @if(apiFilter == OneOrMoreApplications) {selected} value="ANYAPP">One or more applications</option>
-                                <option @if(apiFilter == NoApplications) {selected} value="NOAPP">No applications</option>
+        <div class="grid-layout grid-layout--stacked push--sides">
 
-                                @for((status, versions) <- apis) {
-                                    <optgroup label="@status">
-                                        @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                            <option @if(apiFilter == Value(version.apiIdentifier.context)) {selected}
-                                                    value="@version.apiIdentifier.context">@version.name (@version.apiIdentifier.version)</option>
-                                        }
-                                    </optgroup>
-                                }
-                            </select>
-                        </label>
-                    }
-                </div>
-            </div>
+            <div class="grid-layout__column--1-2">
+                @defining(ApiFilter(filter)) { apiFilter =>
+                    <label class="form-label bold" for="filter">Filter by API Subscription
+                        <select class="form-control input-select input-select--large"
+                                id="filter"
+                                name="filter"
+                                value="@filter" onchange="this.form.submit()">
 
-            <div class="grid-layout__column--1-3">
-                <div class="form-group">
-                    <label class="form-label bold" for="status">Filter by Status
-                        <select class="form-control input-select input-select--large" id="status" name="status"
-                                value="@status" onchange="this.form.submit()">
-                            @for((value,label) <- Map("ALL" -> "All", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Unverified", "UNREGISTERED" -> "Not registered")) {
-                                <option value="@value" @if(Some(value) == status){selected}>@label</option>
+                            <option @if(apiFilter == AllUsers) {selected} value>All users</option>
+                            <option @if(apiFilter == OneOrMoreSubscriptions) {selected} value="ANYSUB">One or more subscriptions</option>
+                            <option @if(apiFilter == NoSubscriptions) {selected} value="NOSUB">No subscriptions</option>
+                            <option @if(apiFilter == OneOrMoreApplications) {selected} value="ANYAPP">One or more applications</option>
+                            <option @if(apiFilter == NoApplications) {selected} value="NOAPP">No applications</option>
+
+                            @for((status, versions) <- apis) {
+                                <optgroup label="@status">
+                                    @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
+                                        <option @if(apiFilter == Value(version.apiIdentifier.context)) {selected}
+                                                value="@version.apiIdentifier.context">@version.name (@version.apiIdentifier.version)</option>
+                                    }
+                                </optgroup>
                             }
                         </select>
                     </label>
-                </div>
+                }
             </div>
 
-            <div class="grid-layout__column--1-3">
+            <div class="grid-layout__column--1-2">
+                <label class="form-label bold centered-content hard--right" for="status">Filter by Status
+                    <select class="form-control input-select input-select--large"
+                            data-datatable-filter="developer-table"
+                            data-datatable-column-filter="3"
+                            id="status"
+                            name="status"
+                            value="@status"
+                            value="@filter" onchange="this.form.submit()">
+                        @for((value,label) <- Map("ALL" -> "All", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Not yet verified", "UNREGISTERED" -> "Not registered")) {
+                            <option value="@value" @if(Some(value) == status){selected}>@label</option>
+                        }
+                    </select>
+                </label>
+            </div>
+
+            <div class="float-right js-hidden">
+                <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
             </div>
         </div>
 
-        <table class="developer-list">
-            <caption class="visuallyhidden">Table showing all developers</caption>
+        <table id="developer-table"
+            class="dataTable no-footer developer-list"
+            width="100%"
+            data-dom="t<'text--center'lip>"
+            data-order='[0,"asc"]'
+            data-page-length="100"
+            data-paginate="true"
+            data-length-change="true"
+            data-length-menu="[10,50,100, 200, 300]"
+            data-responsive="true"
+            data-column-defs='[{"targets": [0,1,2], "orderable": true}, {"targets": [4], "visible": false, "searchable": true}]'
+            data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
             <thead>
                 <tr role="row">
-                    <th tabindex="0">Name</th>
-                    <th tabindex="0">Email</th>
-                    <th tabindex="0" class="text--right hard--right" data-orderable="false" data-search="false">Status</th>
+                    <th tabindex="0" class="sorting_left-aligned">Email</th>
+                    <th tabindex="0" class="sorting_left-aligned">First name</th>
+                    <th tabindex="0" class="sorting_left-aligned">Last name</th>
+                    <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                    <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">Subscriptions</th>
                 </tr>
             </thead>
             <tbody>
-            @for(developer <- users.projection) {
+            @for((developer, index) <- users.zipWithIndex) {
                 <tr role="row">
-                    <td class="developer-name">@developer.fullName</td>
-                    <td class="developer-email">@developer.email</td>
-                    <td class="text--right hard--right">
+                    <td id="dev-email-@index">@developer.email</td>
+                    <td id="dev-fn-@index">@developer.firstName</td>
+                    <td id="dev-sn-@index">@developer.lastName</td>
+                    <td class="text--right hard--right" id="dev-status-@index">
                         @defining(developer.status match {
-                            case VerifiedStatus => ("status status--verified", "verified")
-                            case UnverifiedStatus => ("status status--not-verified", "not yet verified")
-                            case UnregisteredStatus => ("status status--not-verified", "not registered")
-                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</td> }
+                        case VerifiedStatus => ("status status--verified", "verified")
+                        case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                        case UnregisteredStatus => ("status status--not-verified", "not registered")
+                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+                    </td>
+                    <td id="dev-app-@index" class="text--right hard--right visuallyhidden">@developer.apps.map(a => a.name).mkString(",")</td>
                 </tr>
             }
             </tbody>
         </table>
 
-        <div class="grid-layout" style="margin-left:0">
-            <div class="grid-layout__column--1-3 filters">
-                <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
-                    <label class="label--inlineDropDown">Show rows:
-                        <select class="select perpage" id="pageSize" name="pageSize"
-                        value="@users.pageSize" onchange="this.form.submit()">
-                        @for(n <- List(10,50,100,200,300)) {
-                            <option value="@n" @if(users.pageSize == n){selected}>@n</option>
-                        }
-                        </select>
-                    </label>
-                </div>
-            </div>
-
-            <div class="grid-layout__column--1-3 entries_status">
-                @entry(users,"No developers for your selected filter")
-            </div>
-
-            <div class="grid-layout__column--1-3">
-                <div class="dataTables_paginate paging_simple" id="DataTables_Table_0_paginate">
-                    @paginateButton("Previous", "paginate_button previous", users, filter, status, -1)
-                    @paginateButton("Next", "paginate_button next", users, filter, status, 1)
-                </div>
+        <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left:0">
+            <div class="grid-layout__column--1-3 text--center">
+                @if(users.isEmpty) {"No developers for your selected filter"}
             </div>
         </div>
-
-        <input type="hidden" name="pageNumber" value="@users.pageNumber"/>
-
     </form>
 
-    @if(users.length > 0) {
-    <div class="form-group>">
-        <p>
-            <a class="button" href="#" title="Copies all @{users.length} email addresses into the system clipboard." onclick="copyTextToClipboard('@emails'); return false;">Copy to clipboard</a>
-        </p>
-    </div>
+    @if(users.nonEmpty) {
+        <div class="form-group>">
+            <p>
+                <a id="copy-to-clip" class="button" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
+            </p>
+        </div>
     }
     <div class="form-group>">
         <a class="back-to-top-link" href="#">Back to Top</a>
     </div>
-
-    <script type="text/javascript">
-        function copyTextToClipboard(text) {
-          var textArea = document.createElement("textarea");
-          textArea.style.position = 'fixed';
-          textArea.style.top = 0;
-          textArea.style.left = 0;
-          textArea.style.width = '2em';
-          textArea.style.height = '2em';
-          textArea.style.padding = 0;
-          textArea.style.border = 'none';
-          textArea.style.outline = 'none';
-          textArea.style.boxShadow = 'none';
-          textArea.style.background = 'transparent';
-          textArea.value = text;
-
-          document.body.appendChild(textArea);
-
-          textArea.select();
-
-          try {
-            var successful = document.execCommand('copy');
-          } catch (err) {
-            console.log(err);
-          }
-
-          document.body.removeChild(textArea);
-        }
-    </script>
 </article>
-}
-
-@paginateButton(text: String, cssClass: String, content: model.PageableCollection[_], filter: Option[String], status: Option[String], direction: Int) = {
-    @if(direction < 0 && content.hasPrevious || direction > 0 && content.hasNext) {
-        <a class="@cssClass"
-           rel="@if(direction < 0) {prev} else {next}"
-           href="@routes.DevelopersController.developersPage(filter, status, Some(content.pageNumber + direction), Some(content.pageSize))"
-            aria-controls="DataTables_Table_0"
-            data-dt-idx="@if(direction < 0) {0} else {1}"
-            id="DataTables_Table_0_@if(direction < 0) {prev} else {next}"
-        >@text</a>
-    }
 }

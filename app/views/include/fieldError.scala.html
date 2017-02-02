@@ -1,4 +1,4 @@
-@(errors: Seq[FormError], fieldName: String, onlyLast: Boolean = true)
+@(errors: Seq[FormError], fieldName: String, onlyLast: Boolean = true)(implicit messages: Messages)
 @if(errors.exists(_.key == fieldName)) {
     <p class="error-notification hard--bottom" data-field-error-@fieldName>
     @defining(errors.filter(_.key == fieldName)) { errors =>

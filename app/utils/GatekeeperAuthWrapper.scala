@@ -19,6 +19,8 @@ package utils
 import connectors.AuthConnector
 import controllers.routes
 import model.{GatekeeperSessionKeys, Role}
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
 import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}

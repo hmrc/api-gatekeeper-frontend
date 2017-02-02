@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import play.api.libs.json.Json
 
 case class NavLink(label: String, href: String, truncate: Boolean = false)
@@ -27,7 +27,7 @@ object NavLink {
 
 object NavigationHelper {
 
-  val nameDisplayLimit = FrontendAppConfig.nameDisplayLimit
+  val nameDisplayLimit = AppConfig.nameDisplayLimit
 
   def loggedInNavLinks(userFullName: String) = Seq(
     NavLink(userFullName, "#", truncate = true),

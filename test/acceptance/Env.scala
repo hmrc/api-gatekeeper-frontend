@@ -16,17 +16,42 @@
 
 package acceptance
 
+import java.util.logging.{Level, Logger}
+
+import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
+import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.{HasCapabilities, WebDriver}
 
 import scala.util.Try
 
 trait Env {
 
-  val driver: WebDriver with HasCapabilities = {
-    val profile = new FirefoxProfile
-    profile.setAcceptUntrustedCertificates(true)
-    new FirefoxDriver(profile)
+  val webDriverConfig = System.getProperty("test.driver", "firefox").toLowerCase
+  val driver = if (webDriverConfig == "firefox") {
+    val driver: WebDriver with HasCapabilities = {
+      val profile = new FirefoxProfile
+      profile.setAcceptUntrustedCertificates(true)
+      new FirefoxDriver(profile)
+    }
+    driver
+  } else if (webDriverConfig == "chrome"){
+    val driver: WebDriver = {
+      val driver = new ChromeDriver()
+      driver.manage().window().maximize()
+      driver
+    }
+    driver
+  } else {
+    val driver: WebDriver = {
+      val capabilities = DesiredCapabilities.htmlUnit()
+      capabilities.setJavascriptEnabled(true)
+      Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF)
+      Logger.getLogger("com.gargoylesoftware.htmlunit.javascript.StrictErrorReporter").setLevel(Level.OFF)
+      new HtmlUnitDriver(capabilities)
+    }
+    driver
   }
 
   sys addShutdownHook {

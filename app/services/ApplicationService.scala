@@ -17,9 +17,10 @@
 package services
 
 import connectors.ApplicationConnector
-import model.ResendVerificationSuccessful
+import model._
 import uk.gov.hmrc.play.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object ApplicationService extends ApplicationService {
@@ -31,5 +32,40 @@ trait ApplicationService {
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnector.resendVerification(applicationId, gatekeeperUserId)
+  }
+
+  def fetchApplications(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    applicationConnector.fetchAllApplications()
+  }
+
+  def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    filter match {
+      case OneOrMoreSubscriptions => for {
+        all <- applicationConnector.fetchAllApplications()
+        noSubs <- applicationConnector.fetchAllApplicationsWithNoSubscriptions()
+      } yield {
+        all.filterNot(app => noSubs.contains(app))
+      }
+      case NoSubscriptions => applicationConnector.fetchAllApplicationsWithNoSubscriptions()
+      case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
+      case _ => applicationConnector.fetchAllApplications()
+    }
+  }
+
+  def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
+
+    def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {
+      applications.map(ar => {
+        val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
+          .map(_.apiIdentifier.context.capitalize.replace("-", " ")).sorted
+        SubscribedApplicationResponse.createFrom(ar, filteredSubs)
+      })
+    }
+
+    for {
+      apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
+      subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
+      subscribedApplications = addSubscriptionsToApplications(apps, subs)
+    } yield subscribedApplications.sortBy(_.name.toLowerCase)
   }
 }

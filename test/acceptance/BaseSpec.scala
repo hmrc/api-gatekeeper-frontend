@@ -23,7 +23,8 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
 import org.scalatest._
 import org.scalatestplus.play.OneServerPerSuite
-import play.api.test.FakeApplication
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Mode}
 
 trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with OneServerPerSuite {
 
@@ -33,18 +34,8 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   implicit val webDriver: WebDriver = Env.driver
 
-  implicit override lazy val app: FakeApplication =
-    FakeApplication(
-      additionalConfiguration = Map(
-        "auditing.enabled" -> false,
-        "auditing.traceRequests" -> false,
-        "microservice.services.auth.host" -> stubHost,
-        "microservice.services.auth.port" -> stubPort,
-        "microservice.services.third-party-application.host" -> stubHost,
-        "microservice.services.third-party-application.port" -> stubPort,
-        "microservice.services.third-party-developer.host" -> stubHost,
-        "microservice.services.third-party-developer.port" -> stubPort
-      ))
+  implicit override lazy val app: Application =
+    GuiceApplicationBuilder().configure("run.mode" -> "Stub").in(Mode.Prod).build()
 
   var wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
 

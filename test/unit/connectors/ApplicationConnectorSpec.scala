@@ -19,7 +19,7 @@ package unit.connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
-import model.{ApproveUpliftSuccessful, FetchApplicationsFailed, PreconditionFailed, ResendVerificationSuccessful}
+import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -34,6 +34,17 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     val connector = new ApplicationConnector {
       override val http = WSHttp
       override val applicationBaseUrl: String = wireMockUrl
+    }
+  }
+
+  "fetchAllSubscribedApplications" should {
+    "retrieve all applications" in new Setup {
+      val uri = "/application/subscriptions"
+      val body = "[\n  {\n    \"apiIdentifier\": {\n      \"context\": \"individual-benefits\",\n      \"version\": \"1.0\"\n    },\n    \"applications\": [\n      \"a97541e8-f93d-4d0a-ab0b-862e63204b7d\",\n      \"4bf49df9-523a-4aa3-a446-683ff24b619f\",\n      \"42695949-c7e8-4de9-a443-15c0da43143a\"\n    ]\n  }]"
+      stubFor(get(urlEqualTo(uri)).willReturn(aResponse().withStatus(200).withBody(body)))
+      val result: Seq[SubscriptionResponse] = await(connector.fetchAllSubscriptions())
+      verify(1, getRequestedFor(urlPathEqualTo(uri)).withHeader("Authorization", equalTo(authToken)))
+      result.head.apiIdentifier.context shouldBe "individual-benefits"
     }
   }
 

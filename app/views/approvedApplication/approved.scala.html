@@ -1,8 +1,8 @@
 @import model.ApprovedApplication
 @import org.joda.time.format.DateTimeFormat
-@(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String], flash: Flash)
+@(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Gatekeeper Dashboard",userFullName = userFullName ) {
+@main(title = s"${appConfig.title} - Dashboard",userFullName = userFullName ) {
 
     @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
         <div class="content__body">

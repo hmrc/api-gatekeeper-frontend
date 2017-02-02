@@ -1,11 +1,11 @@
+@import include._
+@import model.CategorisedApplications
 @import model.State._
 @import org.joda.time.format.DateTimeFormat
-@import model.CategorisedApplications
-@import include._
 
-@(applications: CategorisedApplications)(implicit request: Request[_], userFullName: Option[String])
+@(applications: CategorisedApplications)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
         <article class="content__body full-width">

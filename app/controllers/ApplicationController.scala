@@ -16,24 +16,40 @@
 
 package controllers
 
-import connectors.AuthConnector
-import model.Role
+import config.AppConfig
+import connectors.{ApiDefinitionConnector, AuthConnector}
+import model.APIStatus.APIStatus
+import model.{APIDefinition, APIIdentifier, Role, VersionSummary}
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.ApplicationService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import views.html.applications.applications
+
 
 object ApplicationController extends ApplicationController {
-  override val applicationService: ApplicationService = ApplicationService
-
+  override val applicationService = ApplicationService
+  override val apiDefinitionConnector = ApiDefinitionConnector
+  override val appConfig = AppConfig
   override def authConnector = AuthConnector
-
   override def authProvider = GatekeeperAuthProvider
 }
 
 trait ApplicationController extends FrontendController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
+  val apiDefinitionConnector: ApiDefinitionConnector
+  implicit val appConfig: AppConfig
+
+  def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+      for {
+        apps <- applicationService.fetchAllSubscribedApplications
+        apis <- apiDefinitionConnector.fetchAll
+      } yield Ok(applications(apps, groupApisByStatus(apis)))
+  }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
@@ -43,5 +59,15 @@ trait ApplicationController extends FrontendController with GatekeeperAuthWrappe
         Redirect(controllers.routes.DashboardController.approvedApplicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
+  }
+
+  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[APIStatus, Seq[VersionSummary]] = {
+
+    val versions = for {
+      api <- apis
+      version <- api.versions
+    } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
+
+    versions.groupBy(_.status)
   }
 }

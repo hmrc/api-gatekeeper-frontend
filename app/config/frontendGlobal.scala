@@ -18,15 +18,17 @@ package config
 
 import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Request
 import play.api.{Application, Configuration, Play}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
+import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
-
 
 object FrontendGlobal
   extends DefaultFrontendGlobal {
@@ -47,14 +49,14 @@ object FrontendGlobal
 }
 
 object ControllerConfiguration extends ControllerConfig {
-  lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
+  lazy val controllerConfigs: Config = Play.current.configuration.underlying.as[Config]("controllers")
 }
 
-object LoggingFilter extends FrontendLoggingFilter {
-  override def controllerNeedsLogging(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsLogging
+object LoggingFilter extends FrontendLoggingFilter with MicroserviceFilterSupport {
+  override def controllerNeedsLogging(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsLogging
 }
 
-object AuditFilter extends FrontendAuditFilter with RunMode with AppName {
+object AuditFilter extends FrontendAuditFilter with MicroserviceFilterSupport with RunMode with AppName {
 
   override lazy val maskedFormFields = Seq("password")
 
@@ -62,5 +64,5 @@ object AuditFilter extends FrontendAuditFilter with RunMode with AppName {
 
   override lazy val auditConnector = FrontendAuditConnector
 
-  override def controllerNeedsAuditing(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsAuditing
+  override def controllerNeedsAuditing(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsAuditing
 }

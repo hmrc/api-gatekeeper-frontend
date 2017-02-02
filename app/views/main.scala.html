@@ -1,7 +1,7 @@
 @(title: String,
   mainContentHeader: Html = HtmlFormat.empty,
   userFullName: Option[String] = None,
-  appConfig: config.AppConfig = config.FrontendAppConfig)(mainContent: Html)(implicit request: Request[_])
+  appConfig: config.AppConfig = config.AppConfig)(mainContent: Html)(implicit request: Request[_], messages: Messages)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
@@ -21,30 +21,35 @@
   )
 }
 
+@scriptElem = {
+  <script src='@routes.Assets.versioned("javascripts/apis-app.min.js")' type="text/javascript"></script>
+}
+
 @bodyEnd = {
   @layouts.footer(
     analyticsToken = Some(appConfig.analyticsToken),
     analyticsHost = appConfig.analyticsHost,
-    assetsPrefix = appConfig.assetsPrefix,
     ssoUrl = None,
-    scriptElem = None,
+    scriptElem = Some(scriptElem),
     gaCalls = None)
 }
 
 @insideHeader = {
   @layouts.header_nav(
-    navTitle = Some("API Gatekeeper"),
+    navTitle = Some(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
     navLinks = Some(include.headerNavLinks(NavigationHelper.navLinks(userFullName)))
   )
-  }
+
+  <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
+}
 
 
 @views.html.layouts.govuk_template(
   title = Some(title),
-  bodyClasses = None)(
-  head = layouts.head(assetsPrefix = appConfig.assetsPrefix, linkElem = None, headScripts = None),
+  bodyClasses = if(appConfig.isExternalTestEnvironment) { Some("sandbox") } else None)(
+  head = layouts.head(linkElem = None, headScripts = None),
   bodyEnd = bodyEnd,
   insideHeader = insideHeader,
   afterHeader = HtmlFormat.empty,

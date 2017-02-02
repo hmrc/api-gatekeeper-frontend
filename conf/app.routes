@@ -10,7 +10,8 @@ GET         /review                                controllers.DashboardControll
 
 GET         /approved                              controllers.DashboardController.approvedApplicationPage(id: String)
 
-GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], pageNumber: Option[Int], pageSize: Option[Int])
+GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /applications                          controllers.ApplicationController.applicationsPage
 
 GET         /pending                               controllers.DeploymentApprovalController.pendingPage(pageNumber: Option[Int], pageSize: Option[Int])
 GET         /pending/:serviceName/review           controllers.DeploymentApprovalController.reviewPage(serviceName: String)
@@ -20,3 +21,5 @@ POST        /pending/:serviceName/approve          controllers.DeploymentApprova
 
 POST        /applications/:id/handle-uplift        controllers.DashboardController.handleUplift(id: String)
 GET         /applications/:id/resend-verification  controllers.ApplicationController.resendVerification(id: String)
+
+GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

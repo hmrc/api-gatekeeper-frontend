@@ -43,6 +43,10 @@
         <appender-ref ref="STDOUT_IGNORE_NETTY" />
     </logger>
 
+    <logger name="com.google.inject" level="WARN"/>
+
+    <logger name="org.apache" level="WARN"/>
+
     <logger name="uk.gov" level="INFO"/>
 
     <logger name="application" level="DEBUG"/>
@@ -51,7 +55,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </root>

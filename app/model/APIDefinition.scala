@@ -100,3 +100,10 @@ object APIDefinitionSummary {
   implicit val formatApiDefinitionSummary = Json.format[APIDefinitionSummary]
 }
 
+
+case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
+
+object SubscriptionResponse {
+  implicit val format1 = Json.format[APIIdentifier]
+  implicit val format2 = Json.format[SubscriptionResponse]
+}

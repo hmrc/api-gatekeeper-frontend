@@ -23,7 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.Matchers
+import org.scalatest.{Matchers, Tag}
 
 class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
 
@@ -33,7 +33,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
     info("As a gatekeeper")
     info("I see a list of applications pending approval")
 
-    scenario("I see a list of pending applications in ascending order by submitted date") {
+    scenario("I see a list of pending applications in ascending order by submitted date", Tag("NonSandboxTest")) {
 
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
@@ -46,7 +46,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
       assertPendingApplication(appPendingApprovalId2, "Second Application submitted: 24.03.2016 Review")
     }
 
-    scenario("I see the message There are no pending applications when there are no applications awaiting uplift approval") {
+    scenario("I see the message There are no pending applications when there are no applications awaiting uplift approval", Tag("NonSandboxTest")) {
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody("[]").withStatus(200)))
 
@@ -55,7 +55,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
       assertNoPendingApplications()
     }
 
-    scenario("I can click on the Review button to be taken to the review page for an application awaiting uplift approval") {
+    scenario("I can click on the Review button to be taken to the review page for an application awaiting uplift approval", Tag("NonSandboxTest")) {
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
 
@@ -83,7 +83,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
     info("As a gatekeeper")
     info("I see a list of applications which have already been approved")
 
-    scenario("I see a list of approved applications in alphabetical order and their status") {
+    scenario("I see a list of approved applications in alphabetical order and their status", Tag("NonSandboxTest")) {
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
@@ -96,7 +96,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
       assertApprovedApplication(approvedApp2, "ZApplication submitted: 22.03.2016 verified")
     }
 
-    scenario("I see the message There are no approved applications when there no applications have been approved") {
+    scenario("I see the message There are no approved applications when there no applications have been approved", Tag("NonSandboxTest")) {
       stubFor(get(urlEqualTo("/gatekeeper/applications"))
         .willReturn(aResponse().withBody("[]").withStatus(200)))
 
@@ -105,7 +105,7 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
       assertNoApprovedApplications()
     }
 
-    scenario("I can click on the application name to be taken to the approved application page") {
+    scenario("I can click on the application name to be taken to the approved application page", Tag("NonSandboxTest")) {
       val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
       val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
       val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
@@ -130,11 +130,11 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   private def assertPendingApplication(appId: String, expected: String) = {
-    webDriver.findElement(By.cssSelector(s"[data-pending-$appId]")).getText.replaceAll("\n", " ") shouldBe expected
+    webDriver.findElement(By.cssSelector(s"[data-pending-$appId]")).getText.replaceAll("\\s+"," ") shouldBe expected
   }
 
   private def assertApprovedApplication(appId: String, expected: String) = {
-    webDriver.findElement(By.cssSelector(s"[data-approved-$appId]")).getText.replaceAll("\n", " ") shouldBe expected
+    webDriver.findElement(By.cssSelector(s"[data-approved-$appId]")).getText.replaceAll("\\s+", " ") shouldBe expected
   }
 
   private def assertNoPendingApplications() = {

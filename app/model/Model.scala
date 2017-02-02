@@ -18,14 +18,11 @@ package model
 
 import java.util.UUID
 
-import model.CollaboratorRole.CollaboratorRole
 import model.State.State
-import model.User.UserStatus
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
-import uk.gov.hmrc.time.DateTimeUtils
 
 
 case class LoginDetails(userName: String, password: Protected[String])
@@ -69,74 +66,21 @@ object GatekeeperSessionKeys {
   val LoggedInUser = "LoggedInUser"
 }
 
-object State extends Enumeration {
-  type State = Value
-  val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
+case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
-  implicit val format = EnumJson.enumFormat(State)
-}
-
-object CollaboratorRole extends Enumeration {
-  type CollaboratorRole = Value
-  val DEVELOPER, ADMINISTRATOR = Value
-
-  implicit val format = EnumJson.enumFormat(CollaboratorRole)
-}
-
-object Collaborator {
-  implicit val format = Json.format[Collaborator]
-}
-
-case class Collaborator(emailAddress: String, role: CollaboratorRole)
-
-case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)
-
-case class ApplicationResponse(id: UUID,
-                               name: String,
-                               description: Option[String] = None,
-                               collaborators: Set[Collaborator],
-                               createdOn: DateTime,
-                               state: ApplicationState) {
-
-  def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
-}
-
-object ApplicationResponse {
+object ApplicationWithHistory {
   implicit val format1 = Json.format[APIIdentifier]
+  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
   implicit val format5 = Json.format[ApplicationResponse]
 
-}
+  implicit val format6 = Json.format[ApplicationWithHistory]
 
-case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
-
-object ApplicationWithHistory {
-  implicit val format = Json.format[ApplicationWithHistory]
 }
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
-
-case class User(email: String, firstName: String, lastName: String, verified: Option[Boolean]) extends Ordered[User] {
-  val fullName = s"$firstName $lastName"
-  val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
-  val status: UserStatus = verified match {
-    case Some(true) => VerifiedStatus
-    case Some(false) => UnverifiedStatus
-    case None => UnregisteredStatus
-  }
-  def compare(that: User) = this.sortField.compare(that.sortField)
-}
-
-object User {
-  implicit val format = Json.format[User]
-  type UserStatus = StatusFilter
-}
-
-case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "", verified = None)
-}
 
 
 object ApplicationWithUpliftRequest {

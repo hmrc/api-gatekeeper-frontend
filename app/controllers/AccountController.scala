@@ -16,11 +16,14 @@
 
 package controllers
 
+import config.AppConfig
 import connectors.AuthConnector
 import model.Forms._
 import model.{GatekeeperSessionKeys, LoginDetails}
 import play.api.Logger
+import play.api.Play.current
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.SessionKeys
@@ -30,16 +33,16 @@ import views.html.login._
 import scala.concurrent.Future
 
 object AccountController extends AccountController {
-  val authConnector = AuthConnector
-
+  override val authConnector = AuthConnector
+  override val appConfig = AppConfig
   override def authProvider = GatekeeperAuthProvider
 }
 
 trait AccountController extends FrontendController with GatekeeperAuthWrapper {
 
   val authConnector: AuthConnector
-
   val welcomePage = routes.DashboardController.dashboardPage
+  implicit val appConfig: AppConfig
 
   val loginPage: Action[AnyContent] = redirectIfLoggedIn(welcomePage) {
     implicit request => implicit hc => Future.successful(Ok(login(loginForm)))
