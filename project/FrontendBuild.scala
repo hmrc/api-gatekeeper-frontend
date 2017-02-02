@@ -31,7 +31,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "json-encryption" % "3.1.0",
     "uk.gov.hmrc" %% "play-health" % "2.0.0",
     "uk.gov.hmrc" %% "govuk-template" % "5.0.0",
-    "uk.gov.hmrc" %% "play-ui" % "5.3.0",
+    "uk.gov.hmrc" %% "play-ui" % "5.4.0",
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
     "org.slf4j" % "jul-to-slf4j" % slf4jVersion,

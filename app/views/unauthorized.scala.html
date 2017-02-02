@@ -1,4 +1,4 @@
-@()(implicit request : Request[_], userFullName: Option[String], messages: Messages)
+@()(implicit request : Request[_], userFullName: Option[String], messages: Messages, appConfig:config.AppConfig)
 
 @main(title = "Unauthorized", userFullName = userFullName) {
   <h2>Only Authorised users can access the requested page</h2>

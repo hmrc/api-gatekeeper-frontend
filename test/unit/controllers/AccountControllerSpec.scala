@@ -44,7 +44,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
   trait Setup {
     val underTest = new AccountController {
-      val appConfig = mock[AppConfig]
+      override val appConfig = mock[AppConfig]
       val authConnector = mock[AuthConnector]
       def authProvider = mock[AuthenticationProvider]
     }
