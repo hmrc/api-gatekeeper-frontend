@@ -16,15 +16,12 @@
 
 package controllers
 
-import config.AppConfig
 import connectors.{ApiDefinitionConnector, AuthConnector}
-import model.APIStatus.APIStatus
-import model.{APIDefinition, APIIdentifier, Role, VersionSummary}
+import model.{APIDefinition, APIIdentifier, APIStatus, Role, VersionSummary}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.ApplicationService
-import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.applications.applications
 
@@ -32,16 +29,14 @@ import views.html.applications.applications
 object ApplicationController extends ApplicationController {
   override val applicationService = ApplicationService
   override val apiDefinitionConnector = ApiDefinitionConnector
-  override val appConfig = AppConfig
   override def authConnector = AuthConnector
   override def authProvider = GatekeeperAuthProvider
 }
 
-trait ApplicationController extends FrontendController with GatekeeperAuthWrapper {
+trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
   val apiDefinitionConnector: ApiDefinitionConnector
-  implicit val appConfig: AppConfig
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
@@ -61,13 +56,13 @@ trait ApplicationController extends FrontendController with GatekeeperAuthWrappe
       }
   }
 
-  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[APIStatus, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
     val versions = for {
       api <- apis
       version <- api.versions
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
-    versions.groupBy(_.status)
+    versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
 }
