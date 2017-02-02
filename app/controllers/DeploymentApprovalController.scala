@@ -16,10 +16,13 @@
 
 package controllers
 
+import config.AppConfig
 import connectors.AuthConnector
 import model._
 import play.api.Logger
 import play.api.data.Form
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.DeploymentApprovalService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -31,14 +34,14 @@ import scala.concurrent.Future
 
 object DeploymentApprovalController extends DeploymentApprovalController {
   override val deploymentApprovalService = DeploymentApprovalService
-
   override def authConnector = AuthConnector
-
   override def authProvider = GatekeeperAuthProvider
+  override val appConfig = AppConfig
 }
 
 trait DeploymentApprovalController extends FrontendController with GatekeeperAuthWrapper {
   val deploymentApprovalService: DeploymentApprovalService
+  implicit val appConfig: AppConfig
 
   private def redirectToPendingPage(pageNumber: Int, pageSize: Int) = {
     val pageParams = Map(

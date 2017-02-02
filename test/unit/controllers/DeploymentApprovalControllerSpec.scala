@@ -37,12 +37,13 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
   Helpers.running(fakeApplication){
 
-    trait Setup {
+    trait Setup extends ControllerSetupBase {
       val mockDeploymentService = mock[DeploymentApprovalService]
       val underTest = new DeploymentApprovalController{
+        val appConfig = mockConfig
         val deploymentApprovalService: DeploymentApprovalService = mockDeploymentService
-        val authProvider = mock[AuthenticationProvider]
-        val authConnector = mock[AuthConnector]
+        val authProvider = mockAuthProvider
+        val authConnector = mockAuthConnector
       }
       val hc = mock[HeaderCarrier]
     }

@@ -2,7 +2,7 @@
 @import include._
 @import model._
 
-@(unapprovedApps: PageableCollection[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String])
+@(unapprovedApps: PageableCollection[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = "API Submission", userFullName = userFullName) {
     <article class="content__body full-width">
