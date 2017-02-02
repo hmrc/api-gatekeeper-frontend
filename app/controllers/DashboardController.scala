@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import model.State.{State, _}
 import model.UpliftAction._
@@ -26,8 +25,7 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Request, Result}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.approvedApplication._
@@ -39,16 +37,14 @@ import scala.concurrent.Future
 object DashboardController extends DashboardController {
   override val applicationConnector = ApplicationConnector
   override val developerConnector = DeveloperConnector
-  override val appConfig = AppConfig
   override def authProvider = GatekeeperAuthProvider
   override def authConnector = AuthConnector
 }
 
-trait DashboardController extends FrontendController with GatekeeperAuthWrapper {
+trait DashboardController extends BaseController with GatekeeperAuthWrapper {
 
   val applicationConnector: ApplicationConnector
   val developerConnector: DeveloperConnector
-  implicit val appConfig: AppConfig
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def dashboardPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>

@@ -70,6 +70,15 @@ case class APIVersion(version: String, status: APIStatus, access: Option[APIAcce
 object APIStatus extends Enumeration {
   type APIStatus = Value
   val PROTOTYPED, PUBLISHED, DEPRECATED, RETIRED = Value
+
+  val displayedStatus: (APIStatus) => String = (status:APIStatus) => {
+    status match {
+      case APIStatus.PROTOTYPED => "Beta"
+      case APIStatus.PUBLISHED => "Current"
+      case APIStatus.DEPRECATED => "Deprecated"
+      case APIStatus.RETIRED => "Retired"
+    }
+  }
 }
 
 case class APIAccess(`type`: APIAccessType.Value)

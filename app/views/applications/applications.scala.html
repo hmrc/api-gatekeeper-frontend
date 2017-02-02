@@ -4,8 +4,9 @@
 @import model.SubscribedApplicationResponse
 @import org.joda.time.format.DateTimeFormat
 
+@import model.APIStatus.APIStatus
 @(applications: Seq[SubscribedApplicationResponse],
-        apis: Map[APIStatus.APIStatus, Seq[VersionSummary]])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+        apis: Map[String, Seq[VersionSummary]])(implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
 
@@ -49,7 +50,8 @@
                                 <option value="NOSUB">No subscriptions</option>
 
                                 @for((status, versions) <- apis) {
-                                    <optgroup label="@status">
+
+                                    <optgroup label="@{status}">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
                                         <option
                                         value="@version.name">@version.name (@version.apiIdentifier.version)</option>
