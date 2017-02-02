@@ -27,6 +27,7 @@ trait MicroService {
 
   def acceptanceFilter(name: String): Boolean = name startsWith "acceptance"
 
+  def sandboxFilter(name: String): Boolean = !unitFilter(name)
 
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(Seq(play.sbt.PlayScala) ++ plugins : _*)
@@ -71,13 +72,24 @@ trait MicroService {
     .configs(AcceptanceTest)
     .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
     .settings(
-      testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter)),
+      testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter),Tests.Argument("-l", "SandboxTest")),
       unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest)(base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest)(base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <+=  baseDirectory ( _ /"target/web/public/test" ),
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
       addTestReportOption(AcceptanceTest, "acceptance-test-reports")
+    )
+    .configs(SandboxTest)
+    .settings(inConfig(SandboxTest)(Defaults.testTasks): _*)
+    .settings(
+      testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"),Tests.Argument("-n","SandboxTest"), Tests.Filter(sandboxFilter)),
+      unmanagedSourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest)(base => Seq(base / "test")),
+      unmanagedResourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest)(base => Seq(base / "test")),
+      unmanagedResourceDirectories in SandboxTest <+=  baseDirectory ( _ /"target/web/public/test" ),
+      Keys.fork in SandboxTest := false,
+      parallelExecution in SandboxTest := false,
+      addTestReportOption(SandboxTest, "sandbox-test-reports")
     )
     .settings(
       resolvers := Seq(
@@ -96,6 +108,7 @@ private object TestPhases {
   lazy val TemplateTest = config("tt") extend Test
   lazy val TemplateItTest = config("tit") extend IntegrationTest
   lazy val AcceptanceTest = config("acceptance") extend Test
+  lazy val SandboxTest = config("sandbox") extend Test
 
   def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
     tests map {
