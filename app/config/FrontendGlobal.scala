@@ -30,12 +30,17 @@ import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 
+trait WithConfig {
+  implicit val appConfig: AppConfig
+}
+
 object FrontendGlobal
-  extends DefaultFrontendGlobal {
+  extends DefaultFrontendGlobal with WithConfig {
 
   override val auditConnector = FrontendAuditConnector
   override val loggingFilter = LoggingFilter
   override val frontendAuditFilter = AuditFilter
+  override implicit lazy val appConfig: AppConfig = AppConfig
 
   override def onStart(app: Application) {
     super.onStart(app)
@@ -45,15 +50,18 @@ object FrontendGlobal
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html =
     views.html.error_template(pageTitle, heading, message)
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig("microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] =
+    app.configuration.getConfig("microservice.metrics")
 }
 
 object ControllerConfiguration extends ControllerConfig {
-  lazy val controllerConfigs: Config = Play.current.configuration.underlying.as[Config]("controllers")
+  lazy val controllerConfigs: Config =
+    Play.current.configuration.underlying.as[Config]("controllers")
 }
 
 object LoggingFilter extends FrontendLoggingFilter with MicroserviceFilterSupport {
-  override def controllerNeedsLogging(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsLogging
+  override def controllerNeedsLogging(controllerName: String): Boolean =
+    ControllerConfiguration.paramsForController(controllerName).needsLogging
 }
 
 object AuditFilter extends FrontendAuditFilter with MicroserviceFilterSupport with RunMode with AppName {
@@ -64,5 +72,6 @@ object AuditFilter extends FrontendAuditFilter with MicroserviceFilterSupport wi
 
   override lazy val auditConnector = FrontendAuditConnector
 
-  override def controllerNeedsAuditing(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsAuditing
+  override def controllerNeedsAuditing(controllerName: String): Boolean =
+    ControllerConfiguration.paramsForController(controllerName).needsAuditing
 }

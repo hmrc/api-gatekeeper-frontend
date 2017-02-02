@@ -35,6 +35,8 @@ trait GatekeeperAuthWrapper {
 
   def authConnector: AuthConnector
 
+  implicit val appConfig: config.AppConfig
+
   implicit def loggedIn(implicit request: Request[_]) = request.session.get(GatekeeperSessionKeys.LoggedInUser)
 
   private def validatedAsyncAction(f: Request[_] => Future[Result]) =
@@ -61,7 +63,7 @@ trait GatekeeperAuthWrapper {
             case false => Future.successful(Unauthorized(views.html.unauthorized()))
           }
         }
-        .getOrElse(Future.successful(Redirect(routes.AccountController.loginPage)))
+        .getOrElse(Future.successful(Redirect(routes.AccountController.loginPage())))
     }
   }
 
