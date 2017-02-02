@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
 import org.openqa.selenium.{By, WebElement}
-import org.scalatest.{Assertions, GivenWhenThen, Matchers}
+import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
@@ -37,7 +37,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   feature("API Filter for Email Recipients") {
 
-    scenario("Ensure a user can view the list of registered developers") {
+    scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
@@ -51,10 +51,9 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
-      assertNumberOfDevelopersPerPage(105)
     }
 
-    scenario("Ensure a user can view ALL developers") {
+    scenario("Ensure a user can view ALL developers", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
@@ -115,7 +114,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertDevelopersList(unregisteredDev)
     }
 
-    scenario("Ensure a user can view all developers who are subscribed to one or more API") {
+    scenario("Ensure a user can view all developers who are subscribed to one or more API", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
       stubApplicationList
@@ -175,7 +174,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     }
 
-    scenario("Ensure a user can view all developers who have no subscription to an API"){
+    scenario("Ensure a user can view all developers who have no subscription to an API", Tag("NonSandboxTest")){
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
       stubApplicationList
@@ -230,7 +229,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertDevelopersList(unregisteredDev)
     }
 
-    scenario("Ensure a user can view all developers who has one or more application") {
+    scenario("Ensure a user can view all developers who has one or more application", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
       stubApplicationList
@@ -283,7 +282,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
     }
 
-    scenario("Ensure a SDST can view all users who has no application") {
+    scenario("Ensure a SDST can view all users who has no application", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
       stubApplicationList
@@ -333,7 +332,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertCopyToClipboardButtonIsDisabled("#content div a.button")
     }
 
-    scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API") {
+    scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
       stubApplicationList
@@ -388,7 +387,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertDevelopersList(unregisteredDev)
     }
 
-    scenario("Ensure a user can view the Copy to Clipboard buttons on the Developers page") {
+    scenario("Ensure a user can view the Copy to Clipboard buttons on the Developers page", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationListWithNoDevelopers
@@ -405,7 +404,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertButtonIsPresent("#content a.button")
     }
 
-    scenario("Ensure all developer email addresses are successfully loaded into bcc") {
+    scenario("Ensure all developer email addresses are successfully loaded into bcc", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
