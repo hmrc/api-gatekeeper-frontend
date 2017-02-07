@@ -4,18 +4,8 @@
     @main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
         <div class="content__body">
 
-            <nav class="breadcrumb-nav">
-                <ul>
-                    <li class="breadcrumb-nav__item"><a href="/api-gatekeeper/pending">Unapproved Services</a></li>
-                    <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-                    <li class="breadcrumb-nav__item">@{
-                        apiDefinition.name
-                    }</li>
-                </ul>
-            </nav>
-
             <header>
-                <h1 class="flush--top">API Approval</h1>
+                <h1 class="flush--top">API approval</h1>
             </header>
 
             @if(form.hasErrors) {
@@ -31,50 +21,43 @@
                 </div>
             }
 
-            <h2>Service ID:</h2>
+            <h2>API name</h2>
+            <p class="flush--top" data-description>@{
+                apiDefinition.name
+                }</p>
+
+            <h2>Service ID</h2>
             <p class="flush--top" data-service-name>@{
                 apiDefinition.serviceName
             }</p>
 
-            <h2>API Name:</h2>
-            <p class="flush--top" data-description>@{
-                apiDefinition.name
-            }</p>
-
-            <h2>Description:</h2>
+            <h2>Description</h2>
             <p class="flush--top" data-description>@{
                 apiDefinition.description
             }</p>
 
+
+            <h2>Approve</h2>
+            <p class="flush--top">You must check if the API meets all the necessary requirements before submitting to live.</p>
+
+            <p>&nbsp;</p>
+            <div class="highlight-message highlight-message--light">
+                <p>Your decision is final and will set the API live.</p>
+            </div>
+
             @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName),
                 'class -> "form") {
 
-                <div data-journey-dynamic-radios>
-                    @helper.CSRF.formField
+            <label for="approval_confirmation" class="block-label">
+                <input type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
+                I confirm the details are correct
+            </label>
+            <div class="form-field">
+                <p>&nbsp; </p>
+                <input id="submit" type="submit" class="button" role="button" value="Submit" disabled data-journey-target/>
+                <a href="/api-gatekeeper/pending" class="button button--link">Cancel</a>
+            </div>
 
-                    <fieldset class="form-field-group js-toggle"
-                    data-target="rejection-reason"
-                    data-trigger="js-toggle-trigger"
-                    data-open="reject-deployment"
-                    data-close="approve-deployment"
-                    aria-hidden="true">
-                        <legend class="visuallyhidden">Choose approve or reject deployment</legend>
-                        <label class="block-label--stacked">
-                            <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"
-                            {checked}/>Approve
-                        </label>
-                        <label class="block-label--stacked">
-                            <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected"
-                            {checked}/>Reject
-                        </label>
-                    </fieldset>
-
-                    <div class="form-field">
-                        <input id="submit" type="submit" class="button" role="button" value="Submit" data-journey-target/>
-                        <a href="/api-gatekeeper/pending" class="button button--link">Cancel</a>
-                    </div>
-
-                </div>
             }
 
         </div>

@@ -4,7 +4,7 @@
 
 @(unapprovedApps: PageableCollection[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "API Submission", userFullName = userFullName) {
+@main(title = "API Approval", userFullName = userFullName) {
     <article class="content__body full-width">
 
         <style>
@@ -31,7 +31,7 @@
         </style>
 
         <header>
-            <h1>API Submission</h1>
+            <h1>API approval</h1>
         </header>
 
         @tabList(activeTab = 3)
@@ -53,7 +53,7 @@
                         <div class="app-info__secondary">
                             <a data-review- @application.serviceName href="@{
                                 routes.DeploymentApprovalController.reviewPage(application.serviceName)
-                            }">Review</a>
+                            }">Check and approve</a>
                         </div>
                     </li>
                 }
