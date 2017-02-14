@@ -47,7 +47,7 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
     trait Setup {
       val underTest = new DashboardController {
-        override val appConfig = mock[AppConfig]
+        val appConfig = mock[AppConfig]
         val authConnector = mock[AuthConnector]
         val authProvider = mock[AuthenticationProvider]
         val applicationConnector = mock[ApplicationConnector]

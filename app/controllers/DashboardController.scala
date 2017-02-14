@@ -34,7 +34,7 @@ import views.html.review._
 
 import scala.concurrent.Future
 
-object DashboardController extends DashboardController {
+object DashboardController extends DashboardController with WithAppConfig {
   override val applicationConnector = ApplicationConnector
   override val developerConnector = DeveloperConnector
   override def authProvider = GatekeeperAuthProvider
