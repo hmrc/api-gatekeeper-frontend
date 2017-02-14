@@ -24,7 +24,7 @@ import services.{ApplicationService, DeveloperService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.developers
 
-object DevelopersController extends DevelopersController {
+object DevelopersController extends DevelopersController with WithAppConfig {
   override val developerService = DeveloperService
   override val applicationService = ApplicationService
   override val apiDefinitionConnector = ApiDefinitionConnector
