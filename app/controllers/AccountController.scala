@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.AppConfig
 import connectors.AuthConnector
 import model.Forms._
 import model.{GatekeeperSessionKeys, LoginDetails}
@@ -31,9 +30,8 @@ import views.html.login._
 
 import scala.concurrent.Future
 
-object AccountController extends AccountController {
+object AccountController extends AccountController with WithAppConfig {
   override val authConnector = AuthConnector
-  override val appConfig = AppConfig
   override def authProvider = GatekeeperAuthProvider
 }
 
