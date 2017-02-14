@@ -41,7 +41,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     trait Setup extends ControllerSetupBase {
 
       val underTest = new ApplicationController {
-        override val appConfig = mockConfig
+        val appConfig = mockConfig
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService
