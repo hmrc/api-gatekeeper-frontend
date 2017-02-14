@@ -20,5 +20,10 @@ import config.AppConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 trait BaseController extends FrontendController {
-  implicit val appConfig: config.AppConfig = AppConfig
+  implicit val appConfig: AppConfig
+}
+
+trait WithAppConfig {
+  self: BaseController =>
+  override implicit val appConfig = AppConfig
 }

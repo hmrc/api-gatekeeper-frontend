@@ -26,7 +26,7 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.applications.applications
 
 
-object ApplicationController extends ApplicationController {
+object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionConnector = ApiDefinitionConnector
   override def authConnector = AuthConnector
