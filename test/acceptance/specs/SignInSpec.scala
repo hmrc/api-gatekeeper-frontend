@@ -140,13 +140,13 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       goOn(SignInPage)
       on(SignInPage)
 
-      Then("The application name is API Gatekeeper")
+      Then("The application name is HMRC API Gatekeeper")
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
-      actualApplicationName shouldBe "API Gatekeeper"
+      actualApplicationName shouldBe "HMRC API Gatekeeper"
 
       And("the browser window title is API Gatekeeper - Login")
       var actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "API Gatekeeper - Login"
+      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Login"
 
 //      And("The application header colour is rgba(0, 94, 165, 1)")
 //      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
@@ -157,11 +157,11 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       on(DashboardPage)
 
       Then("the application name is API Gatekeeper")
-      actualApplicationName shouldBe "API Gatekeeper"
+      actualApplicationName shouldBe "HMRC API Gatekeeper"
 
-      And("the browser window title is API Gatekeeper - Dashboard")
+      And("the browser window title is HMRC API Gatekeeper - Dashboard")
       actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "API Gatekeeper - Dashboard"
+      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Dashboard"
 
 //      And("the application header colour is rgba(0, 94, 165, 1)")
 //      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))

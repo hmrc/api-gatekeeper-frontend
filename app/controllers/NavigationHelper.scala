@@ -19,7 +19,7 @@ package controllers
 import config.AppConfig
 import play.api.libs.json.Json
 
-case class NavLink(label: String, href: String, truncate: Boolean = false)
+case class NavLink(label: String, href: Option[String])
 
 object NavLink {
   implicit val format = Json.format[NavLink]
@@ -27,24 +27,26 @@ object NavLink {
 
 object NavigationHelper {
 
-  val nameDisplayLimit = AppConfig.nameDisplayLimit
+  def staticNavLinks(implicit appConfig: AppConfig) = {
+    val dashboardLink = appConfig.isExternalTestEnvironment match {
+      case true => None
+      case false => Some(NavLink("Dashboard", Some(routes.DashboardController.dashboardPage().url)))
+    }
 
-  def loggedInNavLinks(userFullName: String) = Seq(
-    NavLink(userFullName, "#", truncate = true),
-    NavLink("Sign out", routes.AccountController.logout.toString)
-  )
+    dashboardLink.toList ++ Seq(
+      NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
+      NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)))
+  }
 
-  val loggedOutNavLinks = Seq(
-    NavLink("Sign in", routes.AccountController.loginPage.toString)
-  )
+  private def loggedInNavLinks(userFullName: String) = Seq(
+    NavLink(userFullName, None),
+    NavLink("Sign out", Some(routes.AccountController.logout().url)))
+
+  private val loggedOutNavLinks = Seq(
+    NavLink("Sign in", Some(routes.AccountController.loginPage().url)))
 
   def navLinks(userFullName: Option[String]) = userFullName match {
     case Some(name) => loggedInNavLinks(name)
     case None => loggedOutNavLinks
   }
-
-  val truncate: String => String = {
-    s => if (s.length > nameDisplayLimit) s"${s.take(nameDisplayLimit - 3)}..." else s
-  }
-
 }

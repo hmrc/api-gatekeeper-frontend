@@ -62,9 +62,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        responseBody should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Applications</span>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
 
       "not show Dashboard tab in external test mode" in new Setup {
@@ -79,9 +79,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
-        responseBody shouldNot include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        responseBody should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Applications</span>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+        responseBody shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {

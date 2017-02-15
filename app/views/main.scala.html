@@ -3,12 +3,22 @@
          implicit messages: Messages, appConfig: AppConfig)
 
 @import uk.gov.hmrc.play.views.html.layouts
+@import include._
+
+@userBanner = {
+<div id="user-nav-links" class="header__menu__proposition--sub-header">
+  <ul class="header__menu__proposition-links">
+    @headerNavLinks(NavigationHelper.navLinks(userFullName), anchorClass=Some("link-style"))
+  </ul>
+</div>
+}
 
 @serviceInfo = {
   @layouts.serviceInfo(
     betaBanner = HtmlFormat.empty,
     includeGridWrapper = false,
-    serviceInfoContent = None)
+    includeHMRCBranding = false,
+    serviceInfoContent = Some(userBanner))
 }
 
 @content = {
@@ -38,11 +48,13 @@
     navTitle = Option(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
-    navLinks = Option(include.headerNavLinks(NavigationHelper.navLinks(userFullName)))
+    navLinks = Option(include.headerNavLinks(NavigationHelper.staticNavLinks))
   )
 
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
 }
+
+
 
 
 @views.html.layouts.govuk_template(
