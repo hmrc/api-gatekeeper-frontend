@@ -33,6 +33,7 @@
 package unit.views
 
 import config.AppConfig
+import model.APIStatus._
 import model.{APIIdentifier, APIStatus, VersionSummary}
 import org.scalatest.Matchers
 import org.scalatest.mock.MockitoSugar
@@ -65,7 +66,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Not include application state filters" in {
         val appView = applicationView()
 
-        appView.body should not include "Current"
+        appView.body should not include "Stable"
         appView.body should not include "Beta"
         appView.body should not include "Retired"
         appView.body should not include "Deprecated"
@@ -74,11 +75,11 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
 
     "Called with APIs" should {
 
-      val apis = Map[String, Seq[VersionSummary]]("Current" ->
-        Seq(VersionSummary("Dummy API", APIStatus.PUBLISHED, APIIdentifier("dummy-api", "1.0"))),
-        "Beta" -> Seq(VersionSummary("Beta API", APIStatus.PROTOTYPED, APIIdentifier("beta-api", "1.0"))),
-        "Retired" -> Seq(VersionSummary("Retired API", APIStatus.RETIRED, APIIdentifier("ret-api", "1.0"))),
-        "Deprecated" -> Seq(VersionSummary("Deprecated API", APIStatus.DEPRECATED, APIIdentifier("dep-api", "1.0")))
+      val apis = Map[String, Seq[VersionSummary]](displayedStatus(PUBLISHED) ->
+        Seq(VersionSummary("Dummy API", PUBLISHED, APIIdentifier("dummy-api", "1.0"))),
+        displayedStatus(PROTOTYPED) -> Seq(VersionSummary("Beta API", PROTOTYPED, APIIdentifier("beta-api", "1.0"))),
+        displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier("ret-api", "1.0"))),
+        displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
       )
 
       val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, apis)
@@ -94,7 +95,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Include the application state filters" in {
         val appView = applicationView()
 
-        appView.body should include ("Current")
+        appView.body should include ("Stable")
         appView.body should include ("Beta")
         appView.body should include ("Retired")
         appView.body should include ("Deprecated")
