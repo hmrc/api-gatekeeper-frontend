@@ -16,7 +16,8 @@
 
 package acceptance
 
-import org.openqa.selenium.WebDriver
+import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
+import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest._
 import org.scalatest.selenium.{Page, WebBrowser}
 
@@ -35,5 +36,14 @@ trait WebPage extends WebLink {
   def heading = tagName("h1").element.text
 
   def bodyText = tagName("body").element.text
+
+  def waitUntilElement(implicit webDriver: WebDriver, element: By) = {
+    val wait = new WebDriverWait(webDriver, 30)
+    wait.until(
+      new ExpectedCondition[WebElement] {
+        override def apply(d: WebDriver) = d.findElement(element)
+      }
+    )
+  }
 
 }
