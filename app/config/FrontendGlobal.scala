@@ -36,7 +36,7 @@ object FrontendGlobal
   override val auditConnector = FrontendAuditConnector
   override val loggingFilter = LoggingFilter
   override val frontendAuditFilter = AuditFilter
-  implicit lazy val appConfig: AppConfig = AppConfig
+  implicit lazy val appConfig = AppConfig
 
   override def onStart(app: Application) {
     super.onStart(app)
