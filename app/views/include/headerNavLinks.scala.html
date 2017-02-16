@@ -1,6 +1,12 @@
 @import controllers.NavLink
-@(navLinks: Seq[NavLink])
+@(navLinks: Seq[NavLink], anchorClass: Option[String] = None)
 
 @for(link <- navLinks) {
-   <li @if(link == navLinks.last) {class="hard--right"}><a class="align--middle inline-block@if(link.truncate) { truncate truncate--small no-wrap text--center}" href="@{link.href}">@{link.label}</a></li>
+<li @if(link == navLinks.last) {class="hard--right"}>
+   @if(link.href.isDefined) {
+      <a class="align--middle inline-block @anchorClass.getOrElse("")" href="@{link.href}">@{link.label}</a>
+   } else {
+      <span class="align--middle inline-block">@{link.label}</span>
+   }
+</li>
 }
