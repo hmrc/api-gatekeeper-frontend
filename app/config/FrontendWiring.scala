@@ -17,17 +17,12 @@
 package config
 
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector => Auditing}
 import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.ws._
 
-object FrontendAuditConnector extends Auditing with AppName with RunMode {
-  override lazy val auditingConfig = LoadAuditingConfig("auditing")
-}
 
 object WSHttp extends WSGet with WSPut with WSPost with WSDelete with AppName with RunMode with HttpAuditing {
-  val auditConnector = FrontendAuditConnector
+  val auditConnector = ApplicationAuditConnector
   override val hooks: Seq[HttpHook] = Seq(AuditingHook)
 }
