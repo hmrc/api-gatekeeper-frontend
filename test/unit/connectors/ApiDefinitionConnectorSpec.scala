@@ -72,7 +72,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           | }
           |]
         """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchAll())
+      val result: Seq[APIDefinition] = await(connector.fetchPublic())
 
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://dummy-api.service/",
@@ -84,7 +84,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApiDefinitionsFailed](await(connector.fetchAll()))
+      intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
     }
   }
 
