@@ -16,19 +16,19 @@
 
 package controllers
 
-import connectors.{ApiDefinitionConnector, AuthConnector}
+import connectors.AuthConnector
 import model.{APIDefinition, APIIdentifier, APIStatus, Role, VersionSummary}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
-import services.ApplicationService
+import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.applications.applications
 
 
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
-  override val apiDefinitionConnector = ApiDefinitionConnector
+  override val apiDefinitionService = ApiDefinitionService
   override def authConnector = AuthConnector
   override def authProvider = GatekeeperAuthProvider
 }
@@ -36,13 +36,13 @@ object ApplicationController extends ApplicationController with WithAppConfig {
 trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
-  val apiDefinitionConnector: ApiDefinitionConnector
+  val apiDefinitionService: ApiDefinitionService
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {
         apps <- applicationService.fetchAllSubscribedApplications
-        apis <- apiDefinitionConnector.fetchAll
+        apis <- apiDefinitionService.fetchAllApiDefinitions
       } yield Ok(applications(apps, groupApisByStatus(apis)))
   }
 
