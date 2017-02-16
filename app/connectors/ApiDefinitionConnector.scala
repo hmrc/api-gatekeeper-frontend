@@ -33,7 +33,7 @@ trait ApiDefinitionConnector {
   val serviceBaseUrl: String
   val http: HttpGet
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed

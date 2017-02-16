@@ -33,7 +33,7 @@ trait ApiDefinitionService {
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
-      publicApis <- apiDefinitionConnnector.fetchAll()
+      publicApis <- apiDefinitionConnnector.fetchPublic()
       privateApis <- apiDefinitionConnnector.fetchPrivate()
     } yield publicApis ++ privateApis
   }

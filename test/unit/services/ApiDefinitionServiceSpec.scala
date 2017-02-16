@@ -53,7 +53,7 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
         )
         )
 
-        given(mockApiDefinitionConnector.fetchAll()).willReturn(Future(Seq(expectedApiDefintions.head)))
+        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(expectedApiDefintions.head)))
 
         given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(expectedApiDefintions.tail))
 
