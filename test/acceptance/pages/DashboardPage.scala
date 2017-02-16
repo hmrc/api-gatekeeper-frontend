@@ -17,6 +17,7 @@
 package acceptance.pages
 
 import acceptance.WebPage
+import org.openqa.selenium.By
 
 object DashboardPage extends WebPage {
 
@@ -39,6 +40,10 @@ object DashboardPage extends WebPage {
 
   def selectApplications() = {
     click on applicationsNavLink
+  }
+
+  def waitUntilDevelopersNavLinkIsDisplayed() {
+    waitUntilElement(webDriver, By.linkText("Developers"))
   }
 
 
