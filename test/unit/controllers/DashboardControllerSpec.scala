@@ -88,9 +88,9 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         status(result) shouldBe 200
         titleOf(result) shouldBe "Unit Test Title - Dashboard"
         bodyOf(result) should include("<h1>Dashboard</h1>")
-        bodyOf(result) should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Dashboard</span>")
-        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
 
       "go to application page if authenticated & authorised, but configured as external test" in new Setup {

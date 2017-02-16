@@ -70,13 +70,13 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       goOn(SignInPage)
       on(SignInPage)
 
-      Then("the application name is API Gatekeeper - Developer Sandbox")
+      Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
-      actualApplicationName shouldBe "API Gatekeeper - Developer Sandbox"
+      actualApplicationName shouldBe "HMRC API Gatekeeper - Developer Sandbox"
 
-      And("the browser window title is API Gatekeeper - Developer Sandbox - Login")
+      And("the browser window title is HMRC API Gatekeeper - Developer Sandbox - Login")
       var actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "API Gatekeeper - Developer Sandbox - Login"
+      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Login"
 
 //      And("the application header colour is rgba(40, 161, 151)")
 //      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
@@ -86,12 +86,12 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       SignInPage.signIn("joe.test", "password")
       on(ApplicationPage)
 
-      Then("the application name is API Gatekeeper - Developer Sandbox")
-      actualApplicationName shouldBe "API Gatekeeper - Developer Sandbox"
+      Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
+      actualApplicationName shouldBe "HMRC API Gatekeeper - Developer Sandbox"
 
-      And("the browser window title is API Gatekeeper - Developer Sandbox - Applications")
+      And("the browser window title is HMRC API Gatekeeper - Developer Sandbox - Applications")
       actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "API Gatekeeper - Developer Sandbox - Applications"
+      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Applications"
 
 //      And("the application header colour is rgba(40, 161, 151)")
 //      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
