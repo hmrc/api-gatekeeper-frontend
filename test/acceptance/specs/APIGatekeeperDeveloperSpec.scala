@@ -47,11 +47,11 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
 
       When("I select to navigate to the Developers page")
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
+      //Thread.sleep(90000)
     }
 
     scenario("Ensure a user can view ALL developers", Tag("NonSandboxTest")) {
@@ -65,7 +65,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
 
       When("I select to navigate to the Developers page")
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -127,7 +126,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubNoAPISubscription()
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -187,7 +185,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubNoAPISubscription
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -242,7 +239,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -296,7 +292,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -348,7 +343,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubAPISubscription("employers-paye")
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -404,7 +398,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
 
       When("I select to navigate to the Developers page")
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
@@ -423,7 +416,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
 
       When("I select to navigate to the Developers page")
-      DashboardPage.waitUntilDevelopersNavLinkIsDisplayed()
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
