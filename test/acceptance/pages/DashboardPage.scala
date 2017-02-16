@@ -30,13 +30,9 @@ object DashboardPage extends WebPage {
     find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
   }
 
-  //def developersNavLink = find(linkText("Developers")).get
+  def developersNavLink = find(linkText("Developers")).get
 
-  def developersNavLink = find(cssSelector("#proposition-links li:nth-child(3)")).get
-
-  def applicationsNavLink = find(cssSelector("#proposition-links li:nth-child(2)")).get
-
-  //def applicationsNavLink = find(linkText("Applications")).get
+  def applicationsNavLink = find(linkText("Applications")).get
 
   def selectDevelopers() = {
     click on developersNavLink
@@ -45,10 +41,5 @@ object DashboardPage extends WebPage {
   def selectApplications() = {
     click on applicationsNavLink
   }
-
-//  def waitUntilDevelopersNavLinkIsDisplayed() {
-//    waitUntilElement(webDriver, By.linkText("Developers"))
-//  }
-
 
 }
