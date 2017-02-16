@@ -303,6 +303,9 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo(s"/api-definition"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+
+    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
+      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
   def stubApplicationSubscription() = {
