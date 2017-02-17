@@ -48,7 +48,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       val developersController = new DevelopersController {
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
-        val apiDefinitionConnector = mockApiDefinitionConnector
+        val apiDefinitionService = mockApiDefinitionService
         val developerService = mockDeveloperService
         val applicationService = mockApplicationService
         override val appConfig = mockConfig
@@ -62,7 +62,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val apiFiler = ApiFilter(None)
         val statusFilter = StatusFilter(None)
         given(mockApplicationService.fetchApplications(org.mockito.Matchers.eq(apiFiler))(any[HeaderCarrier])).willReturn(Future.successful(apps))
-        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockDeveloperService.filterUsersBy(apiFiler, apps)(users)).willReturn(users)
         given(mockDeveloperService.filterUsersBy(statusFilter)(users)).willReturn(users)
         given(mockDeveloperService.fetchDevelopers(Matchers.eq(apps))(any[HeaderCarrier])).willReturn(Future.successful(developers))

@@ -18,8 +18,8 @@ package connectors
 
 import config.WSHttp
 import model._
-import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -33,10 +33,17 @@ trait ApiDefinitionConnector {
   val serviceBaseUrl: String
   val http: HttpGet
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
       .recover {
-        case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+      }
+  }
+
+  def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
+      .recover {
+        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
 }

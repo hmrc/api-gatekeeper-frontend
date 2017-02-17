@@ -16,18 +16,18 @@
 
 package controllers
 
-import connectors.{ApiDefinitionConnector, AuthConnector}
+import connectors.AuthConnector
 import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import services.{ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.developers
 
 object DevelopersController extends DevelopersController with WithAppConfig {
   override val developerService = DeveloperService
   override val applicationService = ApplicationService
-  override val apiDefinitionConnector = ApiDefinitionConnector
+  override val apiDefinitionService = ApiDefinitionService
   override def authConnector = AuthConnector
   override def authProvider = GatekeeperAuthProvider
 }
@@ -35,7 +35,7 @@ object DevelopersController extends DevelopersController with WithAppConfig {
 trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
   val applicationService: ApplicationService
   val developerService: DeveloperService
-  val apiDefinitionConnector: ApiDefinitionConnector
+  val apiDefinitionService: ApiDefinitionService
 
   def developersPage(filter: Option[String], status: Option[String]) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
@@ -45,7 +45,7 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
 
       for {
         apps <- applicationService.fetchApplications(apiFilter)
-        apis <- apiDefinitionConnector.fetchAll
+        apis <- apiDefinitionService.fetchAllApiDefinitions
         devs <- developerService.fetchDevelopers(apps)
         filterOps = (developerService.filterUsersBy(apiFilter, apps) _
           andThen developerService.filterUsersBy(statusFilter))
