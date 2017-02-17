@@ -34,17 +34,15 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-ui" % "5.3.0",
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
+    "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
     "org.slf4j" % "jul-to-slf4j" % slf4jVersion,
     "ch.qos.logback" % "logback-classic" % logbackVersion,
-    "ch.qos.logback" % "logback-core" % logbackVersion,
-    "org.apache.logging.log4j" % "log4j-to-slf4j" % log4j2AdapterVersion,
-    "org.apache.logging.log4j" % "log4j-1.2-api" % log4j2AdapterVersion,
-    "org.apache.logging.log4j" % "log4j-api" % log4j2AdapterVersion
+    "ch.qos.logback" % "logback-core" % logbackVersion
   ).map(
     _.excludeAll(
       ExclusionRule(organization = "commons-logging"),
       ExclusionRule(organization = "log4j"),
-      ExclusionRule("org.apache.logging.log4j", "log4j-core"),
+      ExclusionRule(organization = "org.apache.logging.log4j"),
       ExclusionRule("org.slf4j", "slf4j-log412"),
       ExclusionRule("org.slf4j", "slf4j-jdk14")
     ))
@@ -66,6 +64,7 @@ private object AppDependencies {
       _.excludeAll(
         ExclusionRule(organization = "commons-logging"),
         ExclusionRule(organization = "log4j"),
+        ExclusionRule(organization = "org.apache.logging.log4j"),
         ExclusionRule("org.apache.logging.log4j", "log4j-core"),
         ExclusionRule("org.slf4j", "slf4j-log412"),
         ExclusionRule("org.slf4j", "slf4j-jdk14")
