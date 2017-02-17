@@ -72,7 +72,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           | }
           |]
         """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchAll())
+      val result: Seq[APIDefinition] = await(connector.fetchPublic())
 
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://dummy-api.service/",
@@ -84,7 +84,59 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApiDefinitionsFailed](await(connector.fetchAll()))
+      intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
+    }
+  }
+
+  "fetchPrivate" should {
+    "responds with 200 and converts body" in new Setup {
+      val applicationId = "anApplicationId"
+      val gatekeeperId = "loggedin.gatekeeper"
+      stubFor(get(urlEqualTo(s"/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(
+        """
+          |[
+          | {
+          |   "serviceName": "dummyAPI",
+          |   "serviceBaseUrl": "http://dummy-api.service/",
+          |   "name": "dummyAPI",
+          |   "description": "dummy api.",
+          |   "context": "dummy-api",
+          |   "versions": [
+          |     {
+          |       "version": "1.0",
+          |       "status": "PUBLISHED",
+          |       "access": {
+          |         "type": "PRIVATE"
+          |       },
+          |       "endpoints": [
+          |         {
+          |           "uriPattern": "/arrgh",
+          |           "endpointName": "dummyAPI",
+          |           "method": "GET",
+          |           "authType": "USER",
+          |           "throttlingTier": "UNLIMITED",
+          |           "scope": "read:dummy-api-2"
+          |         }
+          |       ]
+          |     }
+          |   ],
+          |   "requiresTrust": false
+          | }
+          |]
+        """.stripMargin)))
+      val result: Seq[APIDefinition] = await(connector.fetchPrivate())
+
+      result shouldBe Seq(APIDefinition(
+        "dummyAPI", "http://dummy-api.service/",
+        "dummyAPI", "dummy api.", "dummy-api",
+        Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+      ))
+    }
+
+    "propagate FetchApiDefinitionsFailed exception" in new Setup {
+      stubFor(get(urlEqualTo(s"/api-definition?type=private")).willReturn(aResponse().withStatus(500)))
+
+      intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
     }
   }
 }

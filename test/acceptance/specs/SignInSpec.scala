@@ -195,5 +195,8 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo(s"/api-definition"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+
+    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
+      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 }

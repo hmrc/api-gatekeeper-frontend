@@ -26,6 +26,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers
 import play.api.test.Helpers._
+import services.ApiDefinitionService
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -45,7 +46,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService
-        val apiDefinitionConnector = mockApiDefinitionConnector
+        val apiDefinitionService = mockApiDefinitionService
       }
     }
 
@@ -55,7 +56,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
         status(eventualResult) shouldBe OK
@@ -71,7 +72,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
         given(mockConfig.isExternalTestEnvironment).willReturn(true)
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
