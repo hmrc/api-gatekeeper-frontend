@@ -17,16 +17,16 @@
 package unit.controllers
 
 import config.AppConfig
-import connectors.{ApiDefinitionConnector, AuthConnector}
-import model._
+import connectors.AuthConnector
 import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
+import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import services.ApplicationService
+import services.{ApiDefinitionService, ApplicationService}
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
 import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 
@@ -37,7 +37,7 @@ trait ControllerSetupBase extends MockitoSugar {
   val mockAuthConnector = mock[AuthConnector]
   val mockAuthProvider = mock[AuthenticationProvider]
   val mockApplicationService = mock[ApplicationService]
-  val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
+  val mockApiDefinitionService = mock[ApiDefinitionService]
   val mockConfig = mock[AppConfig]
 
   implicit val encryptedStringFormats = JsonStringEncryption
