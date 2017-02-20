@@ -27,9 +27,8 @@ class AppConfigSpec extends UnitSpec with OneServerPerTest with MockitoSugar {
 
   "appContext" should {
     "be initialized with properties" in {
-      AppConfig.nameDisplayLimit shouldBe 20
       AppConfig.isExternalTestEnvironment should be(false)
-      AppConfig.title should be("API Gatekeeper")
+      AppConfig.title should be("HMRC API Gatekeeper")
     }
   }
 
@@ -43,7 +42,7 @@ class AppConfigSpec extends UnitSpec with OneServerPerTest with MockitoSugar {
       }
 
       appConfig.isExternalTestEnvironment should be(true)
-      appConfig.title should be("API Gatekeeper - Developer Sandbox")
+      appConfig.title should be("HMRC API Gatekeeper - Developer Sandbox")
     }
   }
 }

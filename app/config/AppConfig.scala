@@ -27,13 +27,12 @@ trait AppConfig {
 
   private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
-  lazy val nameDisplayLimit = getConfInt("name.display.limit", 20)
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
   lazy val analyticsToken = loadConfig("google-analytics.token")
   lazy val analyticsHost = loadConfig("google-analytics.host")
   lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
   lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  lazy val title = if (isExternalTestEnvironment) "API Gatekeeper - Developer Sandbox" else "API Gatekeeper"
+  lazy val title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
 }
 
 object AppConfig extends AppConfig with ServicesConfig {

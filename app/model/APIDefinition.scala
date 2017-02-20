@@ -54,14 +54,7 @@ object APIDefinition {
 case class VersionSubscription(version: APIVersion, subscribed: Boolean)
 
 case class APIVersion(version: String, status: APIStatus, access: Option[APIAccess] = None) {
-  val displayedStatus = {
-    status match {
-      case APIStatus.PROTOTYPED => "Beta"
-      case APIStatus.PUBLISHED => "Current"
-      case APIStatus.DEPRECATED => "Deprecated"
-      case APIStatus.RETIRED => "Retired"
-    }
-  }
+  val displayedStatus = APIStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
 }
@@ -70,6 +63,13 @@ case class APIVersion(version: String, status: APIStatus, access: Option[APIAcce
 object APIStatus extends Enumeration {
   type APIStatus = Value
   val PROTOTYPED, PUBLISHED, DEPRECATED, RETIRED = Value
+
+  val displayedStatus: (APIStatus) => String = {
+    case APIStatus.PROTOTYPED => "Beta"
+    case APIStatus.PUBLISHED => "Stable"
+    case APIStatus.DEPRECATED => "Deprecated"
+    case APIStatus.RETIRED => "Retired"
+  }
 }
 
 case class APIAccess(`type`: APIAccessType.Value)

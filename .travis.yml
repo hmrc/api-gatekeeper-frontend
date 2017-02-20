@@ -1,7 +1,7 @@
 sudo: false
 language: scala
 scala:
-- 2.11.7
+- 2.11.8
 jdk:
 - oraclejdk8
 cache:
@@ -16,6 +16,6 @@ before_script:
   - sleep 3 # give xvfb some time to start
   
 script:
-   - sbt ++$TRAVIS_SCALA_VERSION test acceptance:test sandbox:test -Dtest.driver=firefox
+   - sbt ++$TRAVIS_SCALA_VERSION test
 
     

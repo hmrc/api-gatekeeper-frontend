@@ -1,0 +1,25 @@
+.header__menu .header__menu__proposition-links {
+    float: none;
+}
+
+.service-info {
+    .header__menu__proposition-links {
+        margin-top: 0.5em;
+
+        .link-style {
+            color: #005ea5;
+            font-weight: normal;
+            text-decoration: underline;
+        }
+
+        span {
+            font-size: 16px;
+            line-height: 1.25;
+
+        }
+    }
+}
+
+.beta-banner .phase-tag {
+    background-color: #005ea5;
+}
