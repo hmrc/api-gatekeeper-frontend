@@ -16,11 +16,14 @@
 
 package controllers
 
-case class TabLink(label: String, href: String, active: Boolean = false)
+import config.AppConfig
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 
-object TabHelper {
-  def dashboardTabs(activeTab: Int) = Seq(
-    TabLink("Dashboard", routes.DashboardController.dashboardPage.url, activeTab == 0),
-    TabLink("Applications", routes.ApplicationController.applicationsPage.url, activeTab == 1),
-    TabLink("Developers", routes.DevelopersController.developersPage(None, None).url, activeTab == 2))
+trait BaseController extends FrontendController {
+  implicit val appConfig: AppConfig
+}
+
+trait WithAppConfig {
+  self: BaseController =>
+  override implicit val appConfig = AppConfig
 }

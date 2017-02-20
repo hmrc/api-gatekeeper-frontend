@@ -4,7 +4,7 @@
 
 @(users: Seq[ApplicationDeveloper],
   emails: String,
-  apis: Map[APIStatus.APIStatus, Seq[VersionSummary]],
+  apis: Map[String, Seq[VersionSummary]],
   filter: Option[String],
   status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
@@ -14,8 +14,6 @@
     <header>
         <h1>Developers</h1>
     </header>
-
-    @tabList(activeTab = 2)
 
     <form name="developer-filters"
           action="@routes.DevelopersController.developersPage(filter, status).url"

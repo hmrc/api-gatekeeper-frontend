@@ -36,6 +36,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     val underTest = new GatekeeperAuthWrapper with Results {
       val authConnector = mock[AuthConnector]
       val authProvider = GatekeeperAuthProvider
+      implicit val appConfig = config.AppConfig
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 

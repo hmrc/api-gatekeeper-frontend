@@ -16,7 +16,6 @@
 
 package unit.controllers
 
-import config.AppConfig
 import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
 import model._
@@ -27,6 +26,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers
 import play.api.test.Helpers._
+import services.ApiDefinitionService
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -46,7 +46,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService
-        val apiDefinitionConnector = mockApiDefinitionConnector
+        val apiDefinitionService = mockApiDefinitionService
       }
     }
 
@@ -56,23 +56,23 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        responseBody should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Applications</span>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
 
       "not show Dashboard tab in external test mode" in new Setup {
         givenASuccessfulLogin
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionConnector.fetchAll()(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
         given(mockConfig.isExternalTestEnvironment).willReturn(true)
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
@@ -80,9 +80,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
-        responseBody shouldNot include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        responseBody should include("<span class=\"tabs-nav__tab tabs-nav__tab--active\">Applications</span>")
-        responseBody should include("<a class=\"tabs-nav__tab\" href=\"/api-gatekeeper/developers\">Developers</a>")
+        responseBody shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
