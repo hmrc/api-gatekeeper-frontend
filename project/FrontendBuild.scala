@@ -18,6 +18,9 @@ private object AppDependencies {
 
   import play.core.PlayVersion
 
+  private val slf4jVersion = "1.7.23"
+  private val logbackVersion = "1.1.10"
+
   val compile = Seq(
     "uk.gov.hmrc" %% "frontend-bootstrap" % "7.11.0",
     "uk.gov.hmrc" %% "play-authorised-frontend" % "6.2.0",
