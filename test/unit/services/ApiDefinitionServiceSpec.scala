@@ -36,30 +36,44 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
     val apiDefinitionConnnector = mockApiDefinitionConnector
   }
 
+  val publicDefinition = APIDefinition(
+    "publicAPI", "http://public-api.service/",
+    "publicAPI", "public api.", "public-api",
+    Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+  )
+
+  val privateDefinition = APIDefinition(
+    "privateAPI", "http://private-api.service/",
+    "privateAPI", "private api.", "private-api",
+    Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+  )
+
   "DefinitionService" when {
 
-    "All definitions are requested" should {
+    "Definitions are requested" should {
 
       "Return a combination of public and private APIs" in {
 
-        val expectedApiDefintions = Seq(APIDefinition(
-          "publicAPI", "http://public-api.service/",
-          "publicAPI", "public api.", "public-api",
-          Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
-        ), APIDefinition(
-          "privateAPI", "http://private-api.service/",
-          "privateAPI", "private api.", "private-api",
-          Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
-        )
-        )
+        val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(expectedApiDefintions.head)))
+        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
 
-        given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(expectedApiDefintions.tail))
+        given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
 
         val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
 
         await(allDefinitions) shouldBe expectedApiDefintions
+      }
+
+      "Include no duplicates" in {
+
+        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
+
+        given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
+
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
+
+        await(allDefinitions) should have size 2
       }
     }
   }

@@ -35,6 +35,6 @@ trait ApiDefinitionService {
     for {
       publicApis <- apiDefinitionConnnector.fetchPublic()
       privateApis <- apiDefinitionConnnector.fetchPrivate()
-    } yield publicApis ++ privateApis
+    } yield (publicApis ++ privateApis).distinct
   }
 }
