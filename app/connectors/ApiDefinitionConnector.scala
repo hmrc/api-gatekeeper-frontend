@@ -39,28 +39,4 @@ trait ApiDefinitionConnector {
         case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
-
-  def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIDefinitionSummary]] = {
-    http.GET[Seq[APIDefinitionSummary]](s"$serviceBaseUrl/api-definition/unapproved")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
-  }
-
-  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier) : Future[APIDefinitionSummary] = {
-    http.GET[APIDefinitionSummary](s"$serviceBaseUrl/api-definition/$serviceName/summary")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
-  }
-
-  def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[ApproveServiceSuccessful] = {
-    http.POST(s"$serviceBaseUrl/api-definition/$serviceName/approve",
-      ApproveServiceRequest(serviceName), Seq("Content-Type" -> "application/json"))
-      .map(_ => ApproveServiceSuccessful)
-      .recover {
-        case e: Upstream5xxResponse => throw new UpdateApiDefinitionsFailed
-        case _ => throw new UpdateApiDefinitionsFailed
-      }
-  }
 }

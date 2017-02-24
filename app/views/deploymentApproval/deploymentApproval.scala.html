@@ -2,7 +2,7 @@
 @import include._
 @import model._
 
-@(unapprovedApps: Seq[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(unapprovedApps: Seq[APIApprovalSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = "API Approval", userFullName = userFullName) {
     <article class="content__body full-width">

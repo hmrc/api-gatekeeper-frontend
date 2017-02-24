@@ -16,28 +16,28 @@
 
 package services
 
-import connectors.ApiDefinitionConnector
-import model.{APIDefinitionSummary, ApproveServiceSuccessful}
+import connectors.{ApiDefinitionConnector, ApiPublisherConnector}
+import model.{APIApprovalSummary, ApproveServiceSuccessful}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 object DeploymentApprovalService extends DeploymentApprovalService{
-  override val apiDefinitionConnector = ApiDefinitionConnector
+  override val apiPublisherConnector = ApiPublisherConnector
 }
 
 trait DeploymentApprovalService {
-  val apiDefinitionConnector: ApiDefinitionConnector
+  val apiPublisherConnector: ApiPublisherConnector
 
-  def fetchUnapprovedServices(implicit hc: HeaderCarrier): Future[Seq[APIDefinitionSummary]] = {
-    apiDefinitionConnector.fetchUnapproved()
+  def fetchUnapprovedServices(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
+    apiPublisherConnector.fetchUnapproved()
   }
 
-  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIDefinitionSummary] = {
-    apiDefinitionConnector.fetchApiDefinitionSummary(serviceName)
+  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    apiPublisherConnector.fetchApprovalSummary(serviceName)
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[ApproveServiceSuccessful] = {
-    apiDefinitionConnector.approveService(serviceName)
+    apiPublisherConnector.approveService(serviceName)
   }
 }

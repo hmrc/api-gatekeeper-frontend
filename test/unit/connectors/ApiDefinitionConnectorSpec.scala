@@ -87,49 +87,4 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       intercept[FetchApiDefinitionsFailed](await(connector.fetchAll()))
     }
   }
-
-  "fetchUnapproved" should {
-
-    "respond with a 200 and convert the response body" in new Setup {
-      stubFor(get(urlEqualTo(s"/api-definition/unapproved")).willReturn(aResponse().withStatus(200).withBody(
-        """
-          |[
-          | {
-          |   "serviceName": "employmentAPI",
-          |   "name": "Employment API",
-          |   "description": "My Employment API"
-          | },
-          | {
-          |   "serviceName": "incomeAPI",
-          |   "name": "Income API",
-          |   "description": "My Income API"
-          | }
-          | ]
-        """.stripMargin)))
-      val result: Seq[APIDefinitionSummary] = await(connector.fetchUnapproved())
-
-      result shouldBe Seq(APIDefinitionSummary("employmentAPI", "Employment API", "My Employment API"),
-        APIDefinitionSummary("incomeAPI", "Income API", "My Income API"))
-    }
-
-    "propagate FetchApiDefinitionsFailed exception when service fails" in new Setup {
-      stubFor(get(urlEqualTo(s"/api-definition/unapproved")).willReturn(aResponse().withStatus(500)))
-
-      intercept[FetchApiDefinitionsFailed](await(connector.fetchUnapproved()))
-    }
-  }
-
-  "approveService" should {
-
-    "respond with a 204" in new Setup {
-      val serviceName = "my-test-service"
-
-      stubFor(post(urlEqualTo(s"/api-definition/$serviceName/approve")).willReturn(aResponse().withStatus(204)))
-      val result = await(connector.approveService(serviceName))
-      verify(1, postRequestedFor(urlPathEqualTo(s"/api-definition/$serviceName/approve")))
-
-      result shouldBe ApproveServiceSuccessful
-    }
-
-  }
 }

@@ -60,10 +60,10 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
         when(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).thenReturn(Future.successful(successfulAuthentication))
         when(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).thenReturn(Future.successful(true))
 
-        when(underTest.deploymentApprovalService.fetchApiDefinitionSummary(serviceNameCaptor.capture())(any[HeaderCarrier])).thenReturn(Future(APIDefinitionSummary("api-calendar", "My Calendar", "My Calendar API")))
+        when(underTest.deploymentApprovalService.fetchApiDefinitionSummary(serviceNameCaptor.capture())(any[HeaderCarrier])).thenReturn(Future(APIApprovalSummary("api-calendar", "My Calendar", Some("My Calendar API"))))
 
         val result = await(underTest.fetchApiDefinitionSummary("api-calendar")(hc))
-        result shouldBe APIDefinitionSummary("api-calendar", "My Calendar", "My Calendar API")
+        result shouldBe APIApprovalSummary("api-calendar", "My Calendar", Some("My Calendar API"))
         verify(mockDeploymentService).fetchApiDefinitionSummary(any[String])(any[HeaderCarrier])
         serviceNameCaptor.getValue shouldBe "api-calendar"
       }

@@ -1,6 +1,6 @@
-@import model.APIDefinitionSummary
+@import model.APIApprovalSummary
 
-@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIDefinitionSummary)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
     @main(title = "API Gatekeeper Dashboard", userFullName = userFullName) {
         <div class="content__body">
 

@@ -47,7 +47,7 @@ trait DeploymentApprovalController extends FrontendController with GatekeeperAut
     Redirect(routes.DeploymentApprovalController.pendingPage().url,SEE_OTHER)
   }
 
-  protected def renderPendingPage(apps: Seq[APIDefinitionSummary])(implicit request: Request[_]): Result =
+  protected def renderPendingPage(apps: Seq[APIApprovalSummary])(implicit request: Request[_]): Result =
     Ok(deploymentApproval(apps))
 
   def pendingPage(): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -60,7 +60,7 @@ trait DeploymentApprovalController extends FrontendController with GatekeeperAut
       }
   }
 
-  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIDefinitionSummary] = {
+  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     deploymentApprovalService.fetchApiDefinitionSummary(serviceName)
   }
 

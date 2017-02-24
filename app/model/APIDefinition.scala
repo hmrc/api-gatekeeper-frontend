@@ -94,13 +94,6 @@ class UpdateApiDefinitionsFailed extends Throwable
 
 case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
 
-case class APIDefinitionSummary(serviceName: String, name: String, description: String )
-
-object APIDefinitionSummary {
-  implicit val formatApiDefinitionSummary = Json.format[APIDefinitionSummary]
-}
-
-
 case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
 
 object SubscriptionResponse {
