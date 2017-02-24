@@ -55,9 +55,10 @@ trait ApplicationService {
   def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
 
     def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {
+
       applications.map(ar => {
         val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
-          .map(_.apiIdentifier.context.capitalize.replace("-", " ")).sorted
+          .map(_.apiIdentifier.context).sorted
         SubscribedApplicationResponse.createFrom(ar, filteredSubs)
       })
     }
