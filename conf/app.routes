@@ -13,7 +13,7 @@ GET         /approved                              controllers.DashboardControll
 GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
 GET         /applications                          controllers.ApplicationController.applicationsPage
 
-GET         /pending                               controllers.DeploymentApprovalController.pendingPage(pageNumber: Option[Int], pageSize: Option[Int])
+GET         /pending                               controllers.DeploymentApprovalController.pendingPage
 GET         /pending/:serviceName/review           controllers.DeploymentApprovalController.reviewPage(serviceName: String)
 POST        /pending/:serviceName/approve          controllers.DeploymentApprovalController.handleApproval(serviceName: String)
 

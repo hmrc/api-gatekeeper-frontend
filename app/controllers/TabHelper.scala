@@ -23,5 +23,5 @@ object TabHelper {
     TabLink("Dashboard", routes.DashboardController.dashboardPage.url, activeTab == 0),
     TabLink("Applications", routes.ApplicationController.applicationsPage.url, activeTab == 1),
     TabLink("Developers", routes.DevelopersController.developersPage(None, None).url, activeTab == 2),
-    TabLink("API Approval", routes.DeploymentApprovalController.pendingPage(None,None).url, activeTab == 3))
+    TabLink("API Approval", routes.DeploymentApprovalController.pendingPage.url, activeTab == 3))
 }

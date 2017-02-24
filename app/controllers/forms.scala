@@ -42,16 +42,13 @@ object HandleUpliftForm {
   }
 }
 
-case class HandleApprovalForm(action: String)
+case class HandleApprovalForm(approval_confirmation: String)
 
 object HandleApprovalForm {
 
-  private def actionValidator =
-    Forms.text.verifying("invalid.action", action => UpliftAction.from(action).isDefined)
-
   lazy val form = Form(
     mapping(
-      "action" -> actionValidator
+      "approval_confirmation" -> text(0,20)
     )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
   )
 

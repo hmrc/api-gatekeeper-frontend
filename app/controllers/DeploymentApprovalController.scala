@@ -43,35 +43,20 @@ trait DeploymentApprovalController extends FrontendController with GatekeeperAut
   val deploymentApprovalService: DeploymentApprovalService
   implicit val appConfig: AppConfig
 
-  private def redirectToPendingPage(pageNumber: Int, pageSize: Int) = {
-    val pageParams = Map(
-      "pageNumber" -> Seq(pageNumber.toString),
-      "pageSize" -> Seq(pageSize.toString)
-    )
-
-    val queryParams = pageParams
-    Redirect("", queryParams, 303)
+  private def redirectToPendingPage() = {
+    Redirect(routes.DeploymentApprovalController.pendingPage().url,SEE_OTHER)
   }
 
-  protected def renderPendingPage(page: PageableCollection[APIDefinitionSummary], pageNumber: Int, pageSize: Int)(implicit request: Request[_]): Result =
-    Ok(deploymentApproval(page))
+  protected def renderPendingPage(apps: Seq[APIDefinitionSummary])(implicit request: Request[_]): Result =
+    Ok(deploymentApproval(apps))
 
-  def pendingPage(optionalPageSize: Option[Int], optionalPageNumber: Option[Int]): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+  def pendingPage(): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
-
-      val pageSize = optionalPageSize.getOrElse(100)
-      val pageNumber = optionalPageNumber.getOrElse(1)
 
       for {
         apps <- deploymentApprovalService.fetchUnapprovedServices
-        page = PageableCollection(apps, pageNumber, pageSize)
       } yield {
-        if (page.valid) {
-          renderPendingPage(page, pageNumber, pageSize)
-        }
-        else {
-          redirectToPendingPage(1, pageSize)
-        }
+        renderPendingPage(apps)
       }
   }
 
@@ -99,11 +84,11 @@ trait DeploymentApprovalController extends FrontendController with GatekeeperAut
       }
 
       def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
-        ApprovalAction.from(validForm.action) match {
-          case Some(ApprovalAction.APPROVE) => deploymentApprovalService.approveService(serviceName) map (
-            ApproveServiceSuccessful => redirectToPendingPage(1, 1)
+        validForm.approval_confirmation match {
+          case "Yes" => deploymentApprovalService.approveService(serviceName) map (
+            ApproveServiceSuccessful => redirectToPendingPage()
             ) recover recovery
-          case _ => throw new UnsupportedOperationException("Cant't Reject Service Approval") // TODO handle rejected Services
+          case _ => throw new UnsupportedOperationException("Can't Reject Service Approval") // TODO handle rejected Services
         }
       }
 

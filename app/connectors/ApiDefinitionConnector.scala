@@ -60,6 +60,7 @@ trait ApiDefinitionConnector {
       .map(_ => ApproveServiceSuccessful)
       .recover {
         case e: Upstream5xxResponse => throw new UpdateApiDefinitionsFailed
+        case _ => throw new UpdateApiDefinitionsFailed
       }
   }
 }

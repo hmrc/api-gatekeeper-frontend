@@ -2,7 +2,7 @@
 @import include._
 @import model._
 
-@(unapprovedApps: PageableCollection[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(unapprovedApps: Seq[APIDefinitionSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = "API Approval", userFullName = userFullName) {
     <article class="content__body full-width">
@@ -36,56 +36,46 @@
 
         @tabList(activeTab = 3)
 
-        <form action="@routes.DeploymentApprovalController.pendingPage(Some(unapprovedApps.pageNumber), Some(unapprovedApps.pageSize)).url" method="get">
+        <form action="@routes.DeploymentApprovalController.pendingPage().url" method="get">
 
-            @if(unapprovedApps.length > 0) {
-                <ul>
-                @for(application <- unapprovedApps.projection) {
-                    <li data-pending- @{
-                        application.serviceName
-                    } class="app-info">
-                        <div class="app-info__primary">
-                            <h3 class="app-info__heading">@{
-                                application.name
-                            }</h3>
-                            <p class="app-info__info">Service ID: @application.serviceName</p>
-                        </div>
-                        <div class="app-info__secondary">
-                            <a data-review- @application.serviceName href="@{
+            <table id="application-table"
+                   class="dataTable no-footer application-list"
+                   width="100%"
+                   data-dom="t<'text--center'lip>"
+                   data-order='[0,"asc"]'
+                   data-page-length="100"
+                   data-paginate="true"
+                   data-length-change="true"
+                   data-length-menu="[10,50,100, 200, 300]"
+                   data-responsive="true"
+                   data-column-defs='[{"targets": [0,1], "orderable": true, "searchable":true}]'
+                   data-language='{"sSearchPlaceholder":"Service ID, Name","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+                <thead>
+                <tr role="row">
+                    <th tabindex="0" class="sorting_left-aligned">Service ID</th>
+                    <th tabindex="0" class="sorting_left-aligned">Name</th>
+                    <th class="text--right hard--right" data-orderable="false" tabindex="0">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for((application, index) <- unapprovedApps.zipWithIndex) {
+                <tr role="row">
+                    <td id="app-servicename-@index">@application.serviceName</td>
+                    <td id="app-name-@index">@application.name</td>
+                    <td class="text--right hard--right"><a data-review- @application.serviceName href="@{
                                 routes.DeploymentApprovalController.reviewPage(application.serviceName)
                             }">Check and approve</a>
-                        </div>
-                    </li>
+                    </td>
+                </tr>
                 }
-                </ul>
-            } else {
-                <p data-pending-none>There are no unapproved applications.</p>
-            }
+                </tbody>
+            </table>
 
-            <div class="grid-layout" style="margin-left: 0">
-                <div class="grid-layout__column--1-3 filters">
-                    <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
-                        <label class="label--inlineDropDown">Show rows:
-                            <select class="select perpage" id="pageSize" name="pageSize"
-                            value="@unapprovedApps.pageSize" onchange="this.form.submit()">
-                            @for(n <- List(10, 50, 100, 200, 300)) {
-                                <option value="@n"
-                                @if(unapprovedApps.pageSize == n) {selected}>@n </option>
-                            }
-                            </select>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="grid-layout__column--1-3">
-                    <div class="dataTables_paginate paging_simple" id="DataTables_Table_0_paginate">
-                        @paginateButton("Previous", "paginate_button previous", unapprovedApps, -1)
-                        @paginateButton("Next", "paginate_button next", unapprovedApps, 1)
-                    </div>
+            <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left:0">
+                <div class="grid-layout__column--1-3 text--center">
+                    @if(unapprovedApps.isEmpty) {"There are no unapproved applications."}
                 </div>
             </div>
-
-            <input type="hidden" name="pageNumber" value="@unapprovedApps.pageNumber"/>
 
         </form>
 
@@ -94,16 +84,4 @@
         </div>
 
     </article>
-}
-
-@paginateButton(text: String, cssClass: String, content: model.PageableCollection[_], direction: Int) = {
-@if(direction < 0 && content.hasPrevious || direction > 0 && content.hasNext) {
-    <a class="@cssClass"
-    rel="@if(direction < 0) {prev} else {next}"
-    href="@routes.DeploymentApprovalController.pendingPage(Some(content.pageNumber + direction), Some(content.pageSize))"
-    aria-controls="DataTables_Table_0"
-    data-dt-idx="@if(direction < 0) {0} else {1}"
-    id="DataTables_Table_0_@if(direction < 0) {prev} else {next}"
-    >@text</a>
-}
 }

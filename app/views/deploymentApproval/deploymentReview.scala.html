@@ -47,7 +47,7 @@
 
             @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName),
                 'class -> "form") {
-
+            @helper.CSRF.formField
             <label for="approval_confirmation" class="block-label">
                 <input type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
                 I confirm the details are correct
