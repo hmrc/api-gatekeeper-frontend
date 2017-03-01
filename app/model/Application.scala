@@ -73,6 +73,29 @@ object SubscribedApplicationResponse {
       appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions)
 }
 
+case class DetailedSubscribedApplicationResponse(id: UUID,
+                                         name: String,
+                                         description: Option[String] = None,
+                                         collaborators: Set[Collaborator],
+                                         createdOn: DateTime,
+                                         state: ApplicationState,
+                                         subscriptions: Seq[SubscriptionDetails]) extends Application
+
+case class SubscriptionDetails(name:String, context: String)
+
+
+object DetailedSubscribedApplicationResponse {
+  implicit val subscriptionsFormat = Json.format[SubscriptionDetails]
+  implicit val format1 = Json.format[APIIdentifier]
+  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
+  implicit val format2 = Json.format[Collaborator]
+  implicit val format3 = EnumJson.enumFormat(State)
+  implicit val format4 = Json.format[ApplicationState]
+  implicit val format5 = Json.format[DetailedSubscribedApplicationResponse]
+}
+
+
+
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value

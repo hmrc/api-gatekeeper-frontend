@@ -22,7 +22,7 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications.applications
 
 
@@ -43,7 +43,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       for {
         apps <- applicationService.fetchAllSubscribedApplications
         apis <- apiDefinitionService.fetchAllApiDefinitions
-      } yield Ok(applications(apps, groupApisByStatus(apis)))
+        subApps = SubscriptionEnhancer.combine(apps, apis)
+      } yield Ok(applications(subApps, groupApisByStatus(apis)))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
