@@ -56,7 +56,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "list all subscribed applications" in new Setup {
 
-
       given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApplications))
 
@@ -77,13 +76,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val app3 = result.find(sa => sa.name == "application3").get
 
       app1.subscriptionNames should have size 1
-      app1.subscriptionNames shouldBe Seq("Super context")
+      app1.subscriptionNames shouldBe Seq("super-context")
 
       app2.subscriptionNames should have size 2
-      app2.subscriptionNames shouldBe Seq("Super context", "Test context")
+      app2.subscriptionNames shouldBe Seq("super-context", "test-context")
 
       app3.subscriptionNames should have size 1
-      app3.subscriptionNames shouldBe Seq("Super context")
+      app3.subscriptionNames shouldBe Seq("super-context")
     }
 
     "call applicationConnector with appropriate parameters" in new Setup {
