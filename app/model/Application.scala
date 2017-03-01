@@ -92,10 +92,6 @@ object DetailedSubscribedApplicationResponse {
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
   implicit val format5 = Json.format[DetailedSubscribedApplicationResponse]
-
-  def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[String]) =
-    SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
-      appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions)
 }
 
 
