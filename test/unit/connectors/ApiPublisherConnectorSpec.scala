@@ -43,13 +43,17 @@ class ApiPublisherConnectorSpec extends UnitSpec with Matchers with ScalaFutures
           |[
           | {
           |   "serviceName": "employmentAPI",
+          |   "serviceUrl": "http://employment.service",
           |   "name": "Employment API",
-          |   "description": "My Employment API"
+          |   "description": "My Employment API",
+          |   "approved": false
           | },
           | {
           |   "serviceName": "incomeAPI",
+          |   "serviceUrl": "http://income.service",
           |   "name": "Income API",
-          |   "description": "My Income API"
+          |   "description": "My Income API",
+          |   "approved": false
           | }
           | ]
         """.stripMargin)))
