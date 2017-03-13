@@ -36,36 +36,6 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
 
     scenario("Ensure developer is on Gatekeeper in ET and they know it", Tag("SandboxTest")) {
 
-      stubApplicationList()
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(200)))
-      stubApplicationSubscription
-      stubApiDefinition
-
-      val authBody =
-        s"""
-           |{
-           | "access_token": {
-           |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-           |     "expiry":1459365831061
-           |     },
-           |     "expires_in":14400,
-           |     "roles":[{"scope":"api","name":"gatekeeper"}],
-           |     "authority_uri":"/auth/oid/$gatekeeperId",
-           |     "token_type":"Bearer"
-           |}
-      """.stripMargin
-
-      stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(authBody).withStatus(200)))
-
-      stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(200)))
-
       Given("the developer goes to the Gatekeeper home page")
       goOn(SignInPage)
       on(SignInPage)
@@ -78,9 +48,9 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       var actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Login"
 
-//      And("the application header colour is rgba(40, 161, 151)")
-//      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
-//      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
+      And("the application header colour is rgba(40, 161, 151)")
+      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
+      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
 
       When("the users signs in")
       SignInPage.signIn("joe.test", "password")
@@ -93,8 +63,8 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Applications"
 
-//      And("the application header colour is rgba(40, 161, 151)")
-//      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
+      And("the application header colour is rgba(40, 161, 151)")
+      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
     }
 
     scenario("Cookie banner is displayed on the top of the page when user first visits the website", Tag("SandboxTest")) {
@@ -108,26 +78,4 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       cookieBanner shouldBe "(0, 0)"
     }
   }
-
-  def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-      .withBody(applications).withStatus(200)))
-  }
-
-  def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions"))
-      .willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
-  }
-
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo(s"/api-definition"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
-  }
-
 }
