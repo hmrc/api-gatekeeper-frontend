@@ -38,5 +38,4 @@ class ModelSpec  extends UnitSpec with Matchers{
       UpliftAction.from("") shouldBe None
     }
   }
-
-  }
+}
