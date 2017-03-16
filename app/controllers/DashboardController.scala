@@ -145,7 +145,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
         case e: PreconditionFailed => {
           Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-          Redirect(controllers.routes.DashboardController.dashboardPage)
+          Redirect(routes.DashboardController.dashboardPage)
         }
       }
 
@@ -153,10 +153,10 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
         UpliftAction.from(validForm.action) match {
           case Some(APPROVE) =>
             applicationConnector.approveUplift(appId, loggedIn.get) map (
-              ApproveUpliftSuccessful => Redirect(controllers.routes.DashboardController.dashboardPage)) recover recovery
+              ApproveUpliftSuccessful => Redirect(routes.DashboardController.dashboardPage)) recover recovery
           case Some(REJECT) =>
             applicationConnector.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
-              RejectUpliftSuccessful => Redirect(controllers.routes.DashboardController.dashboardPage)) recover recovery
+              RejectUpliftSuccessful => Redirect(routes.DashboardController.dashboardPage)) recover recovery
         }
       }
 
@@ -166,7 +166,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
 
   private def redirectIfExternalTestEnvironment(body: => Future[Result]) = {
     appConfig.isExternalTestEnvironment match {
-      case true => Future.successful(Redirect( routes.ApplicationController.applicationsPage))
+      case true => Future.successful(Redirect(routes.ApplicationController.applicationsPage))
       case false => body
     }
   }

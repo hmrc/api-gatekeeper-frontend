@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package model
 
 import config.AppConfig
+import controllers.routes
 import play.api.libs.json.Json
 
 case class NavLink(label: String, href: Option[String])
@@ -25,9 +26,9 @@ object NavLink {
   implicit val format = Json.format[NavLink]
 }
 
-object NavigationHelper {
+case object StaticNavLinks {
 
-  def staticNavLinks(implicit appConfig: AppConfig) = {
+  def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
     val dashboardLink = appConfig.isExternalTestEnvironment match {
       case true => None
       case false => Some(NavLink("Dashboard", Some(routes.DashboardController.dashboardPage().url)))
@@ -35,8 +36,13 @@ object NavigationHelper {
 
     dashboardLink.toList ++ Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
-      NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)))
+      NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)),
+      NavLink("API Approvals", Some("/api-service-approval/pending")),
+      NavLink("Privileged Access", Some("/privileged-access/application")))
   }
+}
+
+case object UserNavLinks {
 
   private def loggedInNavLinks(userFullName: String) = Seq(
     NavLink(userFullName, None),
@@ -45,7 +51,7 @@ object NavigationHelper {
   private val loggedOutNavLinks = Seq(
     NavLink("Sign in", Some(routes.AccountController.loginPage().url)))
 
-  def navLinks(userFullName: Option[String]) = userFullName match {
+  def apply(userFullName: Option[String]): Seq[NavLink] = userFullName match {
     case Some(name) => loggedInNavLinks(name)
     case None => loggedOutNavLinks
   }
