@@ -37,7 +37,7 @@
     <p class="flush--top" data-submitter-name>@{application.submission.submitterName}</p>
     <p class="flush--top" data-submitter-email>@{application.submission.submitterEmail}</p>
 
-    @helper.form(action = controllers.routes.DashboardController.handleUplift(application.id),
+    @helper.form(action = routes.DashboardController.handleUplift(application.id),
         'class -> "form") {
 
         <div data-journey-dynamic-radios>
