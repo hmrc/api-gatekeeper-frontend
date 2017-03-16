@@ -29,99 +29,63 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
   feature("View approved application details") {
 
     scenario("View details for an application in production", Tag("NonSandboxTest")) {
-
-      stubApplicationListAndDevelopers
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-$approvedApp1")
-      on(ApprovedPage(approvedApp1, "Application"))
+      clickOnLink(s"data-view-fa9ed720-f0e1-4268-8287-e23e03ae11cd")
+      on(ApprovedPage("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test"))
 
       verifyText("data-status", "Verified")
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
-      assertApplicationDetails
+      assertApplicationDetails("Approved by: temp908@mailinator.com")
      }
 
     scenario("View details for an application pending verification", Tag("NonSandboxTest")) {
-
-      stubApplicationListAndDevelopers
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description")).withStatus(200)))
-      stubFor(post(urlMatching(s"/application/$approvedApp1/resend-verification"))
-        .willReturn(aResponse().withStatus(204)))
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-$approvedApp1")
-      on(ApprovedPage(approvedApp1, "Application"))
+      clickOnLink(s"data-view-0c80c22d-1a59-4923-b2ec-37bf49ef35a8")
+      on(ApprovedPage("0c80c22d-1a59-4923-b2ec-37bf49ef35a8", "Freds Tax Calc"))
 
       verifyText("data-status", "Not Verified")
-      verifyLinkPresent("resend-email", s"/gatekeeper/application/$approvedApp1/resend-verification")
+      verifyLinkPresent("resend-email", s"/gatekeeper/application/0c80c22d-1a59-4923-b2ec-37bf49ef35a8/resend-verification")
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has not verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
-      assertApplicationDetails
+      assertApplicationDetails("Approved by: temp909@mailinator.com")
 
       clickOnLink("resend-email")
-      on(ResendVerificationPage(approvedApp1, "Application"))
+      on(ResendVerificationPage("0c80c22d-1a59-4923-b2ec-37bf49ef35a8", "Freds Tax Calc"))
       verifyText("success-message", "Verification email has been sent")
-      assertApplicationDetails
+      assertApplicationDetails("Approved by: temp909@mailinator.com")
     }
 
     scenario("View details for an application with no description", Tag("NonSandboxTest")){
-
-      stubApplicationListAndDevelopers
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-$approvedApp1")
-      on(ApprovedPage(approvedApp1, "Application"))
+      clickOnLink(s"data-view-dd34cc71-bd1d-4ad5-aab6-5a999cd1150b")
+      on(ApprovedPage("dd34cc71-bd1d-4ad5-aab6-5a999cd1150b", "Bad Application"))
 
       verifyText("data-description", "No description added")
-      assertApplicationDetails
+      assertApplicationDetails("Approved by: temp908@mailinator.com")
     }
 
     scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
-      stubApplicationListAndDevelopers
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-$approvedApp1")
-      on(ApprovedPage(approvedApp1, "Application"))
+      clickOnLink(s"data-view-fa9ed720-f0e1-4268-8287-e23e03ae11cd")
+      on(ApprovedPage("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test"))
       clickOnLink("data-back-link")
       on(DashboardPage)
     }
   }
 
-  def stubApplicationListAndDevelopers() = {
-    val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-    val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
-    val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
-
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-      .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
-      .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
-  }
-
-  def assertApplicationDetails() = {
-    verifyText("data-submitter-name", s"$firstName $lastName")
-    verifyText("data-submitter-email", adminEmail)
-    tagName("tbody").element.text should containInOrder(List(s"$firstName $lastName", adminEmail, "Admin McAdmin", admin2Email))
-    verifyText("data-submitted-on", "Submitted: 22 March 2016")
-    verifyText("data-approved-on", "Approved: 05 April 2016")
-    verifyText("data-approved-by", "Approved by: gatekeeper.username")
+  def assertApplicationDetails(approvedBy : String) = {
+    verifyText("data-submitter-name", "temp 999")
+    verifyText("data-submitter-email", "temp907@mailinator.com")
+    tagName("tbody").element.text should containInOrder(List(s"admin test", "admin@email.com", "admin test", "admin2@email.com"))
+    verifyText("data-submitted-on", "Submitted: 13 March 2017")
+    verifyText("data-approved-on", "Approved: 13 March 2017")
+    verifyText("data-approved-by", approvedBy)
   }
 }

@@ -37,19 +37,8 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
   implicit override lazy val app: Application =
     GuiceApplicationBuilder().configure("run.mode" -> "Stub").in(Mode.Prod).build()
 
-  var wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
-
-  override def beforeAll() = {
-    wireMockServer.start()
-    WireMock.configureFor(stubHost, stubPort)
-  }
-
-  override def afterAll() = {
-    wireMockServer.stop()
-  }
 
   override def beforeEach() = {
     webDriver.manage().deleteAllCookies()
-    WireMock.reset()
   }
 }

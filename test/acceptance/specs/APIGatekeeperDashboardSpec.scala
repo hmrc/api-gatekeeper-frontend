@@ -16,16 +16,17 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{ApprovedPage, DashboardPage, ReviewPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.common.Json
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{Matchers, Tag}
+import utils.MessClient
 
-class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with MessClient {
 
   feature("View applications pending gatekeeper approval on the dashboard") {
 
@@ -33,47 +34,45 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
     info("As a gatekeeper")
     info("I see a list of applications pending approval")
 
-    scenario("I see a list of pending applications in ascending order by submitted date", Tag("NonSandboxTest")) {
-
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
-
+    scenario("I see a list of pending applications in ascending order by submitted date", Tag("Mess")) {
       signInGatekeeper
       on(DashboardPage)
-
-      DashboardPage.bodyText should containInOrder(List("First Application", "Second Application"))
-      assertPendingApplication(appPendingApprovalId1, "First Application submitted: 22.03.2016 Review")
-      assertPendingApplication(appPendingApprovalId2, "Second Application submitted: 24.03.2016 Review")
+      DashboardPage.bodyText should containInOrder(List("Friendly Taxman1", "new app 1"))
+      assertPendingApplication("d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1 submitted: 09.06.2016 Review")
+      assertPendingApplication("48d7a640-cc40-44f3-95c7-f71e0bcc1f8c", "new app 1 submitted: 09.06.2016 Review")
+      webDriver.findElement(By.linkText("Sign out")).click()
     }
 
-    scenario("I see the message There are no pending applications when there are no applications awaiting uplift approval", Tag("NonSandboxTest")) {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody("[]").withStatus(200)))
+    scenario("I see the message There are no pending applications when there are no applications awaiting uplift approval", Tag("Mess")) {
+      val stubMapping: StubMapping = get(urlEqualTo("/gatekeeper/applications")).atPriority(1)
+        .willReturn(aResponse().withBody("[]").withStatus(200)).build()
+
+      val noApplications: String = Json.write(stubMapping)
+
+      val stubNoApplications = postRequest("http://localhost:9999/__admin/mappings", noApplications)
+
+      import play.api.libs.json.Json
+
+      val id = (Json.parse(stubNoApplications.body) \ "id").asOpt[String].get
 
       signInGatekeeper
       on(DashboardPage)
       assertNoPendingApplications()
+      webDriver.findElement(By.linkText("Sign out")).click()
+
+      val deleteStub = deleteRequest(s"http://localhost:9999/__admin/mappings/${id}")
+      deleteStub.code shouldBe 200
     }
 
-    scenario("I can click on the Review button to be taken to the review page for an application awaiting uplift approval", Tag("NonSandboxTest")) {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$appPendingApprovalId1"))
-        .willReturn(aResponse().withBody(application).withStatus(200)))
-
-      val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-
-      stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-        .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
+    scenario("I can click on the Review button to be taken to the review page for an application awaiting uplift approval", Tag("Mess")) {
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-review-$appPendingApprovalId1")
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnLink(s"data-review-d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c")
+      on(ReviewPage("d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1"))
       verifyText("data-description", applicationDescription)
-      verifyText("data-submitter-name", fullName)
-      verifyText("data-submitter-email", adminEmail)
+      verifyText("data-submitter-name", "temp 999")
+      verifyText("data-submitter-email", "temp909@mailinator.com")
+      webDriver.findElement(By.linkText("Sign out")).click()
     }
   }
 
@@ -83,49 +82,41 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
     info("As a gatekeeper")
     info("I see a list of applications which have already been approved")
 
-    scenario("I see a list of approved applications in alphabetical order and their status", Tag("NonSandboxTest")) {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
+    scenario("I see a list of approved applications in alphabetical order and their status", Tag("Mess")) {
       signInGatekeeper
       on(DashboardPage)
-      DashboardPage.bodyText should containInOrder(List("Application", "BApplication", "rapplication", "ZApplication"))
-      assertApprovedApplication(approvedApp1, "Application submitted: 24.03.2016 not yet verified")
-      assertApprovedApplication(approvedApp4, "BApplication submitted: 24.03.2016 verified")
-      assertApprovedApplication(approvedApp3, "rapplication submitted: 24.03.2016 not yet verified")
-      assertApprovedApplication(approvedApp2, "ZApplication submitted: 22.03.2016 verified")
+      DashboardPage.bodyText should containInOrder(List("Agents Test", "ala_qa_client", "App To Approve", "Apprenticeship Levy"))
+      assertApprovedApplication("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test submitted: 04.10.2016 verified")
+      assertApprovedApplication("f0e2611e-2f45-4326-8cd2-6eefebec77b7", "ala_qa_client submitted: 20.07.2016 verified")
+      assertApprovedApplication("58dd6642-08c9-4422-8a84-058e8731d44a", "App To Approve submitted: 19.05.2016 verified")
+      assertApprovedApplication("2ac92223-f255-4e59-bc2b-ac8d1ab2fef5", "Apprenticeship Levy submitted: 30.09.2016 verified")
+      webDriver.findElement(By.linkText("Sign out")).click()
     }
 
-    scenario("I see the message There are no approved applications when there no applications have been approved", Tag("NonSandboxTest")) {
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody("[]").withStatus(200)))
+    scenario("I see the message There are no approved applications when there no applications have been approved", Tag("Mess")) {
+      val stubMapping: StubMapping = get(urlEqualTo("/gatekeeper/applications")).atPriority(1)
+        .willReturn(aResponse().withBody("[]").withStatus(200)).build()
+      val noApplications: String = Json.write(stubMapping)
+      val stubNoApplications = postRequest("http://localhost:9999/__admin/mappings", noApplications)
+      println(stubNoApplications)
 
+      import play.api.libs.json.Json
+
+      val id = (Json.parse(stubNoApplications.body) \ "id").asOpt[String].get
       signInGatekeeper
       on(DashboardPage)
       assertNoApprovedApplications()
+      webDriver.findElement(By.linkText("Sign out")).click()
+      val deleteStub = deleteRequest(s"http://localhost:9999/__admin/mappings/${id}")
+      deleteStub.code shouldBe 200
     }
 
-    scenario("I can click on the application name to be taken to the approved application page", Tag("NonSandboxTest")) {
-      val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-      val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
-      val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
-
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description")).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-        .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
-        .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
-
+    scenario("I can click on the application name to be taken to the approved application page", Tag("Mess")) {
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-$approvedApp1")
-      on(ApprovedPage(approvedApp1, "Application"))
+      clickOnLink(s"data-view-fa9ed720-f0e1-4268-8287-e23e03ae11cd")
+      on(ApprovedPage("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test"))
+      webDriver.findElement(By.linkText("Sign out")).click()
     }
   }
 

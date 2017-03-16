@@ -25,29 +25,43 @@ trait SignInSugar extends NavigationSugar {
 
   def signInGatekeeper()(implicit webDriver: WebDriver) = {
 
-    val authBody =
-      s"""
-        |{
-        | "access_token": {
-        |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-        |     "expiry":1459365831061
-        |     },
-        |     "expires_in":14400,
-        |     "roles":[{"scope":"api","name":"gatekeeper"}],
-        |     "authority_uri":"/auth/oid/$gatekeeperId",
-        |     "token_type":"Bearer"
-        |}
-      """.stripMargin
+//    val authBody =
+//      s"""
+//        |{
+//        | "access_token": {
+//        |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
+//        |     "expiry":1459365831061
+//        |     },
+//        |     "expires_in":14400,
+//        |     "roles":[{"scope":"api","name":"gatekeeper"}],
+//        |     "authority_uri":"/auth/oid/$gatekeeperId",
+//        |     "token_type":"Bearer"
+//        |}
+//      """.stripMargin
+//
+//    stubFor(post(urlEqualTo("/auth/authenticate/user"))
+//      .willReturn(aResponse().withBody(authBody).withStatus(200)))
+//
+//    stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
+//      .willReturn(aResponse().withStatus(200)))
 
-    stubFor(post(urlEqualTo("/auth/authenticate/user"))
-      .willReturn(aResponse().withBody(authBody).withStatus(200)))
-
-    stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-      .willReturn(aResponse().withStatus(200)))
+    //      val body =
+    //        """
+    //          |{
+    //          | "access_token": {
+    //          |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
+    //          |     "expiry":1459365831061
+    //          |     },
+    //          |     "expires_in":14400,
+    //          |     "roles":[{"scope":"something","name":"gatekeeper"}],
+    //          |     "authority_uri":"/auth/oid/joe.test",
+    //          |     "token_type":"Bearer"
+    //          |}
+    //        """.stripMargin
 
     goOn(SignInPage)
 
-    SignInPage.signIn(gatekeeperId, "password")
+    SignInPage.signIn(gatekeeperId, "password123")
   }
 
 }
