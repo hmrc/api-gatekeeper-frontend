@@ -32,8 +32,8 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
   val approvedApp2 = "48d7a640-cc40-44f3-95c7-f71e0bcc1f8c"
   val approvedApp3 = "fa9ed720-f0e1-4268-8287-e23e03ae11cd"
   val approvedApp4 = "f0e2611e-2f45-4326-8cd2-6eefebec77b7"
-    val approvedApp5 =  "58dd6642-08c9-4422-8a84-058e8731d44a"
-      val approvedApp6 = "2ac92223-f255-4e59-bc2b-ac8d1ab2fef5"
+  val approvedApp5 = "58dd6642-08c9-4422-8a84-058e8731d44a"
+  val approvedApp6 = "2ac92223-f255-4e59-bc2b-ac8d1ab2fef5"
 
   feature("View applications pending gatekeeper approval on the dashboard") {
 
