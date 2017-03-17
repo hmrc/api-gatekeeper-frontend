@@ -4,11 +4,12 @@
 
 @import uk.gov.hmrc.play.views.html.layouts
 @import include._
+@import model._
 
 @userBanner = {
 <div id="user-nav-links" class="header__menu__proposition--sub-header">
   <ul class="header__menu__proposition-links">
-    @headerNavLinks(NavigationHelper.navLinks(userFullName), anchorClass=Some("link-style"))
+    @headerNavLinks(UserNavLinks(userFullName), anchorClass=Some("link-style"))
   </ul>
 </div>
 }
@@ -48,7 +49,7 @@
     navTitle = Option(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
-    navLinks = Option(include.headerNavLinks(NavigationHelper.staticNavLinks))
+    navLinks = Option(include.headerNavLinks(StaticNavLinks(appConfig)))
   )
 
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
