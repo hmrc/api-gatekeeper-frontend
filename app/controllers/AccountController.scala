@@ -19,12 +19,12 @@ package controllers
 import connectors.AuthConnector
 import model.Forms._
 import model.{GatekeeperSessionKeys, LoginDetails}
+import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
-import uk.gov.hmrc.play.http.SessionKeys
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.login._
 
@@ -52,13 +52,13 @@ trait AccountController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def logout = Action {
-    implicit request => Redirect(routes.AccountController.loginPage).removingFromSession(SessionKeys.authToken)
+    implicit request => Redirect(routes.AccountController.loginPage).removingFromSession(GatekeeperSessionKeys.AuthToken)
   }
 
   private[controllers] def processLogin(loginDetails: LoginDetails)(implicit request: Request[_]) = {
     authConnector.login(loginDetails).map {
       authExchangeResponse => Redirect(welcomePage).withNewSession.addingToSession(
-        SessionKeys.authToken -> authExchangeResponse.access_token.authToken,
+        GatekeeperSessionKeys.AuthToken -> authExchangeResponse.access_token.authToken,
         GatekeeperSessionKeys.LoggedInUser -> authExchangeResponse.userName
       )
     }.recover {

@@ -23,6 +23,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
+import uk.gov.hmrc.play.http.SessionKeys
 
 
 case class LoginDetails(userName: String, password: Protected[String])
@@ -64,6 +65,7 @@ case class SuccessfulAuthentication(access_token: BearerToken, userName: String,
 
 object GatekeeperSessionKeys {
   val LoggedInUser = "LoggedInUser"
+  val AuthToken = SessionKeys.authToken
 }
 
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
@@ -75,9 +77,7 @@ object ApplicationWithHistory {
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
   implicit val format5 = Json.format[ApplicationResponse]
-
   implicit val format6 = Json.format[ApplicationWithHistory]
-
 }
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
