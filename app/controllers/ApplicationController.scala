@@ -52,7 +52,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       for {
         _ <- applicationService.resendVerification(appId, loggedIn.get)
       } yield {
-        Redirect(controllers.routes.DashboardController.approvedApplicationPage(appId))
+        Redirect(routes.DashboardController.approvedApplicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
   }

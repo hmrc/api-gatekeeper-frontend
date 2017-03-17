@@ -22,15 +22,15 @@ private object AppDependencies {
   private val logbackVersion = "1.1.10"
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.11.0",
-    "uk.gov.hmrc" %% "play-authorised-frontend" % "6.2.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.17.0",
+    "uk.gov.hmrc" %% "play-authorised-frontend" % "6.3.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
-    "uk.gov.hmrc" %% "play-config" % "3.1.0",
+    "uk.gov.hmrc" %% "play-config" % "4.3.0",
     "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
-    "uk.gov.hmrc" %% "json-encryption" % "3.1.0",
-    "uk.gov.hmrc" %% "play-health" % "2.0.0",
-    "uk.gov.hmrc" %% "govuk-template" % "5.0.0",
-    "uk.gov.hmrc" %% "play-ui" % "6.0.0",
+    "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
+    "uk.gov.hmrc" %% "play-health" % "2.1.0",
+    "uk.gov.hmrc" %% "govuk-template" % "5.2.0",
+    "uk.gov.hmrc" %% "play-ui" % "7.1.0",
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
     "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
@@ -53,12 +53,12 @@ private object AppDependencies {
       "org.pegdown" % "pegdown" % "1.6.0" % scope,
       "org.jsoup" % "jsoup" % "1.10.2" % scope,
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-      "uk.gov.hmrc" %% "hmrctest" % "2.2.0" % scope,
+      "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
       "com.github.tomakehurst" % "wiremock" % "1.58" % scope,
       "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % scope,
       "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % scope,
       "org.mockito" % "mockito-all" % "1.10.19" % scope,
-      "org.scalacheck" %% "scalacheck" % "1.13.4" % scope
+      "org.scalacheck" %% "scalacheck" % "1.13.5" % scope
     ).map(
       _.excludeAll(
         ExclusionRule(organization = "commons-logging"),
