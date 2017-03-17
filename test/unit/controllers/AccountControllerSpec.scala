@@ -54,7 +54,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
     implicit val format = Json.format[LoginDetails]
 
     val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
-    val authToken = SessionKeys.authToken -> "some-bearer-token"
+    val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 
     val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
@@ -83,7 +83,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       val result = await(underTest.authenticate()(aLoggedOutRequest.withJsonBody(aValidFormJson)))
       redirectLocation(result) shouldBe Some("/api-gatekeeper/dashboard")
       result.header.headers.get("Set-Cookie") shouldBe defined
-      session(result).get(SessionKeys.authToken) shouldBe Some("bearer-token")
+      session(result).get(GatekeeperSessionKeys.AuthToken) shouldBe Some("bearer-token")
     }
 
     "give 400 when an invalid login form is posted" in new Setup {
