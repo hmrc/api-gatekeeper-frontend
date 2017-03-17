@@ -46,7 +46,7 @@ trait GatekeeperAuthWrapper {
   def requiresLogin()(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
       val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
-      (request.session.get(SessionKeys.authToken)) match {
+      (request.session.get(GatekeeperSessionKeys.AuthToken)) match {
         case Some(_) => body(request)(hc)
         case _ => authProvider.redirectToLogin
       }
@@ -56,7 +56,7 @@ trait GatekeeperAuthWrapper {
   def requiresRole(requiredRole: Role)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
       val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(SessionKeys.authToken)
+      request.session.get(GatekeeperSessionKeys.AuthToken)
         .map { _ =>
           authConnector.authorized(requiredRole)(hc).flatMap {
             case true => body(request)(hc)
@@ -70,7 +70,7 @@ trait GatekeeperAuthWrapper {
   def redirectIfLoggedIn(redirectTo: play.api.mvc.Call)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
       val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
-      (request.session.get(SessionKeys.authToken)) match {
+      (request.session.get(GatekeeperSessionKeys.AuthToken)) match {
         case Some(_) => Future.successful(Redirect(redirectTo))
         case _ => body(request)(hc)
       }

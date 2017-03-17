@@ -45,7 +45,7 @@ trait ControllerSetupBase extends MockitoSugar {
   implicit val format = Json.format[LoginDetails]
 
   val userName = "userName"
-  val authToken = SessionKeys.authToken -> "some-bearer-token"
+  val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
   val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
   val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
   val aLoggedOutRequest = FakeRequest().withSession()
