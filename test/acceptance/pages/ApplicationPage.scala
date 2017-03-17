@@ -63,6 +63,8 @@ object ApplicationPage extends WebPage {
 
     case object NOAPPLICATIONS extends APIFilterList("NOAPP")
 
+    case object HELLOWORLD extends APIFilterList("Hello World")
+
     case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
 
     case object EMPLOYERSPAYE extends APIFilterList("Employers PAYE")

@@ -20,13 +20,10 @@ import acceptance.pages.DeveloperPage.APIFilter._
 import acceptance.pages.DeveloperPage.StatusFilter._
 import acceptance.pages.{DashboardPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
-import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import component.matchers.CustomMatchers
 import model.User
 import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
-import play.api.libs.json.Json
 
 import scala.collection.immutable.List
 
@@ -39,11 +36,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   feature("API Filter for Email Recipients") {
 
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper")
-//      stubApplicationList
-//      stubApiDefinition
-//      stubRandomDevelopers(100)
       signInGatekeeper
       on(DashboardPage)
 
@@ -55,13 +48,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure a user can view ALL developers", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper")
-      //stubApplicationList
-      //stubApiDefinition
-//      val stubMapping: StubMapping = get(urlEqualTo("/developers/all")).atPriority(1)
-//        .willReturn(aResponse().withBody(allUsers).withStatus(200)).build()
-
       signInGatekeeper
       on(DashboardPage)
 
@@ -112,14 +99,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure a user can view all developers who are subscribed to one or more API", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-//      stubApplicationList
-//      stubApiDefinition
-//      stubFor(get(urlEqualTo("/developers/all"))
-//        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-//      stubAPISubscription("employers-paye")
-//      stubNoAPISubscription()
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDevelopers
@@ -174,13 +154,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure a user can view all developers who have no subscription to an API", Tag("NonSandboxTest")){
-
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-//      stubApplicationList
-//      stubApiDefinition()
-//      stubFor(get(urlEqualTo("/developers/all"))
-//        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-//      stubNoAPISubscription
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDevelopers
@@ -228,12 +202,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure a user can view all developers who has one or more application", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-//      stubApplicationList
-//      stubApiDefinition()
-//      stubFor(get(urlEqualTo("/developers/all"))
-//        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDevelopers
@@ -281,12 +250,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure a SDST can view all users who has no application", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-//      stubApplicationList
-//      stubApiDefinition()
-//      stubFor(get(urlEqualTo("/developers/all"))
-//        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDevelopers
@@ -332,28 +296,21 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       assertCopyToClipboardButtonIsDisabled("#content div a.button")
     }
 
-    scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API", Tag("NonSandboxTest")) {
-
+    scenario("Ensure a user can view all developers who are subscribed to the Hello World API", Tag("NonSandboxTest")) {
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
-      stubApiDefinition()
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      stubAPISubscription("employers-paye")
       signInGatekeeper
       on(DashboardPage)
       DashboardPage.selectDevelopers
       on(DeveloperPage)
 
       When("I select Employers PAYE from the API filter drop down")
-      DeveloperPage.selectBySubscription(EMPLOYERSPAYE)
+      DeveloperPage.selectBySubscription(HELLOWORLD)
 
-      Then("all verified and unverified developers subscribing to the Employers PAYE API are successfully displayed and sorted correctly")
-      val developers = List((dev8FirstName, dev8LastName,developer8, statusUnverified),
-        (dev9name, dev9name, developer9,statusUnregistered),
-        (dev2FirstName, dev2LastName,developer2,statusVerified),
-        (dev7FirstName, dev7LastName,developer7,statusVerified),
-        (devFirstName, devLastName,developer, statusVerified))
+      Then("all verified and unverified developers subscribing to the Hello World API are successfully displayed and sorted correctly")
+      val developers = List(("Adam","Cooper","adam.cooper@digital.hmrc.gov.uk",statusVerified),
+        ("admin", "test", "admin2@email.com",statusVerified),
+        ("admin", "test", "admin@email.com",statusVerified),
+        ("Aivars", "Smaukstelis", "aivars.smaukstelis@digital.hmrc.gov.uk",statusVerified))
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
@@ -363,9 +320,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(VERIFIED)
 
       Then("all verified developers are successfully displayed")
-      val developers2 = List((dev2FirstName, dev2LastName, developer2, statusVerified),
-        (dev7FirstName, dev7LastName, developer7, statusVerified),
-        (devFirstName, devLastName, developer, statusVerified))
+      val developers2 = List(("Adam","Cooper","adam.cooper@digital.hmrc.gov.uk",statusVerified),
+        ("admin", "test", "admin2@email.com",statusVerified),
+        ("admin", "test", "admin@email.com",statusVerified),
+        ("Aivars", "Smaukstelis", "aivars.smaukstelis@digital.hmrc.gov.uk",statusVerified))
 
       val verifiedDevs: Seq[((String, String, String, String), Int)] = developers2.zipWithIndex
       assertDevelopersList(verifiedDevs)
@@ -374,7 +332,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(UNVERIFIED)
 
       Then("all unverified developers are displayed")
-      val developers3 = List((dev8FirstName, dev8LastName, developer8, statusUnverified))
+      val developers3 = List(("Dev", "Hub", "devhubtest@mailinator.com", statusUnverified),
+                             ("Joe","Bloggs","joe.bloggs@gmail.com",statusUnverified))
       val unverifiedDevs = developers3.zipWithIndex
       assertDevelopersList(unverifiedDevs)
 
@@ -382,17 +341,13 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectByStatus(NOTREGISTERED)
 
       Then("all unregistered developers are displayed")
-      val developers4 = List((dev9name, dev9name, developer9,statusUnregistered))
+      val developers4 = List(("n/a", "n/a", "andywheeler@mailinator.com",statusUnregistered))
       val unregisteredDev = developers4.zipWithIndex
       assertDevelopersList(unregisteredDev)
     }
 
     scenario("Ensure a user can view the Copy to Clipboard buttons on the Developers page", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationListWithNoDevelopers
-      stubApiDefinition
-      stubRandomDevelopers(24)
       signInGatekeeper
       on(DashboardPage)
 
@@ -405,12 +360,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     }
 
     scenario("Ensure all developer email addresses are successfully loaded into bcc", Tag("NonSandboxTest")) {
-
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-      stubApiDefinition
-      stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       signInGatekeeper
       on(DashboardPage)
 
@@ -419,55 +369,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("the copy to clipboard button should contain all of the developers email addresses")
-      verifyUsersEmailAddress("#content a.button","data-clip-text", s"$developer4; $developer8; $developer9; $developer2; $developer5; $developer7; $developer; $developer6")
+      verifyUsersEmailAddress("#content a.button","data-clip-text", "adam.cooper@digital.hmrc.gov.uk; admin2@email.com; admin@email.com; aivars.smaukstelis@digital.hmrc.gov.uk;")
     }
-  }
-
-  def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-      .withBody(applicationResponse).withStatus(200)))
-  }
-
-  def stubApplicationListWithNoDevelopers() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-      .withBody(applicationResponseWithNoUsers).withStatus(200)))
-  }
-
-  def stubAPISubscription(apiContext: String) = {
-    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
-  }
-
-  def stubNoAPISubscription() = {
-    stubFor(get(urlEqualTo(s"/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
-  }
-
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo(s"/api-definition"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
-  }
-
-
-  def stubRandomDevelopers(randomDevelopers: Int) = {
-    val developersList: String = developerListJsonGenerator(randomDevelopers).get
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersList).withStatus(200)))
-  }
-
-  def stubDevelopers(developers: Option[List[User]]) = {
-    val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersJson).withStatus(200)))
   }
 
   private def assertNumberOfDevelopersPerPage(expected: Int) = {
@@ -504,7 +407,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
-    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
+    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) should include(expected)
   }
 
   private def verifyUsersEmail(button : String) {

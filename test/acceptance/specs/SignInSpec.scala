@@ -27,7 +27,7 @@ import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
 import utils.MessClient
 
-class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with MessClient {
+class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with MessClient {
 
   feature("Gatekeeper Sign in") {
 
@@ -35,13 +35,13 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     info("As a gatekeeper")
     info("I would like to sign in")
 
-    scenario("Sign in with valid credentials") {
+    scenario("Sign in with valid credentials", Tag("NonSandboxTest")) {
       goOn(SignInPage)
       SignInPage.signIn("joe.test", "password123")
       on(DashboardPage)
     }
 
-    scenario("Sign in with invalid credentials", Tag("invalid")){
+    scenario("Sign in with invalid credentials", Tag("NonSandboxTest")){
       val stubMapping: StubMapping = post(urlEqualTo("/auth/authenticate/user")).atPriority(1)
           .willReturn(aResponse().withStatus(401)).build()
 
@@ -62,7 +62,6 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     }
 
     scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
-
       Given("The developer goes to the Gatekeeper home page")
       goOn(SignInPage)
       on(SignInPage)
@@ -95,7 +94,6 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     }
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
-
       Given("The developer goes to the Gatekeeper home page")
       goOn(SignInPage)
       on(SignInPage)

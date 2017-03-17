@@ -16,8 +16,6 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{DashboardPage, ReviewPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -27,7 +25,7 @@ import org.openqa.selenium.By
 import org.scalatest.{Matchers, Tag}
 import utils.MessClient
 
-class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with MessClient {
+class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MessClient {
 
   val approveRequest =
     s"""
@@ -44,21 +42,22 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
        |}
      """.stripMargin
 
+  val appPendingApprovalId1 = "d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c"
+
   feature("Approve a request to uplift an application") {
 
     scenario("I see the review page and I am able to approve the uplift request", Tag("NonSandboxTest")) {
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-review-d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c")
-      on(ReviewPage("d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1"))
+      clickOnLink(s"data-review-$appPendingApprovalId1")
+      on(ReviewPage(appPendingApprovalId1, "Friendly Taxman1"))
       clickOnSubmit()
       on(DashboardPage)
       webDriver.findElement(By.linkText("Sign out")).click()
     }
 
-    scenario("I see the dashboard page when the request to uplift the application fails with a 412", Tag("Non")) {
-      val stubMapping = post(urlMatching(s"/application/d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c/approve-uplift")).atPriority(1)
+    scenario("I see the dashboard page when the request to uplift the application fails with a 412", Tag("NonSandboxTest")) {
+      val stubMapping = post(urlMatching(s"/application/$appPendingApprovalId1/approve-uplift")).atPriority(1)
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(412)).build()
 
@@ -72,8 +71,8 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
 
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-review-d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c")
-      on(ReviewPage("d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1"))
+      clickOnLink(s"data-review-$appPendingApprovalId1")
+      on(ReviewPage(appPendingApprovalId1, "Friendly Taxman1"))
       clickOnSubmit()
       on(DashboardPage)
       webDriver.findElement(By.linkText("Sign out")).click()
@@ -86,15 +85,14 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
   feature("Reject a request to uplift an application") {
 
     scenario("I see the review page and I am able to reject the uplift request with a reason", Tag("NonSandboxTest")) {
-
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-review-d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c")
-      on(ReviewPage("d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1"))
+      clickOnLink(s"data-review-$appPendingApprovalId1")
+      on(ReviewPage(appPendingApprovalId1, "Friendly Taxman1"))
       clickOnElement("reject-app")
       verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
       clickOnSubmit()
-      on(ReviewPage("data-review-d11fd0de-0ce7-4990-b33a-63a4c4dd4f2c", "Friendly Taxman1"))
+      on(ReviewPage(s"data-review-$appPendingApprovalId1", "Friendly Taxman1"))
       verifyText("data-global-error","This field is required")
       webDriver.findElement(By.linkText("Sign out")).click()
     }
