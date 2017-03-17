@@ -60,7 +60,7 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
       implicit val format = Json.format[LoginDetails]
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
-      val authToken = SessionKeys.authToken -> "some-bearer-token"
+      val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
       val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 
       val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
