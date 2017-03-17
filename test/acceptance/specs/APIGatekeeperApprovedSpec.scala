@@ -16,23 +16,25 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{ApprovedPage, DashboardPage, ResendVerificationPage}
 import acceptance.{BaseSpec, SignInSugar}
-import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.scalatest.{Matchers, Tag}
 
-class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers {
+
+  val appPendingApprovalId1 = "fa9ed720-f0e1-4268-8287-e23e03ae11cd"
+  val appPendingApprovalId2 = "0c80c22d-1a59-4923-b2ec-37bf49ef35a8"
+  val appPendingApprovalId3 = "dd34cc71-bd1d-4ad5-aab6-5a999cd1150b"
+
 
   feature("View approved application details") {
 
     scenario("View details for an application in production", Tag("NonSandboxTest")) {
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-fa9ed720-f0e1-4268-8287-e23e03ae11cd")
-      on(ApprovedPage("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test"))
+      clickOnLink(s"data-view-$appPendingApprovalId1")
+      on(ApprovedPage(appPendingApprovalId1, "Agents Test"))
 
       verifyText("data-status", "Verified")
       clickOnLink("data-status")
@@ -44,18 +46,18 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
     scenario("View details for an application pending verification", Tag("NonSandboxTest")) {
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-0c80c22d-1a59-4923-b2ec-37bf49ef35a8")
-      on(ApprovedPage("0c80c22d-1a59-4923-b2ec-37bf49ef35a8", "Freds Tax Calc"))
+      clickOnLink(s"data-view-$appPendingApprovalId2")
+      on(ApprovedPage(appPendingApprovalId2, "Freds Tax Calc"))
 
       verifyText("data-status", "Not Verified")
-      verifyLinkPresent("resend-email", s"/gatekeeper/application/0c80c22d-1a59-4923-b2ec-37bf49ef35a8/resend-verification")
+      verifyLinkPresent("resend-email", s"/gatekeeper/application/$appPendingApprovalId2/resend-verification")
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has not verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
       assertApplicationDetails("Approved by: temp909@mailinator.com")
 
       clickOnLink("resend-email")
-      on(ResendVerificationPage("0c80c22d-1a59-4923-b2ec-37bf49ef35a8", "Freds Tax Calc"))
+      on(ResendVerificationPage(appPendingApprovalId2, "Freds Tax Calc"))
       verifyText("success-message", "Verification email has been sent")
       assertApplicationDetails("Approved by: temp909@mailinator.com")
     }
@@ -63,8 +65,8 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
     scenario("View details for an application with no description", Tag("NonSandboxTest")){
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-dd34cc71-bd1d-4ad5-aab6-5a999cd1150b")
-      on(ApprovedPage("dd34cc71-bd1d-4ad5-aab6-5a999cd1150b", "Bad Application"))
+      clickOnLink(s"data-view-$appPendingApprovalId3")
+      on(ApprovedPage(appPendingApprovalId3, "Bad Application"))
 
       verifyText("data-description", "No description added")
       assertApplicationDetails("Approved by: temp908@mailinator.com")
@@ -73,8 +75,8 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
     scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
       signInGatekeeper
       on(DashboardPage)
-      clickOnLink(s"data-view-fa9ed720-f0e1-4268-8287-e23e03ae11cd")
-      on(ApprovedPage("fa9ed720-f0e1-4268-8287-e23e03ae11cd", "Agents Test"))
+      clickOnLink(s"data-view-$appPendingApprovalId1")
+      on(ApprovedPage(appPendingApprovalId1, "Agents Test"))
       clickOnLink("data-back-link")
       on(DashboardPage)
     }
@@ -84,8 +86,8 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
     verifyText("data-submitter-name", "temp 999")
     verifyText("data-submitter-email", "temp907@mailinator.com")
     tagName("tbody").element.text should containInOrder(List(s"admin test", "admin@email.com", "admin test", "admin2@email.com"))
-    verifyText("data-submitted-on", "Submitted: 13 March 2017")
-    verifyText("data-approved-on", "Approved: 13 March 2017")
+    verifyText("data-submitted-on", "Submitted: 16 March 2017")
+    verifyText("data-approved-on", "Approved: 16 March 2017")
     verifyText("data-approved-by", approvedBy)
   }
 }

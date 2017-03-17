@@ -15,7 +15,7 @@ echo "Running tests for Api Documentation Frontend"
 cd $WORKSPACE
 
 echo "Start tests..."
-sbt clean test acceptance:test
+sbt clean test acceptance:test sandbox:test
 
 echo "Publish..."
 sbt dist-tgz publish

@@ -26,7 +26,7 @@ import org.scalatest.Tag
 
 import scala.io.Source
 
-class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
 
   feature("Strategic Sandbox - Gatekeeper - understand I am on the Enhanced Test Service") {
 
@@ -53,7 +53,7 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
       actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
 
       When("the users signs in")
-      SignInPage.signIn("joe.test", "password")
+      SignInPage.signIn("joe.test", "password123")
       on(ApplicationPage)
 
       Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
@@ -68,7 +68,6 @@ class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Mat
     }
 
     scenario("Cookie banner is displayed on the top of the page when user first visits the website", Tag("SandboxTest")) {
-
       Given("The developer goes to the Gatekeeper home page")
       goOn(SignInPage)
       on(SignInPage)
