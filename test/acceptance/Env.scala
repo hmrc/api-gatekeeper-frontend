@@ -39,6 +39,7 @@ trait Env {
   } else if (webDriverConfig == "chrome"){
     val driver: WebDriver = {
       val driver = new ChromeDriver()
+      driver.manage().deleteAllCookies()
       driver.manage().window().maximize()
       driver
     }

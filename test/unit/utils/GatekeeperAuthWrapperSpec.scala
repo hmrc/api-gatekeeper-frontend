@@ -40,7 +40,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 
-    val authToken = SessionKeys.authToken -> "some-bearer-token"
+    val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 
     val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
