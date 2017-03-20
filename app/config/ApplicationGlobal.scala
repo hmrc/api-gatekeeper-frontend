@@ -52,19 +52,6 @@ object ApplicationGlobal extends DefaultFrontendGlobal with RunMode {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html =
   views.html.error_template(pageTitle, heading, message)
-
-  override protected def defaultFrontendFilters: Seq[EssentialFilter] = Seq(
-    metricsFilter,
-    HeadersFilter,
-    SessionCookieCryptoFilter,
-    deviceIdFilter,
-    loggingFilter,
-    frontendAuditFilter,
-    // excluded: sessionTimeoutFilter,
-    csrfExceptionsFilter,
-    csrfFilter,
-    CacheControlFilter.fromConfig("caching.allowedContentTypes"),
-    RecoveryFilter)
 }
 
 object ControllerConfiguration extends ControllerConfig {
