@@ -37,8 +37,7 @@ case object StaticNavLinks {
     dashboardLink.toList ++ Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
       NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)),
-      NavLink("API Approvals", Some("/api-service-approval/pending")),
-      NavLink("Privileged Access", Some("/privileged-access/application")))
+      NavLink("API Approvals", Some("/api-service-approval/pending")))
   }
 }
 
