@@ -45,7 +45,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           |[
           | {
           |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://dummy-api.service/",
+          |   "serviceBaseUrl": "http://dummy-api.protected.mdtp/",
           |   "name": "dummyAPI",
           |   "description": "dummy api.",
           |   "context": "dummy-api",
@@ -75,7 +75,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       val result: Seq[APIDefinition] = await(connector.fetchPublic())
 
       result shouldBe Seq(APIDefinition(
-        "dummyAPI", "http://dummy-api.service/",
+        "dummyAPI", "http://dummy-api.protected.mdtp/",
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
       ))
@@ -97,7 +97,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           |[
           | {
           |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://dummy-api.service/",
+          |   "serviceBaseUrl": "http://dummy-api.protected.mdtp/",
           |   "name": "dummyAPI",
           |   "description": "dummy api.",
           |   "context": "dummy-api",
@@ -127,7 +127,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       val result: Seq[APIDefinition] = await(connector.fetchPrivate())
 
       result shouldBe Seq(APIDefinition(
-        "dummyAPI", "http://dummy-api.service/",
+        "dummyAPI", "http://dummy-api.protected.mdtp/",
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
       ))

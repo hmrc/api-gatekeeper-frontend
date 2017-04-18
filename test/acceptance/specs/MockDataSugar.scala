@@ -783,7 +783,7 @@ trait MockDataSugar {
     |[
     | {
     |   "serviceName": "employersPayeAPI",
-    |   "serviceBaseUrl": "http://employerspaye-api.service/",
+    |   "serviceBaseUrl": "http://employerspaye-api.protected.mdtp/",
     |   "name": "Employers PAYE",
     |   "description": "EMPLOYERS PAYE API.",
     |   "context": "employers-paye",
@@ -810,7 +810,7 @@ trait MockDataSugar {
     | },
     |  {
     |   "serviceName": "payeCreditsAPI",
-    |   "serviceBaseUrl": "http://payecredits-api.service/",
+    |   "serviceBaseUrl": "http://payecredits-api.protected.mdtp/",
     |   "name": "Paye Credits",
     |   "description": "PAYE CREDITS API",
     |   "context": "paye-credits",
@@ -837,7 +837,7 @@ trait MockDataSugar {
     | },
     |  {
     |   "serviceName": "individualBenefitsAPI",
-    |   "serviceBaseUrl": "http://individualbenefits-api.service/",
+    |   "serviceBaseUrl": "http://individualbenefits-api.protected.mdtp/",
     |   "name": "Individual Benefits",
     |   "description": "INDIVIDUAL BENEFITS API.",
     |   "context": "individual-benefits",
@@ -864,7 +864,7 @@ trait MockDataSugar {
     | },
     |   {
     |   "serviceName": "selfAssessmentAPI",
-    |   "serviceBaseUrl": "http://selfassessment-api.service/",
+    |   "serviceBaseUrl": "http://selfassessment-api.protected.mdtp/",
     |   "name": "Self Assessment",
     |   "description": "SELF ASSESSMENT API.",
     |   "context": "self-assessment",
