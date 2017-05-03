@@ -22,7 +22,7 @@ private object AppDependencies {
   private val logbackVersion = "1.1.10"
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.23.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.17.0",
     "uk.gov.hmrc" %% "play-authorised-frontend" % "6.3.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "uk.gov.hmrc" %% "play-config" % "4.3.0",
