@@ -17,11 +17,12 @@
 package config
 
 import com.typesafe.config.Config
+import controllers.routes
 import net.ceedubs.ficus.Ficus._
 import org.joda.time.Duration
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{EssentialFilter, Request}
+import play.api.mvc.{Call, EssentialFilter, Request, RequestHeader}
 import play.api.{Application, Play}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
@@ -30,7 +31,7 @@ import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.filters.{CacheControlFilter, MicroserviceFilterSupport, RecoveryFilter}
-import uk.gov.hmrc.play.filters.frontend.HeadersFilter
+import uk.gov.hmrc.play.filters.frontend.{HeadersFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
@@ -52,6 +53,31 @@ object ApplicationGlobal extends DefaultFrontendGlobal with RunMode {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html =
   views.html.error_template(pageTitle, heading, message)
+
+  override def sessionTimeoutFilter: SessionTimeoutFilter = {
+    val defaultTimeout = Duration.standardMinutes(15)
+    val timeoutDuration = configuration
+      .getLong("session.timeoutSeconds")
+      .map(Duration.standardSeconds)
+      .getOrElse(defaultTimeout)
+
+    val wipeIdleSession = configuration
+      .getBoolean("session.wipeIdleSession")
+      .getOrElse(true)
+
+    val additionalSessionKeysToKeep = configuration
+      .getStringSeq("session.additionalSessionKeysToKeep")
+      .getOrElse(Seq.empty).toSet
+
+    val whitelistedCalls = Set(routes.AccountController.loginPage) map { call => WhitelistedCall(call.url, call.method) }
+
+    new SessionTimeoutFilterWithWhitelist(
+      timeoutDuration = timeoutDuration,
+      additionalSessionKeysToKeep = additionalSessionKeysToKeep,
+      onlyWipeAuthToken = !wipeIdleSession,
+      whitelistedCalls = whitelistedCalls
+    )
+  }
 }
 
 object ControllerConfiguration extends ControllerConfig {
