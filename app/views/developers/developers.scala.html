@@ -21,6 +21,17 @@
 
         <div class="grid-layout grid-layout--stacked push--sides">
 
+            <div class="grid-layout__column--1-4">
+                <label class="bold centered-content hard--left">
+                    <span class="label__text bold">Search</span>
+                    <input class="form-control-7-8 input--cleared input-select--large"
+                    data-datatable-custom-filter="developer-table"
+                    name="example"
+                    type="text"
+                    placeholder="Name, Email, Application" />
+                </label>
+            </div>
+
             <div class="grid-layout__column--1-2">
                 @defining(ApiFilter(filter)) { apiFilter =>
                     <label class="form-label bold" for="filter">Filter by API Subscription
@@ -79,7 +90,9 @@
             data-length-change="true"
             data-length-menu="[10,50,100, 200, 300]"
             data-responsive="true"
-            data-column-defs='[{"targets": [0,1,2], "orderable": true}, {"targets": [4], "visible": false, "searchable": true}]'
+            data-column-defs='[{"targets": [0,1,2], "searchable":true, "orderable": true},
+                               {"targets": [3], "searchable":false},
+                               {"targets": [4], "visible": false, "searchable": true}]'
             data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
             <thead>
                 <tr role="row">
@@ -103,7 +116,7 @@
                         case UnregisteredStatus => ("status status--not-verified", "not registered")
                         }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
                     </td>
-                    <td id="dev-app-@index" class="text--right hard--right visuallyhidden">@developer.apps.map(a => a.name).mkString(",")</td>
+                    <td id="dev-app-@index" class="text--right hard--right ">@developer.apps.map(a => a.name).mkString(",")</td>
                 </tr>
             }
             </tbody>
