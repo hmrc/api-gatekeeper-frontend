@@ -116,12 +116,17 @@ $(function(undefined) {
       var table = settings.sTableId;
       var filterValue = buildFilter( getTableFilterValues( getCustomFilters(table) ) )
                           .toLowerCase();
-
-      if (~data[0].toLowerCase().indexOf(filterValue)) return true;
-      if (~data[1].toLowerCase().indexOf(filterValue)) return true;
-      if (~data[3].toLowerCase().indexOf(filterValue)) return true;
-      if (~data[5].toLowerCase().indexOf(filterValue)) return true;
-
+        if(table === "applications-table") {
+            if (~data[0].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[1].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[3].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[5].toLowerCase().indexOf(filterValue)) return true;
+        }else {
+            if (~data[0].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[1].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[2].toLowerCase().indexOf(filterValue)) return true;
+            if (~data[4].toLowerCase().indexOf(filterValue)) return true;
+        }
       return false;
     })
 
