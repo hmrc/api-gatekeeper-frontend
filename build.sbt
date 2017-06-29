@@ -20,7 +20,6 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
 
-lazy val playSettings: Seq[Setting[_]] = Seq.empty
 lazy val microservice =  (project in file("."))
     .enablePlugins(Seq(_root_.play.sbt.PlayScala) ++ plugins: _*)
     .settings(
@@ -40,13 +39,13 @@ lazy val microservice =  (project in file("."))
         uglify
       )
     )
-    .settings(playSettings: _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
       targetJvm := "jvm-1.8",
-      scalaVersion := "2.11.8",
+      scalaVersion := "2.11.11",
+      name:= appName,
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
