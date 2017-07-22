@@ -36,6 +36,16 @@ http://localhost:9000/api-gatekeeper/login
 The application is starting up with a login screen, it is using an internal authentication and authorisation service.
 At the moment it is not yet possible to stub the them. 
 
+## Unit tests
+```
+sbt test
+```
+
+## Acceptance tests
+```
+sbt acceptance:test
+```
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
