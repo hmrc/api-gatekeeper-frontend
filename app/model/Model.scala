@@ -68,6 +68,17 @@ object GatekeeperSessionKeys {
   val AuthToken = SessionKeys.authToken
 }
 
+case class UpdateRateLimitTierRequest(rateLimitTier: String)
+
+object UpdateRateLimitTierRequest {
+  implicit val format = Json.format[UpdateRateLimitTierRequest]
+}
+
+sealed trait UpdateApplicationRateLimitTierSuccessful
+
+case object UpdateApplicationRateLimitTierSuccessful extends UpdateApplicationRateLimitTierSuccessful
+
+
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
