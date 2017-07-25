@@ -49,8 +49,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
             s"""{"rateLimitTier":"GOLD"}""".stripMargin))
           .willReturn(
             aResponse()
-              .withStatus(204)
-              .withBody( """{"code"="INVALID_REQUEST_PAYLOAD", "message":"WOOD is an invalid rate limit tier"}""")))
+              .withStatus(204)))
 
       val result = await(connector.updateRateLimitTier(applicationId, "GOLD"))
 
