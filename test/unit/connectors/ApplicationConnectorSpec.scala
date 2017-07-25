@@ -22,10 +22,11 @@ import connectors.ApplicationConnector
 import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar
+  with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     val authToken = "Bearer Token"
@@ -34,6 +35,68 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     val connector = new ApplicationConnector {
       override val http = WSHttp
       override val applicationBaseUrl: String = wireMockUrl
+    }
+  }
+
+  "updateRateLimitTier" should {
+
+    val applicationId = "anApplicationId"
+
+    "send Authorisation and return OK if the rate limit tier update was successful on the backend" in new Setup {
+      stubFor(
+        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
+          .withRequestBody(equalTo(
+            s"""{"rateLimitTier":"GOLD"}""".stripMargin))
+          .willReturn(
+            aResponse()
+              .withStatus(204)
+              .withBody( """{"code"="INVALID_REQUEST_PAYLOAD", "message":"WOOD is an invalid rate limit tier"}""")))
+
+      val result = await(connector.updateRateLimitTier(applicationId, "GOLD"))
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"rateLimitTier":"GOLD"}""")))
+
+      result shouldBe UpdateApplicationRateLimitTierSuccessful
+    }
+
+    "send Authorisation and handle 412 precondition failed" in new Setup {
+      stubFor(
+        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
+          .withRequestBody(equalTo(
+            s"""{"rateLimitTier":"WOOD"}""".stripMargin))
+          .willReturn(
+            aResponse()
+              .withStatus(412)
+              .withBody( """{"code"="INVALID_REQUEST_PAYLOAD", "message":"WOOD is an invalid rate limit tier"}""")))
+
+      intercept[PreconditionFailed] {
+        await(connector.updateRateLimitTier(applicationId, "WOOD"))
+      }
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"rateLimitTier":"WOOD"}""")))
+    }
+
+    "send Authorisation and propagates 5xx errors" in new Setup {
+      stubFor(
+        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
+          .withRequestBody(equalTo(
+            s"""{"rateLimitTier":"SILVER"}""".stripMargin))
+          .willReturn(
+            aResponse()
+              .withStatus(500)
+              .withBody( """{"code"="UNKNOWN_ERROR", "message":"An unexpected error occurred"}""")))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.updateRateLimitTier(applicationId, "SILVER"))
+      }
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"rateLimitTier":"SILVER"}""")))
     }
   }
 
@@ -67,7 +130,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       stubFor(post(urlEqualTo(s"/application/$applicationId/approve-uplift")).willReturn(aResponse().withStatus(412)
         .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_GATEKEEPER_APPROVAL'"}""")))
 
-      intercept[PreconditionFailed](await(connector.approveUplift(applicationId, gatekeeperId)))
+      intercept[PreconditionFailed] {
+        await(connector.approveUplift(applicationId, gatekeeperId))
+      }
 
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/approve-uplift"))
         .withHeader("Authorization", equalTo(authToken))
@@ -97,7 +162,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       stubFor(post(urlEqualTo(s"/application/$applicationId/reject-uplift")).willReturn(aResponse().withStatus(412)
         .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_GATEKEEPER_APPROVAL'"}""")))
 
-      intercept[PreconditionFailed](await(connector.rejectUplift(applicationId, gatekeeperId, rejectionReason)))
+      intercept[PreconditionFailed] {
+        await(connector.rejectUplift(applicationId, gatekeeperId, rejectionReason))
+      }
 
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/reject-uplift"))
         .withHeader("Authorization", equalTo(authToken))
@@ -125,7 +192,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       stubFor(post(urlEqualTo(s"/application/$applicationId/resend-verification")).willReturn(aResponse().withStatus(412)
         .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_REQUESTOR_VERIFICATION'"}""")))
 
-      intercept[PreconditionFailed](await(connector.resendVerification(applicationId, gatekeeperId)))
+      intercept[PreconditionFailed] {
+        await(connector.resendVerification(applicationId, gatekeeperId))
+      }
 
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/resend-verification"))
         .withHeader("Authorization", equalTo(authToken))
@@ -148,7 +217,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     "propagate FetchApplicationsFailed exception" in new Setup {
       stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApplicationsFailed](await(connector.fetchApplicationsWithUpliftRequest()))
+      intercept[FetchApplicationsFailed] {
+        await(connector.fetchApplicationsWithUpliftRequest())
+      }
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/gatekeeper/applications"))
         .withHeader("Authorization", equalTo(authToken)))
@@ -169,7 +240,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
       stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApplicationsFailed](await(connector.fetchAllApplicationsBySubscription("some-context")))
+      intercept[FetchApplicationsFailed] {
+        await(connector.fetchAllApplicationsBySubscription("some-context"))
+      }
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/application?subscribesTo="))
         .withHeader("Authorization", equalTo(authToken)))
@@ -190,7 +263,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     "propagate fetchAllApplications exception" in new Setup {
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withStatus(500)))
 
-      intercept[FetchApplicationsFailed](await(connector.fetchAllApplications()))
+      intercept[FetchApplicationsFailed] {
+        await(connector.fetchAllApplications())
+      }
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/application"))
         .withHeader("Authorization", equalTo(authToken)))

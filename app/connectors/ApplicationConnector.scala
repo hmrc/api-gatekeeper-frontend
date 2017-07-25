@@ -19,6 +19,9 @@ package connectors
 import config.WSHttp
 import connectors.AuthConnector._
 import model._
+import play.api.http.ContentTypes.JSON
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.Status.PRECONDITION_FAILED
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,28 +38,40 @@ trait ApplicationConnector {
 
   val http: HttpPost with HttpGet
 
-  def approveUplift(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] =
+  def updateRateLimitTier(applicationId: String, tier: String)
+                         (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] =
+    http.POST(s"$applicationBaseUrl/application/$applicationId/rate-limit-tier",
+      UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
+    .map(_ => UpdateApplicationRateLimitTierSuccessful)
+    .recover {
+      case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
+    }
+
+  def approveUplift(applicationId: String, gatekeeperUserId: String)
+                   (implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] =
     http.POST(s"$applicationBaseUrl/application/$applicationId/approve-uplift",
-      ApproveUpliftRequest(gatekeeperUserId), Seq("Content-Type" -> "application/json"))
+      ApproveUpliftRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ApproveUpliftSuccessful)
       .recover {
-        case e: Upstream4xxResponse if (e.upstreamResponseCode == 412) => throw new PreconditionFailed
+        case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
 
-  def rejectUplift(applicationId: String, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] =
+  def rejectUplift(applicationId: String, gatekeeperUserId: String, rejectionReason: String)
+                  (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] =
     http.POST(s"$applicationBaseUrl/application/$applicationId/reject-uplift",
-      RejectUpliftRequest(gatekeeperUserId, rejectionReason), Seq("Content-Type" -> "application/json"))
+      RejectUpliftRequest(gatekeeperUserId, rejectionReason), Seq(CONTENT_TYPE -> JSON))
       .map(_ => RejectUpliftSuccessful)
       .recover {
-        case e: Upstream4xxResponse if (e.upstreamResponseCode == 412) => throw new PreconditionFailed
+        case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
 
-  def resendVerification(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] =
+  def resendVerification(applicationId: String, gatekeeperUserId: String)
+                        (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] =
     http.POST(s"$applicationBaseUrl/application/$applicationId/resend-verification",
-      ResendVerificationRequest(gatekeeperUserId), Seq("Content-Type" -> "application/json"))
+      ResendVerificationRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ResendVerificationSuccessful)
       .recover {
-        case e: Upstream4xxResponse if (e.upstreamResponseCode == 412) => throw new PreconditionFailed
+        case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
 
   def fetchApplicationsWithUpliftRequest()(implicit hc: HeaderCarrier): Future[Seq[ApplicationWithUpliftRequest]] = {
@@ -83,7 +98,6 @@ trait ApplicationConnector {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
-
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/application")

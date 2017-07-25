@@ -37,7 +37,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
   }
 
   "fetchAll" should {
-    "responds with 200 and converts body" in new Setup {
+    "respond with 200 and convert body" in new Setup {
       val applicationId = "anApplicationId"
       val gatekeeperId = "loggedin.gatekeeper"
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
@@ -89,7 +89,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
   }
 
   "fetchPrivate" should {
-    "responds with 200 and converts body" in new Setup {
+    "respond with 200 and convert body" in new Setup {
       val applicationId = "anApplicationId"
       val gatekeeperId = "loggedin.gatekeeper"
       stubFor(get(urlEqualTo(s"/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(
