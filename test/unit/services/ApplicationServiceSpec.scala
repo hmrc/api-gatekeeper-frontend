@@ -52,10 +52,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         "application3", None, collaborators, DateTime.now(), ApplicationState()))
   }
 
-  "applicationService" should {
+  "fetchAllSubscribedApplications" should {
 
     "list all subscribed applications" in new Setup {
-
       given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApplications))
 
@@ -84,6 +83,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       app3.subscriptionNames should have size 1
       app3.subscriptionNames shouldBe Seq("super-context")
     }
+  }
+
+  "resendVerification" should {
 
     "call applicationConnector with appropriate parameters" in new Setup {
       val applicationId = "applicationId"
@@ -91,16 +93,21 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
       val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
 
-      given(testApplicationService.applicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ResendVerificationSuccessful))
+      given(testApplicationService.applicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
+        .willReturn(Future.successful(ResendVerificationSuccessful))
 
       val result = await(testApplicationService.resendVerification(applicationId, userName))
 
       appIdCaptor.getValue shouldBe applicationId
       gatekeeperIdCaptor.getValue shouldBe userName
     }
+  }
+
+  "fetchApplications" should {
 
     "list all applications when filtering not provided" in new Setup {
-      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApplications))
+      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+        .willReturn(Future.successful(allApplications))
 
       val result: Seq[ApplicationResponse] = await(testApplicationService.fetchApplications)
       result shouldEqual allApplications
@@ -113,7 +120,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         ApplicationResponse(UUID.randomUUID(),
           "application3", None, collaborators, DateTime.now(), ApplicationState()))
 
-      given(testApplicationService.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier])).willReturn(Future.successful(filteredApplications))
+      given(testApplicationService.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier]))
+        .willReturn(Future.successful(filteredApplications))
 
       val result = await(testApplicationService.fetchApplications(Value("subscription")))
       result shouldBe filteredApplications
@@ -133,8 +141,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
           "application4", None, collaborators, DateTime.now(), ApplicationState()))
 
       val allApps = noSubscriptions ++ subscriptions
-      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApps))
-      given(testApplicationService.applicationConnector.fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier])).willReturn(Future.successful(noSubscriptions))
+      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+        .willReturn(Future.successful(allApps))
+      given(testApplicationService.applicationConnector.fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier]))
+        .willReturn(Future.successful(noSubscriptions))
       val result = await(testApplicationService.fetchApplications(OneOrMoreSubscriptions))
       result shouldBe subscriptions
     }
@@ -146,9 +156,37 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         ApplicationResponse(UUID.randomUUID(),
           "application3", None, collaborators, DateTime.now(), ApplicationState()))
 
-      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier])).willReturn(Future.successful(allApps))
+      given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+        .willReturn(Future.successful(allApps))
       val result = await(testApplicationService.fetchApplications(OneOrMoreApplications))
       result shouldBe allApps
     }
   }
+
+  "updateRateLimitTier" should {
+
+    "return successfully when updating the rate limit tier" in new Setup {
+      val applicationId = UUID.randomUUID().toString
+      val rateLimitTier = "SILVER"
+
+      given(testApplicationService.applicationConnector.updateRateLimitTier(applicationId, rateLimitTier)(hc))
+        .willReturn(Future.successful(UpdateApplicationRateLimitTierSuccessful))
+
+      val result = await(testApplicationService.updateRateLimitTier(applicationId, rateLimitTier))
+      result shouldBe UpdateApplicationRateLimitTierSuccessful
+    }
+
+    "propagate the error when trying to update rate limit tier" in new Setup {
+      val applicationId = UUID.randomUUID().toString
+      val rateLimitTier = "WOOD"
+
+      given(testApplicationService.applicationConnector.updateRateLimitTier(applicationId, rateLimitTier)(hc))
+        .willReturn(Future.failed(new RuntimeException))
+
+      intercept[RuntimeException] {
+        await(testApplicationService.updateRateLimitTier(applicationId, rateLimitTier))
+      }
+    }
+  }
+
 }
