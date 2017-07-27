@@ -73,7 +73,7 @@
                                         @for(t <- RateLimitTier.values) {
                                             <td>
                                                 <p>
-                                                    <input type="radio" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
+                                                    <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
                                                 </p>
                                             </td>
                                         }

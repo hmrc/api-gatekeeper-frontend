@@ -21,19 +21,26 @@ import java.net.URLEncoder
 import acceptance.specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import org.openqa.selenium.{By, NoSuchElementException, WebDriver}
+import model.RateLimitTier.{BRONZE, RateLimitTier}
+import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
 
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
 
-  protected def stubApplicationListAndDevelopers() = {
+  protected def stubRateLimitTier(applicationId: String, tier: String) = {
+    stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
+      .withRequestBody(equalTo(s"""{"rateLimitTier":"$tier"}""".stripMargin))
+      .willReturn(aResponse().withStatus(204)))
+  }
+
+  protected def stubApplicationListAndDevelopers(rateLimitTier: RateLimitTier = BRONZE) = {
     val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
     val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
     val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
 
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications(rateLimitTier)).withStatus(200)))
 
     stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
       .willReturn(aResponse().withBody(administrator()).withStatus(200)))
@@ -42,10 +49,11 @@ trait ApprovedBaseSpec extends BaseSpec
       .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
   }
 
-  private def assertApplicationRateLimitTier(isSuperUser: Boolean)(implicit webDriver: WebDriver) = {
+  protected def assertApplicationRateLimitTier(isSuperUser: Boolean, rateLimitTier: String) = {
     if (isSuperUser) {
-      id("rate-limit-tier").element.text shouldBe "Rate limit tier: BRONZE"
+      id("rate-limit-tier").element.text shouldBe s"Rate limit tier: $rateLimitTier"
       id("rate-limit-tier-table").element.text should containInOrder(List("BRONZE", "SILVER", "GOLD", "Save new rate limit tier"))
+      id(rateLimitTier).element.isSelected shouldBe true
     } else {
       intercept[NoSuchElementException] {
         webDriver.findElement(By.id("rate-limit-tier"))
@@ -56,10 +64,10 @@ trait ApprovedBaseSpec extends BaseSpec
     }
   }
 
-  protected def assertApplicationDetails(isSuperUser: Boolean = false): Unit = {
+  protected def assertApplicationDetails(isSuperUser: Boolean = false) = {
     verifyText("data-submitter-name", s"$firstName $lastName")
     verifyText("data-submitter-email", adminEmail)
-    assertApplicationRateLimitTier(isSuperUser)
+    assertApplicationRateLimitTier(isSuperUser, rateLimitTier = BRONZE.toString)
     id("admins").element.text should containInOrder(List(s"$firstName $lastName", adminEmail, "Admin McAdmin", admin2Email))
     verifyText("data-submitted-on", "Submitted: 22 March 2016")
     verifyText("data-approved-on", "Approved: 05 April 2016")
