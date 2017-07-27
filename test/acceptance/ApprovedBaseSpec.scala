@@ -21,7 +21,7 @@ import java.net.URLEncoder
 import acceptance.specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import model.RateLimitTier.{BRONZE, RateLimitTier}
+import model.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
 
@@ -34,13 +34,13 @@ trait ApprovedBaseSpec extends BaseSpec
       .willReturn(aResponse().withStatus(204)))
   }
 
-  protected def stubApplicationListAndDevelopers(rateLimitTier: RateLimitTier = BRONZE) = {
+  protected def stubApplicationListAndDevelopers() = {
     val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
     val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
     val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
 
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications(rateLimitTier)).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
     stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
       .willReturn(aResponse().withBody(administrator()).withStatus(200)))

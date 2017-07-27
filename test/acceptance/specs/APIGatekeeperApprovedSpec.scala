@@ -27,7 +27,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
 
     scenario("View details for an application in production", Tag("NonSandboxTest")) {
 
-      stubApplicationListAndDevelopers
+      stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
 
@@ -45,7 +45,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
 
     scenario("View details for an application pending verification", Tag("NonSandboxTest")) {
 
-      stubApplicationListAndDevelopers
+      stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description")).withStatus(200)))
       stubFor(post(urlMatching(s"/application/$approvedApp1/resend-verification"))
@@ -71,7 +71,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
 
     scenario("View details for an application with no description", Tag("NonSandboxTest")){
 
-      stubApplicationListAndDevelopers
+      stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
 
@@ -85,7 +85,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
     }
 
     scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
-      stubApplicationListAndDevelopers
+      stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
 

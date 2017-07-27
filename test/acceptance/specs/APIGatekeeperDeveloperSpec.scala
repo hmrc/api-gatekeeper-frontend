@@ -433,7 +433,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   def stubApplicationListWithNoDevelopers() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications()).withStatus(200)))
 
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
       .withBody(applicationResponseWithNoUsers).withStatus(200)))

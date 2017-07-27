@@ -19,7 +19,6 @@ package acceptance.specs
 import acceptance.pages.{ApprovedPage, DashboardPage}
 import acceptance.ApprovedBaseSpec
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.RateLimitTier
 import org.scalatest._
 import play.api.{Application, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -36,7 +35,7 @@ class APIGatekeeperSuperUserApprovedSpec extends ApprovedBaseSpec {
   feature("View approved application details") {
 
     scenario("View current application rate limit details if the logged-in user is a super user", Tag("NonSandboxTest")) {
-      stubApplicationListAndDevelopers
+      stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
 
@@ -46,7 +45,7 @@ class APIGatekeeperSuperUserApprovedSpec extends ApprovedBaseSpec {
       on(ApprovedPage(approvedApp1, "Application"))
       assertApplicationRateLimitTier(isSuperUser = true, "BRONZE")
 
-      stubApplicationListAndDevelopers(RateLimitTier.SILVER)
+      stubApplicationListAndDevelopers()
       stubRateLimitTier("df0c32b6-bbb7-46eb-ba50-e6e5459162ff", "SILVER")
       clickOnElement("SILVER")
       clickOnElement("rate-limit-tier-save")
