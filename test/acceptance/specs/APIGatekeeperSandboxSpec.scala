@@ -17,16 +17,25 @@
 package acceptance.specs
 
 import acceptance.pages.{ApplicationPage, SignInPage}
-import acceptance.{SandboxBaseSpec, SignInSugar}
+import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Matchers}
-import org.scalatest.Tag
+import org.scalatest.{GivenWhenThen, Matchers, Tag, TestData}
+import play.api.{Application, Mode}
+import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.io.Source
 
-class APIGatekeeperSandboxSpec extends SandboxBaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class APIGatekeeperSandboxSpec extends BaseSpec
+  with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+
+  override def newAppForTest(testData: TestData): Application = {
+    GuiceApplicationBuilder()
+      .configure("run.mode" -> "Stub", "isExternalTestEnvironment" -> true)
+      .in(Mode.Prod)
+      .build()
+  }
 
   feature("Strategic Sandbox - Gatekeeper - understand I am on the Enhanced Test Service") {
 

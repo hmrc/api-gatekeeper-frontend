@@ -16,15 +16,12 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{ApprovedPage, DashboardPage, ResendVerificationPage}
-import acceptance.{BaseSpec, SignInSugar}
+import acceptance.ApprovedBaseSpec
 import com.github.tomakehurst.wiremock.client.WireMock._
-import component.matchers.CustomMatchers
-import org.scalatest.{Matchers, Tag}
+import org.scalatest.Tag
 
-class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
 
   feature("View approved application details") {
 
@@ -43,7 +40,7 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
-      assertApplicationDetails
+      assertApplicationDetails()
      }
 
     scenario("View details for an application pending verification", Tag("NonSandboxTest")) {
@@ -64,12 +61,12 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       clickOnLink("data-status")
       verifyText("data-summary", "The submitter has not verified that they still have access to the email address associated with this application.")
       verifyText("data-description", "application description")
-      assertApplicationDetails
+      assertApplicationDetails()
 
       clickOnLink("resend-email")
       on(ResendVerificationPage(approvedApp1, "Application"))
       verifyText("success-message", "Verification email has been sent")
-      assertApplicationDetails
+      assertApplicationDetails()
     }
 
     scenario("View details for an application with no description", Tag("NonSandboxTest")){
@@ -84,7 +81,7 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
       on(ApprovedPage(approvedApp1, "Application"))
 
       verifyText("data-description", "No description added")
-      assertApplicationDetails
+      assertApplicationDetails()
     }
 
     scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
@@ -101,27 +98,4 @@ class APIGatekeeperApprovedSpec extends BaseSpec with SignInSugar with Matchers 
     }
   }
 
-  def stubApplicationListAndDevelopers() = {
-    val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-    val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
-    val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
-
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-      .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
-    stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
-      .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
-  }
-
-  def assertApplicationDetails() = {
-    verifyText("data-submitter-name", s"$firstName $lastName")
-    verifyText("data-submitter-email", adminEmail)
-    tagName("tbody").element.text should containInOrder(List(s"$firstName $lastName", adminEmail, "Admin McAdmin", admin2Email))
-    verifyText("data-submitted-on", "Submitted: 22 March 2016")
-    verifyText("data-approved-on", "Approved: 05 April 2016")
-    verifyText("data-approved-by", "Approved by: gatekeeper.username")
-  }
 }
