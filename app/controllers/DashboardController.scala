@@ -25,7 +25,7 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.approvedApplication._
@@ -71,7 +71,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
-  private def fetchApplicationDetails(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationDetails] = {
+  private def fetchApplicationDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationDetails] = {
     def lastSubmission(app: ApplicationWithHistory): Future[SubmissionDetails] = {
       val submission: StateHistory = app.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
         .sortWith(StateHistory.ascendingDateForAppId)
@@ -82,10 +82,6 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       )
     }
 
-    def applicationDetails(app: ApplicationResponse, submission: SubmissionDetails) = {
-      ApplicationDetails(app.id.toString, app.name, app.description.getOrElse(""), submission)
-    }
-
     for {
       app <- applicationConnector.fetchApplication(appId)
       submission <- lastSubmission(app)
@@ -93,24 +89,26 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def approvedApplicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+
+    def lastApproval(app: ApplicationWithHistory): StateHistory = {
+      app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+        .sortWith(StateHistory.ascendingDateForAppId)
+        .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
+    }
+
+    def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+      val emails: Set[String] = app.application.admins.map(_.emailAddress)
+      developerConnector.fetchByEmails(emails.toSeq)
+    }
+
+    def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+      val verified = app.state.name == State.PRODUCTION
+      val details = applicationDetails(app, submissionDetails)(request)
+
+      ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
+    }
+
     redirectIfExternalTestEnvironment {
-      def lastApproval(app: ApplicationWithHistory): StateHistory = {
-        app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
-          .sortWith(StateHistory.ascendingDateForAppId)
-          .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
-      }
-
-      def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
-        val emails: Set[String] = app.application.admins.map(_.emailAddress)
-        developerConnector.fetchByEmails(emails.toSeq)
-      }
-
-      def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
-        val verified = app.state.name == State.PRODUCTION
-        val details = applicationDetails(app, submissionDetails)
-
-        ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
-      }
 
       for {
         app <- applicationConnector.fetchApplication(appId)
@@ -131,8 +129,18 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
-  private def applicationDetails(app: ApplicationResponse, submission: SubmissionDetails) = {
-    ApplicationDetails(app.id.toString, app.name, app.description.getOrElse(""), submission)
+  private def applicationDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+    val currentRateLimitTier = app.rateLimitTier.getOrElse(RateLimitTier.BRONZE)
+    val currentRateLimitTierToDisplay =
+      if (isSuperUser) Some(currentRateLimitTier)
+      else None
+
+    ApplicationDetails(
+      app.id.toString,
+      app.name,
+      app.description.getOrElse(""),
+      currentRateLimitTierToDisplay,
+      submission)
   }
 
   def handleUplift(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
@@ -163,6 +171,22 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       requestForm.fold(errors, addApplicationWithValidForm)
     }
   }
+
+  def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
+    requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+      redirectIfExternalTestEnvironment {
+        val result = Redirect(routes.DashboardController.approvedApplicationPage(appId))
+        if (!isSuperUser) {
+          Future.successful(result)
+        } else {
+          val newTier = UpdateRateLimitForm.form.bindFromRequest().get.tier
+          applicationConnector.updateRateLimitTier(appId, newTier) map {
+            case UpdateApplicationRateLimitTierSuccessful =>
+              result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+          }
+        }
+      }
+    }
 
   private def redirectIfExternalTestEnvironment(body: => Future[Result]) = {
     appConfig.isExternalTestEnvironment match {

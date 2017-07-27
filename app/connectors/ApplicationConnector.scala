@@ -42,10 +42,10 @@ trait ApplicationConnector {
                          (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] =
     http.POST(s"$applicationBaseUrl/application/$applicationId/rate-limit-tier",
       UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
-    .map(_ => UpdateApplicationRateLimitTierSuccessful)
-    .recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
-    }
+      .map(_ => UpdateApplicationRateLimitTierSuccessful)
+      .recover {
+        case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
+      }
 
   def approveUplift(applicationId: String, gatekeeperUserId: String)
                    (implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] =

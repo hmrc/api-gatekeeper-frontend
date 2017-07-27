@@ -33,6 +33,7 @@ trait AppConfig {
   lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
   lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   lazy val title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  lazy val superUsers: Seq[String] = configuration.getStringSeq("superUsers").getOrElse(Seq.empty)
 }
 
 object AppConfig extends AppConfig with ServicesConfig {

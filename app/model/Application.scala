@@ -19,6 +19,7 @@ package model
 import java.util.UUID
 
 import model.CollaboratorRole.CollaboratorRole
+import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -37,7 +38,9 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
-                               state: ApplicationState) extends Application {
+                               state: ApplicationState,
+                               rateLimitTier: Option[RateLimitTier] = None
+                              ) extends Application {
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 }
@@ -48,6 +51,7 @@ object ApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
+  implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApplicationResponse]
 }
 
@@ -74,12 +78,12 @@ object SubscribedApplicationResponse {
 }
 
 case class DetailedSubscribedApplicationResponse(id: UUID,
-                                         name: String,
-                                         description: Option[String] = None,
-                                         collaborators: Set[Collaborator],
-                                         createdOn: DateTime,
-                                         state: ApplicationState,
-                                         subscriptions: Seq[SubscriptionDetails]) extends Application
+                                                 name: String,
+                                                 description: Option[String] = None,
+                                                 collaborators: Set[Collaborator],
+                                                 createdOn: DateTime,
+                                                 state: ApplicationState,
+                                                 subscriptions: Seq[SubscriptionDetails]) extends Application
 
 case class SubscriptionDetails(name:String, context: String)
 
@@ -111,3 +115,10 @@ case class Collaborator(emailAddress: String, role: CollaboratorRole)
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
                             verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)
+
+object RateLimitTier extends Enumeration {
+  type RateLimitTier = Value
+  val BRONZE, SILVER, GOLD = Value
+
+  def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
+}
