@@ -18,6 +18,7 @@ package model
 
 import java.util.UUID
 
+import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -87,6 +88,7 @@ object ApplicationWithHistory {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
+  implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[ApplicationWithHistory]
 }
@@ -156,7 +158,7 @@ object SubmissionDetails {
   implicit val format = Json.format[SubmissionDetails]
 }
 
-case class ApplicationDetails(id: String, name: String, description: String, submission: SubmissionDetails)
+case class ApplicationDetails(id: String, name: String, description: String, rateLimitTier: Option[RateLimitTier], submission: SubmissionDetails)
 
 case class ApprovedApplication(details: ApplicationDetails, admins: Seq[User], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 

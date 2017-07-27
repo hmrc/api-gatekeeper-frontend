@@ -31,7 +31,7 @@ object HandleUpliftForm {
   lazy val form = Form(
     mapping(
       "action" -> actionValidator,
-      "reason" -> mandatoryIfEqual("action","REJECT",nonEmptyText)
+      "reason" -> mandatoryIfEqual("action", "REJECT", nonEmptyText)
     )(HandleUpliftForm.apply)(HandleUpliftForm.unapply)
   )
 
@@ -40,4 +40,14 @@ object HandleUpliftForm {
       .withError("submissionError", "true")
       .withGlobalError("Action is not recognised")
   }
+}
+
+case class UpdateRateLimitForm(tier: String)
+
+object UpdateRateLimitForm {
+  val form: Form[UpdateRateLimitForm] = Form(
+    mapping(
+      "tier" -> nonEmptyText
+    )(UpdateRateLimitForm.apply)(UpdateRateLimitForm.unapply)
+  )
 }
