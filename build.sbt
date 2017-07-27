@@ -99,7 +99,7 @@ lazy val plugins: Seq[Plugins] = Seq(
 )
 lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "acceptance",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "acceptance",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "acceptance",
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
@@ -120,7 +120,7 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   ))
 lazy val testDeps: Seq[ModuleID] = Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "test",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "test",
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
   "org.jsoup" % "jsoup" % "1.10.2" % "test",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
@@ -177,5 +177,5 @@ def acceptanceFilter(name: String): Boolean = name startsWith "acceptance"
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests map {
-    test => new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+    test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
   }

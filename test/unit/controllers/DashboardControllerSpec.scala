@@ -24,8 +24,9 @@ import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
 import model._
 import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito._
+import org.mockito.BDDMockito.given
 import org.mockito.Matchers._
+import org.mockito.Mockito.{never, times, verify}
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -34,7 +35,7 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -70,7 +71,7 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
     "dashboardPage" should {
 
-      "go to loginpage with error if user is not authenticated" in new Setup {
+      "go to the login page with error if user is not authenticated" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
         val result = await(underTest.dashboardPage()(aLoggedOutRequest))
@@ -130,6 +131,41 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
+      }
+    }
+
+    "handleUpdateRateLimitTier" should {
+      val applicationId = "applicationId"
+      val tier = "GOLD"
+
+      "change the rate limit for a super user" in new Setup {
+        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+        given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
+
+        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
+        val newTierCaptor = ArgumentCaptor.forClass(classOf[String])
+        val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+
+        given(underTest.applicationConnector.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+          .willReturn(Future.successful(UpdateApplicationRateLimitTierSuccessful))
+
+        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier))))
+        status(result) shouldBe 303
+
+        appIdCaptor.getValue shouldBe applicationId
+        newTierCaptor.getValue shouldBe tier
+
+        verify(underTest.applicationConnector, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
+      }
+
+      "not call the application connector for a normal user " in new Setup {
+        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+        given(underTest.appConfig.superUsers).willReturn(Seq.empty)
+
+        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
+        status(result) shouldBe 303
+
+        verify(underTest.applicationConnector, never()).updateRateLimitTier(anyString(), anyString())(any[HeaderCarrier])
       }
     }
   }
