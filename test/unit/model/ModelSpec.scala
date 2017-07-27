@@ -16,12 +16,14 @@
 
 package unit.model
 
+import model.RateLimitTier
 import model.UpliftAction
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
 
 
-class ModelSpec  extends UnitSpec with Matchers{
+class ModelSpec  extends UnitSpec with Matchers {
+
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
       UpliftAction.from("approve") shouldBe Some(UpliftAction.APPROVE)
@@ -38,4 +40,22 @@ class ModelSpec  extends UnitSpec with Matchers{
       UpliftAction.from("") shouldBe None
     }
   }
+
+  "RateLimitTier" should {
+    "convert string value to enum with lowercase" in {
+      RateLimitTier.from("gold") shouldBe Some(RateLimitTier.GOLD)
+      RateLimitTier.from("bronze") shouldBe Some(RateLimitTier.BRONZE)
+    }
+
+    "convert string value to enum with mixedcase" in {
+      RateLimitTier.from("gOld") shouldBe Some(RateLimitTier.GOLD)
+      RateLimitTier.from("SilVeR") shouldBe Some(RateLimitTier.SILVER)
+    }
+
+    "convert string value to None when undefined or empty" in {
+      RateLimitTier.from("unknown") shouldBe None
+      RateLimitTier.from("") shouldBe None
+    }
+  }
+
 }
