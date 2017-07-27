@@ -24,7 +24,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.{Call, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 
@@ -36,7 +36,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     val underTest = new GatekeeperAuthWrapper with Results {
       val authConnector = mock[AuthConnector]
       val authProvider = GatekeeperAuthProvider
-      implicit val appConfig = config.AppConfig
+      implicit val appConfig = mock[config.AppConfig]
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 
@@ -45,7 +45,6 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
     val aLoggedOutRequest = FakeRequest().withSession()
-
   }
 
   "requiresLogin" should {
@@ -84,13 +83,30 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
   "redirectIfLoggedIn" should {
     "redirect to the given page when user is logged in" in new Setup {
-      val result = underTest.redirectIfLoggedIn(new Call("GET", "/welcome-page"))(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.redirectIfLoggedIn(Call("GET", "/welcome-page"))(actionReturns200Body).apply(aLoggedInRequest)
       redirectLocation(result) shouldBe Some("/welcome-page")
     }
 
     "stay on page when user is logged out" in new Setup {
-      val result = underTest.redirectIfLoggedIn(new Call("GET", "/welcome-page"))(actionReturns200Body).apply(aLoggedOutRequest)
+      val result = underTest.redirectIfLoggedIn(Call("GET", "/welcome-page"))(actionReturns200Body).apply(aLoggedOutRequest)
       status(result) shouldBe 200
     }
   }
+
+  "isSuperUser" should {
+    "return `true` if the current logged-in user is a super user" in new Setup {
+      given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
+
+      val isSuperUser = underTest.isSuperUser(aLoggedInRequest)
+      isSuperUser shouldBe true
+    }
+
+    "return `false` if the current logged-in user is not a super user" in new Setup {
+      given(underTest.appConfig.superUsers).willReturn(Seq.empty)
+
+      val isSuperUser = underTest.isSuperUser(aLoggedInRequest)
+      isSuperUser shouldBe false
+    }
+  }
+
 }

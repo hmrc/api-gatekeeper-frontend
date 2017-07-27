@@ -1,9 +1,11 @@
 @import model.ApprovedApplication
-
+@import model.RateLimitTier
 @import org.joda.time.format.DateTimeFormat
+@import utils.GatekeeperAuthWrapper
+
 @(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Dashboard",userFullName = userFullName ) {
+@main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
     @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
         <div class="content__body">
@@ -56,6 +58,37 @@
                 <p data-description class="fadded-text">No description added</p>
             }
 
+            @if(application.details.rateLimitTier.isDefined) {
+                @helper.form(action = routes.DashboardController.handleUpdateRateLimitTier(application.details.id)) {
+                    <details>
+                        <summary>
+                            <span id="rate-limit-tier">Rate limit tier: @application.details.rateLimitTier</span>
+                        </summary>
+                        <div>
+                            @helper.CSRF.formField
+                            <table>
+                                <caption class="visuallyhidden">Table showing rate limit tier</caption>
+                                <tbody id="rate-limit-tier-table">
+                                    <tr>
+                                        @for(t <- RateLimitTier.values) {
+                                            <td>
+                                                <p>
+                                                    <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
+                                                </p>
+                                            </td>
+                                        }
+                                        <td>
+                                            <!-- TODO: disable this submit button when the new tier == current tier -->
+                                            <button id="rate-limit-tier-save" class="button" type="submit">Save new rate limit tier</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                }
+            }
+
             <h2 class="heading--font-reset">Submitter:</h2>
             <p data-submitter-name class="flush--top">@application.details.submission.submitterName</p>
             <p data-submitter-email class="flush--top">@application.details.submission.submitterEmail</p>
@@ -69,7 +102,7 @@
                         <th>Email</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="admins">
                 @for(admin <- application.admins) {
                     <tr data-admin-@admin.email>
                         <td>@admin.fullName</td>

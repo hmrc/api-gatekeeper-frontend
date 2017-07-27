@@ -46,7 +46,7 @@ trait GatekeeperAuthWrapper {
   def requiresLogin()(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
       val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
-      (request.session.get(GatekeeperSessionKeys.AuthToken)) match {
+      request.session.get(GatekeeperSessionKeys.AuthToken) match {
         case Some(_) => body(request)(hc)
         case _ => authProvider.redirectToLogin
       }
@@ -70,12 +70,15 @@ trait GatekeeperAuthWrapper {
   def redirectIfLoggedIn(redirectTo: play.api.mvc.Call)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
       val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
-      (request.session.get(GatekeeperSessionKeys.AuthToken)) match {
+      request.session.get(GatekeeperSessionKeys.AuthToken) match {
         case Some(_) => Future.successful(Redirect(redirectTo))
         case _ => body(request)(hc)
       }
     }
   }
 
+  def isSuperUser(implicit request: Request[_]): Boolean = {
+    appConfig.superUsers.contains(loggedIn.get)
+  }
 
 }
