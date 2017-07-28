@@ -16,7 +16,7 @@
 
 package unit.controllers
 
-import controllers.HandleUpliftForm
+import controllers.{HandleUpliftForm, UpdateRateLimitForm}
 import org.scalatest.Matchers
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
@@ -54,6 +54,21 @@ class FormValidationSpec extends UnitSpec with Matchers {
     "validate invalid action form" in {
       val boundForm = HandleUpliftForm.form.bind(validHandleUpliftWithAcceptForm + ("action" -> "INVALID"))
       boundForm.errors shouldBe List(FormError("action", List("invalid.action")))
+      boundForm.globalErrors shouldBe List()
+    }
+  }
+
+  "UpdateRateLimitForm" should {
+
+    "validate a valid filled form" in {
+      val boundForm = UpdateRateLimitForm.form.bind(Map("tier" -> "GOLD"))
+      boundForm.errors shouldBe List()
+      boundForm.globalErrors shouldBe List()
+    }
+
+    "validate a valid empty form" in {
+      val boundForm = UpdateRateLimitForm.form.bind(Map("tier" -> ""))
+      boundForm.errors shouldBe List(FormError("tier", List("error.required")))
       boundForm.globalErrors shouldBe List()
     }
   }

@@ -30,11 +30,6 @@ object ApplicationService extends ApplicationService {
 trait ApplicationService {
   val applicationConnector: ApplicationConnector
 
-  def updateRateLimitTier(applicationId: String, rateLimitTier: String)
-                         (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] = {
-    applicationConnector.updateRateLimitTier(applicationId, rateLimitTier)
-  }
-
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnector.resendVerification(applicationId, gatekeeperUserId)
