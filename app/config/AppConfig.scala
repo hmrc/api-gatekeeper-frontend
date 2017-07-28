@@ -16,25 +16,33 @@
 
 package config
 
-import config.AppConfig.getConfInt
-import play.api.Configuration
-import play.api.Play.{configuration, current}
+import play.api.Play
 import uk.gov.hmrc.play.config.ServicesConfig
 
 trait AppConfig {
-
-  protected val configuration: Configuration
-
-  private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
-
-  lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
-  lazy val analyticsToken = loadConfig("google-analytics.token")
-  lazy val analyticsHost = loadConfig("google-analytics.host")
-  lazy val devHubBaseUrl = loadConfig("devHubBaseUrl")
-  lazy val isExternalTestEnvironment = configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  lazy val title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  val assetsPrefix: String
+  val analyticsToken: String
+  val analyticsHost: String
+  val devHubBaseUrl: String
+  def isExternalTestEnvironment: Boolean
+  def title: String
+  def superUsers: Seq[String]
 }
 
 object AppConfig extends AppConfig with ServicesConfig {
-  override val configuration = play.api.Play.configuration
+
+  private def loadStringConfig(key: String) = {
+    Play.current.configuration.getString(key)
+      .getOrElse(throw new Exception(s"Missing configuration key: $key"))
+  }
+
+  override lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
+  override lazy val analyticsToken = loadStringConfig("google-analytics.token")
+  override lazy val analyticsHost = loadStringConfig("google-analytics.host")
+  override lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
+  override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  override def superUsers: Seq[String] = {
+    Play.current.configuration.getStringSeq("superUsers").getOrElse(Seq.empty)
+  }
 }

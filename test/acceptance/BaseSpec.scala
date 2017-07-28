@@ -16,17 +16,17 @@
 
 package acceptance
 
-
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
 import org.scalatest._
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.inject.guice.GuiceApplicationBuilder
+import org.scalatestplus.play.OneServerPerTest
 import play.api.{Application, Mode}
+import play.api.inject.guice.GuiceApplicationBuilder
 
-trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with OneServerPerSuite {
+trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach
+  with Matchers with NavigationSugar with OneServerPerTest {
 
   override lazy val port = 9000
   val stubPort = 11111
@@ -34,10 +34,14 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   implicit val webDriver: WebDriver = Env.driver
 
-  implicit override lazy val app: Application =
-    GuiceApplicationBuilder().configure("run.mode" -> "Stub").in(Mode.Prod).build()
-
   var wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
+
+  override def newAppForTest(testData: TestData): Application = {
+    GuiceApplicationBuilder()
+      .configure("run.mode" -> "Stub")
+      .in(Mode.Prod)
+      .build()
+  }
 
   override def beforeAll() = {
     wireMockServer.start()

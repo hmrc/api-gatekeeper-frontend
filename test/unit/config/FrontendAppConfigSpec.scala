@@ -17,32 +17,36 @@
 package unit.config
 
 import config.AppConfig
-import org.mockito.Mockito.when
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.TestData
 import org.scalatestplus.play.OneServerPerTest
-import play.api.{Configuration}
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AppConfigSpec extends UnitSpec with OneServerPerTest with MockitoSugar {
+class AppConfigSpec extends UnitSpec with OneServerPerTest {
 
-  "appContext" should {
+  var isExternalTest = false
+
+  override def newAppForTest(testData: TestData): Application = {
+    new GuiceApplicationBuilder()
+      .configure("isExternalTestEnvironment" -> isExternalTest)
+      .build()
+  }
+
+  "AppConfig" should {
+
     "be initialized with properties" in {
-      AppConfig.isExternalTestEnvironment should be(false)
-      AppConfig.title should be("HMRC API Gatekeeper")
-    }
-  }
+      AppConfig.isExternalTestEnvironment shouldBe false
+      AppConfig.title shouldBe "HMRC API Gatekeeper"
 
-  "appContext" should {
+      isExternalTest = true
+    }
+
     "be initialized with properties for external test environment" in {
-      val mockConfiguration = mock[Configuration]
-      when(mockConfiguration.getBoolean("isExternalTestEnvironment")).thenReturn(Some(true))
-
-      val appConfig = new AppConfig {
-        override protected val configuration: Configuration = mockConfiguration
-      }
-
-      appConfig.isExternalTestEnvironment should be(true)
-      appConfig.title should be("HMRC API Gatekeeper - Developer Sandbox")
+      AppConfig.isExternalTestEnvironment shouldBe true
+      AppConfig.title shouldBe "HMRC API Gatekeeper - Developer Sandbox"
     }
+
   }
+
 }

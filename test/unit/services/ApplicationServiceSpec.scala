@@ -162,31 +162,4 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       result shouldBe allApps
     }
   }
-
-  "updateRateLimitTier" should {
-
-    "return successfully when updating the rate limit tier" in new Setup {
-      val applicationId = UUID.randomUUID().toString
-      val rateLimitTier = "SILVER"
-
-      given(testApplicationService.applicationConnector.updateRateLimitTier(applicationId, rateLimitTier)(hc))
-        .willReturn(Future.successful(UpdateApplicationRateLimitTierSuccessful))
-
-      val result = await(testApplicationService.updateRateLimitTier(applicationId, rateLimitTier))
-      result shouldBe UpdateApplicationRateLimitTierSuccessful
-    }
-
-    "propagate the error when trying to update rate limit tier" in new Setup {
-      val applicationId = UUID.randomUUID().toString
-      val rateLimitTier = "WOOD"
-
-      given(testApplicationService.applicationConnector.updateRateLimitTier(applicationId, rateLimitTier)(hc))
-        .willReturn(Future.failed(new RuntimeException))
-
-      intercept[RuntimeException] {
-        await(testApplicationService.updateRateLimitTier(applicationId, rateLimitTier))
-      }
-    }
-  }
-
 }
