@@ -22,8 +22,8 @@ import connectors.ApplicationConnector
 import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
-import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
 
 class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar
   with BeforeAndAfterEach with WithFakeApplication {

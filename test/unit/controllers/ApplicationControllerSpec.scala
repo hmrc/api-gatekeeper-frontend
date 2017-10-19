@@ -27,11 +27,11 @@ import play.api.mvc.Result
 import play.api.test.Helpers
 import play.api.test.Helpers._
 import services.ApiDefinitionService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
