@@ -32,11 +32,11 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
 

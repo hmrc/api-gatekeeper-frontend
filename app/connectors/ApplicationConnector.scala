@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost, Upstream4xxResponse, Upstream5xxResponse }
 
 object ApplicationConnector extends ApplicationConnector {
   override val applicationBaseUrl: String = s"${baseUrl("third-party-application")}"
