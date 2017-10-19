@@ -18,10 +18,9 @@ package config
 
 import org.joda.time.{DateTime, DateTimeZone, Duration}
 import play.api.mvc._
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
-import uk.gov.hmrc.play.filters.frontend.SessionTimeoutFilter
 
 import scala.concurrent.Future
+import uk.gov.hmrc.play.frontend.filters.{ MicroserviceFilterSupport, SessionTimeoutFilter }
 
 case class WhitelistedCall(uri: String, method: String)
 

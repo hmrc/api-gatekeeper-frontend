@@ -24,6 +24,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost, Upstream4xxResponse }
 
 object AuthConnector extends AuthConnector with ServicesConfig {
   override val authUrl: String = s"${baseUrl("auth")}/auth/authenticate/user"

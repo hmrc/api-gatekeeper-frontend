@@ -26,10 +26,10 @@ import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
 import org.scalatest.mock.MockitoSugar
 import services.ApplicationService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 

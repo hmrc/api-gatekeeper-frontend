@@ -26,15 +26,12 @@ import play.api.mvc.{Call, EssentialFilter, Request, RequestHeader}
 import play.api.{Application, Play}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.filters.{CacheControlFilter, MicroserviceFilterSupport, RecoveryFilter}
-import uk.gov.hmrc.play.filters.frontend.{HeadersFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
+import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
+import uk.gov.hmrc.play.frontend.filters._
 
 object ApplicationGlobal extends DefaultFrontendGlobal with RunMode {
 
@@ -69,7 +66,7 @@ object ApplicationGlobal extends DefaultFrontendGlobal with RunMode {
       .getStringSeq("session.additionalSessionKeysToKeep")
       .getOrElse(Seq.empty).toSet
 
-    val whitelistedCalls = Set(routes.AccountController.loginPage) map { call => WhitelistedCall(call.url, call.method) }
+    val whitelistedCalls = Set(routes.AccountController.loginPage()) map { call => WhitelistedCall(call.url, call.method) }
 
     new SessionTimeoutFilterWithWhitelist(
       timeoutDuration = timeoutDuration,
