@@ -25,9 +25,9 @@ import model.User
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, HttpPost}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.time.DateTimeUtils
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost }
 
 
 class DeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {

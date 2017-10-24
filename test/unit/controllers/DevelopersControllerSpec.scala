@@ -30,10 +30,10 @@ import play.api.test.Helpers
 import play.api.test.Helpers._
 import services.{ApplicationService, DeveloperService}
 import uk.gov.hmrc.crypto.Protected
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
