@@ -23,6 +23,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, Upstream5xxResponse }
 
 object ApiDefinitionConnector extends ApiDefinitionConnector with ServicesConfig {
   override val serviceBaseUrl = baseUrl("api-definition")
