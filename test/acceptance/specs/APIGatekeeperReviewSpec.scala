@@ -159,36 +159,4 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       verifyText("data-global-error","This field is required")
     }
   }
-
-  feature("Reject a request to uplift an application - happy path") {
-
-    scenario("I see the review page and I am able to reject the uplift request with a reason", Tag("NonSandboxTest")) {
-
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
-
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$appPendingApprovalId1"))
-        .willReturn(aResponse().withBody(application).withStatus(200)))
-
-      val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-
-      stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-        .willReturn(aResponse().withBody(administrator()).withStatus(200)))
-
-      stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/reject-uplift"))
-        .withRequestBody(equalToJson(rejectRequest))
-        .willReturn(aResponse().withStatus(200)))
-
-      signInGatekeeper
-      on(DashboardPage)
-      clickOnLink(s"data-review-$appPendingApprovalId1")
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
-      clickOnElement("reject-app")
-      verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
-      verifyElementIsVisible("reason")
-      populateFieldWith("reason", "A similar name is already taken by another application")
-      clickOnSubmit()
-      on(DashboardPage)
-    }
-  }
 }
