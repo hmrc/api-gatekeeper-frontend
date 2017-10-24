@@ -154,11 +154,24 @@ trait MockDataSugar {
        |    ],
        |    "createdOn": 1459866628433,
        |    "redirectUris": [],
+       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
+       |    "privacyPolicyUrl": "http://www.example.com/privacy",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$adminEmail",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
+       |    },
+       |    "checkInformation": {
+       |      "contactDetails": {
+       |        "fullname": "Holly Golightly",
+       |        "email": "holly.golightly@example.com",
+       |        "telephoneNumber": "020 1122 3344"
+       |      },
+       |      "confirmedName": true,
+       |      "providedPrivacyPolicyURL": true,
+       |      "providedTermsAndConditionsURL": true,
+       |      "applicationDetails": "An application that is pending approval"
        |    },
        |    "subscriptions": []
        |  },
