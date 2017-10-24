@@ -18,10 +18,10 @@ package services
 
 import connectors.ApiDefinitionConnector
 import model.APIDefinition
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.HeaderCarrier
 
 object ApiDefinitionService extends ApiDefinitionService {
   override val apiDefinitionConnnector = ApiDefinitionConnector

@@ -22,11 +22,11 @@ import org.mockito.BDDMockito._
 import org.scalatest.Matchers
 import org.scalatest.mock.MockitoSugar
 import services.ApiDefinitionService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar {
   implicit val hc: HeaderCarrier = new HeaderCarrier

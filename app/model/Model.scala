@@ -24,7 +24,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
-import uk.gov.hmrc.play.http.SessionKeys
+import uk.gov.hmrc.http.SessionKeys
 
 
 case class LoginDetails(userName: String, password: Protected[String])
