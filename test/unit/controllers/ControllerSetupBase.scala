@@ -28,9 +28,9 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait ControllerSetupBase extends MockitoSugar {
 
