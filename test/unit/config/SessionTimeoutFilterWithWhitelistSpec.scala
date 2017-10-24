@@ -17,9 +17,11 @@
 package unit.config
 
 import config.{SessionTimeoutFilterWithWhitelist, WhitelistedCall}
-import org.joda.time.Duration
+import org.joda.time.{DateTime, DateTimeZone, Duration}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc._
@@ -38,8 +40,21 @@ class SessionTimeoutFilterWithWhitelistSpec extends UnitSpec with MockitoSugar w
     )
 
     val nextOperationFunction = mock[RequestHeader => Future[Result]]
-    when(nextOperationFunction.apply(any())).thenReturn(
-      Future.successful(Results.Ok.withSession(("authToken", "Bearer Token"))))
+
+    when(nextOperationFunction.apply(any())).thenAnswer(new Answer[Future[Result]] {
+      override def answer(invocation: InvocationOnMock): Future[Result] = {
+        val headers = invocation.getArguments.head.asInstanceOf[RequestHeader]
+        Future.successful(Results.Ok.withSession(headers.session + ("authToken" -> "Bearer Token")))
+      }
+    })
+
+    def now: String = {
+      DateTime.now(DateTimeZone.UTC).getMillis.toString
+    }
+
+    def twoSecondsAgo: String = {
+      DateTime.now(DateTimeZone.UTC).minusSeconds(2).getMillis.toString
+    }
   }
 
   "apply" should {
@@ -47,8 +62,12 @@ class SessionTimeoutFilterWithWhitelistSpec extends UnitSpec with MockitoSugar w
     "leave the session keys intact when path in whitelist" in new Setup {
       val request = FakeRequest(method = "GET", path = "/login")
 
-      whenReady(filter.apply(nextOperationFunction)(request.withSession("key" -> "value"))) { result =>
-        result.session(request).data("authToken") shouldBe "Bearer Token"
+      whenReady(filter.apply(nextOperationFunction)(request.withSession("ts" -> twoSecondsAgo, "key" -> "value"))) { result =>
+        val sessionData = result.session(request).data
+        sessionData.size shouldBe 3
+        sessionData("authToken") shouldBe "Bearer Token"
+        sessionData("key") shouldBe "value"
+        sessionData.isDefinedAt("ts") shouldBe true
       }
 
       verify(nextOperationFunction).apply(any())
@@ -57,8 +76,11 @@ class SessionTimeoutFilterWithWhitelistSpec extends UnitSpec with MockitoSugar w
     "remove the session keys when path not in whitelist" in new Setup {
       val request = FakeRequest(method = "GET", path = "/dashboard")
 
-      whenReady(filter.apply(nextOperationFunction)(request.withSession("key" -> "value"))) { result =>
-        result.session(request).data shouldBe empty
+      whenReady(filter.apply(nextOperationFunction)(request.withSession("ts" -> twoSecondsAgo, "key" -> "value"))) { result =>
+        val sessionData = result.session(request).data
+        sessionData.size shouldBe 1
+        sessionData.isDefinedAt("ts") shouldBe true
+
       }
 
       verify(nextOperationFunction).apply(any())
@@ -67,8 +89,10 @@ class SessionTimeoutFilterWithWhitelistSpec extends UnitSpec with MockitoSugar w
     "remove the session keys when path in whitelist with different method" in new Setup {
       val request = FakeRequest(method = "POST", path = "/login")
 
-      whenReady(filter.apply(nextOperationFunction)(request.withSession("key" -> "value"))) { result =>
-        result.session(request).data shouldBe empty
+      whenReady(filter.apply(nextOperationFunction)(request.withSession("ts" -> twoSecondsAgo, "key" -> "value"))) { result =>
+        val sessionData = result.session(request).data
+        sessionData.size shouldBe 1
+        sessionData.isDefinedAt("ts") shouldBe true
       }
 
       verify(nextOperationFunction).apply(any())
