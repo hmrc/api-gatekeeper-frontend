@@ -17,16 +17,19 @@
 package controllers
 
 import model.UpliftAction
-import play.api.data._
 import play.api.data.Forms._
+import play.api.data._
 import uk.gov.voa.play.form.ConditionalMappings._
 
-case class HandleUpliftForm(action: String, reason: Option[String])
+class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 
 object HandleUpliftForm {
+  def apply(action: Option[String], reason: Option[String]): HandleUpliftForm = new HandleUpliftForm(action.getOrElse(""), reason)
+
+  def unapply(form: HandleUpliftForm): Option[(Option[String], Option[String])] = Some((Some(form.action), form.reason))
 
   private def actionValidator =
-    Forms.text.verifying("invalid.action", action => UpliftAction.from(action).isDefined)
+    optional(text).verifying("invalid.action", action => UpliftAction.from(action.getOrElse("")).isDefined)
 
   lazy val form = Form(
     mapping(
@@ -34,12 +37,6 @@ object HandleUpliftForm {
       "reason" -> mandatoryIfEqual("action", "REJECT", nonEmptyText)
     )(HandleUpliftForm.apply)(HandleUpliftForm.unapply)
   )
-
-  def unrecognisedAction(form: Form[HandleUpliftForm]) = {
-    form
-      .withError("submissionError", "true")
-      .withGlobalError("Action is not recognised")
-  }
 }
 
 case class UpdateRateLimitForm(tier: String)

@@ -71,7 +71,6 @@ class APIGatekeeperDashboardSpec extends BaseSpec with SignInSugar with Matchers
       on(DashboardPage)
       clickOnLink(s"data-review-$appPendingApprovalId1")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
-      verifyText("data-description", applicationDescription)
       verifyText("data-submitter-name", fullName)
       verifyText("data-submitter-email", adminEmail)
     }
