@@ -26,13 +26,13 @@ import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.approvedApplication._
 import views.html.dashboard._
 import views.html.review._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object DashboardController extends DashboardController with WithAppConfig {
   override val applicationConnector = ApplicationConnector
