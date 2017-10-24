@@ -16,7 +16,6 @@
 
 package acceptance
 
-import java.util.concurrent.TimeUnit
 import java.util.logging.{Level, Logger}
 
 import org.openqa.selenium.chrome.ChromeDriver
@@ -34,9 +33,7 @@ trait Env {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile
       profile.setAcceptUntrustedCertificates(true)
-      val driver = new FirefoxDriver(profile)
-      driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
-      driver
+      new FirefoxDriver(profile)
     }
     driver
   } else if (webDriverConfig == "chrome"){
