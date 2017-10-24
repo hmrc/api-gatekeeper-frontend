@@ -83,9 +83,4 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
   def verifyElementIsVisible(attributeId: String)(implicit webDriver: WebDriver) = {
     webDriver.findElement(By.id(attributeId)).isDisplayed
   }
-
-  def populateFieldWith(attributeId: String, content: String)(implicit webDriver: WebDriver) = {
-    val wait: WebDriverWait = new WebDriverWait(webDriver, 20)
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(attributeId))).sendKeys(content)
-  }
 }
