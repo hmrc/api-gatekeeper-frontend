@@ -185,6 +185,7 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("reject-app")
       verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
+      verifyElementIsVisible("reason")
       populateFieldWith("reason", "A similar name is already taken by another application")
       clickOnSubmit()
       on(DashboardPage)
