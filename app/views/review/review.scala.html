@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@import model.ApplicationDetails
+@import model.ApplicationReviewDetails
 @import include._
 
-@(form: Form[controllers.HandleUpliftForm], application: ApplicationDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 @main(title = s"${appConfig.title} - Review Application", userFullName = userFullName) {
 <div class="content__body">
 
@@ -46,12 +46,49 @@
         </div>
     }
 
-    <h2>Description:</h2>
-    <p class="flush--top" data-description>@{application.description}</p>
+    <h2>What the application does</h2>
+    <p class="flush--top" data-application-details>@{application.applicationDetails}</p>
 
-    <h2>Submitter:</h2>
-    <p class="flush--top" data-submitter-name>@{application.submission.submitterName}</p>
-    <p class="flush--top" data-submitter-email>@{application.submission.submitterEmail}</p>
+    <h2>Submitted by</h2>
+    <table>
+        <tr>
+            <th class="table-label">Name</th>
+            <td data-submitter-name>@{application.submission.submitterName}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td><a href="mailto:@{application.submission.submitterEmail}" data-submitter-email>@{application.submission.submitterEmail}</a></td>
+        </tr>
+    </table>
+
+    <h2>Contact details</h2>
+    <table>
+        <tr>
+            <th class="table-label">Name</th>
+            <td data-contact-name>@{application.reviewContactName}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td><a href="mailto:@{application.reviewContactEmail}" data-contact-email>@{application.reviewContactEmail}</a></td>
+        </tr>
+        <tr>
+            <th>Telephone</th>
+            <td data-contact-phone>@{application.reviewContactTelephone}</td>
+        </tr>
+    </table>
+
+    <h2>Public information</h2>
+    <table>
+        <tr>
+            <th class="table-label">Privacy policy URL</th>
+            <td data-privacy-url>@{application.privacyPolicyUrl}</td>
+        </tr>
+        <tr>
+            <th>Terms and conditions URL</th>
+            <td data-terms-url>@{application.termsAndConditionsUrl}</td>
+        </tr>
+    </table>
+
 
     @helper.form(action = routes.DashboardController.handleUplift(application.id),
         'class -> "form") {
@@ -59,17 +96,18 @@
         <div data-journey-dynamic-radios>
             @helper.CSRF.formField
 
-            <fieldset class="form-field-group js-toggle"
+            <fieldset id="action" class="form-field-group js-toggle @if(form.errors("action").nonEmpty) {form-field--error}"
                 data-target="rejection-reason"
                 data-trigger="js-toggle-trigger"
                 data-open="reject-app"
                 data-close="approve-app"
                 aria-hidden="true">
+                @fieldError(form.errors, "action", true)
                 <legend class="visuallyhidden">Choose approve or reject application</legend>
-                <label class="block-label--stacked">
-                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved" @if(form.errors("reason").isEmpty) {checked}/>Approve
+                <label class="block-label form-field--inline">
+                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Approve
                 </label>
-                <label class="block-label--stacked">
+                <label class="block-label form-field--inline">
                     <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Reject
                 </label>
             </fieldset>
@@ -78,10 +116,15 @@
                  class="form-field toggle-target @if(form.errors("reason").isEmpty) {hidden} else {form-field--error}"
                  aria-expanded="false"
                  aria-visible="false">
-                <label for="reason"><strong>Enter reason for rejection:</strong></label>
-                <p class="form-hint flush--top">Insert applicable guideline from <a data-naming-guidelines href="@{appConfig.devHubBaseUrl}/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines</a>.</p>
+                <label for="reason">Rejection reason</label>
+                <p class="form-hint flush--top">Tell us why the application does not meet the
+                    <a data-naming-guidelines target="_blank" href="@{appConfig.devHubBaseUrl}/api-documentation/docs/using-the-hub/name-guidelines">
+                        naming guidelines
+                    </a>
+                    (opens in a new window).
+                </p>
                 @fieldError(form.errors, "reason", true)
-                <textarea id="reason" name="reason" class="textarea--3-4 flush--top @if(form.errors("reason").nonEmpty) {error-field}">@form.data.get("reason")</textarea>
+                <textarea id="reason" name="reason" class="textarea--3-4 flush--top @if(form.errors("reason").nonEmpty) {error-field}" rows="5">@form.data.get("reason")</textarea>
             </div>
 
             <div class="form-field">

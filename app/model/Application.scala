@@ -32,6 +32,21 @@ trait Application {
   val collaborators: Set[Collaborator]
 }
 
+case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
+
+object ContactDetails {
+  implicit val formatContactDetails = Json.format[ContactDetails]
+}
+
+case class CheckInformation(contactDetails: Option[ContactDetails] = None,
+                            confirmedName: Boolean = false,
+                            providedPrivacyPolicyURL: Boolean = false,
+                            providedTermsAndConditionsURL: Boolean = false,
+                            applicationDetails: Option[String] = None)
+
+object CheckInformation {
+  implicit val formatApprovalInformation = Json.format[CheckInformation]
+}
 
 case class ApplicationResponse(id: UUID,
                                name: String,
@@ -39,7 +54,10 @@ case class ApplicationResponse(id: UUID,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
                                state: ApplicationState,
-                               rateLimitTier: Option[RateLimitTier] = None
+                               rateLimitTier: Option[RateLimitTier] = None,
+                               termsAndConditionsUrl: Option[String] = None,
+                               privacyPolicyUrl: Option[String] = None,
+                               checkInformation: Option[CheckInformation] = None
                               ) extends Application {
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)

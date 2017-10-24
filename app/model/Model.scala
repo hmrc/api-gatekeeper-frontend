@@ -158,8 +158,18 @@ object SubmissionDetails {
   implicit val format = Json.format[SubmissionDetails]
 }
 
-case class ApplicationDetails(id: String, name: String, description: String, rateLimitTier: Option[RateLimitTier], submission: SubmissionDetails)
+case class ApplicationReviewDetails(id: String,
+                                    name: String,
+                                    description: String,
+                                    rateLimitTier: Option[RateLimitTier],
+                                    submission: SubmissionDetails,
+                                    reviewContactName: Option[String],
+                                    reviewContactEmail: Option[String],
+                                    reviewContactTelephone: Option[String],
+                                    applicationDetails: Option[String],
+                                    termsAndConditionsUrl: Option[String] = None,
+                                    privacyPolicyUrl: Option[String] = None)
 
-case class ApprovedApplication(details: ApplicationDetails, admins: Seq[User], approvedBy: String, approvedOn: DateTime, verified: Boolean)
+case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[User], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
