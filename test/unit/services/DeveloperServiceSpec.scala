@@ -25,8 +25,8 @@ import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => mEq}
 import org.scalatest.mock.MockitoSugar
 import services.DeveloperService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 

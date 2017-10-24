@@ -24,11 +24,11 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.{Call, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
