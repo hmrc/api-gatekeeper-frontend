@@ -80,7 +80,11 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
     webDriver.findElement(By.cssSelector(s"[$attributeName]")).getText shouldBe expected
   }
 
-  def populateFieldWith(attributeName: String, content: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id(attributeName)).sendKeys(content)
+  def verifyElementIsVisible(attributeId: String)(implicit webDriver: WebDriver) = {
+    webDriver.findElement(By.id(attributeId)).isDisplayed
+  }
+
+  def populateFieldWith(attributeId: String, content: String)(implicit webDriver: WebDriver) = {
+    webDriver.findElement(By.id(attributeId)).sendKeys(content)
   }
 }
