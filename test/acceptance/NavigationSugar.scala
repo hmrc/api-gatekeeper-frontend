@@ -16,7 +16,7 @@
 
 package acceptance
 
-import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
+import org.openqa.selenium.support.ui.{ExpectedCondition, ExpectedConditions, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest.{Assertions, Matchers}
 import org.scalatest.concurrent.Eventually
@@ -85,6 +85,7 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
   }
 
   def populateFieldWith(attributeId: String, content: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id(attributeId)).sendKeys(content)
+    val wait: WebDriverWait = new WebDriverWait(webDriver, 20)
+    wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(attributeId))).sendKeys(content)
   }
 }
