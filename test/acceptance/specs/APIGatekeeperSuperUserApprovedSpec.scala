@@ -47,6 +47,7 @@ class APIGatekeeperSuperUserApprovedSpec extends ApprovedBaseSpec {
 
       stubApplicationListAndDevelopers()
       stubRateLimitTier("df0c32b6-bbb7-46eb-ba50-e6e5459162ff", "SILVER")
+      clickOnElement("rate-limit-tier")
       clickOnElement("SILVER")
       clickOnElement("rate-limit-tier-save")
       // TODO: add an assert that proves that the new rate limit tier is shown and selected

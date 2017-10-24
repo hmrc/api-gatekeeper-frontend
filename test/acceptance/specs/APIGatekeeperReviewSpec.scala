@@ -64,6 +64,15 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       on(DashboardPage)
       clickOnLink(s"data-review-$appPendingApprovalId1")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
+      verifyText("data-application-details", "An application that is pending approval")
+      verifyText("data-submitter-name", "John Test")
+      verifyText("data-submitter-email", "admin@test.com")
+      verifyText("data-contact-name", "Holly Golightly")
+      verifyText("data-contact-email", "holly.golightly@example.com")
+      verifyText("data-contact-phone", "020 1122 3344")
+      verifyText("data-privacy-url", "http://www.example.com/privacy")
+      verifyText("data-terms-url", "http://www.example.com/termsAndConditions")
+      clickOnElement("approve-app")
       clickOnSubmit()
       on(DashboardPage)
     }
@@ -89,8 +98,34 @@ class APIGatekeeperReviewSpec  extends BaseSpec with SignInSugar with Matchers w
       on(DashboardPage)
       clickOnLink(s"data-review-$appPendingApprovalId1")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnElement("approve-app")
       clickOnSubmit()
       on(DashboardPage)
+    }
+  }
+
+  feature("Reject a request to uplift an application when no action was selected") {
+
+    scenario("I see the review page and I cannot submit without choosing an action", Tag("NonSandboxTest")) {
+
+      stubFor(get(urlEqualTo("/gatekeeper/applications"))
+        .willReturn(aResponse().withBody(applicationsPendingApproval).withStatus(200)))
+
+      stubFor(get(urlEqualTo(s"/gatekeeper/application/$appPendingApprovalId1"))
+        .willReturn(aResponse().withBody(application).withStatus(200)))
+
+      val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
+
+      stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
+        .willReturn(aResponse().withBody(administrator()).withStatus(200)))
+
+      signInGatekeeper
+      on(DashboardPage)
+      clickOnLink(s"data-review-$appPendingApprovalId1")
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnSubmit()
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      verifyText("data-global-error","Review the application")
     }
   }
 

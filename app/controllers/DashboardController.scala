@@ -67,25 +67,15 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
 
   def reviewPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
     redirectIfExternalTestEnvironment {
-      fetchApplicationDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
+      fetchApplicationReviewDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
     }
   }
 
-  private def fetchApplicationDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationDetails] = {
-    def lastSubmission(app: ApplicationWithHistory): Future[SubmissionDetails] = {
-      val submission: StateHistory = app.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
-        .sortWith(StateHistory.ascendingDateForAppId)
-        .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
-
-      developerConnector.fetchByEmail(submission.actor.id).map(s =>
-        SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt)
-      )
-    }
-
+  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationReviewDetails] = {
     for {
       app <- applicationConnector.fetchApplication(appId)
       submission <- lastSubmission(app)
-    } yield applicationDetails(app.application, submission)
+    } yield applicationReviewDetails(app.application, submission)
   }
 
   def approvedApplicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
@@ -103,7 +93,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
 
     def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
       val verified = app.state.name == State.PRODUCTION
-      val details = applicationDetails(app, submissionDetails)(request)
+      val details = applicationReviewDetails(app, submissionDetails)(request)
 
       ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
     }
@@ -129,18 +119,35 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
-  private def applicationDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+
     val currentRateLimitTier = app.rateLimitTier.getOrElse(RateLimitTier.BRONZE)
     val currentRateLimitTierToDisplay =
       if (isSuperUser) Some(currentRateLimitTier)
       else None
 
-    ApplicationDetails(
+    val contactDetails = for {
+      checkInformation <- app.checkInformation
+      contactDetails <- checkInformation.contactDetails
+    } yield contactDetails
+
+    val reviewContactName = contactDetails.map(_.fullname)
+    val reviewContactEmail = contactDetails.map(_.email)
+    val reviewContactTelephone = contactDetails.map(_.telephoneNumber)
+    val applicationDetails = app.checkInformation.flatMap(_.applicationDetails)
+
+    ApplicationReviewDetails(
       app.id.toString,
       app.name,
       app.description.getOrElse(""),
       currentRateLimitTierToDisplay,
-      submission)
+      submission,
+      reviewContactName,
+      reviewContactEmail,
+      reviewContactTelephone,
+      applicationDetails,
+      app.termsAndConditionsUrl,
+      app.privacyPolicyUrl)
   }
 
   def handleUplift(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
@@ -148,7 +155,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
       val requestForm = HandleUpliftForm.form.bindFromRequest
 
       def errors(errors: Form[HandleUpliftForm]) =
-        fetchApplicationDetails(appId) map (details => BadRequest(review(errors, details)))
+        fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
 
       def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
         case e: PreconditionFailed => {
