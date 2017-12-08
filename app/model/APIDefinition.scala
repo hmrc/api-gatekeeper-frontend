@@ -41,7 +41,7 @@ case class APIDefinition(
 }
 
 object APIDefinition {
-  implicit val formatAPIStatus = EnumJson.enumFormat(APIStatus)
+  implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
@@ -62,11 +62,12 @@ case class APIVersion(version: String, status: APIStatus, access: Option[APIAcce
 
 object APIStatus extends Enumeration {
   type APIStatus = Value
-  val PROTOTYPED, PUBLISHED, DEPRECATED, RETIRED = Value
+  val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
 
   val displayedStatus: (APIStatus) => String = {
-    case APIStatus.PROTOTYPED => "Beta"
-    case APIStatus.PUBLISHED => "Stable"
+    case APIStatus.ALPHA => "Alpha"
+    case APIStatus.BETA => "Beta"
+    case APIStatus.STABLE => "Stable"
     case APIStatus.DEPRECATED => "Deprecated"
     case APIStatus.RETIRED => "Retired"
   }

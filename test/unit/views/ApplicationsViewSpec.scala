@@ -75,9 +75,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
 
     "Called with APIs" should {
 
-      val apis = Map[String, Seq[VersionSummary]](displayedStatus(PUBLISHED) ->
-        Seq(VersionSummary("Dummy API", PUBLISHED, APIIdentifier("dummy-api", "1.0"))),
-        displayedStatus(PROTOTYPED) -> Seq(VersionSummary("Beta API", PROTOTYPED, APIIdentifier("beta-api", "1.0"))),
+      val apis = Map[String, Seq[VersionSummary]](displayedStatus(STABLE) ->
+        Seq(VersionSummary("Dummy API", STABLE, APIIdentifier("dummy-api", "1.0"))),
+        displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier("beta-api", "1.0"))),
         displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier("ret-api", "1.0"))),
         displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
       )
