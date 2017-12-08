@@ -39,13 +39,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
   val publicDefinition = APIDefinition(
     "publicAPI", "http://public-api.protected.mdtp/",
     "publicAPI", "public api.", "public-api",
-    Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+    Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
   )
 
   val privateDefinition = APIDefinition(
     "privateAPI", "http://private-api.protected.mdtp/",
     "privateAPI", "private api.", "private-api",
-    Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+    Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
   )
 
   "DefinitionService" when {
