@@ -71,6 +71,6 @@ class SubscriptionEnhancerSpec extends UnitSpec {
 
   def createDefinition(name: String, context:String) = {
     APIDefinition("TestService", "localhost", name, "Test Description", context,
-      Seq(APIVersion("1.0", APIStatus.PUBLISHED, None)), None)
+      Seq(APIVersion("1.0", APIStatus.STABLE, None)), None)
   }
 }
