@@ -52,6 +52,94 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           |   "versions": [
           |     {
           |       "version": "1.0",
+          |       "status": "STABLE",
+          |       "access": {
+          |         "type": "PUBLIC"
+          |       },
+          |       "endpoints": [
+          |         {
+          |           "uriPattern": "/arrgh",
+          |           "endpointName": "dummyAPI",
+          |           "method": "GET",
+          |           "authType": "USER",
+          |           "throttlingTier": "UNLIMITED",
+          |           "scope": "read:dummy-api-2"
+          |         }
+          |       ]
+          |     }
+          |   ],
+          |   "requiresTrust": false
+          | }
+          |]
+        """.stripMargin)))
+      val result: Seq[APIDefinition] = await(connector.fetchPublic())
+
+      result shouldBe Seq(APIDefinition(
+        "dummyAPI", "http://dummy-api.protected.mdtp/",
+        "dummyAPI", "dummy api.", "dummy-api",
+        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+      ))
+    }
+
+    "map API status of PROTOTYPED to BETA" in new Setup {
+      val applicationId = "anApplicationId"
+      val gatekeeperId = "loggedin.gatekeeper"
+      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
+        """
+          |[
+          | {
+          |   "serviceName": "dummyAPI",
+          |   "serviceBaseUrl": "http://dummy-api.protected.mdtp/",
+          |   "name": "dummyAPI",
+          |   "description": "dummy api.",
+          |   "context": "dummy-api",
+          |   "versions": [
+          |     {
+          |       "version": "1.0",
+          |       "status": "PROTOTYPED",
+          |       "access": {
+          |         "type": "PUBLIC"
+          |       },
+          |       "endpoints": [
+          |         {
+          |           "uriPattern": "/arrgh",
+          |           "endpointName": "dummyAPI",
+          |           "method": "GET",
+          |           "authType": "USER",
+          |           "throttlingTier": "UNLIMITED",
+          |           "scope": "read:dummy-api-2"
+          |         }
+          |       ]
+          |     }
+          |   ],
+          |   "requiresTrust": false
+          | }
+          |]
+        """.stripMargin)))
+      val result: Seq[APIDefinition] = await(connector.fetchPublic())
+
+      result shouldBe Seq(APIDefinition(
+        "dummyAPI", "http://dummy-api.protected.mdtp/",
+        "dummyAPI", "dummy api.", "dummy-api",
+        Seq(APIVersion("1.0", APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+      ))
+    }
+
+    "map API status of PUBLISHED to STABLE" in new Setup {
+      val applicationId = "anApplicationId"
+      val gatekeeperId = "loggedin.gatekeeper"
+      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
+        """
+          |[
+          | {
+          |   "serviceName": "dummyAPI",
+          |   "serviceBaseUrl": "http://dummy-api.protected.mdtp/",
+          |   "name": "dummyAPI",
+          |   "description": "dummy api.",
+          |   "context": "dummy-api",
+          |   "versions": [
+          |     {
+          |       "version": "1.0",
           |       "status": "PUBLISHED",
           |       "access": {
           |         "type": "PUBLIC"
@@ -77,7 +165,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://dummy-api.protected.mdtp/",
         "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
       ))
     }
 
@@ -104,7 +192,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
           |   "versions": [
           |     {
           |       "version": "1.0",
-          |       "status": "PUBLISHED",
+          |       "status": "STABLE",
           |       "access": {
           |         "type": "PRIVATE"
           |       },
@@ -129,7 +217,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://dummy-api.protected.mdtp/",
         "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.PUBLISHED, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
       ))
     }
 
