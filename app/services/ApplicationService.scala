@@ -57,6 +57,10 @@ trait ApplicationService {
     applicationConnector.fetchApplication(appId)
   }
 
+  def fetchApplicationScopes(appId: String)(implicit hc: HeaderCarrier): Future[None] = {
+    applicationConnector.fetchApplicationScopes(appId)
+  }
+
   def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
 
     def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {

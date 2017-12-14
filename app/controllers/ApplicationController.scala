@@ -51,7 +51,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     implicit request => implicit hc =>
       for {
         app <- applicationService.fetchApplication(appId)
-      } yield Ok(application(app))
+        scopes <- applicationService.fetchApplicationScopes(appId)
+      } yield Ok(application(app, scopes))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
