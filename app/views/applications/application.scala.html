@@ -16,27 +16,81 @@
 
 @import model._
 
-@(application: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@application = @{applicationWithHistory.application}
 @main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
 <div class="content__body">
 
- <nav class="breadcrumb-nav">
-  <ul>
-   <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
-   <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-   <li class="breadcrumb-nav__item">@application.application.name</li>
-  </ul>
- </nav>
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@application.name</li>
+        </ul>
+    </nav>
 
- <header>
-  @if(flash.get("success").isDefined) {
-  <div class="alert alert--success" role="alert">
-   <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
-  </div>
-  }
-  <h1 class="flush--top">@application.application.name</h1>
- </header>
+    <header>
+        @if(flash.get("success").isDefined) {
+        <div class="alert alert--success" role="alert">
+            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+        </div>
+        }
+        <h1 class="flush--top">@application.name (@application.access.accessType)</h1>
+    </header>
+    <h2 class="heading--font-reset">Description:</h2>
+    @if(application.description.nonEmpty) {
+    <p data-description class="flush--top">@application.description</p>
+    } else {
+    <p data-description class="fadded-text">No description added</p>
+    }
+
+    @if(application.rateLimitTier.isDefined) {
+        @helper.form(action = routes.DashboardController.handleUpdateRateLimitTier(application.id.toString)) {
+        <details>
+            <summary>
+                <span id="rate-limit-tier">Rate limit tier: @application.rateLimitTier</span>
+            </summary>
+            <div>
+                @helper.CSRF.formField
+                <table>
+                    <caption class="visuallyhidden">Table showing rate limit tier</caption>
+                    <tbody id="rate-limit-tier-table">
+                    <tr>
+                        @for(t <- RateLimitTier.values) {
+                        <td>
+                            <p>
+                                <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier== Some(t)) {checked}>@t
+                            </p>
+                        </td>
+                        }
+                        <td>
+                            <!-- TODO: disable this submit button when the new tier == current tier -->
+                            <button id="rate-limit-tier-save" class="button" type="submit">Save new rate limit tier</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+        }
+    }
+
+    <h2>Public information</h2>
+    <table>
+        <tr>
+            <th class="table-label">Privacy policy URL</th>
+            <td data-privacy-url><a href="@{application.privacyPolicyUrl}" target="_blank">@{application.privacyPolicyUrl}</a> (opens in a new window)</td>
+        </tr>
+        <tr>
+            <th>Terms and conditions URL</th>
+            <td data-terms-url><a href="@{application.termsAndConditionsUrl}" target="_blank">@{application.termsAndConditionsUrl}</a> (opens in a new window)</td>
+        </tr>
+    </table>
+    <h2>Grants</h2>
+    <h2>Scopes</h2>
+    <h2>Subscriptions</h2>
 </div>
 
 }
+

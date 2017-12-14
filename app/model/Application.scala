@@ -22,7 +22,6 @@ import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
-import play.api.libs.json.Json
 import uk.gov.hmrc.time.DateTimeUtils
 
 trait Application {
@@ -53,6 +52,7 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
+//                               access: Access,
                                state: ApplicationState,
                                rateLimitTier: Option[RateLimitTier] = None,
                                termsAndConditionsUrl: Option[String] = None,
@@ -72,6 +72,31 @@ object ApplicationResponse {
   implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApplicationResponse]
 }
+
+//object AccessType extends Enumeration {
+//  type AccessType = Value
+//  val STANDARD, PRIVILEGED, ROPC = Value
+//}
+//
+//sealed trait Access {
+//  val accessType: AccessType.Value
+//}
+//
+//case class Standard(redirectUris: Seq[String] = Seq.empty,
+//                    termsAndConditionsUrl: Option[String] = None,
+//                    privacyPolicyUrl: Option[String] = None,
+//                    overrides: Set[OverrideFlag] = Set.empty) extends Access {
+//  override val accessType = STANDARD
+//}
+//
+//case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends Access {
+//  override val accessType = PRIVILEGED
+//}
+//
+//case class Ropc(scopes: Set[String] = Set.empty) extends Access {
+//  override val accessType = ROPC
+//}
+
 
 case class SubscribedApplicationResponse(id: UUID,
                                          name: String,
