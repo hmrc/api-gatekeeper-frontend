@@ -16,15 +16,27 @@
 
 @import model._
 
-@(application: ApplicationWithHistory)
+@(application: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div class="content__body">
 
-</body>
-</html>
+ <nav class="breadcrumb-nav">
+  <ul>
+   <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+   <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+   <li class="breadcrumb-nav__item">@application.application.name</li>
+  </ul>
+ </nav>
+
+ <header>
+  @if(flash.get("success").isDefined) {
+  <div class="alert alert--success" role="alert">
+   <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+  </div>
+  }
+  <h1 class="flush--top">@application.application.name</h1>
+ </header>
+</div>
+
+}
