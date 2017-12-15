@@ -35,10 +35,10 @@
 
     <table>
     @overrides.toList.map(or => or match {
-        case PersistLogin() => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td></tr>
-        case SuppressIvForAgents(_) => <tr><td>SUPPRESS_IV_FOR_AGENTS</td></tr>
-        case SuppressIvForOrganisations(_) => <tr><td>SUPPRESS_IV_FOR_ORGANISATIONS</td></tr>
-        case GrantWithoutConsent(_) => <tr><td>GRANT_WITHOUT_TAXPAYER_CONSENT</td></tr>
+        case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td></tr>
+        case or: SuppressIvForAgents => <tr><td>SUPPRESS_IV_FOR_AGENTS</td><td>{or.scopes}</td></tr>
+        case or: SuppressIvForOrganisations => <tr><td>SUPPRESS_IV_FOR_ORGANISATIONS</td><td>{or.scopes}</td></tr>
+        case or: GrantWithoutConsent => <tr><td>GRANT_WITHOUT_TAXPAYER_CONSENT</td><td>{or.scopes}</td></tr>
     })
     </table>
 }
