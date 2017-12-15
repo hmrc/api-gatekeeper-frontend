@@ -18,6 +18,12 @@
 
 @(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
+@access = @{application.access}
+@renderScopes(scopes: Set[String]) = {
+    @for(scope <- scopes.toIterator) {
+        @scope
+    }
+}
 @main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
 <div class="content__body">
@@ -60,7 +66,7 @@
                         @for(t <- RateLimitTier.values) {
                         <td>
                             <p>
-                                <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier== Some(t)) {checked}>@t
+                                <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == Some(t)) {checked}>@t
                             </p>
                         </td>
                         }
@@ -87,9 +93,26 @@
             <td data-terms-url><a href="@{application.termsAndConditionsUrl}" target="_blank">@{application.termsAndConditionsUrl}</a> (opens in a new window)</td>
         </tr>
     </table>
-    <h2>Scopes</h2>
+
+    @{
+        access match {
+            case standardAccess : Standard => {
+                <h2>Overrides</h2>
+                <h3>{standardAccess.overrides}</h3>
+            }
+            case privilegedAccess : Privileged => {
+                <h2>Scopes</h2>
+                <h3>{renderScopes(privilegedAccess.scopes)}</h3>
+            }
+            case ropcAccess : Ropc => {
+                <h2>Scopes</h2>
+                <h3>{renderScopes(ropcAccess.scopes)}</h3>
+            }
+        }
+    }
 
     <h2>Grants</h2>
+
     <h2>Subscriptions</h2>
 </div>
 
