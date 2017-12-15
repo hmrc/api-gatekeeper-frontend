@@ -21,9 +21,13 @@
 @access = @{application.access}
 
 @renderScopes(scopes: Set[String]) = {
+    <h2>Scopes</h2>
+
+    <table>
     @for(scope <- scopes.toIterator) {
-        @scope
+        <tr><td>@scope</td></tr>
     }
+    </table>
 }
 
 @renderOverrides(overrides: Set[OverrideFlag]) = {
@@ -122,8 +126,7 @@
                 {renderOverrides(standardAccess.overrides)}
             }
             case privilegedAccess : Privileged => {
-                <h2>Scopes</h2>
-                <h3>{renderScopes(privilegedAccess.scopes)}</h3>
+                {renderScopes(privilegedAccess.scopes)}
             }
             case ropcAccess : Ropc => {
                 <h2>Scopes</h2>
