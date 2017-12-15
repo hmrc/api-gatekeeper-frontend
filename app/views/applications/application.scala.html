@@ -28,11 +28,13 @@
 
 @renderOverrides(overrides: Set[OverrideFlag]) = {
     <h2>Scopes</h2>
-    <h3>Hello</h3>
 
     <table>
     @overrides.toList.map(or => or match {
-        case _ => <tr><td>aaa</td></tr>
+        case PersistLogin() => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td></tr>
+        case SuppressIvForAgents(_) => <tr><td>SUPPRESS_IV_FOR_AGENTS</td></tr>
+        case SuppressIvForOrganisations(_) => <tr><td>SUPPRESS_IV_FOR_ORGANISATIONS</td></tr>
+        case GrantWithoutConsent(_) => <tr><td>GRANT_WITHOUT_TAXPAYER_CONSENT</td></tr>
     })
     </table>
 }
