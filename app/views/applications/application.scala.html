@@ -16,7 +16,7 @@
 
 @import model._
 
-@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -148,6 +148,12 @@
     }
 
     <h2>Subscriptions</h2>
+
+    <table>
+        @for(subscription <- subscriptions.toIterator) {
+            <tr><td>@subscription.name</td></tr>
+        }
+    </table>
 </div>
 
 }

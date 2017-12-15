@@ -74,4 +74,8 @@ trait ApplicationService {
       subscribedApplications = addSubscriptionsToApplications(apps, subs)
     } yield subscribedApplications.sortBy(_.name.toLowerCase)
   }
+
+  def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+    applicationConnector.fetchApplicationSubscriptions(applicationId)
+  }
 }

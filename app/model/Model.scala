@@ -134,6 +134,8 @@ class PreconditionFailed extends Throwable
 
 class FetchApplicationsFailed extends Throwable
 
+class FetchApplicationSubscriptionsFailed extends Throwable
+
 class InconsistentDataState(message: String) extends RuntimeException(message)
 
 case class ApproveUpliftRequest(gatekeeperUserId: String)
