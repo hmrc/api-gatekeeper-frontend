@@ -19,11 +19,24 @@
 @(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
+
 @renderScopes(scopes: Set[String]) = {
     @for(scope <- scopes.toIterator) {
         @scope
     }
 }
+
+@renderOverrides(overrides: Set[OverrideFlag]) = {
+    <h2>Scopes</h2>
+    <h3>Hello</h3>
+
+    <table>
+    @overrides.toList.map(or => or match {
+        case _ => <tr><td>aaa</td></tr>
+    })
+    </table>
+}
+
 @main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
 <div class="content__body">
@@ -104,8 +117,7 @@
     @{
         access match {
             case standardAccess : Standard => {
-                <h2>Scopes</h2>
-                <h3>{standardAccess.overrides}</h3>
+                {renderOverrides(standardAccess.overrides)}
             }
             case privilegedAccess : Privileged => {
                 <h2>Scopes</h2>
