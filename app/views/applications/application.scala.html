@@ -30,16 +30,28 @@
     </table>
 }
 
-@renderOverrides(overrides: Set[OverrideFlag]) = {
-    <h2>Scopes</h2>
+@buildOverrideRow(title: String, scopes: Set[String]) = {
+    <tr>
+        <td>@title</td>
+        <td>
+            <table>
+                @for(scope <- scopes.toIterator) {
+                    <tr><td>@scope</td></tr>
+                }
+            </table>
+        </td>
+    </tr>
+}
 
+@renderOverrides(overrides: Set[OverrideFlag]) = {
     <table>
-    @overrides.toList.map(or => or match {
-        case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td></tr>
-        case or: SuppressIvForAgents => <tr><td>SUPPRESS_IV_FOR_AGENTS</td><td>{or.scopes}</td></tr>
-        case or: SuppressIvForOrganisations => <tr><td>SUPPRESS_IV_FOR_ORGANISATIONS</td><td>{or.scopes}</td></tr>
-        case or: GrantWithoutConsent => <tr><td>GRANT_WITHOUT_TAXPAYER_CONSENT</td><td>{or.scopes}</td></tr>
-    })
+        <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
+        @overrides.toList.map(or => or match {
+            case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td><td></td></tr>
+            case or: SuppressIvForAgents => {buildOverrideRow("SUPPRESS_IV_FOR_AGENTS", or.scopes)}
+            case or: SuppressIvForOrganisations => {buildOverrideRow("SUPPRESS_IV_FOR_ORGANISATIONS", or.scopes)}
+            case or: GrantWithoutConsent => {buildOverrideRow("GRANT_WITHOUT_TAXPAYER_CONSENT", or.scopes)}
+        })
     </table>
 }
 
@@ -134,8 +146,6 @@
             }
         }
     }
-
-    <h2>Grants</h2>
 
     <h2>Subscriptions</h2>
 </div>
