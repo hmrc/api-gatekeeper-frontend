@@ -21,12 +21,11 @@
 @access = @{application.access}
 
 @renderScopes(scopes: Set[String]) = {
-    <h2>Scopes</h2>
-
     <table>
-    @for(scope <- scopes.toIterator) {
-        <tr><td>@scope</td></tr>
-    }
+        <thead><th>Scopes</th></tr></thead>
+        @for(scope <- scopes.toIterator) {
+            <tr><td>@scope</td></tr>
+        }
     </table>
 }
 
@@ -116,7 +115,7 @@
     @{
         access match {
             case standardAccess : Standard => {
-                <h2>Public information</h2>
+                <h2>External URLs</h2>
                 <table>
                     <tr>
                         <th class="table-label">Privacy policy URL</th>
@@ -132,6 +131,7 @@
         }
     }
 
+    <h2>Authentication</h2>
     @{
         access match {
             case standardAccess : Standard => {
@@ -141,8 +141,7 @@
                 {renderScopes(privilegedAccess.scopes)}
             }
             case ropcAccess : Ropc => {
-                <h2>Scopes</h2>
-                <h3>{renderScopes(ropcAccess.scopes)}</h3>
+                {renderScopes(ropcAccess.scopes)}
             }
         }
     }
