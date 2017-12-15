@@ -82,22 +82,29 @@
         }
     }
 
-    <h2>Public information</h2>
-    <table>
-        <tr>
-            <th class="table-label">Privacy policy URL</th>
-            <td data-privacy-url><a href="@{application.privacyPolicyUrl}" target="_blank">@{application.privacyPolicyUrl}</a> (opens in a new window)</td>
-        </tr>
-        <tr>
-            <th>Terms and conditions URL</th>
-            <td data-terms-url><a href="@{application.termsAndConditionsUrl}" target="_blank">@{application.termsAndConditionsUrl}</a> (opens in a new window)</td>
-        </tr>
-    </table>
+    @{
+        access match {
+            case standardAccess : Standard => {
+                <h2>Public information</h2>
+                <table>
+                    <tr>
+                        <th class="table-label">Privacy policy URL</th>
+                        <td data-privacy-url=""><a href="@{standardAccess.privacyPolicyUrl.getOrElse('')}" target="_blank">{standardAccess.privacyPolicyUrl.getOrElse("")}</a> (opens in a new window)</td>
+                    </tr>
+                    <tr>
+                        <th>Terms and conditions URL</th>
+                        <td data-terms-url=""><a href="@{standardAccess.termsAndConditionsUrl.getOrElse('')}" target="_blank">{standardAccess.termsAndConditionsUrl.getOrElse("")}</a> (opens in a new window)</td>
+                    </tr>
+                </table>
+            }
+            case _ => {}
+        }
+    }
 
     @{
         access match {
             case standardAccess : Standard => {
-                <h2>Overrides</h2>
+                <h2>Scopes</h2>
                 <h3>{standardAccess.overrides}</h3>
             }
             case privilegedAccess : Privileged => {
