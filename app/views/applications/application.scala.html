@@ -23,6 +23,10 @@
 @renderScopes(scopes: Set[String]) = {
     <table>
         <thead><th>Scopes</th></tr></thead>
+        @if(scopes.isEmpty) {
+        <tr><td>No scopes assigned to this application</td><td></td></tr>
+        }
+
         @for(scope <- scopes.toIterator) {
             <tr><td>@scope</td></tr>
         }
@@ -45,6 +49,10 @@
 @renderOverrides(overrides: Set[OverrideFlag]) = {
     <table>
         <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
+        @if(overrides.isEmpty) {
+            <tr><td>No grants assigned to this application</td><td></td></tr>
+        }
+
         @overrides.toList.map(or => or match {
             case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td><td></td></tr>
             case or: SuppressIvForAgents => {buildOverrideRow("SUPPRESS_IV_FOR_AGENTS", or.scopes)}
