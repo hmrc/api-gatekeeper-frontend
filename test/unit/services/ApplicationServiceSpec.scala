@@ -45,11 +45,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     val allApplications = Seq(
       ApplicationResponse(UUID.randomUUID(),
-        "application1", None, collaborators, DateTime.now(), ApplicationState()),
+        "application1", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
       ApplicationResponse(UUID.randomUUID(),
-        "application2", None, collaborators, DateTime.now(), ApplicationState()),
+        "application2", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
       ApplicationResponse(UUID.randomUUID(),
-        "application3", None, collaborators, DateTime.now(), ApplicationState()))
+        "application3", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
   }
 
   "fetchAllSubscribedApplications" should {
@@ -116,9 +116,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when specific subscription filtering is provided" in new Setup {
       val filteredApplications = Seq(
         ApplicationResponse(UUID.randomUUID(),
-          "application1", None, collaborators, DateTime.now(), ApplicationState()),
+          "application1", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
         ApplicationResponse(UUID.randomUUID(),
-          "application3", None, collaborators, DateTime.now(), ApplicationState()))
+          "application3", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
 
       given(testApplicationService.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier]))
         .willReturn(Future.successful(filteredApplications))
@@ -130,15 +130,15 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when OneOrMoreSubscriptions filtering is provided" in new Setup {
       val noSubscriptions = Seq(
         ApplicationResponse(UUID.randomUUID(),
-          "application1", None, collaborators, DateTime.now(), ApplicationState()),
+          "application1", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
         ApplicationResponse(UUID.randomUUID(),
-          "application3", None, collaborators, DateTime.now(), ApplicationState()))
+          "application3", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
 
       val subscriptions = Seq(
         ApplicationResponse(UUID.randomUUID(),
-          "application2", None, collaborators, DateTime.now(), ApplicationState()),
+          "application2", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
         ApplicationResponse(UUID.randomUUID(),
-          "application4", None, collaborators, DateTime.now(), ApplicationState()))
+          "application4", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
 
       val allApps = noSubscriptions ++ subscriptions
       given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
@@ -152,9 +152,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when OneOrMoreApplications filtering is provided" in new Setup {
       val allApps = Seq(
         ApplicationResponse(UUID.randomUUID(),
-          "application1", None, collaborators, DateTime.now(), ApplicationState()),
+          "application1", None, collaborators, DateTime.now(), Standard(), ApplicationState()),
         ApplicationResponse(UUID.randomUUID(),
-          "application3", None, collaborators, DateTime.now(), ApplicationState()))
+          "application3", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
 
       given(testApplicationService.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApps))

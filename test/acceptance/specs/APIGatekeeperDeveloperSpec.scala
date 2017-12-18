@@ -427,7 +427,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+    stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
       .withBody(applicationResponse).withStatus(200)))
   }
 
@@ -435,7 +435,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
 
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+    stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
       .withBody(applicationResponseWithNoUsers).withStatus(200)))
   }
 
@@ -445,15 +445,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   def stubNoAPISubscription() = {
-    stubFor(get(urlEqualTo(s"/application?noSubscriptions=true"))
+    stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
       .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
   }
 
   def stubApiDefinition() = {
-    stubFor(get(urlEqualTo(s"/api-definition"))
+    stubFor(get(urlEqualTo("/api-definition"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
 
-    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
+    stubFor(get(urlEqualTo("/api-definition?type=private"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
