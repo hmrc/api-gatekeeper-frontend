@@ -63,18 +63,12 @@
 }
 
 
-@renderStandardAccessUrls(standardAccess: Standard) = {
-    <h2>External URLs</h2>
-    <table>
-        <tr>
-            <th class="table-label">Privacy policy URL</th>
-            <td data-privacy-url=""><a href="@{standardAccess.privacyPolicyUrl}" target="_blank">@{standardAccess.privacyPolicyUrl}</a> (opens in a new window)</td>
-        </tr>
-        <tr>
-            <th>Terms and conditions URL</th>
-            <td data-terms-url=""><a href="@{standardAccess.termsAndConditionsUrl}" target="_blank">@{standardAccess.termsAndConditionsUrl}</a> (opens in a new window)</td>
-        </tr>
-    </table>
+@renderPrivacyPolicyUrl(standardAccess: Standard) = {
+    <a href="@{standardAccess.privacyPolicyUrl}" target="_blank">@{standardAccess.privacyPolicyUrl}</a> (opens in a new window)
+}
+
+@renderTermsAndConditionsUrl(standardAccess: Standard) = {
+    <a href="@{standardAccess.termsAndConditionsUrl}" target="_blank">@{standardAccess.termsAndConditionsUrl}</a> (opens in a new window)
 }
 
 @main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
@@ -95,76 +89,92 @@
             <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
         </div>
         }
-        <h1 class="flush--top">@application.name (@application.access.accessType)</h1>
+        <h1 class="flush--top">@application.name</h1>
     </header>
-    <h2 class="heading--font-reset">Description:</h2>
-    @if(application.description.nonEmpty) {
-    <p data-description class="flush--top">@application.description</p>
-    } else {
-    <p data-description class="fadded-text">No description added</p>
-    }
-
-    @if(application.rateLimitTier.isDefined) {
-        @helper.form(action = routes.DashboardController.handleUpdateRateLimitTier(application.id.toString)) {
-        <details>
-            <summary>
-                <span id="rate-limit-tier">Rate limit tier: @application.rateLimitTier</span>
-            </summary>
-            <div>
-                @helper.CSRF.formField
-                <table>
-                    <caption class="visuallyhidden">Table showing rate limit tier</caption>
-                    <tbody id="rate-limit-tier-table">
-                    <tr>
-                        @for(t <- RateLimitTier.values) {
-                        <td>
-                            <p>
-                                <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == Some(t)) {checked}>@t
-                            </p>
-                        </td>
-                        }
-                        <td>
-                            <!-- TODO: disable this submit button when the new tier == current tier -->
-                            <button id="rate-limit-tier-save" class="button" type="submit">Save new rate limit tier</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </details>
-        }
-    }
-
-    @{
-        access match {
-            case standardAccess : Standard => {
-                renderStandardAccessUrls(standardAccess)
-            }
-            case _ => {}
-        }
-    }
-
-    <h2>Authentication</h2>
-    @{
-        access match {
-            case standardAccess : Standard => {
-                renderOverrides(standardAccess.overrides)
-            }
-            case privilegedAccess : Privileged => {
-                renderScopes(privilegedAccess.scopes)
-            }
-            case ropcAccess : Ropc => {
-                renderScopes(ropcAccess.scopes)
-            }
-        }
-    }
-
-    <h2>Subscriptions</h2>
 
     <table>
-        @for(subscription <- subscriptions.toIterator) {
-            <tr><td>@subscription.name</td></tr>
-        }
+        <tr>
+            <td>
+                <h3>Description</h3>
+            </td>
+            <td>
+                @if(application.description.nonEmpty) {
+                    <p data-description class="flush--top">@application.description</p>
+                } else {
+                    <p data-description class="fadded-text">No description added</p>
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Privacy Policy URL</h3>
+            </td>
+            <td data-privacy-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderPrivacyPolicyUrl(standardAccess)
+                        }
+                        case _ => {}
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Terms and Conditions URL</h3>
+            </td>
+            <td data-terms-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderTermsAndConditionsUrl(standardAccess)
+                        }
+                        case _ => {}
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Type</h3>
+            </td>
+            <td>
+                @application.access.accessType
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Access</h3>
+            </td>
+            <td>
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderOverrides(standardAccess.overrides)
+                        }
+                        case privilegedAccess : Privileged => {
+                            renderScopes(privilegedAccess.scopes)
+                        }
+                        case ropcAccess : Ropc => {
+                            renderScopes(ropcAccess.scopes)
+                        }
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>API Subscriptions</h3>
+            </td>
+            <td>
+                <table>
+                    @for(subscription <- subscriptions.toIterator) {
+                        <tr><td>@subscription.name</td></tr>
+                    }
+                </table>
+            </td>
+        </tr>
     </table>
 </div>
 
