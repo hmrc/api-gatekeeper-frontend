@@ -81,7 +81,9 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
-//      webDriver.findElement(By.id("something")).getText shouldBe "description"
+
+      webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
+      webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
     }
   }
 

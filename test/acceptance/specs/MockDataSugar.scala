@@ -159,6 +159,8 @@ trait MockDataSugar {
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
        |      "accessType": "STANDARD"
        |    },
        |    "state": {
