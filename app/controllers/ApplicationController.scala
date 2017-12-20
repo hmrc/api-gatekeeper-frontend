@@ -25,6 +25,8 @@ import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications.{application, applications}
 
+import scala.concurrent.Future
+
 
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
@@ -66,6 +68,14 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         Redirect(routes.DashboardController.approvedApplicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
+  }
+
+  def deleteGrant(appId: String, grantId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+    // TODO: Role should be super user not APIGatekeeper
+    // TODO: Delete the selected grant from the application
+
+    Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
