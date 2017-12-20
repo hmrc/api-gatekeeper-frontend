@@ -49,9 +49,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
+      val applicationFuture = applicationService.fetchApplication(appId)
+      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
+
       for {
-        app <- applicationService.fetchApplication(appId)
-        subs <- applicationService.fetchApplicationSubscriptions(appId)
+        app <- applicationFuture
+        subs <- subscriptionsFuture
       } yield Ok(application(app, subs))
   }
 
