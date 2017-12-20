@@ -27,3 +27,15 @@
 .table-label {
     width: 30%;
 }
+
+th {
+    vertical-align: text-top;
+}
+
+th > h3 {
+    white-space: nowrap;
+}
+
+td {
+    vertical-align: text-top;
+}
