@@ -40,13 +40,13 @@
                 <tr>
                     <td>@title</td>
                 </tr>
-                <tr>
-                    <td>
-                        @if(isSuperUser) {
+                @if(isSuperUser) {
+                    <tr>
+                        <td>
                             <strong><a href="#">DELETE</a></strong>
-                        }
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             </table>
         </td>
         <td>
@@ -111,9 +111,9 @@
 
     <table>
         <tr>
-            <td>
+            <th>
                 <h3>Description</h3>
-            </td>
+            </th>
             <td>
                 @if(application.description.nonEmpty) {
                     <p data-description class="flush--top">@application.description</p>
@@ -123,9 +123,9 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <th>
                 <h3>Privacy Policy URL</h3>
-            </td>
+            </th>
             <td data-privacy-url="">
                 @{
                     access match {
@@ -138,9 +138,9 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <th>
                 <h3>Terms and Conditions URL</h3>
-            </td>
+            </th>
             <td data-terms-url="">
                 @{
                     access match {
@@ -153,17 +153,17 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <th>
                 <h3>Type</h3>
-            </td>
+            </th>
             <td>
                 @application.access.accessType
             </td>
         </tr>
         <tr>
-            <td>
+            <th>
                 <h3>Access</h3>
-            </td>
+            </th>
             <td>
                 @{
                     access match {
@@ -181,9 +181,9 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <th>
                 <h3>API Subscriptions</h3>
-            </td>
+            </th>
             <td>
                 <table>
                     @for(subscription <- subscriptions.toIterator) {
