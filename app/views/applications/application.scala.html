@@ -16,7 +16,7 @@
 
 @import model._
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -33,13 +33,30 @@
     </table>
 }
 
-@buildOverrideRow(title: String, scopes: Set[String]) = {
+@buildOverrideRow(title: String, scopes: Set[String] = Set.empty) = {
     <tr>
-        <td>@title</td>
         <td>
             <table>
-                @for(scope <- scopes.toIterator) {
-                    <tr><td>@scope</td></tr>
+                <tr>
+                    <td>@title</td>
+                </tr>
+                <tr>
+                    <td>
+                        @if(isSuperUser) {
+                            <strong><a href="#">DELETE</a></strong>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                @if(scopes.isEmpty) {
+                    <tr><td></td></tr>
+                } else {
+                    @for(scope <- scopes.toIterator) {
+                        <tr><td>@scope</td></tr>
+                    }
                 }
             </table>
         </td>
@@ -54,7 +71,7 @@
         }
 
         @overrides.toList.map(or => or match {
-            case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td><td></td></tr>
+            case or: PersistLogin => {buildOverrideRow("PERSIST_LOGIN_AFTER_GRANT")}
             case or: SuppressIvForAgents => {buildOverrideRow("SUPPRESS_IV_FOR_AGENTS", or.scopes)}
             case or: SuppressIvForOrganisations => {buildOverrideRow("SUPPRESS_IV_FOR_ORGANISATIONS", or.scopes)}
             case or: GrantWithoutConsent => {buildOverrideRow("GRANT_WITHOUT_TAXPAYER_CONSENT", or.scopes)}
