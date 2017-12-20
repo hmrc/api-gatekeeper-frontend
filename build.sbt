@@ -144,6 +144,7 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "frontend-bootstrap" % "8.9.0",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
   "org.slf4j" % "slf4j-api" % slf4jVersion,
   "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
   "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,

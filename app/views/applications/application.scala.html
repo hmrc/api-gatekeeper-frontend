@@ -1,0 +1,182 @@
+@*
+ * Copyright 2017 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@application = @{applicationWithHistory.application}
+@access = @{application.access}
+
+@renderScopes(scopes: Set[String]) = {
+    <table>
+        <thead><th>Scopes</th></tr></thead>
+        @if(scopes.isEmpty) {
+        <tr><td>No scopes assigned to this application</td><td></td></tr>
+        }
+
+        @for(scope <- scopes.toIterator) {
+            <tr><td>@scope</td></tr>
+        }
+    </table>
+}
+
+@buildOverrideRow(title: String, scopes: Set[String]) = {
+    <tr>
+        <td>@title</td>
+        <td>
+            <table>
+                @for(scope <- scopes.toIterator) {
+                    <tr><td>@scope</td></tr>
+                }
+            </table>
+        </td>
+    </tr>
+}
+
+@renderOverrides(overrides: Set[OverrideFlag]) = {
+    <table>
+        <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
+        @if(overrides.isEmpty) {
+            <tr><td>No grants assigned to this application</td><td></td></tr>
+        }
+
+        @overrides.toList.map(or => or match {
+            case or: PersistLogin => <tr><td>PERSIST_LOGIN_AFTER_GRANT</td><td></td></tr>
+            case or: SuppressIvForAgents => {buildOverrideRow("SUPPRESS_IV_FOR_AGENTS", or.scopes)}
+            case or: SuppressIvForOrganisations => {buildOverrideRow("SUPPRESS_IV_FOR_ORGANISATIONS", or.scopes)}
+            case or: GrantWithoutConsent => {buildOverrideRow("GRANT_WITHOUT_TAXPAYER_CONSENT", or.scopes)}
+        })
+    </table>
+}
+
+
+@renderPrivacyPolicyUrl(standardAccess: Standard) = {
+    <a href="@{standardAccess.privacyPolicyUrl}" target="_blank">@{standardAccess.privacyPolicyUrl}</a> (opens in a new window)
+}
+
+@renderTermsAndConditionsUrl(standardAccess: Standard) = {
+    <a href="@{standardAccess.termsAndConditionsUrl}" target="_blank">@{standardAccess.termsAndConditionsUrl}</a> (opens in a new window)
+}
+
+@main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
+
+<div class="content__body">
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@application.name</li>
+        </ul>
+    </nav>
+
+    <header>
+        @if(flash.get("success").isDefined) {
+        <div class="alert alert--success" role="alert">
+            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+        </div>
+        }
+        <h1 class="flush--top">@application.name</h1>
+    </header>
+
+    <table>
+        <tr>
+            <td>
+                <h3>Description</h3>
+            </td>
+            <td>
+                @if(application.description.nonEmpty) {
+                    <p data-description class="flush--top">@application.description</p>
+                } else {
+                    <p data-description class="fadded-text">No description added</p>
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Privacy Policy URL</h3>
+            </td>
+            <td data-privacy-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderPrivacyPolicyUrl(standardAccess)
+                        }
+                        case _ => {}
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Terms and Conditions URL</h3>
+            </td>
+            <td data-terms-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderTermsAndConditionsUrl(standardAccess)
+                        }
+                        case _ => {}
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Type</h3>
+            </td>
+            <td>
+                @application.access.accessType
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Access</h3>
+            </td>
+            <td>
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderOverrides(standardAccess.overrides)
+                        }
+                        case privilegedAccess : Privileged => {
+                            renderScopes(privilegedAccess.scopes)
+                        }
+                        case ropcAccess : Ropc => {
+                            renderScopes(ropcAccess.scopes)
+                        }
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>API Subscriptions</h3>
+            </td>
+            <td>
+                <table>
+                    @for(subscription <- subscriptions.toIterator) {
+                        <tr><td>@subscription.name</td></tr>
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+}
+

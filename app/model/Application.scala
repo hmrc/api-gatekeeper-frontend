@@ -22,7 +22,8 @@ import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json._
+import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.time.DateTimeUtils
 
 trait Application {
@@ -53,6 +54,7 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
+                               access: Access,
                                state: ApplicationState,
                                rateLimitTier: Option[RateLimitTier] = None,
                                termsAndConditionsUrl: Option[String] = None,
@@ -64,14 +66,89 @@ case class ApplicationResponse(id: UUID,
 }
 
 object ApplicationResponse {
+  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
+  private implicit val formatPersistLogin = Format[PersistLogin](
+    Reads { _ => JsSuccess(PersistLogin()) },
+    Writes { _ => Json.obj() })
+  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
+
+  implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
+    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
+    .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
+    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
+    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
+    .format
+
+  implicit val formatTotpIds = Json.format[TotpIds]
+
+  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatPrivileged = Json.format[Privileged]
+  private implicit val formatRopc = Json.format[Ropc]
+
+  implicit val formatAccess = Union.from[Access]("accessType")
+    .and[Standard](AccessType.STANDARD.toString)
+    .and[Privileged](AccessType.PRIVILEGED.toString)
+    .and[Ropc](AccessType.ROPC.toString)
+    .format
   implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
   implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
-  implicit val format5 = Json.format[ApplicationResponse]
+  implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
 }
+
+object AccessType extends Enumeration {
+  type AccessType = Value
+  val STANDARD, PRIVILEGED, ROPC = Value
+}
+
+sealed trait Access {
+  val accessType: AccessType.Value
+}
+
+case class Standard(redirectUris: Seq[String] = Seq.empty,
+                    termsAndConditionsUrl: Option[String] = None,
+                    privacyPolicyUrl: Option[String] = None,
+                    overrides: Set[OverrideFlag] = Set.empty) extends Access {
+  override val accessType = AccessType.STANDARD
+}
+
+case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends Access {
+  override val accessType = AccessType.PRIVILEGED
+}
+
+case class Ropc(scopes: Set[String] = Set.empty) extends Access {
+  override val accessType = AccessType.ROPC
+}
+
+sealed trait OverrideFlag {
+  val overrideType: OverrideType.Value
+}
+
+case class PersistLogin() extends OverrideFlag {
+  val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
+}
+
+case class SuppressIvForAgents(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_AGENTS
+}
+
+case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
+}
+
+case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
+}
+
+object OverrideType extends Enumeration {
+  val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS = Value
+}
+
+case class TotpIds(production: String, sandbox: String)
 
 case class SubscribedApplicationResponse(id: UUID,
                                          name: String,
