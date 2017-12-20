@@ -24,3 +24,5 @@ GET         /application/:id                       controllers.ApplicationContro
 GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /nav-links                             controllers.NavigationController.navLinks
+
+GET         /application/:id/grant/:grantId        controllers.ApplicationController.deleteGrant(id: String, grantId: String)

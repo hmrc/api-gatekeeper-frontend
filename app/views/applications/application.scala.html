@@ -38,15 +38,14 @@
         <td>
             <table>
                 <tr>
-                    <td>@title</td>
+                    <td>
+                        @if(isSuperUser) {
+                            @title [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, title)}">X</a></strong>]
+                        } else {
+                            @title
+                        }
+                    </td>
                 </tr>
-                @if(isSuperUser) {
-                    <tr>
-                        <td>
-                            <strong><a href="#">DELETE</a></strong>
-                        </td>
-                    </tr>
-                }
             </table>
         </td>
         <td>
