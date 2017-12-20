@@ -21,10 +21,11 @@ import java.util.UUID
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json._
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.json.Union
 
 
 case class LoginDetails(userName: String, password: Protected[String])
@@ -83,6 +84,31 @@ case object UpdateApplicationRateLimitTierSuccessful extends UpdateApplicationRa
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
+  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
+  private implicit val formatPersistLogin = Format[PersistLogin](
+    Reads { _ => JsSuccess(PersistLogin()) },
+    Writes { _ => Json.obj() })
+  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
+
+  implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
+    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
+    .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
+    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
+    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
+    .format
+
+  implicit val formatTotpIds = Json.format[TotpIds]
+
+  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatPrivileged = Json.format[Privileged]
+  private implicit val formatRopc = Json.format[Ropc]
+
+  implicit val formatAccess = Union.from[Access]("accessType")
+    .and[Standard](AccessType.STANDARD.toString)
+    .and[Privileged](AccessType.PRIVILEGED.toString)
+    .and[Ropc](AccessType.ROPC.toString)
+    .format
   implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
@@ -107,6 +133,8 @@ object ApplicationWithUpliftRequest {
 class PreconditionFailed extends Throwable
 
 class FetchApplicationsFailed extends Throwable
+
+class FetchApplicationSubscriptionsFailed extends Throwable
 
 class InconsistentDataState(message: String) extends RuntimeException(message)
 

@@ -28,7 +28,7 @@ import scala.util.Try
 
 trait Env {
 
-  val webDriverConfig = System.getProperty("test.driver", "firefox").toLowerCase
+  val webDriverConfig = System.getProperty("test.driver", "chrome").toLowerCase
   val driver = if (webDriverConfig == "firefox") {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile
@@ -40,7 +40,7 @@ trait Env {
     val driver: WebDriver = {
       val driver = new ChromeDriver()
       driver.manage().deleteAllCookies()
-      driver.manage().window().maximize()
+      driver.manage().window().fullscreen()
       driver
     }
     driver

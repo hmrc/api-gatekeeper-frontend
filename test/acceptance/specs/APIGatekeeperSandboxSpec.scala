@@ -16,7 +16,7 @@
 
 package acceptance.specs
 
-import acceptance.pages.{ApplicationPage, SignInPage}
+import acceptance.pages.{ApplicationsPage, SignInPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -93,7 +93,7 @@ class APIGatekeeperSandboxSpec extends BaseSpec
 
       When("the users signs in")
       SignInPage.signIn("joe.test", "password")
-      on(ApplicationPage)
+      on(ApplicationsPage)
 
       Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
       actualApplicationName shouldBe "HMRC API Gatekeeper - Developer Sandbox"

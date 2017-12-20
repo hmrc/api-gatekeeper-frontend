@@ -17,71 +17,12 @@
 package acceptance.pages
 
 import acceptance.WebPage
-import acceptance.pages.ApplicationPage.APIFilter.APIFilterList
-import acceptance.pages.ApplicationPage.StatusFilter.StatusFilterList
 
 object ApplicationPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/applications"
+  override val url: String = "http://localhost:9000/api-gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216"
+
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
-
-  def previousLink = find(linkText("Previous")).get
-
-  def nextLink = find(linkText("Next")).get
-
-  def selectBySubscription(api: APIFilterList) = {
-    singleSel("filter").value = api.name
-  }
-
-  def selectByStatus(status: StatusFilterList) = {
-    singleSel("status").value = status.name
-  }
-
-  def selectNoofRows(noOfRows: String) = {
-    singleSel("pageSize").value = noOfRows
-  }
-
-  def showPreviousEntries() = {
-    click on previousLink
-  }
-
-  def showNextEntries() = {
-    click on nextLink
-  }
-
-  object APIFilter  {
-
-    sealed abstract class APIFilterList(val name: String) {}
-
-    case object ALLUSERS extends APIFilterList("ALL")
-
-    case object ONEORMORESUBSCRIPTION extends APIFilterList("ANYSUB")
-
-    case object NOSUBSCRIPTION extends APIFilterList("NOSUB")
-
-    case object NOAPPLICATIONS extends APIFilterList("NOAPP")
-
-    case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
-
-    case object EMPLOYERSPAYE extends APIFilterList("Employers PAYE")
-
-  }
-
-  object StatusFilter  {
-
-    sealed abstract class StatusFilterList(val name: String) {}
-
-    case object ALL extends StatusFilterList("ALL")
-
-    case object APPROVED extends StatusFilterList("APPROVED")
-
-    case object PENDING extends StatusFilterList("PENDING")
-
-    case object SANDBOX extends StatusFilterList("SANDBOX")
-
-  }
-
-
 }

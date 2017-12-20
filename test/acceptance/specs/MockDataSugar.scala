@@ -156,6 +156,13 @@ trait MockDataSugar {
        |    "redirectUris": [],
        |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
        |    "privacyPolicyUrl": "http://www.example.com/privacy",
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$adminEmail",
@@ -215,6 +222,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -242,6 +254,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -269,6 +286,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -458,6 +480,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -485,6 +512,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -592,6 +624,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -611,6 +648,11 @@ trait MockDataSugar {
        |    "description": "application for test",
        |   "collaborators": [],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -646,6 +688,11 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer4",
@@ -764,6 +811,11 @@ trait MockDataSugar {
        |    "createdOn": 1459866628433,
        |    "redirectUris": [],
        |    "subscriptions": [],
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
        |    $state
        |  },
        |  "history": [

@@ -99,3 +99,9 @@ object SubscriptionResponse {
   implicit val format1 = Json.format[APIIdentifier]
   implicit val format2 = Json.format[SubscriptionResponse]
 }
+
+case class Subscription(name: String, serviceName: String, context: String)
+
+object Subscription {
+  implicit val subscriptionJsonFormatter = Json.format[Subscription]
+}

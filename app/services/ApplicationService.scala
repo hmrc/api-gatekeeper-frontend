@@ -53,6 +53,10 @@ trait ApplicationService {
     }
   }
 
+  def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
+    applicationConnector.fetchApplication(appId)
+  }
+
   def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
 
     def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {
@@ -69,5 +73,9 @@ trait ApplicationService {
       subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
       subscribedApplications = addSubscriptionsToApplications(apps, subs)
     } yield subscribedApplications.sortBy(_.name.toLowerCase)
+  }
+
+  def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+    applicationConnector.fetchApplicationSubscriptions(applicationId)
   }
 }
