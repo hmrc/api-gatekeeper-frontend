@@ -76,6 +76,15 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     // TODO: Delete the selected grant from the application
 
     Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
+
+  }
+
+  def deleteSubscription(appId: String, subscriptionId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+    // TODO: Role should be super user not APIGatekeeper
+    // TODO: Delete the selected subscription from the application
+
+    Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
