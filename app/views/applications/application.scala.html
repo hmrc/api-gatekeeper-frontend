@@ -182,14 +182,21 @@
         <tr>
             <th>
                 <h3>API Subscriptions</h3>
+                <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}">Manage</a>
             </th>
             <td>
                 <table>
                     @for(subscription <- subscriptions.toIterator) {
                         @if(isSuperUser) {
-                            <tr><td>@subscription.name [<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td></tr>
+                        <tr>
+                            <td>@subscription.name</td>
+                            <td>[<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td>
+                        </tr>
                         } else {
-                            <tr><td>@subscription.name</td></tr>
+                        <tr>
+                            <td>@subscription.name</td>
+                            <td></td>
+                        </tr>
                         }
                     }
                 </table>

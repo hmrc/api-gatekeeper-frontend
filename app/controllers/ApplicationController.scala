@@ -23,7 +23,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
-import views.html.applications.{application, applications}
+import views.html.applications.{application, applications, subscription_manage}
 
 import scala.concurrent.Future
 
@@ -85,6 +85,18 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     // TODO: Delete the selected subscription from the application
 
     Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
+  }
+
+  def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+    // TODO: Role should be super user not APIGatekeeper
+    // TODO: Delete the selected subscription from the application
+
+      val applicationFuture = applicationService.fetchApplication(appId)
+
+      for {
+        app <- applicationFuture
+      } yield Ok(subscription_manage(app))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
