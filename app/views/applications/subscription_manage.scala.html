@@ -16,7 +16,7 @@
 
 @import model._
 
-@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @main(title = s"${appConfig.title} - Manage Subscriptions", userFullName = userFullName) {
 
@@ -38,6 +38,23 @@
                 <h1>Manage Subscriptions (@application.name)</h1>
             </th>
             <td>
+
+
+                <table>
+                    @for(subscription <- subscriptions.toIterator) {
+                    @if(isSuperUser) {
+                    <tr>
+                        <td>@subscription.name</td>
+                        <td>[<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td>
+                    </tr>
+                    } else {
+                    <tr>
+                        <td>@subscription.name</td>
+                        <td></td>
+                    </tr>
+                    }
+                    }
+                </table>
                 </td>
         </tr>
     </table>
