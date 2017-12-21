@@ -45,11 +45,15 @@
             @if(isSuperUser) {
             <tr>
                 <td>@subscription.name</td>
+                <td>
+                    @for(version <- subscription.versions) {
+                        @version.version.version
+                    }
+                </td>
             </tr>
             } else {
             <tr>
                 <td>@subscription.name</td>
-                <td></td>
             </tr>
             }
         }
