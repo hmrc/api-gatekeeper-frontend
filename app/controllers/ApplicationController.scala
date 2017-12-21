@@ -57,7 +57,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       for {
         app <- applicationFuture
         subs <- subscriptionsFuture
-      } yield Ok(application(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+      } yield Ok(application(app, subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {

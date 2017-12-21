@@ -37,26 +37,22 @@
             <th>
                 <h1>Manage Subscriptions (@application.name)</h1>
             </th>
-            <td>
-
-
-                <table>
-                    @for(subscription <- subscriptions.toIterator) {
-                    @if(isSuperUser) {
-                    <tr>
-                        <td>@subscription.name</td>
-                        <td>[<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td>
-                    </tr>
-                    } else {
-                    <tr>
-                        <td>@subscription.name</td>
-                        <td></td>
-                    </tr>
-                    }
-                    }
-                </table>
-                </td>
         </tr>
+    </table>
+
+    <table>
+        @for(subscription <- subscriptions.toIterator) {
+            @if(isSuperUser) {
+            <tr>
+                <td>@subscription.name</td>
+            </tr>
+            } else {
+            <tr>
+                <td>@subscription.name</td>
+                <td></td>
+            </tr>
+            }
+        }
     </table>
 </div>
 
