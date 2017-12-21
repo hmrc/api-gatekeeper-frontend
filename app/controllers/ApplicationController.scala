@@ -93,10 +93,13 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     // TODO: Delete the selected subscription from the application
 
       val applicationFuture = applicationService.fetchApplication(appId)
+      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
       for {
         app <- applicationFuture
-      } yield Ok(subscription_manage(app))
+        subs <- subscriptionsFuture
+
+      } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
