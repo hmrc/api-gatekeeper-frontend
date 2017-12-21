@@ -100,8 +100,14 @@ object SubscriptionResponse {
   implicit val format2 = Json.format[SubscriptionResponse]
 }
 
-case class Subscription(name: String, serviceName: String, context: String)
+case class Subscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription])
 
 object Subscription {
+
+  implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
+  implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
+  implicit val formatAPIAccess = Json.format[APIAccess]
+  implicit val versionJsonFormatter = Json.format[APIVersion]
+  implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val subscriptionJsonFormatter = Json.format[Subscription]
 }
