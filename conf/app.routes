@@ -27,3 +27,5 @@ GET         /nav-links                             controllers.NavigationControl
 
 GET         /application/:id/grant/:grantId        controllers.ApplicationController.deleteGrant(id: String, grantId: String)
 GET         /application/:id/subscription/:subscriptionId        controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
+
+GET         /application/:id/subscriptions/manage   controllers.ApplicationController.manageSubscription(id: String)
