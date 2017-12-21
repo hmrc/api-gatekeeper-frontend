@@ -76,6 +76,9 @@ trait ApplicationService {
   }
 
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    applicationConnector.fetchApplicationSubscriptions(applicationId)
+    for {
+      applicationSubscriptions <- applicationConnector.fetchApplicationSubscriptions(applicationId)
+    } yield applicationSubscriptions.filter(sub => !sub.versions.filter(version => version.subscribed).isEmpty)
+
   }
 }
