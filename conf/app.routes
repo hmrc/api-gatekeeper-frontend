@@ -26,3 +26,4 @@ GET         /assets/*file                          controllers.Assets.versioned(
 GET         /nav-links                             controllers.NavigationController.navLinks
 
 GET         /application/:id/grant/:grantId        controllers.ApplicationController.deleteGrant(id: String, grantId: String)
+GET         /application/:id/subscription/:subscriptionId        controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
