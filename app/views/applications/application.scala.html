@@ -187,7 +187,7 @@
                 <table>
                     @for(subscription <- subscriptions.toIterator) {
                         @if(isSuperUser) {
-                            <tr><td>@subscription.name [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, subscription.name)}">X</a></strong>]</td></tr>
+                            <tr><td>@subscription.name [<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td></tr>
                         } else {
                             <tr><td>@subscription.name</td></tr>
                         }
