@@ -39,11 +39,7 @@
             <table>
                 <tr>
                     <td>
-                        @if(isSuperUser) {
-                            @title [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, title)}">X</a></strong>]
-                        } else {
-                            @title
-                        }
+                        @title
                     </td>
                 </tr>
             </table>
