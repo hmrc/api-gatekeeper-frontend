@@ -18,15 +18,14 @@ package connectors
 
 import config.WSHttp
 import connectors.AuthConnector._
-import model._
+import model.{UpdateOverridesSuccessResult, _}
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.PRECONDITION_FAILED
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost, Upstream4xxResponse, Upstream5xxResponse }
 
 object ApplicationConnector extends ApplicationConnector {
   override val applicationBaseUrl: String = s"${baseUrl("third-party-application")}"
@@ -118,6 +117,14 @@ trait ApplicationConnector {
     http.GET[Seq[Subscription]](s"$applicationBaseUrl/application/$applicationId/subscription")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
+      }
+  }
+
+  def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/access/overrides", updateOverridesRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(_ => UpdateOverridesSuccessResult)
+      .recover {
+        case e: Upstream4xxResponse => UpdateOverridesFailureResult
       }
   }
 }
