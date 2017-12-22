@@ -24,11 +24,11 @@
 <table>
     <thead><th>Scopes</th></tr></thead>
     @if(scopes.isEmpty) {
-    <tr><td>No scopes assigned to this application</td><td></td></tr>
+        <tr><td>No scopes assigned to this application</td><td></td></tr>
     }
 
     @for(scope <- scopes.toIterator) {
-    <tr><td>@scope</td></tr>
+        <tr><td>@scope</td></tr>
     }
 </table>
 }
@@ -40,9 +40,9 @@
             <tr>
                 <td>
                     @if(isSuperUser) {
-                    @title [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, title)}">X</a></strong>]
+                        @title [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, title)}">X</a></strong>]
                     } else {
-                    @title
+                        @title
                     }
                 </td>
             </tr>
@@ -51,11 +51,11 @@
     <td>
         <table>
             @if(scopes.isEmpty) {
-            <tr><td></td></tr>
+                <tr><td></td></tr>
             } else {
-            @for(scope <- scopes.toIterator) {
-            <tr><td>@scope</td></tr>
-            }
+                @for(scope <- scopes.toIterator) {
+                    <tr><td>@scope</td></tr>
+                }
             }
         </table>
     </td>
@@ -66,16 +66,27 @@
 <table>
     <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
     @if(overrides.isEmpty) {
-    <tr><td>No grants assigned to this application</td><td></td></tr>
+        <tr><td>No grants assigned to this application</td><td></td></tr>
     }
 
     @overrides.toList.map(or => or match {
-    case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)}
-    case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, or.scopes)}
-    case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, or.scopes)}
-    case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, or.scopes)}
+        case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)}
+        case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, or.scopes)}
+        case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, or.scopes)}
+        case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, or.scopes)}
     })
 </table>
+}
+
+@renderAdditionalOverrides(overrideTypes: Set[OverrideType.Value]) = {
+    @for(or <- OverrideType.values) {
+        @if(!overrideTypes.contains(or)) {
+            <tr>
+                <td>@or</td>
+                <td>[<a href="#">ADD</a>]</td>
+            </tr>
+        }
+    }
 }
 
 @main(title = s"${appConfig.title} - Manage Access", userFullName = userFullName) {
@@ -117,6 +128,14 @@
                 }
             </td>
         </tr>
+        @{
+            access match {
+                case standardAccess: Standard => {
+                    renderAdditionalOverrides(standardAccess.overrides.map(or => or.overrideType))
+                }
+                case _ => {}
+            }
+        }
     </table>
 </div>
 
