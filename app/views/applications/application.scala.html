@@ -70,10 +70,10 @@
         }
 
         @overrides.toList.map(or => or match {
-            case or: PersistLogin => {buildOverrideRow("PERSIST_LOGIN_AFTER_GRANT")}
-            case or: SuppressIvForAgents => {buildOverrideRow("SUPPRESS_IV_FOR_AGENTS", or.scopes)}
-            case or: SuppressIvForOrganisations => {buildOverrideRow("SUPPRESS_IV_FOR_ORGANISATIONS", or.scopes)}
-            case or: GrantWithoutConsent => {buildOverrideRow("GRANT_WITHOUT_TAXPAYER_CONSENT", or.scopes)}
+            case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)}
+            case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, or.scopes)}
+            case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, or.scopes)}
+            case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, or.scopes)}
         })
     </table>
 }
