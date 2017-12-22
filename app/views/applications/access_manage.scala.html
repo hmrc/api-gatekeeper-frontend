@@ -40,7 +40,7 @@
             <tr>
                 <td>
                     @if(isSuperUser) {
-                        @title [<strong><a href="@{routes.ApplicationController.updateAccess(application.id.toString)}">REMOVE</a></strong>]
+                        @title <a href="@{routes.ApplicationController.updateAccess(application.id.toString)}" class="button" role="button">REMOVE</a>
                     } else {
                         @title
                     }
@@ -83,7 +83,7 @@
         @if(!overrideTypes.contains(or)) {
             <tr>
                 <td>@or</td>
-                <td>[<a href="@{routes.ApplicationController.updateAccess(application.id.toString)}">ADD</a>]</td>
+                <td><a href="@{routes.ApplicationController.updateAccess(application.id.toString)}" class="button" role="button">ADD</a></td>
             </tr>
         }
     }
