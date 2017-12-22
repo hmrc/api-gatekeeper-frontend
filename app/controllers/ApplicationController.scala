@@ -105,12 +105,26 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def manageAccess(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       // TODO: Role should be super user not APIGatekeeper
-      // TODO: Managed the access overrides for the given application
+      // TODO: Manage the access overrides for the given application
 
       val applicationFuture = applicationService.fetchApplication(appId)
 
       for {
         app <- applicationFuture
+
+      } yield Ok(access_manage(app, isSuperUser))
+  }
+
+  def updateAccess(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+      // TODO: Role should be super user not APIGatekeeper
+      // TODO: Update the access overrides for the given application
+
+      val applicationFuture = applicationService.fetchApplication(appId)
+      // TODO: Pass in new state of access overrides from front end
+      for {
+        app <- applicationFuture
+        _ <- applicationService.updateOverrides(app.application)
 
       } yield Ok(access_manage(app, isSuperUser))
   }

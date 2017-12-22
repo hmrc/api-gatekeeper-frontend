@@ -78,4 +78,24 @@ trait ApplicationService {
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     applicationConnector.fetchApplicationSubscriptions(applicationId)
   }
+
+  def updateOverrides(application: ApplicationResponse)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    application.access match {
+      case standard: Standard => {
+        val updateOverridesRequest = UpdateOverridesRequest(standard.overrides.map {
+          case GrantWithoutConsent(scopes) => OverrideRequest(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, scopes)
+          case SuppressIvForOrganisations(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, scopes)
+          case SuppressIvForAgents(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, scopes)
+          case PersistLogin() => OverrideRequest(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
+        })
+
+        applicationConnector.updateOverrides(application, updateOverridesRequest)
+
+        Future.successful(UpdateOverridesSuccessResult)
+      }
+      case _ => {
+        Future.successful(UpdateOverridesFailureResult)
+      }
+    }
+  }
 }
