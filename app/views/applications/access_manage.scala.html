@@ -30,6 +30,9 @@
     @for(scope <- scopes.toIterator) {
         <tr><td>@scope</td></tr>
     }
+    <tr>
+        <td><a href="@{routes.ApplicationController.updateAccess(application.id.toString)}" class="button" role="button">ADD</a></td>
+    </tr>
 </table>
 }
 
