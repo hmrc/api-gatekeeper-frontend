@@ -23,7 +23,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
-import views.html.applications.{application, applications, subscription_manage}
+import views.html.applications.{access_manage, application, applications, subscription_manage}
 
 import scala.concurrent.Future
 
@@ -90,7 +90,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
     // TODO: Role should be super user not APIGatekeeper
-    // TODO: Delete the selected subscription from the application
+    // TODO: Manage the subscriptions for the given application
 
       val applicationFuture = applicationService.fetchApplication(appId)
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
@@ -100,6 +100,19 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         subs <- subscriptionsFuture
 
       } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+  }
+
+  def manageAccess(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+      // TODO: Role should be super user not APIGatekeeper
+      // TODO: Managed the access overrides for the given application
+
+      val applicationFuture = applicationService.fetchApplication(appId)
+
+      for {
+        app <- applicationFuture
+
+      } yield Ok(access_manage(app, isSuperUser))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {

@@ -1,31 +1,32 @@
 # microservice specific routes
 
-GET         /login                                 controllers.AccountController.loginPage
-POST        /login                                 controllers.AccountController.authenticate
+GET         /login                                                  controllers.AccountController.loginPage
+POST        /login                                                  controllers.AccountController.authenticate
 
-GET         /logout                                controllers.AccountController.logout
+GET         /logout                                                 controllers.AccountController.logout
 
-GET         /dashboard                             controllers.DashboardController.dashboardPage
-GET         /review                                controllers.DashboardController.reviewPage(id: String)
+GET         /dashboard                                              controllers.DashboardController.dashboardPage
+GET         /review                                                 controllers.DashboardController.reviewPage(id: String)
 
-GET         /approved                              controllers.DashboardController.approvedApplicationPage(id: String)
+GET         /approved                                               controllers.DashboardController.approvedApplicationPage(id: String)
 
-POST        /update-rate-limit-tier                controllers.DashboardController.handleUpdateRateLimitTier(id: String)
+POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
-GET         /applications                          controllers.ApplicationController.applicationsPage
+GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /applications                                           controllers.ApplicationController.applicationsPage
 
-->          /template                              template.Routes
+->          /template                                               template.Routes
 
-POST        /applications/:id/handle-uplift        controllers.DashboardController.handleUplift(id: String)
-GET         /applications/:id/resend-verification  controllers.ApplicationController.resendVerification(id: String)
-GET         /application/:id                       controllers.ApplicationController.applicationPage(id: String)
+POST        /applications/:id/handle-uplift                         controllers.DashboardController.handleUplift(id: String)
+GET         /applications/:id/resend-verification                   controllers.ApplicationController.resendVerification(id: String)
+GET         /application/:id                                        controllers.ApplicationController.applicationPage(id: String)
 
-GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                                           controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /nav-links                             controllers.NavigationController.navLinks
+GET         /nav-links                                              controllers.NavigationController.navLinks
 
-GET         /application/:id/grant/:grantId        controllers.ApplicationController.deleteGrant(id: String, grantId: String)
-GET         /application/:id/subscription/:subscriptionId        controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
+GET         /application/:id/grant/:grantId                         controllers.ApplicationController.deleteGrant(id: String, grantId: String)
+GET         /application/:id/subscription/:subscriptionId           controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
 
-GET         /application/:id/subscriptions/manage   controllers.ApplicationController.manageSubscription(id: String)
+GET         /application/:id/subscriptions/manage                   controllers.ApplicationController.manageSubscription(id: String)
+GET         /application/:id/access/manage                          controllers.ApplicationController.manageAccess(id: String)
