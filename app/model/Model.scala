@@ -202,13 +202,13 @@ case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[Us
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
-case class OverrideRequest(overrideType: String, scopes: Seq[String])
+case class OverrideRequest(overrideType: String, scopes: Set[String] = Set.empty)
 
 object OverrideRequest {
   implicit val format = Json.format[OverrideRequest]
 }
 
-case class UpdateOverridesRequest(overrides: Seq[OverrideRequest])
+case class UpdateOverridesRequest(overrides: Set[OverrideRequest])
 
 object UpdateOverridesRequest {
   implicit val format = Json.format[UpdateOverridesRequest]
