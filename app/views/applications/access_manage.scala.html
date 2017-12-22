@@ -1,0 +1,124 @@
+@*
+ * Copyright 2017 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@application = @{applicationWithHistory.application}
+@access = @{application.access}
+
+@renderScopes(scopes: Set[String]) = {
+<table>
+    <thead><th>Scopes</th></tr></thead>
+    @if(scopes.isEmpty) {
+    <tr><td>No scopes assigned to this application</td><td></td></tr>
+    }
+
+    @for(scope <- scopes.toIterator) {
+    <tr><td>@scope</td></tr>
+    }
+</table>
+}
+
+@buildOverrideRow(title: String, scopes: Set[String] = Set.empty) = {
+<tr>
+    <td>
+        <table>
+            <tr>
+                <td>
+                    @if(isSuperUser) {
+                    @title [<strong><a href="@{routes.ApplicationController.deleteGrant(application.id.toString, title)}">X</a></strong>]
+                    } else {
+                    @title
+                    }
+                </td>
+            </tr>
+        </table>
+    </td>
+    <td>
+        <table>
+            @if(scopes.isEmpty) {
+            <tr><td></td></tr>
+            } else {
+            @for(scope <- scopes.toIterator) {
+            <tr><td>@scope</td></tr>
+            }
+            }
+        </table>
+    </td>
+</tr>
+}
+
+@renderOverrides(overrides: Set[OverrideFlag]) = {
+<table>
+    <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
+    @if(overrides.isEmpty) {
+    <tr><td>No grants assigned to this application</td><td></td></tr>
+    }
+
+    @overrides.toList.map(or => or match {
+    case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)}
+    case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, or.scopes)}
+    case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, or.scopes)}
+    case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, or.scopes)}
+    })
+</table>
+}
+
+@main(title = s"${appConfig.title} - Manage Access", userFullName = userFullName) {
+
+<div class="content__body">
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Manage Access</li>
+        </ul>
+    </nav>
+
+    <table>
+        <tr>
+            <th>
+                <h1>Manage Access (@application.name)</h1>
+            </th>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>
+                @{
+                    access match {
+                        case standardAccess : Standard => {
+                            renderOverrides(standardAccess.overrides)
+                        }
+                        case privilegedAccess : Privileged => {
+                            renderScopes(privilegedAccess.scopes)
+                        }
+                        case ropcAccess : Ropc => {
+                            renderScopes(ropcAccess.scopes)
+                        }
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</div>
+
+}
+
