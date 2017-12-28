@@ -29,5 +29,5 @@ GET         /application/:id/grant/:grantId                         controllers.
 GET         /application/:id/subscription/:subscriptionId           controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
 
 GET         /application/:id/subscriptions/manage                   controllers.ApplicationController.manageSubscription(id: String)
-GET         /application/:id/access/manage                          controllers.ApplicationController.manageAccess(id: String)
-GET         /application/:id/access/update                          controllers.ApplicationController.updateAccess(id: String)
+GET         /application/:id/access-overrides                       controllers.ApplicationController.manageAccessOverrides(id: String)
+POST         /application/:id/access-overrides                      controllers.ApplicationController.updateAccessOverrides(id: String)

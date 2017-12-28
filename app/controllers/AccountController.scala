@@ -19,7 +19,6 @@ package controllers
 import connectors.AuthConnector
 import model.Forms._
 import model.{GatekeeperSessionKeys, LoginDetails}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.Play.current
 import play.api.i18n.Messages

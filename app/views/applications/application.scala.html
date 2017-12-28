@@ -15,37 +15,37 @@
  *@
 
 @import model._
+@import model.AccessType.AccessType
+@import model.OverrideType.OverrideType
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
 @renderScopes(scopes: Set[String]) = {
-    <table>
-        <thead><th>Scopes</th></tr></thead>
-        @if(scopes.isEmpty) {
-        <tr><td>No scopes assigned to this application</td><td></td></tr>
-        }
+    <th>
+        <h3>Scopes</h3>
+    </th>
+    <td>
+        <table>
+            @if(scopes.isEmpty) {
+            <tr><td>No scopes assigned to this application</td></tr>
+            }
 
-        @for(scope <- scopes.toIterator) {
-            <tr><td>@scope</td></tr>
-        }
-    </table>
+            @for(scope <- scopes.toIterator) {
+                <tr><td>@scope</td></tr>
+            }
+        </table>
+    </td>
 }
 
-@buildOverrideRow(title: String, scopes: Set[String] = Set.empty) = {
+@buildOverrideRow(overrideType: OverrideType, scopes: Set[String] = Set.empty) = {
     <tr>
         <td>
-            <table>
-                <tr>
-                    <td>
-                        @title
-                    </td>
-                </tr>
-            </table>
+            @OverrideType.displayedType(overrideType)
         </td>
         <td>
-            <table>
+            <table class="override-scopes">
                 @if(scopes.isEmpty) {
                     <tr><td></td></tr>
                 } else {
@@ -59,33 +59,37 @@
 }
 
 @renderOverrides(overrides: Set[OverrideFlag]) = {
-    <table>
-        <thead><tr><th>Grants</th><th>Scopes</th></tr></thead>
-        @if(overrides.isEmpty) {
-            <tr><td>No grants assigned to this application</td><td></td></tr>
-        }
-
-        @overrides.toList.map(or => or match {
-            case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)}
-            case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, or.scopes)}
-            case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, or.scopes)}
-            case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, or.scopes)}
-        })
-    </table>
+    <th>
+        <h3>Access overrides</h3>
+        <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button" role="button">Manage</a>
+    </th>
+    <td>
+        <table>
+            @if(overrides.isEmpty) {
+                <tr><td>No overrides assigned to this application</td><td></td></tr>
+            } else {
+                <thead><tr><th>Override</th><th>Scopes</th></tr></thead>
+                @overrides.toList.map(or => or match {
+                    case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+                    case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+                    case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+                    case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+                })
+            }
+        </table>
+    </td>
 }
 
 
-@renderPrivacyPolicyUrl(standardAccess: Standard) = {
-    <a href="@{standardAccess.privacyPolicyUrl}" target="_blank">@{standardAccess.privacyPolicyUrl}</a> (opens in a new window)
-}
-
-@renderTermsAndConditionsUrl(standardAccess: Standard) = {
-    <a href="@{standardAccess.termsAndConditionsUrl}" target="_blank">@{standardAccess.termsAndConditionsUrl}</a> (opens in a new window)
+@renderExternalUrl(url: Option[String]) = {
+    @if(url.isDefined) {
+        <a href="@url" target="_blank">@url</a> (opens in a new window)
+    }
 }
 
 @main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
 
-<div class="content__body">
+<div class="">
 
     <nav class="breadcrumb-nav">
         <ul>
@@ -119,14 +123,12 @@
         </tr>
         <tr>
             <th>
-                <h3>Privacy Policy URL</h3>
+                <h3>Privacy policy URL</h3>
             </th>
             <td data-privacy-url="">
                 @{
                     access match {
-                        case standardAccess : Standard => {
-                            renderPrivacyPolicyUrl(standardAccess)
-                        }
+                        case standardAccess : Standard => renderExternalUrl(standardAccess.privacyPolicyUrl)
                         case _ => {}
                     }
                 }
@@ -134,14 +136,12 @@
         </tr>
         <tr>
             <th>
-                <h3>Terms and Conditions URL</h3>
+                <h3>Terms and conditions URL</h3>
             </th>
             <td data-terms-url="">
                 @{
                     access match {
-                        case standardAccess : Standard => {
-                            renderTermsAndConditionsUrl(standardAccess)
-                        }
+                        case standardAccess : Standard => renderExternalUrl(standardAccess.termsAndConditionsUrl)
                         case _ => {}
                     }
                 }
@@ -149,36 +149,30 @@
         </tr>
         <tr>
             <th>
-                <h3>Type</h3>
+                <h3>Access type</h3>
             </th>
             <td>
-                @application.access.accessType
+                @AccessType.displayedType(application.access.accessType)
             </td>
         </tr>
         <tr>
-            <th>
-                <h3>Access</h3>
-                <a href="@{routes.ApplicationController.manageAccess(application.id.toString)}" class="button" role="button">Manage</a>
-            </th>
-            <td>
-                @{
-                    access match {
-                        case standardAccess : Standard => {
-                            renderOverrides(standardAccess.overrides)
-                        }
-                        case privilegedAccess : Privileged => {
-                            renderScopes(privilegedAccess.scopes)
-                        }
-                        case ropcAccess : Ropc => {
-                            renderScopes(ropcAccess.scopes)
-                        }
+            @{
+                access match {
+                    case standardAccess : Standard => {
+                        renderOverrides(standardAccess.overrides)
+                    }
+                    case privilegedAccess : Privileged => {
+                        renderScopes(privilegedAccess.scopes)
+                    }
+                    case ropcAccess : Ropc => {
+                        renderScopes(ropcAccess.scopes)
                     }
                 }
-            </td>
+            }
         </tr>
         <tr>
             <th>
-                <h3>API Subscriptions</h3>
+                <h3>API subscriptions</h3>
                 <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button" role="button">Manage</a>
             </th>
             <td>

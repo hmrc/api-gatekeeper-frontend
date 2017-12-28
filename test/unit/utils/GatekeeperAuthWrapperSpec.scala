@@ -40,11 +40,23 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 
+    val role = new Role("scope", "role")
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
+    val superUserToken = GatekeeperSessionKeys.LoggedInUser -> "superUserName"
 
     val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
+    val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
     val aLoggedOutRequest = FakeRequest().withSession()
+
+    given(underTest.appConfig.superUsers).willReturn(Seq("superUserName"))
+
+    def theAuthConnectorWillReturn(result: Boolean) {
+      given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(result))
+    }
+
+    def theUserIsNotAuthorised = theAuthConnectorWillReturn(false)
+    def theUserIsAuthorised = theAuthConnectorWillReturn(true)
   }
 
   "requiresLogin" should {
@@ -61,21 +73,36 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
   "requiresRole" should {
     "redirect to login if the request does not contain a valid logged in token" in new Setup {
-      val result = underTest.requiresRole(new Role("scope", "role"))(actionReturns200Body).apply(aLoggedOutRequest)
+      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedOutRequest)
       redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
     }
 
     "redirect to unauthorised page if user with role is not authorised" in new Setup {
-      given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
+      theUserIsNotAuthorised
 
-      val result = underTest.requiresRole(new Role("scope", "role"))(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedInRequest)
       status(result) shouldBe 401
     }
 
     "execute body if user with role is authorised" in new Setup {
-      given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+      theUserIsAuthorised
 
-      val result = underTest.requiresRole(new Role("scope", "role"))(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedInRequest)
+
+      status(result) shouldBe 200
+    }
+
+    "redirect to unauthorised page if user with role is authorised but super user requirement is not met" in new Setup {
+      theUserIsAuthorised
+
+      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+      status(result) shouldBe 401
+    }
+
+    "execute body if user with role is authorised and the super user requirement is met" in new Setup {
+      theUserIsAuthorised
+
+      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aSuperUserLoggedInRequest)
 
       status(result) shouldBe 200
     }
@@ -95,15 +122,11 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
   "isSuperUser" should {
     "return `true` if the current logged-in user is a super user" in new Setup {
-      given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
-
-      val isSuperUser = underTest.isSuperUser(aLoggedInRequest)
+      val isSuperUser = underTest.isSuperUser(aSuperUserLoggedInRequest)
       isSuperUser shouldBe true
     }
 
     "return `false` if the current logged-in user is not a super user" in new Setup {
-      given(underTest.appConfig.superUsers).willReturn(Seq.empty)
-
       val isSuperUser = underTest.isSuperUser(aLoggedInRequest)
       isSuperUser shouldBe false
     }
