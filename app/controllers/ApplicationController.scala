@@ -17,13 +17,15 @@
 package controllers
 
 import connectors.AuthConnector
-import model.{APIDefinition, APIIdentifier, APIStatus, Role, VersionSummary}
+import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
-import views.html.applications.{access_manage, application, applications, subscription_manage}
+import views.html.applications._
+import model.Forms.accessOverridesForm
+import play.api.data.Form
 
 import scala.concurrent.Future
 
@@ -87,7 +89,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
   }
 
-  def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+  def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
     // TODO: Role should be super user not APIGatekeeper
     // TODO: Manage the subscriptions for the given application
@@ -102,31 +104,31 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
-  def manageAccess(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      // TODO: Role should be super user not APIGatekeeper
-      // TODO: Manage the access overrides for the given application
-
-      val applicationFuture = applicationService.fetchApplication(appId)
-
-      for {
-        app <- applicationFuture
-
-      } yield Ok(access_manage(app, isSuperUser))
+  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      app.application.access match {
+        case access: Standard => {
+          val form = accessOverridesForm.fill(access.overrides)
+          Future.successful(Ok(manage_access_overrides(app.application, form, isSuperUser)))
+        }
+      }
+    }
   }
 
-  def updateAccess(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      // TODO: Role should be super user not APIGatekeeper
-      // TODO: Update the access overrides for the given application
+  def updateAccessOverrides(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def updateOverrides(overrides: Set[OverrideFlag]) = {
+        applicationService.updateOverrides(app.application, overrides).map { _ =>
+          Redirect(routes.ApplicationController.applicationPage(appId))
+        }
+      }
 
-      val applicationFuture = applicationService.fetchApplication(appId)
-      // TODO: Pass in new state of access overrides from front end
-      for {
-        app <- applicationFuture
-        _ <- applicationService.updateOverrides(app.application)
+      def handleError(form: Form[Set[OverrideFlag]]) = {
+        Future.successful(BadRequest(manage_access_overrides(app.application, form, isSuperUser)))
+      }
 
-      } yield Ok(access_manage(app, isSuperUser))
+      accessOverridesForm.bindFromRequest.fold(handleError, updateOverrides)
+    }
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
@@ -137,5 +139,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
+  }
+
+  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+    applicationService.fetchApplication(appId).flatMap(f)
   }
 }

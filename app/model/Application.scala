@@ -103,6 +103,12 @@ object ApplicationResponse {
 object AccessType extends Enumeration {
   type AccessType = Value
   val STANDARD, PRIVILEGED, ROPC = Value
+
+  val displayedType: (AccessType) => String = {
+    case STANDARD => "Standard"
+    case PRIVILEGED => "Privileged"
+    case ROPC => "ROPC"
+  }
 }
 
 sealed trait Access {
@@ -145,7 +151,15 @@ case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlag {
 }
 
 object OverrideType extends Enumeration {
+  type OverrideType = Value
   val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS = Value
+
+  val displayedType: (OverrideType) => String = {
+    case PERSIST_LOGIN_AFTER_GRANT => "Persist login after grant"
+    case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
+    case SUPPRESS_IV_FOR_AGENTS => "Suppress IV for agents"
+    case SUPPRESS_IV_FOR_ORGANISATIONS => "Suppress IV for organisations"
+  }
 }
 
 case class TotpIds(production: String, sandbox: String)

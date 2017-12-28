@@ -79,10 +79,10 @@ trait ApplicationService {
     applicationConnector.fetchApplicationSubscriptions(applicationId)
   }
 
-  def updateOverrides(application: ApplicationResponse)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+  def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     application.access match {
-      case standard: Standard => {
-        val updateOverridesRequest = UpdateOverridesRequest(standard.overrides.map {
+      case _: Standard => {
+        val updateOverridesRequest = UpdateOverridesRequest(overrides.map {
           case GrantWithoutConsent(scopes) => OverrideRequest(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, scopes)
           case SuppressIvForOrganisations(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, scopes)
           case SuppressIvForAgents(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, scopes)

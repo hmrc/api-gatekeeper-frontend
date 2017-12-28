@@ -53,17 +53,19 @@ trait GatekeeperAuthWrapper {
     }
   }
 
-  def requiresRole(requiredRole: Role)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
+  def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
     validatedAsyncAction { implicit request =>
+      def meetsSuperUserRequirement = if (requiresSuperUser) isSuperUser else true
+
+      def redirectToLogin = Future.successful(Redirect(routes.AccountController.loginPage()))
+
       val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(GatekeeperSessionKeys.AuthToken)
-        .map { _ =>
-          authConnector.authorized(requiredRole)(hc).flatMap {
-            case true => body(request)(hc)
-            case false => Future.successful(Unauthorized(views.html.unauthorized()))
-          }
+      request.session.get(GatekeeperSessionKeys.AuthToken).fold(redirectToLogin){ _ =>
+        authConnector.authorized(requiredRole)(hc).flatMap { authorized =>
+          if (authorized && meetsSuperUserRequirement) body(request)(hc)
+          else Future.successful(Unauthorized(views.html.unauthorized()))
         }
-        .getOrElse(Future.successful(Redirect(routes.AccountController.loginPage())))
+      }
     }
   }
 
