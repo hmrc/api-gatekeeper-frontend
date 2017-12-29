@@ -16,6 +16,7 @@
 
 package model
 
+import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
@@ -34,60 +35,62 @@ package object Forms {
       "grantWithoutConsentEnabled" -> boolean,
       "grantWithoutConsentScopes" -> mandatoryIfTrue (
         "grantWithoutConsentEnabled",
-        nonEmptyText
+        text.verifying("override.scopes.required", s => s.trim.length > 0)
       ),
       "suppressIvForAgentsEnabled" -> boolean,
       "suppressIvForAgentsScopes" -> mandatoryIfTrue (
         "suppressIvForAgentsEnabled",
-        nonEmptyText
+        text.verifying("override.scopes.required", s => s.trim.length > 0)
       ),
       "suppressIvForOrganisationsEnabled" -> boolean,
       "suppressIvForOrganisationsScopes" -> mandatoryIfTrue (
         "suppressIvForOrganisationsEnabled",
-        nonEmptyText
+        text.verifying("override.scopes.required", s => s.trim.length > 0)
       )
-    )((persistLoginEnabled: Boolean,
-       grantWithoutConsentEnabled: Boolean,
-       grantWithoutConsentScopes: Option[String],
-       suppressIvForAgentsEnabled: Boolean,
-       suppressIvForAgentsScopes: Option[String],
-       suppressIvForOrganisationsEnabled: Boolean,
-       suppressIvForOrganisationsScopes: Option[String]) => {
+    )(AccessOverridesForm.toSetOfOverrides)(AccessOverridesForm.fromSetOfOverrides))
+
+
+  object AccessOverridesForm {
+    def toSetOfOverrides(persistLoginEnabled: Boolean,
+                         grantWithoutConsentEnabled: Boolean,
+                         grantWithoutConsentScopes: Option[String],
+                         suppressIvForAgentsEnabled: Boolean,
+                         suppressIvForAgentsScopes: Option[String],
+                         suppressIvForOrganisationsEnabled: Boolean,
+                         suppressIvForOrganisationsScopes: Option[String]): Set[OverrideFlag] = {
+
+      def overrideWithScopes(enabled: Boolean, scopes: Option[String], f: Set[String] => OverrideFlag): Option[OverrideFlag] = {
+        if(enabled) Some(f(scopes.get.split(",").map(_.trim).toSet))
+        else None
+      }
+
       val persistLogin = if(persistLoginEnabled) Some(PersistLogin()) else None
-      val grantWithoutConsent = if(grantWithoutConsentEnabled) {
-        Some(GrantWithoutConsent(grantWithoutConsentScopes.fold(Set.empty[String])(_.split(",").toSet)))
-      } else {
-        None
+      val grantWithoutConsent = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, GrantWithoutConsent)
+      val suppressIvForAgents = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, SuppressIvForAgents)
+      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, SuppressIvForOrganisations)
+
+      Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations).flatten
+    }
+
+    def fromSetOfOverrides(overrides: Set[OverrideFlag]) = {
+
+      def overrideWithScopes(overrides: Set[OverrideFlag], overrideType: OverrideType) = {
+        overrides.find(_.overrideType == overrideType) match {
+          case Some(o: OverrideFlagWithScopes) => (true, Some(o.scopes.mkString(", ")))
+          case _ => (false, None)
+        }
       }
-      val suppressIvForAgents = if(suppressIvForAgentsEnabled) {
-        Some(SuppressIvForAgents(suppressIvForAgentsScopes.fold(Set.empty[String])(_.split(",").toSet)))
-      } else {
-        None
-      }
-      val suppressIvForOrganisations = if(suppressIvForOrganisationsEnabled) {
-        Some(SuppressIvForOrganisations(suppressIvForOrganisationsScopes.fold(Set.empty[String])(_.split(",").toSet)))
-      } else {
-        None
-      }
-      val overrides: Set[OverrideFlag] = Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations).flatten
-      overrides
-    })((overrides: Set[OverrideFlag]) => {
-      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PERSIST_LOGIN_AFTER_GRANT)
+
+      val persistLoginEnabled = overrides.exists(_.overrideType == PERSIST_LOGIN_AFTER_GRANT)
+
       val (grantWithoutConsentEnabled, grantWithoutConsentScopes) =
-        overrides.find(_.overrideType == OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT) match {
-          case Some(o: GrantWithoutConsent) => (true, Some(o.scopes.mkString(", ")))
-          case _ => (false, None)
-        }
+        overrideWithScopes(overrides, GRANT_WITHOUT_TAXPAYER_CONSENT)
+
       val (suppressIvForAgentsEnabled, suppressIvForAgentsScopes) =
-        overrides.find(_.overrideType == OverrideType.SUPPRESS_IV_FOR_AGENTS) match {
-          case Some(o: SuppressIvForAgents) => (true, Some(o.scopes.mkString(", ")))
-          case _ => (false, None)
-        }
+        overrideWithScopes(overrides, SUPPRESS_IV_FOR_AGENTS)
+
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
-        overrides.find(_.overrideType == OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS) match {
-          case Some(o: SuppressIvForOrganisations) => (true, Some(o.scopes.mkString(", ")))
-          case _ => (false, None)
-        }
+        overrideWithScopes(overrides, SUPPRESS_IV_FOR_ORGANISATIONS)
 
       Some(persistLoginEnabled,
         grantWithoutConsentEnabled,
@@ -96,5 +99,18 @@ package object Forms {
         suppressIvForAgentsScopes,
         suppressIvForOrganisationsEnabled,
         suppressIvForOrganisationsScopes)
-    }))
+    }
+  }
+
+  val scopesForm = Form (
+    mapping (
+      "scopes" -> text.verifying("scopes.required", s => s.trim.length > 0)
+    )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
+
+
+  object ScopesForm {
+    def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet
+
+    def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
+  }
 }

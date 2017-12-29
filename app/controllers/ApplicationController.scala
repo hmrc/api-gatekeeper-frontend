@@ -24,8 +24,9 @@ import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
-import model.Forms.accessOverridesForm
+import model.Forms._
 import play.api.data.Form
+import views.html.error_template
 
 import scala.concurrent.Future
 
@@ -72,15 +73,6 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       }
   }
 
-  def deleteGrant(appId: String, grantId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-    // TODO: Role should be super user not APIGatekeeper
-    // TODO: Delete the selected grant from the application
-
-    Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
-
-  }
-
   def deleteSubscription(appId: String, subscriptionId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
     // TODO: Role should be super user not APIGatekeeper
@@ -108,8 +100,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     implicit request => implicit hc => withApp(appId) { app =>
       app.application.access match {
         case access: Standard => {
-          val form = accessOverridesForm.fill(access.overrides)
-          Future.successful(Ok(manage_access_overrides(app.application, form, isSuperUser)))
+          Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isSuperUser)))
         }
       }
     }
@@ -123,11 +114,39 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         }
       }
 
-      def handleError(form: Form[Set[OverrideFlag]]) = {
+      def handleFormError(form: Form[Set[OverrideFlag]]) = {
         Future.successful(BadRequest(manage_access_overrides(app.application, form, isSuperUser)))
       }
 
-      accessOverridesForm.bindFromRequest.fold(handleError, updateOverrides)
+      accessOverridesForm.bindFromRequest.fold(handleFormError, updateOverrides)
+    }
+  }
+
+  def manageScopes(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      app.application.access match {
+        case access: AccessWithRestrictedScopes => {
+          val form = scopesForm.fill(access.scopes)
+          Future.successful(Ok(manage_scopes(app.application, form, isSuperUser)))
+        }
+        case _ => Future.failed(new RuntimeException("Invalid access type on application"))
+      }
+    }
+  }
+
+  def updateScopes(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def updateOverrides(scopes: Set[String]) = {
+        applicationService.updateScopes(app.application, scopes).map { _ =>
+          Redirect(routes.ApplicationController.applicationPage(appId))
+        }
+      }
+
+      def handleFormError(form: Form[Set[String]]) = {
+        Future.successful(BadRequest(manage_scopes(app.application, form, isSuperUser)))
+      }
+
+      scopesForm.bindFromRequest.fold(handleFormError, updateOverrides)
     }
   }
 

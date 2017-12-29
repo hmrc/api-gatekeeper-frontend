@@ -27,15 +27,20 @@
         <h3>Scopes</h3>
     </th>
     <td>
-        <table>
-            @if(scopes.isEmpty) {
-            <tr><td>No scopes assigned to this application</td></tr>
-            }
-
-            @for(scope <- scopes.toIterator) {
-                <tr><td>@scope</td></tr>
-            }
-        </table>
+        @if(scopes.isEmpty) {
+            <span class="faded-text">No scopes assigned to this application</span>
+        } else {
+            <table class="table-plain">
+                @for(scope <- scopes.toIterator) {
+                    <tr><td>@scope</td></tr>
+                }
+            </table>
+        }
+    </td>
+    <td>
+        @if(isSuperUser) {
+        <a href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button button--link" role="button">Manage</a>
+        }
     </td>
 }
 
@@ -45,7 +50,7 @@
             @OverrideType.displayedType(overrideType)
         </td>
         <td>
-            <table class="override-scopes">
+            <table class="table-plain">
                 @if(scopes.isEmpty) {
                     <tr><td></td></tr>
                 } else {
@@ -59,15 +64,12 @@
 }
 
 @renderOverrides(overrides: Set[OverrideFlag]) = {
-    <th>
-        <h3>Access overrides</h3>
-        <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button" role="button">Manage</a>
-    </th>
+    <th><h3>Access overrides</h3></th>
     <td>
-        <table>
-            @if(overrides.isEmpty) {
-                <tr><td>No overrides assigned to this application</td><td></td></tr>
-            } else {
+        @if(overrides.isEmpty) {
+            <span class="faded-text">No access overrides assigned to this application</span>
+        } else {
+            <table>
                 <thead><tr><th>Override</th><th>Scopes</th></tr></thead>
                 @overrides.toList.map(or => or match {
                     case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
@@ -75,8 +77,13 @@
                     case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
                     case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
                 })
-            }
-        </table>
+            </table>
+        }
+    </td>
+    <td>
+        @if(isSuperUser) {
+            <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button button--link" role="button">Manage</a>
+        }
     </td>
 }
 
@@ -110,21 +117,28 @@
 
     <table>
         <tr>
-            <th>
-                <h3>Description</h3>
-            </th>
+            <th><h3>ID</h3></th>
+            <td>@application.id</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>State</h3></th>
+            <td>@State.displayedState(application.state.name)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Description</h3></th>
             <td>
                 @if(application.description.nonEmpty) {
                     <p data-description class="flush--top">@application.description</p>
                 } else {
-                    <p data-description class="fadded-text">No description added</p>
+                    <p data-description class="faded-text">No description added</p>
                 }
             </td>
+            <td></td>
         </tr>
         <tr>
-            <th>
-                <h3>Privacy policy URL</h3>
-            </th>
+            <th><h3>Privacy policy URL</h3></th>
             <td data-privacy-url="">
                 @{
                     access match {
@@ -133,11 +147,10 @@
                     }
                 }
             </td>
+            <td></td>
         </tr>
         <tr>
-            <th>
-                <h3>Terms and conditions URL</h3>
-            </th>
+            <th><h3>Terms and conditions URL</h3></th>
             <td data-terms-url="">
                 @{
                     access match {
@@ -146,14 +159,12 @@
                     }
                 }
             </td>
+            <td></td>
         </tr>
         <tr>
-            <th>
-                <h3>Access type</h3>
-            </th>
-            <td>
-                @AccessType.displayedType(application.access.accessType)
-            </td>
+            <th><h3>Access type</h3></th>
+            <td>@AccessType.displayedType(application.access.accessType)</td>
+            <td></td>
         </tr>
         <tr>
             @{
@@ -171,26 +182,28 @@
             }
         </tr>
         <tr>
-            <th>
-                <h3>API subscriptions</h3>
-                <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button" role="button">Manage</a>
-            </th>
+            <th><h3>API subscriptions</h3></th>
             <td>
-                <table>
+                <table class="table-plain">
                     @for(subscription <- subscriptions.toIterator) {
-                        @if(isSuperUser) {
                         <tr>
-                            <td>@subscription.name</td>
-                            <td>[<strong><a href="@{routes.ApplicationController.deleteSubscription(application.id.toString, subscription.name)}">X</a></strong>]</td>
-                        </tr>
-                        } else {
-                        <tr>
-                            <td>@subscription.name</td>
+                            <td>
+                                @subscription.name
+                                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
+                                    @for((version, index) <- subscribedVersions.zipWithIndex) {
+                                        @version.version (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
+                                    }
+                                }
+                            </td>
                             <td></td>
                         </tr>
-                        }
                     }
                 </table>
+            </td>
+            <td>
+                @if(isSuperUser) {
+                    <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button button--link" role="button">Manage</a>
+                }
             </td>
         </tr>
     </table>

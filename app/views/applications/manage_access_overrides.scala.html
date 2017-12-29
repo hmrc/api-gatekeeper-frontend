@@ -15,11 +15,15 @@
  *@
 
 @import model._
+@import include._
 
 @(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @scopes(fieldName: String) = {
-    <textarea name=@fieldName id=@fieldName cols="50" rows="5">@form.data.get(fieldName)</textarea>
+    <div class="@if(form.errors(fieldName).nonEmpty) {form-field--error}">
+        @fieldError(form.errors, fieldName)
+    <textarea name=@fieldName id=@fieldName cols="50" rows="5" class="@if(form.errors(fieldName).nonEmpty) {error-field}">@form.data.get(fieldName)</textarea>
+    </div>
 }
 
 @overrideEnabled(fieldName: String) = {

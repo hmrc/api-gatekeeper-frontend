@@ -18,6 +18,7 @@ package model
 
 import java.util.UUID
 
+import model.OverrideType.OverrideType
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
@@ -84,20 +85,6 @@ case object UpdateApplicationRateLimitTierSuccessful extends UpdateApplicationRa
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
-  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
-  private implicit val formatPersistLogin = Format[PersistLogin](
-    Reads { _ => JsSuccess(PersistLogin()) },
-    Writes { _ => Json.obj() })
-  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
-  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-
-  implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
-    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
-    .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
-    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
-    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
-    .format
-
   implicit val formatTotpIds = Json.format[TotpIds]
 
   private implicit val formatStandard = Json.format[Standard]
@@ -202,13 +189,13 @@ case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[Us
 
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
-case class OverrideRequest(overrideType: String, scopes: Set[String] = Set.empty)
+case class OverrideRequest(overrideType: OverrideType, scopes: Set[String] = Set.empty)
 
 object OverrideRequest {
   implicit val format = Json.format[OverrideRequest]
 }
 
-case class UpdateOverridesRequest(overrides: Set[OverrideRequest])
+case class UpdateOverridesRequest(overrides: Set[OverrideFlag])
 
 object UpdateOverridesRequest {
   implicit val format = Json.format[UpdateOverridesRequest]
@@ -218,3 +205,13 @@ sealed trait UpdateOverridesResult
 
 case object UpdateOverridesSuccessResult extends UpdateOverridesResult
 case object UpdateOverridesFailureResult extends UpdateOverridesResult
+
+case class UpdateScopesRequest(scopes: Set[String])
+
+object UpdateScopesRequest {
+  implicit val format = Json.format[UpdateScopesRequest]
+}
+
+sealed trait UpdateScopesResult
+case object UpdateScopesSuccessResult extends UpdateScopesResult
+case object UpdateScopesFailureResult extends UpdateScopesResult
