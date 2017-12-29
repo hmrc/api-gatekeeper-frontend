@@ -82,19 +82,15 @@ trait ApplicationService {
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     application.access match {
       case _: Standard => {
-        val updateOverridesRequest = UpdateOverridesRequest(overrides.map {
-          case GrantWithoutConsent(scopes) => OverrideRequest(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString, scopes)
-          case SuppressIvForOrganisations(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString, scopes)
-          case SuppressIvForAgents(scopes) => OverrideRequest(OverrideType.SUPPRESS_IV_FOR_AGENTS.toString, scopes)
-          case PersistLogin() => OverrideRequest(OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
-        })
-
-        applicationConnector.updateOverrides(application, updateOverridesRequest)
-
-        Future.successful(UpdateOverridesSuccessResult)
+        applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
       }
-      case _ => {
-        Future.successful(UpdateOverridesFailureResult)
+    }
+  }
+
+  def updateScopes(application: ApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+    application.access match {
+      case _: AccessWithRestrictedScopes => {
+        applicationConnector.updateScopes(application.id.toString, UpdateScopesRequest(scopes))
       }
     }
   }
