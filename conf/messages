@@ -1,2 +1,4 @@
 invalid.username.or.password=Invalid user ID or password. Try again.
 invalid.action=Review the application
+override.scopes.required=Scopes are required when enabling this access override
+scopes.required=Scopes are required

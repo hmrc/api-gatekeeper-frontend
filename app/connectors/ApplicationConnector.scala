@@ -36,7 +36,7 @@ trait ApplicationConnector {
 
   val applicationBaseUrl: String
 
-  val http: HttpPost with HttpGet
+  val http: HttpPost with HttpGet with HttpPut
 
   def updateRateLimitTier(applicationId: String, tier: String)
                          (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] =
@@ -120,11 +120,16 @@ trait ApplicationConnector {
       }
   }
 
-  def updateOverrides(application: Application, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.POST(s"$applicationBaseUrl/application/${application.id}/access/overrides", updateOverridesRequest, Seq(CONTENT_TYPE -> JSON))
+  def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    http.POST(s"$applicationBaseUrl/application/${applicationId}/access/overrides", updateOverridesRequest, Seq(CONTENT_TYPE -> JSON))
       .map(_ => UpdateOverridesSuccessResult)
       .recover {
         case e: Upstream4xxResponse => UpdateOverridesFailureResult
       }
+  }
+
+  def updateScopes(applicationId: String, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+    http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/scopes", updateScopesRequest)
+      .map(_ => UpdateScopesSuccessResult)
   }
 }
