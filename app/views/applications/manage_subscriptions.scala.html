@@ -52,10 +52,23 @@
                     <ul>
                         @subscription.versions.map { case (version) =>
                             <li class="accordion__body__row api-subscriber">
+                                <div class="accordion__body__row__left">
+                                    <span class="font-xsmall external-link-16">@{
+                                        version.version.version
+                                    } (@{
+                                        version.version.displayedStatus
+                                    })</span>
+                                </div>
                                 <div class="accordion__body__row__right">
                                     <div class="float--right">
                                         <div id="" class="toggle subscribed">
-                                            <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{version.version.version}">On</span>
+                                            <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
+                                                subscription.name
+                                            } version @{
+                                                version.version.version
+                                            } @{
+                                                version.version.displayedStatus
+                                            }">On</span>
                                         </div>
                                     </div>
                                 </div>
