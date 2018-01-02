@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import scala.util.Try
 
 trait Env {
 
-  val webDriverConfig = System.getProperty("test.driver", "firefox").toLowerCase
+  val webDriverConfig = System.getProperty("test.driver", "chrome").toLowerCase
   val driver = if (webDriverConfig == "firefox") {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile

@@ -1,26 +1,36 @@
 # microservice specific routes
 
-GET         /login                                 controllers.AccountController.loginPage
-POST        /login                                 controllers.AccountController.authenticate
+GET         /login                                                  controllers.AccountController.loginPage
+POST        /login                                                  controllers.AccountController.authenticate
 
-GET         /logout                                controllers.AccountController.logout
+GET         /logout                                                 controllers.AccountController.logout
 
-GET         /dashboard                             controllers.DashboardController.dashboardPage
-GET         /review                                controllers.DashboardController.reviewPage(id: String)
+GET         /dashboard                                              controllers.DashboardController.dashboardPage
+GET         /review                                                 controllers.DashboardController.reviewPage(id: String)
 
-GET         /approved                              controllers.DashboardController.approvedApplicationPage(id: String)
+GET         /approved                                               controllers.DashboardController.approvedApplicationPage(id: String)
 
-POST        /update-rate-limit-tier                controllers.DashboardController.handleUpdateRateLimitTier(id: String)
+POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                            controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
-GET         /applications                          controllers.ApplicationController.applicationsPage
+GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /applications                                           controllers.ApplicationController.applicationsPage
 
-->          /template                              template.Routes
+GET         /applications/:id                                       controllers.ApplicationController.applicationPage(id: String)
 
-POST        /applications/:id/handle-uplift        controllers.DashboardController.handleUplift(id: String)
-GET         /applications/:id/resend-verification  controllers.ApplicationController.resendVerification(id: String)
-GET         /application/:id                       controllers.ApplicationController.applicationPage(id: String)
+POST        /applications/:id/handle-uplift                         controllers.DashboardController.handleUplift(id: String)
+GET         /applications/:id/resend-verification                   controllers.ApplicationController.resendVerification(id: String)
 
-GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
+GET         /applications/:id/access/scopes                         controllers.ApplicationController.manageScopes(id: String)
+POST        /applications/:id/access/scopes                         controllers.ApplicationController.updateScopes(id: String)
 
-GET         /nav-links                             controllers.NavigationController.navLinks
+GET         /applications/:id/access/overrides                      controllers.ApplicationController.manageAccessOverrides(id: String)
+POST        /applications/:id/access/overrides                      controllers.ApplicationController.updateAccessOverrides(id: String)
+
+GET         /applications/:id/subscription/:subscriptionId          controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
+GET         /applications/:id/subscriptions/manage                  controllers.ApplicationController.manageSubscription(id: String)
+
+->          /template                                               template.Routes
+
+GET         /assets/*file                                           controllers.Assets.versioned(path="/public", file: Asset)
+
+GET         /nav-links                                              controllers.NavigationController.navLinks

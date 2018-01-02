@@ -27,3 +27,29 @@
 .table-label {
     width: 30%;
 }
+
+th {
+    vertical-align: text-top;
+}
+
+th > h3 {
+    white-space: nowrap;
+}
+
+td {
+    vertical-align: text-top;
+}
+
+
+table.table-plain {
+    margin-bottom: 0;
+
+    td {
+        border-bottom: none;
+    }
+}
+
+th.override-actions, td.override-actions {
+    width: 100px;
+    padding: 0;
+}
