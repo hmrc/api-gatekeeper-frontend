@@ -29,36 +29,29 @@
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Manage Subscription</li>
-
+        </ul>
     </nav>
 
-    <table>
-        <tr>
-            <th>
-                <h1>Manage Subscriptions (@application.name)</h1>
-            </th>
-        </tr>
-    </table>
-
-    <table>
-        @for(subscription <- subscriptions.toIterator) {
-            @if(isSuperUser) {
-            <tr>
-                <td>@subscription.name</td>
-                <td>
-                    @for(version <- subscription.versions) {
-                        @version.version.version
-                    }
-                </td>
-            </tr>
-            } else {
-            <tr>
-                <td>@subscription.name</td>
-            </tr>
+    <ul>
+        @subscriptions.map { case (subscription) =>
+        <li class="accordion accordion--stacked" data-accordion data-accordion-animate>
+            <div class="accordion__row">
+                <div class="accordion__row__left">
+                    <i class="arrow arrow--right accordion__indicator" data-accordion-arrow></i>
+                    <a id="@subscription.name" href="" class="accordion__button link--no-underline bold-small" data-accordion-button>
+                        @subscription.name
+                    </a>
+                </div>
+                <div class="accordion__row__right">
+                <span id="" data-api-subscriptions="" class="text--right display-block bold-xsmall subscription-count">
+                VERSION NUMBER
+                </span>
+                </div>
+            </div>
             }
-        }
-    </table>
+    </ul>
 </div>
 
 }
+
 
