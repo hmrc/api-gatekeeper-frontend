@@ -44,7 +44,7 @@
                     </div>
                     <div class="accordion__row__right">
                     <span id="FIXME" data-api-subscriptions="" class="text--right display-block bold-xsmall subscription-count">
-                        VERSION NUMBER
+                        @subscription.subscriptionNumberText
                     </span>
                     </div>
                 </div>
@@ -61,14 +61,39 @@
                                 </div>
                                 <div class="accordion__body__row__right">
                                     <div class="float--right">
-                                        <div id="" class="toggle subscribed">
+                                        <div id="" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
                                             <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
-                                                subscription.name
-                                            } version @{
-                                                version.version.version
-                                            } @{
-                                                version.version.displayedStatus
-                                            }">On</span>
+                                                    subscription.name
+                                                } version @{
+                                                    version.version.version
+                                                } @{
+                                                    version.version.displayedStatus
+                                                }">On</span>
+
+                                            <a data-api-unsubscribe="" href="" class="toggle__button" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                    subscription.name
+                                                } version @{
+                                                    version.version.version
+                                                } @{
+                                                    version.version.displayedStatus
+                                                }">Off</a>
+                                        </div>
+                                        <div id="" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
+                                            <a class="toggle__button" href="" data-toggle-subscribe="on" aria-label="Subscribed to @{
+                                                            subscription.name
+                                                        } version @{
+                                                            version.version.version
+                                                        } @{
+                                                            version.version.displayedStatus
+                                                        }">On</a>
+
+                                            <span data-api-unsubscribe="" class="toggle__button toggle__button--inactive" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                            subscription.name
+                                                        } version @{
+                                                            version.version.version
+                                                        } @{
+                                                            version.version.displayedStatus
+                                                        }">Off</span>
                                         </div>
                                     </div>
                                 </div>
