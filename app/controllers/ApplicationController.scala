@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,18 @@
 package controllers
 
 import connectors.AuthConnector
-import model.{APIDefinition, APIIdentifier, APIStatus, Role, VersionSummary}
+import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
-import views.html.applications.{application, applications}
+import views.html.applications._
+import model.Forms._
+import play.api.data.Form
+import views.html.error_template
+
+import scala.concurrent.Future
 
 
 object ApplicationController extends ApplicationController with WithAppConfig {
@@ -55,7 +60,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       for {
         app <- applicationFuture
         subs <- subscriptionsFuture
-      } yield Ok(application(app, subs))
+      } yield Ok(application(app, subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -68,6 +73,83 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       }
   }
 
+  def deleteSubscription(appId: String, subscriptionId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc =>
+    // TODO: Role should be super user not APIGatekeeper
+    // TODO: Delete the selected subscription from the application
+
+    Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
+  }
+
+  def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+    // TODO: Role should be super user not APIGatekeeper
+    // TODO: Manage the subscriptions for the given application
+
+      val applicationFuture = applicationService.fetchApplication(appId)
+      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
+
+      for {
+        app <- applicationFuture
+        subs <- subscriptionsFuture
+
+      } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+  }
+
+  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      app.application.access match {
+        case access: Standard => {
+          Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isSuperUser)))
+        }
+      }
+    }
+  }
+
+  def updateAccessOverrides(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def updateOverrides(overrides: Set[OverrideFlag]) = {
+        applicationService.updateOverrides(app.application, overrides).map { _ =>
+          Redirect(routes.ApplicationController.applicationPage(appId))
+        }
+      }
+
+      def handleFormError(form: Form[Set[OverrideFlag]]) = {
+        Future.successful(BadRequest(manage_access_overrides(app.application, form, isSuperUser)))
+      }
+
+      accessOverridesForm.bindFromRequest.fold(handleFormError, updateOverrides)
+    }
+  }
+
+  def manageScopes(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      app.application.access match {
+        case access: AccessWithRestrictedScopes => {
+          val form = scopesForm.fill(access.scopes)
+          Future.successful(Ok(manage_scopes(app.application, form, isSuperUser)))
+        }
+        case _ => Future.failed(new RuntimeException("Invalid access type on application"))
+      }
+    }
+  }
+
+  def updateScopes(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def updateOverrides(scopes: Set[String]) = {
+        applicationService.updateScopes(app.application, scopes).map { _ =>
+          Redirect(routes.ApplicationController.applicationPage(appId))
+        }
+      }
+
+      def handleFormError(form: Form[Set[String]]) = {
+        Future.successful(BadRequest(manage_scopes(app.application, form, isSuperUser)))
+      }
+
+      scopesForm.bindFromRequest.fold(handleFormError, updateOverrides)
+    }
+  }
+
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
     val versions = for {
@@ -76,5 +158,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
+  }
+
+  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+    applicationService.fetchApplication(appId).flatMap(f)
   }
 }

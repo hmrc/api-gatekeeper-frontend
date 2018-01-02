@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,9 +76,22 @@ trait ApplicationService {
   }
 
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    for {
-      applicationSubscriptions <- applicationConnector.fetchApplicationSubscriptions(applicationId)
-    } yield applicationSubscriptions.filter(sub => !sub.versions.filter(version => version.subscribed).isEmpty)
+    applicationConnector.fetchApplicationSubscriptions(applicationId)
+  }
 
+  def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    application.access match {
+      case _: Standard => {
+        applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+      }
+    }
+  }
+
+  def updateScopes(application: ApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+    application.access match {
+      case _: AccessWithRestrictedScopes => {
+        applicationConnector.updateScopes(application.id.toString, UpdateScopesRequest(scopes))
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,6 +268,64 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/application"))
         .withHeader("Authorization", equalTo(authToken)))
+    }
+  }
+
+  "updateOverrides" should {
+    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(200)))
+
+      val result = await(connector.updateOverrides(applicationId,
+        UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"overrides":[{"overrideType":"PERSIST_LOGIN_AFTER_GRANT"},{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
+
+      result shouldBe UpdateOverridesSuccessResult
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(500)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.updateOverrides(applicationId,
+          UpdateOverridesRequest(Set(SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
+      }
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"overrides":[{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
+    }
+  }
+
+  "updateScopes" should {
+    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(put(urlEqualTo(s"/application/$applicationId/access/scopes")).willReturn(aResponse().withStatus(200)))
+
+      val result = await(connector.updateScopes(applicationId, UpdateScopesRequest(Set("hello", "read:individual-benefits"))))
+
+      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/scopes"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"scopes":["hello","read:individual-benefits"]}""")))
+
+      result shouldBe UpdateScopesSuccessResult
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(put(urlEqualTo(s"/application/$applicationId/access/scopes")).willReturn(aResponse().withStatus(500)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.updateScopes(applicationId, UpdateScopesRequest(Set("hello", "read:individual-benefits"))))
+      }
+
+      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/scopes"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"scopes":["hello","read:individual-benefits"]}""")))
     }
   }
 }

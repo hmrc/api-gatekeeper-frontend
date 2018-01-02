@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,14 @@ package connectors
 
 import config.WSHttp
 import connectors.AuthConnector._
-import model._
+import model.{UpdateOverridesSuccessResult, _}
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.PRECONDITION_FAILED
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost, Upstream4xxResponse, Upstream5xxResponse }
 
 object ApplicationConnector extends ApplicationConnector {
   override val applicationBaseUrl: String = s"${baseUrl("third-party-application")}"
@@ -37,7 +36,7 @@ trait ApplicationConnector {
 
   val applicationBaseUrl: String
 
-  val http: HttpPost with HttpGet
+  val http: HttpPost with HttpGet with HttpPut
 
   def updateRateLimitTier(applicationId: String, tier: String)
                          (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] =
@@ -119,5 +118,18 @@ trait ApplicationConnector {
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
       }
+  }
+
+  def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    http.POST(s"$applicationBaseUrl/application/${applicationId}/access/overrides", updateOverridesRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(_ => UpdateOverridesSuccessResult)
+      .recover {
+        case e: Upstream4xxResponse => UpdateOverridesFailureResult
+      }
+  }
+
+  def updateScopes(applicationId: String, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+    http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/scopes", updateScopesRequest)
+      .map(_ => UpdateScopesSuccessResult)
   }
 }

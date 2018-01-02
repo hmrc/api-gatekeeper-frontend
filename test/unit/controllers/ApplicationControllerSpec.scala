@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,40 @@ import controllers.ApplicationController
 import model._
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
-import org.mockito.Matchers._
+import org.mockito.Matchers.{eq => eqTo, _}
+import org.mockito.Mockito.{never, verify}
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers
+import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
-import services.ApiDefinitionService
+import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import unit.utils.WithCSRFAddToken
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
-class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
 
   implicit val materializer = fakeApplication.materializer
 
   running(fakeApplication) {
 
     trait Setup extends ControllerSetupBase {
+
+      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
+      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
+
+      val applicationWithOverrides = ApplicationWithHistory(
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), Seq.empty)
+
+      val privilegedApplication = ApplicationWithHistory(
+        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), Seq.empty)
+
+      val ropcApplication = ApplicationWithHistory(
+        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), Seq.empty)
 
       val underTest = new ApplicationController {
         val appConfig = mockConfig
@@ -48,9 +63,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val applicationService = mockApplicationService
         val apiDefinitionService = mockApiDefinitionService
       }
+
+      given(mockConfig.superUsers).willReturn(Seq("superUserName"))
     }
 
-    "applicationController" should {
+    "applicationsPage" should {
 
       "on request all applications supplied" in new Setup {
         givenASuccessfulLogin
@@ -58,7 +75,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
+
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
+
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -75,7 +94,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
         given(mockConfig.isExternalTestEnvironment).willReturn(true)
+
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
+
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -87,7 +108,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       "go to unauthorised page if user is not authorised" in new Setup {
         givenAUnsuccessfulLogin
+
         val result = await(underTest.applicationsPage(aLoggedInRequest))
+
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
       }
@@ -98,17 +121,199 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(underTest.applicationsPage(aLoggedOutRequest))
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
+    }
 
+    "resendVerification" should {
       "call backend with correct application id and gatekeeper id when resend verification is invoked" in new Setup {
-        val applicationId = "applicationId"
         givenASuccessfulLogin
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(underTest.applicationService.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ResendVerificationSuccessful))
+        given(underTest.applicationService.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
+          .willReturn(Future.successful(ResendVerificationSuccessful))
+
         val result = await(underTest.resendVerification(applicationId)(aLoggedInRequest))
+
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
       }
+    }
+
+    "manageScopes" should {
+      "fetch an app with Privileged access for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(privilegedApplication)
+
+        val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+      }
+
+      "fetch an app with ROPC access for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(ropcApplication)
+
+        val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+      }
+
+      "return an error for a Standard app" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        intercept[RuntimeException] {
+          await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
+        }
+      }
+
+      "return unauthorised for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageScopes(applicationId))(aLoggedInRequest))
+
+        status(result) shouldBe 401
+      }
+    }
+
+    "updateScopes" should {
+      "call the service to update scopes when a valid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
+            .willReturn(Future.successful(UpdateScopesSuccessResult))
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
+        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+
+        verify(mockApplicationService)
+          .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(any[HeaderCarrier])
+      }
+
+      "return a bad request when an invalid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
+        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+
+        status(result) shouldBe 400
+
+        verify(mockApplicationService, never).updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier])
+      }
+
+      "return unauthorised when a form is submitted for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody()
+        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+
+        status(result) shouldBe 401
+
+        verify(mockApplicationService, never).updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier])
+      }
+    }
+
+    "manageOverrides" should {
+      "fetch an app with Standard access for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+      }
+
+      "return an error for a ROPC app" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(ropcApplication)
+
+        intercept[RuntimeException] {
+          await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        }
+      }
+
+      "return an error for a Privileged app" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(privilegedApplication)
+
+        intercept[RuntimeException] {
+          await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        }
+      }
+
+      "return unauthorised for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest))
+
+        status(result) shouldBe 401
+      }
+    }
+
+    "updateOverrides" should {
+      "call the service to update overrides when a valid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateOverridesSuccessResult))
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "persistLoginEnabled" -> "true",
+          "grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "hello, individual-benefits",
+          "suppressIvForAgentsEnabled" -> "true", "suppressIvForAgentsScopes" -> "openid, email",
+          "suppressIvForOrganisationsEnabled" -> "true", "suppressIvForOrganisationsScopes" -> "address, openid:mdtp")
+
+        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+
+        verify(mockApplicationService).updateOverrides(
+          eqTo(application.application),
+          eqTo(Set(
+            PersistLogin(),
+            GrantWithoutConsent(Set("hello", "individual-benefits")),
+            SuppressIvForAgents(Set("openid", "email")),
+            SuppressIvForOrganisations(Set("address", "openid:mdtp"))
+          )))(any[HeaderCarrier])
+      }
+
+      "return a bad request when an invalid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "persistLoginEnabled" -> "true",
+          "grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "")
+
+        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+
+        status(result) shouldBe 400
+
+        verify(mockApplicationService, never).updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier])
+      }
+
+      "return unauthorised when a form is submitted for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
+
+        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+
+        status(result) shouldBe 401
+
+        verify(mockApplicationService, never).updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier])
+      }
+
     }
   }
 
