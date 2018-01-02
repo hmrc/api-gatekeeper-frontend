@@ -93,7 +93,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         app <- applicationFuture
         subs <- subscriptionsFuture
 
-      } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+      } yield Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
