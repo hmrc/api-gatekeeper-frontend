@@ -22,8 +22,7 @@ import play.api.libs.json.Json
 
 case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription], requiresTrust: Option[Boolean])
 
-case class APIDefinition(
-                          serviceName: String,
+case class APIDefinition( serviceName: String,
                           serviceBaseUrl: String,
                           name: String,
                           description: String,
@@ -81,6 +80,9 @@ object APIAccessType extends Enumeration {
 }
 
 case class APIIdentifier(context: String, version: String)
+object APIIdentifier {
+  implicit val format = Json.format[APIIdentifier]
+}
 
 case class APISubscriptionStatus(name: String, serviceName: String,
                                  context: String, version: APIVersion, subscribed: Boolean, requiresTrust: Boolean) {
@@ -100,9 +102,15 @@ object SubscriptionResponse {
   implicit val format2 = Json.format[SubscriptionResponse]
 }
 
-case class Subscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription])
+case class Subscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription]) {
+  lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
+}
 
 object Subscription {
+  def subscriptionNumberLabel(versions: Seq[VersionSubscription]) = versions.count(_.subscribed) match {
+    case 1 => s"1 subscription"
+    case number => s"$number subscriptions"
+  }
 
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)

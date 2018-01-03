@@ -94,4 +94,12 @@ trait ApplicationService {
       }
     }
   }
+
+  def subscribeToApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnector.subscribeToApi(applicationId, APIIdentifier(context, version))
+  }
+
+  def unsubscribeFromApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnector.unsubscribeFromApi(applicationId, context, version)
+  }
 }

@@ -73,18 +73,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       }
   }
 
-  def deleteSubscription(appId: String, subscriptionId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-    // TODO: Role should be super user not APIGatekeeper
-    // TODO: Delete the selected subscription from the application
-
-    Future.successful(Redirect(routes.ApplicationController.applicationPage(appId)))
-  }
-
   def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-    // TODO: Role should be super user not APIGatekeeper
-    // TODO: Manage the subscriptions for the given application
 
       val applicationFuture = applicationService.fetchApplication(appId)
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
@@ -93,7 +83,17 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         app <- applicationFuture
         subs <- subscriptionsFuture
 
-      } yield Ok(subscription_manage(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+      } yield Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+  }
+
+  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+    applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+  }
+
+  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+    applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {

@@ -36,7 +36,7 @@ trait ApplicationConnector {
 
   val applicationBaseUrl: String
 
-  val http: HttpPost with HttpGet with HttpPut
+  val http: HttpPost with HttpGet with HttpPut with HttpDelete
 
   def updateRateLimitTier(applicationId: String, tier: String)
                          (implicit hc: HeaderCarrier): Future[UpdateApplicationRateLimitTierSuccessful] =
@@ -132,4 +132,17 @@ trait ApplicationConnector {
     http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/scopes", updateScopesRequest)
       .map(_ => UpdateScopesSuccessResult)
   }
+
+  def subscribeToApi(applicationId: String, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/subscription", apiIdentifier, Seq("Content-Type" -> "application/json")) map { _ =>
+      ApplicationUpdateSuccessResult
+    }
+  }
+
+  def unsubscribeFromApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE(s"$applicationBaseUrl/application/$applicationId/subscription?context=$context&version=$version") map { _ =>
+      ApplicationUpdateSuccessResult
+    }
+  }
+
 }

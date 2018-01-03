@@ -26,8 +26,9 @@ POST        /applications/:id/access/scopes                         controllers.
 GET         /applications/:id/access/overrides                      controllers.ApplicationController.manageAccessOverrides(id: String)
 POST        /applications/:id/access/overrides                      controllers.ApplicationController.updateAccessOverrides(id: String)
 
-GET         /applications/:id/subscription/:subscriptionId          controllers.ApplicationController.deleteSubscription(id: String, subscriptionId: String)
-GET         /applications/:id/subscriptions/manage                  controllers.ApplicationController.manageSubscription(id: String)
+GET         /applications/:id/subscriptions                         controllers.ApplicationController.manageSubscription(id: String)
+POST        /applications/:id/subscriptions/subscribe               controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
+POST        /applications/:id/subscriptions/unsubscribe             controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
 
 ->          /template                                               template.Routes
 
