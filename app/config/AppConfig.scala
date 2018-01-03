@@ -43,6 +43,8 @@ object AppConfig extends AppConfig with ServicesConfig {
   override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
   override def superUsers: Seq[String] = {
-    Play.current.configuration.getStringSeq("superUsers").getOrElse(Seq.empty)
+    Play.current.configuration.getStringSeq(s"$env.superUsers")
+      .orElse(Play.current.configuration.getStringSeq("superUsers"))
+      .getOrElse(Seq.empty)
   }
 }
