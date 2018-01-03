@@ -134,7 +134,7 @@ trait ApplicationConnector {
   }
 
   def subscribeToApi(applicationId: String, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST(s"$applicationBaseUrl/application/$applicationId/subscription", apiIdentifier, Seq("Content-Type" -> "application/json")) map { _ =>
+    http.POST(s"$applicationBaseUrl/application/$applicationId/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
