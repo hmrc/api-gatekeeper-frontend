@@ -23,7 +23,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, verify}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
@@ -313,7 +313,62 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         verify(mockApplicationService, never).updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier])
       }
+    }
 
+    "subscribeToApi" should {
+      "call the service to subscribe to the API when submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+        val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
+
+        verify(underTest.applicationService).subscribeToApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+      }
+
+      "return unauthorised when submitted for a non-super user" in new Setup {
+        givenASuccessfulLogin
+        givenTheAppWillBeReturned()
+
+        val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
+
+        status(result) shouldBe 401
+
+        verify(underTest.applicationService, never).subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier])
+      }
+    }
+
+    "unsubscribeFromApi" should {
+      "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
+
+        verify(underTest.applicationService).unsubscribeFromApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+      }
+
+      "return unauthorised when submitted for a non-super user" in new Setup {
+        givenASuccessfulLogin
+        givenTheAppWillBeReturned()
+
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
+
+        status(result) shouldBe 401
+
+        verify(underTest.applicationService, never).unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier])
+      }
     }
   }
 
