@@ -80,6 +80,9 @@ object APIAccessType extends Enumeration {
 }
 
 case class APIIdentifier(context: String, version: String)
+object APIIdentifier {
+  implicit val format = Json.format[APIIdentifier]
+}
 
 case class APISubscriptionStatus(name: String, serviceName: String,
                                  context: String, version: APIVersion, subscribed: Boolean, requiresTrust: Boolean) {
