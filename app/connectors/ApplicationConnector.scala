@@ -121,7 +121,7 @@ trait ApplicationConnector {
   }
 
   def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.POST(s"$applicationBaseUrl/application/${applicationId}/access/overrides", updateOverridesRequest, Seq(CONTENT_TYPE -> JSON))
+    http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/overrides", updateOverridesRequest)
       .map(_ => UpdateOverridesSuccessResult)
       .recover {
         case e: Upstream4xxResponse => UpdateOverridesFailureResult
