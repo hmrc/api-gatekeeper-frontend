@@ -210,4 +210,30 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       verify(underTest.applicationConnector, never).updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier])
     }
   }
+
+  "subscribeToApi" should {
+    "call the service to subscribe to the API" in new Setup {
+      given(underTest.applicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      val result = await(underTest.subscribeToApi("applicationId", "hello", "1.0"))
+
+      result shouldBe ApplicationUpdateSuccessResult
+
+      verify(underTest.applicationConnector).subscribeToApi(mEq("applicationId"), mEq(APIIdentifier("hello", "1.0")))(any[HeaderCarrier])
+    }
+  }
+
+  "unsubscribeFromApi" should {
+    "call the service to unsubscribe from the API" in new Setup {
+      given(underTest.applicationConnector.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      val result = await(underTest.unsubscribeFromApi("applicationId", "hello", "1.0"))
+
+      result shouldBe ApplicationUpdateSuccessResult
+
+      verify(underTest.applicationConnector).unsubscribeFromApi(mEq("applicationId"), mEq("hello"), mEq("1.0"))(any[HeaderCarrier])
+    }
+  }
 }
