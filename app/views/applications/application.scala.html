@@ -127,6 +127,13 @@
             <td></td>
         </tr>
         <tr>
+            <th><h3>Rate limit tier</h3></th>
+            <td>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
+            <td>@if(isSuperUser) {
+                <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button button--link" role="button">Manage</a>
+                }</td>
+        </tr>
+        <tr>
             <th><h3>Description</h3></th>
             <td>
                 @if(application.description.nonEmpty) {

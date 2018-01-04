@@ -21,6 +21,7 @@ import connectors.AuthConnector.InvalidCredentials
 import connectors.{ApiDefinitionConnector, ApplicationConnector, AuthConnector, DeveloperConnector}
 import controllers.DashboardController
 import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
+import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
@@ -136,20 +137,20 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
 
     "handleUpdateRateLimitTier" should {
       val applicationId = "applicationId"
-      val tier = "GOLD"
+      val tier = RateLimitTier.GOLD
 
       "change the rate limit for a super user" in new Setup {
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
         given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
 
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        val newTierCaptor = ArgumentCaptor.forClass(classOf[String])
+        val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
         given(underTest.applicationConnector.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
-          .willReturn(Future.successful(UpdateApplicationRateLimitTierSuccessful))
+          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier))))
+        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
         status(result) shouldBe 303
 
         appIdCaptor.getValue shouldBe applicationId
@@ -165,7 +166,7 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
         status(result) shouldBe 303
 
-        verify(underTest.applicationConnector, never()).updateRateLimitTier(anyString(), anyString())(any[HeaderCarrier])
+        verify(underTest.applicationConnector, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
       }
     }
   }
