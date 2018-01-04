@@ -19,9 +19,10 @@ package unit.services
 import java.util.UUID
 
 import connectors.ApplicationConnector
+import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
-import org.mockito.Mockito.{verify, never}
+import org.mockito.Mockito.{never, verify}
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
@@ -234,6 +235,19 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       result shouldBe ApplicationUpdateSuccessResult
 
       verify(underTest.applicationConnector).unsubscribeFromApi(mEq("applicationId"), mEq("hello"), mEq("1.0"))(any[HeaderCarrier])
+    }
+  }
+
+  "updateRateLimitTier" should {
+    "call the service to update the rate limit tier" in new Setup {
+      given(underTest.applicationConnector.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      val result = await(underTest.updateRateLimitTier("applicationId", RateLimitTier.GOLD))
+
+      result shouldBe ApplicationUpdateSuccessResult
+
+      verify(underTest.applicationConnector).updateRateLimitTier(mEq("applicationId"), mEq(RateLimitTier.GOLD))(any[HeaderCarrier])
     }
   }
 }

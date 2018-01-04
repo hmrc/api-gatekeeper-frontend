@@ -169,6 +169,7 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "checkInformation": {
        |      "contactDetails": {
        |        "fullname": "Holly Golightly",
@@ -227,6 +228,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -259,6 +261,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -291,6 +294,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -324,6 +328,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
@@ -349,6 +354,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "TESTING",
        |      "updatedOn": 1476374382580
@@ -372,6 +378,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PENDING_GATEKEEPER_APPROVAL",
        |      "updatedOn": 1469113456930
@@ -395,6 +402,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "TESTING",
        |      "updatedOn": 1464686294991
@@ -422,6 +430,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PENDING_GATEKEEPER_APPROVAL",
        |      "updatedOn": 1460114644291
@@ -453,6 +462,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "james.morris@digital.hmrc.gov.uk",
@@ -485,6 +495,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -517,6 +528,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -546,6 +558,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "TESTING",
        |      "updatedOn": 1460553066047
@@ -569,6 +582,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PENDING_GATEKEEPER_APPROVAL",
        |      "updatedOn": 1469698551644
@@ -599,6 +613,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PENDING_GATEKEEPER_APPROVAL",
        |      "updatedOn": 1469694187353
@@ -629,6 +644,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer2",
@@ -653,6 +669,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
@@ -693,6 +710,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer4",
@@ -816,6 +834,7 @@ trait MockDataSugar {
        |      "overrides": [],
        |      "accessType": "STANDARD"
        |    },
+       |    "rateLimitTier": "BRONZE",
        |    $state
        |  },
        |  "history": [

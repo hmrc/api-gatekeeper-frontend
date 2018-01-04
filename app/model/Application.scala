@@ -133,7 +133,7 @@ case class ApplicationResponse(id: UUID,
                                createdOn: DateTime,
                                access: Access,
                                state: ApplicationState,
-                               rateLimitTier: Option[RateLimitTier] = None,
+                               rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None
@@ -249,4 +249,12 @@ object RateLimitTier extends Enumeration {
   val BRONZE, SILVER, GOLD = Value
 
   def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
+
+  def displayedTier: (RateLimitTier) => String = {
+    case BRONZE => "Bronze"
+    case SILVER => "Silver"
+    case GOLD => "Gold"
+  }
+
+  implicit val format = EnumJson.enumFormat(RateLimitTier)
 }
