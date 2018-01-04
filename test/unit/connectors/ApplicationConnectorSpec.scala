@@ -274,12 +274,12 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
   "updateOverrides" should {
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       val applicationId = "anApplicationId"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(200)))
+      stubFor(put(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(200)))
 
       val result = await(connector.updateOverrides(applicationId,
         UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
 
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
+      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo( s"""{"overrides":[{"overrideType":"PERSIST_LOGIN_AFTER_GRANT"},{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
 
@@ -288,14 +288,14 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
     "fail if the request failed on the backend" in new Setup {
       val applicationId = "anApplicationId"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(500)))
+      stubFor(put(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(500)))
 
       intercept[Upstream5xxResponse] {
         await(connector.updateOverrides(applicationId,
           UpdateOverridesRequest(Set(SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
       }
 
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
+      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo( s"""{"overrides":[{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
     }
@@ -326,6 +326,60 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/scopes"))
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo( s"""{"scopes":["hello","read:individual-benefits"]}""")))
+    }
+  }
+
+  "subscribeToApi" should {
+    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/subscription")).willReturn(aResponse().withStatus(201)))
+
+      val result = await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"context":"hello","version":"1.0"}""")))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(post(urlEqualTo(s"/application/$applicationId/subscription")).willReturn(aResponse().withStatus(500)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
+      }
+
+      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription"))
+        .withHeader("Authorization", equalTo(authToken))
+        .withRequestBody(equalTo( s"""{"context":"hello","version":"1.0"}""")))
+    }
+  }
+
+  "unsubscribeFromApi" should {
+    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(delete(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0")).willReturn(aResponse().withStatus(201)))
+
+      val result = await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
+
+      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
+        .withHeader("Authorization", equalTo(authToken)))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      val applicationId = "anApplicationId"
+      stubFor(delete(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0")).willReturn(aResponse().withStatus(500)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
+      }
+
+      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
+        .withHeader("Authorization", equalTo(authToken)))
     }
   }
 }

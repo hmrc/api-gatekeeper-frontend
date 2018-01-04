@@ -27,7 +27,7 @@ class APIGatekeeperSuperUserApprovedSpec extends ApprovedBaseSpec {
 
   override def newAppForTest(testData: TestData): Application = {
     GuiceApplicationBuilder()
-      .configure("run.mode" -> "Stub", "superUsers" -> Seq("joe.test"))
+      .configure("run.mode" -> "Stub", "Stub.superUsers" -> Seq("joe.test"))
       .in(Mode.Prod)
       .build()
   }
