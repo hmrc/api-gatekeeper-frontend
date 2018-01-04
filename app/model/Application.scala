@@ -255,4 +255,6 @@ object RateLimitTier extends Enumeration {
     case SILVER => "Silver"
     case GOLD => "Gold"
   }
+
+  implicit val format = EnumJson.enumFormat(RateLimitTier)
 }
