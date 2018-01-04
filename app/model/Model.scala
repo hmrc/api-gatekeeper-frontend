@@ -90,7 +90,6 @@ object ApplicationWithHistory {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
-  implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[ApplicationWithHistory]
 }
@@ -98,7 +97,6 @@ object ApplicationWithHistory {
 case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
 
 object UpdateRateLimitTierRequest {
-  import ApplicationWithHistory.formatRateLimitTier
   implicit val format = Json.format[UpdateRateLimitTierRequest]
 }
 
