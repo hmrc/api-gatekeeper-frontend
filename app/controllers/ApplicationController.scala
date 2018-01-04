@@ -108,7 +108,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def updateAccessOverrides(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
-      def updateOverrides(overrides: Set[OverrideFlag]) = {
+      def handleValidForm(overrides: Set[OverrideFlag]) = {
         applicationService.updateOverrides(app.application, overrides).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
@@ -118,7 +118,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         Future.successful(BadRequest(manage_access_overrides(app.application, form, isSuperUser)))
       }
 
-      accessOverridesForm.bindFromRequest.fold(handleFormError, updateOverrides)
+      accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
@@ -136,7 +136,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def updateScopes(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
-      def updateOverrides(scopes: Set[String]) = {
+      def handleValidForm(scopes: Set[String]) = {
         applicationService.updateScopes(app.application, scopes).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
@@ -146,7 +146,29 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         Future.successful(BadRequest(manage_scopes(app.application, form, isSuperUser)))
       }
 
-      scopesForm.bindFromRequest.fold(handleFormError, updateOverrides)
+      scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
+    }
+  }
+
+  def manageRateLimitTier(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
+      Future.successful(Ok(manage_rate_limit(app.application, form, isSuperUser)))
+    }
+  }
+
+  def updateRateLimitTier(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: UpdateRateLimitForm) = {
+        applicationService.updateRateLimitTier(appId, RateLimitTier.withName(form.tier)).map { _ =>
+          Redirect(routes.ApplicationController.applicationPage(appId))
+        }
+      }
+
+      def handleFormError(form: Form[UpdateRateLimitForm]) = {
+        Future.successful(BadRequest(manage_rate_limit(app.application, form, isSuperUser)))
+      }
+      UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 

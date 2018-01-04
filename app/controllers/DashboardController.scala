@@ -121,10 +121,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
 
-    val currentRateLimitTier = app.rateLimitTier.getOrElse(RateLimitTier.BRONZE)
-    val currentRateLimitTierToDisplay =
-      if (isSuperUser) Some(currentRateLimitTier)
-      else None
+    val currentRateLimitTierToDisplay = if (isSuperUser) Some(app.rateLimitTier) else None
 
     val contactDetails = for {
       checkInformation <- app.checkInformation
@@ -186,9 +183,9 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
         if (!isSuperUser) {
           Future.successful(result)
         } else {
-          val newTier = UpdateRateLimitForm.form.bindFromRequest().get.tier
+          val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
           applicationConnector.updateRateLimitTier(appId, newTier) map {
-            case UpdateApplicationRateLimitTierSuccessful =>
+            case ApplicationUpdateSuccessResult =>
               result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
           }
         }
