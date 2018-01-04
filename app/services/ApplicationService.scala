@@ -17,6 +17,7 @@
 package services
 
 import connectors.ApplicationConnector
+import model.RateLimitTier.RateLimitTier
 import model._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -101,5 +102,9 @@ trait ApplicationService {
 
   def unsubscribeFromApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     applicationConnector.unsubscribeFromApi(applicationId, context, version)
+  }
+
+  def updateRateLimitTier(applicationId: String, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnector.updateRateLimitTier(applicationId, tier)
   }
 }

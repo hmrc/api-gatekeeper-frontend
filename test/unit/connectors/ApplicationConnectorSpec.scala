@@ -51,32 +51,13 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
             aResponse()
               .withStatus(204)))
 
-      val result = await(connector.updateRateLimitTier(applicationId, "GOLD"))
+      val result = await(connector.updateRateLimitTier(applicationId, RateLimitTier.GOLD))
 
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo( s"""{"rateLimitTier":"GOLD"}""")))
 
-      result shouldBe UpdateApplicationRateLimitTierSuccessful
-    }
-
-    "send Authorisation and handle 412 precondition failed" in new Setup {
-      stubFor(
-        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
-          .withRequestBody(equalTo(
-            s"""{"rateLimitTier":"WOOD"}""".stripMargin))
-          .willReturn(
-            aResponse()
-              .withStatus(412)
-              .withBody( """{"code"="INVALID_REQUEST_PAYLOAD", "message":"WOOD is an invalid rate limit tier"}""")))
-
-      intercept[PreconditionFailed] {
-        await(connector.updateRateLimitTier(applicationId, "WOOD"))
-      }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"rateLimitTier":"WOOD"}""")))
+      result shouldBe ApplicationUpdateSuccessResult
     }
 
     "send Authorisation and propagates 5xx errors" in new Setup {
@@ -90,7 +71,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
               .withBody( """{"code"="UNKNOWN_ERROR", "message":"An unexpected error occurred"}""")))
 
       intercept[Upstream5xxResponse] {
-        await(connector.updateRateLimitTier(applicationId, "SILVER"))
+        await(connector.updateRateLimitTier(applicationId, RateLimitTier.SILVER))
       }
 
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))

@@ -19,7 +19,7 @@ package model
 import java.util.UUID
 
 import model.OverrideType.OverrideType
-import model.RateLimitTier.RateLimitTier
+import model.RateLimitTier._
 import model.State.State
 import org.joda.time.DateTime
 import play.api.libs.json._
@@ -71,17 +71,6 @@ object GatekeeperSessionKeys {
   val AuthToken = SessionKeys.authToken
 }
 
-case class UpdateRateLimitTierRequest(rateLimitTier: String)
-
-object UpdateRateLimitTierRequest {
-  implicit val format = Json.format[UpdateRateLimitTierRequest]
-}
-
-sealed trait UpdateApplicationRateLimitTierSuccessful
-
-case object UpdateApplicationRateLimitTierSuccessful extends UpdateApplicationRateLimitTierSuccessful
-
-
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
@@ -101,9 +90,14 @@ object ApplicationWithHistory {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
-  implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[ApplicationWithHistory]
+}
+
+case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
+
+object UpdateRateLimitTierRequest {
+  implicit val format = Json.format[UpdateRateLimitTierRequest]
 }
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
