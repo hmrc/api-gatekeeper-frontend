@@ -18,6 +18,7 @@ package unit.controllers
 
 import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
+import model.RateLimitTier.RateLimitTier
 import model._
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
@@ -368,6 +369,71 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe 401
 
         verify(underTest.applicationService, never).unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier])
+      }
+    }
+
+    "manageRateLimitTier" should {
+      "fetch the app and return the page for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+      }
+
+      "return unauthorised for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest))
+
+        status(result) shouldBe 401
+      }
+    }
+
+    "updateRateLimitTier" should {
+      "call the service to update the rate limit tier when a valid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
+          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+
+        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+
+        verify(mockApplicationService).updateRateLimitTier(eqTo(applicationId), eqTo(RateLimitTier.GOLD))(any[HeaderCarrier])
+      }
+
+      "return a bad request when an invalid form is submitted for a super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+
+        status(result) shouldBe 400
+
+        verify(mockApplicationService, never).updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier])
+      }
+
+      "return unauthorised when a form is submitted for a non-super user" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+
+        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+
+        status(result) shouldBe 401
+
+        verify(mockApplicationService, never).updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier])
       }
     }
   }
