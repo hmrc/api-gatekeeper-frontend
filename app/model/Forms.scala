@@ -34,8 +34,9 @@ package object Forms {
       "persistLoginEnabled" -> boolean,
       "grantWithoutConsentEnabled" -> boolean,
       "grantWithoutConsentScopes" -> mandatoryIfTrue (
-        "grantWithoutConsentEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+       "grantWithoutConsentEnabled",
+        text.verifying("override.scopes.required", s => s.trim.length > 0 && s.matches("""^[a-z:\-\,\s]+$"""))
+
       ),
       "suppressIvForAgentsEnabled" -> boolean,
       "suppressIvForAgentsScopes" -> mandatoryIfTrue (
