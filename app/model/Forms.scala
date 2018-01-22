@@ -19,9 +19,12 @@ package model
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Valid}
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
+
 package object Forms {
+
 
   val loginForm = Form(
     mapping(
@@ -35,7 +38,10 @@ package object Forms {
       "grantWithoutConsentEnabled" -> boolean,
       "grantWithoutConsentScopes" -> mandatoryIfTrue (
        "grantWithoutConsentEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0 && s.matches("""^[a-z:\-\,\s]+$"""))
+        {
+         text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
+
 
       ),
       "suppressIvForAgentsEnabled" -> boolean,
