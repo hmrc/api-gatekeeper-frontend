@@ -30,7 +30,7 @@ class FormValidationSpec  extends UnitSpec with Matchers {
       boundForm.errors.length shouldBe 1
     }
 
-    "fail validation with invalid scopes" in {
+    "fail validation with invalid scope format" in {
       val invalidAccessOverrideForm = Map("grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "test1 \n test2")
       val boundForm = accessOverridesForm.bind(invalidAccessOverrideForm)
       boundForm.errors.length shouldBe 1

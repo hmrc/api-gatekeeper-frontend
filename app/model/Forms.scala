@@ -47,12 +47,17 @@ package object Forms {
       "suppressIvForAgentsEnabled" -> boolean,
       "suppressIvForAgentsScopes" -> mandatoryIfTrue (
         "suppressIvForAgentsEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+        {
+          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
+
       ),
       "suppressIvForOrganisationsEnabled" -> boolean,
       "suppressIvForOrganisationsScopes" -> mandatoryIfTrue (
         "suppressIvForOrganisationsEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+        {
+          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
       )
     )(AccessOverridesForm.toSetOfOverrides)(AccessOverridesForm.fromSetOfOverrides))
 
