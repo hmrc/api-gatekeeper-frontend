@@ -26,6 +26,7 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhance
 import views.html.applications._
 import model.Forms._
 import play.api.data.Form
+import play.api.i18n.Messages
 import views.html.error_template
 
 import scala.concurrent.Future
@@ -109,8 +110,14 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def updateAccessOverrides(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(overrides: Set[OverrideFlag]) = {
-        applicationService.updateOverrides(app.application, overrides).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+        applicationService.updateOverrides(app.application, overrides).map {
+          case UpdateOverridesFailureResult(errors) =>
+            var form = accessOverridesForm.fill(overrides)
+
+            errors.foreach( err => form = form.withError(err, Messages("invalid.scope")))
+
+            BadRequest(manage_access_overrides(app.application, form, isSuperUser))
+          case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
