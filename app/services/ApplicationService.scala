@@ -17,6 +17,7 @@
 package services
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.Forms.FormFields
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -83,25 +84,34 @@ trait ApplicationService {
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    def createInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[String]] = {
-      Future.successful(overrides.map {
-        case PersistLogin() => "persistLoginScopes" -> false
-        case SuppressIvForAgents(s) => "suppressIvForAgentsScopes" -> !s.forall(validScopes)
-        case SuppressIvForOrganisations(s) => "suppressIvForOrganisationsScopes" -> !s.forall(validScopes)
-        case GrantWithoutConsent(s) => "grantWithoutConsentScopes" -> !s.forall(validScopes)
-      }.toMap[String, Boolean].filter(scope => scope._2).keySet)
+    def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
+      !scopes.forall(validScopes)
+    }
+
+    def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[String]] = {
+      def extractOverrideTypes(overrides: Map[String, Boolean]): Set[String] = {
+        overrides.filter{case(_, invalid) => invalid}.keySet
+      }
+
+      val overrideTypesWithInvalidScopes = overrides.map {
+        case SuppressIvForAgents(scopes) => FormFields.suppressIvForAgentsScopes -> containsInvalidScopes(validScopes, scopes)
+        case SuppressIvForOrganisations(scopes) => FormFields.suppressIvForOrganisationsScopes -> containsInvalidScopes(validScopes, scopes)
+        case GrantWithoutConsent(scopes) => FormFields.grantWithoutConsentScopes -> containsInvalidScopes(validScopes, scopes)
+      }.toMap[String, Boolean]
+
+      Future.successful(extractOverrideTypes(overrideTypesWithInvalidScopes))
     }
 
     application.access match {
       case _: Standard => {
-        val invalidScopes = for {
-          scopes <- apiScopeConnector.fetchAll()
-          invalidScopes <- createInvalidScopes(overrides, scopes.map(apiscope => apiscope.key).toSet)
-        } yield invalidScopes
-
-        invalidScopes.flatMap(scopes =>
-          if(scopes.nonEmpty) {
-            Future.successful(UpdateOverridesFailureResult(scopes))
+        (
+          for {
+            scopes <- apiScopeConnector.fetchAll()
+            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, scopes.map(apiscope => apiscope.key).toSet)
+          } yield overrideTypesWithInvalidScopes
+        ).flatMap(overrideTypes =>
+          if(overrideTypes.nonEmpty) {
+            Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
             applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
           }
