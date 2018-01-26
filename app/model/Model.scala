@@ -26,6 +26,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.json.Union
 
 
@@ -198,7 +199,7 @@ object UpdateOverridesRequest {
 sealed trait UpdateOverridesResult
 
 case object UpdateOverridesSuccessResult extends UpdateOverridesResult
-case object UpdateOverridesFailureResult extends UpdateOverridesResult
+case class UpdateOverridesFailureResult(errors: Set[String] = Set.empty) extends UpdateOverridesResult
 
 case class UpdateScopesRequest(scopes: Set[String])
 
@@ -213,3 +214,8 @@ case object UpdateScopesFailureResult extends UpdateScopesResult
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult
 case object ApplicationUpdateFailureResult extends ApplicationUpdateResult
+
+case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
+object ApiScope {
+  implicit val formats = Json.format[ApiScope]
+}

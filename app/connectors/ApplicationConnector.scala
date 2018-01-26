@@ -123,15 +123,15 @@ trait ApplicationConnector {
   }
 
   def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/overrides", updateOverridesRequest)
+    http.PUT(s"$applicationBaseUrl/application/$applicationId/access/overrides", updateOverridesRequest)
       .map(_ => UpdateOverridesSuccessResult)
       .recover {
-        case e: Upstream4xxResponse => UpdateOverridesFailureResult
+        case e: Upstream4xxResponse => UpdateOverridesFailureResult()
       }
   }
 
   def updateScopes(applicationId: String, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
-    http.PUT(s"$applicationBaseUrl/application/${applicationId}/access/scopes", updateScopesRequest)
+    http.PUT(s"$applicationBaseUrl/application/$applicationId/access/scopes", updateScopesRequest)
       .map(_ => UpdateScopesSuccessResult)
   }
 
