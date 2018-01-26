@@ -83,7 +83,7 @@ trait ApplicationService {
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    def createInvalidScopes(validScopes: Set[String]): Future[Set[String]] = {
+    def createInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[String]] = {
       Future.successful(overrides.map {
         case PersistLogin() => "persistLoginScopes" -> false
         case SuppressIvForAgents(s) => "suppressIvForAgentsScopes" -> !s.forall(validScopes)
@@ -96,7 +96,7 @@ trait ApplicationService {
       case _: Standard => {
         val invalidScopes = for {
           scopes <- apiScopeConnector.fetchAll()
-          invalidScopes <- createInvalidScopes(scopes.map(apiscope => apiscope.key).toSet)
+          invalidScopes <- createInvalidScopes(overrides, scopes.map(apiscope => apiscope.key).toSet)
         } yield invalidScopes
 
         invalidScopes.flatMap(scopes =>
