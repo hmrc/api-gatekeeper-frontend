@@ -16,20 +16,22 @@
 
 package services
 
-import connectors.ApplicationConnector
+import connectors.{ApiScopeConnector, ApplicationConnector}
 import model.RateLimitTier.RateLimitTier
 import model._
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
+  override val apiScopeConnector = ApiScopeConnector
 }
 
 trait ApplicationService {
   val applicationConnector: ApplicationConnector
+  val apiScopeConnector: ApiScopeConnector
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -81,9 +83,29 @@ trait ApplicationService {
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    def createInvalidScopes(validScopes: Set[String]): Future[Set[String]] = {
+      Future.successful(overrides.map {
+        case PersistLogin() => "persistLoginScopes" -> false
+        case SuppressIvForAgents(s) => "suppressIvForAgentsScopes" -> !s.forall(validScopes)
+        case SuppressIvForOrganisations(s) => "suppressIvForOrganisationsScopes" -> !s.forall(validScopes)
+        case GrantWithoutConsent(s) => "grantWithoutConsentScopes" -> !s.forall(validScopes)
+      }.toMap[String, Boolean].filter(scope => scope._2).keySet)
+    }
+
     application.access match {
       case _: Standard => {
-        applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+        val invalidScopes = for {
+          scopes <- apiScopeConnector.fetchAll()
+          invalidScopes <- createInvalidScopes(scopes.map(apiscope => apiscope.key).toSet)
+        } yield invalidScopes
+
+        invalidScopes.flatMap(scopes =>
+          if(scopes.nonEmpty) {
+            Future.successful(UpdateOverridesFailureResult(scopes))
+          } else {
+            applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+          }
+        )
       }
     }
   }

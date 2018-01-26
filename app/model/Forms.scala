@@ -37,8 +37,7 @@ package object Forms {
       "persistLoginEnabled" -> boolean,
       "grantWithoutConsentEnabled" -> boolean,
       "grantWithoutConsentScopes" -> mandatoryIfTrue (
-       "grantWithoutConsentEnabled",
-        {
+       "grantWithoutConsentEnabled", {
          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
         }
 
@@ -46,16 +45,14 @@ package object Forms {
       ),
       "suppressIvForAgentsEnabled" -> boolean,
       "suppressIvForAgentsScopes" -> mandatoryIfTrue (
-        "suppressIvForAgentsEnabled",
-        {
+        "suppressIvForAgentsEnabled", {
           text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
         }
 
       ),
       "suppressIvForOrganisationsEnabled" -> boolean,
       "suppressIvForOrganisationsScopes" -> mandatoryIfTrue (
-        "suppressIvForOrganisationsEnabled",
-        {
+        "suppressIvForOrganisationsEnabled", {
           text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
         }
       )
@@ -104,13 +101,15 @@ package object Forms {
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
         overrideWithScopes(overrides, SUPPRESS_IV_FOR_ORGANISATIONS)
 
-      Some(persistLoginEnabled,
+      Some(
+        persistLoginEnabled,
         grantWithoutConsentEnabled,
         grantWithoutConsentScopes,
         suppressIvForAgentsEnabled,
         suppressIvForAgentsScopes,
         suppressIvForOrganisationsEnabled,
-        suppressIvForOrganisationsScopes)
+        suppressIvForOrganisationsScopes
+      )
     }
   }
 
