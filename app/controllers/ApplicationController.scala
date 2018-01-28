@@ -109,12 +109,18 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def updateAccessOverrides(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
+      def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
+        case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
+        case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
+        case GrantWithoutConsent(_) => FormFields.grantWithoutConsentScopes
+      }
+
       def handleValidForm(overrides: Set[OverrideFlag]) = {
         applicationService.updateOverrides(app.application, overrides).map {
-          case UpdateOverridesFailureResult(errors) =>
+          case UpdateOverridesFailureResult(overrideFlagErrors) =>
             var form = accessOverridesForm.fill(overrides)
 
-            errors.foreach( err => form = form.withError(err, Messages("invalid.scope")))
+            overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), Messages("invalid.scope")))
 
             BadRequest(manage_access_overrides(app.application, form, isSuperUser))
           case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))

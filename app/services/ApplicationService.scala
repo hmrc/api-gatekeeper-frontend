@@ -84,30 +84,27 @@ trait ApplicationService {
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
-      !scopes.forall(validScopes)
-    }
-
-    def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[String]] = {
-      def extractOverrideTypes(overrides: Map[String, Boolean]): Set[String] = {
-        overrides.filter{case(_, invalid) => invalid}.keySet
+    def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[OverrideFlag]] = {
+      def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
+        !scopes.forall(validScopes)
       }
 
-      val overrideTypesWithInvalidScopes = overrides.map {
-        case SuppressIvForAgents(scopes) => FormFields.suppressIvForAgentsScopes -> containsInvalidScopes(validScopes, scopes)
-        case SuppressIvForOrganisations(scopes) => FormFields.suppressIvForOrganisationsScopes -> containsInvalidScopes(validScopes, scopes)
-        case GrantWithoutConsent(scopes) => FormFields.grantWithoutConsentScopes -> containsInvalidScopes(validScopes, scopes)
-      }.toMap[String, Boolean]
+      def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
+        case SuppressIvForAgents(scopes) => containsInvalidScopes(validScopes, scopes)
+        case SuppressIvForOrganisations(scopes) => containsInvalidScopes(validScopes, scopes)
+        case GrantWithoutConsent(scopes) => containsInvalidScopes(validScopes, scopes)
+        case _ => false
+      }
 
-      Future.successful(extractOverrideTypes(overrideTypesWithInvalidScopes))
+      Future.successful(overrides.filter(doesOverrideTypeContainInvalidScopes))
     }
 
     application.access match {
       case _: Standard => {
         (
           for {
-            scopes <- apiScopeConnector.fetchAll()
-            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, scopes.map(apiscope => apiscope.key).toSet)
+            knownScopes <- apiScopeConnector.fetchAll()
+            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, knownScopes.map(scope => scope.key).toSet)
           } yield overrideTypesWithInvalidScopes
         ).flatMap(overrideTypes =>
           if(overrideTypes.nonEmpty) {

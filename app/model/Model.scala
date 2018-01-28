@@ -199,7 +199,7 @@ object UpdateOverridesRequest {
 sealed trait UpdateOverridesResult
 
 case object UpdateOverridesSuccessResult extends UpdateOverridesResult
-case class UpdateOverridesFailureResult(errors: Set[String] = Set.empty) extends UpdateOverridesResult
+case class UpdateOverridesFailureResult(overrideFlagErrors: Set[OverrideFlag] = Set.empty) extends UpdateOverridesResult
 
 case class UpdateScopesRequest(scopes: Set[String])
 
