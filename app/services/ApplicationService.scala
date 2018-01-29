@@ -17,7 +17,6 @@
 package services
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
-import model.Forms.FormFields
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
