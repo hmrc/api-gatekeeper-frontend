@@ -18,7 +18,7 @@ package unit.services
 
 import java.util.UUID
 
-import connectors.ApplicationConnector
+import connectors.{ApiScopeConnector, ApplicationConnector}
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
@@ -38,7 +38,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   trait Setup {
     val underTest = new ApplicationService {
       val applicationConnector = mock[ApplicationConnector]
+      val apiScopeConnector = mock[ApiScopeConnector]
     }
+
     implicit val hc = HeaderCarrier()
 
     val collaborators = Set(
@@ -152,13 +154,15 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "call the service to update the overrides for an app with Standard access" in new Setup {
       given(underTest.applicationConnector.updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateOverridesSuccessResult))
+      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+        .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
 
-      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("hello")))))
+      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key")))))
 
       result shouldBe UpdateOverridesSuccessResult
 
       verify(underTest.applicationConnector).updateOverrides(mEq(stdApp1.id.toString),
-        mEq(UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello"))))))(any[HeaderCarrier])
+        mEq(UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("test.key"))))))(any[HeaderCarrier])
     }
 
     "fail when called for an app with Privileged access" in new Setup {

@@ -16,20 +16,23 @@
 
 package services
 
-import connectors.ApplicationConnector
+import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.Forms.FormFields
 import model.RateLimitTier.RateLimitTier
 import model._
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
+  override val apiScopeConnector = ApiScopeConnector
 }
 
 trait ApplicationService {
   val applicationConnector: ApplicationConnector
+  val apiScopeConnector: ApiScopeConnector
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -81,9 +84,33 @@ trait ApplicationService {
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+    def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[OverrideFlag]] = {
+      def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
+        !scopes.forall(validScopes)
+      }
+
+      def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
+        case overrideFlagWithScopes: OverrideFlagWithScopes => containsInvalidScopes(validScopes, overrideFlagWithScopes.scopes)
+        case _ => false
+      }
+
+      Future.successful(overrides.filter(doesOverrideTypeContainInvalidScopes))
+    }
+
     application.access match {
       case _: Standard => {
-        applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+        (
+          for {
+            knownScopes <- apiScopeConnector.fetchAll()
+            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, knownScopes.map(scope => scope.key).toSet)
+          } yield overrideTypesWithInvalidScopes
+        ).flatMap(overrideTypes =>
+          if(overrideTypes.nonEmpty) {
+            Future.successful(UpdateOverridesFailureResult(overrideTypes))
+          } else {
+            applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+          }
+        )
       }
     }
   }

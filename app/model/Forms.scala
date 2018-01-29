@@ -19,9 +19,20 @@ package model
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Valid}
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 package object Forms {
+
+  object FormFields {
+    val persistLoginEnabled = "persistLoginEnabled"
+    val grantWithoutConsentEnabled = "grantWithoutConsentEnabled"
+    val grantWithoutConsentScopes = "grantWithoutConsentScopes"
+    val suppressIvForAgentsEnabled = "suppressIvForAgentsEnabled"
+    val suppressIvForAgentsScopes = "suppressIvForAgentsScopes"
+    val suppressIvForOrganisationsEnabled = "suppressIvForOrganisationsEnabled"
+    val suppressIvForOrganisationsScopes = "suppressIvForOrganisationsScopes"
+  }
 
   val loginForm = Form(
     mapping(
@@ -31,24 +42,29 @@ package object Forms {
 
   val accessOverridesForm = Form (
     mapping (
-      "persistLoginEnabled" -> boolean,
-      "grantWithoutConsentEnabled" -> boolean,
-      "grantWithoutConsentScopes" -> mandatoryIfTrue (
-        "grantWithoutConsentEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+      FormFields.persistLoginEnabled -> boolean,
+      FormFields.grantWithoutConsentEnabled -> boolean,
+      FormFields.grantWithoutConsentScopes -> mandatoryIfTrue (
+       FormFields.grantWithoutConsentEnabled, {
+         text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
+
+
       ),
-      "suppressIvForAgentsEnabled" -> boolean,
-      "suppressIvForAgentsScopes" -> mandatoryIfTrue (
-        "suppressIvForAgentsEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+      FormFields.suppressIvForAgentsEnabled -> boolean,
+      FormFields.suppressIvForAgentsScopes -> mandatoryIfTrue (
+        FormFields.suppressIvForAgentsEnabled, {
+          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
+
       ),
-      "suppressIvForOrganisationsEnabled" -> boolean,
-      "suppressIvForOrganisationsScopes" -> mandatoryIfTrue (
-        "suppressIvForOrganisationsEnabled",
-        text.verifying("override.scopes.required", s => s.trim.length > 0)
+      FormFields.suppressIvForOrganisationsEnabled -> boolean,
+      FormFields.suppressIvForOrganisationsScopes -> mandatoryIfTrue (
+        FormFields.suppressIvForOrganisationsEnabled, {
+          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
+        }
       )
     )(AccessOverridesForm.toSetOfOverrides)(AccessOverridesForm.fromSetOfOverrides))
-
 
   object AccessOverridesForm {
     def toSetOfOverrides(persistLoginEnabled: Boolean,
@@ -92,13 +108,15 @@ package object Forms {
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
         overrideWithScopes(overrides, SUPPRESS_IV_FOR_ORGANISATIONS)
 
-      Some(persistLoginEnabled,
+      Some(
+        persistLoginEnabled,
         grantWithoutConsentEnabled,
         grantWithoutConsentScopes,
         suppressIvForAgentsEnabled,
         suppressIvForAgentsScopes,
         suppressIvForOrganisationsEnabled,
-        suppressIvForOrganisationsScopes)
+        suppressIvForOrganisationsScopes
+      )
     }
   }
 
