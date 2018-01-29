@@ -90,9 +90,7 @@ trait ApplicationService {
       }
 
       def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
-        case SuppressIvForAgents(scopes) => containsInvalidScopes(validScopes, scopes)
-        case SuppressIvForOrganisations(scopes) => containsInvalidScopes(validScopes, scopes)
-        case GrantWithoutConsent(scopes) => containsInvalidScopes(validScopes, scopes)
+        case overrideFlagWithScopes: OverrideFlagWithScopes => containsInvalidScopes(validScopes, overrideFlagWithScopes.scopes)
         case _ => false
       }
 
