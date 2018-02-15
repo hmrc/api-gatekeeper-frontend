@@ -17,17 +17,16 @@
 package controllers
 
 import connectors.AuthConnector
+import model.Forms._
 import model._
 import play.api.Play.current
+import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
-import model.Forms._
-import play.api.data.Form
-import play.api.i18n.Messages
-import views.html.error_template
 
 import scala.concurrent.Future
 
