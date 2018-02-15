@@ -18,12 +18,12 @@ $(function(undefined) {
       var filterValues = [];
 
       $.each(filters, function (index, filter) {
-        var $filter = $(filter);
-        var inputVal;
+        if(filter.options) {
+            var apiName = filter.options[filter.options.selectedIndex].getAttribute("data-api-name");
 
-        inputVal = $(filter).val();
-        if (inputVal) {
-          filterValues.push(inputVal);
+            if (apiName) {
+              filterValues.push(apiName);
+            }
         }
       });
 
@@ -37,9 +37,8 @@ $(function(undefined) {
     function searchTable(table) {
       var dataTable = $('#' + table).DataTable();
       var filterValue = buildFilter( getTableFilterValues( getTableFilters(table) ) );
-      dataTable
-        .search(filterValue)
-        .draw();
+
+      dataTable.search(filterValue).draw();
     }
 
     function searchColumn(filter, table, column) {
