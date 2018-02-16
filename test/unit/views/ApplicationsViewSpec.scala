@@ -58,9 +58,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display only subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option value>All applications</option>")
-        appView.body should include("<option value=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option value=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option value data-api-name>All applications</option>")
+        appView.body should include("<option value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
+        appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
       "Not include application state filters" in {
@@ -87,9 +87,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display the subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option value>All applications</option>")
-        appView.body should include("<option value=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option value=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option value data-api-name>All applications</option>")
+        appView.body should include("<option value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
+        appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
       "Include the application state filters" in {
