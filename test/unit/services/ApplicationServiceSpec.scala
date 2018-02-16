@@ -77,14 +77,17 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val app2 = result.find(sa => sa.name == "application2").get
       val app3 = result.find(sa => sa.name == "application3").get
 
-      app1.subscriptionNames should have size 1
-      app1.subscriptionNames shouldBe Seq("super-context")
+      app1.subscriptions should have size 1
+      app1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context","1.0"))
 
-      app2.subscriptionNames should have size 2
-      app2.subscriptionNames shouldBe Seq("super-context", "test-context")
+      app2.subscriptions should have size 2
+      app2.subscriptions shouldBe Seq(
+        SubscriptionNameAndVersion("super-context", "1.0"),
+        SubscriptionNameAndVersion("test-context", "1.0")
+      )
 
-      app3.subscriptionNames should have size 1
-      app3.subscriptionNames shouldBe Seq("super-context")
+      app3.subscriptions should have size 1
+      app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context", "1.0"))
     }
   }
 
