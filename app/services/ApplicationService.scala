@@ -66,7 +66,7 @@ trait ApplicationService {
 
       applications.map(ar => {
         val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
-          .map(_.apiIdentifier.context).sorted
+          .map(sub => SubscriptionNameAndVersion(sub.apiIdentifier.context, sub.apiIdentifier.version)).sortBy(sub => sub.name)
         SubscribedApplicationResponse.createFrom(ar, filteredSubs)
       })
     }
