@@ -16,7 +16,7 @@
 
 package unit.utils
 
-import model.{APIDefinition, APIStatus, APIVersion, ApplicationState, DetailedSubscribedApplicationResponse, SubscribedApplicationResponse}
+import model._
 import org.joda.time.DateTime
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.SubscriptionEnhancer
@@ -30,9 +30,11 @@ class SubscriptionEnhancerSpec extends UnitSpec {
 
     "Combining SubscribedApplicationResponses with ApiDefinitions" should {
 
-      val appResponses = Seq(createApplicationResponse("Hello World App", Seq("hello")),
-              createApplicationResponse("Employers App", Seq("employers-paye")),
-              createApplicationResponse("Unkown Subscription App", Seq("unknown")))
+      val appResponses = Seq(
+        createApplicationResponse("Hello World App", Seq(SubscriptionNameAndVersion("hello","1.0"))),
+        createApplicationResponse("Employers App", Seq(SubscriptionNameAndVersion("employers-paye","1.0"))),
+        createApplicationResponse("Unkown Subscription App", Seq(SubscriptionNameAndVersion("unknown","1.0")))
+      )
 
       val apiDefinitions = Seq(createDefinition("Hello World", "hello"),
         createDefinition("Employers PAYE", "employers-paye"))
@@ -65,7 +67,7 @@ class SubscriptionEnhancerSpec extends UnitSpec {
     }
   }
 
-  def createApplicationResponse(name:String, subs:Seq[String]): SubscribedApplicationResponse =
+  def createApplicationResponse(name:String, subs:Seq[SubscriptionNameAndVersion]): SubscribedApplicationResponse =
     SubscribedApplicationResponse(java.util.UUID.randomUUID(), name, Some("Description"),
       Set.empty, DateTime.now(), ApplicationState(), subs)
 
