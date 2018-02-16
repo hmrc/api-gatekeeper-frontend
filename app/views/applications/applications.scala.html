@@ -59,16 +59,15 @@
                             name="filter"
                             value="">
 
-                                <option value>All applications</option>
-                                <option value="ANYSUB">One or more subscriptions</option>
-                                <option value="NOSUB">No subscriptions</option>
+                                <option value data-api-name>All applications</option>
+                                <option value="ANYSUB" data-api-name="ANYSUB">One or more subscriptions</option>
+                                <option value="NOSUB" data-api-name="NOSUB">No subscriptions</option>
 
                                 @for((status, versions) <- apis) {
 
                                     <optgroup label="@{status}">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        <option
-                                        value="@version.name">@version.name (@version.apiIdentifier.version)</option>
+                                        <option value="@version.name (@version.apiIdentifier.version)" data-api-name="@version.name (@version.apiIdentifier.version)">@version.name (@version.apiIdentifier.version)</option>
                                     }
                                     </optgroup>
                                 }
@@ -130,7 +129,7 @@
                                 dateFormatter.print(application.createdOn)
                             }</td>
                             <td>@application.createdOn</td>
-                            <td id="app-subs-@index" title="@application.subscriptions.map(_.name).mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
+                            <td id="app-subs-@index" title="@application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
                             <td class="text--right hard--right" id="app-status-@index">
                             @defining(application.state.name match {
                                 case PRODUCTION => ("status status--verified", "Approved")

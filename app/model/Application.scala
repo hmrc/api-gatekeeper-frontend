@@ -176,13 +176,15 @@ object AccessType extends Enumeration {
 
 case class TotpIds(production: String, sandbox: String)
 
+case class SubscriptionNameAndVersion(name: String, version: String)
+
 case class SubscribedApplicationResponse(id: UUID,
                                          name: String,
                                          description: Option[String] = None,
                                          collaborators: Set[Collaborator],
                                          createdOn: DateTime,
                                          state: ApplicationState,
-                                         subscriptionNames: Seq[String]) extends Application
+                                         subscriptions: Seq[SubscriptionNameAndVersion]) extends Application
 
 
 object SubscribedApplicationResponse {
@@ -191,9 +193,10 @@ object SubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val format5 = Json.format[SubscribedApplicationResponse]
+  implicit val format5 = Json.format[SubscriptionNameAndVersion]
+  implicit val format6 = Json.format[SubscribedApplicationResponse]
 
-  def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[String]) =
+  def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
     SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
       appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions)
 }
@@ -206,7 +209,7 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  state: ApplicationState,
                                                  subscriptions: Seq[SubscriptionDetails]) extends Application
 
-case class SubscriptionDetails(name:String, context: String)
+case class SubscriptionDetails(name:String, context: String, version: String)
 
 
 object DetailedSubscribedApplicationResponse {
