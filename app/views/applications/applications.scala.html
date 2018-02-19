@@ -141,7 +141,7 @@
                                     NOSUB
                                 } else {
                                     ANYSUB,
-                                    @application.subscriptions.map(sub => s"${sub.name} ${sub.version}").mkString(",")
+                                    @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
                                 }
                             </td>
                         </tr>
