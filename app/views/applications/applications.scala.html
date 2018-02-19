@@ -136,7 +136,7 @@
                                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
                                 case _ => ("status", "Sandbox")
                             }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
-                            <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">@if(application.subscriptions.isEmpty){NOSUB}else{ANYSUB,@application.subscriptions.map(_.name).mkString(",")}</td>
+                            <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">@if(application.subscriptions.isEmpty){NOSUB}else{ANYSUB,@application.subscriptions.map(sub => s"${sub.name} ${sub.version}").mkString(",")}</td>
                         </tr>
                     }
                     </tbody>
