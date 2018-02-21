@@ -213,6 +213,39 @@
                 }
             </td>
         </tr>
+        <tr>
+            <th><h3>Team members</h3></th>
+            <td>
+                <table class="table-plain">
+                    <thead>
+                    <tr>
+                        <th>Email address</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for(collaborator <- application.collaborators) {
+                    <tr>
+                        <td>@collaborator.emailAddress</td>
+                        <td>
+                            @{
+                                if (collaborator.role == CollaboratorRole.withName("ADMINISTRATOR")) {
+                                    "Admin"
+                                } else if (collaborator.role == CollaboratorRole.withName("DEVELOPER")) {
+                                    "Developer"
+                                } else {
+                                    ""
+                                }
+                            }
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </td>
+            <td>
+            </td>
+        </tr>
     </table>
 </div>
 
