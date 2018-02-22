@@ -150,7 +150,7 @@ trait MockDataSugar {
        |      {
        |        "emailAddress": "$adminEmail",
        |        "role": "ADMINISTRATOR"
-       |      }
+       |      },
        |      {
        |        "emailAddress": "$developer",
        |        "role": "DEVELOPER"
