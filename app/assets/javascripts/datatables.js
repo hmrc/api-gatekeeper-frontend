@@ -18,12 +18,11 @@ $(function(undefined) {
       var filterValues = [];
 
       $.each(filters, function (index, filter) {
-        if(filter.options) {
-            var apiName = filter.options[filter.options.selectedIndex].getAttribute("data-api-name");
+        var inputVal;
+        inputVal = $(filter).val();
 
-            if (apiName) {
-              filterValues.push(apiName);
-            }
+        if (inputVal) {
+          filterValues.push(inputVal);
         }
       });
 
@@ -113,19 +112,26 @@ $(function(undefined) {
     // Register custom search with dataTables
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
       var table = settings.sTableId;
-      var filterValue = buildFilter( getTableFilterValues( getCustomFilters(table) ) )
-                          .toLowerCase();
-        if(table === "applications-table") {
-            if (~data[0].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[1].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[3].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[5].toLowerCase().indexOf(filterValue)) return true;
-        }else {
-            if (~data[0].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[1].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[2].toLowerCase().indexOf(filterValue)) return true;
-            if (~data[4].toLowerCase().indexOf(filterValue)) return true;
-        }
+
+      var customFilters = getCustomFilters(table);
+
+      var tableFilterValues = getTableFilterValues( customFilters );
+
+      var filterValue = buildFilter( tableFilterValues ).toLowerCase();
+
+      if(table === "applications-table") {
+        if (~data[0].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[1].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[3].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[5].toLowerCase().indexOf(filterValue)) return true;
+      }
+      else {
+        if (~data[0].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[1].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[2].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[4].toLowerCase().indexOf(filterValue)) return true;
+      }
+
       return false;
     })
 
