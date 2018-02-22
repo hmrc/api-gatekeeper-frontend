@@ -82,8 +82,8 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
-      verifyText("data-app-id", "fa38d130-7c8e-47d8-abc0-0374c7f73216")
-      verifyText("data-app-state", "Production")
+      verifyText("data-app-id", appPendingApprovalId1)
+      verifyText("data-state", "Production")
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description", "application description")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
