@@ -44,8 +44,25 @@
     </header>
 
     <table>
-
+        <tr>
+            <td>Environment</td>
+            <td>???</td>
+        </tr>
+        <tr>
+            <td>Application type</td>
+            <td>???</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>???</td>
+        </tr>
     </table>
+    <table>
+        <tr>
+            <td>You must check with all administrators before deleting this application.</td>
+        </tr>
+    </table>
+
     @if(isSuperUser) {
     <a href="@{routes.ApplicationController.deleteApplicationAction(application.id.toString)}" class="button--alert text--center flush--right">Delete Application</a>
     <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">Cancel</a>
