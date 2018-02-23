@@ -47,7 +47,8 @@
 
     </table>
     @if(isSuperUser) {
-    <input type="submit" value="Delete Application" name="main-submit" class="button--alert text--center flush--right" />
+    <a href="@{routes.ApplicationController.deleteApplicationAction(application.id.toString)}" class="button--alert text--center flush--right">Delete Application</a>
+    <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">Cancel</a>
     }
 </div>
 }
