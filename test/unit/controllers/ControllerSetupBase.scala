@@ -25,7 +25,7 @@ import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}

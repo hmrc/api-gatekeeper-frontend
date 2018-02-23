@@ -213,6 +213,14 @@
                 }
             </td>
         </tr>
+
+        @if(isSuperUser) {
+            <tr>
+                <td>
+                    <input type="submit" value="Delete Application" name="main-submit" class="button text--center flush--right" />
+                </td>
+            </tr>
+        }
     </table>
 </div>
 
