@@ -150,6 +150,10 @@ trait MockDataSugar {
        |      {
        |        "emailAddress": "$adminEmail",
        |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "DEVELOPER"
        |      }
        |    ],
        |    "createdOn": 1459866628433,
