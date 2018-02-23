@@ -25,49 +25,52 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.mvc.Flash
 import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import scala.collection.JavaConversions._
 
 class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
   "application view" must {
+    implicit val request = FakeRequest()
+    val application =
+      ApplicationResponse(
+        UUID.randomUUID(),
+        "application1",
+        None,
+        Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
+        DateTime.now(),
+        Standard(),
+        ApplicationState()
+      )
+    val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
+
     "show application information, including superuser only actions, when logged in as superuser" in {
-      implicit val request = FakeRequest()
-      val application =
-        ApplicationResponse(
-          UUID.randomUUID(),
-          "application1",
-          None,
-          Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
-          DateTime.now(),
-          Standard(),
-          ApplicationState()
-        )
-      val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
 
       val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, true, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
+      val document = Jsoup.parse(result.body)
+
       result.contentType must include("text/html")
-      result.body must include("Delete Application")
-      result.body must include("Manage</a>")
+      elementExistsByValue(document, "input", "Delete Application") mustBe true
+      elementExistsByText(document, "a", "Manage") mustBe true
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in {
-      implicit val request = FakeRequest()
-      val application =
-        ApplicationResponse(
-          UUID.randomUUID(),
-          "application1",
-          None,
-          Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
-          DateTime.now(),
-          Standard(),
-          ApplicationState()
-        )
-      val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
-
       val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
+      val document = Jsoup.parse(result.body)
+
       result.contentType must include("text/html")
-      result.body mustNot include("Delete Application")
-      result.body mustNot include("Manage</a>")
+      elementExistsByValue(document, "input", "Delete Application") mustBe false
+      elementExistsByText(document, "a", "Manage") mustBe false
+    }
+
+    def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
+      doc.select(elementType).exists(node => node.text == elementText)
+    }
+
+    def elementExistsByValue(doc: Document, elementType: String, elementValue: String): Boolean = {
+      doc.select(elementType).exists(node => node.`val` == elementValue)
     }
   }
 }
