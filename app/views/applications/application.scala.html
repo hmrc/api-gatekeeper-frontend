@@ -118,17 +118,17 @@
     <table>
         <tr>
             <th><h3>ID</h3></th>
-            <td>@application.id</td>
+            <td data-app-id>@application.id</td>
             <td></td>
         </tr>
         <tr>
             <th><h3>State</h3></th>
-            <td>@State.displayedState(application.state.name)</td>
+            <td data-state>@State.displayedState(application.state.name)</td>
             <td></td>
         </tr>
         <tr>
             <th><h3>Rate limit tier</h3></th>
-            <td>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
+            <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
             <td>@if(isSuperUser) {
                 <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button button--link" role="button">Manage</a>
                 }</td>
@@ -170,7 +170,7 @@
         </tr>
         <tr>
             <th><h3>Access type</h3></th>
-            <td>@AccessType.displayedType(application.access.accessType)</td>
+            <td data-access-type>@AccessType.displayedType(application.access.accessType)</td>
             <td></td>
         </tr>
         <tr>
@@ -190,7 +190,7 @@
         </tr>
         <tr>
             <th><h3>API subscriptions</h3></th>
-            <td>
+            <td data-subscriptions>
                 <table class="table-plain">
                     @for(subscription <- subscriptions.toIterator) {
                         <tr>
@@ -211,6 +211,39 @@
                 @if(isSuperUser) {
                     <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button button--link" role="button">Manage</a>
                 }
+            </td>
+        </tr>
+        <tr>
+            <th><h3>Team members</h3></th>
+            <td>
+                <table class="table-plain">
+                    <thead>
+                    <tr>
+                        <th>Email address</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for(collaborator <- application.collaborators) {
+                    <tr>
+                        <td data-collaborator-email>@collaborator.emailAddress</td>
+                        <td data-collaborator-role>
+                            @{
+                                if (collaborator.role == CollaboratorRole.withName("ADMINISTRATOR")) {
+                                    "Admin"
+                                } else if (collaborator.role == CollaboratorRole.withName("DEVELOPER")) {
+                                    "Developer"
+                                } else {
+                                    ""
+                                }
+                            }
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </td>
+            <td>
             </td>
         </tr>
     </table>
