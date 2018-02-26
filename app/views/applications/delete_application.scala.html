@@ -47,11 +47,11 @@
     <table>
         <tr>
             <th class="tabular-data__heading">Environment</th>
-            <td class="tabular-data__data-1--2-col"><span class="status">@{application.deployedTo.toLowerCase.capitalize}</span></td>
+            <td class="tabular-data__data-1--2-col">@{application.deployedTo.toLowerCase.capitalize}</td>
         </tr>
         <tr>
             <th class="tabular-data__heading">Application type</th>
-            <td class="tabular-data__data-1--2-col">???</td>
+            <td class="tabular-data__data-1--2-col">@AccessType.displayedType(application.access.accessType)</td>
         </tr>
         <tr>
             <th class="tabular-data__heading">Status</th>
@@ -60,7 +60,7 @@
                 case PRODUCTION => ("status status--verified", "Approved")
                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
                 case _ => ("status", "Testing")
-                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+                }) { case (cssStyle, text) => @text }</td>
         </tr>
     </table>
     <table>
@@ -70,8 +70,28 @@
     </table>
 
     @if(isSuperUser) {
-    <a href="@{routes.ApplicationController.deleteApplicationAction(application.id.toString)}" class="button--alert text--center flush--right">Delete Application</a>
-    <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">Cancel</a>
+        @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id.toString), 'class -> "form") {
+            <div>
+                <span>Which administrator requested the deletion of this application?</span>
+            </div>
+
+            <div>
+                <fieldset class="inline">
+                        @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
+                            <label class="block-label" style="width: 100%;">
+                                <input type="radio" value="@{c.emailAddress}">@{c.emailAddress}</input>
+                            </label>
+                        )}
+                </fieldset>
+            </div>
+
+            @helper.CSRF.formField
+
+            <div class="form-field form-field--submit">
+                <button id="submit" class="button--alert text--center flush--right" type="submit">Delete Application</button>
+                <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="button button--link">Cancel</a>
+            </div>
+        }
     }
 </div>
 }
