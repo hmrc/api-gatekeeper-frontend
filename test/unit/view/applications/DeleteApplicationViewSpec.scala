@@ -37,6 +37,7 @@ class DeleteApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       ApplicationResponse(
         UUID.randomUUID(),
         "application1",
+        "PRODUCTION",
         None,
         Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
         DateTime.now(),
