@@ -17,6 +17,7 @@
 @import model._
 @import model.AccessType.AccessType
 @import model.OverrideType.OverrideType
+@import model.State._
 
 @(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
@@ -45,16 +46,23 @@
 
     <table>
         <tr>
-            <td>Environment</td>
-            <td>???</td>
+            <th class="tabular-data__heading">Environment</th>
+            <td class="tabular-data__data-1--2-col">
+                Stuuuuf
+            </td>
         </tr>
         <tr>
-            <td>Application type</td>
-            <td>???</td>
+            <th class="tabular-data__heading">Application type</th>
+            <td class="tabular-data__data-1--2-col">???</td>
         </tr>
         <tr>
-            <td>Status</td>
-            <td>???</td>
+            <th class="tabular-data__heading">Status</th>
+            <td class="tabular-data__data-1--2-col">
+                @defining(application.state.name match {
+                case PRODUCTION => ("status status--verified", "Approved")
+                case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
+                case _ => ("status", "Testing")
+                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
         </tr>
     </table>
     <table>
