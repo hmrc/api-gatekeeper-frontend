@@ -63,27 +63,29 @@
                 }) { case (cssStyle, text) => @text }</td>
         </tr>
     </table>
-    <table>
-        <tr>
-            <td>You must check with all administrators before deleting this application.</td>
-        </tr>
-    </table>
 
+    <div>
+        <p>You must check with all administrators before deleting this application.</p>
+    </div>
+
+    <div>
     @if(isSuperUser) {
         @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id.toString), 'class -> "form") {
             <div>
-                <span>Which administrator requested the deletion of this application?</span>
-            </div>
+                <p class="h2-heading">Which administrator requested the deletion of this application?</p>
 
-            <div>
                 <fieldset class="inline">
                         @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
                             <label class="block-label" style="width: 100%;">
-                                <input type="radio" value="@{c.emailAddress}">@{c.emailAddress}</input>
+                                <input name="collaborator-email" type="radio" value={c.emailAddress}>{c.emailAddress}</input>
                             </label>
                         )}
                 </fieldset>
+                <p class="h2-heading">Application name</p>
+                <p>Enter the application name to confirm deletion</p>
+                <input class="input--cleared" type="text">
             </div>
+
 
             @helper.CSRF.formField
 
@@ -91,7 +93,9 @@
                 <button id="submit" class="button--alert text--center flush--right" type="submit">Delete Application</button>
                 <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="button button--link">Cancel</a>
             </div>
+
         }
+    </div>
     }
 </div>
 }
