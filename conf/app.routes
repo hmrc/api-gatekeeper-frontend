@@ -40,4 +40,4 @@ GET         /assets/*file                                           controllers.
 GET         /nav-links                                              controllers.NavigationController.navLinks
 
 GET         /applications/:id/delete                                controllers.ApplicationController.deleteApplicationPage(id: String)
-POST        /applications/:id/delete                                controllers.ApplicationController.deleteApplicationAction(id: String)
+POST        /applications/:id/delete/success                        controllers.ApplicationController.deleteApplicationAction(id: String)

@@ -193,14 +193,13 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       } yield Ok(delete_application(app, isSuperUser))
   }
 
-  //TODO Make this do something that isn't just loading the same page
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
       val applicationFuture = applicationService.fetchApplication(appId)
 
       for {
         app <- applicationFuture
-      } yield Ok(delete_application(app, isSuperUser))
+      } yield Ok(delete_application_success(app, isSuperUser))
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
