@@ -14,12 +14,13 @@
  * limitations under the License.
  *@
 
+@import include._
 @import model._
 @import model.AccessType.AccessType
 @import model.OverrideType.OverrideType
 @import model.State._
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -83,7 +84,8 @@
                 </fieldset>
                 <p class="h2-heading">Application name</p>
                 <p>Enter the application name to confirm deletion</p>
-                <input class="input--cleared" type="text">
+                @fieldError(form.errors, "applicationName")
+                <input id="applicationName" name="applicationName" class="input--cleared" type="text">
             </div>
 
 

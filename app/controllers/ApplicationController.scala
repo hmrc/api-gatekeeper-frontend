@@ -190,16 +190,21 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
       for {
         app <- applicationFuture
-      } yield Ok(delete_application(app, isSuperUser))
+      } yield Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm(""))))
   }
 
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-      val applicationFuture = applicationService.fetchApplication(appId)
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: DeleteApplicationForm) = {
+        Future.successful(Ok(delete_application_success(app, isSuperUser)))
+      }
 
-      for {
-        app <- applicationFuture
-      } yield Ok(delete_application_success(app, isSuperUser))
+      def handleFormError(form: Form[DeleteApplicationForm]) = {
+        Future.successful(BadRequest(delete_application(app, isSuperUser, form)))
+      }
+
+      deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+    }
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
