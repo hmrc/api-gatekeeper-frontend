@@ -125,6 +125,10 @@ package object Forms {
       "scopes" -> text.verifying("scopes.required", s => s.trim.length > 0)
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
 
+  val deleteApplicationForm = Form(
+    mapping(
+      "applicationName" -> nonEmptyText
+    )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
     def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet

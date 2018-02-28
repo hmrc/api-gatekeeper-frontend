@@ -219,3 +219,8 @@ case class ApiScope(key: String, name: String, description: String, confidenceLe
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
 }
+
+final case class DeleteApplicationForm(applicationName: String)
+object DeleteApplicationForm {
+  implicit val format = Json.format[DeleteApplicationForm]
+}
