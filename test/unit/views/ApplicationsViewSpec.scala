@@ -34,9 +34,9 @@ package unit.views
 
 import config.AppConfig
 import model.APIStatus._
-import model.{APIIdentifier, APIStatus, VersionSummary}
+import model.{APIIdentifier, VersionSummary}
 import org.scalatest.Matchers
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.twirl.api.HtmlFormat
