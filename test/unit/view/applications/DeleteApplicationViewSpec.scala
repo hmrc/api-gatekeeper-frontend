@@ -27,18 +27,14 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
-import play.filters.csrf.CSRF.Token
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.CSRFTokenHelper._
 
 import scala.collection.JavaConversions._
 
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
   trait Setup {
-    val fakeRequest = FakeRequest()
-    implicit val request = fakeRequest.copyFakeRequest(tags = fakeRequest.tags ++ Map(
-      Token.NameRequestTag -> "test",
-      Token.RequestTag -> "test"
-    ))
+    val request = FakeRequest().withCSRFToken
 
     val application =
       ApplicationResponse(
