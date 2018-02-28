@@ -23,16 +23,23 @@ import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
+import play.filters.csrf.CSRF.Token
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.collection.JavaConversions._
 
-class DeleteApplicationViewSpec extends PlaySpec with OneServerPerSuite {
-  "delete application view" must {
-    implicit val request = FakeRequest()
+class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
+  trait Setup {
+    val fakeRequest = FakeRequest()
+    implicit val request = fakeRequest.copyFakeRequest(tags = fakeRequest.tags ++ Map(
+      Token.NameRequestTag -> "test",
+      Token.RequestTag -> "test"
+    ))
+
     val application =
       ApplicationResponse(
         UUID.randomUUID(),
@@ -44,25 +51,30 @@ class DeleteApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         Standard(),
         ApplicationState()
       )
+
     val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
+  }
 
-    "show application information, including superuser only actions, when logged in as superuser" in {
+  "delete application view" should {
 
-      val result = views.html.applications.delete_application.render(applicationWithHistory, true, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+    "show application information, including superuser only actions, when logged in as superuser" in new Setup {
+
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "a", "Delete Application") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "button", "Delete Application") shouldBe true
+      elementExistsByText(document, "td", "PRODUCTION")
     }
 
-    "show application information, excluding superuser only actions, when logged in as non superuser" in {
-      val result = views.html.applications.delete_application.render(applicationWithHistory, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+    "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, false)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "a", "Delete Application") mustBe false
+      result.contentType should include("text/html")
+      elementExistsByText(document, "a", "Delete Application") shouldBe false
     }
 
     def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
