@@ -30,7 +30,6 @@ import views.html.applications._
 
 import scala.concurrent.Future
 
-
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
@@ -196,7 +195,14 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        Future.successful(Ok(delete_application_success(app, isSuperUser)))
+        if(app.application.name == form.applicationNameConfirmation) {
+          Future.successful(Ok(delete_application_success(app, isSuperUser)))
+        }
+        else {
+          val formWithErrors = deleteApplicationForm.fill(form).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
+
+          Future.successful(BadRequest(delete_application(app, isSuperUser, formWithErrors)))
+        }
       }
 
       def handleFormError(form: Form[DeleteApplicationForm]) = {
