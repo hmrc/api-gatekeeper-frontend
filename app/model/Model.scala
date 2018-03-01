@@ -220,7 +220,7 @@ object ApiScope {
   implicit val formats = Json.format[ApiScope]
 }
 
-final case class DeleteApplicationForm(applicationNameConfirmation: String)
+final case class DeleteApplicationForm(applicationNameConfirmation: String, collaboratorEmail: String)
 object DeleteApplicationForm {
   implicit val format = Json.format[DeleteApplicationForm]
 }
