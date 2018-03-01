@@ -19,7 +19,7 @@ package model
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.{Constraint, Valid}
+import play.api.i18n.Messages
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 package object Forms {
@@ -128,7 +128,7 @@ package object Forms {
 
   val deleteApplicationForm = Form(
     mapping(
-      FormFields.applicationNameConfirmation -> nonEmptyText
+      FormFields.applicationNameConfirmation -> text.verifying("Provide the application name", !_.isEmpty)
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
