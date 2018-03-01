@@ -75,13 +75,18 @@
             <div>
                 <p class="h2-heading">Which administrator requested the deletion of this application?</p>
 
-                <fieldset class="inline">
+                <div class="@if(form.errors("collaboratorEmail").nonEmpty) {form-field--error}">
+                    <fieldset class="inline" class="@if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}">
+                        @fieldError(form.errors, "collaboratorEmail")
                         @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
                             <label class="block-label" style="width: 100%;">
-                                <input name="collaborator-email" type="radio" value={c.emailAddress}>{c.emailAddress}</input>
+                                <div>
+                                    <input name="collaboratorEmail" type="radio" value={c.emailAddress}>{c.emailAddress}</input>
+                                </div>
                             </label>
                         )}
-                </fieldset>
+                    </fieldset>
+                </div>
                 <p class="h2-heading">Application name</p>
                 <p>Enter the application name to confirm deletion</p>
                 <div class="@if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
