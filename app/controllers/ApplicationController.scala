@@ -199,7 +199,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
           Future.successful(Ok(delete_application_success(app, isSuperUser)))
         }
         else {
-          val formWithErrors = deleteApplicationForm.fill(form).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
+          val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
           Future.successful(BadRequest(delete_application(app, isSuperUser, formWithErrors)))
         }

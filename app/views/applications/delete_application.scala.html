@@ -84,8 +84,10 @@
                 </fieldset>
                 <p class="h2-heading">Application name</p>
                 <p>Enter the application name to confirm deletion</p>
-                @fieldError(form.errors, "applicationNameConfirmation")
-                <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="input--cleared" type="text">
+                <div class="@if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
+                    @fieldError(form.errors, "applicationNameConfirmation")
+                    <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="@if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
+                </div>
             </div>
 
 
