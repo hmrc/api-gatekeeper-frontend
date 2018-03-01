@@ -4,5 +4,6 @@ override.scopes.required=Scopes are required when enabling this access override
 override.scopes.incorrect=Error: You must choose at least one correct scope
 scopes.required=Scopes are required
 invalid.scope=You have used a scope we don't recognise
+application.administrator.missing=Choose an administrator
 application.confirmation.missing=Provide the application name
 application.confirmation.error=The application name doesn''t match

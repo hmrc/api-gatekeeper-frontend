@@ -129,8 +129,8 @@ package object Forms {
 
   val deleteApplicationForm = Form(
     mapping(
-      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", !_.isEmpty),
-      FormFields.collaboratorEmail -> email
+      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
+      FormFields.collaboratorEmail -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
