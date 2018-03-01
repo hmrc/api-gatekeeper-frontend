@@ -189,7 +189,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
       for {
         app <- applicationFuture
-      } yield Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", ""))))
+      } yield Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option("")))))
   }
 
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
