@@ -5,4 +5,4 @@ override.scopes.incorrect=Error: You must choose at least one correct scope
 scopes.required=Scopes are required
 invalid.scope=You have used a scope we don't recognise
 application.confirmation.missing=Provide the application name
-application.confirmation.error=The application name doesn't match
+application.confirmation.error=The application name doesn''t match
