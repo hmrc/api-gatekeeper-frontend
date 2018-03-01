@@ -25,6 +25,7 @@ import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 package object Forms {
 
   object FormFields {
+    val applicationNameConfirmation = "applicationNameConfirmation"
     val persistLoginEnabled = "persistLoginEnabled"
     val grantWithoutConsentEnabled = "grantWithoutConsentEnabled"
     val grantWithoutConsentScopes = "grantWithoutConsentScopes"
@@ -127,7 +128,7 @@ package object Forms {
 
   val deleteApplicationForm = Form(
     mapping(
-      "applicationName" -> nonEmptyText
+      FormFields.applicationNameConfirmation -> nonEmptyText
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
