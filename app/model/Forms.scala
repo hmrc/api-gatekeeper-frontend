@@ -26,6 +26,7 @@ package object Forms {
 
   object FormFields {
     val applicationNameConfirmation = "applicationNameConfirmation"
+    val collaboratorEmail = "collaboratorEmail"
     val persistLoginEnabled = "persistLoginEnabled"
     val grantWithoutConsentEnabled = "grantWithoutConsentEnabled"
     val grantWithoutConsentScopes = "grantWithoutConsentScopes"
@@ -128,7 +129,8 @@ package object Forms {
 
   val deleteApplicationForm = Form(
     mapping(
-      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", !_.isEmpty)
+      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", !_.isEmpty),
+      FormFields.collaboratorEmail -> email
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
