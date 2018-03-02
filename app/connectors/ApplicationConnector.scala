@@ -147,4 +147,11 @@ trait ApplicationConnector {
     }
   }
 
+  def deleteApplication(applicationId: String, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(_ => ApplicationDeleteSuccessResult)
+      .recover {
+        case _ => ApplicationDeleteFailureResult
+      }
+  }
 }
