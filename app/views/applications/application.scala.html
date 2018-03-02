@@ -248,7 +248,7 @@
         </tr>
     </table>
     @if(isSuperUser) {
-    <a href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center flush--right">Delete Application</a>
+    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center flush--right">Delete Application</a>
     }
 </div>
 

@@ -56,7 +56,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
 
     "show application information, including superuser only actions, when logged in as superuser" in new Setup {
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, deleteApplicationForm.fill(DeleteApplicationForm("")))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -66,7 +66,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, false, deleteApplicationForm.fill(DeleteApplicationForm("")))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, false, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
