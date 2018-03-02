@@ -215,6 +215,10 @@ sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult
 case object ApplicationUpdateFailureResult extends ApplicationUpdateResult
 
+sealed trait ApplicationDeleteResult
+case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult
+case object ApplicationDeleteFailureResult extends ApplicationDeleteResult
+
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
@@ -224,3 +228,9 @@ final case class DeleteApplicationForm(applicationNameConfirmation: String, coll
 object DeleteApplicationForm {
   implicit val format = Json.format[DeleteApplicationForm]
 }
+
+final case class DeleteApplicationRequest(gatekeeperUserId: String, requestByEmailAddress: String)
+object DeleteApplicationRequest {
+  implicit val format = Json.format[DeleteApplicationRequest]
+}
+
