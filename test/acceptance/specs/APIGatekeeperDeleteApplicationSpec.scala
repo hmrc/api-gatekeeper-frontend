@@ -27,54 +27,71 @@ import scala.io.Source
 
 class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
 
+  val appName = "Automated Test Application"
+
   feature("Delete an application") {
     scenario("I can delete an application") {
 
-      Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-
-      val appName = "Automated Test Application"
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
-
-      stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
-
-      stubApplicationSubscription
-      stubApiDefinition
-
-      signInSuperUserGatekeeper
-      on(DashboardPage)
-
-      When("I select to navigate to the Applications page")
-      DashboardPage.selectApplications()
-
-      Then("I am successfully navigated to the Applications page where I can view all applications")
-      on(ApplicationsPage)
-
-      stubApplication
-
-      When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(appName)
-
-      Then("I am successfully navigated to the Automated Test Application page")
-      on(ApplicationPage)
-
-      When("I select the Delete Application Button")
-      ApplicationPage.selectDeleteApplication
-
-      Then("I am successfully navigated to the Delete Application page")
-      on(DeleteApplicationPage)
-
-      When("I fill out the Delete Application Form correctly")
-      DeleteApplicationPage.completeForm(appName)
-
-      And("I select the Delete Application Button")
-      DeleteApplicationPage.selectDeleteButton
+      When("I navigate to the Delete Page for an application")
+      navigateThroughDeleteApplication(stubApplicationForDeleteSuccess)
 
       Then("I am successfully navigated to the Delete Application Success page")
       on(DeleteApplicationSuccessPage)
       assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
 
     }
+    scenario("I cannot delete an application") {
+
+      When("I navigate to the Delete Page for an application")
+      navigateThroughDeleteApplication(stubApplicationForDeleteFailure)
+
+      Then("I am successfully navigated to the Delete Application technical difficulties page")
+      on(DeleteApplicationSuccessPage)
+      assert(DeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
+    }
+  }
+
+  def navigateThroughDeleteApplication(stubApplicationForDelete: Unit): Unit = {
+    Given("I have successfully logged in to the API Gatekeeper")
+    stubApplicationList
+
+    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
+
+    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
+
+    stubApplicationSubscription
+    stubApiDefinition
+
+    signInSuperUserGatekeeper
+    on(DashboardPage)
+
+    When("I select to navigate to the Applications page")
+    DashboardPage.selectApplications()
+
+    Then("I am successfully navigated to the Applications page where I can view all applications")
+    on(ApplicationsPage)
+
+    stubApplication
+
+    When("I select to navigate to the Automated Test Application page")
+    ApplicationsPage.selectByApplicationName(appName)
+
+    Then("I am successfully navigated to the Automated Test Application page")
+    on(ApplicationPage)
+
+    When("I select the Delete Application Button")
+    ApplicationPage.selectDeleteApplication
+
+    Then("I am successfully navigated to the Delete Application page")
+    on(DeleteApplicationPage)
+
+    When("I fill out the Delete Application Form correctly")
+    DeleteApplicationPage.completeForm(appName)
+
+    stubApplicationForDelete
+
+    And("I select the Delete Application Button")
+    DeleteApplicationPage.selectDeleteButton
   }
 
   def stubApplicationList = {
@@ -82,11 +99,18 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(200)))
   }
 
+  def stubApplicationForDeleteSuccess = {
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(204)))
+  }
+
+  def stubApplicationForDeleteFailure = {
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(500)))
+  }
+
   def stubApplication = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(204)))
   }
 
   def stubApplicationListWithNoSubs = {
