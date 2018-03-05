@@ -25,6 +25,7 @@ import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
@@ -74,8 +75,30 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
       elementExistsByText(document, "a", "Delete Application") shouldBe false
     }
 
+    "show error message when no collaborator is chosen" in new Setup {
+      val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", Messages("application.administrator.missing"))
+
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      elementExistsByText(document, "p", "Choose an administrator") shouldBe true
+    }
+
+    "show error message when the application name doesn't match" in new Setup {
+      val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
+
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      elementExistsByText(document, "p", "The application name doesn't match") shouldBe true
+    }
+
     def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-      doc.select(elementType).exists(node => node.text == elementText)
+      doc.select(elementType).exists(node => node.text.trim == elementText)
     }
   }
 }
