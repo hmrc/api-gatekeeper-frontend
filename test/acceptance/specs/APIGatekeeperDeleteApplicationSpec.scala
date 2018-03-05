@@ -1,8 +1,24 @@
+/*
+ * Copyright 2018 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package acceptance.specs
 
-import acceptance.pages.{ApplicationPage, ApplicationsPage, DashboardPage, DeleteApplicationPage}
+import acceptance.pages._
 import acceptance.{BaseSpec, SignInSugar}
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo, post}
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers}
@@ -12,10 +28,12 @@ import scala.io.Source
 class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
 
   feature("Delete an application") {
-    scenario("View the delete page for an application") {
+    scenario("I can delete an application") {
+
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
 
+      val appName = "Automated Test Application"
       val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
@@ -35,7 +53,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
       stubApplication
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Automated Test Application")
+      ApplicationsPage.selectByApplicationName(appName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -45,6 +63,17 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
       Then("I am successfully navigated to the Delete Application page")
       on(DeleteApplicationPage)
+
+      When("I fill out the Delete Application Form correctly")
+      DeleteApplicationPage.completeForm(appName)
+
+      And("I select the Delete Application Button")
+      DeleteApplicationPage.selectDeleteButton
+
+      Then("I am successfully navigated to the Delete Application Success page")
+      on(DeleteApplicationSuccessPage)
+      assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
+
     }
   }
 
@@ -57,6 +86,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(204)))
   }
 
   def stubApplicationListWithNoSubs = {
@@ -70,10 +100,6 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
   def stubApplicationSubscription = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
-  }
-
-  def stubApplicationDelete = {
-    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/delete")))
   }
 
   private def assertNumberOfApplicationsPerPage(expected: Int) = {
