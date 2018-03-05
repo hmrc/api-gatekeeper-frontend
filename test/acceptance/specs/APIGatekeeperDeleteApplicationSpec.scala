@@ -38,8 +38,8 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
       Then("I am successfully navigated to the Delete Application Success page")
       on(DeleteApplicationSuccessPage)
       assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
-
     }
+
     scenario("I cannot delete an application") {
 
       When("I navigate to the Delete Page for an application")
