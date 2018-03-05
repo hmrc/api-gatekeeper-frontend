@@ -217,7 +217,7 @@ trait MockDataSugar {
        |{
        |  "application": {
        |    "id": "$appToDelete",
-       |    "name": "First Application",
+       |    "name": "Automated Test Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
