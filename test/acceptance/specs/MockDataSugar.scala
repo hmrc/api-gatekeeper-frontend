@@ -27,6 +27,7 @@ trait MockDataSugar {
   val approvedApp2 = "a4b47c82-5888-41fd-aa83-da2bbd4679d1"
   val approvedApp3 = "9688ad02-230e-42b7-8f9a-be593565bfdc"
   val approvedApp4 = "56148b28-65b0-47dd-a3ce-2f02840ddd31"
+  val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
 
   val applicationDescription = "application description"
   val adminEmail = "admin@test.com"
@@ -146,6 +147,79 @@ trait MockDataSugar {
        |    "id": "$appPendingApprovalId1",
        |    "name": "First Application",
        |    "description": "$applicationDescription",
+       |    "deployedTo": "PRODUCTION",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$adminEmail",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "createdOn": 1459866628433,
+       |    "redirectUris": [],
+       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
+       |    "privacyPolicyUrl": "http://www.example.com/privacy",
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$adminEmail",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "checkInformation": {
+       |      "contactDetails": {
+       |        "fullname": "Holly Golightly",
+       |        "email": "holly.golightly@example.com",
+       |        "telephoneNumber": "020 1122 3344"
+       |      },
+       |      "confirmedName": true,
+       |      "providedPrivacyPolicyURL": true,
+       |      "providedTermsAndConditionsURL": true,
+       |      "applicationDetails": "An application that is pending approval"
+       |    },
+       |    "subscriptions": []
+       |  },
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$adminEmail",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+       |}
+    """.stripMargin
+
+  val applicationToDelete =
+    s"""
+       |{
+       |  "application": {
+       |    "id": "$appToDelete",
+       |    "name": "Automated Test Application",
+       |    "description": "$applicationDescription",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "$adminEmail",
@@ -216,6 +290,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer",
@@ -245,6 +320,7 @@ trait MockDataSugar {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "name": "Imrans Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer2",
@@ -282,6 +358,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer",
@@ -311,6 +388,7 @@ trait MockDataSugar {
        |    "id": "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
        |    "name": "My new app",
        |    "description": "my description",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "$developer5",
@@ -345,6 +423,7 @@ trait MockDataSugar {
        |    "id": "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
        |    "name": "An application for my user",
        |    "description": "And my user has a very tricky email address",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "$developer6",
@@ -369,6 +448,7 @@ trait MockDataSugar {
        |    "id": "c9736f52-4202-4d14-85b5-cbd29601fa99",
        |    "name": "Mango",
        |    "description": "a",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "$developer9",
@@ -393,6 +473,7 @@ trait MockDataSugar {
        |    "id": "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
        |    "name": "Mark App",
        |    "description": "anything",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
@@ -417,6 +498,7 @@ trait MockDataSugar {
        |    "id": "4afc248d-1c3e-4274-a77b-e89a25b4d764",
        |    "name": "A Wonderful Application",
        |    "description": "I would like to see this wonderful application in production",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "third-party-developer.hmrc@mailinator.com",
@@ -445,6 +527,7 @@ trait MockDataSugar {
        |    "id": "e55def1d-763c-4a26-a44e-82a63f4cb70b",
        |    "name": "Any App",
        |    "description": "Stuff",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "james.morris@digital.hmrc.gov.uk",
@@ -479,6 +562,7 @@ trait MockDataSugar {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "name": "Imrans Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer2",
@@ -516,6 +600,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer",
@@ -545,6 +630,7 @@ trait MockDataSugar {
        |    "id": "414660d0-9b0c-49dc-ad7f-c36f32772c10",
        |    "name": "Tim",
        |    "description": "Tim paye tests",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "admin@email.com",
@@ -573,6 +659,7 @@ trait MockDataSugar {
        |    "id": "7800ee15-ccc1-4103-b21f-81ddde793be1",
        |    "name": "Test Application",
        |    "description": "My test app",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "edgar.jimenez@digital.hmrc.gov.uk",
@@ -628,6 +715,7 @@ trait MockDataSugar {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "name": "Imrans Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer2",
@@ -666,6 +754,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [],
        |    "createdOn": 1458832690624,
        |    "access": {
@@ -690,6 +779,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer4",
@@ -816,6 +906,7 @@ trait MockDataSugar {
        |    "id": "$approvedApp1",
        |    "name": "Application",
        |    "description": "$description",
+       |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
        |        "emailAddress": "$adminEmail",
@@ -874,6 +965,7 @@ trait MockDataSugar {
     |   "serviceBaseUrl": "http://employerspaye-api.protected.mdtp/",
     |   "name": "Employers PAYE",
     |   "description": "EMPLOYERS PAYE API.",
+    |    "deployedTo": "PRODUCTION",
     |   "context": "employers-paye",
     |   "versions": [
     |     {
@@ -901,6 +993,7 @@ trait MockDataSugar {
     |   "serviceBaseUrl": "http://payecredits-api.protected.mdtp/",
     |   "name": "Paye Credits",
     |   "description": "PAYE CREDITS API",
+    |    "deployedTo": "PRODUCTION",
     |   "context": "paye-credits",
     |   "versions": [
     |     {
@@ -928,6 +1021,7 @@ trait MockDataSugar {
     |   "serviceBaseUrl": "http://individualbenefits-api.protected.mdtp/",
     |   "name": "Individual Benefits",
     |   "description": "INDIVIDUAL BENEFITS API.",
+    |    "deployedTo": "PRODUCTION",
     |   "context": "individual-benefits",
     |   "versions": [
     |     {
@@ -955,6 +1049,7 @@ trait MockDataSugar {
     |   "serviceBaseUrl": "http://selfassessment-api.protected.mdtp/",
     |   "name": "Self Assessment",
     |   "description": "SELF ASSESSMENT API.",
+    |    "deployedTo": "PRODUCTION",
     |   "context": "self-assessment",
     |   "versions": [
     |     {

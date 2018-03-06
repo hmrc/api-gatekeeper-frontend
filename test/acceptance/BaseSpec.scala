@@ -37,7 +37,7 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   override def newAppForTest(testData: TestData): Application = {
     GuiceApplicationBuilder()
-      .configure("run.mode" -> "Stub", "Stub.superUsers" -> Seq.empty)
+      .configure("run.mode" -> "Stub")
       .in(Mode.Prod)
       .build()
   }

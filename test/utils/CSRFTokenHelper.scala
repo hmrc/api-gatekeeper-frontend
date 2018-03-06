@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package acceptance.pages
+package utils
 
-import acceptance.WebPage
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import play.filters.csrf.CSRF.Token
 
-object ApplicationPage extends WebPage {
-
-  override val url: String = "http://localhost:9000/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216"
-
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
-  }
-
-  def deleteApplicationButton = find(id("delete-application")).get
-
-  def selectDeleteApplication = {
-    click on deleteApplicationButton
+object CSRFTokenHelper {
+  implicit class CSRFRequestHeader(request: FakeRequest[AnyContentAsEmpty.type]) {
+    def withCSRFToken: FakeRequest[AnyContentAsEmpty.type] = request.copyFakeRequest(tags = request.tags ++ Map(
+      Token.NameRequestTag -> "test",
+      Token.RequestTag -> "test"
+    ))
   }
 }

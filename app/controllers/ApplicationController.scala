@@ -27,9 +27,9 @@ import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
+import views.html.error_template
 
 import scala.concurrent.Future
-
 
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
@@ -181,6 +181,36 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         Future.successful(BadRequest(manage_rate_limit(app.application, form, isSuperUser)))
       }
       UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+    }
+  }
+
+  def deleteApplicationPage(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      Future.successful(Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+    }
+  }
+
+  def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: DeleteApplicationForm) = {
+        if(app.application.name == form.applicationNameConfirmation) {
+          applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
+            case ApplicationDeleteSuccessResult => Ok(delete_application_success(app, isSuperUser))
+            case ApplicationDeleteFailureResult => InternalServerError(error_template("Technical difficulties", "Technical difficulties", "Sorry, we’re experiencing technical difficulties"))
+          }
+        }
+        else {
+          val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+
+          Future.successful(BadRequest(delete_application(app, isSuperUser, formWithErrors)))
+        }
+      }
+
+      def handleFormError(form: Form[DeleteApplicationForm]) = {
+        Future.successful(BadRequest(delete_application(app, isSuperUser, form)))
+      }
+
+      deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
