@@ -32,8 +32,10 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
   feature("Delete an application") {
     scenario("I can delete an application") {
 
+      stubApplicationForDeleteSuccess
+
       When("I navigate to the Delete Page for an application")
-      navigateThroughDeleteApplication(stubApplicationForDeleteSuccess)
+      navigateThroughDeleteApplication
 
       Then("I am successfully navigated to the Delete Application Success page")
       on(DeleteApplicationSuccessPage)
@@ -42,8 +44,10 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
     scenario("I cannot delete an application") {
 
+      stubApplicationForDeleteFailure
+
       When("I navigate to the Delete Page for an application")
-      navigateThroughDeleteApplication(stubApplicationForDeleteFailure)
+      navigateThroughDeleteApplication
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
       on(DeleteApplicationSuccessPage)
@@ -51,7 +55,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     }
   }
 
-  def navigateThroughDeleteApplication(stubApplicationForDelete: Unit): Unit = {
+  def navigateThroughDeleteApplication = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList
 
@@ -87,8 +91,6 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
     When("I fill out the Delete Application Form correctly")
     DeleteApplicationPage.completeForm(appName)
-
-    stubApplicationForDelete
 
     And("I select the Delete Application Button")
     DeleteApplicationPage.selectDeleteButton
