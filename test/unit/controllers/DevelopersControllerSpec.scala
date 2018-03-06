@@ -122,7 +122,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           User("another@email.com", "Sample2", "Email", Some(true)),
           User("someone@email.com", "Sample3", "Email", Some(true)))
         val collaborators = Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, devs, devs)
@@ -133,7 +133,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, noUsers, noUsers)
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))

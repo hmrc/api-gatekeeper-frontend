@@ -19,12 +19,14 @@ package model
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.{Constraint, Valid}
+import play.api.i18n.Messages
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 package object Forms {
 
   object FormFields {
+    val applicationNameConfirmation = "applicationNameConfirmation"
+    val collaboratorEmail = "collaboratorEmail"
     val persistLoginEnabled = "persistLoginEnabled"
     val grantWithoutConsentEnabled = "grantWithoutConsentEnabled"
     val grantWithoutConsentScopes = "grantWithoutConsentScopes"
@@ -125,6 +127,11 @@ package object Forms {
       "scopes" -> text.verifying("scopes.required", s => s.trim.length > 0)
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
 
+  val deleteApplicationForm = Form(
+    mapping(
+      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
+      FormFields.collaboratorEmail -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
+    )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {
     def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet

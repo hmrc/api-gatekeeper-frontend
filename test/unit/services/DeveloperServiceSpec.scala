@@ -22,8 +22,7 @@ import connectors.{ApplicationConnector, DeveloperConnector}
 import model.Developer.createUnregisteredDeveloper
 import model._
 import org.joda.time.DateTime
-import org.mockito.Matchers.{eq => mEq}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import services.DeveloperService
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,7 +33,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     Developer(s"$name@example.net", name, s"${name}son", Some(verified), apps)
 
   def app(name: String, collaborators: Set[Collaborator]): ApplicationResponse = {
-    ApplicationResponse(UUID.randomUUID(), name, None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    ApplicationResponse(UUID.randomUUID(), name, "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
   }
 
   trait Setup {
