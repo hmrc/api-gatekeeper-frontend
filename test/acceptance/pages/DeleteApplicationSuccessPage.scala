@@ -20,7 +20,7 @@ import acceptance.WebPage
 
 object DeleteApplicationSuccessPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete/success"
+  override val url: String = "http://localhost:9000/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url
