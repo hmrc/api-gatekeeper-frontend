@@ -22,8 +22,16 @@ import org.openqa.selenium.WebDriver
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
+  val superUserGatekeeperId: String = "maxpower"
 
   def signInGatekeeper()(implicit webDriver: WebDriver) = {
+    signInUser(gatekeeperId)
+  }
+  def signInSuperUserGatekeeper()(implicit webDriver: WebDriver) = {
+    signInUser(superUserGatekeeperId)
+  }
+
+  def signInUser(id : String)(implicit webDriver:WebDriver) = {
 
     val authBody =
       s"""
@@ -34,7 +42,7 @@ trait SignInSugar extends NavigationSugar {
         |     },
         |     "expires_in":14400,
         |     "roles":[{"scope":"api","name":"gatekeeper"}],
-        |     "authority_uri":"/auth/oid/$gatekeeperId",
+        |     "authority_uri":"/auth/oid/$id",
         |     "token_type":"Bearer"
         |}
       """.stripMargin
@@ -47,7 +55,7 @@ trait SignInSugar extends NavigationSugar {
 
     goOn(SignInPage)
 
-    SignInPage.signIn(gatekeeperId, "password")
+    SignInPage.signIn(id, "password")
   }
 
 }

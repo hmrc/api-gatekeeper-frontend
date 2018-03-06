@@ -133,4 +133,8 @@ trait ApplicationService {
   def updateRateLimitTier(applicationId: String, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     applicationConnector.updateRateLimitTier(applicationId, tier)
   }
+
+  def deleteApplication(applicationId: String, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
+    applicationConnector.deleteApplication(applicationId, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
+  }
 }

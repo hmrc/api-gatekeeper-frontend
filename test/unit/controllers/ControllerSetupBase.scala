@@ -25,7 +25,7 @@ import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
@@ -46,7 +46,7 @@ trait ControllerSetupBase extends MockitoSugar {
   implicit val decryptedStringFormats = JsonStringDecryption
   implicit val format = Json.format[LoginDetails]
 
-  val basicApplication = ApplicationResponse(UUID.randomUUID(), "application1", None,
+  val basicApplication = ApplicationResponse(UUID.randomUUID(), "application1", "PRODUCTION", None,
     Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
     DateTime.now(), Standard(), ApplicationState())
   val application = ApplicationWithHistory(basicApplication, Seq.empty)
