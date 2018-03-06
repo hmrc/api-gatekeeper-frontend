@@ -62,7 +62,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "button", "Delete Application") shouldBe true
+      elementExistsByText(document, "button", "Delete application") shouldBe true
       elementExistsByText(document, "td", "PRODUCTION")
     }
 
@@ -72,7 +72,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "a", "Delete Application") shouldBe false
+      elementExistsByText(document, "a", "Delete application") shouldBe false
     }
 
     "show error message when no collaborator is chosen" in new Setup {

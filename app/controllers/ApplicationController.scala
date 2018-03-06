@@ -185,12 +185,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def deleteApplicationPage(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-      val applicationFuture = applicationService.fetchApplication(appId)
-
-      for {
-        app <- applicationFuture
-      } yield Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option("")))))
+    implicit request => implicit hc => withApp(appId) { app =>
+      Future.successful(Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+    }
   }
 
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {

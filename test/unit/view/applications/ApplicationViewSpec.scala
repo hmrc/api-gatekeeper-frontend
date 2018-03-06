@@ -52,7 +52,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "a", "Delete Application") mustBe true
+      elementExistsByText(document, "a", "Delete application") mustBe true
       elementExistsByText(document, "a", "Manage") mustBe true
     }
 
@@ -62,7 +62,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "a", "Delete Application") mustBe false
+      elementExistsByText(document, "a", "Delete application") mustBe false
       elementExistsByText(document, "a", "Manage") mustBe false
     }
 
