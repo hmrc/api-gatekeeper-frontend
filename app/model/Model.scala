@@ -229,7 +229,7 @@ object DeleteApplicationForm {
   implicit val format = Json.format[DeleteApplicationForm]
 }
 
-final case class DeleteApplicationRequest(gatekeeperUserId: String, requestByEmailAddress: String)
+final case class DeleteApplicationRequest(gatekeeperUserId: String, requestedByEmailAddress: String)
 object DeleteApplicationRequest {
   implicit val format = Json.format[DeleteApplicationRequest]
 }
