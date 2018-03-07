@@ -22,19 +22,17 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 To run the application execute
 
 ```
-sbt 'run 9000' 
+sbt 'run 9684' 
 ```
 
 and then access the application at
 
 ```
-http://localhost:9000/api-gatekeeper/login
+http://localhost:9684/api-gatekeeper/login
 ```
 
-## Authentication
+Alternatively, the `run_local.sh` script will run the service in "stub" mode.
 
-The application is starting up with a login screen, it is using an internal authentication and authorisation service.
-At the moment it is not yet possible to stub the them. 
 
 ## Unit tests
 ```
