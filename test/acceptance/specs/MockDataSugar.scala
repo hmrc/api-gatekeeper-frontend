@@ -863,6 +863,16 @@ trait MockDataSugar {
        |]
    """.stripMargin
 
+  val user =
+    s"""
+       |  {
+       |    "email": "$developer8",
+       |    "firstName": "$dev8FirstName",
+       |    "lastName": "$dev8LastName",
+       |    "verified": false
+       |  }
+   """.stripMargin
+
 
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {

@@ -59,7 +59,9 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
 
   def developerPage(email: String) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc => {
-      Future.successful(Ok(developer_details(Developer(email, "first name", "last name", Some(false), Seq()))))
+      for {
+        developer <- DeveloperService.fetchDeveloper(email)
+      } yield Ok(developer_details(developer))
     }
   }
 

@@ -25,4 +25,17 @@ object DeveloperDetailsPage extends WebPage {
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
+
+  def firstName = {
+    find(cssSelector("#first-name")).get.text
+  }
+
+  def lastName = {
+    find(cssSelector("#last-name")).get.text
+  }
+
+  def status = {
+    find(cssSelector("#status")).get.text
+  }
+
 }

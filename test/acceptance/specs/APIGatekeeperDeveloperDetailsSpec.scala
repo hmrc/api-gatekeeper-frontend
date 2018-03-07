@@ -16,6 +16,8 @@
 
 package acceptance.specs
 
+import java.net.URLEncoder
+
 import acceptance.pages.{DashboardPage, DeveloperDetailsPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -23,7 +25,6 @@ import component.matchers.CustomMatchers
 import model.User
 import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
-import play.api.libs.json.Json
 
 import scala.collection.immutable.List
 
@@ -41,6 +42,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       stubApplicationList
       stubApiDefinition
       stubDevelopers
+      stubDeveloper
       signInGatekeeper
       on(DashboardPage)
 
@@ -51,10 +53,15 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       on(DeveloperPage)
 
       When("I select a developer email")
-      DeveloperPage.selectByDeveloperEmail("Dixie.Upton@mail.com")
+      DeveloperPage.selectByDeveloperEmail(developer8)
 
-      Then("I an successfully navigated to the Developer Details page")
+      Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)
+
+      And("I can see the developer's details")
+      assert(DeveloperDetailsPage.firstName == "Dixie")
+      assert(DeveloperDetailsPage.lastName == "Upton")
+      assert(DeveloperDetailsPage.status == "not yet verified")
     }
   }
 
@@ -93,9 +100,15 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
   }
 
   def stubDevelopers = {
-//    val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+  }
+
+  def stubDeveloper = {
+    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
+
+    stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
+      .willReturn(aResponse().withStatus(200).withBody(user)))
   }
 
   private def assertNumberOfDevelopersPerPage(expected: Int) = {
