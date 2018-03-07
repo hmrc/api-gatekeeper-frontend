@@ -30,14 +30,14 @@ object DeveloperPage extends WebPage {
     currentUrl == url
   }
 
-  def emailDeveloperLink = find(linkText("Click here")).get
+  def developerEmail(email:String) = find(linkText(email)).get
 
   def previousLink = find(linkText("Previous")).get
 
   def nextLink = find(linkText("Next")).get
 
-  def emailDevelopers() = {
-    click on emailDeveloperLink
+  def selectByDeveloperEmail(email: String) = {
+    click on developerEmail(email)
   }
 
   def selectBySubscription(api: APIFilterList) = {

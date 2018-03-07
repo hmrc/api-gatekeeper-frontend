@@ -22,7 +22,9 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
-import views.html.developers.developers
+import views.html.developers.{developer_details, developers}
+
+import scala.concurrent.Future
 
 object DevelopersController extends DevelopersController with WithAppConfig {
   override val developerService = DeveloperService
@@ -53,6 +55,12 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
         sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
         emails = sortedUsers.map(_.email).mkString("; ")
       } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
+  }
+
+  def developerPage(email: String) = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => {
+      Future.successful(Ok(developer_details(Developer(email, "first name", "last name", Some(false), Seq()))))
+    }
   }
 
 
