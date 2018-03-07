@@ -29,9 +29,9 @@ import scala.collection.immutable.List
 
 class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
-//  info("AS A Product Owner")
-//  info("I WANT The SDST (Software Developer Support Team) to be able to select developers with an interest in a particular API")
-//  info("SO THAT The SDST can create and send email communications to selected developers")
+  info("AS A Gatekeeper superuser")
+  info("I WANT to be able to view the applications an administrator/developer is on")
+  info("SO THAT I can follow the correct process before deleting the administrator/developer")
 
   feature("Developer details page") {
 

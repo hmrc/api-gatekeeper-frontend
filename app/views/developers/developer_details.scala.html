@@ -26,5 +26,23 @@
     <header>
         <h1>@developer.email</h1>
     </header>
+    <table id="developer-information">
+        <tr>
+            <th>First name</th>
+            <td id="first-name">@developer.firstName</td>
+        </tr>
+        <tr>
+            <th>Last name</th>
+            <td id="last-name">@developer.lastName</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td id="status">@defining(developer.status match {
+                case VerifiedStatus => ("status status--verified", "verified")
+                case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                case _ => ("status", "unregistered")
+                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+        </tr>
+    </table>
 </article>
 }

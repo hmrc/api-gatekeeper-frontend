@@ -17,7 +17,7 @@
 package unit.view.developers
 
 import config.AppConfig
-import model.Developer
+import model.{Developer, UnverifiedStatus, VerifiedStatus}
 import org.jsoup.Jsoup
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits.applicationMessages
@@ -31,9 +31,10 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show developer details when logged in as superuser" in {
 
-      val developer: Developer = Developer("email@address.com", "firstname", "lastName", Some(false), Seq())
+      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
 
       val developerEmail = developer.email
+      val developerFirstName = developer.firstName
 
       val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
 
@@ -41,6 +42,13 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
       result.contentType must include("text/html")
       elementExistsByText(document, "h1", developerEmail) mustBe true
+      document.getElementById("first-name").text mustBe developer.firstName
+      document.getElementById("last-name").text mustBe developer.lastName
+      document.getElementById("status").text mustBe (developer.status match {
+        case UnverifiedStatus => "not yet verified"
+        case VerifiedStatus => "verified"
+        case _ => "unregistered"
+      })
     }
   }
 }
