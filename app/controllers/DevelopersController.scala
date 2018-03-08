@@ -60,11 +60,11 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
   def developerPage(email: String) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc => {
       for {
-        developer <- DeveloperService.fetchDeveloper(email)
-      } yield Ok(developer_details(developer))
+        developer <- developerService.fetchDeveloper(email)
+        applications <- applicationService.fetchApplicationsByEmail(email)
+      } yield Ok(developer_details(developer.copy(apps = applications)))
     }
   }
-
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 

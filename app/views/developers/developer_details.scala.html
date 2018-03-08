@@ -44,5 +44,22 @@
                 }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
         </tr>
     </table>
+    <h2>Associated applications</h2>
+    <table id="associated-applications">
+        @if(developer.apps.isEmpty) {
+        <tr>
+            <td id="applications">None</td>
+        </tr>
+        } else {
+        @developer.apps.map(app =>
+        <tr>
+            <td>{app.name}</td>
+            <td>{app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
+                case CollaboratorRole.ADMINISTRATOR => "Admin"
+                case CollaboratorRole.DEVELOPER => "Developer"
+                })}</td>
+        </tr>
+        )}
+    </table>
 </article>
 }

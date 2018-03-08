@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.net.URLEncoder
+
 import config.WSHttp
 import connectors.AuthConnector._
 import model.RateLimitTier.RateLimitTier
@@ -85,6 +87,10 @@ trait ApplicationConnector {
 
   def fetchApplication(applicationId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     http.GET[ApplicationWithHistory](s"$applicationBaseUrl/gatekeeper/application/$applicationId")
+  }
+
+  def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[Application]] = {
+    http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/developer/applications?emailAddress=$email")
   }
 
   def fetchAllApplicationsBySubscription(apiContext: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {

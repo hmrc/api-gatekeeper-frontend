@@ -16,8 +16,10 @@
 
 package unit.view.developers
 
+import java.util.UUID
+
 import config.AppConfig
-import model.{Developer, UnverifiedStatus, VerifiedStatus}
+import model._
 import org.jsoup.Jsoup
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits.applicationMessages
@@ -29,7 +31,28 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
   "developer details view" must {
     implicit val request = FakeRequest()
 
-    "show developer details when logged in as superuser" in {
+    "show unregistered developer details when logged in as superuser" in {
+
+      val unregisteredDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+
+      testDeveloperDetailsPage(unregisteredDeveloper)
+    }
+
+    "show unverified developer details when logged in as superuser" in {
+
+      val unverifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(false), Seq())
+
+      testDeveloperDetailsPage(unverifiedDeveloper)
+    }
+
+    "show verified developer details when logged in as superuser" in {
+
+      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq())
+
+      testDeveloperDetailsPage(verifiedDeveloper)
+    }
+
+    "show developer with no applications when logged in as superuser" in {
 
       val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
 
@@ -41,6 +64,45 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
+
+      elementExistsByText(document, "h2", "Associated applications") mustBe true
+      document.getElementById("applications").text mustBe "None"
+    }
+
+    "show developer with applications when logged in as superuser" in {
+
+      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@address.com", CollaboratorRole.ADMINISTRATOR)))
+      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@address.com", CollaboratorRole.DEVELOPER)))
+
+      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
+
+      val developerEmail = developer.email
+      val developerFirstName = developer.firstName
+
+      val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "h2", "Associated applications") mustBe true
+      elementExistsByText(document, "td", "appName1") mustBe true
+      elementExistsByText(document, "td", "Admin") mustBe true
+      elementExistsByText(document, "td", "appName2") mustBe true
+      elementExistsByText(document, "td", "Developer") mustBe true
+    }
+
+    def testDeveloperDetailsPage(developer: Developer) = {
+
+      val developerEmail = developer.email
+      val developerFirstName = developer.firstName
+
+      val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
       elementExistsByText(document, "h1", developerEmail) mustBe true
       document.getElementById("first-name").text mustBe developer.firstName
       document.getElementById("last-name").text mustBe developer.lastName
@@ -52,3 +114,5 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
     }
   }
 }
+
+case class TestApplication(id: UUID, name: String, state: ApplicationState, collaborators: Set[Collaborator]) extends Application
