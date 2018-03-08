@@ -100,13 +100,10 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % "acceptance",
+  "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-chrome-driver" % "3.6.0" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-firefox-driver" % "3.6.0" % "acceptance",
+  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
-  "com.google.guava" % "guava" % "24.0-jre" % "acceptance",
   "org.mockito" % "mockito-all" % "1.10.19" % "acceptance",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "acceptance"
 ).map(
@@ -124,13 +121,10 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
   "org.jsoup" % "jsoup" % "1.10.2" % "test",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % "test",
+  "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % "test",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test",
-  "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "test",
-  "org.seleniumhq.selenium" % "selenium-chrome-driver" % "3.6.0" % "test",
-  "org.seleniumhq.selenium" % "selenium-firefox-driver" % "3.6.0" % "test",
+  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test",
-  "com.google.guava" % "guava" % "24.0-jre" % "test",
   "org.mockito" % "mockito-all" % "1.10.19" % "test",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "test"
 ).map(
