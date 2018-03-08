@@ -16,13 +16,14 @@
 
 package acceptance
 
-import org.openqa.selenium.support.ui.{ExpectedConditions, WebDriverWait}
-import org.openqa.selenium.{By, WebDriver}
+import org.openqa.selenium.support.ui.{ExpectedCondition, ExpectedConditions, WebDriverWait}
+import org.openqa.selenium.{By, WebDriver, WebElement}
+import org.scalatest.{Assertions, Matchers}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.selenium.WebBrowser
 import org.scalatest.selenium.WebBrowser.{go => goo}
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{Assertions, Matchers}
+import component.matchers.CustomMatchers
 
 trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 
@@ -48,7 +49,11 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
 
   def loadPage()(implicit webDriver: WebDriver) = {
     val wait = new WebDriverWait(webDriver, 30)
-    wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")))
+    wait.until(
+      new ExpectedCondition[WebElement] {
+        override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
+      }
+    )
   }
 
   def anotherTabIsOpened()(implicit webDriver: WebDriver) = {
