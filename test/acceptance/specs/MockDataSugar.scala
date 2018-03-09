@@ -356,11 +356,11 @@ trait MockDataSugar {
        |  }]
     """.stripMargin
 
-  val applicationResponseForDeveloper8 =
+  val applicationResponseForEmail =
     s"""
        |  [{
-       |    "id": "$approvedApp1",
-       |    "name": "Purnimas Application",
+       |    "id": "$appToDelete",
+       |    "name": "Automated Test Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
        |   "collaborators": [

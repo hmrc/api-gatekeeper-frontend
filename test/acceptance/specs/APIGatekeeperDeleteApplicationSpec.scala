@@ -119,7 +119,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
   }
 
-  def stubApiDefinition = {
+  def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }

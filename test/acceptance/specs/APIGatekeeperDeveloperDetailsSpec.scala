@@ -41,6 +41,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
       stubApplicationForEmail
+      stubApplication
       stubApiDefinition
       stubDevelopers
       stubDeveloper
@@ -80,11 +81,17 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .withBody(applicationResponse).withStatus(200)))
   }
 
+  def stubApplication() = {
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+  }
+
   def stubApplicationForEmail() = {
     val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
-    stubFor(get(urlEqualTo(s"/developer/applications?emailAddress=$encodedEmail")).willReturn(aResponse()
-      .withBody(applicationResponseForDeveloper8).withStatus(200)))
+    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
+      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(200)))
   }
 
   def stubAPISubscription(apiContext: String) = {
