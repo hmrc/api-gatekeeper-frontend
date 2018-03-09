@@ -108,12 +108,12 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
-  def stubDevelopers = {
+  def stubDevelopers() = {
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(allUsers).withStatus(200)))
   }
 
-  def stubDeveloper = {
+  def stubDeveloper() = {
     val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))

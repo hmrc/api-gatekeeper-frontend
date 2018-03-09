@@ -55,8 +55,8 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(result))
     }
 
-    def theUserIsNotAuthorised = theAuthConnectorWillReturn(false)
-    def theUserIsAuthorised = theAuthConnectorWillReturn(true)
+    def theUserIsNotAuthorised() = theAuthConnectorWillReturn(false)
+    def theUserIsAuthorised() = theAuthConnectorWillReturn(true)
   }
 
   "requiresLogin" should {
