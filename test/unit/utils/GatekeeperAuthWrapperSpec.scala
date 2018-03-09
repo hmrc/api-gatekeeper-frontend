@@ -20,7 +20,7 @@ import connectors.AuthConnector
 import model.{GatekeeperSessionKeys, Role}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{Call, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

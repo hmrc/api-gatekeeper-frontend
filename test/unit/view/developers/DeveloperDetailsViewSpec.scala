@@ -83,9 +83,9 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
       result.contentType must include("text/html")
 
       elementExistsByText(document, "h2", "Associated applications") mustBe true
-      elementExistsByText(document, "td", "appName1") mustBe true
+      elementExistsByText(document, "a", "appName1") mustBe true
       elementExistsByText(document, "td", "Admin") mustBe true
-      elementExistsByText(document, "td", "appName2") mustBe true
+      elementExistsByText(document, "a", "appName2") mustBe true
       elementExistsByText(document, "td", "Developer") mustBe true
     }
 

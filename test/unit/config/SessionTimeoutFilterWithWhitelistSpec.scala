@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
