@@ -17,7 +17,6 @@
 package acceptance.pages
 
 import acceptance.WebPage
-import acceptance.pages.ApplicationsPage.{find, linkText}
 
 object DeveloperDetailsPage extends WebPage {
 
@@ -27,15 +26,15 @@ object DeveloperDetailsPage extends WebPage {
     currentUrl == url
   }
 
-  def firstName = {
+  def firstName() = {
     find(cssSelector("#first-name")).get.text
   }
 
-  def lastName = {
+  def lastName() = {
     find(cssSelector("#last-name")).get.text
   }
 
-  def status = {
+  def status() = {
     find(cssSelector("#status")).get.text
   }
 

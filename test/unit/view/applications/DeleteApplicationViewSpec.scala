@@ -19,8 +19,8 @@ package unit.view.applications
 import java.util.UUID
 
 import config.AppConfig
-import model._
 import model.Forms._
+import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneServerPerSuite
@@ -29,8 +29,8 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.CSRFTokenHelper._
 import unit.utils.ViewHelpers._
+import utils.CSRFTokenHelper._
 
 
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {

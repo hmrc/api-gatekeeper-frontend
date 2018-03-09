@@ -22,11 +22,7 @@ import acceptance.pages.{ApplicationPage, DashboardPage, DeveloperDetailsPage, D
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import model.User
-import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
-
-import scala.collection.immutable.List
 
 class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
@@ -124,64 +120,6 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .willReturn(aResponse().withStatus(200).withBody(user)))
   }
 
-  private def assertNumberOfDevelopersPerPage(expected: Int) = {
-    import scala.collection.JavaConversions._
-    val elements: Seq[WebElement] = webDriver.findElements(By.cssSelector("tbody > tr"))
-
-    elements.count(we => we.isDisplayed) shouldBe expected
-  }
-
-  private def assertLinkIsDisabled(link: String) = {
-    assertResult(find(linkText(link)).isDefined)(false)
-  }
-
-  private def assertCopyToClipboardButtonIsDisabled(button:String) = {
-    assertResult(find(cssSelector(button)).isDefined)(false)
-  }
-
-  private def assertButtonIsPresent(button: String) = {
-    webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
-  }
-
-  private def assertTextPresent(attributeName: String, expected: String) = {
-    webDriver.findElement(By.cssSelector(attributeName)).getText shouldBe expected
-  }
-
-  private def generateUsersList(users : List[User]) = {
-    users.map(user => s"${user.firstName} ${user.lastName}${user.email}")
-  }
-
   case class TestUser(firstName: String, lastName:String, emailAddress:String)
-
-  private def generateUsersTuple(users : List[User]): List[TestUser] = {
-    users.map(user => TestUser(user.firstName, user.lastName, user.email))
-  }
-
-  private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
-    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
-  }
-
-  private def verifyUsersEmail(button : String) {
-    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
-  }
-
-  private def assertDevelopersRandomList(devList: List[(TestUser, Int)]) = {
-    for((dev, index) <- devList) {
-      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev.firstName
-      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev.lastName
-      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev.emailAddress
-    }
-  }
-
-  private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
-    for ((dev, index) <- devList) {
-      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
-      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
-      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
-      val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
-    }
-  }
-
-
 }
 

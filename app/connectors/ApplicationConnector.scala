@@ -16,8 +16,6 @@
 
 package connectors
 
-import java.net.URLEncoder
-
 import config.WSHttp
 import connectors.AuthConnector._
 import model.RateLimitTier.RateLimitTier
