@@ -17,6 +17,7 @@
 package acceptance.pages
 
 import acceptance.WebPage
+import acceptance.pages.ApplicationsPage.{find, linkText}
 
 object DeveloperDetailsPage extends WebPage {
 
@@ -36,6 +37,10 @@ object DeveloperDetailsPage extends WebPage {
 
   def status = {
     find(cssSelector("#status")).get.text
+  }
+
+  def selectByApplicationName(name: String) = {
+    click on find(linkText(name)).get
   }
 
 }

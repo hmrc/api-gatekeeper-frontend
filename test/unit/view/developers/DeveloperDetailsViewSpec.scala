@@ -28,6 +28,9 @@ import unit.utils.ViewHelpers._
 
 
 class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
+
+  case class TestApplication(id: UUID, name: String, state: ApplicationState, collaborators: Set[Collaborator]) extends Application
+
   "developer details view" must {
     implicit val request = FakeRequest()
 
@@ -35,31 +38,28 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
       val unregisteredDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
 
-      testDeveloperDetailsPage(unregisteredDeveloper)
+      testDeveloperDetails(unregisteredDeveloper)
     }
 
     "show unverified developer details when logged in as superuser" in {
 
       val unverifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(false), Seq())
 
-      testDeveloperDetailsPage(unverifiedDeveloper)
+      testDeveloperDetails(unverifiedDeveloper)
     }
 
     "show verified developer details when logged in as superuser" in {
 
       val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq())
 
-      testDeveloperDetailsPage(verifiedDeveloper)
+      testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with no applications when logged in as superuser" in {
 
       val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
 
-      val developerEmail = developer.email
-      val developerFirstName = developer.firstName
-
-      val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -76,10 +76,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
       val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
 
-      val developerEmail = developer.email
-      val developerFirstName = developer.firstName
-
-      val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -92,18 +89,41 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
       elementExistsByText(document, "td", "Developer") mustBe true
     }
 
-    def testDeveloperDetailsPage(developer: Developer) = {
+    "show developer details with delete button when logged in as superuser" in {
 
-      val developerEmail = developer.email
-      val developerFirstName = developer.firstName
+      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
 
-      val result = views.html.developers.developer_details.render(developer, request, None, applicationMessages, AppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
 
-      elementExistsByText(document, "h1", developerEmail) mustBe true
+      elementExistsByText(document, "a", "Delete developer") mustBe true
+    }
+
+    "show developer details without delete button when logged in as non-superuser" in {
+
+      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+
+      val result = views.html.developers.developer_details.render(developer, false, request, None, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "a", "Delete developer") mustBe false
+    }
+
+    def testDeveloperDetails(developer: Developer) = {
+
+      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "h1", developer.email) mustBe true
       document.getElementById("first-name").text mustBe developer.firstName
       document.getElementById("last-name").text mustBe developer.lastName
       document.getElementById("status").text mustBe (developer.status match {
@@ -115,4 +135,3 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
   }
 }
 
-case class TestApplication(id: UUID, name: String, state: ApplicationState, collaborators: Set[Collaborator]) extends Application

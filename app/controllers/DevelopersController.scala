@@ -20,6 +20,7 @@ import connectors.AuthConnector
 import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
+import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers.{developer_details, developers}
@@ -57,12 +58,12 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
       } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
   }
 
-  def developerPage(email: String) = requiresRole(Role.APIGatekeeper) {
+  def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc => {
       for {
         developer <- developerService.fetchDeveloper(email)
         applications <- applicationService.fetchApplicationsByEmail(email)
-      } yield Ok(developer_details(developer.copy(apps = applications)))
+      } yield Ok(developer_details(developer.copy(apps = applications), isSuperUser))
     }
   }
 

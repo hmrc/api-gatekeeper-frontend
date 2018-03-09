@@ -18,7 +18,7 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{DashboardPage, DeveloperDetailsPage, DeveloperPage}
+import acceptance.pages.{ApplicationPage, DashboardPage, DeveloperDetailsPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -40,6 +40,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
+      stubApplicationForEmail
       stubApiDefinition
       stubDevelopers
       stubDeveloper
@@ -58,10 +59,16 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)
 
-      And("I can see the developer's details")
+      And("I can see the developer's details and associated applications")
       assert(DeveloperDetailsPage.firstName == "Dixie")
       assert(DeveloperDetailsPage.lastName == "Upton")
       assert(DeveloperDetailsPage.status == "not yet verified")
+
+      When("I select an associated application")
+      DeveloperDetailsPage.selectByApplicationName("Automated Test Application")
+
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(ApplicationPage)
     }
   }
 
@@ -73,12 +80,11 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .withBody(applicationResponse).withStatus(200)))
   }
 
-  def stubApplicationListWithNoDevelopers() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+  def stubApplicationForEmail() = {
+    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponseWithNoUsers).withStatus(200)))
+    stubFor(get(urlEqualTo(s"/developer/applications?emailAddress=$encodedEmail")).willReturn(aResponse()
+      .withBody(applicationResponseForDeveloper8).withStatus(200)))
   }
 
   def stubAPISubscription(apiContext: String) = {

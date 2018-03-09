@@ -18,7 +18,7 @@
 @import include._
 @import model._
 
-@(developer: Developer)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(developer: Developer, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
 
@@ -27,6 +27,10 @@
         <h1>@developer.email</h1>
     </header>
     <table id="developer-information">
+        <colgroup>
+            <col width="40%">
+            <col width="60%">
+        </colgroup>
         <tr>
             <th>First name</th>
             <td id="first-name">@developer.firstName</td>
@@ -46,6 +50,10 @@
     </table>
     <h2>Associated applications</h2>
     <table id="associated-applications">
+        <colgroup>
+            <col width="40%">
+            <col width="60%">
+        </colgroup>
         @if(developer.apps.isEmpty) {
         <tr>
             <td id="applications">None</td>
@@ -61,5 +69,8 @@
         </tr>
         )}
     </table>
+    @if(isSuperUser) {
+    <a id="delete-developer" href="@{routes.DevelopersController.developerPage(developer.email)}" class="button--alert text--center flush--right">Delete developer</a>
+    }
 </article>
 }

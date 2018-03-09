@@ -228,6 +228,10 @@ trait MockDataSugar {
        |      {
        |        "emailAddress": "$developer",
        |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "role": "DEVELOPER"
        |      }
        |    ],
        |    "createdOn": 1459866628433,
@@ -349,6 +353,39 @@ trait MockDataSugar {
        |      "updatedOn": 1459868573962
        |    },
        |    "subscriptions": []
+       |  }]
+    """.stripMargin
+
+  val applicationResponseForDeveloper8 =
+    s"""
+       |  [{
+       |    "id": "$approvedApp1",
+       |    "name": "Purnimas Application",
+       |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$developer8",
+       |     "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |     "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$developer",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    }
        |  }]
     """.stripMargin
 
