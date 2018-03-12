@@ -17,12 +17,14 @@
 package unit.utils
 
 import org.jsoup.nodes.Document
-
 import scala.collection.JavaConversions._
 
 object ViewHelpers {
 
-    def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-      doc.select(elementType).exists(node => node.text.trim == elementText)
-    }
+  def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
+    doc.select(elementType).exists(node => node.text.trim == elementText)
+  }
+
+  def elementExistsById(doc: Document, id: String) = doc.select(s"#$id").nonEmpty
+
 }
