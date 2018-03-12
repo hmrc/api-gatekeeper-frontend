@@ -219,6 +219,10 @@ sealed trait ApplicationDeleteResult
 case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult
 case object ApplicationDeleteFailureResult extends ApplicationDeleteResult
 
+sealed trait DeveloperDeleteResult
+case object DeveloperDeleteSuccessResult extends DeveloperDeleteResult
+case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
+
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
@@ -234,3 +238,7 @@ object DeleteApplicationRequest {
   implicit val format = Json.format[DeleteApplicationRequest]
 }
 
+final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)
+object DeleteDeveloperRequest {
+  implicit val format = Json.format[DeleteDeveloperRequest]
+}

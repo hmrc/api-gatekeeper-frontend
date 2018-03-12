@@ -17,10 +17,16 @@
 package controllers
 
 import config.AppConfig
+import play.api.i18n.Messages
+import play.api.mvc.Request
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import views.html.error_template
 
 trait BaseController extends FrontendController {
   implicit val appConfig: AppConfig
+
+  def technicalDifficulties(implicit request: Request[_], messages: Messages)  = InternalServerError(error_template("Technical difficulties", "Technical difficulties",
+    "Sorry, we’re experiencing technical difficulties"))
 }
 
 trait WithAppConfig {

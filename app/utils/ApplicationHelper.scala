@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package unit.utils
+package utils
 
-import org.jsoup.nodes.Document
-import scala.collection.JavaConversions._
+import model._
 
-object ViewHelpers {
-
-  def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-    doc.select(elementType).exists(node => node.text.trim == elementText)
+object ApplicationHelper {
+  def applicationsWithTeamMemberAsOnlyAdmin(applications: Seq[Application], emailAddress: String): Seq[Application] = {
+    applications.filter(application => isTheOnlyAdmin(application, emailAddress))
   }
 
-  def elementExistsById(doc: Document, id: String) = doc.select(s"#$id").nonEmpty
-
+  def isTheOnlyAdmin(application: Application, emailAddress: String) = {
+    application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
+  }
 }
