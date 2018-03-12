@@ -226,7 +226,7 @@
                     <tbody>
                     @for(collaborator <- application.collaborators) {
                     <tr>
-                        <td data-collaborator-email>@collaborator.emailAddress</td>
+                        <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(collaborator.emailAddress)}">@collaborator.emailAddress</a></td>
                         <td data-collaborator-role>
                             @{
                                 if (collaborator.role == CollaboratorRole.withName("ADMINISTRATOR")) {

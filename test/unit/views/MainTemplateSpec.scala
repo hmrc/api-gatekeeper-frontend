@@ -19,7 +19,7 @@ package unit.views
 import config.AppConfig
 import org.mockito.BDDMockito.given
 import org.scalatest.Matchers
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.play.test.UnitSpec

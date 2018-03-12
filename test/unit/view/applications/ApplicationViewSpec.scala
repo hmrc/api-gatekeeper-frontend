@@ -21,13 +21,12 @@ import java.util.UUID
 import config.AppConfig
 import model._
 import org.joda.time.DateTime
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.mvc.Flash
-import play.api.i18n.Messages.Implicits._
-import play.api.test.FakeRequest
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import scala.collection.JavaConversions._
+import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.i18n.Messages.Implicits._
+import play.api.mvc.Flash
+import play.api.test.FakeRequest
+import unit.utils.ViewHelpers._
 
 class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
   "application view" must {
@@ -38,7 +37,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         "application1",
         "PRODUCTION",
         None,
-        Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)),
+        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
         DateTime.now(),
         Standard(),
         ApplicationState()
@@ -66,8 +65,13 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       elementExistsByText(document, "a", "Manage") mustBe false
     }
 
-    def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-      doc.select(elementType).exists(node => node.text == elementText)
+    "show application information and click on associated developer" in {
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByText(document, "a", "sample@example.com") mustBe true
     }
   }
 }

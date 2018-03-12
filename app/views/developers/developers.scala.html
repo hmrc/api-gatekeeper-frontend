@@ -122,7 +122,7 @@
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
                 <tr role="row">
-                    <td id="dev-email-@index">@developer.email</td>
+                    <td id="dev-email-@index"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
                     <td id="dev-fn-@index">@developer.firstName</td>
                     <td id="dev-sn-@index">@developer.lastName</td>
                     <td class="text--right hard--right" id="dev-status-@index">
