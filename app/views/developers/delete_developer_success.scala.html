@@ -19,7 +19,7 @@
 @import model._
 @import utils.ApplicationHelper._
 
-@(developer: Developer)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(developerEmailAddress: String)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Delete Developer", userFullName = userFullName) {
 
@@ -33,7 +33,7 @@
     </nav>
 
     <header>
-        <h1>@developer.email</h1>
+        <h1>@developerEmailAddress</h1>
     </header>
     <div class="transaction-banner--complete">
         <h1 class="transaction-banner--heading">Developer deleted</h1>

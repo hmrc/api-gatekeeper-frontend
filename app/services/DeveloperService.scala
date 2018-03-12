@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.DeveloperConnector
+import connectors.{ApplicationConnector, DeveloperConnector}
 import model._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,11 +25,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 object DeveloperService extends DeveloperService {
   override val developerConnector: DeveloperConnector = DeveloperConnector
+  override val applicationConnector: ApplicationConnector = ApplicationConnector
 }
 
 trait DeveloperService {
 
   val developerConnector: DeveloperConnector
+  val applicationConnector: ApplicationConnector
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
@@ -84,7 +86,25 @@ trait DeveloperService {
     developerConnector.fetchAll.map(_.sorted)
   }
 
-  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Developer] = {
-    developerConnector.fetchByEmail(email).map(_.toDeveloper(Seq()))
+  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[ApplicationDeveloper] = {
+    for {
+      developer <- developerConnector.fetchByEmail(email)
+      applications <- applicationConnector.fetchApplicationsByEmail(email)
+    } yield Developer.createFromUser(developer, applications)
+  }
+
+  def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+    fetchDeveloper(email).flatMap { developer =>
+      val (appsSoleAdminOn, appsTeamMemberOn) = developer.apps.partition(_.isSoleAdmin(email))
+
+      if(appsSoleAdminOn.isEmpty) {
+        for {
+          _ <- Future.traverse(appsTeamMemberOn)(app => applicationConnector.removeCollaborator(app.id.toString, email, gatekeeperUserId))
+          result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
+        } yield result
+      } else {
+        Future.successful(DeveloperDeleteFailureResult)
+      }
+    }
   }
 }

@@ -24,6 +24,7 @@ import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.{ApplicationHelper, GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers._
+import views.html.error_template
 
 import scala.concurrent.Future
 
@@ -59,34 +60,20 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc => {
-      for {
-        developer <- developerService.fetchDeveloper(email)
-        applications <- applicationService.fetchApplicationsByEmail(email)
-      } yield Ok(developer_details(developer.copy(apps = applications), isSuperUser))
-    }
+    implicit request => implicit hc =>
+      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
   }
 
-  def deleteDeveloperSuccess(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperPage(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-      Future.successful(Ok(delete_developer_success(Developer(email, "", "", verified = Some(true), apps = Seq.empty))))
+      developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
   }
 
-  def deleteDeveloper(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperAction(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-
-      for {
-        apps <- applicationService.fetchApplications
-        devs <- developerService.fetchDevelopers(apps)
-
-      } yield {
-        val filteredDevs = devs.filter { dev =>
-          dev.apps.filter(app => app.collaborators.contains(Collaborator(dev.email, CollaboratorRole.ADMINISTRATOR))).nonEmpty
-        }.filter { dev =>
-          ApplicationHelper.applicationsWithTeamMemberAsOnlyAdmin(dev.apps, dev.email).nonEmpty
-        }
-
-        Ok(delete_developer(filteredDevs.head.toDeveloper))
+      developerService.deleteDeveloper(email, loggedIn.get).map {
+        case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))
+        case _ => technicalDifficulties
       }
   }
 

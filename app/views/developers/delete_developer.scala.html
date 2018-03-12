@@ -17,7 +17,6 @@
 @import controllers._
 @import include._
 @import model._
-@import utils.ApplicationHelper._
 
 @(developer: Developer)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
@@ -32,13 +31,13 @@
         </ul>
     </nav>
 
-    @defining(applicationsWithTeamMemberAsOnlyAdmin(developer.apps, developer.email)) { applications =>
+    @defining(developer.apps.filter(_.isSoleAdmin(developer.email))) { applications =>
         @if(applications.isEmpty) {
             <header>
                 <h1>@developer.email</h1>
             </header>
 
-            @helper.form(action = routes.DevelopersController.deleteDeveloper(developer.email), 'class -> "form") {
+            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(developer.email), 'class -> "form") {
             @helper.CSRF.formField
             <h2>Are you sure you want to delete this developer?</h2>
             <div class="form-field form-field--submit">

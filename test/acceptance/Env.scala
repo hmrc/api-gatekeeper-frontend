@@ -28,7 +28,7 @@ import scala.util.Try
 
 trait Env {
 
-  val webDriverConfig = System.getProperty("test.driver", "firefox").toLowerCase
+  val webDriverConfig = Option(System.getenv("test_driver")).getOrElse("firefox")
   val driver = if (webDriverConfig == "firefox") {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile
