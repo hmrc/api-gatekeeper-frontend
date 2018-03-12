@@ -21,8 +21,10 @@ import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
-import views.html.developers.developers
+import utils.{ApplicationHelper, GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import views.html.developers._
+
+import scala.concurrent.Future
 
 object DevelopersController extends DevelopersController with WithAppConfig {
   override val developerService = DeveloperService
@@ -55,6 +57,28 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
       } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
   }
 
+  def deleteDeveloperSuccess(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+      Future.successful(Ok(delete_developer_success(Developer(email, "", "", verified = Some(true), apps = Seq.empty))))
+  }
+
+  def deleteDeveloper(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+
+      for {
+        apps <- applicationService.fetchApplications
+        devs <- developerService.fetchDevelopers(apps)
+
+      } yield {
+        val filteredDevs = devs.filter { dev =>
+          dev.apps.filter(app => app.collaborators.contains(Collaborator(dev.email, CollaboratorRole.ADMINISTRATOR))).nonEmpty
+        }.filter { dev =>
+          ApplicationHelper.applicationsWithTeamMemberAsOnlyAdmin(dev.apps, dev.email).nonEmpty
+        }
+
+        Ok(delete_developer(filteredDevs.head.toDeveloper))
+      }
+  }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
