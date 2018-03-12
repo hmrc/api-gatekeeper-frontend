@@ -156,6 +156,10 @@ trait MockDataSugar {
        |      {
        |        "emailAddress": "$developer",
        |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "role": "DEVELOPER"
        |      }
        |    ],
        |    "createdOn": 1459866628433,
