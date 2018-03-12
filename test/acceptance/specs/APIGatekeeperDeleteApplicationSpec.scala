@@ -55,7 +55,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     }
   }
 
-  def navigateThroughDeleteApplication = {
+  def navigateThroughDeleteApplication() = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList
 
@@ -96,35 +96,35 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     DeleteApplicationPage.selectDeleteButton
   }
 
-  def stubApplicationList = {
+  def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(200)))
   }
 
-  def stubApplicationForDeleteSuccess = {
+  def stubApplicationForDeleteSuccess() = {
     stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(204)))
   }
 
-  def stubApplicationForDeleteFailure = {
+  def stubApplicationForDeleteFailure() = {
     stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(500)))
   }
 
-  def stubApplication = {
+  def stubApplication() = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
   }
 
-  def stubApplicationListWithNoSubs = {
+  def stubApplicationListWithNoSubs() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
   }
 
-  def stubApiDefinition = {
+  def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription = {
+  def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
   }
 

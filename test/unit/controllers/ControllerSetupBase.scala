@@ -62,15 +62,15 @@ trait ControllerSetupBase extends MockitoSugar {
   val aLoggedOutRequest = FakeRequest().withSession()
   val noUsers = Seq.empty[ApplicationDeveloper]
 
-  def givenAUnsuccessfulLogin: Unit = {
+  def givenAUnsuccessfulLogin(): Unit = {
     givenALogin(userName, false)
   }
 
-  def givenASuccessfulLogin: Unit = {
+  def givenASuccessfulLogin(): Unit = {
     givenALogin(userName, true)
   }
 
-  def givenASuccessfulSuperUserLogin: Unit = {
+  def givenASuccessfulSuperUserLogin(): Unit = {
     givenALogin(superUserName, true)
   }
 

@@ -56,6 +56,10 @@ trait ApplicationService {
     }
   }
 
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier) = {
+    applicationConnector.fetchApplicationsByEmail(email)
+  }
+
   def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     applicationConnector.fetchApplication(appId)
   }
