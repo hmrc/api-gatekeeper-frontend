@@ -19,20 +19,19 @@ package unit.view.applications
 import java.util.UUID
 
 import config.AppConfig
-import model._
 import model.Forms._
+import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
+import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 
-import scala.collection.JavaConversions._
 
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
   trait Setup {
@@ -95,10 +94,6 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
 
       result.contentType should include("text/html")
       elementExistsByText(document, "p", "The application name doesn't match") shouldBe true
-    }
-
-    def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-      doc.select(elementType).exists(node => node.text.trim == elementText)
     }
   }
 }
