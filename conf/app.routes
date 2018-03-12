@@ -13,6 +13,7 @@ GET         /approved                                               controllers.
 POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
 
 GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /developer/:email                                       controllers.DevelopersController.developerPage(email: String)
 GET         /applications                                           controllers.ApplicationController.applicationsPage
 
 GET         /applications/:id                                       controllers.ApplicationController.applicationPage(id: String)

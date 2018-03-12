@@ -55,6 +55,10 @@ object ApplicationsPage extends WebPage {
     click on find(linkText(name)).get
   }
 
+  def selectDeveloperByEmail(email: String) = {
+    click on find(linkText(email)).get
+  }
+
   object APIFilter  {
 
     sealed abstract class APIFilterList(val name: String) {}

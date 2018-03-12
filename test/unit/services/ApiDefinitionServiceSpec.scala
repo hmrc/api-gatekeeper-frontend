@@ -20,7 +20,7 @@ import connectors.ApiDefinitionConnector
 import model.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
 import org.mockito.BDDMockito._
 import org.scalatest.Matchers
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import services.ApiDefinitionService
 import uk.gov.hmrc.play.test.UnitSpec
 
