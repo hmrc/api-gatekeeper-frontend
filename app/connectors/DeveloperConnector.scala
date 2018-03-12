@@ -18,7 +18,10 @@ package connectors
 
 import config.WSHttp
 import connectors.AuthConnector._
-import model.{UnregisteredCollaborator, User}
+import model._
+import play.api.http.ContentTypes.JSON
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
@@ -45,5 +48,16 @@ trait DeveloperConnector {
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
     http.GET[Seq[User]](s"$developerBaseUrl/developers/all")
+  }
+
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+    http.POST(s"$developerBaseUrl/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(response => response.status match {
+        case NO_CONTENT => DeveloperDeleteSuccessResult
+        case _ => DeveloperDeleteFailureResult
+      })
+      .recover {
+        case _ => DeveloperDeleteFailureResult
+      }
   }
 }

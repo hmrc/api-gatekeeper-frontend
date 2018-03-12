@@ -21,13 +21,13 @@ import java.net.URLEncoder
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.DeveloperConnector
-import model.User
+import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, User}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.time.DateTimeUtils
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 
 
 class DeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
@@ -91,13 +91,27 @@ class DeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures wi
     }
 
     "fetch all developers" in new Setup {
-      stubFor(get(urlEqualTo(s"/developers/all")).willReturn(
+      stubFor(get(urlEqualTo("/developers/all")).willReturn(
         aResponse().withStatus(200).withBody(
           Json.toJson(Seq(aUserResponse(developer1Email),aUserResponse(developer2Email))).toString()))
       )
       val result = await(connector.fetchAll())
       verifyUserResponse(result(0),developer1Email,"first","last")
       verifyUserResponse(result(1),developer2Email,"first","last")
+    }
+
+    "delete a developer and return a success result" in new Setup {
+      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(204)))
+
+      val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
+      result shouldBe DeveloperDeleteSuccessResult
+    }
+
+    "delete a developer and return a failure result when an error occurred" in new Setup {
+      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(500)))
+
+      val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
+      result shouldBe DeveloperDeleteFailureResult
     }
   }
 }

@@ -67,4 +67,5 @@ trait BaseUser {
 trait ApplicationDeveloper extends BaseUser with Ordered[ApplicationDeveloper] {
   val apps: Seq[Application]
   override def compare(that: ApplicationDeveloper): Int = this.sortField.compare(that.sortField)
+  def toDeveloper = Developer(email, firstName, lastName, verified, apps)
 }

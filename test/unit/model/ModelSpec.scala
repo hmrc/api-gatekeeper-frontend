@@ -16,8 +16,10 @@
 
 package unit.model
 
-import model.RateLimitTier
-import model.UpliftAction
+import java.util.UUID
+
+import model._
+import org.joda.time.DateTime
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -58,4 +60,34 @@ class ModelSpec  extends UnitSpec with Matchers {
     }
   }
 
+  "Application.isSoleAdmin" should {
+    val emailAddress = "admin@example.com"
+    val admin = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR)
+    val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER)
+    val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR)
+    val otherDeveloper = Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)
+
+    def application(teamMembers: Set[Collaborator]) =
+      ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
+
+    "return true when the given email address is the only admin and no other team members" in {
+      val app = application(Set(admin))
+      app.isSoleAdmin(emailAddress) shouldBe true
+    }
+
+    "return true when the given email address is the only admin and other team members exist" in {
+      val app = application(Set(admin, otherDeveloper))
+      app.isSoleAdmin(emailAddress) shouldBe true
+    }
+
+    "return false when the given email address is not the only admin" in {
+      val app = application(Set(admin, otherAdmin))
+      app.isSoleAdmin(emailAddress) shouldBe false
+    }
+
+    "return false when the given email address is not an admin" in {
+      val app = application(Set(developer, otherAdmin))
+      app.isSoleAdmin(emailAddress) shouldBe false
+    }
+  }
 }

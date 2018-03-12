@@ -22,8 +22,9 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
-import views.html.developers.{developer_details, developers}
+import utils.{ApplicationHelper, GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import views.html.developers._
+import views.html.error_template
 
 import scala.concurrent.Future
 
@@ -59,12 +60,21 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc => {
-      for {
-        developer <- developerService.fetchDeveloper(email)
-        applications <- applicationService.fetchApplicationsByEmail(email)
-      } yield Ok(developer_details(developer.copy(apps = applications), isSuperUser))
-    }
+    implicit request => implicit hc =>
+      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
+  }
+
+  def deleteDeveloperPage(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+      developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
+  }
+
+  def deleteDeveloperAction(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+      developerService.deleteDeveloper(email, loggedIn.get).map {
+        case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))
+        case _ => technicalDifficulties
+      }
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
