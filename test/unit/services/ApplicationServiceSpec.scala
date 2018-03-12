@@ -26,7 +26,7 @@ import org.mockito.Mockito.{never, verify}
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import services.ApplicationService
 import uk.gov.hmrc.play.test.UnitSpec
 
