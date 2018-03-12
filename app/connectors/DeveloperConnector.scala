@@ -18,9 +18,11 @@ package connectors
 
 import config.WSHttp
 import connectors.AuthConnector._
-import model.User
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
+import model.{UnregisteredCollaborator, User}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object DeveloperConnector extends DeveloperConnector {
   override val developerBaseUrl: String = s"${baseUrl("third-party-developer")}"
@@ -31,8 +33,10 @@ trait DeveloperConnector {
   val developerBaseUrl: String
   val http: HttpPost with HttpGet
 
-  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
-    http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email))
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email)).recover{
+      case e: NotFoundException => UnregisteredCollaborator(email)
+    }
   }
 
   def fetchByEmails(emails: Seq[String])(implicit hc: HeaderCarrier) = {
