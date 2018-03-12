@@ -20,8 +20,10 @@ import model._
 
 object ApplicationHelper {
   def applicationsWithTeamMemberAsOnlyAdmin(applications: Seq[Application], emailAddress: String): Seq[Application] = {
-    applications
-      .filter(_.collaborators.contains(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR)))
-      .filter(_.collaborators.count(_.role == CollaboratorRole.ADMINISTRATOR) == 1)
+    applications.filter(application => isTheOnlyAdmin(application, emailAddress))
+  }
+
+  def isTheOnlyAdmin(application: Application, emailAddress: String) = {
+    application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
   }
 }
