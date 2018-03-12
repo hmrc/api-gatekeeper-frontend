@@ -18,9 +18,14 @@ package connectors
 
 import config.WSHttp
 import connectors.AuthConnector._
-import model.User
+import model._
+import play.api.http.ContentTypes.JSON
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object DeveloperConnector extends DeveloperConnector {
   override val developerBaseUrl: String = s"${baseUrl("third-party-developer")}"
@@ -41,5 +46,16 @@ trait DeveloperConnector {
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
     http.GET[Seq[User]](s"$developerBaseUrl/developers/all")
+  }
+
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+    http.POST(s"$developerBaseUrl/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(response => response.status match {
+        case NO_CONTENT => DeveloperDeleteSuccessResult
+        case _ => DeveloperDeleteFailureResult
+      })
+      .recover {
+        case _ => DeveloperDeleteFailureResult
+      }
   }
 }

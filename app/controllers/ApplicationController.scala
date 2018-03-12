@@ -196,7 +196,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         if(app.application.name == form.applicationNameConfirmation) {
           applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
             case ApplicationDeleteSuccessResult => Ok(delete_application_success(app, isSuperUser))
-            case ApplicationDeleteFailureResult => InternalServerError(error_template("Technical difficulties", "Technical difficulties", "Sorry, we’re experiencing technical difficulties"))
+            case ApplicationDeleteFailureResult => technicalDifficulties
           }
         }
         else {

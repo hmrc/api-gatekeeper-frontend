@@ -164,4 +164,10 @@ trait ApplicationConnector {
         case _ => ApplicationDeleteFailureResult
       }
   }
+
+  def removeCollaborator(applicationId: String, emailAddress: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE(s"$applicationBaseUrl/application/$applicationId/collaborator/$emailAddress?admin=$gatekeeperUserId") map { _ =>
+      ApplicationUpdateSuccessResult
+    }
+  }
 }

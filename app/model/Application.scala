@@ -31,6 +31,10 @@ trait Application {
   val name: String
   val state: ApplicationState
   val collaborators: Set[Collaborator]
+
+  def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
+
+  def isSoleAdmin(emailAddress: String) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
 }
 
 case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
@@ -140,7 +144,6 @@ case class ApplicationResponse(id: UUID,
                                checkInformation: Option[CheckInformation] = None
                               ) extends Application {
 
-  def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 }
 
 object ApplicationResponse {
