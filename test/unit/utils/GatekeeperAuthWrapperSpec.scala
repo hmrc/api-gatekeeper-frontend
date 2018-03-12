@@ -20,7 +20,7 @@ import connectors.AuthConnector
 import model.{GatekeeperSessionKeys, Role}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{Call, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -55,8 +55,8 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(result))
     }
 
-    def theUserIsNotAuthorised = theAuthConnectorWillReturn(false)
-    def theUserIsAuthorised = theAuthConnectorWillReturn(true)
+    def theUserIsNotAuthorised() = theAuthConnectorWillReturn(false)
+    def theUserIsAuthorised() = theAuthConnectorWillReturn(true)
   }
 
   "requiresLogin" should {

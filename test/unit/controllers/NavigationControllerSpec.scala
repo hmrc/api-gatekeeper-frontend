@@ -18,7 +18,7 @@ package unit.controllers
 
 import controllers.NavigationController
 import org.mockito.BDDMockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
