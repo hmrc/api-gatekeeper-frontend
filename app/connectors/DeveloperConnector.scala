@@ -22,7 +22,7 @@ import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
@@ -36,8 +36,10 @@ trait DeveloperConnector {
   val developerBaseUrl: String
   val http: HttpPost with HttpGet
 
-  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
-    http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email))
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email)).recover{
+      case e: NotFoundException => UnregisteredCollaborator(email)
+    }
   }
 
   def fetchByEmails(emails: Seq[String])(implicit hc: HeaderCarrier) = {

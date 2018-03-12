@@ -33,7 +33,7 @@ object User {
 }
 
 case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "", verified = None)
+  def apply(email: String) = User(email, "n/a", "n/a", verified = None)
 }
 
 
