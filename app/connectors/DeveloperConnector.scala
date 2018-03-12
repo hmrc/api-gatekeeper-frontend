@@ -19,7 +19,7 @@ package connectors
 import config.WSHttp
 import connectors.AuthConnector._
 import model.User
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 object DeveloperConnector extends DeveloperConnector {

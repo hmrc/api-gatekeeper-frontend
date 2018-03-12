@@ -61,7 +61,7 @@
                 case PRODUCTION => ("status status--verified", "Approved")
                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
                 case _ => ("status", "Testing")
-                }) { case (cssStyle, text) => @text }</td>
+                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
         </tr>
     </table>
 
