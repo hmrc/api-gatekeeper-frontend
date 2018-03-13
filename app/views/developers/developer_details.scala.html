@@ -70,7 +70,7 @@
         </table>
     </div>
     @if(isSuperUser) {
-    <a id="delete-developer" href="@{routes.DevelopersController.developerPage(developer.email)}" class="button--alert text--center flush--right">Delete developer</a>
+    <a id="delete-developer" href="@{routes.DevelopersController.deleteDeveloperPage(developer.email)}" class="button--alert text--center flush--right">Delete developer</a>
     }
 </article>
 }
