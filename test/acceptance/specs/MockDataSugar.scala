@@ -578,14 +578,12 @@ trait MockDataSugar {
        |    "createdOn": 1460623310886,
        |    "redirectUris": [
        |      "http://localhost:9000",
-       |      "https://localhost:9000",
-       |      "***REMOVED***"
+       |      "https://localhost:9000"
        |    ],
        |    "access": {
        |      "redirectUris": [
        |        "http://localhost:9000",
-       |        "https://localhost:9000",
-       |        "***REMOVED***"
+       |        "https://localhost:9000"
        |      ],
        |      "overrides": [],
        |      "accessType": "STANDARD"

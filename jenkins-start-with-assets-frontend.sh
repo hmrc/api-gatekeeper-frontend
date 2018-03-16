@@ -4,7 +4,7 @@ echo "Starting ASSETS"
 
 cd $WORKSPACE
 rm -rf service-manager-config
-git clone ***REMOVED***
+git clone git@github.com:hmrc/service-manager-config.git
 
 sm --stop ALL
 sm --cleanlogs

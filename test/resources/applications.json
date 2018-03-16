@@ -1959,14 +1959,12 @@
     "createdOn": 1460623310886,
     "redirectUris": [
       "http://localhost:9000",
-      "https://localhost:9000",
-      "***REMOVED***"
+      "https://localhost:9000"
     ],
     "access": {
       "redirectUris": [
         "http://localhost:9000",
-        "https://localhost:9000",
-        "***REMOVED***"
+        "https://localhost:9000"
       ],
       "overrides": [],
       "accessType": "STANDARD"
@@ -4401,11 +4399,11 @@
     ],
     "createdOn": 1473934103376,
     "redirectUris": [
-      "***REMOVED***"
+      "https://www.example.com"
     ],
     "access": {
       "redirectUris": [
-        "***REMOVED***"
+        "https://www.example.com"
       ],
       "overrides": [],
       "accessType": "STANDARD"
@@ -5745,12 +5743,12 @@
     ],
     "createdOn": 1477298251413,
     "redirectUris": [
-      "***REMOVED***",
+      "https://www.example.com",
       "http://localhost:9000/auth-code"
     ],
     "access": {
       "redirectUris": [
-        "***REMOVED***",
+        "https://www.example.com",
         "http://localhost:9000/auth-code"
       ],
       "overrides": [],
