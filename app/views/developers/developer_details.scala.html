@@ -20,7 +20,7 @@
 
 @(developer: Developer, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Developer Details", userFullName = userFullName) {
 
 <article class="content__body full-width">
     <header>
