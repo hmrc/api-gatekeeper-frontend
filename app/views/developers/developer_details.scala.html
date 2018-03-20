@@ -47,6 +47,13 @@
                 case _ => ("status", "unregistered")
                 }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
         </tr>
+        <tr>
+            <th>Organisation</th>
+            <td id="organisation">@(developer.organisation match {
+                case Some(text) => text
+                case None => ""
+            })</td>
+        </tr>
     </table>
     <h2>Associated applications</h2>
     <div>

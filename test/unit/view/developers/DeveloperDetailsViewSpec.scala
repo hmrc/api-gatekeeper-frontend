@@ -55,6 +55,13 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
       testDeveloperDetails(verifiedDeveloper)
     }
 
+    "show developer with organisation when logged in as superuser" in {
+
+      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq(), Option("test organisation"))
+
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
     "show developer with no applications when logged in as superuser" in {
 
       val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
@@ -116,7 +123,6 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
     }
 
     def testDeveloperDetails(developer: Developer) = {
-
       val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
@@ -126,6 +132,10 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
       elementExistsByText(document, "h1", developer.email) mustBe true
       document.getElementById("first-name").text mustBe developer.firstName
       document.getElementById("last-name").text mustBe developer.lastName
+      document.getElementById("organisation").text mustBe (developer.organisation match {
+        case Some(text) => text
+        case None => ""
+      })
       document.getElementById("status").text mustBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
         case VerifiedStatus => "verified"
