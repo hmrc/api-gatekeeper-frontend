@@ -22,7 +22,7 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
 
-class DeveloperViewSpec extends PlaySpec with OneServerPerSuite {
+class DevelopersViewSpec extends PlaySpec with OneServerPerSuite {
 
   val users = Seq(
     User("sample@email.com", "Sample", "Email", Some(false)),
@@ -30,7 +30,7 @@ class DeveloperViewSpec extends PlaySpec with OneServerPerSuite {
     UnregisteredCollaborator("something@email.com"))
   val devs = users.map(u => Developer.createFromUser(u, Seq.empty))
 
-  "developersView" must {
+  "Developers view" must {
 
     "list all developers" in {
       implicit val fakeRequest = FakeRequest
