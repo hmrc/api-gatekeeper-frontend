@@ -57,7 +57,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show developer with organisation when logged in as superuser" in {
 
-      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq(), Option("test organisation"))
+      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
 
       testDeveloperDetails(verifiedDeveloper)
     }
