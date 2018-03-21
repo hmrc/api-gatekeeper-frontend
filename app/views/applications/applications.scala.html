@@ -83,7 +83,7 @@
                             id="status"
                             name="status"
                             value="">
-                            @for((value,label) <- Map("ALL" -> "All", "APPROVED" -> "Approved", "PENDING" -> "Pending", "SANDBOX" -> "Sandbox")) {
+                            @for((value,label) <- Map("ALL" -> "All", "APPROVED" -> "Approved", "PENDING" -> "Pending", "SANDBOX" -> "Unapproved")) {
                                 <option value="@value" @if(value == "ALL") {@{"selected"}}>@label</option>
                             }
                             </select>
@@ -134,7 +134,7 @@
                             @defining(application.state.name match {
                                 case PRODUCTION => ("status status--verified", "Approved")
                                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
-                                case _ => ("status", "Sandbox")
+                                case _ => ("status", "Unapproved")
                             }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
                             <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">
                                 @if(application.subscriptions.isEmpty){
