@@ -19,7 +19,7 @@ package connectors
 import config.WSHttp
 import connectors.AuthConnector._
 import model.RateLimitTier.RateLimitTier
-import model.{UpdateOverridesSuccessResult, _}
+import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.PRECONDITION_FAILED
