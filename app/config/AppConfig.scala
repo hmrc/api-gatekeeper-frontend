@@ -21,8 +21,6 @@ import uk.gov.hmrc.play.config.ServicesConfig
 
 trait AppConfig {
   val assetsPrefix: String
-  val analyticsToken: String
-  val analyticsHost: String
   val devHubBaseUrl: String
   def isExternalTestEnvironment: Boolean
   def title: String
@@ -37,8 +35,6 @@ object AppConfig extends AppConfig with ServicesConfig {
   }
 
   override lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
-  override lazy val analyticsToken = loadStringConfig("google-analytics.token")
-  override lazy val analyticsHost = loadStringConfig("google-analytics.host")
   override lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
   override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"

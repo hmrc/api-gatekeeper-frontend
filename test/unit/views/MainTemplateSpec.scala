@@ -36,7 +36,6 @@ class MainTemplateSpec extends UnitSpec with Matchers with MockitoSugar with One
     "Use the sandbox class when the environment is set to the Enhanced Sandbox" in {
 
       given(mockConfig.isExternalTestEnvironment).willReturn(true)
-      given(mockConfig.analyticsToken).willReturn("12345")
 
       val mainView: Html = html.main("Test", userFullName = Some("TestUser"))(mainContent=HtmlFormat.empty)
 
