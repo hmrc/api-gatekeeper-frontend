@@ -13,10 +13,10 @@ GET         /approved                                               controllers.
 POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
 
 GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
-GET         /developer/:email                                       controllers.DevelopersController.developerPage(email: String)
 
-GET         /developer/:email/delete                                controllers.DevelopersController.deleteDeveloperPage(email: String)
-POST        /developer/:email/delete                                controllers.DevelopersController.deleteDeveloperAction(email: String)
+GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
+GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)
+POST        /developer/delete                                       controllers.DevelopersController.deleteDeveloperAction(email: String)
 
 GET         /applications                                           controllers.ApplicationController.applicationsPage
 
