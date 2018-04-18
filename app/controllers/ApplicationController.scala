@@ -149,8 +149,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def updateScopes(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
-        applicationService.updateScopes(app.application, scopes).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+        applicationService.updateScopes(app.application, scopes).map {
+          case UpdateScopesInvalidScopesResult =>
+            val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
+            BadRequest(manage_scopes(app.application, form, isSuperUser))
+
+          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 

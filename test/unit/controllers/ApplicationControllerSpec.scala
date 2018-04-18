@@ -207,6 +207,19 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(mockApplicationService, never).updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier])
       }
 
+      "return a bad request when the service indicates that the scopes are invalid" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+
+        given(underTest.applicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateScopesInvalidScopesResult))
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
+        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+
+        status(result) shouldBe 400
+      }
+
       "return unauthorised when a form is submitted for a non-super user" in new Setup {
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()

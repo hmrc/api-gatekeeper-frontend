@@ -16,13 +16,16 @@
 
 package model
 
+import model.Forms.FormFields._
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Messages
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 package object Forms {
+
+  private val scopesRegex = """^[a-z:\-\,\s][^\r\n]+$""".r
+  private def validScopes = text.verifying("override.scopes.incorrect", s => scopesRegex.findFirstIn(s).isDefined)
 
   object FormFields {
     val applicationNameConfirmation = "applicationNameConfirmation"
@@ -44,28 +47,13 @@ package object Forms {
 
   val accessOverridesForm = Form (
     mapping (
-      FormFields.persistLoginEnabled -> boolean,
-      FormFields.grantWithoutConsentEnabled -> boolean,
-      FormFields.grantWithoutConsentScopes -> mandatoryIfTrue (
-       FormFields.grantWithoutConsentEnabled, {
-         text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
-        }
-
-
-      ),
-      FormFields.suppressIvForAgentsEnabled -> boolean,
-      FormFields.suppressIvForAgentsScopes -> mandatoryIfTrue (
-        FormFields.suppressIvForAgentsEnabled, {
-          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
-        }
-
-      ),
-      FormFields.suppressIvForOrganisationsEnabled -> boolean,
-      FormFields.suppressIvForOrganisationsScopes -> mandatoryIfTrue (
-        FormFields.suppressIvForOrganisationsEnabled, {
-          text.verifying("override.scopes.incorrect", s => s.matches("""^[a-z:\-\,\s][^\r\n]+$"""))
-        }
-      )
+      persistLoginEnabled -> boolean,
+      grantWithoutConsentEnabled -> boolean,
+      grantWithoutConsentScopes -> mandatoryIfTrue(grantWithoutConsentEnabled, validScopes),
+      suppressIvForAgentsEnabled -> boolean,
+      suppressIvForAgentsScopes -> mandatoryIfTrue(suppressIvForAgentsEnabled, validScopes),
+      suppressIvForOrganisationsEnabled -> boolean,
+      suppressIvForOrganisationsScopes -> mandatoryIfTrue(suppressIvForOrganisationsEnabled, validScopes)
     )(AccessOverridesForm.toSetOfOverrides)(AccessOverridesForm.fromSetOfOverrides))
 
   object AccessOverridesForm {
@@ -124,13 +112,13 @@ package object Forms {
 
   val scopesForm = Form (
     mapping (
-      "scopes" -> text.verifying("scopes.required", s => s.trim.length > 0)
+      "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
 
   val deleteApplicationForm = Form(
     mapping(
-      FormFields.applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
-      FormFields.collaboratorEmail -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
+      applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
+      collaboratorEmail -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
   object ScopesForm {

@@ -210,6 +210,7 @@ object UpdateScopesRequest {
 sealed trait UpdateScopesResult
 case object UpdateScopesSuccessResult extends UpdateScopesResult
 case object UpdateScopesFailureResult extends UpdateScopesResult
+case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult

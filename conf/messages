@@ -1,7 +1,7 @@
 invalid.username.or.password=Invalid user ID or password. Try again.
 invalid.action=Review the application
 override.scopes.required=Scopes are required when enabling this access override
-override.scopes.incorrect=Error: You must choose at least one correct scope
+override.scopes.incorrect=You must choose at least one correct scope
 scopes.required=Scopes are required
 invalid.scope=You have used a scope we don''t recognise
 application.administrator.missing=Choose an administrator

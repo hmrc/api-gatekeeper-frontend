@@ -156,7 +156,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   "updateOverrides" should {
     "call the service to update the overrides for an app with Standard access" in new Setup {
       given(underTest.applicationConnector.updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier]))
-          .willReturn(Future.successful(UpdateOverridesSuccessResult))
+        .willReturn(Future.successful(UpdateOverridesSuccessResult))
       given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
 
@@ -166,6 +166,17 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       verify(underTest.applicationConnector).updateOverrides(mEq(stdApp1.id.toString),
         mEq(UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("test.key"))))))(any[HeaderCarrier])
+    }
+
+    "fail when called with invalid scopes" in new Setup {
+      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+        .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
+
+      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key", "invalid.key")))))
+
+      result shouldBe UpdateOverridesFailureResult(Set(SuppressIvForAgents(Set("test.key", "invalid.key"))))
+
+      verify(underTest.applicationConnector, never).updateOverrides(any(), any())(any())
     }
 
     "fail when called for an app with Privileged access" in new Setup {
@@ -189,6 +200,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "call the service to update the scopes for an app with Privileged access" in new Setup {
       given(underTest.applicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
+      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+        .willReturn(Future.successful(Seq(
+          ApiScope("hello", "test name", "test description"),
+          ApiScope("individual-benefits", "test name", "test description"))))
 
       val result = await(underTest.updateScopes(privilegedApp, Set("hello", "individual-benefits")))
 
@@ -201,6 +216,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "call the service to update the scopes for an app with ROPC access" in new Setup {
       given(underTest.applicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
+      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+        .willReturn(Future.successful(Seq(
+          ApiScope("hello", "test name", "test description"),
+          ApiScope("individual-benefits", "test name", "test description"))))
 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
 
@@ -208,6 +227,17 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       verify(underTest.applicationConnector).updateScopes(mEq(ropcApp.id.toString),
         mEq(UpdateScopesRequest(Set("hello", "individual-benefits"))))(any[HeaderCarrier])
+    }
+
+    "fail when called with invalid scopes" in new Setup {
+      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+        .willReturn(Future.successful(Seq(ApiScope("hello", "test name", "test description"))))
+
+      val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
+
+      result shouldBe UpdateScopesInvalidScopesResult
+
+      verify(underTest.applicationConnector, never).updateScopes(any(), any())(any())
     }
 
     "fail when called for an app with Standard access" in new Setup {
