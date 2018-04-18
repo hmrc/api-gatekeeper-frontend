@@ -37,7 +37,7 @@ object AccountController extends AccountController with WithAppConfig {
 trait AccountController extends BaseController with GatekeeperAuthWrapper {
 
   val authConnector: AuthConnector
-  val welcomePage = routes.DashboardController.dashboardPage
+  val welcomePage = routes.ApplicationController.applicationsPage()
 
   val loginPage: Action[AnyContent] = redirectIfLoggedIn(welcomePage) {
     implicit request => implicit hc => Future.successful(Ok(login(loginForm)))
