@@ -87,7 +87,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-app-id", appPendingApprovalId1)
       verifyText("data-state", "Production")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description", "application description")
+      verifyText("data-description-private", "application description")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
@@ -131,7 +131,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-app-id", appPendingApprovalId1)
       verifyText("data-state", "Production")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description", "application description")
+      verifyText("data-description-private", "application description")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")

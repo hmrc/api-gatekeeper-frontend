@@ -17,6 +17,7 @@
 @import model._
 @import model.AccessType.AccessType
 @import model.OverrideType.OverrideType
+@import org.joda.time.format.DateTimeFormat
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
@@ -117,12 +118,17 @@
 
     <table>
         <tr>
+            <th><h3>Environment</h3></th>
+            <td data-environment>@application.deployedTo.toLowerCase.capitalize</td>
+            <td></td>
+        </tr>
+        <tr>
             <th><h3>ID</h3></th>
             <td data-app-id>@application.id</td>
             <td></td>
         </tr>
         <tr>
-            <th><h3>State</h3></th>
+            <th><h3>Status</h3></th>
             <td data-state>@State.displayedState(application.state.name)</td>
             <td></td>
         </tr>
@@ -134,12 +140,27 @@
                 }</td>
         </tr>
         <tr>
-            <th><h3>Description</h3></th>
+            <th><h3>Description (private)</h3></th>
             <td>
                 @if(application.description.nonEmpty) {
-                    <p data-description class="flush--top">@application.description</p>
+                    <p data-description-private class="flush--top">@application.description</p>
                 } else {
-                    <p data-description class="faded-text">No description added</p>
+                    <p data-description-private class="faded-text">No description added</p>
+                }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Description (public)</h3></th>
+            <td>
+                @{ application.checkInformation match {
+                    case Some(checkInformation) => { checkInformation.applicationDetails match {
+                        case Some(description) => description
+                        case None => <p class="faded-text">No description added</p>
+                    }
+                }
+                case None => <p class="faded-text">No description added</p>
+                }
                 }
             </td>
             <td></td>
@@ -245,6 +266,109 @@
             </td>
             <td>
             </td>
+        </tr>
+        <tr>
+            @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
+                <td>
+                    <h3 class="heading--font-reset">Submitted on</h3>
+                </td>
+                @{ application.approvedDetails match {
+                case Some(approved) => {
+
+                    <td>{dateFormatter.print(approved.details.submission.submittedOn)}</td>
+                    <td></td>
+                }
+                case None => {
+                    <td class="faded-text">N/A</td>
+                    <td></td>
+                }
+                }
+                }
+            }
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Submitted by</h3>
+            </td>
+            @{
+                application.approvedDetails match {
+                    case Some(approved) => {
+                        <td>
+                            <p>{approved.details.submission.submitterName}</p>
+                            <p>{approved.details.submission.submitterEmail}</p>
+                        </td>
+                    }
+                    case None => {
+                        <td class="faded-text">N/A</td>
+                    }
+                }
+            }
+            <td></td>
+        </tr>
+        @{ application.approvedDetails match {
+            case Some(approved) => {
+                <tr>
+                    <td>
+                        <h3 class="heading--font-reset">Submission contact</h3>
+                    </td>
+                    <td>
+                        {approved.details.reviewContactName match {
+                            case Some(name) => <p>{name}</p>
+                            case None => <p class="faded-text">No contact name given</p>
+                        }
+                        }
+                        {approved.details.reviewContactEmail match {
+                            case Some(email) => <p>{email}</p>
+                            case None => <p class="faded-text">No contact email given</p>
+                        }
+                        }
+                        {approved.details.reviewContactTelephone match {
+                            case Some(telephone) => <p>{telephone}</p>
+                            case None => <p class="faded-text">No contact telephone number given</p>
+                        }
+                        }
+                    </td>
+                    <td></td>
+                </tr>
+            }
+            case None => {}
+            }
+        }
+        <tr>
+            @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
+                <td>
+                    <h3 class="heading--font-reset">Checked on</h3>
+                </td>
+                @{ application.approvedDetails match {
+                case Some(approved) => {
+
+                    <td>{dateFormatter.print(approved.approvedOn)}</td>
+                    <td></td>
+                }
+                case None => {
+                    <td class="faded-text">N/A</td>
+                    <td></td>
+                }
+                }
+                }
+            }
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Checked by</h3>
+            </td>
+            @{ application.approvedDetails match {
+            case Some(approved) => {
+
+            <td>{approved.approvedBy}</td>
+            <td></td>
+            }
+            case None => {
+            <td class="faded-text">N/A</td>
+            <td></td>
+            }
+            }
+            }
         </tr>
     </table>
     @if(isSuperUser) {
