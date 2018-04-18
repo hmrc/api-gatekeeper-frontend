@@ -104,8 +104,8 @@ trait ApplicationService {
       case _: Standard => {
         (
           for {
-            knownScopes <- apiScopeConnector.fetchAll()
-            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, knownScopes.map(scope => scope.key).toSet)
+            validScopes <- apiScopeConnector.fetchAll()
+            overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, validScopes.map(_.key).toSet)
           } yield overrideTypesWithInvalidScopes
         ).flatMap(overrideTypes =>
           if(overrideTypes.nonEmpty) {
@@ -119,9 +119,18 @@ trait ApplicationService {
   }
 
   def updateScopes(application: ApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+
     application.access match {
       case _: AccessWithRestrictedScopes => {
-        applicationConnector.updateScopes(application.id.toString, UpdateScopesRequest(scopes))
+        (
+          for {
+            validScopes <- apiScopeConnector.fetchAll()
+            hasInvalidScopes = !scopes.subsetOf(validScopes.map(_.key).toSet)
+          } yield hasInvalidScopes
+        ).flatMap(hasInvalidScopes =>
+          if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
+          else applicationConnector.updateScopes(application.id.toString, UpdateScopesRequest(scopes))
+        )
       }
     }
   }
