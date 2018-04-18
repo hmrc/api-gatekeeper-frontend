@@ -90,7 +90,6 @@ class DashboardControllerSpec extends UnitSpec with MockitoSugar with WithFakeAp
         status(result) shouldBe 200
         titleOf(result) shouldBe "Unit Test Title - Dashboard"
         bodyOf(result) should include("<h1>Dashboard</h1>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }

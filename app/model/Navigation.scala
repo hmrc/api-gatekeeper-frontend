@@ -30,7 +30,7 @@ case object StaticNavLinks {
 
   def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
     val dashboardLink = appConfig.isExternalTestEnvironment match {
-      case true => None
+      case true => Some(NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)))
       case false => Some(NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)))
     }
 

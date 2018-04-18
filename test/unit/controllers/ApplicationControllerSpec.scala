@@ -83,7 +83,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
-        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
