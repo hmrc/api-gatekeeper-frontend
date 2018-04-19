@@ -22,6 +22,7 @@
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
+@dateFormatter = @{DateTimeFormat.forPattern("dd MMMM yyyy")}
 
 @renderScopes(scopes: Set[String]) = {
     <th>
@@ -129,7 +130,7 @@
         </tr>
         <tr>
             <th><h3>Status</h3></th>
-            <td data-state>@State.displayedState(application.state.name)</td>
+            <td data-status>@State.displayedState(application.state.name)</td>
             <td></td>
         </tr>
         <tr>
@@ -155,8 +156,8 @@
             <td>
                 @{ application.checkInformation match {
                     case Some(checkInformation) => { checkInformation.applicationDetails match {
-                        case Some(description) => description
-                        case None => <p class="faded-text">No description added</p>
+                        case Some(description) => <p data-description-public="" class="flush--top">{description}</p>
+                        case None => <p data-description-public="" class="faded-text">No description added</p>
                     }
                 }
                 case None => <p class="faded-text">No description added</p>
@@ -268,23 +269,19 @@
             </td>
         </tr>
         <tr>
-            @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
-                <td>
-                    <h3 class="heading--font-reset">Submitted on</h3>
-                </td>
-                @{ application.approvedDetails match {
+            <td>
+                <h3 class="heading--font-reset">Submitted on</h3>
+            </td>
+            @{ application.approvedDetails match {
                 case Some(approved) => {
-
-                    <td>{dateFormatter.print(approved.details.submission.submittedOn)}</td>
-                    <td></td>
+                    <td data-submitted-on="">{dateFormatter.print(approved.details.submission.submittedOn)}</td>
                 }
                 case None => {
-                    <td class="faded-text">N/A</td>
-                    <td></td>
-                }
-                }
+                    <td data-submitted-on="" class="faded-text">N/A</td>
                 }
             }
+            }
+            <td></td>
         </tr>
         <tr>
             <td>
@@ -294,8 +291,8 @@
                 application.approvedDetails match {
                     case Some(approved) => {
                         <td>
-                            <p>{approved.details.submission.submitterName}</p>
-                            <p>{approved.details.submission.submitterEmail}</p>
+                            <p data-submitted-by-name="">{approved.details.submission.submitterName}</p>
+                            <p data-submitted-by-email="">{approved.details.submission.submitterEmail}</p>
                         </td>
                     }
                     case None => {
@@ -313,18 +310,18 @@
                     </td>
                     <td>
                         {approved.details.reviewContactName match {
-                            case Some(name) => <p>{name}</p>
-                            case None => <p class="faded-text">No contact name given</p>
+                            case Some(name) => <p data-submission-contact-name="">{name}</p>
+                            case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
                         }
                         }
                         {approved.details.reviewContactEmail match {
-                            case Some(email) => <p>{email}</p>
-                            case None => <p class="faded-text">No contact email given</p>
+                            case Some(email) => <p data-submission-contact-email="">{email}</p>
+                            case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
                         }
                         }
                         {approved.details.reviewContactTelephone match {
-                            case Some(telephone) => <p>{telephone}</p>
-                            case None => <p class="faded-text">No contact telephone number given</p>
+                            case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
+                            case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
                         }
                         }
                     </td>
@@ -335,40 +332,34 @@
             }
         }
         <tr>
-            @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
-                <td>
-                    <h3 class="heading--font-reset">Checked on</h3>
-                </td>
-                @{ application.approvedDetails match {
+            <td>
+                <h3 class="heading--font-reset">Checked on</h3>
+            </td>
+            @{ application.approvedDetails match {
                 case Some(approved) => {
-
-                    <td>{dateFormatter.print(approved.approvedOn)}</td>
-                    <td></td>
+                    <td data-checked-on="">{dateFormatter.print(approved.approvedOn)}</td>
                 }
                 case None => {
-                    <td class="faded-text">N/A</td>
-                    <td></td>
-                }
-                }
+                    <td data-checked-on="" class="faded-text">N/A</td>
                 }
             }
+            }
+            <td></td>
         </tr>
         <tr>
             <td>
                 <h3 class="heading--font-reset">Checked by</h3>
             </td>
             @{ application.approvedDetails match {
-            case Some(approved) => {
-
-            <td>{approved.approvedBy}</td>
+                case Some(approved) => {
+                <td data-checked-by="">{approved.approvedBy}</td>
+                }
+                case None => {
+                <td data-checked-by="" class="faded-text">N/A</td>
+                }
+            }
+            }
             <td></td>
-            }
-            case None => {
-            <td class="faded-text">N/A</td>
-            <td></td>
-            }
-            }
-            }
         </tr>
     </table>
     @if(isSuperUser) {

@@ -191,7 +191,27 @@ trait MockDataSugar {
        |      "providedTermsAndConditionsURL": true,
        |      "applicationDetails": "An application that is pending approval"
        |    },
-       |    "subscriptions": []
+       |    "approvedDetails": {
+       |      "details": {
+       |        "id": "",
+       |        "name": "",
+       |        "description": "",
+       |        "rateLimitTier": "BRONZE",
+       |        "submission": {
+       |          "submitterName": "Barry Scott",
+       |          "submitterEmail": "barry.scott@example.com",
+       |          "submittedOn": 1459868573962
+       |        },
+       |        "reviewContactName": "Harry Golightly",
+       |        "reviewContactEmail": "harry.golightly@example.com",
+       |        "reviewContactTelephone": "020 1122 3345",
+       |        "applicationDetails": ""
+       |      },
+       |      "admins": [],
+       |      "approvedBy": "gatekeeperUserId",
+       |      "approvedOn": 1459968573962,
+       |      "verified": true
+       |    }
        |  },
        |  "history": [
        |      {
