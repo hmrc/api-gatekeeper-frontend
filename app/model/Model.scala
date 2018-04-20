@@ -91,8 +91,11 @@ object ApplicationWithHistory {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
   implicit val format4 = EnumJson.enumFormat(State)
-  implicit val format5 = Json.format[ApplicationResponse]
-  implicit val format6 = Json.format[ApplicationWithHistory]
+  implicit val format5 = Json.format[SubmissionDetails]
+  implicit val format6 = Json.format[ApplicationReviewDetails]
+  implicit val format7 = Json.format[ApprovedApplication]
+  implicit val format8 = Json.format[ApplicationResponse]
+  implicit val format9 = Json.format[ApplicationWithHistory]
 }
 
 case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
@@ -180,8 +183,17 @@ case class ApplicationReviewDetails(id: String,
                                     termsAndConditionsUrl: Option[String] = None,
                                     privacyPolicyUrl: Option[String] = None)
 
+object ApplicationReviewDetails {
+  implicit val format1 = Json.format[SubmissionDetails]
+  implicit val format2 = Json.format[ApplicationReviewDetails]
+}
+
 case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[User], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 
+object  ApprovedApplication {
+  implicit val format1 = Json.format[ApplicationReviewDetails]
+  implicit val format2 = Json.format[ApprovedApplication]
+}
 case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
 
 case class OverrideRequest(overrideType: OverrideType, scopes: Set[String] = Set.empty)

@@ -84,10 +84,12 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
+      verifyText("data-environment", "Production")
       verifyText("data-app-id", appPendingApprovalId1)
-      verifyText("data-state", "Production")
+      verifyText("data-status", "Production")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description", "application description")
+      verifyText("data-description-private", "application description")
+      verifyText("data-description-public", "An application that is pending approval")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
@@ -96,6 +98,14 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-collaborator-role", "Admin", 0)
       verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
       verifyText("data-collaborator-role", "Developer", 1)
+      verifyText("data-submitted-on", "05 April 2016")
+      verifyText("data-submitted-by-name", "Barry Scott" )
+      verifyText("data-submitted-by-email", "barry.scott@example.com" )
+      verifyText("data-submission-contact-name", "Harry Golightly")
+      verifyText("data-submission-contact-email", "harry.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3345")
+      verifyText("data-checked-on", "06 April 2016")
+      verifyText("data-checked-by", "gatekeeperUserId")
     }
   }
 
@@ -127,19 +137,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
-
-      verifyText("data-app-id", appPendingApprovalId1)
-      verifyText("data-state", "Production")
-      verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description", "application description")
-      webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
-      webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
-      verifyText("data-access-type", "Standard")
-      verifyText("data-subscriptions", "")
-      verifyText("data-collaborator-email", "admin@test.com", 0)
-      verifyText("data-collaborator-role", "Admin", 0)
-      verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
-      verifyText("data-collaborator-role", "Developer", 1)
 
       stubDeveloper()
       stubApplicationForEmail()
