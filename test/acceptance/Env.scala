@@ -29,7 +29,7 @@ import scala.util.Try
 trait Env {
 
   val webDriverConfig = Option(System.getenv("test_driver")).getOrElse("firefox")
-  val driver = if (webDriverConfig == "firefox") {
+  val driver = if (webDriverConfig == "chrome") {
     val driver: WebDriver with HasCapabilities = {
       val profile = new FirefoxProfile
       profile.setAcceptUntrustedCertificates(true)

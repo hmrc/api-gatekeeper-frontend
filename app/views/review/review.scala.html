@@ -23,7 +23,7 @@
 
     <nav class="breadcrumb-nav">
         <ul>
-            <li class="breadcrumb-nav__item"><a href="/api-gatekeeper/dashboard">Application names</a></li>
+            <li class="breadcrumb-nav__item"><a href="/api-gatekeeper/applications">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">@{application.name}</li>
         </ul>
@@ -46,48 +46,7 @@
         </div>
     }
 
-    <h2>What the application does</h2>
-    <p class="flush--top" data-application-details>@{application.applicationDetails}</p>
 
-    <h2>Submitted by</h2>
-    <table>
-        <tr>
-            <th class="table-label">Name</th>
-            <td data-submitter-name>@{application.submission.submitterName}</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td><a href="mailto:@{application.submission.submitterEmail}" data-submitter-email>@{application.submission.submitterEmail}</a></td>
-        </tr>
-    </table>
-
-    <h2>Contact details</h2>
-    <table>
-        <tr>
-            <th class="table-label">Name</th>
-            <td data-contact-name>@{application.reviewContactName}</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td><a href="mailto:@{application.reviewContactEmail}" data-contact-email>@{application.reviewContactEmail}</a></td>
-        </tr>
-        <tr>
-            <th>Telephone</th>
-            <td data-contact-phone>@{application.reviewContactTelephone}</td>
-        </tr>
-    </table>
-
-    <h2>Public information</h2>
-    <table>
-        <tr>
-            <th class="table-label">Privacy policy URL</th>
-            <td data-privacy-url><a href="@{application.privacyPolicyUrl}" target="_blank">@{application.privacyPolicyUrl}</a> (opens in a new window)</td>
-        </tr>
-        <tr>
-            <th>Terms and conditions URL</th>
-            <td data-terms-url><a href="@{application.termsAndConditionsUrl}" target="_blank">@{application.termsAndConditionsUrl}</a> (opens in a new window)</td>
-        </tr>
-    </table>
 
 
     @helper.form(action = routes.DashboardController.handleUplift(application.id),
@@ -129,7 +88,7 @@
 
             <div class="form-field">
                 <input id="submit" type="submit" class="button" role="button" value="Submit" data-journey-click="gate-keeper:Click:@if(form.errors("reason").isEmpty){Approved}else{Rejected}" data-journey-target/>
-                <a href="/api-gatekeeper/dashboard" class="button button--link">Cancel</a>
+                <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="button button--link">Cancel</a>
             </div>
 
         </div>

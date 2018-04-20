@@ -7,7 +7,6 @@ GET         /logout                                                 controllers.
 
 GET         /review                                                 controllers.DashboardController.reviewPage(id: String)
 
-GET         /approved                                               controllers.DashboardController.approvedApplicationPage(id: String)
 
 POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
 

@@ -31,8 +31,10 @@ import views.html.approvedApplication._
 import views.html.dashboard._
 import views.html.review._
 
+
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.applications.application
 
 object DashboardController extends DashboardController with WithAppConfig {
   override val applicationConnector = ApplicationConnector
@@ -165,10 +167,10 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
         UpliftAction.from(validForm.action) match {
           case Some(APPROVE) =>
             applicationConnector.approveUplift(appId, loggedIn.get) map (
-              ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationsPage())) recover recovery
+              ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
           case Some(REJECT) =>
             applicationConnector.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
-              RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationsPage())) recover recovery
+              RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
         }
       }
 
@@ -179,7 +181,7 @@ trait DashboardController extends BaseController with GatekeeperAuthWrapper {
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
     requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
       redirectIfExternalTestEnvironment {
-        val result = Redirect(routes.DashboardController.approvedApplicationPage(appId))
+        val result = Redirect(routes.ApplicationController.applicationPage(appId))
         if (!isSuperUser) {
           Future.successful(result)
         } else {
