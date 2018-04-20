@@ -16,7 +16,7 @@
 
 package acceptance.specs
 
-import acceptance.pages.{ApprovedPage, DashboardPage, ResendVerificationPage}
+import acceptance.pages.{ApprovedPage, ResendVerificationPage, ApplicationsPage}
 import acceptance.ApprovedBaseSpec
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.Tag
@@ -32,7 +32,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
 
       signInGatekeeper
-      on(DashboardPage)
+      on(ApplicationsPage)
       clickOnLink(s"data-view-$approvedApp1")
       on(ApprovedPage(approvedApp1, "Application"))
 
@@ -52,7 +52,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
         .willReturn(aResponse().withStatus(204)))
 
       signInGatekeeper
-      on(DashboardPage)
+      on(ApplicationsPage)
       clickOnLink(s"data-view-$approvedApp1")
       on(ApprovedPage(approvedApp1, "Application"))
 
@@ -76,7 +76,7 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
         .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
 
       signInGatekeeper
-      on(DashboardPage)
+      on(ApplicationsPage)
       clickOnLink(s"data-view-$approvedApp1")
       on(ApprovedPage(approvedApp1, "Application"))
 
@@ -84,17 +84,17 @@ class APIGatekeeperApprovedSpec extends ApprovedBaseSpec {
       assertApplicationDetails()
     }
 
-    scenario("Navigate back to the dashboard page", Tag("NonSandboxTest")) {
+    scenario("Navigate back to the applications page", Tag("NonSandboxTest")) {
       stubApplicationListAndDevelopers()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication()).withStatus(200)))
 
       signInGatekeeper
-      on(DashboardPage)
+      on(ApplicationsPage)
       clickOnLink(s"data-view-$approvedApp1")
       on(ApprovedPage(approvedApp1, "Application"))
       clickOnLink("data-back-link")
-      on(DashboardPage)
+      on(ApplicationsPage)
     }
   }
 
