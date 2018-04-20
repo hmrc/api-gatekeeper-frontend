@@ -24,7 +24,8 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{ApiDefinitionService, ApplicationService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.error_template
@@ -34,6 +35,7 @@ import scala.concurrent.Future
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
+  override val developerService = DeveloperService
   override def authConnector = AuthConnector
   override def authProvider = GatekeeperAuthProvider
 }
@@ -42,6 +44,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
+  val developerService: DeveloperService
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
@@ -57,12 +60,34 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       val applicationFuture = applicationService.fetchApplication(appId)
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
-      for {
-        app <- applicationFuture
-        subs <- subscriptionsFuture
-      } yield Ok(application(app, subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
-  }
+      def lastApproval(app: ApplicationWithHistory): StateHistory = {
+        app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+          .sortWith(StateHistory.ascendingDateForAppId)
+          .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
+      }
 
+      def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+        val emails: Set[String] = app.application.admins.map(_.emailAddress)
+        Future.successful(Seq.empty)
+      }
+
+      def approvedApplication(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+        val verified = app.state.name == State.PRODUCTION
+        val details = applicationReviewDetails(app, submissionDetails)(request)
+
+        ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
+      }
+
+      for {
+        applicationWithHistory <- applicationFuture
+        approval = lastApproval(applicationWithHistory)
+        submission <- lastSubmission(applicationWithHistory)
+        admins <- administrators(applicationWithHistory)
+        subscriptions <- subscriptionsFuture
+        approvedApp = approvedApplication(applicationWithHistory.application, approval, admins, submission)
+        appResponse = applicationWithHistory.application.copy(approvedDetails = Some(approvedApp))
+      } yield Ok(application(applicationWithHistory.copy(application = appResponse), subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+  }
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {
@@ -226,5 +251,42 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
     applicationService.fetchApplication(appId).flatMap(f)
+  }
+
+  private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
+    val submission: StateHistory = app.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
+      .sortWith(StateHistory.ascendingDateForAppId)
+      .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
+
+      developerService.fetchDeveloper(submission.actor.id).map(s =>
+          SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
+  }
+
+  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+
+    val currentRateLimitTierToDisplay = if (isSuperUser) Some(app.rateLimitTier) else None
+
+    val contactDetails = for {
+      checkInformation <- app.checkInformation
+      contactDetails <- checkInformation.contactDetails
+    } yield contactDetails
+
+    val reviewContactName = contactDetails.map(_.fullname)
+    val reviewContactEmail = contactDetails.map(_.email)
+    val reviewContactTelephone = contactDetails.map(_.telephoneNumber)
+    val applicationDetails = app.checkInformation.flatMap(_.applicationDetails)
+
+    ApplicationReviewDetails(
+      app.id.toString,
+      app.name,
+      app.description.getOrElse(""),
+      currentRateLimitTierToDisplay,
+      submission,
+      reviewContactName,
+      reviewContactEmail,
+      reviewContactTelephone,
+      applicationDetails,
+      app.termsAndConditionsUrl,
+      app.privacyPolicyUrl)
   }
 }
