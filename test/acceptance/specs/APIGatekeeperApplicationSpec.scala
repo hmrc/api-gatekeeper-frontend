@@ -39,7 +39,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
@@ -58,7 +58,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
 
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
@@ -116,8 +116,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       signInGatekeeper
       on(ApplicationsPage)
-
-
 
       stubApplication
 
