@@ -236,6 +236,102 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
+  val applicationToReview =
+    s"""
+       |{
+       |  "application": {
+       |    "id": "$appPendingApprovalId1",
+       |    "name": "First Application",
+       |    "description": "$applicationDescription",
+       |    "deployedTo": "PRODUCTION",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$adminEmail",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "createdOn": 1459866628433,
+       |    "redirectUris": [],
+       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
+       |    "privacyPolicyUrl": "http://www.example.com/privacy",
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PENDING_GATEKEEPER_APPROVAL",
+       |      "requestedByEmailAddress": "$adminEmail",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "checkInformation": {
+       |      "contactDetails": {
+       |        "fullname": "Holly Golightly",
+       |        "email": "holly.golightly@example.com",
+       |        "telephoneNumber": "020 1122 3344"
+       |      },
+       |      "confirmedName": true,
+       |      "providedPrivacyPolicyURL": true,
+       |      "providedTermsAndConditionsURL": true,
+       |      "applicationDetails": "An application that is pending approval"
+       |    },
+       |    "approvedDetails": {
+       |      "details": {
+       |        "id": "",
+       |        "name": "",
+       |        "description": "",
+       |        "rateLimitTier": "BRONZE",
+       |        "submission": {
+       |          "submitterName": "Barry Scott",
+       |          "submitterEmail": "barry.scott@example.com",
+       |          "submittedOn": 1459868573962
+       |        },
+       |        "reviewContactName": "Harry Golightly",
+       |        "reviewContactEmail": "harry.golightly@example.com",
+       |        "reviewContactTelephone": "020 1122 3345",
+       |        "applicationDetails": ""
+       |      },
+       |      "admins": [],
+       |      "approvedBy": "gatekeeperUserId",
+       |      "approvedOn": 1459968573962,
+       |      "verified": true
+       |    }
+       |  },
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$adminEmail",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+       |}
+    """.stripMargin
+
   val applicationToDelete =
     s"""
        |{

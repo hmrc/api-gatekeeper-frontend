@@ -35,6 +35,41 @@
     "rateLimitTier": "BRONZE"
   },
   {
+    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+    "name": "Application requiring approval",
+    "description": "my description",
+    "deployedTo": "PRODUCTION",
+    "collaborators": [
+      {
+        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "role": "ADMINISTRATOR"
+      }
+    ],
+    "createdOn": 1460111080651,
+    "redirectUris": [
+      "http://localhost:8080/callback"
+    ],
+    "termsAndConditionsUrl": "http://terms",
+    "privacyPolicyUrl": "http://privacypolicy",
+    "access": {
+      "redirectUris": [
+        "http://localhost:8080/callback"
+      ],
+      "termsAndConditionsUrl": "http://terms",
+      "privacyPolicyUrl": "http://privacypolicy",
+      "overrides": [],
+      "accessType": "STANDARD"
+    },
+    "state": {
+      "name": "PENDING_GATEKEEPER_APPROVAL",
+      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+      "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+      "updatedOn": 1460113878463
+    },
+    "trusted": false,
+    "rateLimitTier": "BRONZE"
+  },
+  {
     "id": "dca911d1-1ced-47d0-8dbe-97f0323eb036",
     "name": "Rakesh Demo App",
     "description": "Rakesh Demo App",

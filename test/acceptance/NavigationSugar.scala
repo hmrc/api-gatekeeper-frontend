@@ -68,6 +68,10 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
     webDriver.findElement(By.id("submit")).click()
   }
 
+  def clickOnReview(attributeName: String)(implicit webDriver: WebDriver) = {
+    webDriver.findElement(By.id("review")).click()
+  }
+
   def clickOnElement(id: String)(implicit webDriver: WebDriver) = {
     webDriver.findElement(By.id(id)).click()
   }
