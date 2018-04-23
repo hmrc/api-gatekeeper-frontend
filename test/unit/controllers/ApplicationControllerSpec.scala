@@ -521,6 +521,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+
         given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
         given(underTest.appConfig.title).willReturn("Unit Test Title")
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
@@ -536,10 +541,15 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
+
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+
         given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
         given(underTest.appConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
-        redirectLocation(result) shouldBe Some("/api-gatekeeper/applications")
+        status(result) shouldBe 200
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
@@ -547,6 +557,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
+
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
         status(result) shouldBe 401
         bodyOf(result) should include("Only Authorised users can access the requested page")
