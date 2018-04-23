@@ -17,7 +17,7 @@
 package acceptance.specs
 
 import acceptance.{BaseSpec, SignInSugar}
-import acceptance.pages.{DashboardPage, SignInPage}
+import acceptance.pages.{ApplicationsPage, DashboardPage, SignInPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
@@ -60,7 +60,7 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
       SignInPage.signIn("joe.test", "password")
 
-      on(DashboardPage)
+      on(ApplicationsPage)
     }
 
 
@@ -99,8 +99,8 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       goOn(SignInPage)
 
       SignInPage.signIn("joe.test", "password")
-      on(DashboardPage)
-      DashboardPage.isUnauthorised shouldBe true
+      on(ApplicationsPage)
+      ApplicationsPage.isUnauthorised shouldBe true
     }
 
     scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
@@ -154,14 +154,14 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
       When("the users signs in")
       SignInPage.signIn("joe.test", "password")
-      on(DashboardPage)
+      on(ApplicationsPage)
 
       Then("the application name is API Gatekeeper")
       actualApplicationName shouldBe "HMRC API Gatekeeper"
 
-      And("the browser window title is HMRC API Gatekeeper - Dashboard")
+      And("the browser window title is HMRC API Gatekeeper - Applications")
       actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Dashboard"
+      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
 
 //      And("the application header colour is rgba(0, 94, 165, 1)")
 //      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))

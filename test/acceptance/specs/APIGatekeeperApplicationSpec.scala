@@ -74,6 +74,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
 
+
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
@@ -107,7 +108,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
 
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
@@ -121,6 +122,8 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
+
+      stubApplication
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)

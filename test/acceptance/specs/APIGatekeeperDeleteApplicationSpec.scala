@@ -67,7 +67,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     stubApiDefinition
 
     signInSuperUserGatekeeper
-    on(DashboardPage)
+    on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")
     DashboardPage.selectApplications()
