@@ -133,7 +133,9 @@
         <tr>
             <th><h3>Status</h3></th>
             <td data-status>@State.displayedState(application.state.name)</td>
-            <td></td>
+            <td>@if(application.state.name == PENDING_GATEKEEPER_APPROVAL) {
+                <a href="@{routes.ApplicationController.reviewPage(application.id.toString)}" class="button button--link" role="button" id="review">Review</a>
+                }</td>
         </tr>
         <tr>
             <th><h3>Rate limit tier</h3></th>
@@ -145,11 +147,11 @@
         <tr>
             <th><h3>Description (private)</h3></th>
             <td>
-                @if(application.description.nonEmpty) {
-                    <p data-description-private class="flush--top">@application.description</p>
-                } else {
-                    <p data-description-private class="faded-text">No description added</p>
-                }
+            @if(application.description.nonEmpty) {
+                <p data-description-private class="flush--top">@application.description</p>
+            } else {
+                <p data-description-private class="faded-text">No description added</p>
+            }
             </td>
             <td></td>
         </tr>

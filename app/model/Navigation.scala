@@ -29,15 +29,11 @@ object NavLink {
 case object StaticNavLinks {
 
   def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
-    val dashboardLink = appConfig.isExternalTestEnvironment match {
-      case true => None
-      case false => Some(NavLink("Dashboard", Some(routes.DashboardController.dashboardPage().url)))
-    }
-
-    dashboardLink.toList ++ Seq(
+    Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
       NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)),
-      NavLink("API Approvals", Some("/api-service-approval/pending")))
+      NavLink("API Approvals", Some("/api-service-approval/pending"))
+    )
   }
 }
 

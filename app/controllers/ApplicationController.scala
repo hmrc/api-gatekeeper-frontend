@@ -16,10 +16,12 @@
 
 package controllers
 
-import connectors.AuthConnector
+import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import model.Forms._
+import model.UpliftAction.{APPROVE, REJECT}
 import model._
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.DateTime
+import play.api.Logger
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -29,7 +31,9 @@ import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
+import views.html.approvedApplication.approved
 import views.html.error_template
+import views.html.review.review
 
 import scala.concurrent.Future
 
@@ -37,10 +41,10 @@ object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
   override val developerService = DeveloperService
-
-  override def authConnector = AuthConnector
-
+  override val applicationConnector = ApplicationConnector
+  override val developerConnector = DeveloperConnector
   override def authProvider = GatekeeperAuthProvider
+  override def authConnector = AuthConnector
 }
 
 trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
@@ -48,6 +52,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
   val developerService: DeveloperService
+  val applicationConnector: ApplicationConnector
+  val developerConnector: DeveloperConnector
+  implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
@@ -74,7 +81,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       for {
         _ <- applicationService.resendVerification(appId, loggedIn.get)
       } yield {
-        Redirect(routes.DashboardController.approvedApplicationPage(appId))
+        Redirect(routes.ApplicationController.applicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
   }
@@ -155,8 +162,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def updateScopes(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
-        applicationService.updateScopes(app.application, scopes).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+        applicationService.updateScopes(app.application, scopes).map {
+          case UpdateScopesInvalidScopesResult =>
+            val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
+            BadRequest(manage_scopes(app.application, form, isSuperUser))
+
+          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
@@ -234,14 +245,58 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
+  def reviewPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
+      fetchApplicationReviewDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
+    }
+  }
+
+  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationReviewDetails] = {
+    for {
+      app <- applicationConnector.fetchApplication(appId)
+      submission <- lastSubmission(app)
+    } yield applicationReviewDetails(app.application, submission)
+  }
+
+  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+
+    def lastApproval(app: ApplicationWithHistory): StateHistory = {
+      app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+        .sortWith(StateHistory.ascendingDateForAppId)
+        .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
+    }
+
+    def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+      val emails: Set[String] = app.application.admins.map(_.emailAddress)
+      developerConnector.fetchByEmails(emails.toSeq)
+    }
+
+    def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+      val verified = app.state.name == State.PRODUCTION
+      val details = applicationReviewDetails(app, submissionDetails)(request)
+
+      ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
+    }
+
+    redirectIfExternalTestEnvironment {
+
+      for {
+        app <- applicationConnector.fetchApplication(appId)
+        approval = lastApproval(app)
+        submission <- lastSubmission(app)
+        admins <- administrators(app)
+        approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
+      } yield Ok(approved(approvedApp))
+    }
+  }
+
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
     val submission: StateHistory = app.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
-    /*developerService.fetchDeveloper(submission.actor.id).map(s =>
-        SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))*/
-    Future.successful(SubmissionDetails("", submission.actor.id, submission.changedAt))
+    developerConnector.fetchByEmail(submission.actor.id).map(s =>
+      SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
@@ -271,5 +326,57 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       app.termsAndConditionsUrl,
       app.privacyPolicyUrl)
   }
-}
 
+  def handleUplift(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+    redirectIfExternalTestEnvironment {
+      val requestForm = HandleUpliftForm.form.bindFromRequest
+
+      def errors(errors: Form[HandleUpliftForm]) =
+        fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
+
+      def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
+        case e: PreconditionFailed => {
+          Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
+          Redirect(routes.ApplicationController.applicationsPage())
+        }
+      }
+
+      def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
+        UpliftAction.from(validForm.action) match {
+          case Some(APPROVE) =>
+            applicationConnector.approveUplift(appId, loggedIn.get) map (
+              ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+          case Some(REJECT) =>
+            applicationConnector.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
+              RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+        }
+      }
+
+      requestForm.fold(errors, addApplicationWithValidForm)
+    }
+  }
+
+  def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
+    requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+      redirectIfExternalTestEnvironment {
+        val result = Redirect(routes.ApplicationController.applicationPage(appId))
+        if (!isSuperUser) {
+          Future.successful(result)
+        } else {
+          val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
+          applicationConnector.updateRateLimitTier(appId, newTier) map {
+            case ApplicationUpdateSuccessResult =>
+              result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+          }
+        }
+      }
+    }
+
+  private def redirectIfExternalTestEnvironment(body: => Future[Result]) = {
+    appConfig.isExternalTestEnvironment match {
+      case true => Future.successful(Redirect(routes.ApplicationController.applicationsPage))
+      case false => body
+    }
+  }
+
+}

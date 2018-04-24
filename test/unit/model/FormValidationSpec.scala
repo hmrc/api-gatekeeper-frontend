@@ -42,4 +42,25 @@ class FormValidationSpec  extends UnitSpec with Matchers {
       boundForm.errors shouldBe List.empty
     }
   }
+
+  "Scopes form for Privileged and ROPC apps" should {
+
+    "fail validation with empty scopes" in {
+      val form = Map("scopes" -> "")
+      val boundForm = scopesForm.bind(form)
+      boundForm.errors.length shouldBe 1
+    }
+
+    "fail validation with invalid scope format" in {
+      val form = Map("scopes" -> "test1 \n test2")
+      val boundForm = scopesForm.bind(form)
+      boundForm.errors.length shouldBe 1
+    }
+
+    "pass validation with valid scopes" in {
+      val form = Map("scopes" -> "email, openid:mdtp, openid, openid:hmrc-enrolments, openid:government-gateway")
+      val boundForm = scopesForm.bind(form)
+      boundForm.errors.length shouldBe 0
+    }
+  }
 }

@@ -37,10 +37,10 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       .build()
   }
 
-  feature("Strategic Sandbox - Gatekeeper - understand I am on the Enhanced Test Service") {
+  feature("Strategic Sandbox - Gatekeeper - understand I am on the External Test Service") {
 
     info("As an admin (SDST)")
-    info("I can tell that I am on the Enhanced Test Service version of Gatekeeper")
+    info("I can tell that I am on the External Test Service version of Gatekeeper")
     info("So that I don't get confused about where I am")
 
     scenario("Ensure developer is on Gatekeeper in ET and they know it", Tag("SandboxTest")) {
@@ -87,9 +87,9 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       var actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Login"
 
-//      And("the application header colour is rgba(40, 161, 151)")
-//      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
-//      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
+      And("the application header colour is rgba(40, 161, 151)")
+      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
+      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
 
       When("the users signs in")
       SignInPage.signIn("joe.test", "password")
@@ -102,20 +102,19 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Applications"
 
-//      And("the application header colour is rgba(40, 161, 151)")
-//      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
     }
 
-    scenario("Cookie banner is displayed on the top of the page when user first visits the website", Tag("SandboxTest")) {
 
-      Given("The developer goes to the Gatekeeper home page")
-      goOn(SignInPage)
-      on(SignInPage)
-
-      Then("the cookie banner is displayed at the very top of the page")
-      val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
-      cookieBanner shouldBe "(0, 0)"
-    }
+//    scenario("Cookie banner is displayed on the top of the page when user first visits the website", Tag("SandboxTest")) {
+//
+//      Given("The developer goes to the Gatekeeper home page")
+//      goOn(SignInPage)
+//      on(SignInPage)
+//
+//      Then("the cookie banner is displayed at the very top of the page")
+//      val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
+//      cookieBanner shouldBe "(0, 0)"
+//    }
   }
 
   def stubApplicationList() = {

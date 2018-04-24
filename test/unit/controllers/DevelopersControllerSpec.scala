@@ -110,7 +110,6 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe 200
         bodyOf(result) should include("<h1>Developers</h1>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
       }
