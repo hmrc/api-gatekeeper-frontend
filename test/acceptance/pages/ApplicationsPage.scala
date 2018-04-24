@@ -19,6 +19,7 @@ package acceptance.pages
 import acceptance.WebPage
 import acceptance.pages.ApplicationsPage.APIFilter.APIFilterList
 import acceptance.pages.ApplicationsPage.StatusFilter.StatusFilterList
+import acceptance.pages.DashboardPage.{cssSelector, find, linkText}
 
 object ApplicationsPage extends WebPage {
 
@@ -29,6 +30,10 @@ object ApplicationsPage extends WebPage {
 
   def previousLink = find(linkText("Previous")).get
 
+  def isUnauthorised() = {
+    find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
+  }
+
   def nextLink = find(linkText("Next")).get
 
   def selectBySubscription(api: APIFilterList) = {
@@ -37,6 +42,13 @@ object ApplicationsPage extends WebPage {
 
   def selectByStatus(status: StatusFilterList) = {
     singleSel("status").value = status.name
+  }
+
+  def applicationsNavLink = find(linkText("Applications")).get
+
+
+  def selectApplications() = {
+    click on applicationsNavLink
   }
 
   def selectNoofRows(noOfRows: String) = {
@@ -58,6 +70,13 @@ object ApplicationsPage extends WebPage {
   def selectDeveloperByEmail(email: String) = {
     click on find(linkText(email)).get
   }
+
+  def developersNavLink = find(linkText("Developers")).get
+
+  def selectDevelopers() = {
+    click on developersNavLink
+  }
+
 
   object APIFilter  {
 

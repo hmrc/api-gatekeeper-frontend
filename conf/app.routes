@@ -5,12 +5,10 @@ POST        /login                                                  controllers.
 
 GET         /logout                                                 controllers.AccountController.logout
 
-GET         /dashboard                                              controllers.DashboardController.dashboardPage
-GET         /review                                                 controllers.DashboardController.reviewPage(id: String)
+GET         /review                                                 controllers.ApplicationController.reviewPage(id: String)
 
-GET         /approved                                               controllers.DashboardController.approvedApplicationPage(id: String)
 
-POST        /update-rate-limit-tier                                 controllers.DashboardController.handleUpdateRateLimitTier(id: String)
+POST        /update-rate-limit-tier                                 controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
 
 GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
 
@@ -22,7 +20,7 @@ GET         /applications                                           controllers.
 
 GET         /applications/:id                                       controllers.ApplicationController.applicationPage(id: String)
 
-POST        /applications/:id/handle-uplift                         controllers.DashboardController.handleUplift(id: String)
+POST        /applications/:id/handle-uplift                         controllers.ApplicationController.handleUplift(id: String)
 GET         /applications/:id/resend-verification                   controllers.ApplicationController.resendVerification(id: String)
 
 GET         /applications/:id/access/scopes                         controllers.ApplicationController.manageScopes(id: String)

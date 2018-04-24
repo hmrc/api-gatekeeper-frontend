@@ -81,7 +81,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
       given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
       val result = await(underTest.authenticate()(aLoggedOutRequest.withJsonBody(aValidFormJson)))
-      redirectLocation(result) shouldBe Some("/api-gatekeeper/dashboard")
+      redirectLocation(result) shouldBe Some("/api-gatekeeper/applications")
       result.header.headers.get("Set-Cookie") shouldBe defined
       session(result).get(GatekeeperSessionKeys.AuthToken) shouldBe Some("bearer-token")
     }

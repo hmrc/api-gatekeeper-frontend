@@ -75,7 +75,7 @@
             }
 
             @if(application.details.rateLimitTier.isDefined) {
-                @helper.form(action = routes.DashboardController.handleUpdateRateLimitTier(application.details.id)) {
+                @helper.form(action = routes.ApplicationController.handleUpdateRateLimitTier(application.details.id)) {
                     <details>
                         <summary>
                             <span id="rate-limit-tier">Rate limit tier: @application.details.rateLimitTier</span>

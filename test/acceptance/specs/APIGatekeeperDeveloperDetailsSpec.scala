@@ -18,11 +18,13 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApplicationPage, DashboardPage, DeveloperDetailsPage, DeveloperPage}
+import acceptance.pages._
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+
+import scala.io.Source
 
 class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
@@ -36,36 +38,42 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
+
+      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
+        .withBody(applicationsList).withStatus(200)))
       stubApplicationForEmail
       stubApplication
       stubApiDefinition
       stubDevelopers
       stubDeveloper
+      stubApplicationSubscription
+
       signInGatekeeper
-      on(DashboardPage)
+      on(ApplicationsPage)
 
-      When("I select to navigate to the Developers page")
-      DashboardPage.selectDevelopers
+            When("I select to navigate to the Developers page")
+            ApplicationsPage.selectDevelopers()
 
-      Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
-      on(DeveloperPage)
+            Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
+            on(DeveloperPage)
 
-      When("I select a developer email")
-      DeveloperPage.selectByDeveloperEmail(developer8)
+            When("I select a developer email")
+            DeveloperPage.selectByDeveloperEmail(developer8)
 
-      Then("I am successfully navigated to the Developer Details page")
-      on(DeveloperDetailsPage)
+            Then("I am successfully navigated to the Developer Details page")
+            on(DeveloperDetailsPage)
 
-      And("I can see the developer's details and associated applications")
-      assert(DeveloperDetailsPage.firstName == "Dixie")
-      assert(DeveloperDetailsPage.lastName == "Upton")
-      assert(DeveloperDetailsPage.status == "not yet verified")
+            And("I can see the developer's details and associated applications")
+            assert(DeveloperDetailsPage.firstName == "Dixie")
+            assert(DeveloperDetailsPage.lastName == "Upton")
+            assert(DeveloperDetailsPage.status == "not yet verified")
 
-      When("I select an associated application")
-      DeveloperDetailsPage.selectByApplicationName("Automated Test Application")
+            When("I select an associated application")
+            DeveloperDetailsPage.selectByApplicationName("Automated Test Application")
 
-      Then("I am successfully navigated to the Automated Test Application page")
-      on(ApplicationPage)
+            Then("I am successfully navigated to the Automated Test Application page")
+            on(ApplicationPage)
     }
   }
 
@@ -77,9 +85,10 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .withBody(applicationResponse).withStatus(200)))
   }
 
-  def stubApplication() = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(applicationToDelete).withStatus(200)))
+  def stubApplication = {
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
   }
 
@@ -106,6 +115,10 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
     stubFor(get(urlEqualTo("/api-definition?type=private"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+  }
+
+  def stubApplicationSubscription = {
+    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
   }
 
   def stubDevelopers() = {

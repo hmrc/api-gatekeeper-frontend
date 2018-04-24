@@ -59,7 +59,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList
 
-    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
+    val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
@@ -67,7 +67,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     stubApiDefinition
 
     signInSuperUserGatekeeper
-    on(DashboardPage)
+    on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")
     DashboardPage.selectApplications()

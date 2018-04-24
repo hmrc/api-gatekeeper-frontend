@@ -18,7 +18,7 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
+import acceptance.pages._
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -27,34 +27,27 @@ import org.scalatest.{GivenWhenThen, Matchers, Tag}
 
 import scala.io.Source
 
-class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
 
-  feature("Application List for Search Functionality") {
+  val approveRequest =
+    s"""
+       |{
+       |  "gatekeeperUserId":"$superUserGatekeeperId"
+       |}
+     """.stripMargin
 
-    info("AS A Product Owner")
-    info("I WANT The SDST (Software Developer Support Team) to be able to search for applications")
-    info("SO THAT The SDST can review the status of the applications")
+  val rejectRequest =
+    s"""
+       |{
+       |  "gatekeeperUserId":"$gatekeeperId",
+       |  "reason":"A similar name is already taken by another application"
+       |}
+     """.stripMargin
 
-    scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
 
-      Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(200)))
-      stubApplicationSubscription
-      stubApiDefinition
-
-      signInGatekeeper
-      Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
-      on(ApplicationsPage)
-
-    }
-  }
-
-  feature("Show applications information") {
-    scenario("View a specific application") {
+    feature("Approve a request to uplift an application") {
+    scenario("I see the review page and I am able to approve the uplift request") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
 
@@ -64,34 +57,16 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       stubApplicationSubscription
       stubApiDefinition
-
-      signInGatekeeper
+      signInSuperUserGatekeeper
       on(ApplicationsPage)
-
-
-      stubApplication
+      stubApplicationToReview
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Automated Test Application")
-
+      ApplicationsPage.selectByApplicationName("Application requiring approval")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(ApplicationPage)
+      on(ApplicationToReviewPage)
 
-      verifyText("data-environment", "Production")
-      verifyText("data-app-id", appPendingApprovalId1)
-      verifyText("data-status", "Production")
-      verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description-private", "application description")
-      verifyText("data-description-public", "An application that is pending approval")
-      webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
-      webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
-      verifyText("data-access-type", "Standard")
-      verifyText("data-subscriptions", "")
-      verifyText("data-collaborator-email", "admin@test.com", 0)
-      verifyText("data-collaborator-role", "Admin", 0)
-      verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
-      verifyText("data-collaborator-role", "Developer", 1)
       verifyText("data-submitted-on", "05 April 2016")
       verifyText("data-submitted-by-name", "Barry Scott" )
       verifyText("data-submitted-by-email", "barry.scott@example.com" )
@@ -100,11 +75,22 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-submission-contact-telephone", "020 1122 3345")
       verifyText("data-checked-on", "06 April 2016")
       verifyText("data-checked-by", "gatekeeperUserId")
+
+      stubApplicationToReview
+      clickOnReview("review")
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnElement("approve-app")
+      stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/approve-uplift"))
+        .withRequestBody(equalToJson(approveRequest))
+        .willReturn(aResponse().withStatus(200)))
+      clickOnSubmit()
+      stubApplicationToReview
+      on(ApplicationToReviewPage)
     }
   }
 
-  feature("Show an applications developer information") {
-    scenario("View a specific developer on an application") {
+    feature("Reject a request to uplift an application when no action was selected") {
+    scenario("I see the review page and I cannot submit without choosing an action") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList
 
@@ -114,28 +100,78 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       stubApplicationSubscription
       stubApiDefinition
-
-      signInGatekeeper
+      signInSuperUserGatekeeper
       on(ApplicationsPage)
-
-      stubApplication
+      stubApplicationToReview
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Automated Test Application")
-
-      stubApplication
+      ApplicationsPage.selectByApplicationName("Application requiring approval")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(ApplicationPage)
+      on(ApplicationToReviewPage)
 
-      stubDeveloper()
-      stubApplicationForEmail()
+      verifyText("data-submitted-on", "05 April 2016")
+      verifyText("data-submitted-by-name", "Barry Scott" )
+      verifyText("data-submitted-by-email", "barry.scott@example.com" )
+      verifyText("data-submission-contact-name", "Harry Golightly")
+      verifyText("data-submission-contact-email", "harry.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3345")
+      verifyText("data-checked-on", "06 April 2016")
+      verifyText("data-checked-by", "gatekeeperUserId")
 
-      When("I select to navigate to a collaborator")
-      ApplicationsPage.selectDeveloperByEmail("Dixie.Upton@mail.com")
+      stubApplicationToReview
+      clickOnReview("review")
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnSubmit()
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      verifyText("data-global-error","Review the application")
 
-      Then("I am successfully navigated to the developer details page")
-      on(DeveloperDetailsPage)
+    }
+  }
+
+    feature("Reject a request to uplift an application") {
+    scenario("I see the review page and I am able to reject the uplift request with a reason") {
+      Given("I have successfully logged in to the API Gatekeeper")
+      stubApplicationList
+
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
+
+      stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
+
+      stubApplicationSubscription
+      stubApiDefinition
+      signInSuperUserGatekeeper
+      on(ApplicationsPage)
+      stubApplicationToReview
+
+      When("I select to navigate to the Automated Test Application page")
+      ApplicationsPage.selectByApplicationName("Application requiring approval")
+
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(ApplicationToReviewPage)
+
+      verifyText("data-submitted-on", "05 April 2016")
+      verifyText("data-submitted-by-name", "Barry Scott" )
+      verifyText("data-submitted-by-email", "barry.scott@example.com" )
+      verifyText("data-submission-contact-name", "Harry Golightly")
+      verifyText("data-submission-contact-email", "harry.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3345")
+      verifyText("data-checked-on", "06 April 2016")
+      verifyText("data-checked-by", "gatekeeperUserId")
+
+      stubApplicationToReview
+      clickOnReview("review")
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      clickOnElement("reject-app")
+      verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
+      stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/reject-uplift"))
+        .withRequestBody(equalToJson(rejectRequest))
+        .willReturn(aResponse().withStatus(200)))
+      clickOnSubmit()
+      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      verifyText("data-global-error","This field is required")
+
+
     }
   }
 
@@ -149,6 +185,13 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+  }
+
+  def stubApplicationToReview = {
+    stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(200)))
+    stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
   }
 
   def stubApplicationListWithNoSubs = {
