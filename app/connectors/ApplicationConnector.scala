@@ -20,7 +20,6 @@ import config.WSHttp
 import connectors.AuthConnector._
 import model.RateLimitTier.RateLimitTier
 import model._
-import play.api.Logger
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.PRECONDITION_FAILED
@@ -92,7 +91,6 @@ trait ApplicationConnector {
     http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
         case e =>
-          Logger.error("ROSE", e)
           throw new FetchApplicationsFailed
       }
   }
