@@ -17,8 +17,6 @@
 package unit.views.helper.application
 
 
-import java.time.format.DateTimeFormatter
-
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.DateTimeUtils
@@ -29,7 +27,7 @@ class ApplicationReviewSpec extends UnitSpec {
   "ApplicationsReview" when {
     "application is approved" should {
       val now = DateTimeUtils.now
-      val dateFormatter =DateTimeFormat.forPattern("dd MMMM yyyy")
+      val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
       val app = anApplicationResponseWith(anApprovedApplication(dateTime = now))
 
       "is approved returns true" in {

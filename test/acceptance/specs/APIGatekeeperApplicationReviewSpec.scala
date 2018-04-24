@@ -22,8 +22,7 @@ import acceptance.pages._
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
-import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import org.scalatest.{GivenWhenThen, Matchers}
 
 import scala.io.Source
 
