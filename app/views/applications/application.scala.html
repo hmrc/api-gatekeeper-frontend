@@ -14,17 +14,14 @@
  * limitations under the License.
  *@
 
-@import model._
-@import model.AccessType.AccessType
 @import model.OverrideType.OverrideType
-@import org.joda.time.format.DateTimeFormat
-
+@import model._
+@import model.State._
 @import views.helper.application._
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
-@dateFormatter = @{DateTimeFormat.forPattern("dd MMMM yyyy")}
 
 @renderScopes(scopes: Set[String]) = {
     <th>

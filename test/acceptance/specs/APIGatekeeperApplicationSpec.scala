@@ -46,10 +46,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       stubApplicationSubscription()
       stubApiDefinition()
 
-      signInGatekeeper
-      on(DashboardPage)
-      When("I select to navigate to the Applications page")
-      DashboardPage.selectApplications()
+      signInGatekeeper()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationsPage)
     }
@@ -68,12 +65,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       stubApiDefinition()
 
       signInGatekeeper()
-      on(DashboardPage)
-
-      When("I select to navigate to the Applications page")
-      DashboardPage.selectApplications()
-
-      Then("I am successfully navigated to the Applications page where I can view all applications")
       on(ApplicationsPage)
 
       stubApplication()
@@ -122,12 +113,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       stubApiDefinition()
 
       signInGatekeeper()
-      on(DashboardPage)
-
-      When("I select to navigate to the Applications page")
-      DashboardPage.selectApplications()
-
-      Then("I am successfully navigated to the Applications page where I can view all applications")
       on(ApplicationsPage)
 
       stubApplication()
