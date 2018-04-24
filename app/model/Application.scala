@@ -215,7 +215,7 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  state: ApplicationState,
                                                  subscriptions: Seq[SubscriptionDetails]) extends Application
 
-case class SubscriptionDetails(name:String, context: String, version: String)
+case class SubscriptionDetails(name: String, context: String, version: String)
 
 
 object DetailedSubscribedApplicationResponse {
@@ -227,7 +227,6 @@ object DetailedSubscribedApplicationResponse {
   implicit val format4 = Json.format[ApplicationState]
   implicit val format5 = Json.format[DetailedSubscribedApplicationResponse]
 }
-
 
 
 object State extends Enumeration {

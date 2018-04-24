@@ -19,6 +19,7 @@ package controllers
 import connectors.AuthConnector
 import model.Forms._
 import model._
+import org.joda.time.format.DateTimeFormat
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -36,7 +37,9 @@ object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
   override val developerService = DeveloperService
+
   override def authConnector = AuthConnector
+
   override def authProvider = GatekeeperAuthProvider
 }
 
@@ -60,34 +63,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       val applicationFuture = applicationService.fetchApplication(appId)
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
-      def lastApproval(app: ApplicationWithHistory): StateHistory = {
-        app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
-          .sortWith(StateHistory.ascendingDateForAppId)
-          .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
-      }
-
-      def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
-        val emails: Set[String] = app.application.admins.map(_.emailAddress)
-        Future.successful(Seq.empty)
-      }
-
-      def approvedApplication(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
-        val verified = app.state.name == State.PRODUCTION
-        val details = applicationReviewDetails(app, submissionDetails)(request)
-
-        ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
-      }
-
       for {
         applicationWithHistory <- applicationFuture
-        approval = lastApproval(applicationWithHistory)
-        submission <- lastSubmission(applicationWithHistory)
-        admins <- administrators(applicationWithHistory)
         subscriptions <- subscriptionsFuture
-        approvedApp = approvedApplication(applicationWithHistory.application, approval, admins, submission)
-        appResponse = applicationWithHistory.application.copy(approvedDetails = Some(approvedApp))
-      } yield Ok(application(applicationWithHistory.copy(application = appResponse), subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+      } yield Ok(application(applicationWithHistory, subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
+
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {
@@ -113,12 +94,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-    applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+      applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-    applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+      applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -218,7 +199,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        if(app.application.name == form.applicationNameConfirmation) {
+        if (app.application.name == form.applicationNameConfirmation) {
           applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
             case ApplicationDeleteSuccessResult => Ok(delete_application_success(app, isSuperUser))
             case ApplicationDeleteFailureResult => technicalDifficulties
@@ -258,8 +239,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
-      developerService.fetchDeveloper(submission.actor.id).map(s =>
-          SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
+    /*developerService.fetchDeveloper(submission.actor.id).map(s =>
+        SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))*/
+    Future.successful(SubmissionDetails("", submission.actor.id, submission.changedAt))
   }
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
@@ -290,3 +272,4 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       app.privacyPolicyUrl)
   }
 }
+

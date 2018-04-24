@@ -28,7 +28,7 @@ object ApplicationPage extends WebPage {
 
   def deleteApplicationButton = find(id("delete-application")).get
 
-  def selectDeleteApplication = {
+  def selectDeleteApplication() = {
     click on deleteApplicationButton
   }
 }
