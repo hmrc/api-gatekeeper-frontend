@@ -40,16 +40,21 @@
 
                 <div class="grid-layout grid-layout--stacked push--sides js-visible">
 
-                    <div class="grid-layout__column--1-4">
-                        <label class="bold centered-content hard--left">
+                    <div class="grid-layout__column">
+                        <label class="bold centered-content hard--left label--full-length">
                             <span class="label__text bold">Search</span>
-                            <input class="form-control-7-8 input--cleared input-select--large"
-                            data-datatable-custom-filter="applications-table"
-                            name="search"
-                            type="text"
-                            placeholder="Name" />
+
+                            <input  class="form-control input--cleared input-select--large"
+                                    data-datatable-custom-filter="applications-table"
+                                    name="search"
+                                    type="text"
+                                    placeholder="Name" />
                         </label>
                     </div>
+
+                </div>
+
+                <div class="grid-layout grid-layout--stacked push--sides js-visible">
 
                     <div class="grid-layout__column--1-2">
                         <label class="form-label bold" for="filter">Filter by API Subscription
@@ -75,7 +80,7 @@
                         </label>
                     </div>
 
-                    <div class="grid-layout__column--1-4">
+                    <div class="grid-layout__column--1-2">
                         <label class="form-label bold centered-content hard--right" for="status">Filter by Status
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
@@ -83,9 +88,11 @@
                             id="status"
                             name="status"
                             value="">
-                            @for((value,label) <- Map("ALL" -> "All", "APPROVED" -> "Approved", "PENDING" -> "Pending", "SANDBOX" -> "Unapproved")) {
-                                <option value="@value" @if(value == "ALL") {@{"selected"}}>@label</option>
-                            }
+                                <option value="ALL" selected>All</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
+                                <option value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
+                                <option value="CREATED">Created</option>
                             </select>
                         </label>
                     </div>
@@ -111,7 +118,7 @@
                                    {"targets": [4], "visible": true, "searchable": true, "orderable": false},
                                    {"targets": [5], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
-                    <thead>https://www.kali.org/
+                    <thead>
                         <tr role="row">
                             <th tabindex="0" class="sorting_left-aligned">Name</th>
                             <th tabindex="0" class="sorting_left-aligned">Submitted</th>

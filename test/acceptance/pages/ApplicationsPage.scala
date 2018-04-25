@@ -18,8 +18,6 @@ package acceptance.pages
 
 import acceptance.WebPage
 import acceptance.pages.ApplicationsPage.APIFilter.APIFilterList
-import acceptance.pages.ApplicationsPage.StatusFilter.StatusFilterList
-import acceptance.pages.DashboardPage.{cssSelector, find, linkText}
 
 object ApplicationsPage extends WebPage {
 
@@ -38,10 +36,6 @@ object ApplicationsPage extends WebPage {
 
   def selectBySubscription(api: APIFilterList) = {
     singleSel("filter").value = api.name
-  }
-
-  def selectByStatus(status: StatusFilterList) = {
-    singleSel("status").value = status.name
   }
 
   def applicationsNavLink = find(linkText("Applications")).get
@@ -79,36 +73,13 @@ object ApplicationsPage extends WebPage {
 
 
   object APIFilter  {
-
     sealed abstract class APIFilterList(val name: String) {}
 
     case object ALLUSERS extends APIFilterList("ALL")
-
     case object ONEORMORESUBSCRIPTION extends APIFilterList("ANYSUB")
-
     case object NOSUBSCRIPTION extends APIFilterList("NOSUB")
-
     case object NOAPPLICATIONS extends APIFilterList("NOAPP")
-
     case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
-
     case object EMPLOYERSPAYE extends APIFilterList("Employers PAYE")
-
   }
-
-  object StatusFilter  {
-
-    sealed abstract class StatusFilterList(val name: String) {}
-
-    case object ALL extends StatusFilterList("ALL")
-
-    case object APPROVED extends StatusFilterList("APPROVED")
-
-    case object PENDING extends StatusFilterList("PENDING")
-
-    case object SANDBOX extends StatusFilterList("SANDBOX")
-
-  }
-
-
 }
