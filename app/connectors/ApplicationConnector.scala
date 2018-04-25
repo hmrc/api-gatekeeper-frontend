@@ -90,7 +90,8 @@ trait ApplicationConnector {
   def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[Application]] = {
     http.GET[Seq[ApplicationResponse]](s"$applicationBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
-        case e => throw new FetchApplicationsFailed
+        case e =>
+          throw new FetchApplicationsFailed
       }
   }
 

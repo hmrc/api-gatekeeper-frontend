@@ -93,6 +93,10 @@ trait DeveloperService {
     } yield Developer.createFromUser(developer, applications)
   }
 
+  def fetchDevelopersByEmails(emails: Seq[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    developerConnector.fetchByEmails(emails)
+  }
+
   def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
     fetchDeveloper(email).flatMap { developer =>
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.apps.partition(_.isSoleAdmin(email))

@@ -30,6 +30,7 @@ import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
+import services.DeveloperService
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -59,12 +60,15 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val ropcApplication = ApplicationWithHistory(
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), Seq.empty)
 
+      val mockDeveloperService = mock[DeveloperService]
+
       val underTest = new ApplicationController {
         val appConfig = mockConfig
         val authConnector = mockAuthConnector
         val authProvider = mockAuthProvider
         val applicationService = mockApplicationService
         val apiDefinitionService = mockApiDefinitionService
+        val developerService = mockDeveloperService
         val applicationConnector = mockApplicationConnector
         val developerConnector = mockDeveloperConnector
       }

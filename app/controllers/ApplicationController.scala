@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{ApiDefinitionService, ApplicationService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
@@ -40,6 +40,7 @@ import scala.concurrent.Future
 object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
+  override val developerService = DeveloperService
   override val applicationConnector = ApplicationConnector
   override val developerConnector = DeveloperConnector
   override def authProvider = GatekeeperAuthProvider
@@ -50,6 +51,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
+  val developerService: DeveloperService
   val applicationConnector: ApplicationConnector
   val developerConnector: DeveloperConnector
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
@@ -69,9 +71,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
       for {
-        app <- applicationFuture
-        subs <- subscriptionsFuture
-      } yield Ok(application(app, subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+        applicationWithHistory <- applicationFuture
+        subscriptions <- subscriptionsFuture
+      } yield Ok(application(applicationWithHistory, subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -99,12 +101,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-    applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+      applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-    applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+      applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -208,7 +210,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def deleteApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        if(app.application.name == form.applicationNameConfirmation) {
+        if (app.application.name == form.applicationNameConfirmation) {
           applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
             case ApplicationDeleteSuccessResult => Ok(delete_application_success(app, isSuperUser))
             case ApplicationDeleteFailureResult => technicalDifficulties

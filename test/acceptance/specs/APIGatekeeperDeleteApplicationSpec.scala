@@ -57,14 +57,14 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
   def navigateThroughDeleteApplication() = {
     Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList
+    stubApplicationList()
 
     val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
-    stubApplicationSubscription
-    stubApiDefinition
+    stubApplicationSubscription()
+    stubApiDefinition()
 
     signInSuperUserGatekeeper
     on(ApplicationsPage)
@@ -75,7 +75,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication
+    stubApplication()
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.selectByApplicationName(appName)
@@ -84,7 +84,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     on(ApplicationPage)
 
     When("I select the Delete Application Button")
-    ApplicationPage.selectDeleteApplication
+    ApplicationPage.selectDeleteApplication()
 
     Then("I am successfully navigated to the Delete Application page")
     on(DeleteApplicationPage)
@@ -93,7 +93,7 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
     DeleteApplicationPage.completeForm(appName)
 
     And("I select the Delete Application Button")
-    DeleteApplicationPage.selectDeleteButton
+    DeleteApplicationPage.selectDeleteButton()
   }
 
   def stubApplicationList() = {

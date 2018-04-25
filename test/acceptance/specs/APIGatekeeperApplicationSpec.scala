@@ -18,7 +18,7 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
+import acceptance.pages.{ApplicationPage, ApplicationsPage, DashboardPage, DeveloperDetailsPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -38,42 +38,39 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
     scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
+      stubApplicationList()
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
-      stubApplicationSubscription
-      stubApiDefinition
+      stubApplicationSubscription()
+      stubApiDefinition()
 
-      signInGatekeeper
+      signInGatekeeper()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationsPage)
-
     }
   }
 
   feature("Show applications information") {
     scenario("View a specific application") {
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
+      stubApplicationList()
 
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
-      stubApplicationSubscription
-      stubApiDefinition
+      stubApplicationSubscription()
+      stubApiDefinition()
 
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
-
-      stubApplication
+      stubApplication()
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
-
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -93,8 +90,8 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
       verifyText("data-collaborator-role", "Developer", 1)
       verifyText("data-submitted-on", "05 April 2016")
-      verifyText("data-submitted-by-name", "Barry Scott" )
       verifyText("data-submitted-by-email", "barry.scott@example.com" )
+      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=barry.scott%40example.com")
       verifyText("data-submission-contact-name", "Harry Golightly")
       verifyText("data-submission-contact-email", "harry.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3345")
@@ -106,24 +103,24 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
   feature("Show an applications developer information") {
     scenario("View a specific developer on an application") {
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
+      stubApplicationList()
 
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
 
-      stubApplicationSubscription
-      stubApiDefinition
+      stubApplicationSubscription()
+      stubApiDefinition()
 
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
-      stubApplication
+      stubApplication()
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
 
-      stubApplication
+      stubApplication()
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -139,29 +136,29 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
     }
   }
 
-  def stubApplicationList = {
+  def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(200)))
   }
 
-  def stubApplication = {
+  def stubApplication() = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
   }
 
-  def stubApplicationListWithNoSubs = {
+  def stubApplicationListWithNoSubs() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(200)))
   }
 
-  def stubApiDefinition = {
+  def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription = {
+  def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
   }
 
@@ -177,18 +174,5 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
       .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(200)))
-  }
-
-  private def assertNumberOfApplicationsPerPage(expected: Int) = {
-    webDriver.findElements(By.cssSelector("tbody > tr")).size() shouldBe expected
-  }
-
-  private def assertApplicationsList(devList: Seq[((String, String, String, String), Int)]) {
-    for ((app, index) <- devList) {
-      val fn = webDriver.findElement(By.id(s"app-name-$index")).getText shouldBe app._1
-      val sn = webDriver.findElement(By.id(s"app-created-$index")).getText shouldBe app._2
-      val em = webDriver.findElement(By.id(s"app-subs-$index")).getText shouldBe app._3
-      val st = webDriver.findElement(By.id(s"app-status-$index")).getText shouldBe app._4
-    }
   }
 }

@@ -14,16 +14,14 @@
  * limitations under the License.
  *@
 
+@import model.OverrideType.OverrideType
 @import model._
 @import model.State._
-@import model.AccessType.AccessType
-@import model.OverrideType.OverrideType
-@import org.joda.time.format.DateTimeFormat
+@import views.helper.application._
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
-@dateFormatter = @{DateTimeFormat.forPattern("dd MMMM yyyy")}
 
 @renderScopes(scopes: Set[String]) = {
     <th>
@@ -146,25 +144,22 @@
         <tr>
             <th><h3>Description (private)</h3></th>
             <td>
-                @if(application.description.nonEmpty) {
-                    <p data-description-private class="flush--top">@application.description</p>
-                } else {
-                    <p data-description-private class="faded-text">No description added</p>
-                }
+            @if(application.description.nonEmpty) {
+                <p data-description-private class="flush--top">@application.description</p>
+            } else {
+                <p data-description-private class="faded-text">No description added</p>
+            }
             </td>
             <td></td>
         </tr>
         <tr>
             <th><h3>Description (public)</h3></th>
             <td>
-                @{ application.checkInformation match {
-                    case Some(checkInformation) => { checkInformation.applicationDetails match {
+                @{
+                    ApplicationPublicDescription(application) match {
                         case Some(description) => <p data-description-public="" class="flush--top">{description}</p>
                         case None => <p data-description-public="" class="faded-text">No description added</p>
                     }
-                }
-                case None => <p class="faded-text">No description added</p>
-                }
                 }
             </td>
             <td></td>
@@ -254,9 +249,9 @@
                         <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(collaborator.emailAddress)}">@collaborator.emailAddress</a></td>
                         <td data-collaborator-role>
                             @{
-                                if (collaborator.role == CollaboratorRole.withName("ADMINISTRATOR")) {
+                                if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
                                     "Admin"
-                                } else if (collaborator.role == CollaboratorRole.withName("DEVELOPER")) {
+                                } else if (collaborator.role == CollaboratorRole.DEVELOPER) {
                                     "Developer"
                                 } else {
                                     ""
@@ -275,14 +270,10 @@
             <td>
                 <h3 class="heading--font-reset">Submitted on</h3>
             </td>
-            @{ application.approvedDetails match {
-                case Some(approved) => {
-                    <td data-submitted-on="">{dateFormatter.print(approved.details.submission.submittedOn)}</td>
-                }
-                case None => {
-                    <td data-submitted-on="" class="faded-text">N/A</td>
-                }
-            }
+            @{ ApplicationSubmission.getSubmittedOn(application) match {
+                case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
+                case None => <td data-submitted-on="" class="faded-text">N/A</td>
+               }
             }
             <td></td>
         </tr>
@@ -290,62 +281,51 @@
             <td>
                 <h3 class="heading--font-reset">Submitted by</h3>
             </td>
-            @{
-                application.approvedDetails match {
-                    case Some(approved) => {
-                        <td>
-                            <p data-submitted-by-name="">{approved.details.submission.submitterName}</p>
-                            <p data-submitted-by-email="">{approved.details.submission.submitterEmail}</p>
-                        </td>
-                    }
-                    case None => {
-                        <td class="faded-text">N/A</td>
-                    }
+            @{ApplicationSubmission.getSubmittedBy(application) match {
+                    case Some(email) =>
+                            <td>
+                                <p data-submitted-by-email="">
+                                    <a href={routes.DevelopersController.developerPage(email).url}>{email}</a>
+                                </p>
+                            </td>
+                    case None => <td class="faded-text">N/A</td>
                 }
             }
             <td></td>
         </tr>
-        @{ application.approvedDetails match {
-            case Some(approved) => {
-                <tr>
-                    <td>
-                        <h3 class="heading--font-reset">Submission contact</h3>
-                    </td>
-                    <td>
-                        {approved.details.reviewContactName match {
-                            case Some(name) => <p data-submission-contact-name="">{name}</p>
-                            case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
+        @if(ApplicationReview.isApproved(application)){
+            <tr>
+                <td>
+                    <h3 class="heading--font-reset">Submission contact</h3>
+                </td>
+                <td>
+                    @{ApplicationReview.getReviewContactName(application) match {
+                        case Some(name) => <p data-submission-contact-name="">{name}</p>
+                        case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
                         }
-                        }
-                        {approved.details.reviewContactEmail match {
+                    }
+                    @{ApplicationReview.getReviewContactEmail(application) match {
                             case Some(email) => <p data-submission-contact-email="">{email}</p>
                             case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
                         }
-                        }
-                        {approved.details.reviewContactTelephone match {
+                    }
+                    @{ApplicationReview.getReviewContactTelephone(application) match {
                             case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
                             case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
                         }
-                        }
-                    </td>
-                    <td></td>
-                </tr>
-            }
-            case None => {}
-            }
+                    }
+                </td>
+                <td></td>
+            </tr>
         }
         <tr>
             <td>
                 <h3 class="heading--font-reset">Checked on</h3>
             </td>
-            @{ application.approvedDetails match {
-                case Some(approved) => {
-                    <td data-checked-on="">{dateFormatter.print(approved.approvedOn)}</td>
+            @{ApplicationReview.getApprovedOn(application) match {
+                  case Some(approvedOn) => <td data-checked-on="">{approvedOn}</td>
+                  case None => <td data-checked-on="" class="faded-text">N/A</td>
                 }
-                case None => {
-                    <td data-checked-on="" class="faded-text">N/A</td>
-                }
-            }
             }
             <td></td>
         </tr>
@@ -353,14 +333,10 @@
             <td>
                 <h3 class="heading--font-reset">Checked by</h3>
             </td>
-            @{ application.approvedDetails match {
-                case Some(approved) => {
-                <td data-checked-by="">{approved.approvedBy}</td>
+            @{ApplicationReview.getApprovedBy(application) match {
+                    case Some(approvedBy) => <td data-checked-by="">{approvedBy}</td>
+                    case None => <td data-checked-by="" class="faded-text">N/A</td>
                 }
-                case None => {
-                <td data-checked-by="" class="faded-text">N/A</td>
-                }
-            }
             }
             <td></td>
         </tr>
@@ -368,7 +344,6 @@
     @if(isSuperUser) {
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center flush--right">Delete application</a>
     }
-
 </div>
 
 }
