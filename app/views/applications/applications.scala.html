@@ -111,7 +111,7 @@
                                    {"targets": [4], "visible": true, "searchable": true, "orderable": false},
                                    {"targets": [5], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
-                    <thead>
+                    <thead>https://www.kali.org/
                         <tr role="row">
                             <th tabindex="0" class="sorting_left-aligned">Name</th>
                             <th tabindex="0" class="sorting_left-aligned">Submitted</th>
@@ -125,17 +125,17 @@
                     @for((application, index) <- applications.zipWithIndex) {
                         <tr role="row">
                             <td id="app-name-@index"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></td>
-                            <td id="app-created-@index">@{
-                                dateFormatter.print(application.createdOn)
-                            }</td>
+                            <td id="app-created-@index">@{dateFormatter.print(application.createdOn)}</td>
                             <td>@application.createdOn</td>
                             <td id="app-subs-@index" title="@application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
                             <td class="text--right hard--right" id="app-status-@index">
-                            @defining(application.state.name match {
-                                case PRODUCTION => ("status status--verified", "Approved")
-                                case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending")
-                                case _ => ("status", "Unapproved")
-                            }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+                                @defining(application.state.name match {
+                                    case PRODUCTION => ("status status--verified", "Active")
+                                    case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+                                    case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                                    case _ => ("status", "Created")
+                                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+                            </td>
                             <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">
                                 @if(application.subscriptions.isEmpty){
                                     NOSUB

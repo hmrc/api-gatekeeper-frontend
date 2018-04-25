@@ -32,9 +32,12 @@
 
 package unit.views
 
+import java.util.UUID
+
 import config.AppConfig
 import model.APIStatus._
-import model.{APIIdentifier, VersionSummary}
+import model._
+import org.joda.time.DateTime
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
@@ -75,8 +78,8 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
 
     "Called with APIs" should {
 
-      val apis = Map[String, Seq[VersionSummary]](displayedStatus(STABLE) ->
-        Seq(VersionSummary("Dummy API", STABLE, APIIdentifier("dummy-api", "1.0"))),
+      val apis = Map[String, Seq[VersionSummary]](
+        displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, APIIdentifier("dummy-api", "1.0"))),
         displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier("beta-api", "1.0"))),
         displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier("ret-api", "1.0"))),
         displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
@@ -99,6 +102,32 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         appView.body should include ("Beta")
         appView.body should include ("Retired")
         appView.body should include ("Deprecated")
+      }
+    }
+
+    "Called with application" should {
+
+      val applications = Seq[DetailedSubscribedApplicationResponse](
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Seq.empty),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Seq.empty),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Seq.empty),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Seq.empty)
+      )
+
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty)
+
+      "Display all four applications in all four states" in {
+        val appView = applicationView()
+
+        appView.body should include("Testing App")
+        appView.body should include("Pending Gatekeeper Approval App")
+        appView.body should include("Pending Requester Verification App")
+        appView.body should include("Production App")
+
+        appView.body should include("Created")
+        appView.body should include("Pending gatekeeper check")
+        appView.body should include("Pending submitter verification")
+        appView.body should include("Active")
       }
     }
   }
