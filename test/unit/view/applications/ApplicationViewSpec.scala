@@ -31,6 +31,7 @@ import unit.utils.ViewHelpers._
 class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
   "application view" must {
     implicit val request = FakeRequest()
+
     val application =
       ApplicationResponse(
         UUID.randomUUID(),
@@ -42,7 +43,19 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         Standard(),
         ApplicationState()
       )
+
     val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
+
+    "show application information, including status information" in {
+
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByAttr(document, "td", "data-status") mustBe true
+      elementIdentifiedByAttrContainsText(document, "td", "data-status", "Created") mustBe true
+    }
 
     "show application information, including superuser only actions, when logged in as superuser" in {
 

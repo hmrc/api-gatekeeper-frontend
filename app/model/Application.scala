@@ -236,10 +236,17 @@ object State extends Enumeration {
   implicit val format = EnumJson.enumFormat(State)
 
   val displayedState: (State) => String = {
-    case TESTING => "Testing"
-    case PENDING_GATEKEEPER_APPROVAL => "Pending gatekeeper approval"
-    case PENDING_REQUESTER_VERIFICATION => "Pending requester verification"
-    case PRODUCTION => "Production"
+    case TESTING => "Created"
+    case PENDING_GATEKEEPER_APPROVAL => "Pending gatekeeper check"
+    case PENDING_REQUESTER_VERIFICATION => "Pending submitter verification"
+    case PRODUCTION => "Active"
+  }
+
+  val additionalInformation: (State) => String = {
+    case TESTING => "A production application that its admin has created but not submitted for checking"
+    case PENDING_GATEKEEPER_APPROVAL => "A production application that one of its admins has submitted for checking"
+    case PENDING_REQUESTER_VERIFICATION => "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
+    case PRODUCTION => "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
   }
 }
 

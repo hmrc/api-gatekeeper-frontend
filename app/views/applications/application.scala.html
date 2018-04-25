@@ -131,7 +131,10 @@
         </tr>
         <tr>
             <th><h3>Status</h3></th>
-            <td data-status>@State.displayedState(application.state.name)</td>
+            <td data-status>
+                <div>@State.displayedState(application.state.name)</div>
+                <div>@State.additionalInformation(application.state.name)</div>
+            </td>
             <td>@if(application.state.name == PENDING_GATEKEEPER_APPROVAL) {
                 <a href="@{routes.ApplicationController.reviewPage(application.id.toString)}" class="button button--link" role="button" id="review">Review</a>
                 }</td>
