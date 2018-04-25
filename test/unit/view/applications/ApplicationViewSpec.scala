@@ -53,8 +53,10 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByAttr(document, "td", "data-status") mustBe true
-      elementIdentifiedByAttrContainsText(document, "td", "data-status", "Created") mustBe true
+      elementExistsByAttr(document, "div", "data-status") mustBe true
+      elementExistsByAttr(document, "div", "data-status-info") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-status", "Created") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", "A production application that its admin has created but not submitted for checking") mustBe true
     }
 
     "show application information, including superuser only actions, when logged in as superuser" in {
