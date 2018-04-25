@@ -25,7 +25,7 @@ import uk.gov.hmrc.time.DateTimeUtils
 object ApplicationGenerator {
 
   def anApplicationResponse(dateTime: DateTime = DateTimeUtils.now): ApplicationResponse =
-    new ApplicationResponse(randomUUID(), "appName", "deployedTo", None, Set.empty, dateTime, new Privileged(), new ApplicationState(),
+    ApplicationResponse(randomUUID(), "appName", "deployedTo", None, Set.empty, dateTime, Privileged(), ApplicationState(),
       RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None, None)
 
   def anApplicationResponseWith(approval: ApprovedApplication): ApplicationResponse = anApplicationResponse().copy(approvedDetails = Some(approval))
@@ -33,9 +33,9 @@ object ApplicationGenerator {
   def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = anApplicationResponse().copy(checkInformation = Some(checkInformation))
 
   def anApprovedApplication(dateTime: DateTime = DateTimeUtils.now): ApprovedApplication =
-    new ApprovedApplication(
-      new ApplicationReviewDetails(id = "reviewId", name = "appName", description = "app description", rateLimitTier = None,
-        submission = new SubmissionDetails("submitterName", "submitterEmail", dateTime), reviewContactName = Some("review contact name"),
+    ApprovedApplication(
+      ApplicationReviewDetails(id = "reviewId", name = "appName", description = "app description", rateLimitTier = None,
+        submission = SubmissionDetails("submitterName", "submitterEmail", dateTime), reviewContactName = Some("review contact name"),
         reviewContactEmail = Some("review contact email"), reviewContactTelephone = Some("review contact telephone"), applicationDetails = None),
       admins = Seq.empty,
       approvedBy = "approved by",
@@ -44,7 +44,7 @@ object ApplicationGenerator {
     )
 
   def aCheckInformation(): CheckInformation =
-    new CheckInformation(contactDetails = Some(new ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
+    CheckInformation(contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
       confirmedName = true, providedPrivacyPolicyURL = true, providedTermsAndConditionsURL = true,
       applicationDetails = Some("application details"))
 
