@@ -32,7 +32,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 
-
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
   trait Setup {
     val request = FakeRequest().withCSRFToken

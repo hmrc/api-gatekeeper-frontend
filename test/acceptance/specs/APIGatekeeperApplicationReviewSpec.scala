@@ -158,7 +158,6 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       clickOnReview("review")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("reject-app")
-      verifyLinkPresent("data-naming-guidelines", "/api-documentation/docs/using-the-hub/name-guidelines")
       stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/reject-uplift"))
         .withRequestBody(equalToJson(rejectRequest))
         .willReturn(aResponse().withStatus(200)))

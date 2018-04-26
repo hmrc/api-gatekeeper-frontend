@@ -25,6 +25,13 @@ object ViewHelpers {
     doc.select(elementType).exists(node => node.text.trim == elementText)
   }
 
-  def elementExistsById(doc: Document, id: String) = doc.select(s"#$id").nonEmpty
+  def elementExistsById(doc: Document, id: String): Boolean = doc.select(s"#$id").nonEmpty
 
+  def elementExistsByAttr(doc: Document, elementType: String, attr: String): Boolean = {
+    doc.select(s"$elementType[$attr]").nonEmpty
+  }
+
+  def elementIdentifiedByAttrContainsText(doc: Document, elementType: String, attr: String, text: String): Boolean = {
+    doc.select(s"$elementType[$attr]").exists(element => element.text.equals(text))
+  }
 }
