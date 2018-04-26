@@ -62,24 +62,16 @@
                 aria-hidden="true">
                 @fieldError(form.errors, "action", true)
                 <legend class="visuallyhidden">Choose pass or fail application</legend>
-                <label class="block-label form-field--inline">
-                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Pass
-                </label>
-                <label class="block-label form-field--inline">
-                    <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Fail
-                </label>
+                <label class="block-label form-field--inline"><input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Pass</label>
+                <label class="block-label form-field--inline"><input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Fail</label>
             </fieldset>
 
             <div id="rejection-reason"
                  class="form-field toggle-target @if(form.errors("reason").isEmpty) {hidden} else {form-field--error}"
                  aria-expanded="false"
                  aria-visible="false">
-                <label for="reason">Rejection reason</label>
-                <p class="form-hint flush--top">Tell us why the application does not meet the
-                    <a data-naming-guidelines target="_blank" href="@{appConfig.devHubBaseUrl}/api-documentation/docs/using-the-hub/name-guidelines">
-                        naming guidelines
-                    </a>
-                    (opens in a new window).
+                <label for="reason">Failure reason</label>
+                <p class="form-hint flush--top">Tell the submitter why the application failed the check. This text will appear in the email to them.
                 </p>
                 @fieldError(form.errors, "reason", true)
                 <textarea id="reason" name="reason" class="textarea--3-4 flush--top @if(form.errors("reason").nonEmpty) {error-field}" rows="5">@form.data.get("reason")</textarea>
