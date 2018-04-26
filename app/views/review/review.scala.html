@@ -49,8 +49,7 @@
 
 
 
-    @helper.form(action = routes.ApplicationController.handleUplift(application.id),
-        'class -> "form") {
+    @helper.form(action = routes.ApplicationController.handleUplift(application.id), 'class -> "form") {
 
         <div data-journey-dynamic-radios>
             @helper.CSRF.formField
@@ -62,12 +61,12 @@
                 data-close="approve-app"
                 aria-hidden="true">
                 @fieldError(form.errors, "action", true)
-                <legend class="visuallyhidden">Choose approve or reject application</legend>
+                <legend class="visuallyhidden">Choose pass or fail application</legend>
                 <label class="block-label form-field--inline">
-                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Approve
+                    <input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Pass
                 </label>
                 <label class="block-label form-field--inline">
-                    <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Reject
+                    <input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Fail
                 </label>
             </fieldset>
 

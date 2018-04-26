@@ -80,7 +80,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       verifyText("data-environment", "Production")
       verifyText("data-app-id", appPendingApprovalId1)
-      verifyText("data-status", "Production")
+      verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", "application description")
       verifyText("data-description-public", "An application that is pending approval")
