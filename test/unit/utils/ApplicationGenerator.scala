@@ -26,7 +26,7 @@ import uk.gov.hmrc.time.DateTimeUtils
 object ApplicationGenerator {
 
 
-  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: Seq[StateHistory] = someStateHistories() ): ApplicationWithHistory =
+  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: Seq[StateHistory] = Seq.empty ): ApplicationWithHistory =
     ApplicationWithHistory(applicationResponse, stateHistories)
 
   def anApplicationResponse(dateTime: DateTime = DateTimeUtils.now): ApplicationResponse =
@@ -39,8 +39,6 @@ object ApplicationGenerator {
     CheckInformation(contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
       confirmedName = true, providedPrivacyPolicyURL = true, providedTermsAndConditionsURL = true,
       applicationDetails = Some("application details"))
-
-  def someStateHistories() = Seq.empty
 
   def aStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = StateHistory(randomUUID(), state, anActor(), None, changedAt)
 
