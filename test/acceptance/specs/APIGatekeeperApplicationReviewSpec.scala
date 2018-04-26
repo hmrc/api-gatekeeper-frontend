@@ -65,13 +65,13 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "05 April 2016")
-      verifyText("data-submitted-by-email", "barry.scott@example.com")
-      verifyText("data-submission-contact-name", "Harry Golightly")
-      verifyText("data-submission-contact-email", "harry.golightly@example.com")
-      verifyText("data-submission-contact-telephone", "020 1122 3345")
-      verifyText("data-checked-on", "06 April 2016")
-      verifyText("data-checked-by", "gatekeeperUserId")
+      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-checked-on", "05 April 2016")
+      verifyText("data-checked-by", "gatekeeper.username")
 
       stubApplicationToReview()
       clickOnReview("review")
@@ -107,13 +107,13 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "05 April 2016")
-      verifyText("data-submitted-by-email", "barry.scott@example.com")
-      verifyText("data-submission-contact-name", "Harry Golightly")
-      verifyText("data-submission-contact-email", "harry.golightly@example.com")
-      verifyText("data-submission-contact-telephone", "020 1122 3345")
-      verifyText("data-checked-on", "06 April 2016")
-      verifyText("data-checked-by", "gatekeeperUserId")
+      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-checked-on", "05 April 2016")
+      verifyText("data-checked-by", "gatekeeper.username")
 
       stubApplicationToReview()
       clickOnReview("review")
@@ -146,13 +146,13 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "05 April 2016")
-      verifyText("data-submitted-by-email", "barry.scott@example.com")
-      verifyText("data-submission-contact-name", "Harry Golightly")
-      verifyText("data-submission-contact-email", "harry.golightly@example.com")
-      verifyText("data-submission-contact-telephone", "020 1122 3345")
-      verifyText("data-checked-on", "06 April 2016")
-      verifyText("data-checked-by", "gatekeeperUserId")
+      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-checked-on", "05 April 2016")
+      verifyText("data-checked-by", "gatekeeper.username")
 
       stubApplicationToReview()
       clickOnReview("review")
@@ -171,7 +171,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
   }
 
   def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+    stubFor(get(urlEqualTo("/gatekeeper/resources/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(200)))
   }
 
@@ -190,7 +190,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
   }
 
   def stubApplicationListWithNoSubs() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+    stubFor(get(urlEqualTo("/gatekeeper/resources/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(200)))
   }
 
@@ -213,7 +213,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
   def stubApplicationForEmail() = {
     val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
+    stubFor(get(urlPathEqualTo("/developer/resources/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
       .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(200)))
   }
 

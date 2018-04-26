@@ -18,7 +18,7 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApplicationPage, ApplicationsPage, DashboardPage, DeveloperDetailsPage}
+import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -89,14 +89,14 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-collaborator-role", "Admin", 0)
       verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
       verifyText("data-collaborator-role", "Developer", 1)
-      verifyText("data-submitted-on", "05 April 2016")
-      verifyText("data-submitted-by-email", "barry.scott@example.com" )
-      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=barry.scott%40example.com")
-      verifyText("data-submission-contact-name", "Harry Golightly")
-      verifyText("data-submission-contact-email", "harry.golightly@example.com")
-      verifyText("data-submission-contact-telephone", "020 1122 3345")
-      verifyText("data-checked-on", "06 April 2016")
-      verifyText("data-checked-by", "gatekeeperUserId")
+      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-by-email", "admin@test.com" )
+      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=admin%40test.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-checked-on", "05 April 2016")
+      verifyText("data-checked-by", "gatekeeper.username")
     }
   }
 
