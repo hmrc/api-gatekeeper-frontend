@@ -19,16 +19,17 @@ package unit.views.helper.application
 import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ApplicationGenerator._
 import views.helper.application.ApplicationSubmission
+import model.State._
 
 class ApplicationSubmissionSpec extends UnitSpec {
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {
-        val app = anApplicationResponseWith(anApprovedApplication())
-        ApplicationSubmission.getSubmittedBy(app) shouldBe Some("submitterEmail")
+        val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
+        ApplicationSubmission.getSubmittedBy(app) shouldBe Some("actor id")
       }
       "is not present" in {
-        val app = anApplicationResponse()
+        val app = anApplicationWithHistory()
         ApplicationSubmission.getSubmittedBy(app) shouldBe None
       }
     }

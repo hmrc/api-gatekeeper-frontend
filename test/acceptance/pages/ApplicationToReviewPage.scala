@@ -26,9 +26,9 @@ object ApplicationToReviewPage extends WebPage {
     currentUrl == url
   }
 
-  def deleteApplicationButton = find(id("delete-application")).get
+  def deleteApplicationButton() = find(id("delete-application")).get
 
-  def selectDeleteApplication = {
+  def selectDeleteApplication() = {
     click on deleteApplicationButton
   }
 }

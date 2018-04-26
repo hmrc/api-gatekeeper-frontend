@@ -141,8 +141,7 @@ case class ApplicationResponse(id: UUID,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None,
-                               approvedDetails: Option[ApprovedApplication] = None
+                               checkInformation: Option[CheckInformation] = None
                               ) extends Application {
 
 }

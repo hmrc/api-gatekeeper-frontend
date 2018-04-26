@@ -37,19 +37,19 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
     scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
+      stubApplicationList()
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
-      stubApplicationForEmail
-      stubApplication
-      stubApiDefinition
-      stubDevelopers
-      stubDeveloper
-      stubApplicationSubscription
+      stubApplicationForEmail()
+      stubApplication()
+      stubApiDefinition()
+      stubDevelopers()
+      stubDeveloper()
+      stubApplicationSubscription()
 
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
             When("I select to navigate to the Developers page")
@@ -85,7 +85,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .withBody(applicationResponse).withStatus(200)))
   }
 
-  def stubApplication = {
+  def stubApplication() = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
@@ -117,7 +117,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription = {
+  def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
   }
 
