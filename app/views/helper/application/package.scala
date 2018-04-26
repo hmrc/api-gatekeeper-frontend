@@ -31,49 +31,60 @@ object ApplicationPublicDescription {
 object ApplicationSubmission {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
-  def getSubmittedBy(application: ApplicationResponse): Option[String] = {
+  private def getLastSubmission(application: ApplicationWithHistory): Option[StateHistory] =
+    application.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
+      .sortWith(StateHistory.ascendingDateForAppId)
+      .lastOption
+
+
+  def getSubmittedBy(application: ApplicationWithHistory): Option[String] = {
     for {
-      approvedDetails <- application.approvedDetails
-      email <- Some(approvedDetails.details.submission.submitterEmail)
+      submission <- getLastSubmission(application)
+      email <- Some(submission.actor.id)
     } yield email
   }
 
-  def getSubmittedOn(application: ApplicationResponse): Option[String] = {
+  def getSubmittedOn(application: ApplicationWithHistory): Option[String] = {
     for {
-      approvedDetails <- application.approvedDetails
-      approvedOn <- Some(dateFormatter.print(approvedDetails.details.submission.submittedOn))
-    } yield approvedOn
+      submission <- getLastSubmission(application)
+      submittedOn <- Some(dateFormatter.print(submission.changedAt))
+    } yield submittedOn
   }
 }
 
 object ApplicationReview {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
-  def isApproved(app: ApplicationResponse): Boolean = app.approvedDetails.isDefined
+  private def getLastApproval(app: ApplicationWithHistory) =
+    app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+      .sortWith(StateHistory.ascendingDateForAppId)
+      .lastOption
 
-  def getApprovedOn(app: ApplicationResponse): Option[String] = app.approvedDetails.map(approvedDetails =>
-    dateFormatter.print(approvedDetails.approvedOn))
+  def isApproved(app: ApplicationWithHistory): Boolean = getLastApproval(app).isDefined
 
-  def getApprovedBy(app: ApplicationResponse): Option[String] = app.approvedDetails.map(approvedDetails => approvedDetails.approvedBy)
+  def getApprovedOn(app: ApplicationWithHistory): Option[String] =
+    getLastApproval(app).map(approval => dateFormatter.print(approval.changedAt))
+
+  def getApprovedBy(app: ApplicationWithHistory): Option[String] = getLastApproval(app).map(_.actor.id)
 
   def getReviewContactName(app: ApplicationResponse): Option[String] = {
     for {
-      approvedDetails <- app.approvedDetails
-      name <- approvedDetails.details.reviewContactName
-    } yield name
+      checkInformation <- app.checkInformation
+      contactDetails <- checkInformation.contactDetails
+    } yield contactDetails.fullname
   }
 
   def getReviewContactEmail(app: ApplicationResponse): Option[String] = {
     for {
-      approvedDetails <- app.approvedDetails
-      email <- approvedDetails.details.reviewContactEmail
-    } yield email
+      checkInformation <- app.checkInformation
+      contactDetails <- checkInformation.contactDetails
+    } yield contactDetails.email
   }
 
   def getReviewContactTelephone(app: ApplicationResponse): Option[String] = {
     for {
-      approvedDetails <- app.approvedDetails
-      telephone <- approvedDetails.details.reviewContactTelephone
-    } yield telephone
+      checkInformation <- app.checkInformation
+      contactDetails <- checkInformation.contactDetails
+    } yield contactDetails.telephoneNumber
   }
 }

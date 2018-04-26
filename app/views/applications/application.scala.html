@@ -273,7 +273,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted on</h3>
             </td>
-            @{ ApplicationSubmission.getSubmittedOn(application) match {
+            @{ ApplicationSubmission.getSubmittedOn(applicationWithHistory) match {
                 case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
                 case None => <td data-submitted-on="" class="faded-text">N/A</td>
                }
@@ -284,7 +284,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted by</h3>
             </td>
-            @{ApplicationSubmission.getSubmittedBy(application) match {
+            @{ApplicationSubmission.getSubmittedBy(applicationWithHistory) match {
                     case Some(email) =>
                             <td>
                                 <p data-submitted-by-email="">
@@ -296,7 +296,7 @@
             }
             <td></td>
         </tr>
-        @if(ApplicationReview.isApproved(application)){
+        @if(ApplicationReview.isApproved(applicationWithHistory)){
             <tr>
                 <td>
                     <h3 class="heading--font-reset">Submission contact</h3>
@@ -325,7 +325,7 @@
             <td>
                 <h3 class="heading--font-reset">Checked on</h3>
             </td>
-            @{ApplicationReview.getApprovedOn(application) match {
+            @{ApplicationReview.getApprovedOn(applicationWithHistory) match {
                   case Some(approvedOn) => <td data-checked-on="">{approvedOn}</td>
                   case None => <td data-checked-on="" class="faded-text">N/A</td>
                 }
@@ -336,7 +336,7 @@
             <td>
                 <h3 class="heading--font-reset">Checked by</h3>
             </td>
-            @{ApplicationReview.getApprovedBy(application) match {
+            @{ApplicationReview.getApprovedBy(applicationWithHistory) match {
                     case Some(approvedBy) => <td data-checked-by="">{approvedBy}</td>
                     case None => <td data-checked-by="" class="faded-text">N/A</td>
                 }
