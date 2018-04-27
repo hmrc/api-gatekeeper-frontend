@@ -21,6 +21,7 @@ import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.DateTimeUtils
 import unit.utils.ApplicationGenerator._
+import model.State._
 import views.helper.application.ApplicationReview
 
 class ApplicationReviewSpec extends UnitSpec {
@@ -28,38 +29,34 @@ class ApplicationReviewSpec extends UnitSpec {
     "application is approved" should {
       val now = DateTimeUtils.now
       val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
-      val app = anApplicationResponseWith(anApprovedApplication(dateTime = now))
+      val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
+      val appResponse = anApplicationResponseWith(aCheckInformation())
 
-      "is approved returns true" in {
-        ApplicationReview.isApproved(app) shouldBe true
-      }
       "approved by return Some" in {
-        ApplicationReview.getApprovedBy(app) shouldBe Some("approved by")
+        ApplicationReview.getApprovedBy(app) shouldBe Some("actor id")
       }
       "approved on return Some" in {
         ApplicationReview.getApprovedOn(app) shouldBe Some(dateFormatter.print(now))
       }
       "review contact name return Some" in {
-        ApplicationReview.getReviewContactName(app) shouldBe Some("review contact name")
+        ApplicationReview.getReviewContactName(appResponse) shouldBe Some("contactFullName")
       }
       "review contact email return Some" in {
-        ApplicationReview.getReviewContactEmail(app) shouldBe Some("review contact email")
+        ApplicationReview.getReviewContactEmail(appResponse) shouldBe Some("contactEmail")
       }
       "review contact telephone return Some" in {
-        ApplicationReview.getReviewContactTelephone(app) shouldBe Some("review contact telephone")
+        ApplicationReview.getReviewContactTelephone(appResponse) shouldBe Some("contactTelephone")
       }
     }
     "application is not approved" should {
+      val appWithHistory = anApplicationWithHistory()
       val app = anApplicationResponse()
 
-      "is approved returns false" in {
-        ApplicationReview.isApproved(app) shouldBe false
-      }
       "approved by return None" in {
-        ApplicationReview.getApprovedBy(app) shouldBe None
+        ApplicationReview.getApprovedBy(appWithHistory) shouldBe None
       }
       "approved on return None" in {
-        ApplicationReview.getApprovedOn(app) shouldBe None
+        ApplicationReview.getApprovedOn(appWithHistory) shouldBe None
       }
       "review contact name return None" in {
         ApplicationReview.getReviewContactName(app) shouldBe None

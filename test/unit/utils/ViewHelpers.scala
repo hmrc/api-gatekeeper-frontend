@@ -34,4 +34,8 @@ object ViewHelpers {
   def elementIdentifiedByAttrContainsText(doc: Document, elementType: String, attr: String, text: String): Boolean = {
     doc.select(s"$elementType[$attr]").exists(element => element.text.equals(text))
   }
+
+  def elementIdentifiedByIdContainsText(doc: Document, elementType: String, id: String, text: String): Boolean = {
+    doc.select(s"#$id").exists(element => element.text.equals(text))
+  }
 }
