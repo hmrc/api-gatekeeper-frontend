@@ -96,6 +96,21 @@
                             </select>
                         </label>
                     </div>
+                </div>
+                <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold" for="filter">Filter by ToU Status
+                            <select class="form-control input-select input-select--large"
+                            data-datatable-filter="applications-table"
+                            id="tou_status"
+                            name="tou_status"
+                            value="">
+                                <option value data-api-name>All</option>
+                                <option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">ToU not accepted</option>
+                                <option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">ToU accepted</option>
+                            </select>
+                        </label>
+                    </div>
 
                     <div class="float-right js-hidden">
                         <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
@@ -126,6 +141,7 @@
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th class="text--right hard--right" tabindex="0">Status</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">ToU Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -150,6 +166,9 @@
                                     ANYSUB,
                                     @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
                                 }
+                            </td>
+                            <td id="app-tou-@index" class="text--right hard--right visuallyhidden">
+                            Terms of use
                             </td>
                         </tr>
                     }
