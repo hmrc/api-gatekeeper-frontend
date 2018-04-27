@@ -32,9 +32,6 @@ class ApplicationReviewSpec extends UnitSpec {
       val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
       val appResponse = anApplicationResponseWith(aCheckInformation())
 
-      "is approved returns true" in {
-        ApplicationReview.isApproved(app) shouldBe true
-      }
       "approved by return Some" in {
         ApplicationReview.getApprovedBy(app) shouldBe Some("actor id")
       }
@@ -55,9 +52,6 @@ class ApplicationReviewSpec extends UnitSpec {
       val appWithHistory = anApplicationWithHistory()
       val app = anApplicationResponse()
 
-      "is approved returns false" in {
-        ApplicationReview.isApproved(appWithHistory) shouldBe false
-      }
       "approved by return None" in {
         ApplicationReview.getApprovedBy(appWithHistory) shouldBe None
       }

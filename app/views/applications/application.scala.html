@@ -296,31 +296,29 @@
             }
             <td></td>
         </tr>
-        @if(ApplicationReview.isApproved(applicationWithHistory)){
-            <tr>
-                <td>
-                    <h3 class="heading--font-reset">Submission contact</h3>
-                </td>
-                <td>
-                    @{ApplicationReview.getReviewContactName(application) match {
-                        case Some(name) => <p data-submission-contact-name="">{name}</p>
-                        case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
-                        }
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Submission contact</h3>
+            </td>
+            <td>
+                @{ApplicationReview.getReviewContactName(application) match {
+                    case Some(name) => <p data-submission-contact-name="">{name}</p>
+                    case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
                     }
-                    @{ApplicationReview.getReviewContactEmail(application) match {
-                            case Some(email) => <p data-submission-contact-email="">{email}</p>
-                            case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
-                        }
+                }
+                @{ApplicationReview.getReviewContactEmail(application) match {
+                        case Some(email) => <p data-submission-contact-email="">{email}</p>
+                        case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
                     }
-                    @{ApplicationReview.getReviewContactTelephone(application) match {
-                            case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
-                            case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
-                        }
+                }
+                @{ApplicationReview.getReviewContactTelephone(application) match {
+                        case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
+                        case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
                     }
-                </td>
-                <td></td>
-            </tr>
-        }
+                }
+            </td>
+            <td></td>
+        </tr>
         <tr>
             <td>
                 <h3 class="heading--font-reset">Checked on</h3>
