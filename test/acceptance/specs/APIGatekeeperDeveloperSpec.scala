@@ -40,16 +40,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-      stubApplicationSubscription
-      stubApiDefinition
+      stubApplicationList()
+      stubApplicationSubscription()
+      stubApiDefinition()
       stubRandomDevelopers(100)
 
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
@@ -58,16 +58,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view ALL developers", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-      stubApiDefinition
-      stubApplicationSubscription
+      stubApplicationList()
+      stubApiDefinition()
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
@@ -120,18 +120,18 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view all developers who are subscribed to one or more API", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
-      stubApiDefinition
-      stubApplicationSubscription
+      stubApplicationList()
+      stubApiDefinition()
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       stubAPISubscription("employers-paye")
       stubNoAPISubscription()
-      signInGatekeeper
+      signInGatekeeper()
 
       on(ApplicationsPage)
 
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       When("I select one or more subscriptions from the filter drop down")
@@ -183,15 +183,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view all developers who have no subscription to an API", Tag("NonSandboxTest")){
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
+      stubApplicationList()
       stubApiDefinition()
-      stubApplicationSubscription
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      stubNoAPISubscription
-      signInGatekeeper
+      stubNoAPISubscription()
+      signInGatekeeper()
       on(ApplicationsPage)
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       When("I select no subscription from the filter drop down")
@@ -239,14 +239,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view all developers who has one or more application", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
+      stubApplicationList()
       stubApiDefinition()
-      stubApplicationSubscription
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       When("I select one or more applications from the filter drop down")
@@ -293,14 +293,14 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a SDST can view all users who has no application", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
+      stubApplicationList()
       stubApiDefinition()
-      stubApplicationSubscription
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       When("I select no applications from the filter drop down")
@@ -344,15 +344,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view all developers who are subscribed to the Employers-PAYE API", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper and I am on the Developers page")
-      stubApplicationList
+      stubApplicationList()
       stubApiDefinition()
-      stubApplicationSubscription
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       stubAPISubscription("employers-paye")
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       When("I select Employers PAYE from the API filter drop down")
@@ -400,15 +400,15 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure a user can view the Copy to Clipboard buttons on the Developers page", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationListWithNoDevelopers
-      stubApiDefinition
-      stubApplicationSubscription
+      stubApplicationListWithNoDevelopers()
+      stubApiDefinition()
+      stubApplicationSubscription()
       stubRandomDevelopers(24)
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       Then("I should be able to view the Copy to Clipboard buttons")
@@ -418,16 +418,16 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     scenario("Ensure all developer email addresses are successfully loaded into bcc", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList
-      stubApiDefinition
-      stubApplicationSubscription
+      stubApplicationList()
+      stubApiDefinition()
+      stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       Then("the copy to clipboard button should contain all of the developers email addresses")
@@ -470,7 +470,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription = {
+  def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
   }
 

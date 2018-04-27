@@ -189,7 +189,12 @@ trait MockDataSugar {
        |      "confirmedName": true,
        |      "providedPrivacyPolicyURL": true,
        |      "providedTermsAndConditionsURL": true,
-       |      "applicationDetails": "An application that is pending approval"
+       |      "applicationDetails": "An application that is pending approval",
+       |      "termsOfUseAgreements": [{
+       |        "emailAddress": "test@test.com",
+       |        "timeStamp": 1459868573962,
+       |        "version": "1.0"
+       |      }]
        |    },
        |    "approvedDetails": {
        |      "details": {
@@ -285,7 +290,12 @@ trait MockDataSugar {
        |      "confirmedName": true,
        |      "providedPrivacyPolicyURL": true,
        |      "providedTermsAndConditionsURL": true,
-       |      "applicationDetails": "An application that is pending approval"
+       |      "applicationDetails": "An application that is pending approval",
+       |      "termsOfUseAgreements": [{
+       |        "emailAddress": "test@test.com",
+       |        "timeStamp": 1459868573962,
+       |        "version": "1.0"
+       |      }]
        |    },
        |    "approvedDetails": {
        |      "details": {
@@ -381,7 +391,13 @@ trait MockDataSugar {
        |      "confirmedName": true,
        |      "providedPrivacyPolicyURL": true,
        |      "providedTermsAndConditionsURL": true,
-       |      "applicationDetails": "An application that is pending approval"
+       |      "applicationDetails": "An application that is pending approval",
+       |      "termsOfUseAgreements": [{
+       |        "emailAddress": "test@test.com",
+       |        "timeStamp": 1459868573962,
+       |        "version": "1.0"
+       |      }]
+       |
        |    },
        |    "subscriptions": []
        |  },

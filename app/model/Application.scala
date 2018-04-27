@@ -43,6 +43,8 @@ object ContactDetails {
   implicit val formatContactDetails = Json.format[ContactDetails]
 }
 
+case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
+
 case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             confirmedName: Boolean = false,
                             providedPrivacyPolicyURL: Boolean = false,
@@ -51,12 +53,9 @@ case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
 
 object CheckInformation {
+  implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
   implicit val formatApprovalInformation = Json.format[CheckInformation]
 }
-
-case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)/*{
-  implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
-}*/
 
 sealed trait Access {
   val accessType: AccessType.Value
@@ -223,7 +222,8 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  collaborators: Set[Collaborator],
                                                  createdOn: DateTime,
                                                  state: ApplicationState,
-                                                 subscriptions: Seq[SubscriptionDetails]) extends Application
+                                                 subscriptions: Seq[SubscriptionDetails],
+                                                 termsOfUseAgreed: Boolean) extends Application
 
 case class SubscriptionDetails(name: String, context: String, version: String)
 
