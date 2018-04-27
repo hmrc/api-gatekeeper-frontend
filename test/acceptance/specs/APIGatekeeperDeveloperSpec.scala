@@ -45,7 +45,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubRandomDevelopers(100)
 
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
@@ -63,7 +63,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
@@ -127,7 +127,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       stubAPISubscription("employers-paye")
       stubNoAPISubscription()
-      signInGatekeeper
+      signInGatekeeper()
 
       on(ApplicationsPage)
 
@@ -189,7 +189,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       stubNoAPISubscription()
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
@@ -244,7 +244,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
@@ -298,7 +298,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
@@ -350,7 +350,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(200)))
       stubAPISubscription("employers-paye")
-      signInGatekeeper
+      signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
@@ -408,7 +408,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")
-      ApplicationsPage.selectDevelopers
+      ApplicationsPage.selectDevelopers()
       on(DeveloperPage)
 
       Then("I should be able to view the Copy to Clipboard buttons")

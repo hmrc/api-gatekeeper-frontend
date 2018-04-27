@@ -33,7 +33,7 @@ trait SubscriptionEnhancer {
           }
         }, sub.name, sub.version)
       )
-      DetailedSubscribedApplicationResponse(ar.id, ar.name, ar.description, ar.collaborators, ar.createdOn, ar.state, details)
+      DetailedSubscribedApplicationResponse(ar.id, ar.name, ar.description, ar.collaborators, ar.createdOn, ar.state, details, ar.termsOfUseAgreed)
     }
   }
 }

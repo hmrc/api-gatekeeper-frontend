@@ -14,13 +14,10 @@
  * limitations under the License.
  *@
 
-@import include._
-@import model._
 @import model.State._
-@import model.SubscribedApplicationResponse
+@import model._
 @import org.joda.time.format.DateTimeFormat
 
-@import model.APIStatus.APIStatus
 @(applications: Seq[DetailedSubscribedApplicationResponse],
         apis: Map[String, Seq[VersionSummary]])(implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
@@ -96,6 +93,21 @@
                             </select>
                         </label>
                     </div>
+                </div>
+                <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold" for="filter">Filter by Terms of Use Status
+                            <select class="form-control input-select input-select--large"
+                            data-datatable-filter="applications-table"
+                            id="tou_status"
+                            name="tou_status"
+                            value="">
+                                <option id="default-tou-status" value data-api-name>All</option>
+                                <option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not accepted</option>
+                                <option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Accepted</option>
+                            </select>
+                        </label>
+                    </div>
 
                     <div class="float-right js-hidden">
                         <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
@@ -116,7 +128,8 @@
                                    {"targets": [1], "orderable": true, "orderData": [2]},
                                    {"targets": [2], "visible": false, "searchable": false},
                                    {"targets": [4], "visible": true, "searchable": true, "orderable": false},
-                                   {"targets": [5], "visible": false, "searchable": true, "orderable": false}]'
+                                   {"targets": [5], "visible": false, "searchable": true, "orderable": false},
+                                   {"targets": [6], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
                     <thead>
                         <tr role="row">
@@ -126,6 +139,7 @@
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th class="text--right hard--right" tabindex="0">Status</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">Terms of use Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -149,6 +163,13 @@
                                 } else {
                                     ANYSUB,
                                     @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
+                                }
+                            </td>
+                            <td id="app-tou-@index" class="text--right hard--right visuallyhidden">
+                                @if(application.termsOfUseAgreed){
+                                    TOU_ACCEPTED
+                                } else {
+                                    TOU_NOT_ACCEPTED
                                 }
                             </td>
                         </tr>

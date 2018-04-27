@@ -74,6 +74,14 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         appView.body should not include "Retired"
         appView.body should not include "Deprecated"
       }
+
+      "Display the Terms of Use filters" in {
+        val appView = applicationView()
+
+        appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
+        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not accepted</option>""")
+        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Accepted</option>""")
+      }
     }
 
     "Called with APIs" should {
@@ -95,6 +103,14 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
+      "Display the Terms of Use filters" in {
+        val appView = applicationView()
+
+        appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
+        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not accepted</option>""")
+        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Accepted</option>""")
+      }
+
       "Include the application state filters" in {
         val appView = applicationView()
 
@@ -108,10 +124,10 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
     "Called with application" should {
 
       val applications = Seq[DetailedSubscribedApplicationResponse](
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Seq.empty),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Seq.empty),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Seq.empty),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Seq.empty)
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Seq.empty, termsOfUseAgreed = true)
       )
 
       val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty)

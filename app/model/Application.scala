@@ -43,13 +43,17 @@ object ContactDetails {
   implicit val formatContactDetails = Json.format[ContactDetails]
 }
 
+case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
+
 case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             confirmedName: Boolean = false,
                             providedPrivacyPolicyURL: Boolean = false,
                             providedTermsAndConditionsURL: Boolean = false,
-                            applicationDetails: Option[String] = None)
+                            applicationDetails: Option[String] = None,
+                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
 
 object CheckInformation {
+  implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
   implicit val formatApprovalInformation = Json.format[CheckInformation]
 }
 
@@ -189,7 +193,8 @@ case class SubscribedApplicationResponse(id: UUID,
                                          collaborators: Set[Collaborator],
                                          createdOn: DateTime,
                                          state: ApplicationState,
-                                         subscriptions: Seq[SubscriptionNameAndVersion]) extends Application
+                                         subscriptions: Seq[SubscriptionNameAndVersion],
+                                         termsOfUseAgreed: Boolean) extends Application
 
 
 object SubscribedApplicationResponse {
@@ -201,9 +206,13 @@ object SubscribedApplicationResponse {
   implicit val format5 = Json.format[SubscriptionNameAndVersion]
   implicit val format6 = Json.format[SubscribedApplicationResponse]
 
+  private def isTermsOfUseAccepted(checkInformation: CheckInformation): Boolean = {
+    checkInformation.termsOfUseAgreements.exists(tou => tou.version == "1.0")
+  }
+
   def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
     SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
-      appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions)
+      appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted))
 }
 
 case class DetailedSubscribedApplicationResponse(id: UUID,
@@ -212,7 +221,8 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  collaborators: Set[Collaborator],
                                                  createdOn: DateTime,
                                                  state: ApplicationState,
-                                                 subscriptions: Seq[SubscriptionDetails]) extends Application
+                                                 subscriptions: Seq[SubscriptionDetails],
+                                                 termsOfUseAgreed: Boolean) extends Application
 
 case class SubscriptionDetails(name: String, context: String, version: String)
 
