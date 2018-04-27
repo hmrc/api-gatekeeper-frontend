@@ -60,8 +60,6 @@ object ApplicationReview {
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 
-  def isApproved(app: ApplicationWithHistory): Boolean = getLastApproval(app).isDefined
-
   def getApprovedOn(app: ApplicationWithHistory): Option[String] =
     getLastApproval(app).map(approval => dateFormatter.print(approval.changedAt))
 
