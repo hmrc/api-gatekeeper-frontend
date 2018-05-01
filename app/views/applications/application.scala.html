@@ -133,6 +133,16 @@
                 <div data-status>@State.displayedState(application.state.name)</div>
                 <div data-status-info><span class="faded-text">@State.additionalInformation(application.state.name)</span></div>
             </td>
+            <td>
+                @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
+                    <a href={routes.ApplicationController.reviewPage(application.id.toString).url} class="button button--link" role="button" id="review">Check application</a>
+                   } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
+                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id.toString).url}>Resend verify email</a>)</span>
+                   }
+                }
+            </td>
+
+
             <td>@if(application.state.name == PENDING_GATEKEEPER_APPROVAL) {
                 <a href="@{routes.ApplicationController.reviewPage(application.id.toString)}" class="button button--link" role="button" id="review">Check application</a>
                 }</td>

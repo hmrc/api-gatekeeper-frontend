@@ -105,5 +105,17 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       result.contentType must include("text/html")
       elementExistsByText(document, "a", "sample@example.com") mustBe true
     }
+
+    "show application information, pending verification status should have link to resend email" in {
+      val applicationPendingVerification = application.copy(state = ApplicationState(State.PENDING_REQUESTER_VERIFICATION))
+
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationPendingVerification),
+        Seq.empty, isSuperUser = false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByText(document, "a", "Resend verify email") mustBe true
+    }
   }
 }
