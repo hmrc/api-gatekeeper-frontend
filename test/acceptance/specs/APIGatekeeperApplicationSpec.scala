@@ -16,6 +16,8 @@
 
 package acceptance.specs
 
+import java.awt.Toolkit
+import java.awt.datatransfer.DataFlavor
 import java.net.URLEncoder
 
 import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
@@ -89,6 +91,8 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-collaborator-role", "Admin", 0)
       verifyText("data-collaborator-email", "purnima.shanti@mail.com", 1)
       verifyText("data-collaborator-role", "Developer", 1)
+      verifyText("data-collaborator-email", "Dixie.Upton@mail.com", 2)
+      verifyText("data-collaborator-role", "Developer", 2)
       verifyText("data-submitted-on", "22 March 2016")
       verifyText("data-submitted-by-email", "admin@test.com" )
       webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=admin%40test.com")
@@ -97,6 +101,23 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-submission-contact-telephone", "020 1122 3344")
       verifyText("data-checked-on", "05 April 2016")
       verifyText("data-checked-by", "gatekeeper.username")
+
+      And("I can see the Copy buttons")
+      verifyText("data-clip-text", "Copy all team member email addresses", 0)
+      verifyText("data-clip-text", "Copy admin email addresses", 1)
+
+      When("I select the copy all button")
+      ApplicationPage.selectCopyAll()
+
+      Then("All team member emails are copied to clipboard")
+      Toolkit.getDefaultToolkit.getSystemClipboard.getData(DataFlavor.stringFlavor) shouldBe
+        "admin@test.com; purnima.shanti@mail.com; Dixie.Upton@mail.com"
+
+      When("I select the copy admins button")
+      ApplicationPage.selectCopyAdmins()
+
+      Then("Only admin emails are copied to clipboard")
+      Toolkit.getDefaultToolkit.getSystemClipboard.getData(DataFlavor.stringFlavor) shouldBe "admin@test.com"
     }
   }
 

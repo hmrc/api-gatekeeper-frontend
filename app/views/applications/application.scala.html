@@ -18,6 +18,7 @@
 @import model._
 @import model.State._
 @import views.helper.application._
+@import views.helper.EmailsFormatter
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
@@ -342,10 +343,30 @@
             <td></td>
         </tr>
     </table>
+    @if(application.collaborators.nonEmpty) {
+
+        <div class="form-group">
+            <p>
+                <a id="copy-all-to-clip" class="button copy-to-clip float--right" href="#"
+                   title="Copies all team member email addresses into the system clipboard."
+                   data-clip-text="@EmailsFormatter.format(application.collaborators)">
+                    Copy all team member email addresses
+                </a>
+            </p>
+        </div>
+        <div class="form-group">
+            <p>
+                <a id="copy-admins-to-clip" class="button copy-to-clip float--right" href="#"
+                   title="Copies admin email addresses into the system clipboard."
+                   data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
+                    Copy admin email addresses
+                </a>
+            </p>
+        </div>
+    }
     @if(isSuperUser) {
-    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center flush--right">Delete application</a>
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center float--left">Delete application</a>
     }
 </div>
-
 }
 
