@@ -16,8 +16,6 @@
 
 package acceptance.specs
 
-import java.awt.Toolkit
-import java.awt.datatransfer.DataFlavor
 import java.net.URLEncoder
 
 import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
@@ -106,18 +104,6 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       verifyText("data-clip-text", "Copy all team member email addresses", 0)
       verifyText("data-clip-text", "Copy admin email addresses", 1)
 
-      When("I select the copy all button")
-      ApplicationPage.selectCopyAll()
-
-      Then("All team member emails are copied to clipboard")
-      Toolkit.getDefaultToolkit.getSystemClipboard.getData(DataFlavor.stringFlavor) shouldBe
-        "admin@test.com; purnima.shanti@mail.com; Dixie.Upton@mail.com"
-
-      When("I select the copy admins button")
-      ApplicationPage.selectCopyAdmins()
-
-      Then("Only admin emails are copied to clipboard")
-      Toolkit.getDefaultToolkit.getSystemClipboard.getData(DataFlavor.stringFlavor) shouldBe "admin@test.com"
     }
   }
 

@@ -32,16 +32,4 @@ object ApplicationPage extends WebPage {
     click on deleteApplicationButton
   }
 
-  def copyAllButton = find(id("copy-all-to-clip")).get
-
-  def selectCopyAll() = {
-    click on copyAllButton
-  }
-
-  def copyAdminsButton = find(id("copy-admins-to-clip")).get
-
-  def selectCopyAdmins() = {
-    click on copyAdminsButton
-  }
-
 }
