@@ -142,11 +142,6 @@
                    }
                 }
             </td>
-
-
-            <td>@if(application.state.name == PENDING_GATEKEEPER_APPROVAL) {
-                <a href="@{routes.ApplicationController.reviewPage(application.id.toString)}" class="button button--link" role="button" id="review">Check application</a>
-                }</td>
         </tr>
         <tr>
             <th><h3>Rate limit tier</h3></th>
