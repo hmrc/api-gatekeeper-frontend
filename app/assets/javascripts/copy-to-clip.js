@@ -1,7 +1,7 @@
 $(function(undefined) {
   // Copy To Clipboard
   (function() {
-    var copyButton = $('#copy-to-clip');
+    var copyButtons = $('.copy-to-clip');
 
     function copyTextToClipboard(text) {
       var textArea = document.createElement("textarea");
@@ -31,12 +31,13 @@ $(function(undefined) {
       document.body.removeChild(textArea);
     }
 
-    if (copyButton.length) {
-      copyButton.on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        copyTextToClipboard( copyButton.data('clip-text') );
-      });
-    }
+    copyButtons.each(function(index) {
+        $(this).on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            copyTextToClipboard( $(this).data('clip-text') );
+        });
+    });
+
   })();
 });
