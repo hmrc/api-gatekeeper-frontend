@@ -18,11 +18,14 @@
 @import model._
 @import model.State._
 @import views.helper.application._
+@import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
+
+
 
 @renderScopes(scopes: Set[String]) = {
     <th>
@@ -96,6 +99,14 @@
     }
 }
 
+@renderDeveloperUrl(checkInformation: CheckInformation) = {
+        @defining(DateTimeFormat.longDate) { dateFormatter =>
+        @defining(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.emailAddress) { emailAddress =>
+           Accepted by <a href="@{routes.DevelopersController.developerPage(emailAddress)}">@emailAddress</a> on @dateFormatter.print(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.timeStamp)
+        }
+    }
+}
+
 @main(title = s"${appConfig.title} - Application Details", userFullName = userFullName) {
 
 <div class="">
@@ -150,6 +161,20 @@
                 <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button button--link" role="button">Manage</a>
                 }</td>
         </tr>
+        <tr>
+            <th><h3>Terms of Use</h3></th>
+            <td>
+                <div data-terms>
+                    @{
+                        application.checkInformation match{
+
+                            case Some(checkInformation) =>  renderDeveloperUrl(checkInformation)
+                            case None =>  <p>Not accepted</p>
+                        }
+                    }
+                </div>
+
+            </td>
         <tr>
             <th><h3>Description (private)</h3></th>
             <td>

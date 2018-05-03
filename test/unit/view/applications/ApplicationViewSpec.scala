@@ -21,6 +21,7 @@ import java.util.UUID
 import config.AppConfig
 import model._
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits._
@@ -31,6 +32,7 @@ import unit.utils.ViewHelpers._
 class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
   "application view" must {
     implicit val request = FakeRequest()
+
 
     val application =
       ApplicationResponse(
@@ -45,6 +47,88 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       )
 
     val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
+
+    "show application with no check information" in {
+
+      val application =
+        ApplicationResponse(
+          UUID.randomUUID(),
+          "application1",
+          "PRODUCTION",
+          None,
+          Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
+          DateTime.now(),
+          Standard(),
+          ApplicationState()
+        )
+
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByAttr(document, "div", "data-terms") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe true
+    }
+
+    "show application with check information but no terms of use agreed" in {
+
+      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), "1.0")
+      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
+
+
+      val applicationWithTermsOfUse = ApplicationResponse(
+
+        UUID.randomUUID(),
+        "name",
+        "PRODUCTION",
+        None,
+        Set.empty,
+        DateTime.now(),
+        Standard(),
+        ApplicationState(),
+        checkInformation = Option(checkInformation)
+      )
+
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByAttr(document, "div", "data-terms") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe true
+    }
+
+    "show application with check information and terms of use agreed" in {
+
+      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), "1.0")
+      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
+
+
+      val applicationWithTermsOfUse = ApplicationResponse(
+
+        UUID.randomUUID(),
+        "name",
+        "PRODUCTION",
+        None,
+        Set.empty,
+        DateTime.now(),
+        Standard(),
+        ApplicationState(),
+        checkInformation = Option(checkInformation)
+      )
+
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByAttr(document, "div", "data-terms") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe false
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"Accepted by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.longDate.print(termsOfUseAgreement.timeStamp)}") mustBe true
+
+    }
+
 
     "show application information, including status information" in {
 

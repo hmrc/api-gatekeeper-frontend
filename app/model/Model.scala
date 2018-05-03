@@ -21,6 +21,7 @@ import java.util.UUID
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
 import model.State.State
+import model._
 import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
