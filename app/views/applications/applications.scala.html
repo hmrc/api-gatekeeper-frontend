@@ -45,7 +45,7 @@
                                     data-datatable-custom-filter="applications-table"
                                     name="search"
                                     type="text"
-                                    placeholder="Name" />
+                                    placeholder="Application name or ID" />
                         </label>
                     </div>
 
@@ -129,7 +129,8 @@
                                    {"targets": [2], "visible": false, "searchable": false},
                                    {"targets": [4], "visible": true, "searchable": true, "orderable": false},
                                    {"targets": [5], "visible": false, "searchable": true, "orderable": false},
-                                   {"targets": [6], "visible": false, "searchable": true, "orderable": false}]'
+                                   {"targets": [6], "visible": false, "searchable": true, "orderable": false},
+                                   {"targets": [7], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
                     <thead>
                         <tr role="row">
@@ -140,6 +141,7 @@
                             <th class="text--right hard--right" tabindex="0">Status</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">Terms of use Status</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">Application ID</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -171,6 +173,9 @@
                                 } else {
                                     TOU_NOT_ACCEPTED
                                 }
+                            </td>
+                            <td id="app-id-@index" class="text--right hard--right visuallyhidden">
+                                @{application.id}
                             </td>
                         </tr>
                     }
