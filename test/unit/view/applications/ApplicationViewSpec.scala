@@ -73,12 +73,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show application with check information but no terms of use agreed" in {
 
-      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), "1.0")
-      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
-
-
-      val applicationWithTermsOfUse = ApplicationResponse(
-
+      val checkInformation = CheckInformation()
+      val applicationWithCheckInformationButNoTerms = ApplicationResponse(
         UUID.randomUUID(),
         "name",
         "PRODUCTION",
@@ -90,7 +86,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         checkInformation = Option(checkInformation)
       )
 
-      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
