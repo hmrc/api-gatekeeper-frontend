@@ -145,8 +145,8 @@ case class ApplicationResponse(id: UUID,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None
-                              ) extends Application {
+                               checkInformation: Option[CheckInformation] = None)
+                               extends Application {
 
 }
 
@@ -170,6 +170,7 @@ object ApplicationResponse {
   implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApprovedApplication]
   implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
+  implicit val format6 = Json.format[TermsOfUseAgreement]
 }
 
 object AccessType extends Enumeration {
