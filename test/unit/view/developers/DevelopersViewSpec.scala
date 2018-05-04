@@ -25,9 +25,9 @@ import play.api.test.FakeRequest
 class DevelopersViewSpec extends PlaySpec with OneServerPerSuite {
 
   val users = Seq(
-    User("sample@email.com", "Sample", "Email", Some(false)),
-    User("another@email.com", "Sample2", "Email", Some(true)),
-    UnregisteredCollaborator("something@email.com"))
+    User("sample@example.com", "Sample", "Email", Some(false)),
+    User("another@example.com", "Sample2", "Email", Some(true)),
+    UnregisteredCollaborator("something@example.com"))
   val devs = users.map(u => Developer.createFromUser(u, Seq.empty))
 
   "Developers view" must {

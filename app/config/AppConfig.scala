@@ -21,7 +21,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 
 trait AppConfig {
   val assetsPrefix: String
-  val devHubBaseUrl: String
+  val fakenameBaseUrl: String
   def isExternalTestEnvironment: Boolean
   def title: String
   def superUsers: Seq[String]
@@ -35,7 +35,7 @@ object AppConfig extends AppConfig with ServicesConfig {
   }
 
   override lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
-  override lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
+  override lazy val fakenameBaseUrl = loadStringConfig("fakenameBaseUrl")
   override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
   override def superUsers: Seq[String] = {

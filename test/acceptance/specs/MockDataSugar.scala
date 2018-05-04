@@ -30,51 +30,51 @@ trait MockDataSugar {
   val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
 
   val applicationDescription = "application description"
-  val adminEmail = "admin@test.com"
-  val admin2Email = "admin2@test.com"
+  val adminEmail = "admin@example.com"
+  val admin2Email = "admin2@example.com"
   val firstName = "John"
   val lastName = "Test"
   val fullName = s"$firstName $lastName"
 
-  val developer = "purnima.shanti@mail.com"
+  val developer = "purnima.fakename@example.com"
   val devFirstName = "Purnima"
-  val devLastName = "Shanti"
+  val devLastName = "Fakename"
 
-  val developer2 = "imran.akram@mail.com"
+  val developer2 = "imran.fakename@example.com"
   val dev2FirstName = "Imran"
-  val dev2LastName = "Akram"
+  val dev2LastName = "Fakename"
 
-  val developer3 = "gurpreet.bhamra@mail.com"
+  val developer3 = "gurpreet.fakename@example.com"
   val dev3FirstName = "Gurpreet"
-  val dev3LastName =  "Bhamra"
+  val dev3LastName =  "Fakename"
 
   val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
-  val developer5 = "John.Dave@mail.com"
+  val developer5 = "John.fakename@example.com"
   val dev5FirstName = "John"
-  val dev5LastName =  "Dave"
+  val dev5LastName =  "Fakename"
 
-  val developer6 = "Vijaya.Vasantha@mail.com"
+  val developer6 = "Vijaya.fakename@example.com"
   val dev6FirstName = "Vijaya"
-  val dev6LastName =  "Vasantha"
+  val dev6LastName =  "Fakename"
 
-  val developer7 = "Kerri.Ruffo@mail.com"
+  val developer7 = "Kerri.fakename@example.com"
   val dev7FirstName = "Kerri"
-  val dev7LastName = "Ruffo"
+  val dev7LastName = "Fakename"
 
-  val developer8 = "Dixie.Upton@mail.com"
+  val developer8 = "Dixie.fakename@example.com"
   val dev8FirstName = "Dixie"
-  val dev8LastName = "Upton"
+  val dev8LastName = "Fakename"
 
   val developer9 = "fred@example.com"
   val dev9name = "n/a"
 
-  val developer10 = "peter.parker@mail.com"
+  val developer10 = "peter.fakename@example.com"
   val dev10name = "n/a"
 
-  val randomEmail = s"john.smith${System.currentTimeMillis}@mail.com"
+  val randomEmail = s"john.smith${System.currentTimeMillis}@example.com"
 
   val statusVerified = "verified"
   val statusUnverified = "not yet verified"
@@ -191,7 +191,7 @@ trait MockDataSugar {
        |      "providedTermsAndConditionsURL": true,
        |      "applicationDetails": "An application that is pending approval",
        |      "termsOfUseAgreements": [{
-       |        "emailAddress": "test@test.com",
+       |        "emailAddress": "test@example.com",
        |        "timeStamp": 1459868573962,
        |        "version": "1.0"
        |      }]
@@ -203,12 +203,12 @@ trait MockDataSugar {
        |        "description": "",
        |        "rateLimitTier": "BRONZE",
        |        "submission": {
-       |          "submitterName": "Barry Scott",
-       |          "submitterEmail": "barry.scott@example.com",
+       |          "submitterName": "Barry Dev hub",
+       |          "submitterEmail": "barry.fakename@example.com",
        |          "submittedOn": 1459868573962
        |        },
        |        "reviewContactName": "Harry Golightly",
-       |        "reviewContactEmail": "harry.golightly@example.com",
+       |        "reviewContactEmail": "harry.fakename@example.com",
        |        "reviewContactTelephone": "020 1122 3345",
        |        "applicationDetails": ""
        |      },
@@ -292,7 +292,7 @@ trait MockDataSugar {
        |      "providedTermsAndConditionsURL": true,
        |      "applicationDetails": "An application that is pending approval",
        |      "termsOfUseAgreements": [{
-       |        "emailAddress": "test@test.com",
+       |        "emailAddress": "test@example.com",
        |        "timeStamp": 1459868573962,
        |        "version": "1.0"
        |      }]
@@ -304,12 +304,12 @@ trait MockDataSugar {
        |        "description": "",
        |        "rateLimitTier": "BRONZE",
        |        "submission": {
-       |          "submitterName": "Barry Scott",
-       |          "submitterEmail": "barry.scott@example.com",
+       |          "submitterName": "Barry Fakename",
+       |          "submitterEmail": "barry.fakename@example.com",
        |          "submittedOn": 1459868573962
        |        },
        |        "reviewContactName": "Harry Golightly",
-       |        "reviewContactEmail": "harry.golightly@example.com",
+       |        "reviewContactEmail": "harry.fakename@example.com",
        |        "reviewContactTelephone": "020 1122 3345",
        |        "applicationDetails": ""
        |      },
@@ -393,7 +393,7 @@ trait MockDataSugar {
        |      "providedTermsAndConditionsURL": true,
        |      "applicationDetails": "An application that is pending approval",
        |      "termsOfUseAgreements": [{
-       |        "emailAddress": "test@test.com",
+       |        "emailAddress": "test@example.com",
        |        "timeStamp": 1459868573962,
        |        "version": "1.0"
        |      }]
@@ -586,7 +586,7 @@ trait MockDataSugar {
        |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+       |      "requestedByEmailAddress": "thomas.fakename@example.com",
        |      "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
        |      "updatedOn": 1460113878463
        |    },
@@ -649,7 +649,7 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+       |        "emailAddress": "gurpreet.fakename@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -674,11 +674,11 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "third-party-developer.hmrc@mailinator.com",
+       |        "emailAddress": "third-party-developer.fakename@example.com",
        |        "role": "ADMINISTRATOR"
        |      },
        |      {
-       |        "emailAddress": "bill.hmrc@mailinator.com",
+       |        "emailAddress": "bill.fakename@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -703,7 +703,7 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "james.morris@digital.hmrc.gov.uk",
+       |        "emailAddress": "james.fakename@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -723,7 +723,7 @@ trait MockDataSugar {
        |    "rateLimitTier": "BRONZE",
        |    "state": {
        |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "james.morris@digital.hmrc.gov.uk",
+       |      "requestedByEmailAddress": "james.fakename@example.com",
        |      "verificationCode": "OHn8PF9xcLllK5G3DN3vYIAyeZAceHyjvd2aG_Is8fQ",
        |      "updatedOn": 1475154623761
        |    },
@@ -804,7 +804,7 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "admin@email.com",
+       |        "emailAddress": "admin@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -833,7 +833,7 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "edgar.jimenez@digital.hmrc.gov.uk",
+       |        "emailAddress": "edgar.fakename@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -856,7 +856,7 @@ trait MockDataSugar {
        |    "name": "QA User App 2",
        |    "collaborators": [
        |      {
-       |        "emailAddress": "mtd-qa-test-user@mailinator.com",
+       |        "emailAddress": "mtd-qa-test-user@example.com",
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
@@ -965,7 +965,7 @@ trait MockDataSugar {
        |     "role": "DEVELOPER"
        |    },
        |    {
-       |      "emailAddress": "peter.parker@mail.com",
+       |      "emailAddress": "peter.fakename@example.com",
        |     "role": "DEVELOPER"
        |    }
        |    ],
@@ -1094,7 +1094,7 @@ trait MockDataSugar {
        |        "role": "ADMINISTRATOR"
        |      },
        |      {
-       |        "emailAddress": "collaborator@test.com",
+       |        "emailAddress": "collaborator@example.com",
        |        "role": "DEVELOPER"
        |      },
        |      {

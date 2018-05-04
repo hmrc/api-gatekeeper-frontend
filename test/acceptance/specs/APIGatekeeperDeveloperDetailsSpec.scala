@@ -66,7 +66,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
             And("I can see the developer's details and associated applications")
             assert(DeveloperDetailsPage.firstName == "Dixie")
-            assert(DeveloperDetailsPage.lastName == "Upton")
+            assert(DeveloperDetailsPage.lastName == "Fakename")
             assert(DeveloperDetailsPage.status == "not yet verified")
 
             When("I select an associated application")

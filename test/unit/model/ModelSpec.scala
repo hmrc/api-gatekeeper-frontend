@@ -71,7 +71,7 @@ class ModelSpec  extends UnitSpec with Matchers {
     val admin = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR)
     val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER)
     val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR)
-    val otherDeveloper = Collaborator("someone@email.com", CollaboratorRole.DEVELOPER)
+    val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)
 
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
