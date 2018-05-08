@@ -6,7 +6,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -27,7 +27,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "thomas.fakename@example.com",
       "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
       "updatedOn": 1460113878463
     },
@@ -41,7 +41,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -62,7 +62,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "thomas.fakename@example.com",
       "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
       "updatedOn": 1460113878463
     },
@@ -76,7 +76,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+        "emailAddress": "rakesh.avasarala@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -97,7 +97,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "rakesh.avasarala@example.com",
       "verificationCode": "ncm5pLTiFnUeUkGyHwST7JYO1ETmKQFpQYfTIS2DUfk",
       "updatedOn": 1460561238488
     },
@@ -111,11 +111,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "third-party-developer.hmrc@mailinator.com",
+        "emailAddress": "third-party-developer.hmrc@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "bill.hmrc@mailinator.com",
+        "emailAddress": "bill.hmrc@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -139,11 +139,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+        "emailAddress": "haroon.rasheed@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "apiplatform.test.user.5@mailinator.com",
+        "emailAddress": "apiplatform.test.user.5@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -168,7 +168,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "haroon.rasheed@example.com",
       "verificationCode": "TkJbCxXysylFQ2PfEdVLKbHW-IYPJM37vE9KgVRrAXI",
       "updatedOn": 1460639495505
     },
@@ -182,15 +182,15 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "t.vandevelde@gmail.com",
+        "emailAddress": "t.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "t.vandevelde@yahoo.fr",
+        "emailAddress": "t.fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -213,7 +213,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "t.vandevelde@gmail.com",
+      "requestedByEmailAddress": "t.fakename@example.com",
       "verificationCode": "z8tmImthfCbyrAI2S5fCj4RRvGOml5g4-0KZzCSnEbw",
       "updatedOn": 1460124561883
     },
@@ -227,15 +227,15 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edgar@mailinator.com",
+        "emailAddress": "edgar@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "edgarjimenez68@gmail.com",
+        "emailAddress": "edgarfakename68@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "edgar2@mailinator.com",
+        "emailAddress": "edgar2@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -252,7 +252,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "edgarjimenez68@gmail.com",
+      "requestedByEmailAddress": "edgarfakename68@example.com",
       "verificationCode": "voSEMK81bvrb_KrQn6_HoJcdebqnVxAimS0-l3SkfkU",
       "updatedOn": 1468848648810
     },
@@ -266,27 +266,27 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "developer.2.hmrc@mailinator.com",
+        "emailAddress": "developer.2.hmrc@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "developer.3.hmrc@mailinator.com",
+        "emailAddress": "developer.3.hmrc@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "developer.5.hmrc@mailinator.com",
+        "emailAddress": "developer.5.hmrc@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "developer.6.hmrc@mailinator.com",
+        "emailAddress": "developer.6.hmrc@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "developer.4.hmrc@mailinator.com",
+        "emailAddress": "developer.4.hmrc@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "developer.1.hmrc@mailinator.com",
+        "emailAddress": "developer.1.hmrc@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -299,7 +299,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "developer.1.hmrc@mailinator.com",
+      "requestedByEmailAddress": "developer.1.hmrc@example.com",
       "verificationCode": "CD_NUqUC0XRxZEw7_6YHrt4-V909hSUptA5qShYN11Y",
       "updatedOn": 1460126655216
     },
@@ -313,11 +313,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "lee.hawksworth@digital.hmrc.gov.uk",
+        "emailAddress": "lee.hawksworth@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "leeperimeter@hotmail.com",
+        "emailAddress": "leeperimeter@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -330,7 +330,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "lee.hawksworth@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "lee.hawksworth@example.com",
       "verificationCode": "8DqSvMsnD0lIaDOr2IqYNGFLp4bAa5tyOQbJk11E3a8",
       "updatedOn": 1460375982588
     },
@@ -344,7 +344,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "lee.hawksworth@digital.hmrc.gov.uk",
+        "emailAddress": "lee.hawksworth@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -368,15 +368,15 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hmrc.test.user.1@mailinator.com",
+        "emailAddress": "hmrc.test.user.1@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "hmrc.test.user.2@mailinator.com",
+        "emailAddress": "hmrc.test.user.2@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "hmrc.test.user.3@mailinator.com",
+        "emailAddress": "hmrc.test.user.3@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -400,11 +400,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "andreea.ardelean@digital.hmrc.gov.uk",
+        "emailAddress": "andreea.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "andreea.ardelean@gmail.com",
+        "emailAddress": "andreea.fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -428,7 +428,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tamara.morillas@digital.hmrc.gov.uk",
+        "emailAddress": "tamara.morillas@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -441,7 +441,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "tamara.morillas@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "tamara.morillas@example.com",
       "verificationCode": "wv7aiJuo0neU5YMneGGvnmTSAtDeNl_0wLzNL8fRKD4",
       "updatedOn": 1461837565985
     },
@@ -455,7 +455,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hmrc.test.user.55@mailinator.com",
+        "emailAddress": "hmrc.test.user.55@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -480,7 +480,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "sean.mcgowan@digital.hmrc.gov.uk",
+        "emailAddress": "sean.mcgowan@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -509,7 +509,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "apiplatform.test.user.4@mailinator.com",
+        "emailAddress": "apiplatform.test.user.4@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -530,7 +530,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "apiplatform.test.user.4@mailinator.com",
+      "requestedByEmailAddress": "apiplatform.test.user.4@example.com",
       "verificationCode": "d5hqhnB0TEDQqfUo4W9DcBNq_8-DHDTU5VvDyCLJ3Nc",
       "updatedOn": 1460477671852
     },
@@ -543,11 +543,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "t.vandevelde@yahoo.fr",
+        "emailAddress": "t.fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -576,19 +576,19 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "test@test.com",
+        "emailAddress": "test@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "david.lusby@digital.hmrc.gov.uk",
+        "emailAddress": "david.lusby@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "devhubtest@mailinator.com",
+        "emailAddress": "fakenametest@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "michael.jeacock@digital.hmrc.gov.uk",
+        "emailAddress": "michael.jeacock@example.com",
         "role": "DEVELOPER"
       },
       {
@@ -596,15 +596,15 @@
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "g_bhamra@yahoo.co.uk",
+        "emailAddress": "g_fakename@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "anythingtest@mailinator.com",
+        "emailAddress": "anythingtest@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -621,7 +621,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "gurpreet.fakename@example.com",
       "updatedOn": 1461140846319
     },
     "trusted": true,
@@ -634,7 +634,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edgar@mailinator.com",
+        "emailAddress": "edgar@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -647,7 +647,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "edgar@mailinator.com",
+      "requestedByEmailAddress": "edgar@example.com",
       "verificationCode": "sWJ2b9E2xLHKUBvsavo20ARPL3RJbS2ZE7Cq1vEy4U8",
       "updatedOn": 1460555942874
     },
@@ -660,7 +660,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edgar@mailinator.com",
+        "emailAddress": "edgar@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -684,7 +684,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+        "emailAddress": "haroon.rasheed@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -701,7 +701,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "haroon.rasheed@example.com",
       "verificationCode": "ocYIrL_mWvXgJ3EkfHG8NNCGcfuSV-ZH7So-R1iiE9Q",
       "updatedOn": 1461249061012
     },
@@ -715,7 +715,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "e2eadmin@email.com",
+        "emailAddress": "e2eadmin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -740,7 +740,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "e2eadmin@email.com",
+        "emailAddress": "e2eadmin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -765,7 +765,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "subhajit.chowdhury@accenture.com",
+        "emailAddress": "subhajit.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -793,7 +793,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -810,7 +810,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "gurpreet.fakename@example.com",
       "verificationCode": "3RFJh7M8hmteTtdBbte-8LQjBsr-H-UJX5Sjw3cRCNo",
       "updatedOn": 1473254960752
     },
@@ -823,23 +823,23 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tamas.lang@digital.hmrc.gov.uk",
+        "emailAddress": "tamas.lang@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+        "emailAddress": "haroon.rasheed@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "byron.prentice@digital.hmrc.gov.uk",
+        "emailAddress": "byron.prentice@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "nick.pace@digital.hmrc.gov.uk",
+        "emailAddress": "nick.pace@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "vinod.kondath@digital.hmrc.gov.uk",
+        "emailAddress": "vinod.kondath@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -856,7 +856,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "nick.pace@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "nick.pace@example.com",
       "verificationCode": "2grnUaotrQ5rZ4GwDlmRbTwQY1l0dcgZ-7JDr1EYOFQ",
       "updatedOn": 1461317883766
     },
@@ -870,7 +870,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "admin@email.com",
+        "emailAddress": "admin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -899,7 +899,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "admin@email.com",
+        "emailAddress": "admin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -956,7 +956,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "andreas.kyrris@digital.hmrc.gov.uk",
+        "emailAddress": "andreas.kyrris@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -984,7 +984,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tamara.morillas@digital.hmrc.gov.uk",
+        "emailAddress": "tamara.morillas@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -997,7 +997,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "tamara.morillas@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "tamara.morillas@example.com",
       "verificationCode": "GJZQjg5gabEK85UeoDs1uOxvpC9uvDprnO8f7iIQkLw",
       "updatedOn": 1462284530073
     },
@@ -1011,7 +1011,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hmrc-web-operations@digital.hmrc.gov.uk",
+        "emailAddress": "hmrc-web-operations@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1039,11 +1039,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1062,7 +1062,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "thomas.fakename@example.com",
       "verificationCode": "7RstpSinjO2pVZsF0XZtBriVTWt_iLpOJccCcCQ9sak",
       "updatedOn": 1462805718400
     },
@@ -1076,7 +1076,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1095,7 +1095,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "roman.kusnierz@mailinator.com",
+      "requestedByEmailAddress": "roman.kusnierz@example.com",
       "verificationCode": "gy5DoxKj8XbY2j4ZdMp2dDFJR-lNG6npQSSzKmj1IYw",
       "updatedOn": 1462891278244
     },
@@ -1108,7 +1108,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1133,7 +1133,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1150,7 +1150,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "roman.kusnierz@mailinator.com",
+      "requestedByEmailAddress": "roman.kusnierz@example.com",
       "verificationCode": "oRrWOvN_qo3siAzIEAcPQ-CvRkB_TTbINU5h8UHzZbc",
       "updatedOn": 1462892802168
     },
@@ -1163,7 +1163,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1180,7 +1180,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "roman.kusnierz@mailinator.com",
+      "requestedByEmailAddress": "roman.kusnierz@example.com",
       "verificationCode": "ZVBeZreKBWSX4vYUGtoVecbPdoReM1gUl_poHBlmDg8",
       "updatedOn": 1462892790590
     },
@@ -1193,7 +1193,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1210,7 +1210,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "roman.kusnierz@mailinator.com",
+      "requestedByEmailAddress": "roman.kusnierz@example.com",
       "verificationCode": "M6Fw4W1n4WdU5kcCqnyg5whAyhCaXSQEQA2FVWmwc4A",
       "updatedOn": 1462893152933
     },
@@ -1223,7 +1223,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "roman.kusnierz@mailinator.com",
+        "emailAddress": "roman.kusnierz@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1240,7 +1240,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "roman.kusnierz@mailinator.com",
+      "requestedByEmailAddress": "roman.kusnierz@example.com",
       "verificationCode": "LDX6qTH2gGxcCHVxnhSVli_87VJiJXsHg8YB2OJ1aBY",
       "updatedOn": 1462893187838
     },
@@ -1253,7 +1253,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1270,7 +1270,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "hugh.jackson@example.com",
       "verificationCode": "Ivl1KTMJGpNXMFC3Rj4wAhD46eZ12gXTUTptgcEnybc",
       "updatedOn": 1462953152675
     },
@@ -1283,7 +1283,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1300,7 +1300,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "hugh.jackson@example.com",
       "verificationCode": "hpwtj4gmmZz0FTzZgTUXQrgw2OqcXjdwrSDE1Af7BVY",
       "updatedOn": 1462953070607
     },
@@ -1313,7 +1313,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1330,7 +1330,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "hugh.jackson@example.com",
       "verificationCode": "6Bt8x97RGBzucPVt_jCm4urewAQ3leSB5NQHdbBU0hk",
       "updatedOn": 1462953149893
     },
@@ -1343,7 +1343,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1373,7 +1373,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1403,7 +1403,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1435,7 +1435,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1459,7 +1459,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1476,7 +1476,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "hugh.jackson@example.com",
       "verificationCode": "98s3N657mSf5sIYFRw-BCJyc8qv9yH4gu20YRXd2jVI",
       "updatedOn": 1463647751684
     },
@@ -1490,27 +1490,27 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "swetha.palreddy@digital.hmrc.gov.uk",
+        "emailAddress": "swetha.palreddy@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "nick.wilson@digital.hmrc.gov.uk",
+        "emailAddress": "nick.wilson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "steve.hobbs@digital.hmrc.gov.uk",
+        "emailAddress": "steve.hobbs@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "kuldeep.wadhwa@digital.hmrc.gov.uk",
+        "emailAddress": "kuldeep.wadhwa@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "andrew.ridout@digital.hmrc.gov.uk",
+        "emailAddress": "andrew.ridout@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+        "emailAddress": "aivars.smaukstelis@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1523,7 +1523,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "aivars.smaukstelis@example.com",
       "verificationCode": "oUyG4KsgUfqfPPaWB4dcUcxbmbsOaOriixG6msg_1bE",
       "updatedOn": 1464006524519
     },
@@ -1537,11 +1537,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+        "emailAddress": "aivars.smaukstelis@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "nick.wilson@digital.hmrc.gov.uk",
+        "emailAddress": "nick.wilson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1554,7 +1554,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "aivars.smaukstelis@example.com",
       "verificationCode": "CP1p8NwRMWRzLFXBNFfhzd-H2c2RRDznjcsKQDLRUNk",
       "updatedOn": 1464006375611
     },
@@ -1567,7 +1567,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1580,7 +1580,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "gurpreet.fakename@example.com",
       "verificationCode": "3UwfcUBxCQeFQ0D8a48RxYYI6je4zs7P7X70sEnQOnM",
       "updatedOn": 1471358887098
     },
@@ -1594,11 +1594,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "edgarjimenez68@gmail.com",
+        "emailAddress": "edgarfakename68@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1632,7 +1632,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "verificationCode": "Bor0JNarKvWJeiOllLz6ZlQwVMwjMKlA93Odic-4W0k",
       "updatedOn": 1464797498575
     },
@@ -1645,7 +1645,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "doug.clinton@digital.hmrc.gov.uk",
+        "emailAddress": "doug.clinton@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1666,7 +1666,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "doug.clinton@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "doug.clinton@example.com",
       "verificationCode": "YDjZFb7tHTRA8xM01zr2Ie19vDWy8SGTP_DmC7HfRNI",
       "updatedOn": 1471340659053
     },
@@ -1680,11 +1680,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "g_bhamra@yahoo.co.uk",
+        "emailAddress": "g_fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -1709,11 +1709,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "g_bhamra@yahoo.co.uk",
+        "emailAddress": "g_fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -1742,11 +1742,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "gurprit.bhamra@gmail.com",
+        "emailAddress": "gurprit.fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -1771,7 +1771,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1796,7 +1796,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "langtamas+hmrc.tpdf.1@gmail.com",
+        "emailAddress": "langtamas+hmrc.tpdf.1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1820,7 +1820,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "haroonzone+123@gmail.com",
+        "emailAddress": "haroonzone+123@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1833,7 +1833,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "haroonzone+123@gmail.com",
+      "requestedByEmailAddress": "haroonzone+123@example.com",
       "verificationCode": "VNMCN9kgYC6SOzGbLg_efE51CqPg627_sGL65McZZeA",
       "updatedOn": 1465396755861
     },
@@ -1846,7 +1846,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1867,7 +1867,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "verificationCode": "x7jHn1jbKnSetsMPaG6fFX_7BlFehdlvWcOV3zSsu-c",
       "updatedOn": 1472812405748
     },
@@ -1880,7 +1880,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "temp102@mailinator.com",
+        "emailAddress": "temp102@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1893,7 +1893,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "updatedOn": 1465466617382
     },
     "trusted": false,
@@ -1905,7 +1905,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1918,7 +1918,7 @@
     },
     "state": {
       "name": "PENDING_REQUESTER_VERIFICATION",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "verificationCode": "d17jucE-6m_qUloiDZTKTl6gyQ_WvCsGu8P2rMxRbjM",
       "updatedOn": 1475610721412
     },
@@ -1931,7 +1931,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1944,7 +1944,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "updatedOn": 1465468574126
     },
     "trusted": false,
@@ -1957,11 +1957,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "test-user-1@mailinator.com",
+        "emailAddress": "test-user-1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -1974,7 +1974,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "updatedOn": 1465468635614
     },
     "trusted": false,
@@ -1982,12 +1982,12 @@
   },
   {
     "id": "e55def1d-763c-4a26-a44e-82a63f4cb70b",
-    "name": "james.morris@digital.hmrc.gov.uk",
+    "name": "james.fakename@example.com",
     "description": "Stuff",
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "james.morris@digital.hmrc.gov.uk",
+        "emailAddress": "james.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2006,7 +2006,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "james.morris@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "james.fakename@example.com",
       "verificationCode": "OHn8PF9xcLllK5G3DN3vYIAyeZAceHyjvd2aG_Is8fQ",
       "updatedOn": 1475154623761
     },
@@ -2019,7 +2019,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2052,15 +2052,15 @@
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "test-user-1@mailinator.com",
+        "emailAddress": "test-user-1@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "alexander.browne@digital.hmrc.gov.uk",
+        "emailAddress": "alexander.browne@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2079,7 +2079,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "updatedOn": 1465983059914
     },
     "trusted": false,
@@ -2091,11 +2091,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "test-user-1@mailinator.com",
+        "emailAddress": "test-user-1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2120,11 +2120,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "emanuele.blanco@digital.hmrc.gov.uk",
+        "emailAddress": "emanuele.blanco@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -2143,7 +2143,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "emanuele.blanco@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "emanuele.blanco@example.com",
       "verificationCode": "M3WkhvApQTO5jVHHaKqT4-9Ys-fGetMbsUc01dU2sAs",
       "updatedOn": 1469009245295
     },
@@ -2157,7 +2157,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "baber.khalil@digital.hmrc.gov.uk",
+        "emailAddress": "baber.khalil@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2185,7 +2185,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2210,7 +2210,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "livsey.williams@digital.hmrc.gov.uk",
+        "emailAddress": "livsey.williams@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2239,7 +2239,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tim.squires@digital.hmrc.gov.uk",
+        "emailAddress": "tim.squires@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2268,7 +2268,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2295,7 +2295,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "verificationCode": "nlgomqgVhlA_jTlaQXRYXL-OomW2SiIgNHl_pvE1MP4",
       "updatedOn": 1473067664954
     },
@@ -2308,7 +2308,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "pietro.desiato@digital.hmrc.gov.uk",
+        "emailAddress": "pietro.desiato@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2338,7 +2338,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2369,15 +2369,15 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "testuser999@mailinator.com",
+        "emailAddress": "testuser999@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "testuser998@mailinator.com",
+        "emailAddress": "testuser998@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "testuser997@mailinator.com",
+        "emailAddress": "testuser997@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -2408,11 +2408,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "callum.turnbull@digital.hmrc.gov.uk",
+        "emailAddress": "callum.turnbull@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "prashant.choudhari@digital.hmrc.gov.uk",
+        "emailAddress": "prashant.choudhari@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2429,7 +2429,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "callum.turnbull@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "callum.turnbull@example.com",
       "verificationCode": "a-Ix73ThZlhQDUZt1DhgZeqJKrV1uy--B56aAPebSA4",
       "updatedOn": 1469540624042
     },
@@ -2438,20 +2438,20 @@
   },
   {
     "id": "9c913363-1827-4df9-9651-2f6562eb6b78",
-    "name": "Imran Akram API Test App",
+    "name": "imran.fakename API Test App",
     "description": "API Services Testing Application",
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "imran.akram@digital.hmrc.gov.uk",
+        "emailAddress": "imran.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "joe.bloggs@gmail.com",
+        "emailAddress": "joe.bloggs@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "immyakram@gmail.com",
+        "emailAddress": "immyfakename@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -2468,7 +2468,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "imran.akram@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "imran.fakename@example.com",
       "verificationCode": "cP7uyTCsuFp4RtyWd9M5zVFitc8wnQRA4wfXJR3Cf6s",
       "updatedOn": 1474376892384
     },
@@ -2481,7 +2481,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "kiran.kandrakota@digital.hmrc.gov.uk",
+        "emailAddress": "kiran.kandrakota@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2498,7 +2498,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "kiran.kandrakota@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "kiran.kandrakota@example.com",
       "verificationCode": "MH5658GBXyv-aouSwVZ-ofSktftOcoJ2TkgWRTVNugk",
       "updatedOn": 1475594485457
     },
@@ -2511,11 +2511,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "edin.hodzic@digital.hmrc.gov.uk",
+        "emailAddress": "edin.hodzic@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -2546,7 +2546,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2571,7 +2571,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+        "emailAddress": "purnima.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2596,7 +2596,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "localhost1@mailinator.com",
+        "emailAddress": "localhost1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2635,7 +2635,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "anusha.jasti@digital.hmrc.gov.uk",
+        "emailAddress": "anusha.jasti@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2652,7 +2652,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "anusha.jasti@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "anusha.jasti@example.com",
       "verificationCode": "QaSWg38KvOIHWNrHqr3KPB5NmGNvD-CA8V4yO0QzqP8",
       "updatedOn": 1474542578282
     },
@@ -2666,7 +2666,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "localhost1@mailinator.com",
+        "emailAddress": "localhost1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2702,12 +2702,12 @@
   },
   {
     "id": "4710dc2e-7abd-4033-b3e5-dda599ff92c6",
-    "name": "prashant.choudhari@digital.hmrc.gov.uk",
+    "name": "prashant.choudhari@example.com",
     "description": "state-pension",
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "prashant.choudhari@digital.hmrc.gov.uk",
+        "emailAddress": "prashant.choudhari@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2731,7 +2731,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "sandeep.kantha@digital.hmrc.gov.uk",
+        "emailAddress": "sandeep.kantha@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2759,7 +2759,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+        "emailAddress": "rakesh.avasarala@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2791,7 +2791,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+        "emailAddress": "rakesh.avasarala@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2823,7 +2823,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+        "emailAddress": "rakesh.avasarala@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2844,7 +2844,7 @@
     },
     "state": {
       "name": "PENDING_GATEKEEPER_APPROVAL",
-      "requestedByEmailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "rakesh.avasarala@example.com",
       "updatedOn": 1469699921053
     },
     "trusted": false,
@@ -2856,7 +2856,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "mtd-qa-test-user@mailinator.com",
+        "emailAddress": "mtd-qa-test-user@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2888,7 +2888,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "mtd-qa-test-user@mailinator.com",
+        "emailAddress": "mtd-qa-test-user@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2920,7 +2920,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rakesh.avasarala@digital.hmrc.gov.uk",
+        "emailAddress": "rakesh.avasarala@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2953,7 +2953,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edgar.jimenez@digital.hmrc.gov.uk",
+        "emailAddress": "edgar.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -2977,15 +2977,15 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "richard.hull@digital.hmrc.gov.uk",
+        "emailAddress": "richard.hull@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "jeff@mailinator.com",
+        "emailAddress": "jeff@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "sid@mailinator.com",
+        "emailAddress": "sid@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -3013,19 +3013,19 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+        "emailAddress": "purnima.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "collaboratorapisubsc@mailinator.com",
+        "emailAddress": "collaboratorapisubsc@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "unverifiedcollaboratorapisubsc@mailinator.com",
+        "emailAddress": "unverifiedcollaboratorapisubsc@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "unregisteredcollaboratorapisubs@mailinator.com",
+        "emailAddress": "unregisteredcollaboratorapisubs@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -3044,7 +3044,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "purnima.fakename@example.com",
       "verificationCode": "LGHcEZ7-XTIAM20YwfxbWZ0SXIC8F7qTY4S55wG3hd8",
       "updatedOn": 1474376783907
     },
@@ -3057,7 +3057,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "manoj.kakarla@digital.hmrc.gov.uk",
+        "emailAddress": "manoj.kakarla@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3086,7 +3086,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "alexander.browne@digital.hmrc.gov.uk",
+        "emailAddress": "alexander.browne@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3111,7 +3111,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "admin@email.com",
+        "emailAddress": "admin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3139,7 +3139,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hmrc.test.user.1@mailinator.com",
+        "emailAddress": "hmrc.test.user.1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3164,7 +3164,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3188,7 +3188,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3217,7 +3217,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "admin@email.com",
+        "emailAddress": "admin@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3241,7 +3241,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3265,7 +3265,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "shafi.khan@digital.hmrc.gov.uk",
+        "emailAddress": "shafi.khan@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3293,7 +3293,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3322,7 +3322,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3347,7 +3347,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "james.morris@digital.hmrc.gov.uk",
+        "emailAddress": "james.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3378,7 +3378,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3402,7 +3402,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3430,7 +3430,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "dharani.kumar@digital.hmrc.gov.uk",
+        "emailAddress": "dharani.kumar@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3447,7 +3447,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "dharani.kumar@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "dharani.kumar@example.com",
       "verificationCode": "veOot0BICXmkJdTmJ-gLKRwyR6IQCoRC94dMwKhBrQU",
       "updatedOn": 1476716019909
     },
@@ -3461,7 +3461,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3485,7 +3485,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3513,7 +3513,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "richard.hull@digital.hmrc.gov.uk",
+        "emailAddress": "richard.hull@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3537,7 +3537,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3561,7 +3561,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3586,19 +3586,19 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edgarjimenez68@gmail.com",
+        "emailAddress": "edgarfakename68@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "localhost1@mailinator.com",
+        "emailAddress": "localhost1@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3617,7 +3617,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "ananth.vadiraj@example.com",
       "verificationCode": "r53jhnoNnj_qpbyNxRckedQPrTRzno6oNbPQR253WBI",
       "updatedOn": 1472042488242
     },
@@ -3630,7 +3630,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "usman.shabbir@digital.hmrc.gov.uk",
+        "emailAddress": "usman.shabbir@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3658,7 +3658,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3682,7 +3682,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3707,23 +3707,23 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "temp998@mailinator.com",
+        "emailAddress": "temp998@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "localhost1@mailinator.com",
+        "emailAddress": "localhost1@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "andywheeler@mailinator.com",
+        "emailAddress": "andywheeler@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "temp999@mailinator.com",
+        "emailAddress": "temp999@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -3746,7 +3746,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nick.wilson@digital.hmrc.gov.uk",
+        "emailAddress": "nick.wilson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3770,7 +3770,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nick.wilson@digital.hmrc.gov.uk",
+        "emailAddress": "nick.wilson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3795,7 +3795,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "localhost1@mailinator.com",
+        "emailAddress": "localhost1@example.com",
         "role": "ADMINISTRATOR"
       },
       {
@@ -3803,11 +3803,11 @@
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3834,7 +3834,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "prasun.dhar@digital.hmrc.gov.uk",
+        "emailAddress": "prasun.dhar@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3859,7 +3859,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3884,7 +3884,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3909,7 +3909,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "chris.barham@digital.hmrc.gov.uk",
+        "emailAddress": "chris.barham@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3938,7 +3938,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "smcgowan@gmail.com",
+        "emailAddress": "smcgowan@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3962,7 +3962,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tamara.morillas@digital.hmrc.gov.uk",
+        "emailAddress": "tamara.morillas@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -3987,7 +3987,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "smcgowan@gmail.com",
+        "emailAddress": "smcgowan@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4011,7 +4011,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+        "emailAddress": "haroon.rasheed@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4035,7 +4035,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "langtamas@gmail.com",
+        "emailAddress": "langtamas@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4060,7 +4060,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "sharpie1@mailinator.com",
+        "emailAddress": "sharpie1@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4085,7 +4085,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "av.ananth@gmail.com",
+        "emailAddress": "av.ananth@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4109,7 +4109,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "haroon.rasheed@digital.hmrc.gov.uk",
+        "emailAddress": "haroon.rasheed@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4134,7 +4134,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "testuser001@mailinator.com",
+        "emailAddress": "testuser001@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4159,11 +4159,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "immyakram@gmail.com",
+        "emailAddress": "immyfakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "gurpreet@test.com",
+        "emailAddress": "gurpreet@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -4188,7 +4188,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4216,7 +4216,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4241,7 +4241,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "vijaya.vasantha@digital.hmrc.gov.uk",
+        "emailAddress": "vijaya.vasantha@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4270,7 +4270,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "richard.hull@digital.hmrc.gov.uk",
+        "emailAddress": "richard.hull@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4295,7 +4295,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "tfcdemo@mailinator.com",
+        "emailAddress": "tfcdemo@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4319,7 +4319,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "vijaya.vasantha@digital.hmrc.gov.uk",
+        "emailAddress": "vijaya.vasantha@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4348,7 +4348,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "richard.hull@digital.hmrc.gov.uk",
+        "emailAddress": "richard.hull@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4372,7 +4372,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "kiran.kandrakota@digital.hmrc.gov.uk",
+        "emailAddress": "kiran.kandrakota@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4400,7 +4400,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thadeus.ssewanyana@digital.hmrc.gov.uk",
+        "emailAddress": "thadeus.ssewanyana@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4428,7 +4428,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "subhajit.chowdhury@accenture.com",
+        "emailAddress": "subhajit.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4456,7 +4456,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "leanne.northrop@digital.hmrc.gov.uk",
+        "emailAddress": "leanne.northrop@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4473,7 +4473,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "leanne.northrop@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "leanne.northrop@example.com",
       "verificationCode": "cdGnQF7O_zzSszIyUp9KaQtolXbhGbC7VJCgTL_2hMM",
       "updatedOn": 1475232576429
     },
@@ -4487,7 +4487,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "anusha.jasti@digital.hmrc.gov.uk",
+        "emailAddress": "anusha.jasti@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4504,7 +4504,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "anusha.jasti@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "anusha.jasti@example.com",
       "verificationCode": "cuy_qGKjrNkC-Lzm19rxNy-HnDasCRR3PYVoQ6QdB9w",
       "updatedOn": 1475232609485
     },
@@ -4517,7 +4517,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "thadeus.ssewanyana@digital.hmrc.gov.uk",
+        "emailAddress": "thadeus.ssewanyana@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4545,23 +4545,23 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "john.2.gordon@atos.net",
+        "emailAddress": "john.2.gordon@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+        "emailAddress": "aivars.smaukstelis@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "steve.hobbs@digital.hmrc.gov.uk",
+        "emailAddress": "steve.hobbs@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+        "emailAddress": "thomas.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4598,7 +4598,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "john.2.gordon@atos.net",
+      "requestedByEmailAddress": "john.2.gordon@example.com",
       "verificationCode": "ILIeYu_Rhcru1XZXm_guDkFoC9fwdgKCKDmwFxHYzec",
       "updatedOn": 1475675183841
     },
@@ -4611,7 +4611,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "leanne.northrop@digital.hmrc.gov.uk",
+        "emailAddress": "leanne.northrop@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4636,7 +4636,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nikhill.patil@digital.hmrc.gov.uk",
+        "emailAddress": "nikhill.patil@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4690,7 +4690,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+        "emailAddress": "purnima.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4743,35 +4743,35 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "john.2.gordon@atos.net",
+        "emailAddress": "john.2.gordon@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "john.shao@atos.net",
+        "emailAddress": "john.fakename@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "peter.vanree@atos.net",
+        "emailAddress": "peter.vanree@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "andrew.ridout@digital.hmrc.gov.uk",
+        "emailAddress": "andrew.ridout@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+        "emailAddress": "aivars.smaukstelis@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "steve.hobbs@digital.hmrc.gov.uk",
+        "emailAddress": "steve.hobbs@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "bill.watt@atos.net",
+        "emailAddress": "bill.watt@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -4788,7 +4788,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "aivars.smaukstelis@example.com",
       "verificationCode": "KIVTid66SeDkjNJuCFCqkEluQSlyKiE349y8rprasN0",
       "updatedOn": 1474541777983
     },
@@ -4802,7 +4802,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rambabu.posa@digital.hmrc.gov.uk",
+        "emailAddress": "rambabu.posa@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4830,7 +4830,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "anthony.roy@digital.hmrc.gov.uk",
+        "emailAddress": "anthony.roy@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4854,11 +4854,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "richard.hull@digital.hmrc.gov.uk",
+        "emailAddress": "richard.hull@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "edem.nsefik@digital.hmrc.gov.uk",
+        "emailAddress": "edem.nsefik@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -4875,7 +4875,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "richard.hull@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "richard.hull@example.com",
       "verificationCode": "jytobEN6nAW6ez50Y3zmm1btHiHC0IUtqXZdIcvo_xE",
       "updatedOn": 1474891856411
     },
@@ -4889,11 +4889,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nick.pace@digital.hmrc.gov.uk",
+        "emailAddress": "nick.pace@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "byron.prentice@digital.hmrc.gov.uk",
+        "emailAddress": "byron.prentice@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4906,7 +4906,7 @@
     },
     "state": {
       "name": "PENDING_REQUESTER_VERIFICATION",
-      "requestedByEmailAddress": "nick.pace@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "nick.pace@example.com",
       "verificationCode": "uN_10_5vX_b-tZpooaHNoKkWnB-xsrMasTCm9w1qBAE",
       "updatedOn": 1475159870639
     },
@@ -4919,7 +4919,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4944,11 +4944,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "av.ananth@gmail.com",
+        "emailAddress": "av.ananth@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -4968,12 +4968,12 @@
   },
   {
     "id": "fba53375-d068-411d-9ecf-a3b54e329d00",
-    "name": "Imran Akram API Test App 2",
+    "name": "imran.fakename API Test App 2",
     "description": "API Services Testing Application 2",
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "imran.akram@digital.hmrc.gov.uk",
+        "emailAddress": "imran.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -4990,7 +4990,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "imran.akram@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "imran.fakename@example.com",
       "verificationCode": "F7h-MEuNzL08Bqv4W1T-m1A8b-xctWi7ZwVvLh6WGNs",
       "updatedOn": 1475053359464
     },
@@ -5003,7 +5003,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson+developer@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson+developer@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5032,7 +5032,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5057,7 +5057,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5083,11 +5083,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "prashant.choudhari@digital.hmrc.gov.uk",
+        "emailAddress": "prashant.choudhari@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "callum.turnbull@digital.hmrc.gov.uk",
+        "emailAddress": "callum.turnbull@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5113,7 +5113,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "rashmith.reddy@digital.hmrc.gov.uk",
+        "emailAddress": "rashmith.reddy@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5141,7 +5141,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "anthony.roy@digital.hmrc.gov.uk",
+        "emailAddress": "anthony.roy@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5165,11 +5165,11 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "francis.devereux@digital.hmrc.gov.uk",
+        "emailAddress": "francis.devereux@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ben.letton@digital.hmrc.gov.uk",
+        "emailAddress": "ben.letton@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5186,7 +5186,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "francis.devereux@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "francis.devereux@example.com",
       "verificationCode": "-JY-KYfkYRPB2IgP91WkZ6WSlbFWe0eD4oo2dF9Ocwo",
       "updatedOn": 1475594969895
     },
@@ -5199,7 +5199,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "philip.stevenson@digital.hmrc.gov.uk",
+        "emailAddress": "philip.stevenson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5228,7 +5228,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5254,7 +5254,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "edin.hodzic@digital.hmrc.gov.uk",
+        "emailAddress": "edin.hodzic@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5271,7 +5271,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "edin.hodzic@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "edin.hodzic@example.com",
       "verificationCode": "LwAmKwIDRjyR-7iO_FHArx8-bwurHbiX4Vr2GNquQ_o",
       "updatedOn": 1475669906731
     },
@@ -5285,23 +5285,23 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "swetha.palreddy@digital.hmrc.gov.uk",
+        "emailAddress": "swetha.palreddy@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "stephen.butler@digital.hmrc.gov.uk",
+        "emailAddress": "stephen.butler@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+        "emailAddress": "aivars.smaukstelis@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "steve.hobbs@digital.hmrc.gov.uk",
+        "emailAddress": "steve.hobbs@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "kuldeep.wadhwa@digital.hmrc.gov.uk",
+        "emailAddress": "kuldeep.wadhwa@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5318,7 +5318,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "aivars.smaukstelis@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "aivars.smaukstelis@example.com",
       "verificationCode": "Mc7TVAjE7yc9WfbMCAscdcCYU6cZlXXYe8--gwhppzk",
       "updatedOn": 1475677628118
     },
@@ -5331,7 +5331,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "kiran.kandrakota@digital.hmrc.gov.uk",
+        "emailAddress": "kiran.kandrakota@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5360,19 +5360,19 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "purnimashanti26@gmail.com",
+        "emailAddress": "purnimashanti26@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "verifiedcollaboratorapp@mailinator.com",
+        "emailAddress": "verifiedcollaboratorapp@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "unverifiedcollaboratorapp@mailinator.com",
+        "emailAddress": "unverifiedcollaboratorapp@example.com",
         "role": "DEVELOPER"
       },
       {
-        "emailAddress": "unregisteredcollaboratorapp@mailinator.com",
+        "emailAddress": "unregisteredcollaboratorapp@example.com",
         "role": "DEVELOPER"
       }
     ],
@@ -5396,23 +5396,23 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nick.porthouse@digital.hmrc.gov.uk",
+        "emailAddress": "nick.porthouse@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "hugh.jackson@digital.hmrc.gov.uk",
+        "emailAddress": "hugh.jackson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "ed.jannoo@digital.hmrc.gov.uk",
+        "emailAddress": "ed.jannoo@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "gurpreet.bhamra@digital.hmrc.gov.uk",
+        "emailAddress": "gurpreet.fakename@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "tony.heap@digital.hmrc.gov.uk",
+        "emailAddress": "tony.heap@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5443,7 +5443,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "shantiqa@mailinator.com",
+        "emailAddress": "shantiqa@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5467,7 +5467,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "qadevuser@mailinator.com",
+        "emailAddress": "qadevuser@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5491,7 +5491,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "michael.jeacock@digital.hmrc.gov.uk",
+        "emailAddress": "michael.jeacock@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5521,7 +5521,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "adam.cooper@digital.hmrc.gov.uk",
+        "emailAddress": "adam.cooper@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5552,7 +5552,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "john.2.gordon@atos.net",
+        "emailAddress": "john.2.gordon@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5576,7 +5576,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "kuldeep.wadhwa@digital.hmrc.gov.uk",
+        "emailAddress": "kuldeep.wadhwa@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5601,7 +5601,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "byron.prentice@digital.hmrc.gov.uk",
+        "emailAddress": "byron.prentice@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5626,7 +5626,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ananth.vadiraj@digital.hmrc.gov.uk",
+        "emailAddress": "ananth.vadiraj@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5650,7 +5650,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "verifieduserapp@mailinator.com",
+        "emailAddress": "verifieduserapp@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5675,7 +5675,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "nikhill.patil@digital.hmrc.gov.uk",
+        "emailAddress": "nikhill.patil@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5702,7 +5702,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "temp908@mailinator.com",
+        "emailAddress": "temp908@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5721,7 +5721,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "temp908@mailinator.com",
+      "requestedByEmailAddress": "temp908@example.com",
       "verificationCode": "Rfy1OkiGf_vL-eODwXdABiSD3vt8qi-VKSCABs0RuHc",
       "updatedOn": 1476958037941
     },
@@ -5735,7 +5735,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "ben.letton@digital.hmrc.gov.uk",
+        "emailAddress": "ben.letton@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5760,19 +5760,19 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "david.sarginson@digital.hmrc.gov.uk",
+        "emailAddress": "david.sarginson@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "chris.waugh@digital.hmrc.gov.uk",
+        "emailAddress": "chris.waugh@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "dave.wright@digital.hmrc.gov.uk",
+        "emailAddress": "dave.wright@example.com",
         "role": "ADMINISTRATOR"
       },
       {
-        "emailAddress": "juan.pozo@digital.hmrc.gov.uk",
+        "emailAddress": "juan.pozo@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5802,7 +5802,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "gavin.watson@digital.hmrc.gov.uk",
+        "emailAddress": "gavin.watson@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5826,7 +5826,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "stefano.sgorlon@digital.hmrc.gov.uk",
+        "emailAddress": "stefano.sgorlon@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5855,7 +5855,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+        "emailAddress": "purnima.fakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],
@@ -5868,7 +5868,7 @@
     },
     "state": {
       "name": "PRODUCTION",
-      "requestedByEmailAddress": "purnima.shanti@digital.hmrc.gov.uk",
+      "requestedByEmailAddress": "purnima.fakename@example.com",
       "verificationCode": "Vj_9YHomlIZYlyHWtxi-E_UqYfHw_LEjtoH2O053RlM",
       "updatedOn": 1477473490174
     },
@@ -5882,7 +5882,7 @@
     "deployedTo": "PRODUCTION",
     "collaborators": [
       {
-        "emailAddress": "imm.yakram@gmail.com",
+        "emailAddress": "imm.yfakename@example.com",
         "role": "ADMINISTRATOR"
       }
     ],

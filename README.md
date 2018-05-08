@@ -8,7 +8,7 @@ as part of our HMRC third party tax software and [application programming interf
 
 ## Summary
 
-This service provides the following functionalites:
+This service provides the following functionality:
 
 * Ability to log in / log out with an internal user
 * Role based access control for actions
@@ -19,20 +19,17 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 ## Run the application
 
-To run the application execute
+To run the application use the `run_local_with_dependencies.sh` script to start the service along with all of
+the back end dependencies that it needs (which are started using Service Manager). You will need to have added
+a suitable user in the Auth database in your local MongoDB. 
 
-```
-sbt 'run 9684' 
-```
-
-and then access the application at
+Once everything is up and running you can access the application at
 
 ```
 http://localhost:9684/api-gatekeeper/login
 ```
 
-Alternatively, the `run_local.sh` script will run the service in "stub" mode.
-
+Alternatively, the `run_in_stub_mode.sh` script will run the service in "stub" mode against mocked back end services.
 
 ## Unit tests
 ```

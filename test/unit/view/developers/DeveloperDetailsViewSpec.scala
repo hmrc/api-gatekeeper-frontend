@@ -36,35 +36,35 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show unregistered developer details when logged in as superuser" in {
 
-      val unregisteredDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+      val unregisteredDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
       testDeveloperDetails(unregisteredDeveloper)
     }
 
     "show unverified developer details when logged in as superuser" in {
 
-      val unverifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(false), Seq())
+      val unverifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(false), Seq())
 
       testDeveloperDetails(unverifiedDeveloper)
     }
 
     "show verified developer details when logged in as superuser" in {
 
-      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq())
+      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq())
 
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with organisation when logged in as superuser" in {
 
-      val verifiedDeveloper: Developer = Developer("email@address.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
+      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
 
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with no applications when logged in as superuser" in {
 
-      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
       val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
@@ -78,10 +78,10 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show developer with applications when logged in as superuser" in {
 
-      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@address.com", CollaboratorRole.ADMINISTRATOR)))
-      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@address.com", CollaboratorRole.DEVELOPER)))
+      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
+      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
 
-      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
 
       val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
@@ -98,7 +98,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show developer details with delete button when logged in as superuser" in {
 
-      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
       val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, AppConfig)
 
@@ -111,7 +111,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show developer details without delete button when logged in as non-superuser" in {
 
-      val developer: Developer = Developer("email@address.com", "firstname", "lastName", None, Seq())
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
       val result = views.html.developers.developer_details.render(developer, false, request, None, applicationMessages, AppConfig)
 

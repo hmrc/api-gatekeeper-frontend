@@ -44,8 +44,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     implicit val hc = HeaderCarrier()
 
     val collaborators = Set(
-      Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR),
-      Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
 
     val stdApp1 = ApplicationResponse(UUID.randomUUID(), "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
     val stdApp2 = ApplicationResponse(UUID.randomUUID(), "application2", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())

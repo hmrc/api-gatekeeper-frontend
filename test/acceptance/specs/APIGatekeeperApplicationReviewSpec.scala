@@ -66,7 +66,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 March 2016")
-      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
@@ -108,7 +108,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 March 2016")
-      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
@@ -147,7 +147,7 @@ class APIGatekeeperApplicationReviewSpec extends BaseSpec with SignInSugar with 
       on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 March 2016")
-      verifyText("data-submitted-by-email", "admin@test.com")
+      verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")

@@ -16,6 +16,7 @@
 
 package services
 
+import config.AppConfig
 import connectors.{ApplicationConnector, DeveloperConnector}
 import model._
 
@@ -26,12 +27,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 object DeveloperService extends DeveloperService {
   override val developerConnector: DeveloperConnector = DeveloperConnector
   override val applicationConnector: ApplicationConnector = ApplicationConnector
+  override val appConfig = AppConfig
 }
 
 trait DeveloperService {
 
   val developerConnector: DeveloperConnector
   val applicationConnector: ApplicationConnector
+  implicit val appConfig: AppConfig
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
@@ -93,17 +96,38 @@ trait DeveloperService {
     } yield Developer.createFromUser(developer, applications)
   }
 
-  def fetchDevelopersByEmails(emails: Seq[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     developerConnector.fetchByEmails(emails)
   }
 
   def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+
+    def fetchAdminsToEmail(app: Application): Future[Seq[String]] = {
+      if (appConfig.isExternalTestEnvironment) {
+        Future.successful(Seq.empty)
+      } else {
+        val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
+        for {
+          users <- fetchDevelopersByEmails(appAdmins)
+          verifiedUsers = users.filter(_.verified.contains(true))
+          adminsToEmail = verifiedUsers.map(_.email)
+        } yield adminsToEmail
+      }
+    }
+
+    def removeTeamMemberFromApp(app: Application) = {
+      for {
+        adminsToEmail <- fetchAdminsToEmail(app)
+        result <- applicationConnector.removeCollaborator(app.id.toString, email, gatekeeperUserId, adminsToEmail)
+      } yield result
+    }
+
     fetchDeveloper(email).flatMap { developer =>
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.apps.partition(_.isSoleAdmin(email))
 
       if(appsSoleAdminOn.isEmpty) {
         for {
-          _ <- Future.traverse(appsTeamMemberOn)(app => applicationConnector.removeCollaborator(app.id.toString, email, gatekeeperUserId))
+          _ <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp)
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
         } yield result
       } else {

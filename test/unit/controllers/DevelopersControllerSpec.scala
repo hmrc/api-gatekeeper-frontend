@@ -136,10 +136,10 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "list all developers when filtering off" in new Setup {
         val users = Seq(
-          User("sample@email.com", "Sample", "Email", Some(false)),
-          User("another@email.com", "Sample2", "Email", Some(true)),
-          User("someone@email.com", "Sample3", "Email", Some(true)))
-        val collaborators = Set(Collaborator("sample@email.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@email.com", CollaboratorRole.DEVELOPER))
+          User("sample@example.com", "Sample", "Email", Some(false)),
+          User("another@example.com", "Sample2", "Email", Some(true)),
+          User("someone@example.com", "Sample3", "Email", Some(true)))
+        val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenASuccessfulLogin
@@ -161,9 +161,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     }
 
     "deleteDeveloperPage" should {
-      val emailAddress = "someone@email.com"
+      val emailAddress = "someone@example.com"
       val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
-        Collaborator("someoneelse@email.com", CollaboratorRole.ADMINISTRATOR))))
+        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
       val developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
 
       "not allow a non super user to access the page" in new Setup {
@@ -182,9 +182,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     }
 
     "deleteDeveloperAction" should {
-      val emailAddress = "someone@email.com"
+      val emailAddress = "someone@example.com"
       val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
-        Collaborator("someoneelse@email.com", CollaboratorRole.ADMINISTRATOR))))
+        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
       val developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
 
       "not allow a non super user to access the page" in new Setup {

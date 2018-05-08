@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.net.URLEncoder.encode
+
 import config.WSHttp
 import connectors.AuthConnector._
 import model.RateLimitTier.RateLimitTier
@@ -166,9 +168,13 @@ trait ApplicationConnector {
       }
   }
 
-  def removeCollaborator(applicationId: String, emailAddress: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE(s"$applicationBaseUrl/application/$applicationId/collaborator/$emailAddress?admin=$gatekeeperUserId") map { _ =>
+  def removeCollaborator(applicationId: String, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE(s"$applicationBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
     }
+  }
+
+  private def urlEncode(str: String, encoding: String = "UTF-8") = {
+    encode(str, encoding)
   }
 }
