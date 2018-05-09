@@ -38,6 +38,7 @@ import config.AppConfig
 import model.APIStatus._
 import model._
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
@@ -144,6 +145,19 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         appView.body should include("Pending gatekeeper check")
         appView.body should include("Pending submitter verification")
         appView.body should include("Active")
+      }
+
+      "Display filter by status entries in correct order" in {
+        val appView = applicationView()
+
+        val document = Jsoup.parse(appView.body)
+        val status = document.select(s"#status")
+
+        status.get(0).child(0).text() shouldBe "All"
+        status.get(0).child(1).text() shouldBe "Created"
+        status.get(0).child(2).text() shouldBe "Pending gatekeeper check"
+        status.get(0).child(3).text() shouldBe "Pending submitter verification"
+        status.get(0).child(4).text() shouldBe "Active"
       }
     }
   }
