@@ -80,8 +80,8 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         val appView = applicationView()
 
         appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
-        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not accepted</option>""")
-        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Accepted</option>""")
+        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
+        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
       }
     }
 
@@ -108,8 +108,8 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         val appView = applicationView()
 
         appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
-        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not accepted</option>""")
-        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Accepted</option>""")
+        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
+        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
       }
 
       "Include the application state filters" in {
