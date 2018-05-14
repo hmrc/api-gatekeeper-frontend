@@ -68,7 +68,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe true
     }
 
     "show application with check information but no terms of use agreed" in {
@@ -92,7 +92,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe true
     }
 
     "show application with check information and terms of use agreed" in {
@@ -120,8 +120,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not accepted") mustBe false
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"Accepted by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.longDate.print(termsOfUseAgreement.timeStamp)}") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"Agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.longDate.print(termsOfUseAgreement.timeStamp)}") mustBe true
 
     }
 

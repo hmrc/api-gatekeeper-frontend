@@ -100,7 +100,7 @@
 @renderDeveloperUrl(checkInformation: CheckInformation) = {
         @defining(DateTimeFormat.longDate) { dateFormatter =>
         @defining(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.emailAddress) { developerEmailAddress =>
-           Accepted by <a href="@{routes.DevelopersController.developerPage(developerEmailAddress)}">@developerEmailAddress</a> on @dateFormatter.print(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.timeStamp)
+           Agreed by <a href="@{routes.DevelopersController.developerPage(developerEmailAddress)}">@developerEmailAddress</a> on @dateFormatter.print(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.timeStamp)
         }
     }
 }
@@ -167,7 +167,7 @@
                         application.checkInformation match{
 
                             case Some(checkInformation) if(checkInformation.termsOfUseAgreements.nonEmpty) => renderDeveloperUrl(checkInformation)
-                            case _ =>  <p>Not accepted</p>
+                            case _ =>  <p>Not agreed</p>
                         }
                     }
                 </div>
