@@ -40,7 +40,7 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
     val appResponse = ApplicationResponse(id, name, randomText, Some(description), Set(collaborator), createdOn, Standard(), state)
 
     "create from ApplicationResponse" in {
-      val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Seq(sub),
+      val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Standard(), Seq(sub),
         termsOfUseAgreed = false)
 
       createFrom(appResponse, Seq(sub)) shouldBe expected
@@ -48,7 +48,7 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
     "identify terms of use accepted" in {
       val appResponseToUAgreed = appResponse.copy(checkInformation = Some(CheckInformation(termsOfUseAgreements = Seq(TermsOfUseAgreement("email", createdOn, "1.0")))))
 
-      val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Seq(sub),
+      val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Standard(), Seq(sub),
         termsOfUseAgreed = true)
 
       createFrom(appResponseToUAgreed, Seq(sub)) shouldBe expected

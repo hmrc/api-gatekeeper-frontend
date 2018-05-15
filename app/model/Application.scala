@@ -194,6 +194,7 @@ case class SubscribedApplicationResponse(id: UUID,
                                          collaborators: Set[Collaborator],
                                          createdOn: DateTime,
                                          state: ApplicationState,
+                                         access: Access,
                                          subscriptions: Seq[SubscriptionNameAndVersion],
                                          termsOfUseAgreed: Boolean) extends Application
 
@@ -204,6 +205,15 @@ object SubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
+  implicit val formatTotpIds = Json.format[TotpIds]
+  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatPrivileged = Json.format[Privileged]
+  private implicit val formatRopc = Json.format[Ropc]
+  implicit val formatAccess = Union.from[Access]("accessType")
+    .and[Standard](AccessType.STANDARD.toString)
+    .and[Privileged](AccessType.PRIVILEGED.toString)
+    .and[Ropc](AccessType.ROPC.toString)
+    .format
   implicit val format5 = Json.format[SubscriptionNameAndVersion]
   implicit val format6 = Json.format[SubscribedApplicationResponse]
 
@@ -213,7 +223,7 @@ object SubscribedApplicationResponse {
 
   def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
     SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
-      appResponse.collaborators, appResponse.createdOn, appResponse.state, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted))
+      appResponse.collaborators, appResponse.createdOn, appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted))
 }
 
 case class DetailedSubscribedApplicationResponse(id: UUID,
@@ -222,6 +232,7 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  collaborators: Set[Collaborator],
                                                  createdOn: DateTime,
                                                  state: ApplicationState,
+                                                 access: Access,
                                                  subscriptions: Seq[SubscriptionDetails],
                                                  termsOfUseAgreed: Boolean) extends Application
 
@@ -235,6 +246,15 @@ object DetailedSubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
+  implicit val formatTotpIds = Json.format[TotpIds]
+  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatPrivileged = Json.format[Privileged]
+  private implicit val formatRopc = Json.format[Ropc]
+  implicit val formatAccess = Union.from[Access]("accessType")
+    .and[Standard](AccessType.STANDARD.toString)
+    .and[Privileged](AccessType.PRIVILEGED.toString)
+    .and[Ropc](AccessType.ROPC.toString)
+    .format
   implicit val format5 = Json.format[DetailedSubscribedApplicationResponse]
 }
 

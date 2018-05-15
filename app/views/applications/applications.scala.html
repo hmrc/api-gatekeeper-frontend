@@ -16,6 +16,7 @@
 
 @import model.State._
 @import model._
+@import model.AccessType._
 @import org.joda.time.format.DateTimeFormat
 
 @(applications: Seq[DetailedSubscribedApplicationResponse],
@@ -41,11 +42,11 @@
                         <label class="bold centered-content hard--left label--full-length">
                             <span class="label__text bold">Search</span>
 
-                            <input  class="form-control input--cleared input-select--large"
-                                    data-datatable-custom-filter="applications-table"
-                                    name="search"
-                                    type="text"
-                                    placeholder="Application name or ID" />
+                            <input class="form-control input--cleared input-select--large"
+                            data-datatable-custom-filter="applications-table"
+                            name="search"
+                            type="text"
+                            placeholder="Application name or ID" />
                         </label>
                     </div>
 
@@ -67,9 +68,12 @@
 
                                 @for((status, versions) <- apis) {
 
-                                    <optgroup label="@{status}">
+                                    <optgroup label="@{
+                                        status
+                                    }">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        <option value="@version.name (@version.apiIdentifier.version)" data-api-name="@version.name (@version.apiIdentifier.version)">@version.name (@version.apiIdentifier.version)</option>
+                                        <option value="@version.name (@version.apiIdentifier.version)" data-api-name="@version.name (@version.apiIdentifier.version)">@version.name
+                                            (@version.apiIdentifier.version)</option>
                                     }
                                     </optgroup>
                                 }
@@ -96,7 +100,7 @@
                 </div>
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
                     <div class="grid-layout__column--1-2">
-                        <label class="form-label bold" for="filter">Filter by Terms of Use Status
+                        <label class="form-label bold" for="filter">Filter by Terms of Use status
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
                             id="tou_status"
@@ -109,6 +113,23 @@
                         </label>
                     </div>
 
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold centered-content hard--right" for="filter">Filter by Access type
+                            <select class="form-control input-select input-select--large"
+                            data-datatable-filter="applications-table"
+                            id="access_type"
+                            name="access_type"
+                            value="">
+                                <option id="default-access-type" value data-api-name>All</option>
+                                <option value="ACCESS_TYPE_STANDARD" data-api-name="ACCESS_TYPE_STANDARD">Standard</option>
+                                <option value="ACCESS_TYPE_ROPC" data-api-name="ACCESS_TYPE_ROPC">ROPC</option>
+                                <option value="ACCESS_TYPE_PRIVILEGED" data-api-name="ACCESS_TYPE_PRIVILEGED">
+                                    Privileged</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group grid-layout grid-layout--stacked push--sides js-hidden">
                     <div class="float-right js-hidden">
                         <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
                     </div>
@@ -130,7 +151,8 @@
                                    {"targets": [4], "visible": true, "searchable": true, "orderable": false},
                                    {"targets": [5], "visible": false, "searchable": true, "orderable": false},
                                    {"targets": [6], "visible": false, "searchable": true, "orderable": false},
-                                   {"targets": [7], "visible": false, "searchable": true, "orderable": false}]'
+                                   {"targets": [7], "visible": false, "searchable": true, "orderable": false},
+                                   {"targets": [8], "visible": false, "searchable": true, "orderable": false}]'
                 data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
                     <thead>
                         <tr role="row">
@@ -140,42 +162,59 @@
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th class="text--right hard--right" tabindex="0">Status</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
-                            <th class="text--right hard--right visuallyhidden" tabindex="0">Terms of use Status</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">Terms of Use status</th>
+                            <th class="text--right hard--right visuallyhidden" tabindex="0">Access type</th>
                             <th class="text--right hard--right visuallyhidden" tabindex="0">Application ID</th>
                         </tr>
                     </thead>
                     <tbody>
                     @for((application, index) <- applications.zipWithIndex) {
                         <tr role="row">
-                            <td id="app-name-@index"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></td>
-                            <td id="app-created-@index">@{dateFormatter.print(application.createdOn)}</td>
+                            <td id="app-name-@index"><a href="@{
+                                routes.ApplicationController.applicationPage(application.id.toString)
+                            }">@application.name</a>
+                            </td>
+                            <td id="app-created-@index">@{
+                                dateFormatter.print(application.createdOn)
+                            }</td>
                             <td>@application.createdOn</td>
                             <td id="app-subs-@index" title="@application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
                             <td class="text--right hard--right" id="app-status-@index">
-                                @defining(application.state.name match {
-                                    case PRODUCTION => ("status status--verified", "Active")
-                                    case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
-                                    case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
-                                    case _ => ("status", "Created")
-                                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+                            @defining(application.state.name match {
+                                case PRODUCTION => ("status status--verified", "Active")
+                                case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+                                case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                                case _ => ("status", "Created")
+                            }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                             </td>
                             <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">
-                                @if(application.subscriptions.isEmpty){
-                                    NOSUB
-                                } else {
-                                    ANYSUB,
-                                    @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
-                                }
+                            @if(application.subscriptions.isEmpty) {
+                                NOSUB
+                            } else {
+                                ANYSUB,
+                                @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
+                            }
                             </td>
                             <td id="app-tou-@index" class="text--right hard--right visuallyhidden">
-                                @if(application.termsOfUseAgreed){
-                                    TOU_ACCEPTED
-                                } else {
-                                    TOU_NOT_ACCEPTED
+                            @if(application.termsOfUseAgreed) {
+                                TOU_ACCEPTED
+                            } else {
+                                TOU_NOT_ACCEPTED
+                            }
+                            </td>
+                            <td id="app-access-type-@index" class="text--right hard--right visuallyhidden">
+                            @{
+                                application.access.accessType match {
+                                    case STANDARD => <span>ACCESS_TYPE_STANDARD</span>
+                                    case ROPC => <span>ACCESS_TYPE_ROPC</span>
+                                    case PRIVILEGED => <span>ACCESS_TYPE_PRIVILEGED</span>
                                 }
+                            }
                             </td>
                             <td id="app-id-@index" class="text--right hard--right visuallyhidden">
-                                @{application.id}
+                            @{
+                                application.id
+                            }
                             </td>
                         </tr>
                     }
@@ -186,7 +225,7 @@
                     @if(applications.isEmpty) {"No developers for your selected filter"}
                     </div>
                 </div>
-        </form>
+            </form>
 
             <div class="form-group>">
                 <a class="back-to-top-link" href="#">Back to Top</a>

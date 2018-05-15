@@ -104,14 +104,6 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
-      "Display the Terms of Use filters" in {
-        val appView = applicationView()
-
-        appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
-        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
-        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
-      }
-
       "Include the application state filters" in {
         val appView = applicationView()
 
@@ -125,10 +117,10 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
     "Called with application" should {
 
       val applications = Seq[DetailedSubscribedApplicationResponse](
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Seq.empty, termsOfUseAgreed = true)
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true)
       )
 
       val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty)
@@ -158,6 +150,29 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         status.get(0).child(2).text() shouldBe "Pending gatekeeper check"
         status.get(0).child(3).text() shouldBe "Pending submitter verification"
         status.get(0).child(4).text() shouldBe "Active"
+      }
+
+      "Terms of Use status filter entries in correct order" in {
+        val appView = applicationView()
+
+        val document = Jsoup.parse(appView.body)
+        val status = document.select(s"#tou_status")
+
+        status.get(0).child(0).text() shouldBe "All"
+        status.get(0).child(1).text() shouldBe "Not agreed"
+        status.get(0).child(2).text() shouldBe "Agreed"
+      }
+
+      "Access type filter entries in correct order" in {
+        val appView = applicationView()
+
+        val document = Jsoup.parse(appView.body)
+        val status = document.select(s"#access_type")
+
+        status.get(0).child(0).text() shouldBe "All"
+        status.get(0).child(1).text() shouldBe "Standard"
+        status.get(0).child(2).text() shouldBe "ROPC"
+        status.get(0).child(3).text() shouldBe "Privileged"
       }
     }
   }
