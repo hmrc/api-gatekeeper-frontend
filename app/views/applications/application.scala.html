@@ -267,8 +267,8 @@
             </td>
         </tr>
         <tr>
-            <th><h3>Team members</h3></th>
-            <td>
+            <th class="no-border"><h3>Team members</h3></th>
+            <td class="no-border">
                 <table class="table-plain">
                     <thead>
                     <tr>
@@ -296,7 +296,34 @@
                     </tbody>
                 </table>
             </td>
+            <td class="no-border">
+            </td>
+        </tr>
+        <tr>
             <td>
+            </td>
+            <td>
+                @if(application.collaborators.nonEmpty) {
+
+                <div class="form-group">
+                    <p>
+                        <a id="copy-all-to-clip" class="button copy-to-clip float--right" href="#"
+                           title="Copies all team member email addresses into the system clipboard."
+                           data-clip-text="@EmailsFormatter.format(application.collaborators)">
+                            Copy all team member email addresses
+                        </a>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <p>
+                        <a id="copy-admins-to-clip" class="button copy-to-clip float--right" href="#"
+                           title="Copies admin email addresses into the system clipboard."
+                           data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
+                            Copy admin email addresses
+                        </a>
+                    </p>
+                </div>
+                }
             </td>
         </tr>
         <tr>
@@ -372,27 +399,6 @@
             <td></td>
         </tr>
     </table>
-    @if(application.collaborators.nonEmpty) {
-
-        <div class="form-group">
-            <p>
-                <a id="copy-all-to-clip" class="button copy-to-clip float--right" href="#"
-                   title="Copies all team member email addresses into the system clipboard."
-                   data-clip-text="@EmailsFormatter.format(application.collaborators)">
-                    Copy all team member email addresses
-                </a>
-            </p>
-        </div>
-        <div class="form-group">
-            <p>
-                <a id="copy-admins-to-clip" class="button copy-to-clip float--right" href="#"
-                   title="Copies admin email addresses into the system clipboard."
-                   data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
-                    Copy admin email addresses
-                </a>
-            </p>
-        </div>
-    }
     @if(isSuperUser) {
         <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center float--left">Delete application</a>
     }
