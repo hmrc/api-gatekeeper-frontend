@@ -69,10 +69,26 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       val applicationFuture = applicationService.fetchApplication(appId)
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
+      def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
+        appWithHistory.application.checkInformation match {
+          case Some(checkInformation) => {
+            checkInformation.termsOfUseAgreements match {
+              case Nil => None
+              case agreements =>  Some(agreements.maxBy(_.timeStamp))
+            }
+          }
+          case None => None
+        }
+      }
+
       for {
         applicationWithHistory <- applicationFuture
         subscriptions <- subscriptionsFuture
-      } yield Ok(application(applicationWithHistory, subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+      } yield Ok(application(
+        applicationWithHistory,
+        subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
+        isSuperUser,
+        latestTOUAgreement(applicationWithHistory)))
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
