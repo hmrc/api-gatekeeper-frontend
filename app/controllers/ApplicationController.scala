@@ -70,15 +70,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
 
       def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
-        appWithHistory.application.checkInformation match {
-          case Some(checkInformation) => {
-            checkInformation.termsOfUseAgreements match {
+          appWithHistory.application.checkInformation.flatMap{
+            _.termsOfUseAgreements match {
               case Nil => None
-              case agreements =>  Some(agreements.maxBy(_.timeStamp))
+              case agreements =>  Option(agreements.maxBy(_.timeStamp))
             }
           }
-          case None => None
-        }
       }
 
       for {
