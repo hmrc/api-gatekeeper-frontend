@@ -218,7 +218,7 @@ object SubscribedApplicationResponse {
   implicit val format6 = Json.format[SubscribedApplicationResponse]
 
   private def isTermsOfUseAccepted(checkInformation: CheckInformation): Boolean = {
-    checkInformation.termsOfUseAgreements.exists(tou => tou.version == "1.0")
+    checkInformation.termsOfUseAgreements.nonEmpty
   }
 
   def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =

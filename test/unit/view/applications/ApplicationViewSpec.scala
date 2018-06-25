@@ -62,7 +62,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
           ApplicationState()
         )
 
-      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -86,7 +86,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         checkInformation = Option(checkInformation)
       )
 
-      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -97,7 +97,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show application with check information and terms of use agreed" in {
 
-      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), "1.0")
+      val termsOfUseVersion = "1.0"
+      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
       val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
 
 
@@ -113,22 +114,53 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
         ApplicationState(),
         checkInformation = Option(checkInformation)
       )
-
-      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, Some(termsOfUseAgreement), request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"Agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.longDate.print(termsOfUseAgreement.timeStamp)}") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}") mustBe true
 
     }
 
+    "show application with check information and multiple terms of use agreed" in {
+
+      val oldVersion = "1.0"
+      val oldTOUAgreement = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
+      val newVersion = "1.1"
+      val newTOUAgreement = TermsOfUseAgreement("test", DateTime.now(), newVersion)
+      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(oldTOUAgreement, newTOUAgreement))
+
+
+      val applicationWithTermsOfUse = ApplicationResponse(
+
+        UUID.randomUUID(),
+        "name",
+        "PRODUCTION",
+        None,
+        Set.empty,
+        DateTime.now(),
+        Standard(),
+        ApplicationState(),
+        checkInformation = Option(checkInformation)
+      )
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, false, Some(newTOUAgreement), request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByAttr(document, "div", "data-terms") mustBe true
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"v${newTOUAgreement.version} agreed by ${newTOUAgreement.emailAddress} on ${DateTimeFormat.longDate.print(newTOUAgreement.timeStamp)}") mustBe true
+      result.body.contains(s"v$oldTOUAgreement.version") mustBe false
+      result.body.contains(DateTimeFormat.longDate.print(oldTOUAgreement.timeStamp)) mustBe false
+    }
 
     "show application information, including status information" in {
 
-      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -144,7 +176,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
       val applicationPendingCheck = application.copy(state = ApplicationState(State.PENDING_GATEKEEPER_APPROVAL))
 
-      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationPendingCheck), Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationPendingCheck), Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -158,7 +190,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show application information, including superuser only actions, when logged in as superuser" in {
 
-      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, true, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, true, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -168,7 +200,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in {
-      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -178,7 +210,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
     }
 
     "show application information and click on associated developer" in {
-      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.application.render(applicationWithHistory, Seq.empty, false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -190,7 +222,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val applicationPendingVerification = application.copy(state = ApplicationState(State.PENDING_REQUESTER_VERIFICATION))
 
       val result = views.html.applications.application.render(applicationWithHistory.copy(application = applicationPendingVerification),
-        Seq.empty, isSuperUser = false, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+        Seq.empty, isSuperUser = false, None, request, None, Flash.emptyCookie, applicationMessages, AppConfig)
 
       val document = Jsoup.parse(result.body)
 

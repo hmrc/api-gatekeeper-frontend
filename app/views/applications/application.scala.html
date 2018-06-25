@@ -21,7 +21,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -97,12 +97,8 @@
     }
 }
 
-@renderDeveloperUrl(checkInformation: CheckInformation) = {
-        @defining(DateTimeFormat.longDate) { dateFormatter =>
-        @defining(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.emailAddress) { developerEmailAddress =>
-           Agreed by <a href="@{routes.DevelopersController.developerPage(developerEmailAddress)}">@developerEmailAddress</a> on @dateFormatter.print(checkInformation.termsOfUseAgreements.filter(terms => terms.version == "1.0").head.timeStamp)
-        }
-    }
+@renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
+    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
 @main(title = s"${appConfig.title} - Application Details", userFullName = userFullName) {
@@ -164,9 +160,8 @@
             <td>
                 <div data-terms>
                     @{
-                        application.checkInformation match{
-
-                            case Some(checkInformation) if(checkInformation.termsOfUseAgreements.nonEmpty) => renderDeveloperUrl(checkInformation)
+                        maybeLatestTOUAgreement match{
+                            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
                             case _ =>  <p>Not agreed</p>
                         }
                     }
