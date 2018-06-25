@@ -98,9 +98,7 @@
 }
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
-    v@termsOfUseAgreement.version agreed by
-    <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a>
-    on @DateTimeFormat.longDate.print(termsOfUseAgreement.timeStamp)
+    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
 @main(title = s"${appConfig.title} - Application Details", userFullName = userFullName) {
