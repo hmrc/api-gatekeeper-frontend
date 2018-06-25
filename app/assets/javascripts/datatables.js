@@ -124,7 +124,7 @@ $(function(undefined) {
         if (~data[1].toLowerCase().indexOf(filterValue)) return true;
         if (~data[3].toLowerCase().indexOf(filterValue)) return true;
         if (~data[5].toLowerCase().indexOf(filterValue)) return true;
-        if (~data[7].toLowerCase().indexOf(filterValue)) return true;
+        if (~data[8].toLowerCase().indexOf(filterValue)) return true;
       }
       else {
         if (~data[0].toLowerCase().indexOf(filterValue)) return true;
