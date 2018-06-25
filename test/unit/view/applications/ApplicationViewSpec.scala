@@ -121,8 +121,6 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
-      println(result.body)
-      println(s"************************ v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)} *************************")
       elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}") mustBe true
 
     }
