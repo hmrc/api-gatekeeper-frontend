@@ -24,6 +24,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.util.{Failure, Success}
+
 object DeveloperService extends DeveloperService {
   override val developerConnector: DeveloperConnector = DeveloperConnector
   override val applicationConnector: ApplicationConnector = ApplicationConnector
@@ -73,19 +75,18 @@ trait DeveloperService {
     }
   }
 
-  def fetchDevelopers(apps: Seq[Application])(implicit hc: HeaderCarrier): Future[Seq[ApplicationDeveloper]] = {
+  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[ApplicationDeveloper] = {
 
     def collaboratingApps(user: User, apps: Seq[Application]): Seq[Application] = {
       apps.filter(a => a.collaborators.map(col => col.emailAddress).contains(user.email))
     }
 
-    fetchUsers.map(future =>
-      future.map(u => {
-        Developer.createFromUser(u, collaboratingApps(u, apps))
-      }))
+    users.map(u => {
+      Developer.createFromUser(u, collaboratingApps(u, apps))
+    })
   }
 
-  private def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     developerConnector.fetchAll.map(_.sorted)
   }
 

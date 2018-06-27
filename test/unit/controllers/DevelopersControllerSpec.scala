@@ -66,17 +66,19 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noUsers, noUsers)
+        givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], users: Seq[ApplicationDeveloper], developers: Seq[ApplicationDeveloper]): Unit = {
+      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[ApplicationDeveloper]): Unit = {
         val apiFiler = ApiFilter(None)
         val statusFilter = StatusFilter(None)
+        val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         given(mockApplicationService.fetchApplications(eqTo(apiFiler))(any[HeaderCarrier])).willReturn(Future.successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockDeveloperService.filterUsersBy(apiFiler, apps)(users)).willReturn(users)
-        given(mockDeveloperService.filterUsersBy(statusFilter)(users)).willReturn(users)
-        given(mockDeveloperService.fetchDevelopers(eqTo(apps))(any[HeaderCarrier])).willReturn(Future.successful(developers))
+        given(mockDeveloperService.filterUsersBy(apiFiler, apps)(developers)).willReturn(developers)
+        given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
+        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
+        given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(Future.successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
@@ -97,7 +99,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         bodyOf(result) should include("data-page-length=\"100\"")
       }
 
-      "go to loginpage with error if user is not authenticated" in new Setup {
+      "go to login page with error if user is not authenticated" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
         given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
         val result = await(developersController.developersPage(None, None)(aLoggedOutRequest))
@@ -143,7 +145,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenASuccessfulLogin
-        givenDelegateServicesSupply(applications, devs, devs)
+        givenDelegateServicesSupply(applications, devs)
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe 200
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
@@ -153,7 +155,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         givenASuccessfulLogin
-        givenDelegateServicesSupply(applications, noUsers, noUsers)
+        givenDelegateServicesSupply(applications, noDevs)
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe 200
         bodyOf(result) should include("No developers for your selected filter")
@@ -168,7 +170,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "not allow a non super user to access the page" in new Setup {
         givenASuccessfulLogin
-        val result = await(developersController.deleteDeveloperPage(emailAddress)(aLoggedInRequest))
+        val result= await(developersController.deleteDeveloperPage(emailAddress)(aLoggedInRequest))
         status(result) shouldBe 401
       }
 

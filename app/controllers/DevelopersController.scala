@@ -47,12 +47,18 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
 
+      val appsF = applicationService.fetchApplications(apiFilter)
+      val apisF = apiDefinitionService.fetchAllApiDefinitions
+
+      val usersF = developerService.fetchUsers
+
       for {
-        apps <- applicationService.fetchApplications(apiFilter)
-        apis <- apiDefinitionService.fetchAllApiDefinitions
-        devs <- developerService.fetchDevelopers(apps)
+        apps <- appsF
+        apis <- apisF
+        users <- usersF
         filterOps = (developerService.filterUsersBy(apiFilter, apps) _
           andThen developerService.filterUsersBy(statusFilter))
+        devs = developerService.getDevelopersWithApps(apps, users)
         filteredUsers = filterOps(devs)
         sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
         emails = sortedUsers.map(_.email).mkString("; ")
