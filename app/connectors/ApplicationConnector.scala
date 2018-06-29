@@ -78,13 +78,6 @@ trait ApplicationConnector {
       }
   }
 
-  def fetchApplicationsWithUpliftRequest()(implicit hc: HeaderCarrier): Future[Seq[ApplicationWithUpliftRequest]] = {
-    http.GET[Seq[ApplicationWithUpliftRequest]](s"$applicationBaseUrl/gatekeeper/applications")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
-      }
-  }
-
   def fetchApplication(applicationId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     http.GET[ApplicationWithHistory](s"$applicationBaseUrl/gatekeeper/application/$applicationId")
   }

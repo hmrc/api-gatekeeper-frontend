@@ -17,26 +17,27 @@
 package services
 
 import config.AppConfig
-import connectors.{ApplicationConnector, DeveloperConnector}
+import connectors.{ApplicationConnector, DeveloperConnector, HttpDeveloperConnector, DummyDeveloperConnector}
 import model._
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.util.{Failure, Success}
 
 object DeveloperService extends DeveloperService {
-  override val developerConnector: DeveloperConnector = DeveloperConnector
-  override val applicationConnector: ApplicationConnector = ApplicationConnector
   override val appConfig = AppConfig
+
+  override val developerConnector: DeveloperConnector =
+    if (AppConfig.isExternalTestEnvironment) DummyDeveloperConnector else HttpDeveloperConnector
+
+  override val applicationConnector: ApplicationConnector = ApplicationConnector
 }
 
 trait DeveloperService {
 
+  implicit val appConfig: AppConfig
   val developerConnector: DeveloperConnector
   val applicationConnector: ApplicationConnector
-  implicit val appConfig: AppConfig
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
@@ -55,8 +56,8 @@ trait DeveloperService {
       linkAppsAndCollaborators(apps).filterKeys(e => !registeredEmails.contains(e))
 
     lazy val unregistered: Set[Developer] =
-      unregisteredCollaborators.map { case(user, apps) =>
-        Developer.createUnregisteredDeveloper(user, apps)
+      unregisteredCollaborators.map { case (user, userApps) =>
+        Developer.createUnregisteredDeveloper(user, userApps)
       } toSet
 
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.apps.isEmpty)
@@ -88,6 +89,10 @@ trait DeveloperService {
 
   def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     developerConnector.fetchAll.map(_.sorted)
+  }
+
+  def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    developerConnector.fetchByEmail(email)
   }
 
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[ApplicationDeveloper] = {

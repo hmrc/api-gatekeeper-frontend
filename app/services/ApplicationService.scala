@@ -150,4 +150,13 @@ trait ApplicationService {
   def deleteApplication(applicationId: String, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
     applicationConnector.deleteApplication(applicationId, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
   }
+
+  def approveUplift(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
+    applicationConnector.approveUplift(applicationId, gatekeeperUserId)
+  }
+
+  def rejectUplift(applicationId: String, gatekeeperUserId: String, rejectionReason: String)
+                  (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
+    applicationConnector.rejectUplift(applicationId, gatekeeperUserId, rejectionReason)
+  }
 }

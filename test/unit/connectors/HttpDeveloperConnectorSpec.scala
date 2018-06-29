@@ -20,23 +20,23 @@ import java.net.URLEncoder
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
-import connectors.DeveloperConnector
+import connectors.HttpDeveloperConnector
 import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, User}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.time.DateTimeUtils
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 
 
-class DeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val connector = new DeveloperConnector {
+    val connector = new HttpDeveloperConnector {
       override val developerBaseUrl: String = wireMockUrl
       override val http: HttpPost with HttpGet = WSHttp
     }
