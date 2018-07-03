@@ -182,30 +182,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     }
   }
 
-
-  "fetchApplicationsWithUpliftRequest" should {
-    "retrieve all applications pending uplift approval" in new Setup {
-      stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(200)
-        .withBody("[]")))
-
-      val result = await(connector.fetchApplicationsWithUpliftRequest())
-
-      verify(1, getRequestedFor(urlPathEqualTo("/gatekeeper/applications"))
-        .withHeader("Authorization", equalTo(authToken)))
-    }
-
-    "propagate FetchApplicationsFailed exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(500)))
-
-      intercept[FetchApplicationsFailed] {
-        await(connector.fetchApplicationsWithUpliftRequest())
-      }
-
-      verify(1, getRequestedFor(urlPathEqualTo(s"/gatekeeper/applications"))
-        .withHeader("Authorization", equalTo(authToken)))
-    }
-  }
-
   "fetchAllApplicationsBySubscription" should {
     "retrieve all applications subscribed to a specific API" in new Setup {
       stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(200)

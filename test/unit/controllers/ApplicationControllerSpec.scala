@@ -69,8 +69,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val applicationService = mockApplicationService
         val apiDefinitionService = mockApiDefinitionService
         val developerService = mockDeveloperService
-        val applicationConnector = mockApplicationConnector
-        val developerConnector = mockDeveloperConnector
       }
 
       given(mockConfig.superUsers).willReturn(Seq("superUserName"))
@@ -469,7 +467,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(underTest.applicationConnector.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
+        given(underTest.applicationService.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
         val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -488,7 +486,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-        given(underTest.applicationConnector.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+        given(underTest.applicationService.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
@@ -497,7 +495,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         appIdCaptor.getValue shouldBe applicationId
         newTierCaptor.getValue shouldBe tier
 
-        verify(underTest.applicationConnector, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
+        verify(underTest.applicationService, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
       }
 
       "not call the application connector for a normal user " in new Setup {
@@ -507,7 +505,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
         status(result) shouldBe 303
 
-        verify(underTest.applicationConnector, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
+        verify(underTest.applicationService, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
       }
     }
 
@@ -518,42 +516,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
         val result = await(underTest.applicationsPage()(aLoggedOutRequest))
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
-      }
-
-      "load successfully if user is authenticated and authorised" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-
-        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-
-        given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
-        given(underTest.appConfig.title).willReturn("Unit Test Title")
-        val result = await(underTest.applicationsPage()(aLoggedInRequest))
-        status(result) shouldBe 200
-        titleOf(result) shouldBe "Unit Test Title - Applications"
-        bodyOf(result) should include("<h1>Applications</h1>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
-      }
-
-      "go to application page if authenticated & authorised, but configured as external test" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-
-        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-
-        given(underTest.applicationConnector.fetchApplicationsWithUpliftRequest()(any[HeaderCarrier])).willReturn(Future.successful(Seq.empty[ApplicationWithUpliftRequest]))
-        given(underTest.appConfig.isExternalTestEnvironment).willReturn(true)
-        val result = await(underTest.applicationsPage()(aLoggedInRequest))
-        status(result) shouldBe 200
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {

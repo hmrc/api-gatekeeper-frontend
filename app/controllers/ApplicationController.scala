@@ -40,8 +40,6 @@ object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
   override val developerService = DeveloperService
-  override val applicationConnector = ApplicationConnector
-  override val developerConnector = DeveloperConnector
   override def authProvider = GatekeeperAuthProvider
   override def authConnector = AuthConnector
 }
@@ -51,8 +49,6 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
   val developerService: DeveloperService
-  val applicationConnector: ApplicationConnector
-  val developerConnector: DeveloperConnector
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -265,7 +261,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
   private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationReviewDetails] = {
     for {
-      app <- applicationConnector.fetchApplication(appId)
+      app <- applicationService.fetchApplication(appId)
       submission <- lastSubmission(app)
     } yield applicationReviewDetails(app.application, submission)
   }
@@ -280,7 +276,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
     def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
       val emails: Set[String] = app.application.admins.map(_.emailAddress)
-      developerConnector.fetchByEmails(emails.toSeq)
+      developerService.fetchDevelopersByEmails(emails.toSeq)
     }
 
     def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
@@ -293,7 +289,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     redirectIfExternalTestEnvironment {
 
       for {
-        app <- applicationConnector.fetchApplication(appId)
+        app <- applicationService.fetchApplication(appId)
         approval = lastApproval(app)
         submission <- lastSubmission(app)
         admins <- administrators(app)
@@ -307,7 +303,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
-    developerConnector.fetchByEmail(submission.actor.id).map(s =>
+    developerService.fetchUser(submission.actor.id).map(s =>
       SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
@@ -356,10 +352,10 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
         UpliftAction.from(validForm.action) match {
           case Some(APPROVE) =>
-            applicationConnector.approveUplift(appId, loggedIn.get) map (
+            applicationService.approveUplift(appId, loggedIn.get) map (
               ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
           case Some(REJECT) =>
-            applicationConnector.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
+            applicationService.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
               RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
         }
       }
@@ -376,7 +372,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
           Future.successful(result)
         } else {
           val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-          applicationConnector.updateRateLimitTier(appId, newTier) map {
+          applicationService.updateRateLimitTier(appId, newTier) map {
             case ApplicationUpdateSuccessResult =>
               result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
           }

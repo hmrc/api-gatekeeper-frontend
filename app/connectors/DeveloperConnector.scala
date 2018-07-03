@@ -27,16 +27,18 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-object DeveloperConnector extends DeveloperConnector {
-  override val developerBaseUrl: String = s"${baseUrl("third-party-developer")}"
-  override val http = WSHttp
+trait DeveloperConnector {
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
+  def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 }
 
-trait DeveloperConnector {
+trait HttpDeveloperConnector extends DeveloperConnector {
   val developerBaseUrl: String
-  val http: HttpPost with HttpGet
+  val http: HttpGet with HttpPost
 
-  def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
     http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email)).recover{
       case e: NotFoundException => UnregisteredCollaborator(email)
     }
@@ -50,7 +52,7 @@ trait DeveloperConnector {
     http.GET[Seq[User]](s"$developerBaseUrl/developers/all")
   }
 
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) = {
     http.POST(s"$developerBaseUrl/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case NO_CONTENT => DeveloperDeleteSuccessResult
@@ -60,4 +62,20 @@ trait DeveloperConnector {
         case _ => DeveloperDeleteFailureResult
       }
   }
+}
+
+object HttpDeveloperConnector extends HttpDeveloperConnector {
+  override val developerBaseUrl = s"${baseUrl("third-party-developer")}"
+  override val http = WSHttp
+}
+
+object DummyDeveloperConnector extends DeveloperConnector {
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
+
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
+
+  def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
+
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
+    Future.successful(DeveloperDeleteSuccessResult)
 }
