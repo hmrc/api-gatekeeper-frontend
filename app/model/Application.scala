@@ -172,6 +172,7 @@ object ApplicationResponse {
   implicit val format5 = Json.format[ApprovedApplication]
   implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[TermsOfUseAgreement]
+  implicit val format7 = Json.format[EnvironmentToken]
 }
 
 object AccessType extends Enumeration {
