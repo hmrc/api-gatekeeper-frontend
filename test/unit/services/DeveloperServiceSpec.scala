@@ -42,7 +42,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     Developer(s"$name@example.com", name, s"${name}son", Some(verified), apps)
 
   def anApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = {
-    ApplicationResponse(UUID.randomUUID(), name, "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    ApplicationResponse(UUID.randomUUID(), "clientId", name, "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
   }
 
   trait Setup {

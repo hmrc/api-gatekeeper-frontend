@@ -74,7 +74,7 @@ class ModelSpec  extends UnitSpec with Matchers {
     val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)
 
     def application(teamMembers: Set[Collaborator]) =
-      ApplicationResponse(UUID.randomUUID(), "application", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
+      ApplicationResponse(UUID.randomUUID(), "application", "clientid", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))

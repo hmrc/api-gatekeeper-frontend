@@ -135,6 +135,7 @@ object OverrideType extends Enumeration {
 }
 
 case class ApplicationResponse(id: UUID,
+                               clientId: String,
                                name: String,
                                deployedTo: String,
                                description: Option[String] = None,
@@ -145,8 +146,7 @@ case class ApplicationResponse(id: UUID,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None,
-                               clientId: String)
+                               checkInformation: Option[CheckInformation] = None)
                                extends Application {
 
 }
@@ -172,7 +172,8 @@ object ApplicationResponse {
   implicit val format5 = Json.format[ApprovedApplication]
   implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[TermsOfUseAgreement]
-  implicit val format7 = Json.format[EnvironmentToken]
+  implicit val format7 = Json.format[ClientSecret]
+  implicit val format8 = Json.format[EnvironmentToken]
 }
 
 object AccessType extends Enumeration {

@@ -40,6 +40,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
       ApplicationResponse(
         UUID.randomUUID(),
         "application1",
+        "clientid",
         "PRODUCTION",
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
