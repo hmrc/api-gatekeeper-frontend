@@ -145,7 +145,8 @@ case class ApplicationResponse(id: UUID,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None)
+                               checkInformation: Option[CheckInformation] = None,
+                               clientId: String)
                                extends Application {
 
 }
@@ -285,6 +286,21 @@ object CollaboratorRole extends Enumeration {
 }
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole)
+
+
+case class ClientSecret(name: String, secret: String, createdOn: DateTime)
+
+object ClientSecret {
+  implicit val format = Json.format[ClientSecret]
+}
+
+case class EnvironmentToken(clientId: String,
+                            clientSecrets: Seq[ClientSecret],
+                            accessToken: String)
+object EnvironmentToken {
+  implicit val format1 = Json.format[ClientSecret]
+  implicit val format2 = Json.format[EnvironmentToken]
+}
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
                             verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)
