@@ -37,8 +37,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
     val application =
       ApplicationResponse(
         UUID.randomUUID(),
-        "application1",
         "clientid",
+        "application1",
         "PRODUCTION",
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
@@ -54,8 +54,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val application =
         ApplicationResponse(
           UUID.randomUUID(),
-          "application1",
           "clientid",
+          "application1",
           "PRODUCTION",
           None,
           Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
@@ -78,8 +78,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val checkInformation = CheckInformation()
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
         UUID.randomUUID(),
-        "name",
         "clientid",
+        "name",
         "PRODUCTION",
         None,
         Set.empty,
@@ -108,8 +108,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val applicationWithTermsOfUse = ApplicationResponse(
 
         UUID.randomUUID(),
-        "name",
         "clientid",
+        "name",
         "PRODUCTION",
         None,
         Set.empty,
@@ -141,8 +141,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
       val applicationWithTermsOfUse = ApplicationResponse(
 
         UUID.randomUUID(),
-        "name",
         "clientid",
+        "name",
         "PRODUCTION",
         None,
         Set.empty,

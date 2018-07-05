@@ -39,8 +39,8 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
     val application =
       ApplicationResponse(
         UUID.randomUUID(),
-        "application1",
         "clientid",
+        "application1",
         "PRODUCTION",
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),

@@ -44,7 +44,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
   Helpers.running(fakeApplication) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
-      ApplicationResponse(UUID.randomUUID(), "application", "clientid", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+      ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
     }
 
     trait Setup extends ControllerSetupBase {
@@ -142,7 +142,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           User("another@example.com", "Sample2", "Email", Some(true)),
           User("someone@example.com", "Sample3", "Email", Some(true)))
         val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "clientid", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, devs)
@@ -153,7 +153,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "application", "clientid", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         givenASuccessfulLogin
         givenDelegateServicesSupply(applications, noDevs)
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
