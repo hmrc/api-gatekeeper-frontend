@@ -208,6 +208,7 @@ trait MockDataSugar {
        |    "approvedDetails": {
        |      "details": {
        |        "id": "",
+       |        "clientId": "",
        |        "name": "",
        |        "description": "",
        |        "rateLimitTier": "BRONZE",
@@ -310,6 +311,7 @@ trait MockDataSugar {
        |    "approvedDetails": {
        |      "details": {
        |        "id": "",
+       |        "clientId": "",
        |        "name": "",
        |        "description": "",
        |        "rateLimitTier": "BRONZE",
@@ -573,6 +575,7 @@ trait MockDataSugar {
        |  },
        |    {
        |    "id": "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
+       |    "clientId": "clientid1",
        |    "name": "My new app",
        |    "description": "my description",
        |    "deployedTo": "PRODUCTION",
@@ -608,6 +611,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
+       |    "clientId": "clientid1",
        |    "name": "An application for my user",
        |    "description": "And my user has a very tricky email address",
        |    "deployedTo": "PRODUCTION",
@@ -633,6 +637,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "c9736f52-4202-4d14-85b5-cbd29601fa99",
+       |    "clientId": "clientid1",
        |    "name": "Mango",
        |    "description": "a",
        |    "deployedTo": "PRODUCTION",
@@ -658,6 +663,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
+       |    "clientId": "clientid1",
        |    "name": "Mark App",
        |    "description": "anything",
        |    "deployedTo": "PRODUCTION",
@@ -683,6 +689,7 @@ trait MockDataSugar {
        |  },
        |   {
        |    "id": "4afc248d-1c3e-4274-a77b-e89a25b4d764",
+       |    "clientId": "clientid1",
        |    "name": "A Wonderful Application",
        |    "description": "I would like to see this wonderful application in production",
        |    "deployedTo": "PRODUCTION",
@@ -712,6 +719,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "e55def1d-763c-4a26-a44e-82a63f4cb70b",
+       |    "clientId": "clientid1",
        |    "name": "Any App",
        |    "description": "Stuff",
        |    "deployedTo": "PRODUCTION",
@@ -745,6 +753,7 @@ trait MockDataSugar {
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "clientId": "clientid1",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -814,6 +823,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "414660d0-9b0c-49dc-ad7f-c36f32772c10",
+       |    "clientId": "clientid1",
        |    "name": "Tim",
        |    "description": "Tim paye tests",
        |    "deployedTo": "PRODUCTION",
@@ -843,6 +853,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "7800ee15-ccc1-4103-b21f-81ddde793be1",
+       |    "clientId": "clientid1",
        |    "name": "Test Application",
        |    "description": "My test app",
        |    "deployedTo": "PRODUCTION",
@@ -868,6 +879,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "d22cc11f-59e6-4148-b0d4-1751e9181d45",
+       |    "clientId": "clientid1",
        |    "name": "QA User App 2",
        |    "collaborators": [
        |      {
@@ -899,6 +911,7 @@ trait MockDataSugar {
        |  },
        |  {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "clientId": "clientid1",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -964,6 +977,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -1066,6 +1080,7 @@ trait MockDataSugar {
       s""",
           |    {
           |      "applicationId": "$approvedApp1",
+          |      "clientId": "clientid1",
           |      "state": "PRODUCTION",
           |      "actor": {
           |        "id": "gatekeeper.username",
@@ -1101,6 +1116,7 @@ trait MockDataSugar {
        |{
        |  "application": {
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Application",
        |    "description": "$description",
        |    "deployedTo": "PRODUCTION",
