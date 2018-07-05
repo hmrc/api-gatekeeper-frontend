@@ -85,24 +85,28 @@ trait MockDataSugar {
        |[
        |  {
        |    "id": "$appPendingApprovalId2",
+       |    "clientId": "clientid1",
        |    "name": "Second Application",
        |    "submittedOn": 1458832690624,
        |    "state": "PENDING_GATEKEEPER_APPROVAL"
        |  },
        |  {
        |    "id": "$appPendingApprovalId1",
+       |    "clientId": "clientid1",
        |    "name": "First Application",
        |    "submittedOn": 1458659208000,
        |    "state": "PENDING_GATEKEEPER_APPROVAL"
        |  },
        |  {
        |    "id": "9688ad02-230e-42b7-8f9a-be593565bfdc",
+       |    "clientId": "clientid1",
        |    "name": "Third",
        |    "submittedOn": 1458831410657,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
        |  {
        |    "id": "56148b28-65b0-47dd-a3ce-2f02840ddd31",
+       |    "clientId": "clientid1",
        |    "name": "Fourth",
        |    "submittedOn": 1458832728156,
        |    "state": "PRODUCTION"
@@ -115,24 +119,28 @@ trait MockDataSugar {
        |[
        |  {
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Application",
        |    "submittedOn": 1458832690624,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
        |  {
        |    "id": "$approvedApp2",
+       |    "clientId": "clientid2",
        |    "name": "ZApplication",
        |    "submittedOn": 1458659208000,
        |    "state": "PRODUCTION"
        |  },
        |  {
        |    "id": "$approvedApp3",
+       |    "clientId": "clientid3",
        |    "name": "rapplication",
        |    "submittedOn": 1458831410657,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
        |  {
        |    "id": "$approvedApp4",
+       |    "clientId": "clientid4",
        |    "name": "BApplication",
        |    "submittedOn": 1458832728156,
        |    "state": "PRODUCTION"
@@ -145,6 +153,7 @@ trait MockDataSugar {
        |{
        |  "application": {
        |    "id": "$appPendingApprovalId1",
+       |    "clientId": "clientid1",
        |    "name": "First Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -246,6 +255,7 @@ trait MockDataSugar {
        |{
        |  "application": {
        |    "id": "$appPendingApprovalId1",
+       |    "clientId": "clientid1",
        |    "name": "First Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -347,6 +357,7 @@ trait MockDataSugar {
        |{
        |  "application": {
        |    "id": "$appToDelete",
+       |    "clientId": "clientid1",
        |    "name": "Automated Test Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -428,6 +439,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -496,6 +508,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$appToDelete",
+       |    "clientId": "clientid1",
        |    "name": "Automated Test Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -529,6 +542,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -769,6 +783,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -923,6 +938,7 @@ trait MockDataSugar {
     s"""
        |  [{
        |    "id": "$approvedApp1",
+       |    "clientId": "clientid1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
