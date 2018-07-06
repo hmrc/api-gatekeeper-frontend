@@ -47,10 +47,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
 
-    val stdApp1 = ApplicationResponse(UUID.randomUUID(), "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
-    val stdApp2 = ApplicationResponse(UUID.randomUUID(), "application2", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
-    val privilegedApp = ApplicationResponse(UUID.randomUUID(), "application3", "PRODUCTION", None, collaborators, DateTime.now(), Privileged(), ApplicationState())
-    val ropcApp = ApplicationResponse(UUID.randomUUID(), "application4", "PRODUCTION", None, collaborators, DateTime.now(), Ropc(), ApplicationState())
+    val stdApp1 = ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    val stdApp2 = ApplicationResponse(UUID.randomUUID(), "clientid2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    val privilegedApp = ApplicationResponse(UUID.randomUUID(), "clientid3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), Privileged(), ApplicationState())
+    val ropcApp = ApplicationResponse(UUID.randomUUID(), "clientid4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), Ropc(), ApplicationState())
 
     val allApplications = Seq(stdApp1, stdApp2, privilegedApp)
   }

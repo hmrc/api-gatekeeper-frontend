@@ -135,6 +135,7 @@ object OverrideType extends Enumeration {
 }
 
 case class ApplicationResponse(id: UUID,
+                               clientId: String,
                                name: String,
                                deployedTo: String,
                                description: Option[String] = None,

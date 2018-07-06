@@ -48,7 +48,7 @@ trait ControllerSetupBase extends MockitoSugar {
   implicit val decryptedStringFormats = JsonStringDecryption
   implicit val format = Json.format[LoginDetails]
 
-  val basicApplication = ApplicationResponse(UUID.randomUUID(), "application1", "PRODUCTION", None,
+  val basicApplication = ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None,
     Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
     DateTime.now(), Standard(), ApplicationState())
   val application = ApplicationWithHistory(basicApplication, Seq.empty)

@@ -31,13 +31,14 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
 
   "SubscribedApplicationResponse" should {
     val id = UUID.randomUUID()
+    val clientid = randomText
     val name = randomText
     val description = randomText
     val collaborator = Collaborator(randomText, DEVELOPER)
     val createdOn = DateTime.now
     val state = ApplicationState()
     val sub = SubscriptionNameAndVersion("subName", "subVersion")
-    val appResponse = ApplicationResponse(id, name, randomText, Some(description), Set(collaborator), createdOn, Standard(), state)
+    val appResponse = ApplicationResponse(id, clientid, name, randomText, Some(description), Set(collaborator), createdOn, Standard(), state)
 
     "create from ApplicationResponse" in {
       val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Standard(), Seq(sub),
