@@ -172,8 +172,6 @@ object ApplicationResponse {
   implicit val format5 = Json.format[ApprovedApplication]
   implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
   implicit val format6 = Json.format[TermsOfUseAgreement]
-  implicit val format7 = Json.format[ClientSecret]
-  implicit val format8 = Json.format[EnvironmentToken]
 }
 
 object AccessType extends Enumeration {
@@ -288,21 +286,6 @@ object CollaboratorRole extends Enumeration {
 }
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole)
-
-
-case class ClientSecret(name: String, secret: String, createdOn: DateTime)
-
-object ClientSecret {
-  implicit val format = Json.format[ClientSecret]
-}
-
-case class EnvironmentToken(clientId: String,
-                            clientSecrets: Seq[ClientSecret],
-                            accessToken: String)
-object EnvironmentToken {
-  implicit val format1 = Json.format[ClientSecret]
-  implicit val format2 = Json.format[EnvironmentToken]
-}
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
                             verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)

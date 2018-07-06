@@ -472,6 +472,7 @@ trait MockDataSugar {
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |    "clientId": "clientId1",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
