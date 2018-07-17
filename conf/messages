@@ -12,3 +12,4 @@ application.name.required=Provide an application name
 application.description.required=Provide an application description
 email.required=Provide an email address
 email.not.valid=Provide a valid email address
+application.name.already.exists=Provide an application name that does not already exist

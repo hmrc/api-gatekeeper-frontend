@@ -275,7 +275,7 @@ final case class CreatePrivOrROPCAppForm(accessType: Option[String], application
 object CreatePrivOrROPCAppForm {
 
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
-    form.withError("applicationName", "Provide an application name that does not already exist")
+    form.withError("applicationName", "application.name.already.exists")
   }
 
   implicit val format1 = EnumJson.enumFormat(AccessType)
@@ -288,7 +288,7 @@ object CreatePrivAppRequest {
   implicit val format1 = EnumJson.enumFormat(AccessType)
   implicit val format2 = EnumJson.enumFormat(CollaboratorRole)
   implicit val format3 = Json.format[Collaborator]
-  implicit val format4 = Json.format[TotpSecret]
+  implicit val format4 = Json.format[TotpSecrets]
   implicit val format5 = EnumJson.enumReads(Scope)
   implicit val format6 = Json.format[AppAccess]
   implicit val format7 = Json.format[CreatePrivAppRequest]
