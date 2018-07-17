@@ -33,7 +33,6 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhance
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
-import views.html.{createPrivOrROPCApplication, createPrivOrROPCApplicationSuccess}
 
 import scala.concurrent.Future
 
