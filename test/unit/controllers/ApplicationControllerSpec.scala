@@ -554,7 +554,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
-      val totp = Totp("THISISATOTPSECRETFORPRODUCTION", "THISISNOTUSED")
+      val totp = TotpSecrets("THISISATOTPSECRETFORPRODUCTION", "THISISNOTUSED")
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
       val ropcAccess = AppAccess(AccessType.ROPC, Seq())
       val totpSecret = totp.production

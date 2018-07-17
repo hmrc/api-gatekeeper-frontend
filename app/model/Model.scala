@@ -78,7 +78,7 @@ object GatekeeperSessionKeys {
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
-  implicit val formatTotpIds = Json.format[Totp]
+  implicit val formatTotpIds = Json.format[TotpIds]
 
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
@@ -241,9 +241,9 @@ case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
 sealed trait CreatePrivAppResult
 
-case class CreatePrivAppSuccessResult(id: String, name: String, deployedTo: String, clientId: String, totp: Totp, access: AppAccess) extends CreatePrivAppResult
+case class CreatePrivAppSuccessResult(id: String, name: String, deployedTo: String, clientId: String, totp: TotpSecrets, access: AppAccess) extends CreatePrivAppResult
 object CreatePrivAppSuccessResult {
-  implicit val rds1 = Json.reads[Totp]
+  implicit val rds1 = Json.reads[TotpSecrets]
   implicit val rds2 = EnumJson.enumReads(AccessType)
   implicit val rds3 = EnumJson.enumReads(Scope)
   implicit val rds4 = Json.reads[AppAccess]
@@ -288,7 +288,7 @@ object CreatePrivAppRequest {
   implicit val format1 = EnumJson.enumFormat(AccessType)
   implicit val format2 = EnumJson.enumFormat(CollaboratorRole)
   implicit val format3 = Json.format[Collaborator]
-  implicit val format4 = Json.format[Totp]
+  implicit val format4 = Json.format[TotpSecret]
   implicit val format5 = EnumJson.enumReads(Scope)
   implicit val format6 = Json.format[AppAccess]
   implicit val format7 = Json.format[CreatePrivAppRequest]

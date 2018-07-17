@@ -72,7 +72,7 @@ case class Standard(redirectUris: Seq[String] = Seq.empty,
   override val accessType = AccessType.STANDARD
 }
 
-case class Privileged(totp: Option[Totp] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
+case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
   override val accessType = AccessType.PRIVILEGED
 }
 
@@ -156,7 +156,7 @@ case class ApplicationResponse(id: UUID,
 }
 
 object ApplicationResponse {
-  implicit val formatTotpIds = Json.format[Totp]
+  implicit val formatTotpIds = Json.format[TotpIds]
 
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
@@ -192,7 +192,9 @@ object AccessType extends Enumeration {
    }
 }
 
-case class Totp(production: String, sandbox: String)
+case class TotpIds(production: String, sandbox: String)
+
+case class TotpSecrets(production: String, sandbox: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
@@ -213,7 +215,7 @@ object SubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[Totp]
+  implicit val formatTotpIds = Json.format[TotpIds]
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
   private implicit val formatRopc = Json.format[Ropc]
@@ -254,7 +256,7 @@ object DetailedSubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[Totp]
+  implicit val formatTotpIds = Json.format[TotpIds]
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
   private implicit val formatRopc = Json.format[Ropc]
