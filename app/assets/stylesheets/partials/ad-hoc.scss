@@ -57,3 +57,32 @@ th.override-actions, td.override-actions {
 th.no-border, td.no-border {
     border: none;
 }
+
+a.secondary-button, button.secondary-button {
+  position: relative;
+  padding: .526315em .789473em .263157em;
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1.25;
+  box-sizing: border-box;
+  box-shadow: none;
+  vertical-align: top;
+  background-color: #fff;
+  color: #005ea5;
+  text-decoration: underline;
+}
+
+a.secondary-button:hover, button.secondary-button:hover,
+a.secondary-button:focus, button.secondary-button:focus {
+  position: relative;
+  padding: .526315em .789473em .263157em;
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1.25;
+  box-sizing: border-box;
+  box-shadow: none;
+  vertical-align: top;
+  background-color: #fff;
+  color: #2e8aca;
+  text-decoration: underline;
+}

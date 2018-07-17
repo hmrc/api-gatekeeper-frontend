@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
+import connectors.AuthConnector
 import model.Forms._
 import model.UpliftAction.{APPROVE, REJECT}
 import model._
@@ -33,6 +33,7 @@ import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhance
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
+import views.html.{createPrivOrROPCApplication, createPrivOrROPCApplicationSuccess}
 
 import scala.concurrent.Future
 
@@ -57,7 +58,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         apps <- applicationService.fetchAllSubscribedApplications
         apis <- apiDefinitionService.fetchAllApiDefinitions
         subApps = SubscriptionEnhancer.combine(apps, apis)
-      } yield Ok(applications(subApps, groupApisByStatus(apis)))
+      } yield Ok(applications(subApps, groupApisByStatus(apis), isSuperUser))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -384,6 +385,60 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     appConfig.isExternalTestEnvironment match {
       case true => Future.successful(Redirect(routes.ApplicationController.applicationsPage))
       case false => body
+    }
+  }
+
+  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request =>
+      implicit hc => {
+        Future.successful(Ok(createPrivOrROPCApplication(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm(None, "", "", "")))))
+      }
+    }
+  }
+
+  def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
+    requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+      implicit request => implicit hc => {
+
+        def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
+          Future.successful(BadRequest(createPrivOrROPCApplication(form)))
+        }
+
+        def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
+
+          val env = if(appConfig.isExternalTestEnvironment) Environment.SANDBOX else Environment.PRODUCTION
+
+          def handleFormWithValidName: Future[Result] =
+            form.accessType.flatMap(AccessType.from) match {
+            case Some(accessType) => {
+              val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
+
+              applicationService.createPrivOrROPCApp(env, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map {
+                case CreatePrivAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
+                  Ok(createPrivOrROPCApplicationSuccess(appId, appName, appEnv, Some(access.accessType), totp.production, clientId))
+              }
+            }
+          }
+
+          def handleFormWithInvalidName: Future[Result] = {
+            val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
+            Future.successful(BadRequest(createPrivOrROPCApplication(formWithErrors)))
+          }
+
+          def hasValidName(apps: Seq[ApplicationResponse]) = {
+            if (env.toString == "PRODUCTION") {
+              !apps.exists(app => (app.deployedTo == "PRODUCTION") && (app.name == form.applicationName))
+            } else true
+          }
+
+          for {
+            appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
+            result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
+          } yield result
+        }
+
+          createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
     }
   }
 

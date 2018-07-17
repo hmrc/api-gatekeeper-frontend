@@ -22,6 +22,8 @@ import model._
 import org.joda.time.DateTime
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
+import AccessType._
+
 
 
 class ModelSpec  extends UnitSpec with Matchers {
@@ -96,4 +98,28 @@ class ModelSpec  extends UnitSpec with Matchers {
       app.isSoleAdmin(emailAddress) shouldBe false
     }
   }
+
+  "AccessType" should {
+
+    "contain all access types" in {
+      AccessType.values shouldBe Set(STANDARD, PRIVILEGED, ROPC)
+    }
+
+    "convert strings with any case to AccessType" in {
+      AccessType.from("standard") shouldBe Some(STANDARD)
+      AccessType.from("Standard") shouldBe Some(STANDARD)
+
+      AccessType.from("privileged") shouldBe Some(PRIVILEGED)
+      AccessType.from("priVILeged") shouldBe Some(PRIVILEGED)
+
+      AccessType.from("ropc") shouldBe Some(ROPC)
+      AccessType.from("ROPC") shouldBe Some(ROPC)
+    }
+
+    "convert unknown strings to None" in {
+      AccessType.from("anything") shouldBe None
+      AccessType.from("") shouldBe None
+    }
+  }
+
 }

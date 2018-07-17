@@ -72,12 +72,17 @@ case class Standard(redirectUris: Seq[String] = Seq.empty,
   override val accessType = AccessType.STANDARD
 }
 
-case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
+case class Privileged(totp: Option[Totp] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
   override val accessType = AccessType.PRIVILEGED
 }
 
 case class Ropc(scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
   override val accessType = AccessType.ROPC
+}
+
+object Scope extends Enumeration {
+  type Scope = Value
+  val PRIVILEGED, ROPC, STANDARD = Value
 }
 
 sealed trait OverrideFlag {
@@ -151,7 +156,7 @@ case class ApplicationResponse(id: UUID,
 }
 
 object ApplicationResponse {
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[Totp]
 
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
@@ -182,9 +187,12 @@ object AccessType extends Enumeration {
     case PRIVILEGED => "Privileged"
     case ROPC => "ROPC"
   }
+   def from(accessType: String) = {
+     AccessType.values.find(e => e.toString == accessType.toUpperCase)
+   }
 }
 
-case class TotpIds(production: String, sandbox: String)
+case class Totp(production: String, sandbox: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
@@ -205,7 +213,7 @@ object SubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[Totp]
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
   private implicit val formatRopc = Json.format[Ropc]
@@ -246,7 +254,7 @@ object DetailedSubscribedApplicationResponse {
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[Totp]
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
   private implicit val formatRopc = Json.format[Ropc]
@@ -277,6 +285,12 @@ object State extends Enumeration {
     case PENDING_REQUESTER_VERIFICATION => "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
     case PRODUCTION => "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
   }
+}
+
+object Environment extends Enumeration {
+  type Environment = Value
+  val SANDBOX, PRODUCTION = Value
+  implicit val format = EnumJson.enumFormat(Environment)
 }
 
 object CollaboratorRole extends Enumeration {

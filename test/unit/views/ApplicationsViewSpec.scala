@@ -57,7 +57,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
 
 
     "Called with no APIs" should {
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, false)
 
       "Display only subscription filters" in {
         val appView = applicationView()
@@ -94,7 +94,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
       )
 
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, apis)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, apis, false)
 
       "Display the subscription filters" in {
         val appView = applicationView()
@@ -123,7 +123,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true)
       )
 
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty, false)
 
       "Display all four applications in all four states" in {
         val appView = applicationView()
@@ -173,6 +173,28 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         status.get(0).child(1).text() shouldBe "Standard"
         status.get(0).child(2).text() shouldBe "ROPC"
         status.get(0).child(3).text() shouldBe "Privileged"
+      }
+    }
+
+    "Called by a superuser" should {
+
+      "Display the 'Add privileged or ROPC application' button" in {
+        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, true)
+
+        val appView = applicationView()
+
+        appView.body should include("""Add privileged or ROPC application""")
+      }
+    }
+
+    "Called by a non-superuser" should {
+
+      "Not display the 'Add privileged or ROPC application' button" in {
+        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, false)
+
+        val appView = applicationView()
+
+        appView.body shouldNot include("""Add privileged or ROPC application""")
       }
     }
   }

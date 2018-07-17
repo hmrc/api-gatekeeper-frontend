@@ -18,11 +18,13 @@ package model
 
 import java.util.UUID
 
+import model.AccessType.AccessType
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
+import model.Scope.Scope
 import model.State.State
-import model._
 import org.joda.time.DateTime
+import play.api.data.Form
 import play.api.libs.json._
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
@@ -76,7 +78,7 @@ object GatekeeperSessionKeys {
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[Totp]
 
   private implicit val formatStandard = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
@@ -237,6 +239,18 @@ sealed trait DeveloperDeleteResult
 case object DeveloperDeleteSuccessResult extends DeveloperDeleteResult
 case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
+sealed trait CreatePrivAppResult
+
+case class CreatePrivAppSuccessResult(id: String, name: String, deployedTo: String, clientId: String, totp: Totp, access: AppAccess) extends CreatePrivAppResult
+object CreatePrivAppSuccessResult {
+  implicit val rds1 = Json.reads[Totp]
+  implicit val rds2 = EnumJson.enumReads(AccessType)
+  implicit val rds3 = EnumJson.enumReads(Scope)
+  implicit val rds4 = Json.reads[AppAccess]
+  implicit val rds5 = Json.reads[CreatePrivAppSuccessResult]
+}
+case object CreatePrivAppFailureResult extends CreatePrivAppResult
+
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
@@ -256,3 +270,28 @@ final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: 
 object DeleteDeveloperRequest {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
+
+final case class CreatePrivOrROPCAppForm(accessType: Option[String], applicationName: String, applicationDescription: String, adminEmail: String)
+object CreatePrivOrROPCAppForm {
+
+  def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
+    form.withError("applicationName", "Provide an application name that does not already exist")
+  }
+
+  implicit val format1 = EnumJson.enumFormat(AccessType)
+  implicit val format = Json.format[CreatePrivOrROPCAppForm]
+}
+
+
+final case class CreatePrivAppRequest(environment: String, name: String, description: String, collaborators: Seq[Collaborator], access: AppAccess)
+object CreatePrivAppRequest {
+  implicit val format1 = EnumJson.enumFormat(AccessType)
+  implicit val format2 = EnumJson.enumFormat(CollaboratorRole)
+  implicit val format3 = Json.format[Collaborator]
+  implicit val format4 = Json.format[Totp]
+  implicit val format5 = EnumJson.enumReads(Scope)
+  implicit val format6 = Json.format[AppAccess]
+  implicit val format7 = Json.format[CreatePrivAppRequest]
+}
+
+case class AppAccess(accessType: AccessType, scopes: Seq[Scope])
