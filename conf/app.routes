@@ -45,5 +45,5 @@ GET         /nav-links                                              controllers.
 GET         /applications/:id/delete                                controllers.ApplicationController.deleteApplicationPage(id: String)
 POST        /applications/:id/delete                                controllers.ApplicationController.deleteApplicationAction(id: String)
 
-GET         /applications/add                                       controllers.ApplicationController.createPrivOrROPCApplicationPage
-POST        /applications/add                                       controllers.ApplicationController.createPrivOrROPCApplicationAction
+GET         /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationPage
+POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
