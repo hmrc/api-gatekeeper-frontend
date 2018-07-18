@@ -16,14 +16,17 @@
 
 package unit.connectors
 
+import java.nio.charset.CodingErrorAction
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
 import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
+import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 
 class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar
   with BeforeAndAfterEach with WithFakeApplication {
@@ -337,6 +340,35 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
       verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
         .withHeader("Authorization", equalTo(authToken)))
+    }
+  }
+
+  "createPrivOrROPCApp" should {
+    "successfully create an application" in new Setup {
+
+      val applicationId = "applicationId"
+      val appName = "My new app"
+      val appDescription = "An application description"
+      val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
+      val access = AppAccess(AccessType.PRIVILEGED, Seq())
+      val totpSecrets = TotpSecrets("secret", "I am not used")
+      val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
+
+      val createPrivOrROPCAppRequest = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
+      val createPrivOrROPCAppRequestJson = Json.toJson(createPrivOrROPCAppRequest).toString()
+      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", "client ID", totpSecrets, appAccess)
+
+      stubFor(post(urlEqualTo("/application"))
+        .withRequestBody(equalToJson(createPrivOrROPCAppRequestJson))
+        .willReturn(aResponse().withStatus(200)
+          .withHeader("Content-Type", "application/json")
+          .withBody(Json.toJson(createPrivOrROPCAppResponse).toString())
+        ))
+
+      val result = await(connector.createPrivOrROPCApp(createPrivOrROPCAppRequest))
+
+      result shouldBe createPrivOrROPCAppResponse
+      verify(1, postRequestedFor(urlMatching("/application")).withRequestBody(equalToJson(createPrivOrROPCAppRequestJson)))
     }
   }
 }

@@ -42,7 +42,7 @@
     </td>
     <td>
         @if(isSuperUser) {
-        <a href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button button--link" role="button">Manage</a>
+        <a href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -85,7 +85,7 @@
     </td>
     <td>
         @if(isSuperUser) {
-            <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button button--link" role="button">Manage</a>
+            <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -141,7 +141,7 @@
             </td>
             <td>
                 @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
-                    <a href={routes.ApplicationController.reviewPage(application.id.toString).url} class="button button--link" role="button" id="review">Check application</a>
+                    <a href={routes.ApplicationController.reviewPage(application.id.toString).url} class="button--link" role="button" id="review">Check application</a>
                    } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
                     <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id.toString).url}>Resend verify email</a>)</span>
                    }
@@ -152,7 +152,7 @@
             <th><h3>Rate limit tier</h3></th>
             <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
             <td>@if(isSuperUser) {
-                <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button button--link" role="button">Manage</a>
+                <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }</td>
         </tr>
         <tr>
@@ -259,7 +259,7 @@
             </td>
             <td>
                 @if(isSuperUser) {
-                    <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button button--link" role="button">Manage</a>
+                    <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
@@ -400,6 +400,7 @@
             <td></td>
         </tr>
     </table>
+    <br>
     @if(isSuperUser) {
         <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center float--left">Delete application</a>
     }

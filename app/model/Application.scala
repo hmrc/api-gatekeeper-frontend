@@ -80,11 +80,6 @@ case class Ropc(scopes: Set[String] = Set.empty) extends AccessWithRestrictedSco
   override val accessType = AccessType.ROPC
 }
 
-object Scope extends Enumeration {
-  type Scope = Value
-  val PRIVILEGED, ROPC, STANDARD = Value
-}
-
 sealed trait OverrideFlag {
   val overrideType: OverrideType.Value
 }

@@ -167,11 +167,11 @@ trait ApplicationConnector {
     }
   }
 
-  def createPrivOrROPCApp(createPrivAppRequest: CreatePrivAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
-    http.POST[CreatePrivAppRequest, CreatePrivAppSuccessResult](s"$applicationBaseUrl/application", createPrivAppRequest, Seq(CONTENT_TYPE -> JSON))
+  def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+    http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$applicationBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
         .recover {
         case failure => {
-          CreatePrivAppFailureResult
+          CreatePrivOrROPCAppFailureResult
         }
       }
   }

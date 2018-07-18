@@ -57,7 +57,7 @@
         <div class="form-group @if(form.errors("applicationDescription").nonEmpty) {form-field--error}">
             @fieldError(form.errors, "applicationDescription", true)
             <label class="form-label-bold" for="applicationDescription">Application description</label>
-            <textarea class="form-control form-control-3-4" name="applicationDescription" rows="5" id="applicationDescription")">@form.data.getOrElse("applicationDescription", "")</textarea>
+            <textarea class="form-control form-control-3-4" name="applicationDescription" rows="5" maxlength="3000" id="applicationDescription")">@form.data.getOrElse("applicationDescription", "")</textarea>
         </div>
 
         <div class="form-group @if(form.errors("adminEmail").nonEmpty) {form-field--error}">

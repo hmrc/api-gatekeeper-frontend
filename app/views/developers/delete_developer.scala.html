@@ -41,8 +41,8 @@
             @helper.CSRF.formField
             <h2>Are you sure you want to delete this developer?</h2>
             <div class="form-field form-field--submit">
-                <button id="submit" class="button button--alert" type="submit">Delete developer</button>
-                <a id="cancel" href="@routes.DevelopersController.developerPage(developer.email)" class="button button--link">Cancel</a>
+                <button id="submit" class="button--alert" type="submit">Delete developer</button>
+                <a id="cancel" href="@routes.DevelopersController.developerPage(developer.email)" class="button--link">Cancel</a>
             </div>
             }
         } else {

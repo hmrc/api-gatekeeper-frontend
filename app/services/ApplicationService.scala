@@ -161,8 +161,8 @@ trait ApplicationService {
     applicationConnector.rejectUplift(applicationId, gatekeeperUserId, rejectionReason)
   }
 
-  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
-    applicationConnector.createPrivOrROPCApp(CreatePrivAppRequest(appEnv.toString, appName, appDescription, collaborators, access))
+  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+    applicationConnector.createPrivOrROPCApp(CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access))
   }
 
 }

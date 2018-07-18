@@ -413,7 +413,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
               val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
               applicationService.createPrivOrROPCApp(env, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map {
-                case CreatePrivAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
+                case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
                   Ok(createPrivOrROPCApplicationSuccess(appId, appName, appEnv, Some(access.accessType), totp.production, clientId))
               }
             }
