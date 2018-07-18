@@ -554,10 +554,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
-      val totp = TotpSecrets("THISISATOTPSECRETFORPRODUCTION", "THISISNOTUSED")
+      val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
+      val totp = Some(TotpSecrets(totpSecret, "THISISNOTUSED"))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
       val ropcAccess = AppAccess(AccessType.ROPC, Seq())
-      val totpSecret = totp.production
 
       "with invalid form fields" can {
         "show the correct error message when no access type is chosen" in new Setup {

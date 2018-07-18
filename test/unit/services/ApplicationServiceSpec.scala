@@ -292,7 +292,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "call the service to create a new app" in new Setup {
 
       val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
-      val totpSecrets = TotpSecrets("secret", "I am not used")
+      val totpSecrets = Some(TotpSecrets("secret", "I am not used"))
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
       given(underTest.applicationConnector.createPrivOrROPCApp(any[CreatePrivOrROPCAppRequest])(any[HeaderCarrier]))
