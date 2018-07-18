@@ -279,9 +279,6 @@ object CreatePrivOrROPCAppForm {
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("applicationName", "application.name.already.exists")
   }
-
-  implicit val format1 = EnumJson.enumFormat(AccessType)
-  implicit val format = Json.format[CreatePrivOrROPCAppForm]
 }
 
 
