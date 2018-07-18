@@ -22,7 +22,7 @@
 @scopes(fieldName: String) = {
     <div class="@if(form.errors(fieldName).nonEmpty) {form-field--error}">
         @fieldError(form.errors, fieldName)
-    <textarea name=@fieldName id=@fieldName cols="50" rows="5" class="@if(form.errors(fieldName).nonEmpty) {error-field}">@form.data.get(fieldName)</textarea>
+    <textarea name=@fieldName id=@fieldName cols="50" rows="5" class="@if(form.errors(fieldName).nonEmpty) {error-field} full-width">@form.data.get(fieldName)</textarea>
     </div>
 }
 

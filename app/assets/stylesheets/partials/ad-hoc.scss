@@ -87,8 +87,9 @@ a.secondary-button:focus, button.secondary-button:focus {
   text-decoration: underline;
 }
 
-@media (min-width: 641px) {
-.form-control, textarea {
-    width: 100%;
-    }
+
+input[type="text"].full-width,
+textarea.full-width {
+   width: 100%;
 }
+
