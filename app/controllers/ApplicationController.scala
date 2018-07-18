@@ -390,7 +390,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request =>
       implicit hc => {
-        Future.successful(Ok(createPrivOrROPCApplication(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
+        Future.successful(Ok(create_application(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
       }
     }
   }
@@ -400,7 +400,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       implicit request => implicit hc => {
 
         def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
-          Future.successful(BadRequest(createPrivOrROPCApplication(form)))
+          Future.successful(BadRequest(create_application(form)))
         }
 
         def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
@@ -414,14 +414,14 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
               applicationService.createPrivOrROPCApp(env, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map {
                 case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
-                  Ok(createPrivOrROPCApplicationSuccess(appId, appName, appEnv, Some(access.accessType), totp, clientId))
+                  Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), totp, clientId))
               }
             }
           }
 
           def handleFormWithInvalidName: Future[Result] = {
             val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
-            Future.successful(BadRequest(createPrivOrROPCApplication(formWithErrors)))
+            Future.successful(BadRequest(create_application(formWithErrors)))
           }
 
           def hasValidName(apps: Seq[ApplicationResponse]) = env match {

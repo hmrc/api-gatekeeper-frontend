@@ -44,7 +44,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
       val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
 
       val page: () => HtmlFormat.Appendable =
-        () => html.applications.createPrivOrROPCApplicationSuccess(appId, appName, env, accessType, totpSecret, clientId)(Some(""), applicationMessages, AppConfig)
+        () => html.applications.create_application_success(appId, appName, env, accessType, totpSecret, clientId)(Some(""), applicationMessages, AppConfig)
 
       page().contentType should include("text/html")
 

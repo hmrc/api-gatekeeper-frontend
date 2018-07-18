@@ -40,7 +40,7 @@ class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneSer
 
     "with no fields filled" should {
 
-      val page: () => HtmlFormat.Appendable = () => html.applications.createPrivOrROPCApplication(createPrivOrROPCAppForm)
+      val page: () => HtmlFormat.Appendable = () => html.applications.create_application(createPrivOrROPCAppForm)
 
       "have the correct content type" in {
         page().contentType should include("text/html")
@@ -83,7 +83,7 @@ class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneSer
 
     "render errors for fields when given errors in form" in {
 
-      val page: () => HtmlFormat.Appendable = () => html.applications.createPrivOrROPCApplication(createPrivOrROPCAppForm
+      val page: () => HtmlFormat.Appendable = () => html.applications.create_application(createPrivOrROPCAppForm
         .withError("accessType", "This is an error about access type")
         .withError("applicationName", "This is an error about application name")
         .withError("applicationDescription", "This is an error about application description")
