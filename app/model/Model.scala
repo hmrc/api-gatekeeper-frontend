@@ -273,7 +273,7 @@ object DeleteDeveloperRequest {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
 
-final case class CreatePrivOrROPCAppForm(accessType: Option[String], applicationName: String, applicationDescription: String, adminEmail: String)
+final case class CreatePrivOrROPCAppForm(accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
 object CreatePrivOrROPCAppForm {
 
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {

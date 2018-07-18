@@ -170,9 +170,7 @@ trait ApplicationConnector {
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$applicationBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
         .recover {
-        case failure => {
-          CreatePrivOrROPCAppFailureResult
-        }
+        case failure => CreatePrivOrROPCAppFailureResult
       }
   }
 

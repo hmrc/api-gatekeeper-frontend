@@ -390,7 +390,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request =>
       implicit hc => {
-        Future.successful(Ok(createPrivOrROPCApplication(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm(None, "", "", "")))))
+        Future.successful(Ok(createPrivOrROPCApplication(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
       }
     }
   }
@@ -424,10 +424,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
             Future.successful(BadRequest(createPrivOrROPCApplication(formWithErrors)))
           }
 
-          def hasValidName(apps: Seq[ApplicationResponse]) = {
-            if (env.toString == "PRODUCTION") {
-              !apps.exists(app => (app.deployedTo == "PRODUCTION") && (app.name == form.applicationName))
-            } else true
+          def hasValidName(apps: Seq[ApplicationResponse]) = env match {
+            case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
+            case _ => true
           }
 
           for {
