@@ -53,12 +53,12 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
       elementExistsByText(document, "h1", appName) shouldBe true
       elementExistsByText(document, "h1", "Application added") shouldBe true
       document.body().toString.contains("This is your only chance to copy and save this application's TOTP secret.") shouldBe true
-      elementExistsByText(document, "tr", "Application ID" + " " + appId) shouldBe true
-      elementExistsByText(document, "tr", "Application name" + " " + appName) shouldBe true
-      elementExistsByText(document, "tr", "Environment" + " " + env) shouldBe true
-      elementExistsByText(document, "tr", "Access type" + " " + "Privileged") shouldBe true
-      elementExistsByText(document, "tr", "TOTP secret" + " " + totpSecret) shouldBe true
-      elementExistsByText(document, "tr", "Client ID" + " " + clientId) shouldBe true
+      elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
+      elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
+      elementExistsByText(document, "tr", s"Environment $env") shouldBe true
+      elementExistsByText(document, "tr", "Access type Privileged") shouldBe true
+      elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe true
+      elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
 
     }
   }
