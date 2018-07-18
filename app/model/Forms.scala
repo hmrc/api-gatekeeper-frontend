@@ -141,9 +141,9 @@ package object Forms {
     )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply))
 
   private def emailValidator() = {
-    play.api.data.Forms.text
-      .verifying("email.required", _.length > 0)
-      .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.length == 0)
+    text
+      .verifying("email.required", _.nonEmpty)
+      .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
   }
 
 
