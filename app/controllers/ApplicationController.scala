@@ -414,7 +414,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
               applicationService.createPrivOrROPCApp(env, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map {
                 case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
-                  Ok(createPrivOrROPCApplicationSuccess(appId, appName, appEnv, Some(access.accessType), totp.production, clientId))
+                  Ok(createPrivOrROPCApplicationSuccess(appId, appName, appEnv, Some(access.accessType), totp, clientId))
               }
             }
           }
