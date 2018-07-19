@@ -585,7 +585,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
@@ -601,7 +601,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "allow creation of a sandbox app if name already exists in production" in new Setup {
 
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
@@ -620,7 +620,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
@@ -638,7 +638,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
