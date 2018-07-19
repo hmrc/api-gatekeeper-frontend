@@ -165,4 +165,10 @@ trait ApplicationService {
     applicationConnector.createPrivOrROPCApp(CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access))
   }
 
+  def getClientSecret(appId: String)(implicit hc: HeaderCarrier): Future[String] = {
+    applicationConnector.getClientCredentials(appId) map {
+      case res: GetClientCredentialsResult => res.production.clientSecrets.head.secret
+    }
+  }
+
 }

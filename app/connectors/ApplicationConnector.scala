@@ -174,6 +174,10 @@ trait ApplicationConnector {
       }
   }
 
+  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier) : Future[GetClientCredentialsResult] = {
+    http.GET[GetClientCredentialsResult](s"$applicationBaseUrl/application/$appId/credentials")
+  }
+
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }

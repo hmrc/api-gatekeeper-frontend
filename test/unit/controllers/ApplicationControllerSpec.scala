@@ -554,6 +554,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
+      val clientSecret = "THISISACLIENTSECRET"
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret, "THISISNOTUSED"))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
@@ -585,7 +586,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
@@ -601,7 +602,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "allow creation of a sandbox app if name already exists in production" in new Setup {
 
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
@@ -620,7 +621,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
@@ -638,7 +639,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenASuccessfulSuperUserLogin()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
@@ -750,7 +751,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenASuccessfulSuperUserLogin()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, ropcAccess)))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, None, ropcAccess)))
+            given(mockApplicationService.getClientSecret(eqTo(appId))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
@@ -759,11 +761,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's client secret.")
             bodyOf(result) should include (appId)
             bodyOf(result) should include ("Production")
             bodyOf(result) should include ("ROPC")
-            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientSecret)
             bodyOf(result) should include (clientId)
 
           }

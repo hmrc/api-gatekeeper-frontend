@@ -371,4 +371,48 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       verify(1, postRequestedFor(urlMatching("/application")).withRequestBody(equalToJson(createPrivOrROPCAppRequestJson)))
     }
   }
+
+  "getClientCredentials" should {
+    "return the client credentials" in new Setup {
+      val response =
+        """
+          |{
+          |  "production": {
+          |    "clientId": "production-client-ID",
+          |    "accessToken": "Production-Access-Token",
+          |    "clientSecrets": [
+          |      {
+          |        "name": "Default",
+          |        "secret": "production-secret",
+          |        "createdOn": 1531994419327
+          |      }
+          |    ]
+          |  },
+          |  "sandbox": {
+          |    "clientId": "sandbox-client-IS",
+          |    "accessToken": "Sandbox-access-Token",
+          |    "clientSecrets": [
+          |      {
+          |        "name": "Default",
+          |        "secret": "sandbox-secret",
+          |        "createdOn": 1531994418892
+          |      }
+          |    ]
+          |  }
+          |}
+        """.stripMargin
+      val appId = "APP_ID"
+      val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret("production-secret"))))
+
+      stubFor(get(urlEqualTo(s"/application/$appId/credentials"))
+        .willReturn(aResponse().withStatus(200)
+          .withHeader("Content-Type", "application/json")
+          .withBody(response)
+        ))
+
+      val result = await(connector.getClientCredentials(appId))
+
+      result shouldBe expected
+    }
+  }
 }
