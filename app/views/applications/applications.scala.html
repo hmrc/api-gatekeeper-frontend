@@ -19,8 +19,8 @@
 @import model.AccessType._
 @import org.joda.time.format.DateTimeFormat
 
-@(applications: Seq[DetailedSubscribedApplicationResponse],
-        apis: Map[String, Seq[VersionSummary]])(implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(applications: Seq[DetailedSubscribedApplicationResponse], apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean)(
+implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
 
@@ -32,6 +32,12 @@
                 <h1>Applications</h1>
             </header>
 
+            @if(isSuperUser) {
+            <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivOrROPCApplicationPage()}" class="button text--center float--right">
+                Add privileged or ROPC application
+            </a>
+            }
+
             <form name="developer-filters"
             action="@routes.ApplicationController.applicationsPage().url"
             method="get">
@@ -42,7 +48,7 @@
                         <label class="bold centered-content hard--left label--full-length">
                             <span class="label__text bold">Search</span>
 
-                            <input class="form-control input--cleared input-select--large"
+                            <input class="form-control input--cleared input-select--large full-width"
                             data-datatable-custom-filter="applications-table"
                             name="search"
                             type="text"

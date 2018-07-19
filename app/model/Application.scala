@@ -183,9 +183,14 @@ object AccessType extends Enumeration {
     case PRIVILEGED => "Privileged"
     case ROPC => "ROPC"
   }
+   def from(accessType: String) = {
+     AccessType.values.find(e => e.toString == accessType.toUpperCase)
+   }
 }
 
 case class TotpIds(production: String, sandbox: String)
+
+case class TotpSecrets(production: String, sandbox: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
@@ -278,6 +283,12 @@ object State extends Enumeration {
     case PENDING_REQUESTER_VERIFICATION => "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
     case PRODUCTION => "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
   }
+}
+
+object Environment extends Enumeration {
+  type Environment = Value
+  val SANDBOX, PRODUCTION = Value
+  implicit val format = EnumJson.enumFormat(Environment)
 }
 
 object CollaboratorRole extends Enumeration {

@@ -22,7 +22,7 @@ import connectors.{ApiScopeConnector, ApplicationConnector}
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
-import org.mockito.Mockito.{never, verify}
+import org.mockito.Mockito.{never, times, verify}
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
@@ -287,4 +287,22 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       verify(underTest.applicationConnector).updateRateLimitTier(mEq("applicationId"), mEq(RateLimitTier.GOLD))(any[HeaderCarrier])
     }
   }
+
+  "createPrivOrROPCApp" should {
+    "call the service to create a new app" in new Setup {
+
+      val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
+      val totpSecrets = Some(TotpSecrets("secret", "I am not used"))
+      val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
+
+      given(underTest.applicationConnector.createPrivOrROPCApp(any[CreatePrivOrROPCAppRequest])(any[HeaderCarrier]))
+        .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult("app ID", "New App", "PRODUCTION", "client ID",  totpSecrets, appAccess)))
+
+
+      val result = await(underTest.createPrivOrROPCApp(Environment.PRODUCTION, "New App", "App description", admin, appAccess))
+
+      result shouldBe CreatePrivOrROPCAppSuccessResult("app ID", "New App", "PRODUCTION", "client ID", totpSecrets, appAccess)
+    }
+  }
 }
+

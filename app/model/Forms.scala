@@ -20,6 +20,7 @@ import model.Forms.FormFields._
 import model.OverrideType._
 import play.api.data.Form
 import play.api.data.Forms._
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 package object Forms {
@@ -37,6 +38,10 @@ package object Forms {
     val suppressIvForAgentsScopes = "suppressIvForAgentsScopes"
     val suppressIvForOrganisationsEnabled = "suppressIvForOrganisationsEnabled"
     val suppressIvForOrganisationsScopes = "suppressIvForOrganisationsScopes"
+    val accessType = "accessType"
+    val applicationName = "applicationName"
+    val applicationDescription = "applicationDescription"
+    val adminEmail = "adminEmail"
   }
 
   val loginForm = Form(
@@ -126,4 +131,20 @@ package object Forms {
 
     def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
   }
+
+  val createPrivOrROPCAppForm = Form(
+    mapping(
+      accessType -> optional(text).verifying("access.type.required", s => s.isDefined),
+      applicationName -> text.verifying("application.name.required", _.nonEmpty),
+      applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
+      adminEmail -> emailValidator
+    )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply))
+
+  private def emailValidator() = {
+    text
+      .verifying("email.required", _.nonEmpty)
+      .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
+  }
+
+
 }

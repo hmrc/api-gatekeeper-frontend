@@ -17,6 +17,7 @@
 package services
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -159,4 +160,9 @@ trait ApplicationService {
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
     applicationConnector.rejectUplift(applicationId, gatekeeperUserId, rejectionReason)
   }
+
+  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+    applicationConnector.createPrivOrROPCApp(CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access))
+  }
+
 }

@@ -79,7 +79,7 @@
 
             <div class="form-field">
                 <input id="submit" type="submit" class="button" role="button" value="Submit" data-journey-click="gate-keeper:Click:@if(form.errors("reason").isEmpty){Approved}else{Rejected}" data-journey-target/>
-                <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="button button--link">Cancel</a>
+                <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button button--link">Cancel</a>
             </div>
 
         </div>

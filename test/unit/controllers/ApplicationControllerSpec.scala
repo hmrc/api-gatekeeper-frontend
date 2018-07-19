@@ -16,24 +16,30 @@
 
 package unit.controllers
 
+import java.util.UUID
+
 import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
+import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
 import org.scalatest.mockito.MockitoSugar
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import unit.config.AppConfigSpec
 import unit.utils.WithCSRFAddToken
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -126,6 +132,37 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           .willReturn(Future.failed(new InvalidCredentials))
         val result = await(underTest.applicationsPage(aLoggedOutRequest))
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
+      }
+
+      "show button to add Privileged or ROPC app to superuser" in new Setup {
+        givenASuccessfulSuperUserLogin
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockConfig.title).willReturn("Unit Test Title")
+
+        val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
+        status(result) shouldBe OK
+
+        val body = bodyOf(result)
+
+        body should include("Add privileged or ROPC application")
+      }
+
+      "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
+        givenASuccessfulLogin
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockConfig.title).willReturn("Unit Test Title")
+
+        val result = await(underTest.applicationsPage()(aLoggedInRequest))
+        status(result) shouldBe OK
+
+        val body = bodyOf(result)
+
+        body shouldNot include("Add privileged or ROPC application")
+
       }
     }
 
@@ -455,7 +492,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
-
     "handleUplift" should {
       val applicationId = "applicationId"
       val userName = "userName"
@@ -509,28 +545,251 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
-    "ApplicationsPage" should {
+    "createPrivOrROPCApp" should {
 
-      "go to the login page with error if user is not authenticated" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
-        val result = await(underTest.applicationsPage()(aLoggedOutRequest))
-        redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
+      val appId = "123456789"
+      val appName = "My New App"
+      val privilegedAccessType = AccessType.PRIVILEGED
+      val ropcAccessType = AccessType.ROPC
+      val description = "An application description"
+      val adminEmail = "emailAddress@example.com"
+      val clientId = "This-isac-lient-ID"
+      val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
+      val totp = Some(TotpSecrets(totpSecret, "THISISNOTUSED"))
+      val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
+      val ropcAccess = AppAccess(AccessType.ROPC, Seq())
+
+      "with invalid form fields" can {
+        "show the correct error message when no access type is chosen" in new Setup {
+          givenASuccessfulSuperUserLogin()
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", ""), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Tell us what access type")
+        }
+
+        "show the correct error message when the app name is left empty" in new Setup {
+          givenASuccessfulSuperUserLogin()
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", ""), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Provide an application name")
+
+        }
+
+        "show the correct error message when the new prod app name already exists in prod" in new Setup {
+          val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+
+          givenASuccessfulSuperUserLogin()
+          given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Provide an application name that does not already exist")
+        }
+
+        "allow creation of a sandbox app if name already exists in production" in new Setup {
+
+          val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+
+          givenASuccessfulSuperUserLogin()
+          given(mockConfig.isExternalTestEnvironment).willReturn(true)
+          given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest
+              .withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 200
+
+          bodyOf(result) should include("Application added")
+        }
+
+        "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
+          val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+
+          givenASuccessfulSuperUserLogin()
+          given(mockConfig.isExternalTestEnvironment).willReturn(true)
+          given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 200
+
+          bodyOf(result) should include("Application added")
+        }
+
+        "allow creation of a prod app if name already exists in sandbox" in new Setup {
+          val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
+          val existingApp = ApplicationResponse(UUID.randomUUID(), "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+
+          givenASuccessfulSuperUserLogin()
+          given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 200
+
+          bodyOf(result) should include("Application added")
+        }
+
+        "show the correct error message when app description is left empty" in new Setup {
+          givenASuccessfulSuperUserLogin()
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", ""), ("adminEmail", adminEmail))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Provide an application description")
+        }
+
+        "show the correct error message when admin email is left empty" in new Setup {
+          givenASuccessfulSuperUserLogin()
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", ""))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Provide an email address")
+        }
+
+        "show the correct error message when admin email is invalid" in new Setup {
+          givenASuccessfulSuperUserLogin()
+
+          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "notAValidEmailAddress"))))
+
+          status(result) shouldBe 400
+
+          assertIncludesOneError(result, "Provide a valid email address")
+        }
       }
 
-      "go to unauthorised page if user is not authorised" in new Setup {
-        val loginDetails = LoginDetails("userName", Protected("password"))
-        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
-        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(false))
+      "with valid form fields" can {
+        "but the user is not a superuser" should {
+          "show 401 forbidden" in new Setup {
+            givenASuccessfulLogin
+            given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier])).willReturn(Future.successful(CreatePrivOrROPCAppFailureResult))
 
-        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+              aLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
 
-        val result = await(underTest.applicationsPage()(aLoggedInRequest))
-        status(result) shouldBe 401
-        bodyOf(result) should include("Only Authorised users can access the requested page")
+            status(result) shouldBe 401
+          }
+        }
+
+        "and the user is a superuser" should {
+          "show the success page for a priv app in production" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, privAccess)))
+
+            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+
+            status(result) shouldBe 200
+
+            bodyOf(result) should include(appName)
+            bodyOf(result) should include("Application added")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include (appId)
+            bodyOf(result) should include ("Production")
+            bodyOf(result) should include ("Privileged")
+            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientId)
+
+          }
+
+          "show the success page for a priv app in sandbox" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, privAccess)))
+
+            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+
+            status(result) shouldBe 200
+
+            bodyOf(result) should include(appName)
+            bodyOf(result) should include("Application added")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include (appId)
+            bodyOf(result) should include ("Sandbox")
+            bodyOf(result) should include ("Privileged")
+            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientId)
+
+          }
+
+          "show the success page for an ROPC app in production" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, ropcAccess)))
+
+            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+
+            status(result) shouldBe 200
+
+            bodyOf(result) should include(appName)
+            bodyOf(result) should include("Application added")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include (appId)
+            bodyOf(result) should include ("Production")
+            bodyOf(result) should include ("ROPC")
+            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientId)
+
+          }
+
+          "show the success page for an ROPC app in sandbox" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, ropcAccess)))
+
+            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+
+            status(result) shouldBe 200
+
+            bodyOf(result) should include(appName)
+            bodyOf(result) should include("Application added")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include (appId)
+            bodyOf(result) should include ("Sandbox")
+            bodyOf(result) should include ("ROPC")
+            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientId)
+
+          }
+        }
       }
     }
 
@@ -540,6 +799,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val title = titleRegEx.findFirstMatchIn(bodyOf(result)).map(_.group(1))
       title.isDefined shouldBe true
       title.get
+    }
+
+    def assertIncludesOneError(result: Result, message: String) = {
+
+      val body = bodyOf(result)
+
+      body should include(message)
+      assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
     }
   }
 }

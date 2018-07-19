@@ -167,6 +167,13 @@ trait ApplicationConnector {
     }
   }
 
+  def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+    http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$applicationBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
+        .recover {
+        case failure => CreatePrivOrROPCAppFailureResult
+      }
+  }
+
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }

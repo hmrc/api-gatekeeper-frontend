@@ -16,14 +16,12 @@
 
 package config
 
-import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.http.ws._
-import uk.gov.hmrc.http.hooks.HttpHook
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.http.ws._
 
 trait Hooks extends HttpHooks with HttpAuditing {
     override val hooks = Seq(AuditingHook)
