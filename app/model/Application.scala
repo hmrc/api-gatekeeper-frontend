@@ -31,6 +31,7 @@ trait Application {
   val name: String
   val state: ApplicationState
   val collaborators: Set[Collaborator]
+  val clientId: String
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 
@@ -202,7 +203,8 @@ case class SubscribedApplicationResponse(id: UUID,
                                          state: ApplicationState,
                                          access: Access,
                                          subscriptions: Seq[SubscriptionNameAndVersion],
-                                         termsOfUseAgreed: Boolean) extends Application
+                                         termsOfUseAgreed: Boolean,
+                                         clientId: String = "") extends Application
 
 
 object SubscribedApplicationResponse {
@@ -240,7 +242,8 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  state: ApplicationState,
                                                  access: Access,
                                                  subscriptions: Seq[SubscriptionDetails],
-                                                 termsOfUseAgreed: Boolean) extends Application
+                                                 termsOfUseAgreed: Boolean,
+                                                 clientId: String = "") extends Application
 
 case class SubscriptionDetails(name: String, context: String, version: String)
 

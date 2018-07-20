@@ -17,6 +17,7 @@
 package services
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -28,11 +29,13 @@ import scala.concurrent.Future
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
   override val apiScopeConnector = ApiScopeConnector
+  override val subscriptionFieldsService = SubscriptionFieldsService
 }
 
 trait ApplicationService {
   val applicationConnector: ApplicationConnector
   val apiScopeConnector: ApiScopeConnector
+  val subscriptionFieldsService: SubscriptionFieldsService
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -76,6 +79,8 @@ trait ApplicationService {
       })
     }
 
+
+
     for {
       apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
       subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
@@ -83,8 +88,31 @@ trait ApplicationService {
     } yield subscribedApplications.sortBy(_.name.toLowerCase)
   }
 
-  def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    applicationConnector.fetchApplicationSubscriptions(applicationId)
+  def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+    def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
+      subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
+        VersionSubscription(
+          version.version,
+          version.subscribed,
+          Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
+      }
+    }
+
+    def toApiVersions(subscription: Subscription): Future[Subscription] = {
+      val futures = subscription.versions // TODO: rename futures
+          .filterNot(_.version.status == APIStatus.RETIRED)
+          .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
+          .sortWith(APIDefinition.descendingVersion)
+          .map(toApiSubscriptionStatuses(subscription, _))
+
+      Future.sequence(futures).map { vs => subscription.copy(versions = vs) }
+
+    }
+
+    for {
+      subs <- applicationConnector.fetchApplicationSubscriptions(application.id.toString)
+      withFields <- Future.sequence(subs.map(toApiVersions))
+    } yield withFields
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {

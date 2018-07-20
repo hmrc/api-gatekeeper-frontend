@@ -17,10 +17,13 @@
 package model
 
 import model.APIStatus.APIStatus
+import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.CollaboratorRole.CollaboratorRole
 import play.api.libs.json.Json
 
-case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription], requiresTrust: Option[Boolean])
+import scala.util.Try
+
+case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription])
 
 case class APIDefinition( serviceName: String,
                           serviceBaseUrl: String,
@@ -44,13 +47,32 @@ object APIDefinition {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val formatAPISubscription = Json.format[APISubscription]
   implicit val formatAPIIdentifier = Json.format[APIIdentifier]
   implicit val formatApiDefinitions = Json.format[APIDefinition]
+
+  private val nonNumericOrPeriodRegex = "[^\\d^.]*"
+  private val fallback = Array(1, 0, 0)
+
+  private def versionSorter(v1: APIVersion, v2: APIVersion) = {
+    val v1Parts = Try(v1.version.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
+    val v2Parts = Try(v2.version.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
+    val pairs = v1Parts.zip(v2Parts)
+
+    val firstUnequalPair = pairs.find { case (one, two) => one != two }
+    firstUnequalPair.fold(v1.version.length > v2.version.length) { case (a, b) => a > b }
+  }
+
+  def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
+    versionSorter(v1.version, v2.version)
+  }
 }
 
-case class VersionSubscription(version: APIVersion, subscribed: Boolean)
+case class VersionSubscription(version: APIVersion,
+                               subscribed: Boolean,
+                               fields: Option[SubscriptionFieldsWrapper] = None)
 
 case class APIVersion(version: String, status: APIStatus, access: Option[APIAccess] = None) {
   val displayedStatus = APIStatus.displayedStatus(status)
@@ -85,7 +107,8 @@ object APIIdentifier {
 }
 
 case class APISubscriptionStatus(name: String, serviceName: String,
-                                 context: String, version: APIVersion, subscribed: Boolean, requiresTrust: Boolean) {
+                                 context: String, version: APIVersion, subscribed: Boolean, requiresTrust: Boolean,
+                                 fields: Option[SubscriptionFieldsWrapper] = None, isTestSupport: Boolean = false) {
   def canUnsubscribe(role: CollaboratorRole) = {
     role == CollaboratorRole.ADMINISTRATOR && subscribed && version.status != APIStatus.DEPRECATED
   }
@@ -102,7 +125,10 @@ object SubscriptionResponse {
   implicit val format2 = Json.format[SubscriptionResponse]
 }
 
-case class Subscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription]) {
+case class Subscription(name: String,
+                        serviceName: String,
+                        context: String,
+                        versions: Seq[VersionSubscription]) {
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
@@ -116,6 +142,8 @@ object Subscription {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val versionJsonFormatter = Json.format[APIVersion]
+  implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
+  implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]
   implicit val subscriptionJsonFormatter = Json.format[Subscription]
 }

@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
+import views.html.include.subscriptionFields
 import views.html.review.review
 
 import scala.concurrent.Future
@@ -61,27 +62,25 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      val applicationFuture = applicationService.fetchApplication(appId)
-      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
 
-      def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
-          appWithHistory.application.checkInformation.flatMap{
-            _.termsOfUseAgreements match {
-              case Nil => None
-              case agreements =>  Option(agreements.maxBy(_.timeStamp))
+          def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
+            appWithHistory.application.checkInformation.flatMap {
+              _.termsOfUseAgreements match {
+                case Nil => None
+                case agreements => Option(agreements.maxBy(_.timeStamp))
+              }
             }
           }
-      }
 
-      for {
-        applicationWithHistory <- applicationFuture
-        subscriptions <- subscriptionsFuture
-      } yield Ok(application(
-        applicationWithHistory,
-        subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
-        isSuperUser,
-        latestTOUAgreement(applicationWithHistory)))
+          applicationService.fetchApplicationSubscriptions(app.application).map(subscriptions => Ok(application(
+            app,
+            subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
+            isSuperUser,
+            latestTOUAgreement(app))))
+        }
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -95,16 +94,13 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-
-      val applicationFuture = applicationService.fetchApplication(appId)
-      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
-
-      for {
-        app <- applicationFuture
-        subs <- subscriptionsFuture
-
-      } yield Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          applicationService.fetchApplicationSubscriptions(app.application).map {
+            subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+          }
+        }
   }
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -441,5 +437,40 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       }
     }
   }
+
+  def updateFields(applicationId: String, apiContext: String, apiVersion: String, subscriptionRedirect: String): Action[AnyContent] = ???
+    //loggedInAction { implicit request =>
+//    def handleValidForm(validForm: SubscriptionFieldsForm) = {
+//      def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
+//        if (validForm.fields.nonEmpty) {
+//          subFieldsService.saveFieldValues(
+//            applicationId,
+//            apiContext,
+//            apiVersion,
+//            Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
+//        } else {
+//          Future.successful(())
+//        }
+//      }
+//
+//      for {
+//        _ <- saveFields(validForm)
+//        app <- fetchApp(applicationId)
+//        response <- createResponse(app, request.headers.isAjaxRequest, apiContext, apiVersion, subscriptionRedirect)
+//      } yield response
+//    }
+//
+//    def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) = {
+//      Future.successful(BadRequest(
+//        subscriptionFields(
+//          SubscriptionFieldsViewModel(
+//            applicationId,
+//            apiContext,
+//            apiVersion,
+//            formWithErrors))))
+//    }
+
+    //SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+ // }
 
 }
