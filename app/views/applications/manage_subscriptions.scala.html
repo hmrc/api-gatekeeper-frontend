@@ -56,65 +56,67 @@
                 <div class="accordion__body conditionallyHide" data-accordion-body data-hide="true">
                     <ul>
                         @subscription.versions.map { case (version) =>
-                            <li class="accordion__body__row api-subscriber">
-                                <div class="accordion__body__row__left">
-                                    <span class="font-xsmall external-link-16">@{
-                                        version.version.version
-                                    } (@{
-                                        version.version.displayedStatus
-                                    })</span>
-                                </div>
-                                <div class="accordion__body__row__right">
-                                    <div class="float--right">
-                                        <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
-                                            @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
-                                                @helper.CSRF.formField
-                                                <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
-                                                            subscription.name
-                                                        } version @{
-                                                            version.version.version
-                                                        } @{
-                                                            version.version.displayedStatus
-                                                        }">On</span>
-
-                                                <button type="submit" data-api-unsubscribe="@IdFormatter.identifier(subscription.context, version.version.version)"
-                                                       class="toggle__button" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
-                                                            subscription.name
-                                                        } version @{
-                                                            version.version.version
-                                                        } @{
-                                                            version.version.displayedStatus
-                                                        }">Off</button>
-                                            }
-                                        </div>
-                                        <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
-                                            @helper.form(action = routes.ApplicationController.subscribeToApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
-                                                @helper.CSRF.formField
-                                                <button type="submit" class="toggle__button"
-                                                   data-toggle-subscribe="on" aria-label="Subscribed to @{
+                            <li>
+                                <div class="accordion__body__row api-subscriber">
+                                    <div class="accordion__body__row__left">
+                                        <span class="font-xsmall external-link-16">@{
+                                            version.version.version
+                                        } (@{
+                                            version.version.displayedStatus
+                                        })</span>
+                                    </div>
+                                    <div class="accordion__body__row__right">
+                                        <div class="float--right">
+                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
+                                                    @helper.CSRF.formField
+                                                    <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
                                                                 subscription.name
                                                             } version @{
                                                                 version.version.version
                                                             } @{
                                                                 version.version.displayedStatus
-                                                            }">On</button>
-                                                <span data-api-unsubscribe="" class="toggle__button toggle__button--inactive" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
-                                                                        subscription.name
-                                                                    } version @{
-                                                                        version.version.version
-                                                                    } @{
-                                                                        version.version.displayedStatus
-                                                                    }">Off</span>
-                                            }
+                                                            }">On</span>
+                                                    <button type="submit" data-api-unsubscribe="@IdFormatter.identifier(subscription.context, version.version.version)"
+                                                           class="toggle__button" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                                subscription.name
+                                                            } version @{
+                                                                version.version.version
+                                                            } @{
+                                                                version.version.displayedStatus
+                                                            }">Off</button>
+                                                }
+                                            </div>
+                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.ApplicationController.subscribeToApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
+                                                    @helper.CSRF.formField
+                                                    <button type="submit" class="toggle__button"
+                                                       data-toggle-subscribe="on" aria-label="Subscribed to @{
+                                                                    subscription.name
+                                                                } version @{
+                                                                    version.version.version
+                                                                } @{
+                                                                    version.version.displayedStatus
+                                                                }">On</button>
+                                                    <span data-api-unsubscribe="" class="toggle__button toggle__button--inactive" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                                            subscription.name
+                                                                        } version @{
+                                                                            version.version.version
+                                                                        } @{
+                                                                            version.version.displayedStatus
+                                                                        }">Off</span>
+                                                }
+                                            </div>
                                         </div>
-
                                     </div>
-                                    @if(version.fields.isDefined && version.fields.get.fields.nonEmpty) {
-                                    <div class="conditionallyHide fieldsContainer" id="subscription-fields-@IdFormatter.identifier(version.fields.get.apiContext, version.version.version)">
-                                        @version.fields.map(f => subscriptionFields(application.id.toString, version.version, f.apiContext, SubscriptionFieldsForm.form.fill(SubscriptionFieldsForm.apply(f.fields)))) @* TODO: last (missing - is defaulted) param of SubscriptionRedirect ??? *@
-                                    </div>
-                                    }
                                 </div>
+                                @if(version.fields.isDefined && version.fields.get.fields.nonEmpty) {
+                                    <div class="accordion__body__row">
+                                        <div class="conditionallyHide fieldsContainer" id="subscription-fields-@IdFormatter.identifier(version.fields.get.apiContext, version.version.version)">
+                                            @version.fields.map(f => subscriptionFields(application.id.toString, version.version, f.apiContext, SubscriptionFieldsForm.form.fill(SubscriptionFieldsForm.apply(f.fields))))
+                                        </div>
+                                    </div>
+                                }
                             </li>
                         }
                     </ul>

@@ -19,7 +19,7 @@ package services
 import connectors._
 import model.ApiSubscriptionFields.{Fields, SubscriptionField}
 import model.Application
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -46,5 +46,9 @@ trait SubscriptionFieldsService {
     }
 
     subscriptionFieldsConnnector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
+  }
+
+  def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    subscriptionFieldsConnnector.saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 }

@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
@@ -41,6 +41,7 @@ object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
   override val developerService = DeveloperService
+  override val subscriptionFieldsService = SubscriptionFieldsService
   override def authProvider = GatekeeperAuthProvider
   override def authConnector = AuthConnector
 }
@@ -50,6 +51,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
   val developerService: DeveloperService
+  val subscriptionFieldsService: SubscriptionFieldsService
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -111,6 +113,30 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
       applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+  }
+
+  def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
+    requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+      implicit request => implicit hc => withApp(appId) { app =>
+        def handleValidForm(validForm: SubscriptionFieldsForm) = {
+          def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
+            if (validForm.fields.nonEmpty) {
+              val fields = Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *)
+              subscriptionFieldsService.saveFieldValues(app.application, apiContext, apiVersion, fields)
+            } else {
+              Future.successful(())
+            }
+          }
+
+          saveFields(validForm).map { _ => Redirect(routes.ApplicationController.manageSubscription(appId)) }
+        }
+
+        def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
+          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+
+        SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
+    }
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -433,44 +459,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
           } yield result
         }
 
-          createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
       }
     }
   }
-
-  def updateFields(applicationId: String, apiContext: String, apiVersion: String, subscriptionRedirect: String): Action[AnyContent] = ???
-    //loggedInAction { implicit request =>
-//    def handleValidForm(validForm: SubscriptionFieldsForm) = {
-//      def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
-//        if (validForm.fields.nonEmpty) {
-//          subFieldsService.saveFieldValues(
-//            applicationId,
-//            apiContext,
-//            apiVersion,
-//            Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
-//        } else {
-//          Future.successful(())
-//        }
-//      }
-//
-//      for {
-//        _ <- saveFields(validForm)
-//        app <- fetchApp(applicationId)
-//        response <- createResponse(app, request.headers.isAjaxRequest, apiContext, apiVersion, subscriptionRedirect)
-//      } yield response
-//    }
-//
-//    def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) = {
-//      Future.successful(BadRequest(
-//        subscriptionFields(
-//          SubscriptionFieldsViewModel(
-//            applicationId,
-//            apiContext,
-//            apiVersion,
-//            formWithErrors))))
-//    }
-
-    //SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
- // }
-
 }

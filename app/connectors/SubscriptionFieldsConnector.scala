@@ -20,7 +20,7 @@ import java.net.URLEncoder.encode
 
 import config.WSHttp
 import connectors.AuthConnector.baseUrl
-import model.ApiSubscriptionFields.{FieldDefinitionsResponse, SubscriptionField, SubscriptionFields}
+import model.ApiSubscriptionFields._
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,8 +34,7 @@ object SubscriptionFieldsConnector extends SubscriptionFieldsConnector {
 trait SubscriptionFieldsConnector {
   val subscriptionFieldsBaseUrl: String
 
-  val http: HttpGet
-
+  val http: HttpGet with HttpPut
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
@@ -46,9 +45,14 @@ trait SubscriptionFieldsConnector {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
     http.GET[FieldDefinitionsResponse](url).map(response => response.fieldDefinitions) recover recovery(Seq.empty[SubscriptionField])
   }
-  private def urlEncode(str: String, encoding: String = "UTF-8") = {
-    encode(str, encoding)
+
+  def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
+    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields))
   }
+
+  private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
+
   private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
     s"$subscriptionFieldsBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 

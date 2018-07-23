@@ -19,12 +19,12 @@
 @import model.{Application, APIVersion}
 @import model.Forms.SubscriptionFieldsForm
 
-@(appId: String, version: APIVersion, context: String, subFieldsForm: Form[SubscriptionFieldsForm], subscriptionRedirect: SubscriptionRedirect.Value = SubscriptionRedirect.MANAGE_PAGE)(implicit request: Request[Any], messages: Messages)
+@(appId: String, version: APIVersion, context: String, subFieldsForm: Form[SubscriptionFieldsForm])(implicit request: Request[Any], messages: Messages)
 
 <div class="accordion__body__row accordion__body__row--no-border">
     <div class="accordion__body__row__left">
 
-        @helper.form(action = routes.ApplicationController.updateFields(appId.toString, context, version.version, subscriptionRedirect.toString), 'class -> "fields-subscription") {
+        @helper.form(action = routes.ApplicationController.updateSubscriptionFields(appId.toString, context, version.version), 'class -> "fields-subscription") {
         <div class="form-field-group">
             @helper.CSRF.formField
             @helper.repeat(subFieldsForm("fields")) { field =>
