@@ -16,8 +16,6 @@
 
 package unit.connectors
 
-import java.nio.charset.CodingErrorAction
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
@@ -374,35 +372,21 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
   "getClientCredentials" should {
     "return the client credentials" in new Setup {
+      val appId = "APP_ID"
+      val productionSecret = "production-secret"
       val response =
-        """
+        s"""
           |{
           |  "production": {
-          |    "clientId": "production-client-ID",
-          |    "accessToken": "Production-Access-Token",
           |    "clientSecrets": [
           |      {
-          |        "name": "Default",
-          |        "secret": "production-secret",
-          |        "createdOn": 1531994419327
-          |      }
-          |    ]
-          |  },
-          |  "sandbox": {
-          |    "clientId": "sandbox-client-IS",
-          |    "accessToken": "Sandbox-access-Token",
-          |    "clientSecrets": [
-          |      {
-          |        "name": "Default",
-          |        "secret": "sandbox-secret",
-          |        "createdOn": 1531994418892
+          |        "secret": "$productionSecret"
           |      }
           |    ]
           |  }
           |}
         """.stripMargin
-      val appId = "APP_ID"
-      val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret("production-secret"))))
+      val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
 
       stubFor(get(urlEqualTo(s"/application/$appId/credentials"))
         .willReturn(aResponse().withStatus(200)
