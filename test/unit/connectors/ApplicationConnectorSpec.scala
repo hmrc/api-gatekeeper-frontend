@@ -16,8 +16,6 @@
 
 package unit.connectors
 
-import java.nio.charset.CodingErrorAction
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
@@ -369,6 +367,36 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
       result shouldBe createPrivOrROPCAppResponse
       verify(1, postRequestedFor(urlMatching("/application")).withRequestBody(equalToJson(createPrivOrROPCAppRequestJson)))
+    }
+  }
+
+  "getClientCredentials" should {
+    "return the client credentials" in new Setup {
+      val appId = "APP_ID"
+      val productionSecret = "production-secret"
+      val response =
+        s"""
+          |{
+          |  "production": {
+          |    "clientSecrets": [
+          |      {
+          |        "secret": "$productionSecret"
+          |      }
+          |    ]
+          |  }
+          |}
+        """.stripMargin
+      val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
+
+      stubFor(get(urlEqualTo(s"/application/$appId/credentials"))
+        .willReturn(aResponse().withStatus(200)
+          .withHeader("Content-Type", "application/json")
+          .withBody(response)
+        ))
+
+      val result = await(connector.getClientCredentials(appId))
+
+      result shouldBe expected
     }
   }
 }

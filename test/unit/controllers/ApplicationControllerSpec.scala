@@ -554,6 +554,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
+      val clientSecret = "THISISACLIENTSECRET"
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret, "THISISNOTUSED"))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
@@ -750,7 +751,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenASuccessfulSuperUserLogin()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, ropcAccess)))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, None, ropcAccess)))
+            given(mockApplicationService.getClientSecret(eqTo(appId))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
@@ -759,11 +761,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include ("This is your only chance to copy and save this application's client secret.")
             bodyOf(result) should include (appId)
             bodyOf(result) should include ("Production")
             bodyOf(result) should include ("ROPC")
-            bodyOf(result) should include (totpSecret)
+            bodyOf(result) should include (clientSecret)
             bodyOf(result) should include (clientId)
 
           }

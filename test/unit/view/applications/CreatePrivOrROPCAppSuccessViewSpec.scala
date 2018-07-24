@@ -36,6 +36,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
     val env = "Production"
     val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
     val totpSecret = "DSKL595KJDHK540K09421"
+    val clientSecret = "ASDFGHJK-9087EWTRGFHJ;KJHGDFJTH"
 
     "a privileged application is created" should {
       "render" in {
@@ -53,11 +54,13 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h1", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP secret.") shouldBe true
+        document.body().toString.contains("This is your only chance to copy and save this application's client secret.") shouldBe false
         elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
         elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
         elementExistsByText(document, "tr", s"Environment $env") shouldBe true
         elementExistsByText(document, "tr", "Access type Privileged") shouldBe true
         elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe true
+        elementExistsByText(document, "tr", s"Client secret $clientSecret") shouldBe false
         elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
 
       }
@@ -70,7 +73,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(Some(""), applicationMessages, AppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(Some(""), applicationMessages, AppConfig)
 
         page().contentType should include("text/html")
 
@@ -79,11 +82,13 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h1", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP secret.") shouldBe false
+        document.body().toString.contains("This is your only chance to copy and save this application's client secret.") shouldBe true
         elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
         elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
         elementExistsByText(document, "tr", s"Environment $env") shouldBe true
         elementExistsByText(document, "tr", "Access type ROPC") shouldBe true
         elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe false
+        elementExistsByText(document, "tr", s"Client secret $clientSecret") shouldBe true
         elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
 
       }

@@ -21,9 +21,10 @@
 @import model.TotpSecrets
 
 
-@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String
+@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String, clientSecret: Option[String] = None
 )(implicit userFullName: Option[String], messages: Messages, appConfig: AppConfig)
 
+@secretType = @{ if (totpSecret.isDefined) "TOTP" else "client" }
 @main(title = s"${appConfig.title} - Create privileged or ROPC application success", userFullName = userFullName) {
 
 <h1 class="heading-large">@applicationName</h1>
@@ -32,17 +33,16 @@
     <h1 class="heading-large">Application added</h1>
 </div>
 
-@if(totpSecret.isDefined) {
+
 <div class="notice">
     <i class="icon icon-important">
         <span class="visually-hidden">Warning</span>
     </i>
+
     <strong class="bold-small">
-        This is your only chance to copy and save this application's TOTP secret.
+        This is your only chance to copy and save this application's @secretType secret.
     </strong>
 </div>
-
-}
 
 <br>
 <table>
@@ -68,10 +68,17 @@
         }}
     </tr>
     @if(totpSecret.isDefined) {
-    <tr>
-        <th>TOTP secret</th>
-        <td>@totpSecret.get.production</td>
-    </tr>
+        <tr>
+            <th>TOTP secret</th>
+            <td>@totpSecret.get.production</td>
+        </tr>
+    } else {
+        @if(clientSecret.isDefined) {
+        <tr>
+            <th>Client secret</th>
+            <td>@clientSecret.get</td>
+        </tr>
+        }
     }
     <tr>
         <th>Client ID</th>

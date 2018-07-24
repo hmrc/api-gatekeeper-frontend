@@ -304,5 +304,23 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       result shouldBe CreatePrivOrROPCAppSuccessResult("app ID", "New App", "PRODUCTION", "client ID", totpSecrets, appAccess)
     }
   }
+
+  "getClientSecret" should {
+    "call the service to get the client secret" in new Setup {
+
+      val appId = "app ID"
+      val clientSecret = "I AM A SECRET"
+      val secrets = Seq(ClientSecret(clientSecret))
+      val credentials = ClientCredentials(secrets)
+
+      given(underTest.applicationConnector.getClientCredentials(mEq(appId))(any[HeaderCarrier]))
+        .willReturn(Future.successful(GetClientCredentialsResult(credentials)))
+
+
+      val result = await(underTest.getClientSecret(appId))
+
+      result shouldBe clientSecret
+    }
+  }
 }
 
