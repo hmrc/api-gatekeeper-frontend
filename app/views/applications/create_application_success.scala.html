@@ -73,10 +73,12 @@
             <td>@totpSecret.get.production</td>
         </tr>
     } else {
+        @if(clientSecret.isDefined) {
         <tr>
             <th>Client secret</th>
             <td>@clientSecret.get</td>
         </tr>
+        }
     }
     <tr>
         <th>Client ID</th>
