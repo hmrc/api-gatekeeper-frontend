@@ -1446,4 +1446,827 @@ trait MockDataSugar {
        |]
    """.stripMargin
 
+
+val applicationSubscriptions = s"""
+[
+  {
+    "name": "Hello World",
+    "serviceName": "api-example-microservice",
+    "context": "hello",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "API Documentation Test",
+    "serviceName": "api-documentation-test-service",
+    "context": "api-documentation-test-service",
+    "versions": [
+      {
+        "version": {
+          "version": "0.1",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "0.2",
+          "status": "DEPRECATED"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "0.4",
+          "status": "DEPRECATED"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "0.5",
+          "status": "DEPRECATED"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": true
+      },
+      {
+        "version": {
+          "version": "1.2",
+          "status": "BETA"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.4",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individual Benefits",
+    "serviceName": "individual-benefits",
+    "context": "individual-benefits",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individual Employment",
+    "serviceName": "individual-employment",
+    "context": "individual-employment",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "DEPRECATED",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.1",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Paye Interest",
+    "serviceName": "paye-interest",
+    "context": "paye-interest",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individual Tax",
+    "serviceName": "individual-tax",
+    "context": "individual-tax",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "DEPRECATED",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.1",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Paye Payments",
+    "serviceName": "paye-payments",
+    "context": "paye-payments",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "State Pension",
+    "serviceName": "state-pension",
+    "context": "state-pension",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "cds-declaration-spike",
+    "serviceName": "cds-declaration-spike",
+    "context": "cds-declaration-spike",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Paye Penalties",
+    "serviceName": "paye-penalties",
+    "context": "paye-penalties",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Paye Credits",
+    "serviceName": "paye-credits",
+    "context": "paye-credits",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "API Simulator",
+    "serviceName": "api-simulator",
+    "context": "api-simulator",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Marriage Allowance",
+    "serviceName": "marriage-allowance",
+    "context": "marriage-allowance",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "National Insurance",
+    "serviceName": "national-insurance",
+    "context": "national-insurance",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "DEPRECATED",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.1",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Paye Charges",
+    "serviceName": "paye-charges",
+    "context": "paye-charges",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "RETIRED"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Trust Registration Service",
+    "serviceName": "trust-registration-api",
+    "context": "organisations/trusts",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "subscription-complete",
+    "serviceName": "subscription-complete",
+    "context": "subscription-complete",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Hosttalk Poc",
+    "serviceName": "hosttalk-poc",
+    "context": "hosttalk-poc",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "National Insurance Record",
+    "serviceName": "national-insurance-record",
+    "context": "national-insurance-record",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Relief At Source",
+    "serviceName": "ras-api",
+    "context": "individuals/relief-at-source",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Create Test User",
+    "serviceName": "api-platform-test-user",
+    "context": "create-test-user",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": true
+  },
+  {
+    "name": "Individual Income",
+    "serviceName": "individual-income",
+    "context": "individual-income",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "DEPRECATED",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "1.1",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Customs push notification",
+    "serviceName": "customs-push-notification",
+    "context": "customs-notification",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Customs Tariff",
+    "serviceName": "cds-tariff",
+    "context": "customs-tariff",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "National Insurance Test Support",
+    "serviceName": "national-insurance-des-stub",
+    "context": "national-insurance-test-support",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": true
+  },
+  {
+    "name": "Self Assessment (MTD)",
+    "serviceName": "self-assessment-api",
+    "context": "self-assessment",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "2.0",
+          "status": "ALPHA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Marriage Allowance Test Support",
+    "serviceName": "marriage-allowance-des-stub",
+    "context": "marriage-allowance-test-support",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": true
+  },
+  {
+    "name": "Estate Registration Service",
+    "serviceName": "estate-registration-api",
+    "context": "organisations/estates",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Customer Matching",
+    "serviceName": "customer-api",
+    "context": "customer",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individual PAYE Test Support",
+    "serviceName": "paye-des-stub",
+    "context": "individual-paye-test-support",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": true
+  },
+  {
+    "name": "Lifetime ISA",
+    "serviceName": "lisa-api",
+    "context": "lifetime-isa",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individuals Matching",
+    "serviceName": "individuals-matching-api",
+    "context": "individuals/matching",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Pensions Lifetime Allowance",
+    "serviceName": "pensions-lifetime-allowance-api",
+    "context": "individuals/pensions/lifetime-allowance/protections",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Pension Scheme Administrator Lookup",
+    "serviceName": "pension-scheme-administrator-lookup-api",
+    "context": "pension-scheme-administrator-lookup",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "VAT (MTD)",
+    "serviceName": "vat-api",
+    "context": "organisations/vat",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "ALPHA"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Customs Inventory Linking Exports",
+    "serviceName": "customs-inventory-linking-exports",
+    "context": "customs/inventory-linking/exports",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Individual Benefits",
+    "serviceName": "individual-benefits2",
+    "context": "individual-benefits2",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Pull Notifications",
+    "serviceName": "api-notification-pull",
+    "context": "notifications",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Stop Auto Deploy Test",
+    "serviceName": "api-stop-autodeploy-test",
+    "context": "stop-autodeploy",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "2.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "Customs Declarations",
+    "serviceName": "customs-declarations",
+    "context": "customs/declarations",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "BETA",
+          "access": {
+            "type": "PUBLIC"
+          }
+        },
+        "subscribed": true
+      }
+    ],
+    "isTestSupport": false
+  },
+  {
+    "name": "API Platform Test",
+    "serviceName": "api-platform-test",
+    "context": "api-platform-test",
+    "versions": [
+      {
+        "version": {
+          "version": "1.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "2.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "2.1",
+          "status": "DEPRECATED"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "2.2",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "3.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "4.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+      },
+      {
+        "version": {
+          "version": "5.0",
+          "status": "STABLE"
+        },
+        "subscribed": false
+ |     },
+ |     {
+ |       "version": {
+ |         "version": "6.0",
+ |         "status": "STABLE"
+ |       },
+ |       "subscribed": false
+ |     },
+ |     {
+ |       "version": {
+ |         "version": "7.0",
+ |         "status": "STABLE"
+ |       },
+ |       "subscribed": false
+ |     }
+ |   ],
+ |   "isTestSupport": false
+ | }
+ |]
+  """.stripMargin
 }

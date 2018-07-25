@@ -71,10 +71,10 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
-
+        println("I've clicked the link")
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
-
+      println(webDriver.getPageSource())
       verifyText("data-environment", "Production")
       verifyText("data-app-id", appPendingApprovalId1)
       verifyText("data-status", "Active")
@@ -167,6 +167,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(200)))
   }
 
   def stubDeveloper() = {

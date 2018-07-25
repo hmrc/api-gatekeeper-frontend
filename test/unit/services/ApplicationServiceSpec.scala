@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
 import org.scalatest.mockito.MockitoSugar
-import services.ApplicationService
+import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -39,6 +39,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val underTest = new ApplicationService {
       val applicationConnector = mock[ApplicationConnector]
       val apiScopeConnector = mock[ApiScopeConnector]
+      val subscriptionFieldsService= mock[SubscriptionFieldsService]
     }
 
     implicit val hc = HeaderCarrier()

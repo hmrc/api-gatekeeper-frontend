@@ -35,7 +35,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import services.DeveloperService
+import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -67,6 +67,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), Seq.empty)
 
       val mockDeveloperService = mock[DeveloperService]
+      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
       val underTest = new ApplicationController {
         val appConfig = mockConfig
@@ -75,6 +76,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val applicationService = mockApplicationService
         val apiDefinitionService = mockApiDefinitionService
         val developerService = mockDeveloperService
+        val subscriptionFieldsService = mockSubscriptionFieldsService
+
       }
 
       given(mockConfig.superUsers).willReturn(Seq("superUserName"))

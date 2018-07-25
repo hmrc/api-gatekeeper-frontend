@@ -21,6 +21,7 @@ import java.net.URLEncoder.encode
 import config.WSHttp
 import connectors.AuthConnector.baseUrl
 import model.ApiSubscriptionFields._
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,7 +35,7 @@ object SubscriptionFieldsConnector extends SubscriptionFieldsConnector {
 trait SubscriptionFieldsConnector {
   val subscriptionFieldsBaseUrl: String
 
-  val http: HttpGet with HttpPut
+  val http: HttpGet with HttpPut with HttpDelete
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
@@ -49,6 +50,12 @@ trait SubscriptionFieldsConnector {
   def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields))
+  }
+
+  def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
+    val eventualResponse = http.DELETE(url)
+    eventualResponse map { _.status == NO_CONTENT } recover recovery(true)
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)

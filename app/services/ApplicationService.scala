@@ -88,13 +88,19 @@ trait ApplicationService {
     } yield subscribedApplications.sortBy(_.name.toLowerCase)
   }
 
-  def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+  def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
-      subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
-        VersionSubscription(
-          version.version,
-          version.subscribed,
-          Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
+      if (withFields) {
+        println("HERE with fields")
+        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
+          VersionSubscription(
+            version.version,
+            version.subscribed,
+            Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
+        }
+      } else {
+        println("HERE no fields")
+        Future.successful(VersionSubscription(version.version, version.subscribed))
       }
     }
 
