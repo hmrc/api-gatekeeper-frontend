@@ -82,7 +82,7 @@ object DeveloperPage extends WebPage {
 
     case object INDIVIDUALBENEFITS extends APIFilterList("individual-benefits")
 
-    case object EMPLOYERSPAYE extends APIFilterList("employers-paye")
+    case object EMPLOYERSPAYE extends APIFilterList("employers-paye__1.0")
 
     case object INDIVIDUALTAX extends APIFilterList("itax")
 
