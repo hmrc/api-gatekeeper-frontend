@@ -407,7 +407,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+        given(underTest.applicationService.unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -415,7 +415,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe 303
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
 
-        verify(underTest.applicationService).unsubscribeFromApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+        verify(underTest.applicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
       }
 
       "return unauthorised when submitted for a non-super user" in new Setup {
@@ -426,7 +426,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe 401
 
-        verify(underTest.applicationService, never).unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier])
+        verify(underTest.applicationService, never).unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier])
       }
     }
 

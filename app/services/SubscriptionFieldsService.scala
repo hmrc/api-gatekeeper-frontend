@@ -31,7 +31,7 @@ object SubscriptionFieldsService extends SubscriptionFieldsService {
 trait SubscriptionFieldsService {
   val subscriptionFieldsConnnector: SubscriptionFieldsConnector
 
-  def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+  def fetchFields(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
 
     def addValuesToDefinitions(defs: Seq[SubscriptionField], fieldValues: Fields) = {
       defs.map(field => field.withValue(fieldValues.get(field.name)))
@@ -39,7 +39,7 @@ trait SubscriptionFieldsService {
 
     def fetchFieldsValues(defs: Seq[SubscriptionField])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
       for {
-        maybeValues <- subscriptionFieldsConnnector.fetchFieldValues(application.clientId, apiContext, apiVersion)
+        maybeValues <- subscriptionFieldsConnnector.fetchFieldValues(clientId, apiContext, apiVersion)
       } yield maybeValues.fold(defs) { response =>
         addValuesToDefinitions(defs, response.fields)
       }
@@ -48,7 +48,11 @@ trait SubscriptionFieldsService {
     subscriptionFieldsConnnector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
   }
 
-  def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    subscriptionFieldsConnnector.saveFieldValues(application.clientId, apiContext, apiVersion, fields)
+  def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    subscriptionFieldsConnnector.saveFieldValues(clientId, apiContext, apiVersion, fields)
+  }
+
+  def deleteFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    subscriptionFieldsConnnector.deleteFieldValues(clientId, context, version)
   }
 }

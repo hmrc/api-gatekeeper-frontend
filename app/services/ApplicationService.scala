@@ -91,27 +91,25 @@ trait ApplicationService {
   def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
       if (withFields) {
-        println("HERE with fields")
-        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
+        subscriptionFieldsService.fetchFields(application.clientId, subscription.context, version.version.version).map { fields =>
           VersionSubscription(
             version.version,
             version.subscribed,
             Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
         }
       } else {
-        println("HERE no fields")
         Future.successful(VersionSubscription(version.version, version.subscribed))
       }
     }
 
     def toApiVersions(subscription: Subscription): Future[Subscription] = {
-      val futures = subscription.versions // TODO: rename futures
+      val apiSubscriptionStatues = subscription.versions
           .filterNot(_.version.status == APIStatus.RETIRED)
           .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
           .sortWith(APIDefinition.descendingVersion)
           .map(toApiSubscriptionStatuses(subscription, _))
 
-      Future.sequence(futures).map { vs => subscription.copy(versions = vs) }
+      Future.sequence(apiSubscriptionStatues).map(vs => subscription.copy(versions = vs))
 
     }
 
@@ -174,8 +172,11 @@ trait ApplicationService {
     applicationConnector.subscribeToApi(applicationId, APIIdentifier(context, version))
   }
 
-  def unsubscribeFromApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnector.unsubscribeFromApi(applicationId, context, version)
+  def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    for {
+      unsubscribeResult <- applicationConnector.unsubscribeFromApi(application.id.toString, context, version)
+      _ <- subscriptionFieldsService.deleteFieldValues(application.clientId, context, version)
+    } yield unsubscribeResult
   }
 
   def updateRateLimitTier(applicationId: String, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

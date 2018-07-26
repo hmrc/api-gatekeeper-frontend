@@ -113,8 +113,9 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-      applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    implicit request => implicit hc => withApp(appId) { app =>
+      applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    }
   }
 
   def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
@@ -124,7 +125,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
           def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
             if (validForm.fields.nonEmpty) {
               val fields = Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *)
-              subscriptionFieldsService.saveFieldValues(app.application, apiContext, apiVersion, fields)
+              subscriptionFieldsService.saveFieldValues(app.application.clientId, apiContext, apiVersion, fields)
             } else {
               Future.successful(())
             }
