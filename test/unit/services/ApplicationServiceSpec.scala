@@ -122,10 +122,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when specific subscription filtering is provided" in new Setup {
       val filteredApplications = Seq(stdApp1, privilegedApp)
 
-      given(underTest.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"))(any[HeaderCarrier]))
+      given(underTest.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"), mEq("version"))(any[HeaderCarrier]))
         .willReturn(Future.successful(filteredApplications))
 
-      val result = await(underTest.fetchApplications(Value("subscription")))
+      val result = await(underTest.fetchApplications(Value("subscription", "version")))
       result shouldBe filteredApplications
     }
 

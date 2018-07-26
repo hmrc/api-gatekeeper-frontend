@@ -65,8 +65,8 @@
                             @for((status, versions) <- apis) {
                                 <optgroup label="@status">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        <option @if(apiFilter == Value(version.apiIdentifier.context)) {selected}
-                                                value="@version.apiIdentifier.context">@version.name (@version.apiIdentifier.version)</option>
+                                        <option @if(apiFilter == Value(version.apiIdentifier.context, version.apiIdentifier.version)) {selected}
+                                                value="@{version.apiIdentifier.context}__@{version.apiIdentifier.version}">@version.name (@version.apiIdentifier.version)</option>
                                     }
                                 </optgroup>
                             }
