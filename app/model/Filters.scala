@@ -18,7 +18,7 @@ package model
 
 
 sealed trait ApiFilter[+A]
-case class Value[A](a: A, b: A) extends ApiFilter[A]
+case class Value[A](context: A, version: A) extends ApiFilter[A]
 case object NoApplications extends ApiFilter[Nothing]
 case object OneOrMoreApplications extends ApiFilter[Nothing]
 case object NoSubscriptions extends ApiFilter[Nothing]
@@ -34,7 +34,7 @@ case object ApiFilter extends ApiFilter[String] {
       case Some("ANYAPP") => OneOrMoreApplications
       case Some("NOSUB") => NoSubscriptions
       case Some("NOAPP") => NoApplications
-      case Some(ApiIdPattern(subscribesTo, version)) => Value(subscribesTo, version)
+      case Some(ApiIdPattern(context, version)) => Value(context, version)
     }
   }
 }
