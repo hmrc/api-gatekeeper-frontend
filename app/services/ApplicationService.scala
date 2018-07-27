@@ -115,8 +115,8 @@ trait ApplicationService {
 
     for {
       subs <- applicationConnector.fetchApplicationSubscriptions(application.id.toString)
-      withFields <- Future.sequence(subs.map(toApiVersions))
-    } yield withFields
+      subsWithFields <- Future.sequence(subs.map(toApiVersions))
+    } yield subsWithFields
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {

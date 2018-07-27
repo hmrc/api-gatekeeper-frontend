@@ -37,13 +37,15 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.crypto.Protected
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.config.AppConfigSpec
 import unit.utils.WithCSRFAddToken
+import views.html.include.subscriptionFields
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.Future.successful
 
 class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
 
@@ -430,6 +432,44 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
+    "updateSubscriptionFields" should {
+      val context = "hello"
+      val version = "1.0"
+
+      val validForm = Seq(
+        "fields[0].name" -> "field1",
+        "fields[0].value" -> "value1",
+        "fields[0].description" -> "desc1",
+        "fields[0].hint" -> "hint1",
+        "fields[0].type" -> "STRING",
+        "fields[1].name" -> "field2",
+        "fields[1].value" -> "value2",
+        "fields[1].description" -> "desc0",
+        "fields[1].hint" -> "hint0",
+        "fields[1].type" -> "STRING"
+      )
+
+      "save subscription field values" in new Setup {
+        givenASuccessfulSuperUserLogin
+        givenTheAppWillBeReturned()
+        given(underTest.subscriptionFieldsService.saveFieldValues(any[String], any[String], any[String], any[ApiSubscriptionFields.Fields])(any[HeaderCarrier]))
+          .willReturn(successful(HttpResponse(OK)))
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(validForm: _*)
+
+        val result = await(addToken(underTest.updateSubscriptionFields(applicationId, context, version))(request))
+
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
+
+        verify(underTest.subscriptionFieldsService).saveFieldValues(
+          eqTo(application.application.clientId),
+          eqTo(context),
+          eqTo(version),
+          eqTo(Map("field1" -> "value1", "field2" -> "value2")))(any[HeaderCarrier])
+      }
+    }
+
     "manageRateLimitTier" should {
       "fetch the app and return the page for a super user" in new Setup {
         givenASuccessfulSuperUserLogin
@@ -795,6 +835,49 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
           }
         }
+      }
+    }
+
+    "manageSubscription" when {
+      "the user is a superuser" should {
+        "fetch the subscriptions with the fields" in new Setup {
+
+          val subscription = Subscription("name", "serviceName", "context", Seq())
+          givenASuccessfulSuperUserLogin
+          givenTheAppWillBeReturned()
+          given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Seq(subscription))
+
+          val result = await(addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest))
+
+          status(result) shouldBe 200
+          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))(any[HeaderCarrier])
+        }
+      }
+
+      "the user is not a superuser" should {
+        "show 401 forbidden" in new Setup {
+          givenASuccessfulLogin()
+
+          val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
+
+          status(result) shouldBe 401
+        }
+      }
+    }
+
+    "applicationPage" should {
+      "return the application details without subscription fields" in new Setup {
+        val subscriptions = Seq(Subscription("name", "serviceName", "context", Seq()))
+
+        givenASuccessfulLogin()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(subscriptions)
+
+        val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
+
+        status(result) shouldBe 200
+        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(false))(any[HeaderCarrier])
+        verify(mockSubscriptionFieldsService, never).fetchFields(anyString, anyString, anyString)(any[HeaderCarrier])
       }
     }
 

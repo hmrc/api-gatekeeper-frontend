@@ -19,6 +19,7 @@ package unit.services
 import java.util.UUID
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.ApiSubscriptionFields._
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
@@ -324,6 +325,38 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.getClientSecret(appId))
 
       result shouldBe clientSecret
+    }
+  }
+
+  "fetchApplicationSubscriptions" should {
+    "fetch subscriptions without fields" in new Setup {
+
+      val version = APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
+      val versions = Seq(VersionSubscription(version, subscribed = true, None))  //This says None because it has no subscription fields
+      val subscriptions = Seq(Subscription("subscription name", "service name", "context", versions))
+
+      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, "context", "1.0")).willReturn(Seq()) //Ie no subscription fields
+      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+
+      val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
+
+      result shouldBe subscriptions
+    }
+
+    "fetch subscriptions with fields" in new Setup {
+      val version = APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
+      val subscriptionFields = Seq(SubscriptionField("name", "description", "hint", "type", Some("value")))
+      val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, "context", "1.0", subscriptionFields)
+      val versions = Seq(VersionSubscription(version, subscribed = true, Some(subscriptionFieldsWrapper)))
+      val subscriptions = Seq(Subscription("subscription name", "service name", "context", versions))
+
+      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, "context", "1.0")).willReturn(subscriptionFields) //Ie no subscription fields
+      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+
+      val result = await(underTest.fetchApplicationSubscriptions(stdApp1, withFields = true))
+
+      result shouldBe subscriptions
+
     }
   }
 }

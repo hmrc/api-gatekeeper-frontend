@@ -55,7 +55,6 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    println("Loading the applications page")
     implicit request => implicit hc =>
       for {
         apps <- applicationService.fetchAllSubscribedApplications
@@ -65,7 +64,6 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-        println("Loading the application page")
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
@@ -124,8 +122,11 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
         def handleValidForm(validForm: SubscriptionFieldsForm) = {
           def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
             if (validForm.fields.nonEmpty) {
-              val fields = Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *)
-              subscriptionFieldsService.saveFieldValues(app.application.clientId, apiContext, apiVersion, fields)
+              subscriptionFieldsService.saveFieldValues(
+                app.application.clientId,
+                apiContext,
+                apiVersion,
+                Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
             } else {
               Future.successful(())
             }
