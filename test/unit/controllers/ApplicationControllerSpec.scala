@@ -30,7 +30,6 @@ import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
 import org.scalatest.mockito.MockitoSugar
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -39,9 +38,7 @@ import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import unit.config.AppConfigSpec
 import unit.utils.WithCSRFAddToken
-import views.html.include.subscriptionFields
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

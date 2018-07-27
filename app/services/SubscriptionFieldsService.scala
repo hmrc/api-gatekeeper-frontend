@@ -18,7 +18,6 @@ package services
 
 import connectors._
 import model.ApiSubscriptionFields.{Fields, SubscriptionField}
-import model.Application
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global

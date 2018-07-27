@@ -20,10 +20,7 @@ import java.util.UUID
 
 import connectors.SubscriptionFieldsConnector
 import model.ApiSubscriptionFields.{Fields, SubscriptionField, SubscriptionFields}
-import model._
-import org.joda.time.DateTime
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.{eq => meq}
 import org.mockito.Mockito.verify
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -43,7 +40,6 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   val mockSubscriptionFieldsConnector = mock[SubscriptionFieldsConnector]
 
   trait Setup {
-
     lazy val locked = false
     val response = mock[WSResponse]
 

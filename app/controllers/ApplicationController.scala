@@ -32,7 +32,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
-import views.html.include.subscriptionFields
 import views.html.review.review
 
 import scala.concurrent.Future

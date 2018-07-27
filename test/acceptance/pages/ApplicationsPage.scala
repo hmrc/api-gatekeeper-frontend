@@ -58,7 +58,6 @@ object ApplicationsPage extends WebPage {
   }
 
   def selectByApplicationName(name: String) = {
-    println("selecting application")
     click on find(linkText(name)).get
   }
 
