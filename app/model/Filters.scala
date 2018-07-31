@@ -18,7 +18,7 @@ package model
 
 
 sealed trait ApiFilter[+A]
-case class Value[A](a: A) extends ApiFilter[A]
+case class Value[A](context: A, version: A) extends ApiFilter[A]
 case object NoApplications extends ApiFilter[Nothing]
 case object OneOrMoreApplications extends ApiFilter[Nothing]
 case object NoSubscriptions extends ApiFilter[Nothing]
@@ -26,6 +26,7 @@ case object OneOrMoreSubscriptions extends ApiFilter[Nothing]
 case object AllUsers extends ApiFilter[Nothing]
 
 case object ApiFilter extends ApiFilter[String] {
+  private val ApiIdPattern = """^(.+)__(.+?)$""".r
   def apply(value: Option[String]): ApiFilter[String] = {
     value match {
       case Some("ALL") | Some("") | None => AllUsers
@@ -33,7 +34,7 @@ case object ApiFilter extends ApiFilter[String] {
       case Some("ANYAPP") => OneOrMoreApplications
       case Some("NOSUB") => NoSubscriptions
       case Some("NOAPP") => NoApplications
-      case Some(flt) => Value(flt)
+      case Some(ApiIdPattern(context, version)) => Value(context, version)
     }
   }
 }

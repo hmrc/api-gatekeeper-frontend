@@ -452,8 +452,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       .withBody(applicationResponseWithNoUsers).withStatus(200)))
   }
 
-  def stubAPISubscription(apiContext: String) = {
-    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
+  def stubAPISubscription(apiContext: String, apiVersion: String = "1.0") = {
+    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext&version=$apiVersion"))
       .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
   }
 

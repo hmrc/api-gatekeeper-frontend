@@ -55,7 +55,7 @@ trait ApplicationService {
         all.filterNot(app => noSubs.contains(app))
       }
       case NoSubscriptions => applicationConnector.fetchAllApplicationsWithNoSubscriptions()
-      case Value(flt) => applicationConnector.fetchAllApplicationsBySubscription(flt)
+      case Value(subscribesTo, version) => applicationConnector.fetchAllApplicationsBySubscription(subscribesTo, version)
       case _ => applicationConnector.fetchAllApplications()
     }
   }

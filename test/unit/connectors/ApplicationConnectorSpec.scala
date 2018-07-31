@@ -185,20 +185,20 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
   "fetchAllApplicationsBySubscription" should {
     "retrieve all applications subscribed to a specific API" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(200)
+      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context&version=some-version")).willReturn(aResponse().withStatus(200)
         .withBody("[]")))
 
-      val result = await(connector.fetchAllApplicationsBySubscription("some-context"))
+      val result = await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
 
-      verify(1, getRequestedFor(urlPathEqualTo("/application?subscribesTo=some-context"))
+      verify(1, getRequestedFor(urlPathEqualTo("/application?subscribesTo=some-context&version=some-version"))
         .withHeader("Authorization", equalTo(authToken)))
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(500)))
+      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context&version=some-version")).willReturn(aResponse().withStatus(500)))
 
       intercept[FetchApplicationsFailed] {
-        await(connector.fetchAllApplicationsBySubscription("some-context"))
+        await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
       }
 
       verify(1, getRequestedFor(urlPathEqualTo(s"/application?subscribesTo="))

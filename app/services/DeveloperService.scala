@@ -65,7 +65,7 @@ trait DeveloperService {
     filter match {
       case AllUsers => users ++ unregistered
       case NoApplications => usersWithoutApps
-      case NoSubscriptions | OneOrMoreSubscriptions | OneOrMoreApplications | Value(_) => usersWithApps ++ unregistered
+      case NoSubscriptions | OneOrMoreSubscriptions | OneOrMoreApplications | Value(_, _) => usersWithApps ++ unregistered
     }
   }
 
