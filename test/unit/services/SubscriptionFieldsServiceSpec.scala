@@ -20,6 +20,7 @@ import java.util.UUID
 
 import connectors.SubscriptionFieldsConnector
 import model.ApiSubscriptionFields.{Fields, SubscriptionField, SubscriptionFields}
+import model.FieldsDeleteSuccessResult
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.verify
 import org.scalatest.concurrent.ScalaFutures
@@ -104,7 +105,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       val fields = Fields("field1" -> "val001", "field2" -> "val002")
       val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields)
 
-      given(mockSubscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(true))
+      given(mockSubscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(FieldsDeleteSuccessResult))
 
       val result = await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
 

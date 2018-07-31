@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.SubscriptionFieldsConnector
 import model.ApiSubscriptionFields.{Fields, SubscriptionField, SubscriptionFields, SubscriptionFieldsPutRequest}
+import model.{FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -200,7 +201,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
 
     val url = s"$urlPrefix/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
-    "return true after delete call has returned no content" in new Setup {
+    "return successful result after delete call has returned no content" in new Setup {
       stubFor(delete(urlPathMatching(url))
         .willReturn(
           aResponse()
@@ -208,10 +209,10 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
 
       val result = await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
 
-      result shouldBe true
+      result shouldBe FieldsDeleteSuccessResult
     }
 
-    "return false api-subscription-fields returns unexpected status" in new Setup {
+    "return failure result api-subscription-fields returns unexpected status" in new Setup {
       stubFor(delete(urlPathMatching(url))
         .willReturn(
           aResponse()
@@ -219,7 +220,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
 
       val result = await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
 
-      result shouldBe false
+      result shouldBe FieldsDeleteFailureResult
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
@@ -229,12 +230,11 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
           aResponse()
             .withStatus(INTERNAL_SERVER_ERROR)))
 
-      intercept[Upstream5xxResponse] {
-        await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
-      }
+      val result = await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
+      result shouldBe FieldsDeleteFailureResult
     }
 
-    "return true when api-subscription-fields returns a not found" in new Setup {
+    "return successful result when api-subscription-fields returns a not found" in new Setup {
 
       stubFor(delete(urlPathMatching(url))
         .willReturn(
@@ -242,7 +242,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
             .withStatus(NOT_FOUND)))
 
       val result = await(underTest.deleteFieldValues(clientId, apiContext, apiVersion))
-      result shouldBe true
+      result shouldBe FieldsDeleteSuccessResult
     }
 
   }

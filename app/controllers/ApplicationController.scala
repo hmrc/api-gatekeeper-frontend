@@ -119,19 +119,15 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
       implicit request => implicit hc => withApp(appId) { app =>
         def handleValidForm(validForm: SubscriptionFieldsForm) = {
-          def saveFields(validForm: SubscriptionFieldsForm)(implicit hc: HeaderCarrier): Future[Any] = {
-            if (validForm.fields.nonEmpty) {
-              subscriptionFieldsService.saveFieldValues(
-                app.application.clientId,
-                apiContext,
-                apiVersion,
-                Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
-            } else {
-              Future.successful(())
-            }
+          if (validForm.fields.nonEmpty) {
+            subscriptionFieldsService.saveFieldValues(
+              app.application.clientId,
+              apiContext,
+              apiVersion,
+              Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
           }
 
-          saveFields(validForm).map { _ => Redirect(routes.ApplicationController.manageSubscription(appId)) }
+          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
 
         def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =

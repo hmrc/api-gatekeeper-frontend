@@ -21,7 +21,8 @@ import java.net.URLEncoder.encode
 import config.WSHttp
 import connectors.AuthConnector.baseUrl
 import model.ApiSubscriptionFields._
-import play.api.http.Status.NO_CONTENT
+import model.{FieldsDeleteFailureResult, FieldsDeleteResult, FieldsDeleteSuccessResult}
+import play.api.http.Status.{NO_CONTENT, NOT_FOUND}
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -52,10 +53,17 @@ trait SubscriptionFieldsConnector {
     http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields))
   }
 
-  def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     val eventualResponse = http.DELETE(url)
-    eventualResponse map { _.status == NO_CONTENT } recover recovery(true)
+    eventualResponse map { response => response.status match {
+        case NO_CONTENT => FieldsDeleteSuccessResult
+        case _ => FieldsDeleteFailureResult
+      }
+    } recover {
+      case e: NotFoundException => FieldsDeleteSuccessResult
+      case _ => FieldsDeleteFailureResult
+    } //TODO - getting a 404 in the recovery should result in a success, getting a 500 or anything else should still result in a failure
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)

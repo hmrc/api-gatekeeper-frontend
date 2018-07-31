@@ -18,6 +18,7 @@ package services
 
 import connectors._
 import model.ApiSubscriptionFields.{Fields, SubscriptionField}
+import model.FieldsDeleteResult
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -51,7 +52,7 @@ trait SubscriptionFieldsService {
     subscriptionFieldsConnnector.saveFieldValues(clientId, apiContext, apiVersion, fields)
   }
 
-  def deleteFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def deleteFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     subscriptionFieldsConnnector.deleteFieldValues(clientId, context, version)
   }
 }

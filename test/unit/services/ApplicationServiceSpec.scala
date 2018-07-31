@@ -275,7 +275,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(underTest.applicationConnector.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
       given(underTest.subscriptionFieldsService.deleteFieldValues(anyString, anyString, anyString)(any[HeaderCarrier]))
-        .willReturn(Future.successful(true))
+        .willReturn(Future.successful(FieldsDeleteSuccessResult))
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))
 
