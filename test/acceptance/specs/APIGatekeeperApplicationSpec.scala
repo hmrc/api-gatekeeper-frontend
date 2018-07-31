@@ -71,10 +71,8 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
-
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
-
       verifyText("data-environment", "Production")
       verifyText("data-app-id", appPendingApprovalId1)
       verifyText("data-status", "Active")
@@ -84,7 +82,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
-      verifyText("data-subscriptions", "")
+      verifyText("data-subscriptions", "API Documentation Test 1.0 (Stable)\nCustoms Declarations 1.0 (Beta)")
       verifyText("data-collaborator-email", "admin@example.com", 0)
       verifyText("data-collaborator-role", "Admin", 0)
       verifyText("data-collaborator-email", "purnima.fakename@example.com", 1)
@@ -167,6 +165,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
 
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(200)))
   }
 
   def stubDeveloper() = {

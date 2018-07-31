@@ -141,7 +141,7 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "frontend-bootstrap" % "8.24.0",
+  "uk.gov.hmrc" %% "frontend-bootstrap" % "8.25.0",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",

@@ -32,6 +32,7 @@ POST        /applications/:id/access/overrides                      controllers.
 GET         /applications/:id/subscriptions                         controllers.ApplicationController.manageSubscription(id: String)
 POST        /applications/:id/subscriptions/subscribe               controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
 POST        /applications/:id/subscriptions/unsubscribe             controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
+POST        /applications/:id/subscriptions/update-fields           controllers.ApplicationController.updateSubscriptionFields(id: String, context: String, version: String)
 
 GET         /applications/:id/rate-limit                            controllers.ApplicationController.manageRateLimitTier(id: String)
 POST        /applications/:id/rate-limit                            controllers.ApplicationController.updateRateLimitTier(id: String)

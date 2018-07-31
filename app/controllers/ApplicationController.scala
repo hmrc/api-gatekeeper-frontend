@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
@@ -40,6 +40,7 @@ object ApplicationController extends ApplicationController with WithAppConfig {
   override val applicationService = ApplicationService
   override val apiDefinitionService = ApiDefinitionService
   override val developerService = DeveloperService
+  override val subscriptionFieldsService = SubscriptionFieldsService
   override def authProvider = GatekeeperAuthProvider
   override def authConnector = AuthConnector
 }
@@ -49,6 +50,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   val applicationService: ApplicationService
   val apiDefinitionService: ApiDefinitionService
   val developerService: DeveloperService
+  val subscriptionFieldsService: SubscriptionFieldsService
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -61,27 +63,25 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
-    implicit request => implicit hc =>
-      val applicationFuture = applicationService.fetchApplication(appId)
-      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
 
-      def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
-          appWithHistory.application.checkInformation.flatMap{
-            _.termsOfUseAgreements match {
-              case Nil => None
-              case agreements =>  Option(agreements.maxBy(_.timeStamp))
+          def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
+            appWithHistory.application.checkInformation.flatMap {
+              _.termsOfUseAgreements match {
+                case Nil => None
+                case agreements => Option(agreements.maxBy(_.timeStamp))
+              }
             }
           }
-      }
 
-      for {
-        applicationWithHistory <- applicationFuture
-        subscriptions <- subscriptionsFuture
-      } yield Ok(application(
-        applicationWithHistory,
-        subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
-        isSuperUser,
-        latestTOUAgreement(applicationWithHistory)))
+          applicationService.fetchApplicationSubscriptions(app.application).map(subscriptions => Ok(application(
+            app,
+            subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
+            isSuperUser,
+            latestTOUAgreement(app))))
+        }
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -95,16 +95,13 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def manageSubscription(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-
-      val applicationFuture = applicationService.fetchApplication(appId)
-      val subscriptionsFuture = applicationService.fetchApplicationSubscriptions(appId)
-
-      for {
-        app <- applicationFuture
-        subs <- subscriptionsFuture
-
-      } yield Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          applicationService.fetchApplicationSubscriptions(app.application, withFields = true).map {
+            subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+          }
+        }
   }
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -113,8 +110,32 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc =>
-      applicationService.unsubscribeFromApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    implicit request => implicit hc => withApp(appId) { app =>
+      applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    }
+  }
+
+  def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
+    requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+      implicit request => implicit hc => withApp(appId) { app =>
+        def handleValidForm(validForm: SubscriptionFieldsForm) = {
+          if (validForm.fields.nonEmpty) {
+            subscriptionFieldsService.saveFieldValues(
+              app.application.clientId,
+              apiContext,
+              apiVersion,
+              Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
+          }
+
+          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+        }
+
+        def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
+          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+
+        SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
+    }
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
@@ -437,9 +458,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
           } yield result
         }
 
-          createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
       }
     }
   }
-
 }

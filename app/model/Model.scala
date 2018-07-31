@@ -281,6 +281,10 @@ object CreatePrivOrROPCAppForm {
   }
 }
 
+sealed trait FieldsDeleteResult
+case object FieldsDeleteSuccessResult extends FieldsDeleteResult
+case object FieldsDeleteFailureResult extends FieldsDeleteResult
+
 
 final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: Seq[Collaborator], access: AppAccess)
 object CreatePrivOrROPCAppRequest {

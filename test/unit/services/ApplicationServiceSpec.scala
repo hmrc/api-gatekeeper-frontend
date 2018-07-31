@@ -19,15 +19,16 @@ package unit.services
 import java.util.UUID
 
 import connectors.{ApiScopeConnector, ApplicationConnector}
+import model.ApiSubscriptionFields._
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
-import org.mockito.Mockito.{never, times, verify}
+import org.mockito.Mockito.{never, verify}
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
 import org.scalatest.mockito.MockitoSugar
-import services.ApplicationService
+import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -39,6 +40,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val underTest = new ApplicationService {
       val applicationConnector = mock[ApplicationConnector]
       val apiScopeConnector = mock[ApiScopeConnector]
+      val subscriptionFieldsService = mock[SubscriptionFieldsService]
     }
 
     implicit val hc = HeaderCarrier()
@@ -251,27 +253,36 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "subscribeToApi" should {
     "call the service to subscribe to the API" in new Setup {
+      val context = "a-context"
+      val version = "1.0"
+
       given(underTest.applicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-      val result = await(underTest.subscribeToApi("applicationId", "hello", "1.0"))
+      val result = await(underTest.subscribeToApi("applicationId", context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(underTest.applicationConnector).subscribeToApi(mEq("applicationId"), mEq(APIIdentifier("hello", "1.0")))(any[HeaderCarrier])
+      verify(underTest.applicationConnector).subscribeToApi(mEq("applicationId"), mEq(APIIdentifier(context, version)))(any[HeaderCarrier])
     }
   }
 
   "unsubscribeFromApi" should {
-    "call the service to unsubscribe from the API" in new Setup {
+    "call the service to unsubscribe from the API and delete the field values" in new Setup {
+      val context = "a-context"
+      val version = "1.0"
+
       given(underTest.applicationConnector.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+      given(underTest.subscriptionFieldsService.deleteFieldValues(anyString, anyString, anyString)(any[HeaderCarrier]))
+        .willReturn(Future.successful(FieldsDeleteSuccessResult))
 
-      val result = await(underTest.unsubscribeFromApi("applicationId", "hello", "1.0"))
+      val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(underTest.applicationConnector).unsubscribeFromApi(mEq("applicationId"), mEq("hello"), mEq("1.0"))(any[HeaderCarrier])
+      verify(underTest.applicationConnector).unsubscribeFromApi(mEq(stdApp1.id.toString), mEq(context), mEq(version))(any[HeaderCarrier])
+      verify(underTest.subscriptionFieldsService).deleteFieldValues(mEq(stdApp1.clientId.toString), mEq(context), mEq(version))(any[HeaderCarrier])
     }
   }
 
@@ -320,6 +331,41 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.getClientSecret(appId))
 
       result shouldBe clientSecret
+    }
+  }
+
+  "fetchApplicationSubscriptions" should {
+    val context = "a-context"
+    val version = "1.0"
+
+    "fetch subscriptions without fields" in new Setup {
+      val versionFields = None
+      val subscriptionFields = Seq()
+      val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
+      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, versionFields))
+      val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
+
+      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
+      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+
+      val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
+
+      result shouldBe subscriptions
+    }
+
+    "fetch subscriptions with fields" in new Setup {
+      val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
+      val subscriptionFields = Seq(SubscriptionField("name", "description", "hint", "type", Some("value")))
+      val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, context, version, subscriptionFields)
+      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, Some(subscriptionFieldsWrapper)))
+      val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
+
+      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
+      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+
+      val result = await(underTest.fetchApplicationSubscriptions(stdApp1, withFields = true))
+
+      result shouldBe subscriptions
     }
   }
 }

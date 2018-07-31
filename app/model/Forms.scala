@@ -18,6 +18,7 @@ package model
 
 import model.Forms.FormFields._
 import model.OverrideType._
+import model.ApiSubscriptionFields._
 import play.api.data.Form
 import play.api.data.Forms._
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -146,5 +147,20 @@ package object Forms {
       .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
   }
 
+  case class SubscriptionFieldsForm(fields: Seq[SubscriptionField])
+
+  object SubscriptionFieldsForm {
+    val form = Form(
+      mapping(
+        "fields" -> seq(
+          mapping(
+            "name" -> text,
+            "description" -> text,
+            "hint" -> text,
+            "type" -> text,
+            "value" -> optional(text))(SubscriptionField.apply)(SubscriptionField.unapply))
+      )(SubscriptionFieldsForm.apply)(SubscriptionFieldsForm.unapply)
+    )
+  }
 
 }
