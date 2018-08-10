@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{ApiScopeConnector, ApplicationConnector}
+import connectors.{ApiScopeConnector, ApplicationConnector, DeveloperConnector, HttpDeveloperConnector}
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
@@ -29,12 +29,14 @@ import scala.concurrent.Future
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
   override val apiScopeConnector = ApiScopeConnector
+  override val developerConnector = HttpDeveloperConnector
   override val subscriptionFieldsService = SubscriptionFieldsService
 }
 
 trait ApplicationService {
   val applicationConnector: ApplicationConnector
   val apiScopeConnector: ApiScopeConnector
+  val developerConnector: DeveloperConnector
   val subscriptionFieldsService: SubscriptionFieldsService
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
@@ -206,4 +208,25 @@ trait ApplicationService {
     }
   }
 
+  def addTeamMember(app: Application, teamMember: Collaborator, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    for {
+      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(requestingEmail))
+      developer <- developerConnector.fetchByEmail(teamMember.emailAddress)
+      response <- applicationConnector.addCollaborator(app.id.toString, AddTeamMemberRequest(requestingEmail, teamMember, developer.verified.isDefined, adminsToEmail.toSet))
+    } yield response
+
+  }
+
+  def removeTeamMember(app: Application, teamMemberToRemove: String, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    for {
+      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
+      response <- applicationConnector.removeCollaborator(app.id.toString, teamMemberToRemove, requestingEmail, adminsToEmail)
+    } yield response
+  }
+
+  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+    val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
+
+    developerConnector.fetchByEmails(adminEmails).map(_.filter(_.verified.contains(true)).map(_.email))
+  }
 }

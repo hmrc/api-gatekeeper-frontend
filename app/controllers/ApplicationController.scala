@@ -28,7 +28,7 @@ import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
 import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
@@ -460,6 +460,68 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
 
         createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
       }
+    }
+  }
+
+  def manageTeamMembers(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      Future.successful(Ok(manage_team_members(app.application)))
+    }
+  }
+
+  def addTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      Future.successful(Ok(add_team_member(app.application, AddTeamMemberForm.form)))
+    }
+  }
+
+  def addTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: AddTeamMemberForm) = {
+        applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.get)
+          .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
+            case _: ApplicationNotFound => Redirect(routes.ApplicationController.manageTeamMembers(appId))
+            case _: TeamMemberAlreadyExists => BadRequest(add_team_member(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
+          }
+      }
+
+      def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
+        Future.successful(BadRequest(add_team_member(app.application, formWithErrors)))
+
+      AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    }
+  }
+
+  def removeTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: RemoveTeamMemberForm) =
+        Future.successful(Ok(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
+
+      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) =
+        Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+
+      RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    }
+  }
+
+  def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
+        form.confirm match {
+          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.get).map {
+            _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
+          } recover {
+            case _: TeamMemberLastAdmin =>
+              BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", Messages("team.member.error.email.last.admin")), form.email))
+          }
+          case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+        }
+      }
+
+      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
+        Future.successful(BadRequest(remove_team_member(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
+
+      RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }
   }
 }

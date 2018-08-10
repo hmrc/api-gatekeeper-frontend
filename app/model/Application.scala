@@ -297,6 +297,12 @@ object Environment extends Enumeration {
 object CollaboratorRole extends Enumeration {
   type CollaboratorRole = Value
   val DEVELOPER, ADMINISTRATOR = Value
+
+  def displayedRole: (CollaboratorRole) => String = _.toString.toLowerCase.capitalize
+  def from(role: Option[String]) = role match {
+    case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
+    case _ => Some(CollaboratorRole.DEVELOPER)
+  }
 }
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole)

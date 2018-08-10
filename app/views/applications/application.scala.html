@@ -299,6 +299,9 @@
                 </table>
             </td>
             <td class="no-border">
+                @if(isSuperUser) {
+                    <a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
+                }
             </td>
         </tr>
     </table>

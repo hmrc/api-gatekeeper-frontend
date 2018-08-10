@@ -16,6 +16,8 @@
 
 package unit.connectors
 
+import java.net.URLEncoder
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.WSHttp
 import connectors.ApplicationConnector
@@ -397,6 +399,115 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
       val result = await(connector.getClientCredentials(appId))
 
       result shouldBe expected
+    }
+  }
+
+  "addCollaborator" should {
+    val appId = "APP_ID"
+    val teamMember = Collaborator("newUser@example.com", role = CollaboratorRole.DEVELOPER)
+    val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", teamMember, isRegistered = true, Set.empty)
+    val requestBody = Json.toJson(addTeamMemberRequest).toString
+
+    "post the team member to the service" in new Setup {
+      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
+        .withRequestBody(equalToJson(requestBody))
+        .willReturn(aResponse().withStatus(200)
+          .withHeader("Content-Type", "application/json")
+          .withBody("{}")))
+
+      val result = await(connector.addCollaborator(appId, addTeamMemberRequest))
+
+      verify(1, postRequestedFor(urlMatching(s"/application/$appId/collaborator")).withRequestBody(equalToJson(requestBody)))
+    }
+
+    "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
+      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
+        .withRequestBody(equalToJson(requestBody))
+        .willReturn(aResponse().withStatus(200)
+          .withHeader("Content-Type", "application/json")
+          .withBody("{}")))
+
+      val result = await(connector.addCollaborator(appId, addTeamMemberRequest))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
+      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
+        .withRequestBody(equalToJson(requestBody))
+        .willReturn(aResponse().withStatus(409)
+          .withHeader("Content-Type", "application/json")
+          .withBody("{}")))
+
+      intercept[TeamMemberAlreadyExists] {
+        await(connector.addCollaborator(appId, addTeamMemberRequest))
+      }
+    }
+
+    "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
+      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
+        .withRequestBody(equalToJson(requestBody))
+        .willReturn(aResponse().withStatus(404)
+          .withHeader("Content-Type", "application/json")
+          .withBody("{}")))
+
+      intercept[ApplicationNotFound] {
+        await(connector.addCollaborator(appId, addTeamMemberRequest))
+      }
+    }
+
+    "throw the error when the service returns any other error" in new Setup {
+      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
+        .withRequestBody(equalToJson(requestBody))
+        .willReturn(aResponse().withStatus(500)
+          .withHeader("Content-Type", "application/json")
+          .withBody("{}")))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.addCollaborator(appId, addTeamMemberRequest))
+      }
+    }
+  }
+
+  "removeCollaborator" should {
+    def encode(str: String): String = URLEncoder.encode(str, "UTF-8")
+
+    val appId = "APP_ID"
+    val emailAddress = "toRemove@example.com"
+    val gatekeeperUserId = "maxpower"
+    val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")
+    val path = s"/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
+
+    "send a DELETE request to the service with the correct params" in new Setup {
+      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(200)))
+
+      await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
+
+      verify(1, deleteRequestedFor(urlEqualTo(path)))
+    }
+
+    "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
+      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(200)))
+
+      val result = await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "throw TeamMemberLastAdmin when the service responds with 403" in new Setup {
+      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(403)))
+
+      intercept[TeamMemberLastAdmin] {
+        await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
+      }
+    }
+
+    "throw the error when the service returns any other error" in new Setup {
+      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(500)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
+      }
     }
   }
 }

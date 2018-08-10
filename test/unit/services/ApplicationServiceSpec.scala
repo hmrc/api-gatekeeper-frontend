@@ -18,7 +18,7 @@ package unit.services
 
 import java.util.UUID
 
-import connectors.{ApiScopeConnector, ApplicationConnector}
+import connectors.{ApiScopeConnector, ApplicationConnector, DeveloperConnector}
 import model.ApiSubscriptionFields._
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -40,6 +40,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val underTest = new ApplicationService {
       val applicationConnector = mock[ApplicationConnector]
       val apiScopeConnector = mock[ApiScopeConnector]
+      val developerConnector = mock[DeveloperConnector]
       val subscriptionFieldsService = mock[SubscriptionFieldsService]
     }
 
@@ -368,5 +369,220 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       result shouldBe subscriptions
     }
   }
-}
 
+  "add teamMember" when {
+    val email = "email@testuser.com"
+    val teamMember = Collaborator(email, CollaboratorRole.ADMINISTRATOR)
+    val adminEmail = "admin.email@example.com"
+    val adminsToEmail = Set.empty[String]
+
+    "adding to a standard app" should {
+      "add an unregistered teamMember successfully" in new Setup {
+        val application = stdApp1
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+
+      "add a registered teamMember successfully" in new Setup {
+        val application = stdApp1
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+    }
+
+    "adding to a privileged app" should {
+      "add an unregistered teamMember successfully" in new Setup {
+        val application = privilegedApp
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+
+      "add a registered teamMember successfully" in new Setup {
+        val application = ropcApp
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+    }
+
+    "adding to an ROPC app" should {
+      "add an unregistered teamMember successfully" in new Setup {
+        val application = stdApp1
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+
+      "add a registered teamMember successfully" in new Setup {
+        val application = stdApp1
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
+
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
+      }
+    }
+
+    "application connector fails" should {
+      "propagate TeamMemberAlreadyExists from application connector" in new Setup {
+        val existingUser = User(email, "firstName", "lastName", verified = Some(true))
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.applicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new TeamMemberAlreadyExists))
+
+        intercept[TeamMemberAlreadyExists] {
+          await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
+        }
+      }
+
+      "propagate ApplicationNotFound from application connector" in new Setup {
+        val existingUser = User(email, "firstName", "lastName", verified = Some(true))
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
+        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(underTest.applicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new ApplicationNotFound))
+
+        intercept[ApplicationNotFound] {
+          await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
+        }
+      }
+    }
+
+    "building parameters" should {
+      "include correct set of admins to email" in new Setup {
+        val verifiedAdmin = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR)
+        val unverifiedAdmin = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR)
+        val adderAdmin = Collaborator(adminEmail, CollaboratorRole.ADMINISTRATOR)
+        val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER)
+        val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adderAdmin, verifiedDeveloper))
+        val nonAdderAdmins = Seq(
+          User(verifiedAdmin.emailAddress, "verified", "user",  Some(true)),
+          User(unverifiedAdmin.emailAddress, "unverified", "user", Some(false)))
+        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
+        val response = ApplicationUpdateSuccessResult
+        val newUser = User(email, "n/a", "n/a", verified = None)
+
+        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(newUser))
+        given(underTest.developerConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
+        given(underTest.applicationConnector.addCollaborator(any(), any())(any())).willReturn(response)
+
+        await(underTest.addTeamMember(application, teamMember, adderAdmin.emailAddress)) shouldBe response
+
+        verify(underTest.applicationConnector).addCollaborator(mEq(application.id.toString), mEq(request.copy(adminsToEmail = Set(verifiedAdmin.emailAddress))))(any())
+      }
+    }
+  }
+
+  "removeTeamMember" should {
+    val requestingUser = "admin.email@example.com"
+    val memberToRemove = "email@testuser.com"
+
+    "remove a member from a standard app successfully" in new Setup {
+      val application = stdApp1
+      val response = ApplicationUpdateSuccessResult
+
+      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+
+      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
+
+      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+    }
+
+    "remove a member from a privileged app" in new Setup {
+      val application = privilegedApp
+      val response = ApplicationUpdateSuccessResult
+
+      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+
+      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
+
+      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+    }
+
+    "remove a member from an ROPC app" in new Setup {
+      val application = ropcApp
+      val response = ApplicationUpdateSuccessResult
+
+      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+
+      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
+
+      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+    }
+
+    "propagate TeamMemberLastAdmin error from application connector" in new Setup {
+      val lastAdmin = User(memberToRemove, "firstName", "lastName", verified = Some(true))
+
+      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(underTest.applicationConnector.removeCollaborator(mEq(stdApp1.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(Seq.empty))(any())).willReturn(Future.failed(new TeamMemberLastAdmin))
+
+      intercept[TeamMemberLastAdmin] {
+        await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
+      }
+    }
+
+    "include correct set of admins to email" in new Setup {
+      val verifiedAdmin = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR)
+      val unverifiedAdmin = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR)
+      val adminToRemove = Collaborator(memberToRemove, CollaboratorRole.ADMINISTRATOR)
+      val adderAdmin = Collaborator(requestingUser, CollaboratorRole.ADMINISTRATOR)
+      val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER)
+      val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
+      val nonAdderAdmins = Seq(
+        User(verifiedAdmin.emailAddress, "verified", "user",  Some(true)),
+        User(unverifiedAdmin.emailAddress, "unverified", "user", Some(false)))
+      val response = ApplicationUpdateSuccessResult
+      val expectedAdminsToEmail = Seq(verifiedAdmin.emailAddress)
+
+      given(underTest.developerConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
+      given(underTest.applicationConnector.removeCollaborator(any(), any(), any(), any())(any())).willReturn(response)
+
+      await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response
+
+      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(expectedAdminsToEmail))(any())
+    }
+  }
+}

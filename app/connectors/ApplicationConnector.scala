@@ -162,9 +162,20 @@ trait ApplicationConnector {
       }
   }
 
+  def addCollaborator(applicationId: String, teamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/collaborator", teamMember, Seq(CONTENT_TYPE -> JSON)) map {
+      _ => ApplicationUpdateSuccessResult
+    } recover {
+      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
+      case _: NotFoundException => throw new ApplicationNotFound
+    }
+  }
+
   def removeCollaborator(applicationId: String, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE(s"$applicationBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
+    } recover {
+      case e: Upstream4xxResponse if e.upstreamResponseCode == 403 => throw new TeamMemberLastAdmin
     }
   }
 

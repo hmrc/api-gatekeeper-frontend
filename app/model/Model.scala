@@ -125,6 +125,12 @@ class FetchApplicationSubscriptionsFailed extends Throwable
 
 class InconsistentDataState(message: String) extends RuntimeException(message)
 
+class TeamMemberAlreadyExists extends Throwable
+
+class TeamMemberLastAdmin extends Throwable
+
+class ApplicationNotFound extends Throwable
+
 case class ApproveUpliftRequest(gatekeeperUserId: String)
 
 object ApproveUpliftRequest {
@@ -306,4 +312,18 @@ object GetClientCredentialsResult {
   implicit val reads1 = Json.reads[ClientSecret]
   implicit val reads2 = Json.reads[ClientCredentials]
   implicit val reads3 = Json.reads[GetClientCredentialsResult]
+}
+
+final case class AddTeamMemberRequest(adminEmail: String, collaborator: Collaborator, isRegistered: Boolean, adminsToEmail: Set[String])
+
+object AddTeamMemberRequest {
+  implicit val format1 = EnumJson.enumFormat(CollaboratorRole)
+  implicit val format2 = Json.format[Collaborator]
+  implicit val format3 = Json.format[AddTeamMemberRequest]
+}
+
+final case class AddTeamMemberResponse(registeredUser: Boolean)
+
+object AddTeamMemberResponse {
+  implicit val format = Json.format[AddTeamMemberResponse]
 }
