@@ -915,7 +915,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "then user is not a superuser" should {
-        "show 401 Unauthorixed" in new Setup {
+        "show 401 Unauthorized" in new Setup {
           givenASuccessfulLogin()
           givenTheAppWillBeReturned()
 
@@ -938,9 +938,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService).addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
@@ -953,21 +951,19 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             status(result) shouldBe SEE_OTHER
             redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
           }
 
-          "show 400 BadRequest when the service call fails with TeamnMemberAlreadyExists" in new Setup {
+          "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
             givenASuccessfulSuperUserLogin()
             givenTheAppWillBeReturned()
 
             given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             status(result) shouldBe BAD_REQUEST
@@ -1027,7 +1023,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"))
-
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
             status(result) shouldBe OK
@@ -1040,7 +1035,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
             status(result) shouldBe BAD_REQUEST
@@ -1054,7 +1048,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheAppWillBeReturned()
 
           val request = aLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"))
-
           val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
           status(result) shouldBe UNAUTHORIZED
@@ -1075,7 +1068,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               givenTheAppWillBeReturned()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
-
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
               status(result) shouldBe SEE_OTHER
@@ -1093,7 +1085,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
-
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
               status(result) shouldBe SEE_OTHER
@@ -1108,7 +1099,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberLastAdmin))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
-
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
               status(result) shouldBe BAD_REQUEST
@@ -1121,7 +1111,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
-
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
               status(result) shouldBe SEE_OTHER
@@ -1136,7 +1125,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-
             val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
             status(result) shouldBe BAD_REQUEST
@@ -1150,7 +1138,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheAppWillBeReturned()
 
           val request = aLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"), ("confirm", "Yes"))
-
           val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
           status(result) shouldBe UNAUTHORIZED
