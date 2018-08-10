@@ -879,25 +879,75 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "manageTeamMembers" when {
-      "the user is a superuser" should {
-        "show 200 OK" in new Setup {
-          givenASuccessfulSuperUserLogin()
-          givenTheAppWillBeReturned()
+      "managing a privileged app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
 
-          val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
 
-          status(result) shouldBe OK
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
+
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
         }
       }
 
-      "the user is not a superuser" should {
-        "show 401 Unauthorized" in new Setup {
-          givenASuccessfulLogin()
-          givenTheAppWillBeReturned()
+      "managing an ROPC app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned(ropcApplication)
 
-          val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
 
-          status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(ropcApplication)
+
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+      }
+
+      "managing a standard app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned()
+
+            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe OK
+          }
         }
       }
     }
