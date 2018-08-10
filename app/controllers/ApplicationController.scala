@@ -496,8 +496,10 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def handleValidForm(form: RemoveTeamMemberForm) =
         Future.successful(Ok(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
 
-      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) =
-        Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
+        val email = formWithErrors("email").value.getOrElse("")
+        Future.successful(BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
+      }
 
       RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }

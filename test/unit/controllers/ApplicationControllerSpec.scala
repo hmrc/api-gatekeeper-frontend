@@ -1022,7 +1022,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "the form is invalid" should {
-          "redirect back to the manageTeamMembers page" in new Setup {
+          "show a 400 Bad Request" in new Setup {
             givenASuccessfulSuperUserLogin()
             givenTheAppWillBeReturned()
 
@@ -1030,8 +1030,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+            status(result) shouldBe BAD_REQUEST
           }
         }
       }
