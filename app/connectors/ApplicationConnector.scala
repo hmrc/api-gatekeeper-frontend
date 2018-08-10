@@ -24,7 +24,7 @@ import model.RateLimitTier.RateLimitTier
 import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
-import play.api.http.Status.PRECONDITION_FAILED
+import play.api.http.Status._
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -154,7 +154,7 @@ trait ApplicationConnector {
   def deleteApplication(applicationId: String, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
     http.POST(s"$applicationBaseUrl/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
-        case 204 => ApplicationDeleteSuccessResult
+        case NO_CONTENT => ApplicationDeleteSuccessResult
         case _ => ApplicationDeleteFailureResult
       })
       .recover {
@@ -166,7 +166,7 @@ trait ApplicationConnector {
     http.POST(s"$applicationBaseUrl/application/$applicationId/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
       _ => ApplicationUpdateSuccessResult
     } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
+      case e: Upstream4xxResponse if e.upstreamResponseCode == CONFLICT => throw new TeamMemberAlreadyExists
       case _: NotFoundException => throw new ApplicationNotFound
     }
   }
@@ -175,7 +175,7 @@ trait ApplicationConnector {
     http.DELETE(s"$applicationBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
     } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == 403 => throw new TeamMemberLastAdmin
+      case e: Upstream4xxResponse if e.upstreamResponseCode == FORBIDDEN => throw new TeamMemberLastAdmin
     }
   }
 
