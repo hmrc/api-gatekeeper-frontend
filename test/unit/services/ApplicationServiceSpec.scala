@@ -419,7 +419,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       }
 
       "add a registered teamMember successfully" in new Setup {
-        val application = ropcApp
+        val application = privilegedApp
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
@@ -434,7 +434,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "adding to an ROPC app" should {
       "add an unregistered teamMember successfully" in new Setup {
-        val application = stdApp1
+        val application = ropcApp
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
@@ -447,7 +447,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       }
 
       "add a registered teamMember successfully" in new Setup {
-        val application = stdApp1
+        val application = ropcApp
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
