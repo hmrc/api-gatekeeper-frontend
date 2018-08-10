@@ -975,13 +975,26 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "the form is invalid" should {
-          "show 400 BadRequest" in new Setup {
+          "show 400 BadRequest when the email is invalid" in new Setup {
             givenASuccessfulSuperUserLogin()
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("email", "NOT AN EMAIL ADDRESS"),
-              ("role", "QA"))
+              ("role", "DEVELOPER"))
+
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+
+          "show 400 BadRequest when the role is invalid" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("email", "email@example.com"),
+              ("role", ""))
 
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
