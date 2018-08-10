@@ -960,20 +960,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
           }
 
-          "redirect back to manageTeamMembers when the service call fails with ApplicationNotFound" in new Setup {
-            givenASuccessfulSuperUserLogin()
-            givenTheAppWillBeReturned()
-
-            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.failed(new ApplicationNotFound))
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
-          }
-
           "show 400 BadRequest when the service call fails with TeamnMemberAlreadyExists" in new Setup {
             givenASuccessfulSuperUserLogin()
             givenTheAppWillBeReturned()

@@ -480,7 +480,6 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def handleValidForm(form: AddTeamMemberForm) = {
         applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.get)
           .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-            case _: ApplicationNotFound => Redirect(routes.ApplicationController.manageTeamMembers(appId))
             case _: TeamMemberAlreadyExists => BadRequest(add_team_member(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
           }
       }
