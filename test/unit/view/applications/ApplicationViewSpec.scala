@@ -211,7 +211,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite {
 
       result.contentType must include("text/html")
       elementExistsByText(document, "a", "Delete application") mustBe false
-      elementExistsByText(document, "a", "Manage") mustBe false
+      elementExistsByText(document, "a", "Manage") mustBe true
     }
 
     "show application information and click on associated developer" in {

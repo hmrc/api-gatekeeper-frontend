@@ -756,12 +756,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
-            bodyOf(result) should include (appId)
-            bodyOf(result) should include ("Production")
-            bodyOf(result) should include ("Privileged")
-            bodyOf(result) should include (totpSecret)
-            bodyOf(result) should include (clientId)
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include(appId)
+            bodyOf(result) should include("Production")
+            bodyOf(result) should include("Privileged")
+            bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientId)
 
           }
 
@@ -778,12 +778,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
-            bodyOf(result) should include (appId)
-            bodyOf(result) should include ("Sandbox")
-            bodyOf(result) should include ("Privileged")
-            bodyOf(result) should include (totpSecret)
-            bodyOf(result) should include (clientId)
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include(appId)
+            bodyOf(result) should include("Sandbox")
+            bodyOf(result) should include("Privileged")
+            bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientId)
 
           }
 
@@ -801,12 +801,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's client secret.")
-            bodyOf(result) should include (appId)
-            bodyOf(result) should include ("Production")
-            bodyOf(result) should include ("ROPC")
-            bodyOf(result) should include (clientSecret)
-            bodyOf(result) should include (clientId)
+            bodyOf(result) should include("This is your only chance to copy and save this application's client secret.")
+            bodyOf(result) should include(appId)
+            bodyOf(result) should include("Production")
+            bodyOf(result) should include("ROPC")
+            bodyOf(result) should include(clientSecret)
+            bodyOf(result) should include(clientId)
 
           }
 
@@ -823,12 +823,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include ("This is your only chance to copy and save this application's TOTP secret.")
-            bodyOf(result) should include (appId)
-            bodyOf(result) should include ("Sandbox")
-            bodyOf(result) should include ("ROPC")
-            bodyOf(result) should include (totpSecret)
-            bodyOf(result) should include (clientId)
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include(appId)
+            bodyOf(result) should include("Sandbox")
+            bodyOf(result) should include("ROPC")
+            bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientId)
 
           }
         }
@@ -1132,7 +1132,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "managing a standard app" should {
-          "show 200 OK when valid" in new Setup {
+          "show 303 See Other when valid" in new Setup {
             givenASuccessfulLogin()
             givenTheAppWillBeReturned()
 
@@ -1144,7 +1144,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe OK
+            status(result) shouldBe SEE_OTHER
           }
         }
       }
@@ -1208,7 +1208,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "managing a standard app" should {
           "show 200 OK" in new Setup {
             givenASuccessfulLogin()
-            givenTheAppWillBeReturned(privilegedApplication)
+            givenTheAppWillBeReturned()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
@@ -1322,16 +1322,17 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "when managing a standard app" should {
-          "show 200 OK" in new Setup {
+          "show 303 OK" in new Setup {
             givenASuccessfulLogin()
-            givenTheAppWillBeReturned(privilegedApplication)
+            givenTheAppWillBeReturned()
+            given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
             val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe OK
+            status(result) shouldBe SEE_OTHER
           }
-       }
+        }
       }
     }
 

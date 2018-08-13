@@ -69,7 +69,7 @@ object HttpDeveloperConnector extends HttpDeveloperConnector {
   override val http = WSHttp
 }
 
-object DummyDeveloperConnector extends DeveloperConnector {
+object  DummyDeveloperConnector extends DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
