@@ -163,4 +163,35 @@ package object Forms {
     )
   }
 
+  final case class AddTeamMemberForm(email: String, role: Option[String])
+
+  object AddTeamMemberForm {
+    def form: Form[AddTeamMemberForm] = Form(
+      mapping(
+        "email" -> emailValidator,
+        "role" -> optional(text).verifying("team.member.error.role.invalid", _.isDefined)
+      )(AddTeamMemberForm.apply)(AddTeamMemberForm.unapply)
+    )
+  }
+
+  final case class RemoveTeamMemberForm(email: String)
+
+  object RemoveTeamMemberForm {
+    val form: Form[RemoveTeamMemberForm] = Form(
+      mapping(
+        "email" -> emailValidator
+      )(RemoveTeamMemberForm.apply)(RemoveTeamMemberForm.unapply)
+    )
+  }
+
+  final case class RemoveTeamMemberConfirmationForm(email: String, confirm: Option[String] = Some(""))
+
+  object RemoveTeamMemberConfirmationForm {
+    val form: Form[RemoveTeamMemberConfirmationForm] = Form(
+      mapping(
+        "email" -> emailValidator,
+        "confirm" -> optional(text).verifying("team.member.error.confirmation.no.choice.field", _.isDefined)
+      )(RemoveTeamMemberConfirmationForm.apply)(RemoveTeamMemberConfirmationForm.unapply)
+    )
+  }
 }

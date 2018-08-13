@@ -878,6 +878,276 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
+    "manageTeamMembers" when {
+      "the user is a superuser" should {
+        "show 200 OK" in new Setup {
+          givenASuccessfulSuperUserLogin()
+          givenTheAppWillBeReturned()
+
+          val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+
+          status(result) shouldBe OK
+        }
+      }
+
+      "the user is not a superuser" should {
+        "show 401 Unauthorized" in new Setup {
+          givenASuccessfulLogin()
+          givenTheAppWillBeReturned()
+
+          val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+
+          status(result) shouldBe UNAUTHORIZED
+        }
+      }
+    }
+
+    "addTeamMember" when {
+      "then user is a superuser" should {
+        "show 200 OK" in new Setup {
+          givenASuccessfulSuperUserLogin()
+          givenTheAppWillBeReturned()
+
+          val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+
+          status(result) shouldBe OK
+        }
+      }
+
+      "then user is not a superuser" should {
+        "show 401 Unauthorized" in new Setup {
+          givenASuccessfulLogin()
+          givenTheAppWillBeReturned()
+
+          val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+
+          status(result) shouldBe UNAUTHORIZED
+        }
+      }
+    }
+
+    "addTeamMemberAction" when {
+      val email = "email@example.com"
+
+      "the user is a superuser" when {
+        "the form is valid" should {
+          val role = "DEVELOPER"
+
+          "call the service to add the team member" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            verify(mockApplicationService).addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
+          }
+
+          "redirect back to manageTeamMembers when the service call is successful" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe SEE_OTHER
+            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+          }
+
+          "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberAlreadyExists))
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+        }
+
+        "the form is invalid" should {
+          "show 400 BadRequest when the email is invalid" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("email", "NOT AN EMAIL ADDRESS"),
+              ("role", "DEVELOPER"))
+
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+
+          "show 400 BadRequest when the role is invalid" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("email", email),
+              ("role", ""))
+
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+        }
+      }
+
+      "the user is not a superuser" should {
+        "show 401 Unauthorized" in new Setup {
+          givenASuccessfulLogin()
+          givenTheAppWillBeReturned()
+
+          val request = aLoggedInRequest.withFormUrlEncodedBody(
+            ("email", email),
+            ("role", "DEVELOPER"))
+
+          val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+          status(result) shouldBe UNAUTHORIZED
+        }
+      }
+    }
+
+    "removeTeamMember" when {
+      val email = "email@example.com"
+
+      "the user is a superuser" when {
+        "the form is valid" should {
+          "show the remove team member page successfully with the provided email address" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+
+            status(result) shouldBe OK
+            bodyOf(result) should include(email)
+          }
+        }
+
+        "the form is invalid" should {
+          "show a 400 Bad Request" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
+            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+        }
+      }
+
+      "the user is not a superuser" should {
+        "show 401 Unauthorized" in new Setup {
+          givenASuccessfulLogin()
+          givenTheAppWillBeReturned()
+
+          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+          val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+
+          status(result) shouldBe UNAUTHORIZED
+        }
+      }
+    }
+
+    "removeTeamMemberAction" when {
+      val email = "email@example.com"
+
+      "the user is a superuser" when {
+        "the form is valid" when {
+          "the action is not confirmed" should {
+            val confirm = "No"
+
+            "redirect back to the manageTeamMembers page" in new Setup {
+              givenASuccessfulSuperUserLogin()
+              givenTheAppWillBeReturned()
+
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
+              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+              status(result) shouldBe SEE_OTHER
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+            }
+          }
+
+          "the action is confirmed" should {
+            val confirm = "Yes"
+
+            "call the service with the correct params" in new Setup {
+              givenASuccessfulSuperUserLogin()
+              givenTheAppWillBeReturned()
+
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
+              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+              status(result) shouldBe SEE_OTHER
+
+              verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(email), eqTo("superUserName"))(any[HeaderCarrier])
+            }
+
+            "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
+              givenASuccessfulSuperUserLogin()
+              givenTheAppWillBeReturned()
+
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberLastAdmin))
+
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
+              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+              status(result) shouldBe BAD_REQUEST
+            }
+
+            "redirect to the manageTeamMembers page when the service call is successful" in new Setup {
+              givenASuccessfulSuperUserLogin()
+              givenTheAppWillBeReturned()
+
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
+              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+              status(result) shouldBe SEE_OTHER
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+            }
+          }
+        }
+
+        "the form is invalid" should {
+          "show 400 Bad Request" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
+            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe BAD_REQUEST
+          }
+        }
+      }
+
+      "the user is not a superuser" should {
+        "show 401 Unauthorized" in new Setup {
+          givenASuccessfulLogin()
+          givenTheAppWillBeReturned()
+
+          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
+          val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+          status(result) shouldBe UNAUTHORIZED
+        }
+      }
+    }
 
     def titleOf(result: Result) = {
       val titleRegEx = """<title[^>]*>(.*)</title>""".r
