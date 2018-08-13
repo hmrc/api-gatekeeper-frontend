@@ -16,7 +16,8 @@
 
 package services
 
-import connectors.{ApiScopeConnector, ApplicationConnector, DeveloperConnector, HttpDeveloperConnector}
+import config.AppConfig
+import connectors._
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
@@ -29,7 +30,9 @@ import scala.concurrent.Future
 object ApplicationService extends ApplicationService {
   override val applicationConnector = ApplicationConnector
   override val apiScopeConnector = ApiScopeConnector
-  override val developerConnector = HttpDeveloperConnector
+  override val developerConnector =
+    if (AppConfig.isExternalTestEnvironment) DummyDeveloperConnector else HttpDeveloperConnector
+
   override val subscriptionFieldsService = SubscriptionFieldsService
 }
 
