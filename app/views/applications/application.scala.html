@@ -299,7 +299,7 @@
                 </table>
             </td>
             <td class="no-border">
-                @if(isSuperUser) {
+                @if(isSuperUser || application.access.accessType == AccessType.STANDARD) {
                     <a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }
             </td>

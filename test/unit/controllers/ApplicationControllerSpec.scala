@@ -953,25 +953,75 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "addTeamMember" when {
-      "then user is a superuser" should {
-        "show 200 OK" in new Setup {
-          givenASuccessfulSuperUserLogin()
-          givenTheAppWillBeReturned()
+      "managing a privileged app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
 
-          val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
-          status(result) shouldBe OK
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
+
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
         }
       }
 
-      "then user is not a superuser" should {
-        "show 401 Unauthorized" in new Setup {
-          givenASuccessfulLogin()
-          givenTheAppWillBeReturned()
+      "managing an ROPC app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned(ropcApplication)
 
-          val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
-          status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(ropcApplication)
+
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+      }
+
+      "managing a standard app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulSuperUserLogin()
+            givenTheAppWillBeReturned()
+
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+
+            status(result) shouldBe OK
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned()
+
+            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+
+            status(result) shouldBe OK
+          }
         }
       }
     }
@@ -1050,18 +1100,52 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
       }
 
-      "the user is not a superuser" should {
-        "show 401 Unauthorized" in new Setup {
-          givenASuccessfulLogin()
-          givenTheAppWillBeReturned()
+      "the user is not a superuser" when {
+        "manging a privileged app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
 
-          val request = aLoggedInRequest.withFormUrlEncodedBody(
-            ("email", email),
-            ("role", "DEVELOPER"))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(
+              ("email", email),
+              ("role", "DEVELOPER"))
 
-          val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-          status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+
+        "managing an ROPC app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(ropcApplication)
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(
+              ("email", email),
+              ("role", "DEVELOPER"))
+
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+
+        "managing a standard app" should {
+          "show 200 OK when valid" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned()
+
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(
+              ("email", email),
+              ("role", "DEVELOPER"))
+
+            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe OK
+          }
         }
       }
     }
@@ -1096,15 +1180,41 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
       }
 
-      "the user is not a superuser" should {
-        "show 401 Unauthorized" in new Setup {
-          givenASuccessfulLogin()
-          givenTheAppWillBeReturned()
+      "the user is not a superuser" when {
+        "managing a privileged app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
 
-          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-          val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
-          status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+
+        "managing an ROPC app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(ropcApplication)
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+
+        "managing a standard app" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+
+            status(result) shouldBe OK
+          }
         }
       }
     }
@@ -1186,16 +1296,42 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
       }
 
-      "the user is not a superuser" should {
-        "show 401 Unauthorized" in new Setup {
-          givenASuccessfulLogin()
-          givenTheAppWillBeReturned()
+      "the user is not a superuser" when {
+        "when managing a privileged app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
 
-          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
-          val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
+            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
-          status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe UNAUTHORIZED
+          }
         }
+
+        "when managing an ROPC app" should {
+          "show 401 Unauthorized" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
+            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe UNAUTHORIZED
+          }
+        }
+
+        "when managing a standard app" should {
+          "show 200 OK" in new Setup {
+            givenASuccessfulLogin()
+            givenTheAppWillBeReturned(privilegedApplication)
+
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
+            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+
+            status(result) shouldBe OK
+          }
+       }
       }
     }
 

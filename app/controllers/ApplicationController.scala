@@ -274,6 +274,14 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
+  private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+    applicationService.fetchApplication(appId).flatMap { app => app.application.access match {
+      case _: Standard => f(app)
+      case _ if isSuperUser => f(app)
+      case _ => Future.successful(Unauthorized(views.html.unauthorized()))
+    }}
+  }
+
   def reviewPage(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
     redirectIfExternalTestEnvironment {
       fetchApplicationReviewDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
@@ -463,20 +471,20 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
-  def manageTeamMembers(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc => withApp(appId) { app =>
+  def manageTeamMembers(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => withRestrictedApp(appId) { app =>
       Future.successful(Ok(manage_team_members(app.application)))
     }
   }
 
-  def addTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc => withApp(appId) { app =>
+  def addTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => withRestrictedApp(appId) { app =>
       Future.successful(Ok(add_team_member(app.application, AddTeamMemberForm.form)))
     }
   }
 
-  def addTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc => withApp(appId) { app =>
+  def addTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
         applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.get)
           .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
@@ -491,8 +499,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
-  def removeTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc => withApp(appId) { app =>
+  def removeTeamMember(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberForm) =
         Future.successful(Ok(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
 
@@ -505,8 +513,8 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
-  def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
-    implicit request => implicit hc => withApp(appId) { app =>
+  def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+    implicit request => implicit hc => withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         form.confirm match {
           case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.get).map {
