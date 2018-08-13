@@ -927,9 +927,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "addTeamMemberAction" when {
+      val email = "email@example.com"
+
       "the user is a superuser" when {
         "the form is valid" should {
-          val email = "email@example.com"
           val role = "DEVELOPER"
 
           "call the service to add the team member" in new Setup {
@@ -989,7 +990,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("email", "email@example.com"),
+              ("email", email),
               ("role", ""))
 
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -1005,7 +1006,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheAppWillBeReturned()
 
           val request = aLoggedInRequest.withFormUrlEncodedBody(
-            ("email", "email@example.com"),
+            ("email", email),
             ("role", "DEVELOPER"))
 
           val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -1016,16 +1017,19 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "removeTeamMember" when {
+      val email = "email@example.com"
+
       "the user is a superuser" when {
         "the form is valid" should {
-          "show the remove team member page successfully" in new Setup {
+          "show the remove team member page successfully with the provided email address" in new Setup {
             givenASuccessfulSuperUserLogin()
             givenTheAppWillBeReturned()
 
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"))
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
             status(result) shouldBe OK
+            bodyOf(result) should include(email)
           }
         }
 
@@ -1047,7 +1051,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenASuccessfulLogin()
           givenTheAppWillBeReturned()
 
-          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"))
+          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
           val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
           status(result) shouldBe UNAUTHORIZED
@@ -1056,10 +1060,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "removeTeamMemberAction" when {
+      val email = "email@example.com"
+
       "the user is a superuser" when {
         "the form is valid" when {
-          val email = "email@example.com"
-
           "the action is not confirmed" should {
             val confirm = "No"
 
@@ -1137,7 +1141,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenASuccessfulLogin()
           givenTheAppWillBeReturned()
 
-          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", "email@example.com"), ("confirm", "Yes"))
+          val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
           val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
           status(result) shouldBe UNAUTHORIZED
