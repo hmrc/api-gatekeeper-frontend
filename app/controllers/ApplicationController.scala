@@ -275,7 +275,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
   }
 
   private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
-    applicationService.fetchApplication(appId).flatMap { app => app.application.access match {
+    withApp(appId) { app => app.application.access match {
       case _: Standard => f(app)
       case _ if isSuperUser => f(app)
       case _ => Future.successful(Unauthorized(views.html.unauthorized()))
