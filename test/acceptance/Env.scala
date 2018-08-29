@@ -55,9 +55,15 @@ trait Env {
     driver
   }
 
+  def shutdown = Try(driver.quit())
+
   sys addShutdownHook {
-    Try(driver.quit())
+    shutdown
   }
 }
 
 object Env extends Env
+
+class AfterHook {
+  Env.shutdown
+}
