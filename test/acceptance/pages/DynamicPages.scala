@@ -28,15 +28,15 @@ trait DynamicPage extends WebPage {
 
 case class ReviewPage(applicationId: String, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:9000/api-gatekeeper/review?id=$applicationId"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/review?id=$applicationId"
 }
 
 case class ApprovedPage(applicationId: String, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:9000/api-gatekeeper/approved?id=$applicationId"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/approved?id=$applicationId"
 }
 
 case class ResendVerificationPage(applicationId: String, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:9000/api-gatekeeper/applications/$applicationId/resend-verification"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/$applicationId/resend-verification"
 }

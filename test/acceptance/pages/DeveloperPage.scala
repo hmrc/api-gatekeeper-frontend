@@ -25,7 +25,7 @@ import org.openqa.selenium.{By, WebElement}
 
 object DeveloperPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/developers"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developers"
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }

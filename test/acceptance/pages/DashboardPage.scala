@@ -21,7 +21,7 @@ import org.openqa.selenium.By
 
 object DashboardPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/dashboard"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/dashboard"
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }

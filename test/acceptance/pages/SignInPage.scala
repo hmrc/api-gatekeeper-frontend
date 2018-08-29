@@ -21,7 +21,7 @@ import org.openqa.selenium.By
 
 object SignInPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/login"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/login"
   override def isCurrentPage : Boolean = find(cssSelector("h1")).fold(false)(_.text == "Sign in")
 
   def signInBtn = find(className("button")).get

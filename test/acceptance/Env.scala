@@ -29,6 +29,7 @@ import scala.util.{Properties, Try}
 
 trait Env {
   val driver: WebDriver = createWebDriver
+  lazy val port = 6001
 
   lazy val createWebDriver: WebDriver = {
     Properties.propOrElse("test_driver", "chrome") match {
