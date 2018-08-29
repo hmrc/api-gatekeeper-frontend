@@ -20,7 +20,7 @@ import acceptance.WebPage
 
 object DeveloperDetailsPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/developer?email=Dixie.fakename%40example.com"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?email=Dixie.fakename%40example.com"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url

@@ -30,6 +30,7 @@ trait WebLink extends Page with WebBrowser with Matchers {
 }
 
 trait WebPage extends WebLink {
+  lazy val port = Env.port
 
   def isCurrentPage: Boolean
 

@@ -27,7 +27,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 
 trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with OneServerPerTest {
 
-  override lazy val port = 9000
+  override lazy val port = Env.port
   val stubPort = 11111
   val stubHost = "localhost"
 

@@ -20,7 +20,7 @@ import acceptance.WebPage
 
 object ApplicationToReviewPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/applications/df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url

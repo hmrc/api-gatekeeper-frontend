@@ -21,7 +21,7 @@ import acceptance.pages.ApplicationsPage.APIFilter.APIFilterList
 
 object ApplicationsPage extends WebPage {
 
-  override val url: String = "http://localhost:9000/api-gatekeeper/applications"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications"
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
