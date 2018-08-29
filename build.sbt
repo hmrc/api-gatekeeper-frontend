@@ -61,6 +61,7 @@ lazy val microservice =  (project in file("."))
     .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
     .settings(
       testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter), Tests.Argument("-l", "SandboxTest")),
+      testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <+= baseDirectory(_ / "target/web/public/test"),
@@ -72,6 +73,7 @@ lazy val microservice =  (project in file("."))
     .settings(inConfig(SandboxTest)(Defaults.testTasks): _*)
     .settings(
       testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest"), Tests.Filter(sandboxFilter)),
+      testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in SandboxTest <+= baseDirectory(_ / "target/web/public/test"),
