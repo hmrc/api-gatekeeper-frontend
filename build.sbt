@@ -14,18 +14,20 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 
+import scala.util.Properties
+
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
 
 lazy val microservice =  (project in file("."))
-    .enablePlugins(Seq(_root_.play.sbt.PlayScala) ++ plugins: _*)
+    .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
     .settings(
       Concat.groups := Seq(
         "javascripts/apis-app.js" -> group(
           (baseDirectory.value / "app" / "assets" / "javascripts") ** "*.js"
         )
       ),
-      UglifyKeys.compressOptions := Seq(
+      uglifyCompressOptions := Seq(
         "unused=false",
         "dead_code=true"
       ),
@@ -49,7 +51,8 @@ lazy val microservice =  (project in file("."))
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
       routesGenerator := StaticRoutesGenerator,
-      shellPrompt := (_ => "> ")
+      shellPrompt := (_ => "> "),
+      majorVersion := 0
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in Test := Seq(Tests.Filter(unitFilter)),
@@ -143,7 +146,7 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "frontend-bootstrap" % "8.25.0",
+  "uk.gov.hmrc" %% "frontend-bootstrap" % "10.2.0",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
@@ -172,7 +175,7 @@ def acceptanceFilter(name: String): Boolean = name startsWith "acceptance"
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests map {
-    test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+    test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq(s"-Dtest.name=${test.name}", s"-Dtest_driver=${Properties.propOrElse("test_driver", "chrome")}"))))
   }
 
 coverageMinimum := 55

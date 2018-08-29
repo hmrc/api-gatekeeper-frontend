@@ -16,43 +16,49 @@
 
 package acceptance
 
+import java.net.URL
 import java.util.logging.{Level, Logger}
 
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-import org.openqa.selenium.remote.DesiredCapabilities
+import org.openqa.selenium.remote.{DesiredCapabilities, RemoteWebDriver}
 import org.openqa.selenium.{HasCapabilities, WebDriver}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
 
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 trait Env {
+  val driver: WebDriver = createWebDriver
 
-  val webDriverConfig = Option(System.getenv("test_driver")).getOrElse("firefox")
-  val driver = if (webDriverConfig == "firefox") {
-    val driver: WebDriver with HasCapabilities = {
-      val profile = new FirefoxProfile
-      profile.setAcceptUntrustedCertificates(true)
-      new FirefoxDriver(profile)
+  lazy val createWebDriver: WebDriver = {
+    Properties.propOrElse("test_driver", "chrome") match {
+      case "chrome" => createChromeDriver()
+      case "firefox" => createFirefoxDriver()
+      case "remote-chrome" => createRemoteChromeDriver()
+      case "remote-firefox" => createRemoteFirefoxDriver()
+      case other => throw new IllegalArgumentException(s"target browser $other not recognised")
     }
+  }
+
+  def createRemoteChromeDriver() = {
+    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.chrome)
+  }
+
+  def createRemoteFirefoxDriver() = {
+    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.firefox)
+  }
+
+  def createChromeDriver(): WebDriver = {
+    val driver = new ChromeDriver()
+    driver.manage().deleteAllCookies()
+    driver.manage().window().fullscreen()
     driver
-  } else if (webDriverConfig == "chrome"){
-    val driver: WebDriver = {
-      val driver = new ChromeDriver()
-      driver.manage().deleteAllCookies()
-      driver.manage().window().fullscreen()
-      driver
-    }
-    driver
-  } else {
-    val driver: WebDriver = {
-      val capabilities = DesiredCapabilities.htmlUnit()
-      capabilities.setJavascriptEnabled(true)
-      Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF)
-      Logger.getLogger("com.gargoylesoftware.htmlunit.javascript.StrictErrorReporter").setLevel(Level.OFF)
-      new HtmlUnitDriver(capabilities)
-    }
-    driver
+  }
+
+  def createFirefoxDriver(): WebDriver = {
+    val profile = new FirefoxProfile
+    profile.setAcceptUntrustedCertificates(true)
+    new FirefoxDriver(profile)
   }
 
   def shutdown = Try(driver.quit())
