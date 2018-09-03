@@ -1176,7 +1176,7 @@ trait MockDataSugar {
     |[
     | {
     |   "serviceName": "employersPayeAPI",
-    |   "serviceBaseUrl": "http://employerspaye-api.protected.mdtp/",
+    |   "serviceBaseUrl": "http://localhost/",
     |   "name": "Employers PAYE",
     |   "description": "EMPLOYERS PAYE API.",
     |    "deployedTo": "PRODUCTION",
@@ -1204,7 +1204,7 @@ trait MockDataSugar {
     | },
     |  {
     |   "serviceName": "payeCreditsAPI",
-    |   "serviceBaseUrl": "http://payecredits-api.protected.mdtp/",
+    |   "serviceBaseUrl": "http://localhost/",
     |   "name": "Paye Credits",
     |   "description": "PAYE CREDITS API",
     |    "deployedTo": "PRODUCTION",
@@ -1232,7 +1232,7 @@ trait MockDataSugar {
     | },
     |  {
     |   "serviceName": "individualBenefitsAPI",
-    |   "serviceBaseUrl": "http://individualbenefits-api.protected.mdtp/",
+    |   "serviceBaseUrl": "http://localhost/",
     |   "name": "Individual Benefits",
     |   "description": "INDIVIDUAL BENEFITS API.",
     |    "deployedTo": "PRODUCTION",
@@ -1260,7 +1260,7 @@ trait MockDataSugar {
     | },
     |   {
     |   "serviceName": "selfAssessmentAPI",
-    |   "serviceBaseUrl": "http://selfassessment-api.protected.mdtp/",
+    |   "serviceBaseUrl": "http://localhost/",
     |   "name": "Self Assessment",
     |   "description": "SELF ASSESSMENT API.",
     |    "deployedTo": "PRODUCTION",
