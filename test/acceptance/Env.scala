@@ -19,6 +19,7 @@ package acceptance
 import java.net.URL
 import java.util.logging.{Level, Logger}
 
+import org.openqa.selenium.Dimension
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.openqa.selenium.remote.{DesiredCapabilities, RemoteWebDriver}
@@ -30,6 +31,7 @@ import scala.util.{Properties, Try}
 trait Env {
   val driver: WebDriver = createWebDriver
   lazy val port = 6001
+  lazy val windowSize = new Dimension(1024, 800)
 
   lazy val createWebDriver: WebDriver = {
     Properties.propOrElse("test_driver", "chrome") match {
@@ -42,7 +44,9 @@ trait Env {
   }
 
   def createRemoteChromeDriver() = {
-    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.chrome)
+    val driver = new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.chrome)
+    driver.manage().window().setSize(windowSize)
+    driver
   }
 
   def createRemoteFirefoxDriver() = {
@@ -52,7 +56,7 @@ trait Env {
   def createChromeDriver(): WebDriver = {
     val driver = new ChromeDriver()
     driver.manage().deleteAllCookies()
-    driver.manage().window().fullscreen()
+    driver.manage().window().setSize(windowSize)
     driver
   }
 
