@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.view.applications
+package unit.views.applications
 
 import config.AppConfig
 import model.Forms._

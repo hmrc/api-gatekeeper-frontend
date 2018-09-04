@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.view.developers
+package unit.views.developers
 
 import java.util.UUID
 
