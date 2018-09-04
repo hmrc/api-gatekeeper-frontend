@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.view.review
+package unit.views.review
 
 import java.util.UUID
 
