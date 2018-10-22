@@ -7,6 +7,7 @@ invalid.scope=You have used a scope we don''t recognise
 application.administrator.missing=Choose an administrator
 application.confirmation.missing=Provide the application name
 application.confirmation.error=The application name doesn''t match
+application.subscriptions.loader.error=Failed to load API subscriptions
 access.type.required=Tell us what access type
 application.name.required=Provide an application name
 application.description.required=Provide an application description
