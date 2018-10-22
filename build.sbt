@@ -126,7 +126,7 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
   "org.jsoup" % "jsoup" % "1.10.2" % "test",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % "test",
+  "uk.gov.hmrc" %% "hmrctest" % "3.2.0" % "test",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test",
@@ -146,7 +146,7 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "frontend-bootstrap" % "10.2.0",
+  "uk.gov.hmrc" %% "frontend-bootstrap" % "10.7.0",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
