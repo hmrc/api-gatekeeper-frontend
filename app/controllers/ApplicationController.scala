@@ -76,11 +76,17 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
             }
           }
 
-          applicationService.fetchApplicationSubscriptions(app.application).map(subscriptions => Ok(application(
-            app,
-            subscriptions.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase),
-            isSuperUser,
-            latestTOUAgreement(app))))
+          def subscriptions: Future[Either[String, Seq[Subscription]]] = {
+            applicationService.fetchApplicationSubscriptions(app.application).map(
+              subs => Right(subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase))
+            ).recover {
+              case e: FetchApplicationSubscriptionsFailed =>
+                Logger.warn(s"Failed to load API subscriptions for application $appId", e)
+                Left(Messages("application.subscriptions.loader.error"))
+            }
+          }
+
+          subscriptions.map(subs => Ok(application(app, subs, isSuperUser, latestTOUAgreement(app))))
         }
   }
 

@@ -21,7 +21,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -99,6 +99,26 @@
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
     v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+}
+
+@renderSubscriptions(subs: Seq[Subscription]) = {
+    @for(subscription <- subs.toIterator) {
+        <tr>
+            <td>
+                @subscription.name
+                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
+                    @for((version, index) <- subscribedVersions.zipWithIndex) {
+                        @version.version (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+    }
+}
+
+@renderSubscriptionsError(errorMessage: String) = {
+    <tr><td class="faded-text">@errorMessage</tr></td>
 }
 
 @main(title = s"${appConfig.title} - Application Details", userFullName = userFullName) {
@@ -246,20 +266,13 @@
         <tr>
             <th><h3>API subscriptions</h3></th>
             <td data-subscriptions>
-                <table class="table-plain">
-                    @for(subscription <- subscriptions.toIterator) {
-                        <tr>
-                            <td>
-                                @subscription.name
-                                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
-                                    @for((version, index) <- subscribedVersions.zipWithIndex) {
-                                        @version.version (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
-                                    }
-                                }
-                            </td>
-                            <td></td>
-                        </tr>
+              <table class="table-plain">
+                @{
+                    subscriptions match {
+                        case Right(subs) => renderSubscriptions(subs)
+                        case Left(errorMessage) => renderSubscriptionsError(errorMessage)
                     }
+                }
                 </table>
             </td>
             <td>
