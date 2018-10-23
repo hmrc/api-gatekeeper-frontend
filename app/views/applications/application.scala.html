@@ -423,8 +423,8 @@
     </table>
     <br>
     @if(isSuperUser) {
-        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center float--left">Delete application</a>
-        <a id="block-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
+        <a id="block-application" href="@{routeis.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
     }
 </div>
 }
