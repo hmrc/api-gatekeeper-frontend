@@ -424,7 +424,7 @@
     <br>
     @if(isSuperUser) {
         <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
-        @if(application.state.name == PRODUCTION && applica) {
+        @if(application.state.name == PRODUCTION && !application.blocked) {
             <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
         }
     }
