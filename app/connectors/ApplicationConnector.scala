@@ -165,7 +165,7 @@ trait ApplicationConnector {
   def blockApplication(applicationId: String, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
     http.POST(s"$applicationBaseUrl/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
-        case NO_CONTENT => ApplicationBlockSuccessResult
+        case OK => ApplicationBlockSuccessResult
         case _ => ApplicationBlockFailureResult
       })
       .recover {
