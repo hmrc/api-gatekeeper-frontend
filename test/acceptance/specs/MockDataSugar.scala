@@ -226,7 +226,8 @@ trait MockDataSugar {
        |      "approvedBy": "gatekeeperUserId",
        |      "approvedOn": 1459968573962,
        |      "verified": true
-       |    }
+       |    },
+       |    "blocked": false
        |  },
        |  "history": [
        |      {
