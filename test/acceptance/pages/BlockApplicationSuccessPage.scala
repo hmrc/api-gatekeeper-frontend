@@ -18,24 +18,11 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object ApplicationPage extends WebPage {
+object BlockApplicationSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216/block"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
-
-  def deleteApplicationButton = find(id("delete-application")).get
-
-  def selectDeleteApplication() = {
-    click on deleteApplicationButton
-  }
-
-  def blockApplicationButton = find(id("block-application")).get
-
-  def selectBlockApplication() = {
-    click on blockApplicationButton
-  }
-
 }
