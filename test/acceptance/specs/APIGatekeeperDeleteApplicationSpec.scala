@@ -32,10 +32,10 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
   feature("Delete an application") {
     scenario("I can delete an application") {
 
-      stubApplicationForDeleteSuccess
+      stubApplicationForDeleteSuccess()
 
       When("I navigate to the Delete Page for an application")
-      navigateThroughDeleteApplication
+      navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application Success page")
       on(DeleteApplicationSuccessPage)
@@ -44,10 +44,10 @@ class APIGatekeeperDeleteApplicationSpec extends BaseSpec with SignInSugar with 
 
     scenario("I cannot delete an application") {
 
-      stubApplicationForDeleteFailure
+      stubApplicationForDeleteFailure()
 
       When("I navigate to the Delete Page for an application")
-      navigateThroughDeleteApplication
+      navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
       on(DeleteApplicationSuccessPage)

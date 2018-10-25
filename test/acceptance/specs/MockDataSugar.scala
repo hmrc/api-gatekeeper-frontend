@@ -330,7 +330,8 @@ trait MockDataSugar {
        |      "approvedBy": "gatekeeperUserId",
        |      "approvedOn": 1459968573962,
        |      "verified": true
-       |    }
+       |    },
+       |    "blocked": false
        |  },
        |  "history": [
        |      {
@@ -413,7 +414,8 @@ trait MockDataSugar {
        |      }]
        |
        |    },
-       |    "subscriptions": []
+       |    "subscriptions": [],
+       |    "blocked": false
        |  },
        |  "history": [
        |      {
