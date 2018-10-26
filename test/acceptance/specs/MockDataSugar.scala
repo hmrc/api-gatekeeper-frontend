@@ -440,6 +440,8 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
+  val applicationToBlock = applicationToDelete
+
   val applicationResponse =
     s"""
        |  [{
