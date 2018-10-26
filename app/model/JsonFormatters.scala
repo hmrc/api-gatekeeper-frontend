@@ -16,11 +16,6 @@
 
 package model
 
-import java.util.UUID
-
-import model.RateLimitTier.RateLimitTier
-import org.joda.time.DateTime
-import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 object JsonFormatters {
