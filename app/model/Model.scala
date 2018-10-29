@@ -240,6 +240,10 @@ sealed trait ApplicationDeleteResult
 case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult
 case object ApplicationDeleteFailureResult extends ApplicationDeleteResult
 
+sealed trait ApplicationBlockResult
+case object ApplicationBlockSuccessResult extends ApplicationBlockResult
+case object ApplicationBlockFailureResult extends ApplicationBlockResult
+
 sealed trait DeveloperDeleteResult
 case object DeveloperDeleteSuccessResult extends DeveloperDeleteResult
 case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
@@ -272,6 +276,16 @@ object DeleteApplicationForm {
 final case class DeleteApplicationRequest(gatekeeperUserId: String, requestedByEmailAddress: String)
 object DeleteApplicationRequest {
   implicit val format = Json.format[DeleteApplicationRequest]
+}
+
+final case class BlockApplicationForm(applicationNameConfirmation: String)
+object BlockApplicationForm {
+  implicit val format = Json.format[BlockApplicationForm]
+}
+
+final case class BlockApplicationRequest(gatekeeperUserId: String)
+object BlockApplicationRequest {
+  implicit val format = Json.format[BlockApplicationRequest]
 }
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)

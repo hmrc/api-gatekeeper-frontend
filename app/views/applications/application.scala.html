@@ -141,7 +141,11 @@
         }
         <h1 class="flush--top">@application.name</h1>
     </header>
-
+    @if(application.blocked){
+    <div id="termsOfUseWarning" class="notice">
+        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
+        <strong class="bold-small">This application has been blocked.</strong>
+    </div>}
     <table>
         <tr>
             <th><h3>Environment</h3></th>
@@ -423,7 +427,10 @@
     </table>
     <br>
     @if(isSuperUser) {
-        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center float--left">Delete application</a>
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
+        @if(application.state.name == PRODUCTION && !application.blocked) {
+            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
+        }
     }
 </div>
 }

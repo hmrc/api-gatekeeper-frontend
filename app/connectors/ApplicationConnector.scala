@@ -162,6 +162,17 @@ trait ApplicationConnector {
       }
   }
 
+  def blockApplication(applicationId: String, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(response => response.status match {
+        case OK => ApplicationBlockSuccessResult
+        case _ => ApplicationBlockFailureResult
+      })
+      .recover {
+        case _ => ApplicationBlockFailureResult
+      }
+  }
+
   def addCollaborator(applicationId: String, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST(s"$applicationBaseUrl/application/$applicationId/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
       _ => ApplicationUpdateSuccessResult

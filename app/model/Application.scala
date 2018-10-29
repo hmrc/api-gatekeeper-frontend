@@ -22,6 +22,7 @@ import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.time.DateTimeUtils
@@ -147,7 +148,8 @@ case class ApplicationResponse(id: UUID,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None)
+                               checkInformation: Option[CheckInformation] = None,
+                               blocked: Boolean = false)
                                extends Application {
 
 }
@@ -171,7 +173,27 @@ object ApplicationResponse {
   implicit val format4 = Json.format[ApplicationState]
   implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
   implicit val format5 = Json.format[ApprovedApplication]
-  implicit val applicationResponseFormatter = Json.format[ApplicationResponse]
+
+  val applicationResponseReads: Reads[ApplicationResponse] = (
+    (JsPath \ "id").read[UUID] and
+      (JsPath \ "clientId").read[String] and
+      (JsPath \ "name").read[String] and
+      (JsPath \ "deployedTo").read[String] and
+      (JsPath \ "description").readNullable[String] and
+      (JsPath \ "collaborators").read[Set[Collaborator]] and
+      (JsPath \ "createdOn").read[DateTime] and
+      (JsPath \ "access").read[Access] and
+      (JsPath \ "state").read[ApplicationState] and
+      (JsPath \ "rateLimitTier").read[RateLimitTier] and
+      (JsPath \ "termsAndConditionsUrl").readNullable[String] and
+      (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
+      (JsPath \ "checkInformation").readNullable[CheckInformation] and
+      ((JsPath \ "blocked").read[Boolean] or Reads.pure(false))
+    )(ApplicationResponse.apply _)
+
+  implicit val formatApplicationResponse = {
+    Format(applicationResponseReads, Json.writes[ApplicationResponse])
+  }
   implicit val format6 = Json.format[TermsOfUseAgreement]
 }
 

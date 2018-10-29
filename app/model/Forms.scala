@@ -127,6 +127,11 @@ package object Forms {
       collaboratorEmail -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
     )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply))
 
+  val blockApplicationForm = Form(
+    mapping(
+      applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
+    )(BlockApplicationForm.apply)(BlockApplicationForm.unapply))
+
   object ScopesForm {
     def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet
 

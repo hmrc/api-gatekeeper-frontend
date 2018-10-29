@@ -33,7 +33,7 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   implicit val webDriver: WebDriver = Env.driver
 
-  var wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
+  val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
 
   override def newAppForTest(testData: TestData): Application = {
     GuiceApplicationBuilder()

@@ -266,6 +266,36 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
+  def blockApplicationPage(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      Future.successful(Ok(block_application(app, isSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
+    }
+  }
+
+  def blockApplicationAction(appId: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      def handleValidForm(form: BlockApplicationForm) = {
+        if (app.application.name == form.applicationNameConfirmation) {
+          applicationService.blockApplication(appId, loggedIn.get).map {
+            case ApplicationBlockSuccessResult => Ok(block_application_success(app, isSuperUser))
+            case ApplicationBlockFailureResult => technicalDifficulties
+          }
+        }
+        else {
+          val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+
+          Future.successful(BadRequest(block_application(app, isSuperUser, formWithErrors)))
+        }
+      }
+
+      def handleFormError(form: Form[BlockApplicationForm]) = {
+        Future.successful(BadRequest(block_application(app, isSuperUser, form)))
+      }
+
+      blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+    }
+  }
+
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
 
     val versions = for {

@@ -1,0 +1,59 @@
+@*
+ * Copyright 2018 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@application = @{applicationWithHistory.application}
+@access = @{application.access}
+
+@main(title = s"${appConfig.title} - Application Blocked", userFullName = userFullName) {
+
+<div class="">
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@application.name</li>
+        </ul>
+    </nav>
+
+    <header>
+        @if(flash.get("success").isDefined) {
+        <div class="alert alert--success" role="alert">
+            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+        </div>
+        }
+        <h1 class="flush--top">@application.name</h1>
+    </header>
+    <div class="transaction-banner--complete">
+        <h1 class="transaction-banner--heading">Application blocked</h1>
+    </div>
+    <div>
+        @if(isSuperUser) {
+        @helper.form(action = routes.ApplicationController.applicationsPage(), 'class -> "form") {
+
+        @helper.CSRF.formField
+
+        <div class="form-field form-field--submit">
+            <button id="submit" class=" text--center flush--right" type="submit">Finish</button>
+        </div>
+
+        }}
+    </div>
+</div>
+}
+
