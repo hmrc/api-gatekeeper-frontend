@@ -28,6 +28,7 @@ trait MockDataSugar {
   val approvedApp3 = "9688ad02-230e-42b7-8f9a-be593565bfdc"
   val approvedApp4 = "56148b28-65b0-47dd-a3ce-2f02840ddd31"
   val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
+  val appUnblock = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
 
   val applicationDescription = "application description"
   val adminEmail = "admin@example.com"
@@ -441,6 +442,89 @@ trait MockDataSugar {
 
   val applicationToBlock = applicationToDelete
 
+  val applicationToUnblock =
+    s"""
+       |{
+       |  "application": {
+       |    "id": "$appUnblock",
+       |    "clientId": "clientid1",
+       |    "name": "Automated Test Application - Blocked",
+       |    "description": "$applicationDescription",
+       |    "deployedTo": "PRODUCTION",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$adminEmail",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "createdOn": 1459866628433,
+       |    "redirectUris": [],
+       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
+       |    "privacyPolicyUrl": "http://www.example.com/privacy",
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$adminEmail",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "checkInformation": {
+       |      "contactDetails": {
+       |        "fullname": "Holly Golightly",
+       |        "email": "holly.golightly@example.com",
+       |        "telephoneNumber": "020 1122 3344"
+       |      },
+       |      "confirmedName": true,
+       |      "providedPrivacyPolicyURL": true,
+       |      "providedTermsAndConditionsURL": true,
+       |      "applicationDetails": "An application that is pending approval",
+       |      "termsOfUseAgreements": [{
+       |        "emailAddress": "test@example.com",
+       |        "timeStamp": 1459868573962,
+       |        "version": "1.0"
+       |      }]
+       |    },
+       |    "subscriptions": [],
+       |    "blocked": true
+       |  },
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$adminEmail",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+       |}
+    """.stripMargin
+
   val blockedApplication =
     s"""
        |{
@@ -500,6 +584,89 @@ trait MockDataSugar {
        |    },
        |    "subscriptions": [],
        |    "blocked": true
+       |  },
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$adminEmail",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+       |}
+    """.stripMargin
+
+  val unblockedApplication =
+    s"""
+       |{
+       |  "application": {
+       |    "id": "$appToDelete",
+       |    "clientId": "clientid1",
+       |    "name": "Automated Test Application - Blocked",
+       |    "description": "$applicationDescription",
+       |    "deployedTo": "PRODUCTION",
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$adminEmail",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "createdOn": 1459866628433,
+       |    "redirectUris": [],
+       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
+       |    "privacyPolicyUrl": "http://www.example.com/privacy",
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
+       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
+       |      "accessType": "STANDARD"
+       |    },
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$adminEmail",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "checkInformation": {
+       |      "contactDetails": {
+       |        "fullname": "Holly Golightly",
+       |        "email": "holly.golightly@example.com",
+       |        "telephoneNumber": "020 1122 3344"
+       |      },
+       |      "confirmedName": true,
+       |      "providedPrivacyPolicyURL": true,
+       |      "providedTermsAndConditionsURL": true,
+       |      "applicationDetails": "An application that is pending approval",
+       |      "termsOfUseAgreements": [{
+       |        "emailAddress": "test@example.com",
+       |        "timeStamp": 1459868573962,
+       |        "version": "1.0"
+       |      }]
+       |    },
+       |    "subscriptions": [],
+       |    "blocked": false
        |  },
        |  "history": [
        |      {

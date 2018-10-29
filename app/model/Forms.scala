@@ -132,6 +132,11 @@ package object Forms {
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
     )(BlockApplicationForm.apply)(BlockApplicationForm.unapply))
 
+  val unblockApplicationForm = Form(
+    mapping(
+      applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
+    )(UnblockApplicationForm.apply)(UnblockApplicationForm.unapply))
+
   object ScopesForm {
     def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet
 

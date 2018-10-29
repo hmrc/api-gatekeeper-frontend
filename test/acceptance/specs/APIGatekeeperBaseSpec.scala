@@ -28,6 +28,12 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
   }
 
+  def stubBlockedApplication(application: String) = {
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+  }
+
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(200)))

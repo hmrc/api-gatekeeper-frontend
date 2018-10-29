@@ -55,5 +55,8 @@ POST        /applications/:id/delete                                controllers.
 GET         /applications/:id/block                                 controllers.ApplicationController.blockApplicationPage(id: String)
 POST        /applications/:id/block                                 controllers.ApplicationController.blockApplicationAction(id: String)
 
+GET         /applications/:id/unblock                               controllers.ApplicationController.unblockApplicationPage(id: String)
+POST        /applications/:id/unblock                               controllers.ApplicationController.unblockApplicationAction(id: String)
+
 GET         /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationPage
 POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
