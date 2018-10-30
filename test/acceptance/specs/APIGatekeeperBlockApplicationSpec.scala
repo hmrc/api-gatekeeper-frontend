@@ -20,12 +20,9 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 
-import scala.io.Source
-
 class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
 
   val appName = "Automated Test Application"
-  val blockedAppName = "Automated Test Application - Blocked"
 
   feature("Block an application") {
     scenario("I can block an application") {
@@ -33,7 +30,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName)
+      navigateToApplicationPageFor(appName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -47,38 +44,11 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplication(blockedApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName)
+      navigateToApplicationPageFor(appName, ApplicationPage)
 
       Then("I cannot see the block button")
       ApplicationPage.bodyText.contains("Block application") shouldBe false
     }
-  }
-
-  def navigateToApplicationPageFor(applicationName: String) = {
-    Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList()
-
-    val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
-
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
-
-    stubApplicationSubscription()
-    stubApiDefinition()
-
-    signInSuperUserGatekeeper
-    on(ApplicationsPage)
-
-    When("I select to navigate to the Applications page")
-    DashboardPage.selectApplications()
-
-    Then("I am successfully navigated to the Applications page where I can view all applications")
-    on(ApplicationsPage)
-
-    When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.selectByApplicationName(applicationName)
-
-    Then("I am successfully navigated to the Automated Test Application page")
-    on(ApplicationPage)
   }
 
   def selectToBlockApplication() = {

@@ -20,19 +20,18 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 
-import scala.io.Source
-
 class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
 
   val appName = "Automated Test Application - Blocked"
+  val unblockedAppName = "Automated Test Application"
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
-      stubBlockedApplication(applicationToUnblock)
+      stubBlockedApplication(blockedApplication)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName)
+      navigateToApplicationPageFor(appName, BlockedApplicationPage)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -46,38 +45,11 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplication(unblockedApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName)
+      navigateToApplicationPageFor(unblockedAppName, ApplicationPage)
 
       Then("I cannot see the unblock button")
       ApplicationPage.bodyText.contains("Unblock application") shouldBe false
     }
-  }
-
-  def navigateToApplicationPageFor(applicationName: String) = {
-    Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList()
-
-    val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
-
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
-
-    stubApplicationSubscription()
-    stubApiDefinition()
-
-    signInSuperUserGatekeeper
-    on(ApplicationsPage)
-
-    When("I select to navigate to the Applications page")
-    DashboardPage.selectApplications()
-
-    Then("I am successfully navigated to the Applications page where I can view all applications")
-    on(ApplicationsPage)
-
-    When("I select to navigate to the Automated Test Application - Blocked page")
-    ApplicationsPage.selectByApplicationName(applicationName)
-
-    Then("I am successfully navigated to the Automated Test Application - Blocked page")
-    on(BlockedApplicationPage)
   }
 
   def selectToUnblockApplication() = {
