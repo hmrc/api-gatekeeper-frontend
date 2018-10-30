@@ -22,8 +22,9 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag, TestData}
-import play.api.{Application, Mode}
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Mode}
 
 import scala.io.Source
 
@@ -47,11 +48,11 @@ class APIGatekeeperSandboxSpec extends BaseSpec
 
       stubApplicationList()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
+        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
       val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(200)))
+        .withBody(applicationsList).withStatus(OK)))
       stubApplicationSubscription
       stubApiDefinition
 
@@ -70,10 +71,10 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       """.stripMargin
 
       stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(authBody).withStatus(200)))
+        .willReturn(aResponse().withBody(authBody).withStatus(OK)))
 
       stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(200)))
+        .willReturn(aResponse().withStatus(OK)))
 
       Given("the developer goes to the Gatekeeper home page")
       goOn(SignInPage)
@@ -101,25 +102,12 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       And("the browser window title is HMRC API Gatekeeper - Developer Sandbox - Applications")
       actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Applications"
-
     }
-
-
-//    scenario("Cookie banner is displayed on the top of the page when user first visits the website", Tag("SandboxTest")) {
-//
-//      Given("The developer goes to the Gatekeeper home page")
-//      goOn(SignInPage)
-//      on(SignInPage)
-//
-//      Then("the cookie banner is displayed at the very top of the page")
-//      val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
-//      cookieBanner shouldBe "(0, 0)"
-//    }
   }
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
       .withBody(applications).withStatus(200)))
@@ -127,7 +115,7 @@ class APIGatekeeperSandboxSpec extends BaseSpec
 
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions"))
-      .willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
 
   def stubApiDefinition() = {
@@ -137,5 +125,4 @@ class APIGatekeeperSandboxSpec extends BaseSpec
     stubFor(get(urlEqualTo(s"/api-definition?type=private"))
       .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
   }
-
 }

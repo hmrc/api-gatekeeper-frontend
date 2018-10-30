@@ -23,6 +23,7 @@ import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+import play.api.http.Status._
 
 import scala.io.Source
 
@@ -41,7 +42,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(200)))
+        .withBody(applicationsList).withStatus(OK)))
       stubApplicationForEmail()
       stubApplication()
       stubApiDefinition()
@@ -79,58 +80,58 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponse).withStatus(200)))
+      .withBody(applicationResponse).withStatus(OK)))
   }
 
   def stubApplication() = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(200)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(200)))
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 
   def stubApplicationForEmail() = {
     val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String) = {
     stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
   }
 
   def stubNoAPISubscription() = {
     stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(OK)))
   }
 
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
 
     stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
   def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
 
   def stubDevelopers() = {
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+      .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
   }
 
   def stubDeveloper() = {
     val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(200).withBody(user)))
+      .willReturn(aResponse().withStatus(OK).withBody(user)))
   }
 
   case class TestUser(firstName: String, lastName:String, emailAddress:String)

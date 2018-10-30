@@ -18,6 +18,7 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import play.api.http.Status._
 
 import scala.io.Source
 
@@ -59,7 +60,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
 
     val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
+    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
     stubApplicationSubscription()
     stubApiDefinition()
@@ -95,6 +96,6 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
   }
 
   def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/block")).willReturn(aResponse().withStatus(200)))
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/block")).willReturn(aResponse().withStatus(OK)))
   }
 }

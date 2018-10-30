@@ -27,6 +27,8 @@ import org.openqa.selenium.{By, WebElement}
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.libs.json.Json
 
+import play.api.http.Status._
+
 import scala.collection.immutable.List
 
 class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
@@ -62,7 +64,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
       on(ApplicationsPage)
 
@@ -124,7 +126,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubAPISubscription("employers-paye")
       stubNoAPISubscription()
       signInGatekeeper()
@@ -187,7 +189,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubNoAPISubscription()
       signInGatekeeper()
       on(ApplicationsPage)
@@ -243,7 +245,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
@@ -297,7 +299,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
@@ -348,7 +350,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubAPISubscription("employers-paye")
       signInGatekeeper()
       on(ApplicationsPage)
@@ -422,7 +424,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApiDefinition()
       stubApplicationSubscription()
       stubFor(get(urlEqualTo("/developers/all"))
-        .willReturn(aResponse().withBody(allUsers).withStatus(200)))
+        .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
       on(ApplicationsPage)
 
@@ -437,54 +439,54 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponse).withStatus(200)))
+      .withBody(applicationResponse).withStatus(OK)))
   }
 
 
   def stubApplicationListWithNoDevelopers() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponseWithNoUsers).withStatus(200)))
+      .withBody(applicationResponseWithNoUsers).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String, apiVersion: String = "1.0") = {
     stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext&version=$apiVersion"))
-      .willReturn(aResponse().withBody(applicationResponse).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
   }
 
   def stubNoAPISubscription() = {
     stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(OK)))
   }
 
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
 
     stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
   def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
 
 
   def stubRandomDevelopers(randomDevelopers: Int) = {
     val developersList: String = developerListJsonGenerator(randomDevelopers).get
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersList).withStatus(200)))
+      .willReturn(aResponse().withBody(developersList).withStatus(OK)))
   }
 
   def stubDevelopers(developers: Option[List[User]]) = {
     val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersJson).withStatus(200)))
+      .willReturn(aResponse().withBody(developersJson).withStatus(OK)))
   }
 
   private def assertNumberOfDevelopersPerPage(expected: Int) = {

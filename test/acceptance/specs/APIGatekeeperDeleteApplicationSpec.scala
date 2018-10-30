@@ -18,6 +18,7 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import play.api.http.Status._
 
 import scala.io.Source
 
@@ -57,7 +58,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
 
     val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(200)))
+    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
     stubApplicationSubscription()
     stubApiDefinition()
@@ -93,10 +94,10 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
   }
 
   def stubApplicationForDeleteSuccess() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(204)))
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
   def stubApplicationForDeleteFailure() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(500)))
+    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }
