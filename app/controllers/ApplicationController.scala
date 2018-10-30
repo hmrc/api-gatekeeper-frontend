@@ -247,7 +247,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
           applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
-            case ApplicationDeleteSuccessResult => Ok(delete_application_success(app, isSuperUser))
+            case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
             case ApplicationDeleteFailureResult => technicalDifficulties
           }
         }
@@ -277,7 +277,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
           applicationService.blockApplication(appId, loggedIn.get).map {
-            case ApplicationBlockSuccessResult => Ok(block_application_success(app, isSuperUser))
+            case ApplicationBlockSuccessResult => Ok(block_application_success(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
         }
@@ -307,7 +307,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
           applicationService.unblockApplication(appId, loggedIn.get).map {
-            case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app, isSuperUser))
+            case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
         }

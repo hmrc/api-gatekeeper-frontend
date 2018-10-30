@@ -16,7 +16,7 @@
 
 @import model._
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -44,16 +44,12 @@
     </div>
     <p>We've sent an email to all team members to let them know.</p>
     <div>
-        @if(isSuperUser) {
         @helper.form(action = routes.ApplicationController.applicationsPage(), 'class -> "form") {
-
-        @helper.CSRF.formField
-
-        <div class="form-field form-field--submit">
-            <button id="submit" class=" text--center flush--right" type="submit">Finish</button>
-        </div>
-
-        }}
+            @helper.CSRF.formField
+            <div class="form-field form-field--submit">
+                <button id="submit" class=" text--center flush--right" type="submit">Finish</button>
+            </div>
+        }
     </div>
 </div>
 }
