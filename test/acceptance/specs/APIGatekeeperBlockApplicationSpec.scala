@@ -26,7 +26,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(applicationToBlock)
+      stubApplication(unblockedApplication)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")

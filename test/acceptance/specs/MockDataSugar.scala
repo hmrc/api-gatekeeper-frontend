@@ -440,10 +440,9 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
-  val applicationToBlock = applicationToDelete
-  lazy val unblockedApplication = applicationToBlock
+  lazy val unblockedApplication = applicationToDelete
 
-  val applicationToUnblock =
+  lazy val blockedApplication =
     s"""
        |{
        |  "application": {
@@ -525,7 +524,6 @@ trait MockDataSugar {
        |  ]
        |}
     """.stripMargin
-  lazy val blockedApplication = applicationToUnblock
 
   val applicationResponse =
     s"""
