@@ -196,6 +196,10 @@ trait ApplicationService {
     applicationConnector.blockApplication(applicationId, BlockApplicationRequest(gatekeeperUserId))
   }
 
+  def unblockApplication(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
+    applicationConnector.unblockApplication(applicationId, UnblockApplicationRequest(gatekeeperUserId))
+  }
+
   def approveUplift(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
     applicationConnector.approveUplift(applicationId, gatekeeperUserId)
   }

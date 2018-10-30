@@ -173,6 +173,17 @@ trait ApplicationConnector {
       }
   }
 
+  def unblockApplication(applicationId: String, unblockApplicationRequest: UnblockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
+    http.POST(s"$applicationBaseUrl/application/$applicationId/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+      .map(response => response.status match {
+        case OK => ApplicationUnblockSuccessResult
+        case _ => ApplicationUnblockFailureResult
+      })
+      .recover {
+        case _ => ApplicationUnblockFailureResult
+      }
+  }
+
   def addCollaborator(applicationId: String, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST(s"$applicationBaseUrl/application/$applicationId/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
       _ => ApplicationUpdateSuccessResult

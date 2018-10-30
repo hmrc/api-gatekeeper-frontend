@@ -568,6 +568,43 @@
     "blocked": false
   },
   {
+    "id": "fa38d130-7c8e-47d8-abc0-0374c7f73217",
+    "clientId": "clientid",
+    "name": "Automated Test Application - Blocked",
+    "description": "A test application for end to end tests in QA environment.",
+    "deployedTo": "PRODUCTION",
+    "collaborators": [
+      {
+        "emailAddress": "apiplatform.test.user.4@example.com",
+        "role": "ADMINISTRATOR"
+      }
+    ],
+    "createdOn": 1460476359092,
+    "redirectUris": [
+      "http://localhost:22222/oauth"
+    ],
+    "termsAndConditionsUrl": "http://localhost:22222/terms",
+    "privacyPolicyUrl": "http://localhost:22222/privacy",
+    "access": {
+      "redirectUris": [
+        "http://localhost:22222/oauth"
+      ],
+      "termsAndConditionsUrl": "http://localhost:22222/terms",
+      "privacyPolicyUrl": "http://localhost:22222/privacy",
+      "overrides": [],
+      "accessType": "STANDARD"
+    },
+    "state": {
+      "name": "PRODUCTION",
+      "requestedByEmailAddress": "apiplatform.test.user.4@example.com",
+      "verificationCode": "d5hqhnB0TEDQqfUo4W9DcBNq_8-DHDTU5VvDyCLJ3Nc",
+      "updatedOn": 1460477671852
+    },
+    "trusted": false,
+    "rateLimitTier": "BRONZE",
+    "blocked": true
+  },
+  {
     "id": "22620142-f4d1-4879-936b-8097189451d7",
     "clientId": "clientid",
     "name": "another one",

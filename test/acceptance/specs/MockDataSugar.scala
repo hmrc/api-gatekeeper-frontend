@@ -28,6 +28,7 @@ trait MockDataSugar {
   val approvedApp3 = "9688ad02-230e-42b7-8f9a-be593565bfdc"
   val approvedApp4 = "56148b28-65b0-47dd-a3ce-2f02840ddd31"
   val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
+  val appUnblock = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
 
   val applicationDescription = "application description"
   val adminEmail = "admin@example.com"
@@ -439,15 +440,15 @@ trait MockDataSugar {
        |}
     """.stripMargin
 
-  val applicationToBlock = applicationToDelete
+  lazy val unblockedApplication = applicationToDelete
 
-  val blockedApplication =
+  lazy val blockedApplication =
     s"""
        |{
        |  "application": {
-       |    "id": "$appToDelete",
+       |    "id": "$appUnblock",
        |    "clientId": "clientid1",
-       |    "name": "Automated Test Application",
+       |    "name": "Automated Test Application - Blocked",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [

@@ -244,6 +244,10 @@ sealed trait ApplicationBlockResult
 case object ApplicationBlockSuccessResult extends ApplicationBlockResult
 case object ApplicationBlockFailureResult extends ApplicationBlockResult
 
+sealed trait ApplicationUnblockResult
+case object ApplicationUnblockSuccessResult extends ApplicationUnblockResult
+case object ApplicationUnblockFailureResult extends ApplicationUnblockResult
+
 sealed trait DeveloperDeleteResult
 case object DeveloperDeleteSuccessResult extends DeveloperDeleteResult
 case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
@@ -283,9 +287,19 @@ object BlockApplicationForm {
   implicit val format = Json.format[BlockApplicationForm]
 }
 
+final case class UnblockApplicationForm(applicationNameConfirmation: String)
+object UnblockApplicationForm {
+  implicit val format = Json.format[UnblockApplicationForm]
+}
+
 final case class BlockApplicationRequest(gatekeeperUserId: String)
 object BlockApplicationRequest {
   implicit val format = Json.format[BlockApplicationRequest]
+}
+
+final case class UnblockApplicationRequest(gatekeeperUserId: String)
+object UnblockApplicationRequest {
+  implicit val format = Json.format[UnblockApplicationRequest]
 }
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)

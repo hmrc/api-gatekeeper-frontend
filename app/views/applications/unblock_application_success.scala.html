@@ -20,7 +20,7 @@
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${appConfig.title} - Application Deleted", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Application Unblocked", userFullName = userFullName) {
 
 <div class="">
     <nav class="breadcrumb-nav">
@@ -40,9 +40,8 @@
         <h1 class="flush--top">@application.name</h1>
     </header>
     <div class="transaction-banner--complete">
-        <h1 class="transaction-banner--heading">Application deleted</h1>
+        <h1 class="transaction-banner--heading">Application unblocked</h1>
     </div>
-    <p>We've sent an email to all team members to let them know.</p>
     <div>
         @helper.form(action = routes.ApplicationController.applicationsPage(), 'class -> "form") {
             @helper.CSRF.formField

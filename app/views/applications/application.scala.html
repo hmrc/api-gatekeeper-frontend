@@ -431,6 +431,9 @@
         @if(application.state.name == PRODUCTION && !application.blocked) {
             <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
         }
+        @if(application.state.name == PRODUCTION && application.blocked) {
+        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(application.id.toString)}" class="button--alert text--center">Unblock application</a>
+        }
     }
 </div>
 }
