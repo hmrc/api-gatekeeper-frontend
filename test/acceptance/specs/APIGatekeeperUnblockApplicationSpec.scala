@@ -24,7 +24,6 @@ import scala.io.Source
 class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
 
   val appName = "Automated Test Application - Blocked"
-  val unblockedAppName = "Automated Test Application - Unblocked"
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {

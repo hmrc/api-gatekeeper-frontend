@@ -37,12 +37,4 @@ object ApplicationPage extends WebPage {
   def selectBlockApplication() = {
     click on blockApplicationButton
   }
-
-  def unblockApplicationButton = find(id("unblock-application")).get
-
-  def selectUnblockApplication() = {
-    click on unblockApplicationButton
-  }
-
-
 }

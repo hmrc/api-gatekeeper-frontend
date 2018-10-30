@@ -26,17 +26,9 @@ object BlockedApplicationPage extends WebPage {
     currentUrl == url
   }
 
-  def deleteApplicationButton = find(id("delete-application")).get
-
-  def selectDeleteApplication() = {
-    click on deleteApplicationButton
-  }
-
   def unblockApplicationButton = find(id("unblock-application")).get
 
   def selectUnblockApplication() = {
     click on unblockApplicationButton
   }
-
-
 }
