@@ -19,16 +19,14 @@ package acceptance.specs
 import java.net.URLEncoder
 
 import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
-import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import component.matchers.CustomMatchers
 import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import org.scalatest.Tag
 import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
   feature("Application List for Search Functionality") {
 
@@ -68,7 +66,7 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       signInGatekeeper()
       on(ApplicationsPage)
 
-      stubApplication()
+      stubApplication(application)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
@@ -121,12 +119,10 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
       signInGatekeeper()
       on(ApplicationsPage)
 
-      stubApplication()
+      stubApplication(application)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
-
-      stubApplication()
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -142,31 +138,9 @@ class APIGatekeeperApplicationSpec extends BaseSpec with SignInSugar with Matche
     }
   }
 
-  def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(OK)))
-  }
-
-  def stubApplication() = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-  }
-
   def stubApplicationListWithNoSubs() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(OK)))
-  }
-
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-    stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-  }
-
-  def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(OK)))
   }
 
   def stubDeveloper() = {
