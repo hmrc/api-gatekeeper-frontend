@@ -38,7 +38,6 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
 
       Then("I am successfully navigated to the Unblock Application Success page")
       on(UnblockApplicationSuccessPage)
-      assert(UnblockApplicationSuccessPage.bodyText.contains("Application unblocked"))
     }
 
     scenario("I cannot unblock an application that is already unblocked") {
