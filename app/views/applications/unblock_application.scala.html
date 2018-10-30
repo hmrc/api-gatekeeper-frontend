@@ -57,11 +57,8 @@
         <tr>
             <th class="tabular-data__heading">Status</th>
             <td class="tabular-data__data-1--2-col">
-                @defining(application.state.name match {
-                case PRODUCTION => ("status status--verified", "Approved")
-                case PENDING_GATEKEEPER_APPROVAL | PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending")
-                case _ => ("status", "Testing")
-                }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }</td>
+                @status(application)
+            </td>
         </tr>
     </table>
 
