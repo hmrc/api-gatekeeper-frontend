@@ -24,7 +24,6 @@
 
     @helper.form(action = controllers.routes.AccountController.authenticate) {
         <fieldset>
-            @helper.CSRF.formField
 
             <div class="form-field-group @if(loginForm.hasErrors) {error}">
                 @loginForm.globalErrors.map{ error =>
