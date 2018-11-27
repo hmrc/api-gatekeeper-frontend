@@ -38,6 +38,10 @@ object DeveloperDetailsPage extends WebPage {
     find(cssSelector("#status")).get.text
   }
 
+  def mfaEnabled() = {
+    find(cssSelector("#mfaEnabled")).get.text
+  }
+
   def selectByApplicationName(name: String) = {
     click on find(linkText(name)).get
   }
