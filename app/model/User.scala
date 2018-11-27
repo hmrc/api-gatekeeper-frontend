@@ -23,12 +23,13 @@ case class User(email: String,
                 firstName: String,
                 lastName: String,
                 verified: Option[Boolean],
-                organisation: Option[String] = None)
+                organisation: Option[String] = None,
+                mfaEnabled: Boolean = false)
   extends BaseUser with Ordered[User] {
 
   override def compare(that: User): Int = this.sortField.compare(that.sortField)
 
-  def toDeveloper(apps: Seq[Application]) = Developer(email, firstName, lastName, verified, apps)
+  def toDeveloper(apps: Seq[Application]) = Developer(email, firstName, lastName, verified, apps, mfaEnabled = mfaEnabled)
 }
 
 object User {
@@ -46,7 +47,8 @@ case class Developer(email: String,
                      lastName: String,
                      verified: Option[Boolean],
                      apps: Seq[Application],
-                     organisation: Option[String] = None)
+                     organisation: Option[String] = None,
+                     mfaEnabled: Boolean = false)
   extends ApplicationDeveloper
 
 object Developer {
@@ -54,7 +56,8 @@ object Developer {
     Developer(email, "n/a", "n/a", None, apps.toSeq)
   }
 
-  def createFromUser(user: User, apps: Seq[Application] = Seq.empty) = Developer(user.email, user.firstName, user.lastName, user.verified, apps, user.organisation)
+  def createFromUser(user: User, apps: Seq[Application] = Seq.empty) =
+    Developer(user.email, user.firstName, user.lastName, user.verified, apps, user.organisation, user.mfaEnabled)
 }
 
 trait BaseUser {
@@ -63,6 +66,7 @@ trait BaseUser {
   val lastName: String
   val verified: Option[Boolean]
   val organisation: Option[String]
+  val mfaEnabled: Boolean
 
   val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
   val fullName = s"$firstName $lastName"
@@ -77,5 +81,5 @@ trait BaseUser {
 trait ApplicationDeveloper extends BaseUser with Ordered[ApplicationDeveloper] {
   val apps: Seq[Application]
   override def compare(that: ApplicationDeveloper): Int = this.sortField.compare(that.sortField)
-  def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation)
+  def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation, mfaEnabled)
 }

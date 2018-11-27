@@ -54,6 +54,13 @@
                 case None => ""
             })</td>
         </tr>
+        <tr>
+            <th>MFA Enabled</th>
+            <td id="mfaEnabled">@(developer.mfaEnabled match {
+                case true => "Yes"
+                case false => "No"
+            })</td>
+        </tr>
     </table>
     <h2>Associated applications</h2>
     <div>
