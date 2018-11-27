@@ -93,12 +93,16 @@ object OverrideFlag {
     Writes { _ => Json.obj() })
   private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
   private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
+  private implicit val formatSuppressIvForIndividuals = Format[SuppressIvForIndividuals](
+    Reads { _ => JsSuccess(SuppressIvForIndividuals())},
+    Writes { _ => Json.obj() })
 
   implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
     .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
     .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
     .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
+    .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
     .format
 }
 
@@ -118,19 +122,28 @@ case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlagW
   val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
 }
 
+case class SuppressIvForIndividuals() extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
+}
+
 case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScopes {
   val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
 }
 
 object OverrideType extends Enumeration {
   type OverrideType = Value
-  val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS = Value
+  val PERSIST_LOGIN_AFTER_GRANT,
+      GRANT_WITHOUT_TAXPAYER_CONSENT,
+      SUPPRESS_IV_FOR_AGENTS,
+      SUPPRESS_IV_FOR_ORGANISATIONS,
+      SUPPRESS_IV_FOR_INDIVIDUALS = Value
 
   val displayedType: (OverrideType) => String = {
     case PERSIST_LOGIN_AFTER_GRANT => "Persist login after grant"
     case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
     case SUPPRESS_IV_FOR_AGENTS => "Suppress IV for agents"
     case SUPPRESS_IV_FOR_ORGANISATIONS => "Suppress IV for organisations"
+    case SUPPRESS_IV_FOR_INDIVIDUALS => "Suppress IV for individuals"
   }
 
   implicit val format = EnumJson.enumFormat(OverrideType)

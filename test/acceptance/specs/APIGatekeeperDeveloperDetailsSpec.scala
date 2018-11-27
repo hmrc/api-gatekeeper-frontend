@@ -69,6 +69,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
             assert(DeveloperDetailsPage.firstName == "Dixie")
             assert(DeveloperDetailsPage.lastName == "Fakename")
             assert(DeveloperDetailsPage.status == "not yet verified")
+            assert(DeveloperDetailsPage.mfaEnabled == "Yes")
 
             When("I select an associated application")
             DeveloperDetailsPage.selectByApplicationName("Automated Test Application")

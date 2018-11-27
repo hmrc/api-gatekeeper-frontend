@@ -84,8 +84,6 @@ trait ApplicationService {
       })
     }
 
-
-
     for {
       apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
       subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
