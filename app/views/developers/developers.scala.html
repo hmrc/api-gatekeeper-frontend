@@ -38,7 +38,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
         <div class="form-group grid-layout grid-layout--stacked push--sides">
 
             <div class="grid-layout__column">
-                <label class="bold centered-content hard--left">
+                <label class="bold centered-content hard--left label--full-length">
                     <span class="label__text bold">Search</span>
                     <input class="form-control input--cleared input-select--large full-width"
                            data-datatable-custom-filter="developer-table"
@@ -132,7 +132,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
             <tr role="row">
-                <td id="dev-email-@index"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
+                <td id="dev-email-@index" width="50%"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
                 <td id="dev-fn-@index">@developer.firstName</td>
                 <td id="dev-sn-@index">@developer.lastName</td>
                 <td class="text--right hard--right" id="dev-status-@index">
