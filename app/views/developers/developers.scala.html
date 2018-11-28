@@ -19,10 +19,10 @@
 @import model._
 
 @(users: Seq[ApplicationDeveloper],
-  emails: String,
-  apis: Map[String, Seq[VersionSummary]],
-  filter: Option[String],
-  status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+emails: String,
+apis: Map[String, Seq[VersionSummary]],
+filter: Option[String],
+status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
 
@@ -35,43 +35,46 @@
           action="@routes.DevelopersController.developersPage(filter, status).url"
           method="get">
 
-        <div class="grid-layout grid-layout--stacked push--sides">
+        <div class="form-group grid-layout grid-layout--stacked push--sides">
 
-            <div class="grid-layout__column--1-4">
+            <div class="grid-layout__column">
                 <label class="bold centered-content hard--left">
                     <span class="label__text bold">Search</span>
-                    <input class="form-control-7-8 input--cleared input-select--large full-width"
-                    data-datatable-custom-filter="developer-table"
-                    name="example"
-                    type="text"
-                    placeholder="Email, Name, Application" />
+                    <input class="form-control input--cleared input-select--large full-width"
+                           data-datatable-custom-filter="developer-table"
+                           name="example"
+                           type="text"
+                           placeholder="Email, Name, Application" />
                 </label>
             </div>
 
+        </div>
+
+        <div class="form-group grid-layout grid-layout--stacked push--sides">
             <div class="grid-layout__column--1-2">
                 @defining(ApiFilter(filter)) { apiFilter =>
-                    <label class="form-label bold" for="filter">Filter by API Subscription
-                        <select class="form-control input-select input-select--large"
-                                id="filter"
-                                name="filter"
-                                value="@filter" onchange="this.form.submit()">
+                <label class="form-label bold" for="filter">Filter by API Subscription
+                    <select class="form-control input-select input-select--large"
+                            id="filter"
+                            name="filter"
+                            value="@filter" onchange="this.form.submit()">
 
-                            <option @if(apiFilter == AllUsers) {selected} value>All users</option>
-                            <option @if(apiFilter == OneOrMoreSubscriptions) {selected} value="ANYSUB">One or more subscriptions</option>
-                            <option @if(apiFilter == NoSubscriptions) {selected} value="NOSUB">No subscriptions</option>
-                            <option @if(apiFilter == OneOrMoreApplications) {selected} value="ANYAPP">One or more applications</option>
-                            <option @if(apiFilter == NoApplications) {selected} value="NOAPP">No applications</option>
+                        <option @if(apiFilter == AllUsers) {selected} value>All users</option>
+                        <option @if(apiFilter == OneOrMoreSubscriptions) {selected} value="ANYSUB">One or more subscriptions</option>
+                        <option @if(apiFilter == NoSubscriptions) {selected} value="NOSUB">No subscriptions</option>
+                        <option @if(apiFilter == OneOrMoreApplications) {selected} value="ANYAPP">One or more applications</option>
+                        <option @if(apiFilter == NoApplications) {selected} value="NOAPP">No applications</option>
 
-                            @for((status, versions) <- apis) {
-                                <optgroup label="@status">
-                                    @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        <option @if(apiFilter == Value(version.apiIdentifier.context, version.apiIdentifier.version)) {selected}
-                                                value="@{version.apiIdentifier.context}__@{version.apiIdentifier.version}">@version.name (@version.apiIdentifier.version)</option>
-                                    }
-                                </optgroup>
+                        @for((status, versions) <- apis) {
+                        <optgroup label="@status">
+                            @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
+                            <option @if(apiFilter == Value(version.apiIdentifier.context, version.apiIdentifier.version)) {selected}
+                                    value="@{version.apiIdentifier.context}__@{version.apiIdentifier.version}">@version.name (@version.apiIdentifier.version)</option>
                             }
-                        </select>
-                    </label>
+                        </optgroup>
+                        }
+                    </select>
+                </label>
                 }
             </div>
 
@@ -85,11 +88,15 @@
                             value="@status"
                             value="@filter" onchange="this.form.submit()">
                         @for((value,label) <- Map("ALL" -> "All", "VERIFIED" -> "Verified", "UNVERIFIED" -> "Not yet verified", "UNREGISTERED" -> "Not registered")) {
-                            <option value="@value" @if(Some(value) == status){selected}>@label</option>
+                        <option value="@value" @if(Some(value) == status){selected}>@label</option>
                         }
                     </select>
                 </label>
             </div>
+
+        </div>
+
+        <div class="grid-layout grid-layout--stacked push--sides">
 
             <div class="float-right js-hidden">
                 <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
@@ -97,49 +104,49 @@
         </div>
 
         <table id="developer-table"
-            class="dataTable no-footer developer-list"
-            width="100%"
-            data-dom="t<'text--center'lip>"
-            data-order='[0,"asc"]'
-            data-page-length="100"
-            data-paginate="true"
-            data-length-change="true"
-            data-length-menu="[10,50,100, 200, 300]"
-            data-responsive="true"
-            data-column-defs='[{"targets": [0,1,2], "searchable":true, "orderable": true},
+               class="dataTable no-footer developer-list"
+               width="100%"
+               data-dom="t<'text--center'lip>"
+               data-order='[0,"asc"]'
+               data-page-length="100"
+               data-paginate="true"
+               data-length-change="true"
+               data-length-menu="[10,50,100, 200, 300]"
+               data-responsive="true"
+               data-column-defs='[{"targets": [0,1,2], "searchable":true, "orderable": true},
                                {"targets": [3], "searchable":false},
                                {"targets": [4], "searchable":true, "orderable": true},
                                {"targets": [5], "visible": false, "searchable": true}]'
-            data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+               data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
             <thead>
-                <tr role="row">
-                    <th tabindex="0" class="sorting_left-aligned">Email</th>
-                    <th tabindex="0" class="sorting_left-aligned">First name</th>
-                    <th tabindex="0" class="sorting_left-aligned">Last name</th>
-                    <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
-                    <th tabindex="0" class="sorting_left-aligned">MFA Enabled</th>
-                    <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">Subscriptions</th>
-                </tr>
+            <tr role="row">
+                <th tabindex="0" class="sorting_left-aligned">Email</th>
+                <th tabindex="0" class="sorting_left-aligned">First name</th>
+                <th tabindex="0" class="sorting_left-aligned">Last name</th>
+                <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                <th tabindex="0" class="sorting_left-aligned">MFA Enabled</th>
+                <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">Subscriptions</th>
+            </tr>
             </thead>
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
-                <tr role="row">
-                    <td id="dev-email-@index"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
-                    <td id="dev-fn-@index">@developer.firstName</td>
-                    <td id="dev-sn-@index">@developer.lastName</td>
-                    <td class="text--right hard--right" id="dev-status-@index">
-                        @defining(developer.status match {
-                        case VerifiedStatus => ("status status--verified", "verified")
-                        case UnverifiedStatus => ("status status--not-verified", "not yet verified")
-                        case UnregisteredStatus => ("status status--not-verified", "not registered")
-                        }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
-                    </td>
-                    <td id="dev-mfaEnabled-@index" class="text--right hard--right">@(developer.mfaEnabled match {
-                        case true => "Yes"
-                        case false => "No"
-                        })</td>
-                    <td id="dev-app-@index" class="text--right hard--right ">@developer.apps.map(a => a.name).mkString(",")</td>
-                </tr>
+            <tr role="row">
+                <td id="dev-email-@index"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
+                <td id="dev-fn-@index">@developer.firstName</td>
+                <td id="dev-sn-@index">@developer.lastName</td>
+                <td class="text--right hard--right" id="dev-status-@index">
+                    @defining(developer.status match {
+                    case VerifiedStatus => ("status status--verified", "verified")
+                    case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                    case UnregisteredStatus => ("status status--not-verified", "not registered")
+                    }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+                </td>
+                <td id="dev-mfaEnabled-@index" class="text--right hard--right">@(developer.mfaEnabled match {
+                    case true => "Yes"
+                    case false => "No"
+                    })</td>
+                <td id="dev-app-@index" class="text--right hard--right ">@developer.apps.map(a => a.name).mkString(",")</td>
+            </tr>
             }
             </tbody>
         </table>
@@ -152,11 +159,11 @@
     </form>
 
     @if(users.nonEmpty) {
-        <div class="form-group>">
-            <p>
-                <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
-            </p>
-        </div>
+    <div class="form-group>">
+        <p>
+            <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
+        </p>
+    </div>
     }
     <div class="form-group>">
         <a class="back-to-top-link" href="#">Back to Top</a>
