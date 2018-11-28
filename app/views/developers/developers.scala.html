@@ -108,7 +108,8 @@
             data-responsive="true"
             data-column-defs='[{"targets": [0,1,2], "searchable":true, "orderable": true},
                                {"targets": [3], "searchable":false},
-                               {"targets": [4], "visible": false, "searchable": true}]'
+                               {"targets": [4], "searchable":true, "orderable": true},
+                               {"targets": [5], "visible": false, "searchable": true}]'
             data-language='{"sSearchPlaceholder":"Email, Name, Application","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
             <thead>
                 <tr role="row">
@@ -116,6 +117,7 @@
                     <th tabindex="0" class="sorting_left-aligned">First name</th>
                     <th tabindex="0" class="sorting_left-aligned">Last name</th>
                     <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                    <th tabindex="0" class="sorting_left-aligned">MFA Enabled</th>
                     <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">Subscriptions</th>
                 </tr>
             </thead>
@@ -132,6 +134,10 @@
                         case UnregisteredStatus => ("status status--not-verified", "not registered")
                         }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
                     </td>
+                    <td id="dev-mfaEnabled-@index" class="text--right hard--right">@(developer.mfaEnabled match {
+                        case true => "Yes"
+                        case false => "No"
+                        })</td>
                     <td id="dev-app-@index" class="text--right hard--right ">@developer.apps.map(a => a.name).mkString(",")</td>
                 </tr>
             }
