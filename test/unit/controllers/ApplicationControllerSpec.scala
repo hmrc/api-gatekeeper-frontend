@@ -327,7 +327,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "persistLoginEnabled" -> "true",
           "grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "hello, individual-benefits",
           "suppressIvForAgentsEnabled" -> "true", "suppressIvForAgentsScopes" -> "openid, email",
-          "suppressIvForOrganisationsEnabled" -> "true", "suppressIvForOrganisationsScopes" -> "address, openid:mdtp")
+          "suppressIvForOrganisationsEnabled" -> "true", "suppressIvForOrganisationsScopes" -> "address, openid:mdtp",
+          "suppressIvForIndividualsEnabled" -> "true")
 
         val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
 
@@ -340,7 +341,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             PersistLogin(),
             GrantWithoutConsent(Set("hello", "individual-benefits")),
             SuppressIvForAgents(Set("openid", "email")),
-            SuppressIvForOrganisations(Set("address", "openid:mdtp"))
+            SuppressIvForOrganisations(Set("address", "openid:mdtp")),
+            SuppressIvForIndividuals()
           )))(any[HeaderCarrier])
       }
 

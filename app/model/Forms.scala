@@ -39,6 +39,7 @@ package object Forms {
     val suppressIvForAgentsScopes = "suppressIvForAgentsScopes"
     val suppressIvForOrganisationsEnabled = "suppressIvForOrganisationsEnabled"
     val suppressIvForOrganisationsScopes = "suppressIvForOrganisationsScopes"
+    val suppressIvForIndividualsEnabled = "suppressIvForIndividualsEnabled"
     val accessType = "accessType"
     val applicationName = "applicationName"
     val applicationDescription = "applicationDescription"
@@ -59,7 +60,8 @@ package object Forms {
       suppressIvForAgentsEnabled -> boolean,
       suppressIvForAgentsScopes -> mandatoryIfTrue(suppressIvForAgentsEnabled, validScopes),
       suppressIvForOrganisationsEnabled -> boolean,
-      suppressIvForOrganisationsScopes -> mandatoryIfTrue(suppressIvForOrganisationsEnabled, validScopes)
+      suppressIvForOrganisationsScopes -> mandatoryIfTrue(suppressIvForOrganisationsEnabled, validScopes),
+      suppressIvForIndividualsEnabled -> boolean
     )(AccessOverridesForm.toSetOfOverrides)(AccessOverridesForm.fromSetOfOverrides))
 
   object AccessOverridesForm {
@@ -69,7 +71,8 @@ package object Forms {
                          suppressIvForAgentsEnabled: Boolean,
                          suppressIvForAgentsScopes: Option[String],
                          suppressIvForOrganisationsEnabled: Boolean,
-                         suppressIvForOrganisationsScopes: Option[String]): Set[OverrideFlag] = {
+                         suppressIvForOrganisationsScopes: Option[String],
+                         suppressIvForIndividualsEnabled: Boolean): Set[OverrideFlag] = {
 
       def overrideWithScopes(enabled: Boolean, scopes: Option[String], f: Set[String] => OverrideFlag): Option[OverrideFlag] = {
         if(enabled) Some(f(scopes.get.split(",").map(_.trim).toSet))
@@ -80,8 +83,9 @@ package object Forms {
       val grantWithoutConsent = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, GrantWithoutConsent)
       val suppressIvForAgents = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, SuppressIvForAgents)
       val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, SuppressIvForOrganisations)
+      val suppressIvForIndividuals = if(suppressIvForIndividualsEnabled) Some(SuppressIvForIndividuals()) else None
 
-      Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations).flatten
+      Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
     }
 
     def fromSetOfOverrides(overrides: Set[OverrideFlag]) = {
@@ -104,6 +108,8 @@ package object Forms {
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
         overrideWithScopes(overrides, SUPPRESS_IV_FOR_ORGANISATIONS)
 
+      val suppressIvForIndividualsEnabled = overrides.exists(_.overrideType == SUPPRESS_IV_FOR_INDIVIDUALS)
+
       Some(
         persistLoginEnabled,
         grantWithoutConsentEnabled,
@@ -111,7 +117,8 @@ package object Forms {
         suppressIvForAgentsEnabled,
         suppressIvForAgentsScopes,
         suppressIvForOrganisationsEnabled,
-        suppressIvForOrganisationsScopes
+        suppressIvForOrganisationsScopes,
+        suppressIvForIndividualsEnabled
       )
     }
   }
