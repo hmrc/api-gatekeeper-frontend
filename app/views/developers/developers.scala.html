@@ -132,7 +132,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
             <tr role="row">
-                <td id="dev-email-@index" width="50%"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
+                <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
                 <td id="dev-fn-@index">@developer.firstName</td>
                 <td id="dev-sn-@index">@developer.lastName</td>
                 <td class="text--right hard--right" id="dev-status-@index">
@@ -142,7 +142,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
                     case UnregisteredStatus => ("status status--not-verified", "not registered")
                     }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
                 </td>
-                <td id="dev-mfaEnabled-@index" class="text--right hard--right">@(developer.mfaEnabled match {
+                <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">@(developer.mfaEnabled match {
                     case true => "Yes"
                     case false => "No"
                     })</td>
