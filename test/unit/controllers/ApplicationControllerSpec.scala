@@ -328,7 +328,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "hello, individual-benefits",
           "suppressIvForAgentsEnabled" -> "true", "suppressIvForAgentsScopes" -> "openid, email",
           "suppressIvForOrganisationsEnabled" -> "true", "suppressIvForOrganisationsScopes" -> "address, openid:mdtp",
-          "suppressIvForIndividualsEnabled" -> "true")
+          "suppressIvForIndividualsEnabled" -> "true", "suppressIvForIndividualsScopes" -> "email, openid:hmrc-enrolments")
 
         val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
 
@@ -342,7 +342,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             GrantWithoutConsent(Set("hello", "individual-benefits")),
             SuppressIvForAgents(Set("openid", "email")),
             SuppressIvForOrganisations(Set("address", "openid:mdtp")),
-            SuppressIvForIndividuals()
+            SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
           )))(any[HeaderCarrier])
       }
 

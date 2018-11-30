@@ -93,9 +93,7 @@ object OverrideFlag {
     Writes { _ => Json.obj() })
   private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
   private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals = Format[SuppressIvForIndividuals](
-    Reads { _ => JsSuccess(SuppressIvForIndividuals())},
-    Writes { _ => Json.obj() })
+  private implicit val formatSuppressIvForIndividuals = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
@@ -122,7 +120,7 @@ case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlagW
   val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
 }
 
-case class SuppressIvForIndividuals() extends OverrideFlag {
+case class SuppressIvForIndividuals(scopes: Set[String]) extends OverrideFlagWithScopes {
   val overrideType = OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
 }
 

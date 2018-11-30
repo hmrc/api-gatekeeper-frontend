@@ -159,6 +159,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
         case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
         case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
+        case SuppressIvForIndividuals(_) => FormFields.suppressIvForIndividualsScopes
         case GrantWithoutConsent(_) => FormFields.grantWithoutConsentScopes
       }
 
