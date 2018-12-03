@@ -15,6 +15,8 @@ GET         /developers                                             controllers.
 GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
 GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)
 POST        /developer/delete                                       controllers.DevelopersController.deleteDeveloperAction(email: String)
+GET         /developer/mfa/remove                                   controllers.DevelopersController.removeMfaPage(email: String)
+POST        /developer/mfa/remove                                   controllers.DevelopersController.removeMfaAction(email: String)
 
 GET         /applications                                           controllers.ApplicationController.applicationsPage
 

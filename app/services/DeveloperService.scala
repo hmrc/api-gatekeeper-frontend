@@ -106,6 +106,10 @@ trait DeveloperService {
     developerConnector.fetchByEmails(emails)
   }
 
+  def removeMfa(email: String)(implicit  hc: HeaderCarrier): Future[User] = {
+    developerConnector.removeMfa(email)
+  }
+
   def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
 
     def fetchAdminsToEmail(app: Application): Future[Seq[String]] = {

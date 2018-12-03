@@ -18,15 +18,13 @@ package controllers
 
 import connectors.AuthConnector
 import model._
+import play.api.Logger
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.{ApplicationHelper, GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
 import views.html.developers._
-import views.html.error_template
-
-import scala.concurrent.Future
 
 object DevelopersController extends DevelopersController with WithAppConfig {
   override val developerService = DeveloperService
@@ -68,6 +66,22 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
   def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
+  }
+
+  def removeMfaPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+      developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
+  }
+
+  def removeMfaAction(email:String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+    implicit request => implicit hc =>
+      developerService.removeMfa(email) map { _ =>
+        Ok(remove_mfa_success(email))
+      } recover {
+        case e: Exception =>
+          Logger.error(s"Failed to remove MFA for user: $email", e)
+          technicalDifficulties
+      }
   }
 
   def deleteDeveloperPage(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
