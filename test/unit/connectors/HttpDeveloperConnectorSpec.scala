@@ -25,9 +25,9 @@ import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDel
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
+import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpDelete, HttpGet, HttpPost}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.time.DateTimeUtils
 
 
 class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
@@ -38,16 +38,14 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
 
     val connector = new HttpDeveloperConnector {
       override val developerBaseUrl: String = wireMockUrl
-      override val http: HttpPost with HttpGet = WSHttp
+      override val http: HttpPost with HttpGet with HttpDelete = WSHttp
     }
   }
 
 
-  "fetchByEmail" should {
+  "Developer connector" should {
     val developer1Email = "developer1@example.com"
     val developer2Email = "developer2+test@example.com"
-
-    val timeStamp = DateTimeUtils.now
 
     def encode(str: String) = URLEncoder.encode(str, "UTF-8")
 
@@ -63,7 +61,7 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
 
     "fetch developer by email" in new Setup {
       stubFor(get(urlEqualTo(s"/developer?email=${encode(developer1Email)}")).willReturn(
-        aResponse().withStatus(200).withBody(
+        aResponse().withStatus(OK).withBody(
           Json.toJson(aUserResponse(developer1Email)).toString()))
       )
       val result = await(connector.fetchByEmail(developer1Email))
@@ -72,7 +70,7 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
 
     "fetch developer2 by email" in new Setup {
       stubFor(get(urlEqualTo(s"/developer?email=${encode(developer2Email)}")).willReturn(
-        aResponse().withStatus(200).withBody(
+        aResponse().withStatus(OK).withBody(
           Json.toJson(aUserResponse(developer2Email)).toString()))
       )
       val result = await(connector.fetchByEmail(developer2Email))
@@ -82,7 +80,7 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
     "fetch all developers by emails" in new Setup {
       val encodedEmailsParam = encode(s"$developer1Email,$developer2Email")
       stubFor(get(urlEqualTo(s"/developers?emails=$encodedEmailsParam")).willReturn(
-        aResponse().withStatus(200).withBody(
+        aResponse().withStatus(OK).withBody(
           Json.toJson(Seq(aUserResponse(developer1Email),aUserResponse(developer2Email))).toString()))
       )
       val result = await(connector.fetchByEmails(Seq(developer1Email,developer2Email)))
@@ -92,7 +90,7 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
 
     "fetch all developers" in new Setup {
       stubFor(get(urlEqualTo("/developers/all")).willReturn(
-        aResponse().withStatus(200).withBody(
+        aResponse().withStatus(OK).withBody(
           Json.toJson(Seq(aUserResponse(developer1Email),aUserResponse(developer2Email))).toString()))
       )
       val result = await(connector.fetchAll())
@@ -101,17 +99,27 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
     }
 
     "delete a developer and return a success result" in new Setup {
-      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(204)))
+      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
 
       val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
       result shouldBe DeveloperDeleteSuccessResult
     }
 
     "delete a developer and return a failure result when an error occurred" in new Setup {
-      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(500)))
+      stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
 
       val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
       result shouldBe DeveloperDeleteFailureResult
+    }
+
+    "remove MFA for a developer" in new Setup {
+      val user: User = aUserResponse(developer1Email)
+      stubFor(delete(urlEqualTo(s"/developer/$developer1Email/mfa"))
+        .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(user).toString())))
+
+      val result: User = await(connector.removeMfa(developer1Email))
+
+      result shouldBe user
     }
   }
 }

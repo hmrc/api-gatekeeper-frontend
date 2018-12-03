@@ -26,6 +26,7 @@ import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => eqTo}
 import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -36,6 +37,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
 
 import scala.concurrent.Future
+import scala.concurrent.Future.{failed, successful}
 
 class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
 
@@ -73,20 +75,24 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val apiFiler = ApiFilter(None)
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFiler))(any[HeaderCarrier])).willReturn(Future.successful(apps))
+        given(mockApplicationService.fetchApplications(eqTo(apiFiler))(any[HeaderCarrier])).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockDeveloperService.filterUsersBy(apiFiler, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
         given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
-        given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(Future.successful(users))
+        given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
-        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(any[HeaderCarrier])).willReturn(Future.successful(developer))
+        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(any[HeaderCarrier])).willReturn(successful(developer))
       }
 
       def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        given(mockDeveloperService.deleteDeveloper(anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(result))
+        given(mockDeveloperService.deleteDeveloper(anyString, anyString)(any[HeaderCarrier])).willReturn(successful(result))
+      }
+
+      def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
+        given(mockDeveloperService.removeMfa(anyString)(any[HeaderCarrier])).willReturn(user)
       }
     }
 
@@ -101,7 +107,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "go to login page with error if user is not authenticated" in new Setup {
         val loginDetails = LoginDetails("userName", Protected("password"))
-        given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))
+        given(developersController.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(failed(new InvalidCredentials))
         val result = await(developersController.developersPage(None, None)(aLoggedOutRequest))
         redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
       }
@@ -159,6 +165,58 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe 200
         bodyOf(result) should include("No developers for your selected filter")
+      }
+    }
+
+    "removeMfaPage" should {
+      val emailAddress = "someone@example.com"
+
+      "not allow a non super user to access the page" in new Setup {
+        givenASuccessfulLogin()
+        val result: Result = await(developersController.removeMfaPage(emailAddress)(aLoggedInRequest))
+        status(result) shouldBe 401
+      }
+
+      "allow a super user to access the page" in new Setup {
+        val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
+          Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
+        val developer: Developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
+        givenASuccessfulSuperUserLogin()
+        givenFetchDeveloperReturns(developer)
+
+        val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+        verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(any[HeaderCarrier])
+      }
+    }
+
+    "removeMfaAction" should {
+      val emailAddress = "someone@example.com"
+
+      "not allow a non super user to access the page" in new Setup {
+        givenASuccessfulLogin()
+        val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
+        status(result) shouldBe 401
+      }
+
+      "allow a super user to access the page" in new Setup {
+        givenASuccessfulSuperUserLogin()
+        givenRemoveMfaReturns(successful(User(emailAddress, "Firstname", "Lastname", Some(true))))
+
+        val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 200
+        verify(mockDeveloperService).removeMfa(eqTo(emailAddress))(any[HeaderCarrier])
+      }
+
+      "return an internal server error when it fails to remove MFA" in new Setup {
+        givenASuccessfulSuperUserLogin()
+        givenRemoveMfaReturns(failed(new RuntimeException("Failed to remove MFA")))
+
+        val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe 500
       }
     }
 

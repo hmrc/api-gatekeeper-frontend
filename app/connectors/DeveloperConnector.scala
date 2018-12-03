@@ -32,11 +32,12 @@ trait DeveloperConnector {
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
+  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User]
 }
 
 trait HttpDeveloperConnector extends DeveloperConnector {
   val developerBaseUrl: String
-  val http: HttpGet with HttpPost
+  val http: HttpGet with HttpPost with HttpDelete
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
     http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email)).recover{
@@ -62,6 +63,10 @@ trait HttpDeveloperConnector extends DeveloperConnector {
         case _ => DeveloperDeleteFailureResult
       }
   }
+
+  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    http.DELETE[User](s"$developerBaseUrl/developer/$email/mfa")
+  }
 }
 
 object HttpDeveloperConnector extends HttpDeveloperConnector {
@@ -78,4 +83,6 @@ object DummyDeveloperConnector extends DeveloperConnector {
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
+
+  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredCollaborator(email))
 }

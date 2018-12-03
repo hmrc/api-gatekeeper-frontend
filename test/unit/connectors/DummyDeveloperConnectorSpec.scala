@@ -26,17 +26,18 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+  val email: String = "user@example.com"
 
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
-      await(DummyDeveloperConnector.fetchByEmail("user@example.com")) shouldBe UnregisteredCollaborator("user@example.com")
+      await(DummyDeveloperConnector.fetchByEmail(email)) shouldBe UnregisteredCollaborator(email)
     }
   }
 
   "fetchByEmails" should {
     "return an empty sequence" in {
-      await(DummyDeveloperConnector.fetchByEmails(Seq("user@example.com"))) shouldBe Seq.empty
+      await(DummyDeveloperConnector.fetchByEmails(Seq(email))) shouldBe Seq.empty
     }
   }
 
@@ -48,7 +49,13 @@ class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutur
 
   "deleteDeveloper" should {
     "return a success result" in {
-      await(DummyDeveloperConnector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "user@example.com"))) shouldBe  DeveloperDeleteSuccessResult
+      await(DummyDeveloperConnector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe  DeveloperDeleteSuccessResult
+    }
+  }
+
+  "removeMfa" should {
+    "return an UnregisteredCollaborator" in {
+      await(DummyDeveloperConnector.removeMfa(email)) shouldBe UnregisteredCollaborator(email)
     }
   }
 }
