@@ -21,7 +21,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -312,7 +312,10 @@
                                 }
                             }
                         </td>
-                        <td>Yes</td>
+                        <td>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
+                            case true => "Yes"
+                            case false => "No"
+                            })</td>
                     </tr>
                     }
                     </tbody>
