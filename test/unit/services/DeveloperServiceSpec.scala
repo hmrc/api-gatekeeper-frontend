@@ -29,8 +29,8 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
 import services.DeveloperService
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
@@ -93,6 +93,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     def verifyTeamMemberRemovedFromApp(app: Application, userToRemove: String, gatekeeperUserId: String, adminsToEmail: Seq[String]) = {
       verify(mockApplicationConnector).removeCollaborator(eqTo(app.id.toString), eqTo(userToRemove),
         eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+    }
+
+    def removeMfaReturnWillReturn(user: User) = {
+      when(mockDeveloperConnector.removeMfa(anyString)(any[HeaderCarrier])).thenReturn(Future.successful(user))
     }
   }
 
@@ -211,6 +215,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       result.toDeveloper shouldBe developer.toDeveloper(apps)
       verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(any[HeaderCarrier])
       verify(mockApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(any[HeaderCarrier])
+    }
+
+    "remove MFA" in new Setup {
+      val developer: User = aUser("Fred")
+      removeMfaReturnWillReturn(developer)
+
+      val result: User = await(underTest.removeMfa(developer.email))
+
+      result shouldBe developer
+      verify(mockDeveloperConnector).removeMfa(developer.email)
     }
   }
 
