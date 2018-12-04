@@ -18,40 +18,19 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object DeveloperDetailsPage extends WebPage {
+object RemoveMfaSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?email=Dixie.fakename%40example.com"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove?email=Dixie.fakename%40example.com"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
 
-  def firstName() = {
-    find(cssSelector("#first-name")).get.text
+  def finishButton: RemoveMfaSuccessPage.Element = {
+    find(cssSelector("#finish")).get
   }
 
-  def lastName() = {
-    find(cssSelector("#last-name")).get.text
+  def finish(): Unit = {
+    click on finishButton
   }
-
-  def status() = {
-    find(cssSelector("#status")).get.text
-  }
-
-  def mfaEnabled() = {
-    find(cssSelector("#mfaEnabled")).get.text
-  }
-
-  def removeMfaButton = {
-    find(cssSelector("#remove-mfa"))
-  }
-
-  def selectByApplicationName(name: String) = {
-    click on find(linkText(name)).get
-  }
-
-  def removeMfa() = {
-    click on removeMfaButton.get
-  }
-
 }
