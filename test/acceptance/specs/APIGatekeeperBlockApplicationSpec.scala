@@ -18,15 +18,18 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import model.User
 import play.api.http.Status._
 
 class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
+
+  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   val appName = "Automated Test Application"
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(unblockedApplication)
+      stubApplication(unblockedApplication, developers)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
@@ -41,7 +44,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(blockedApplication)
+      stubApplication(blockedApplication, developers)
 
       When("I navigate to the application page")
       navigateToApplicationPageFor(appName, ApplicationPage)

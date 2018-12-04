@@ -18,11 +18,14 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import model.User
 import play.api.http.Status._
 
 import scala.io.Source
 
 class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
+
+  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   val appName = "Automated Test Application"
 
@@ -72,7 +75,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(applicationToDelete)
+    stubApplication(applicationToDelete, developers)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.selectByApplicationName(appName)

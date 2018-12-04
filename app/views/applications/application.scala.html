@@ -312,7 +312,7 @@
                                 }
                             }
                         </td>
-                        <td>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
+                        <td data-collaborator-mfaEnabled>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
                             case true => "Yes"
                             case false => "No"
                             })</td>
