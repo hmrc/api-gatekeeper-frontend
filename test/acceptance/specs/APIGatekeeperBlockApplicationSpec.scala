@@ -33,7 +33,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName, ApplicationPage)
+      navigateToApplicationPageFor(appName, ApplicationPage, developers)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -47,7 +47,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplication(blockedApplication, developers)
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName, ApplicationPage)
+      navigateToApplicationPageFor(appName, ApplicationPage, developers)
 
       Then("I cannot see the block button")
       ApplicationPage.bodyText.contains("Block application") shouldBe false

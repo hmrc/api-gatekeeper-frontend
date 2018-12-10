@@ -63,7 +63,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-    stubApplicationSubscription()
+    stubApplicationSubscription(List( ))
     stubApiDefinition()
 
     signInSuperUserGatekeeper

@@ -29,7 +29,7 @@ import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
-  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+    val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Application List for Search Functionality") {
 
@@ -45,7 +45,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()
@@ -63,7 +63,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()
@@ -116,7 +116,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()

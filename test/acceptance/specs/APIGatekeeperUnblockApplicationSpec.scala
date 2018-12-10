@@ -34,7 +34,7 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(appName, BlockedApplicationPage)
+      navigateToApplicationPageFor(appName, BlockedApplicationPage, developers)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -47,7 +47,7 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplication(unblockedApplication, developers)
 
       When("I navigate to the application page")
-      navigateToApplicationPageFor(unblockedAppName, ApplicationPage)
+      navigateToApplicationPageFor(unblockedAppName, ApplicationPage, developers)
 
       Then("I cannot see the unblock button")
       ApplicationPage.bodyText.contains("Unblock application") shouldBe false
