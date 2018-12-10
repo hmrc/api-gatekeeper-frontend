@@ -86,10 +86,12 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
             }
           }
 
-          subscriptions.map(subs => Ok(application(app, subs, isSuperUser, latestTOUAgreement(app))))
+          for {
+            subs <- subscriptions
+            devs <- developerService.fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
+          } yield Ok(application(devs.toList, app, subs, isSuperUser, latestTOUAgreement(app)))
         }
   }
-
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {

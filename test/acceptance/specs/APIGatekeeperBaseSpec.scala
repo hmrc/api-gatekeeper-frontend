@@ -16,24 +16,28 @@
 
 package acceptance.specs
 
+
 import acceptance.pages.{ApplicationsPage, BlockedApplicationPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar, WebPage}
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo, urlMatching}
 import component.matchers.CustomMatchers
+import model.User
 import org.scalatest.{GivenWhenThen, Matchers}
 import play.api.http.Status._
+import play.api.libs.json.Json
 
 import scala.io.Source
 
 class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
-  def stubApplication(application: String) = {
+  def stubApplication(application: String, developers: List[User]) = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+    stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubBlockedApplication(application: String) = {
+  def stubBlockedApplication(application: String, developers: List[User]) = {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
@@ -50,12 +54,13 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription() = {
+  def stubApplicationSubscription(developers: List[User]) = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
     stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(OK)))
+    stubFor(get(urlMatching(s"/developers.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def navigateToApplicationPageFor(applicationName: String, page: WebPage) = {
+  def navigateToApplicationPageFor(applicationName: String, page: WebPage, developers: List[User]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
@@ -63,7 +68,7 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
 
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-    stubApplicationSubscription()
+    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInSuperUserGatekeeper

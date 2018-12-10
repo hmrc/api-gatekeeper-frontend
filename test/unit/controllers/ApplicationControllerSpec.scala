@@ -68,6 +68,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
+      val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+
       val underTest = new ApplicationController {
         val appConfig = mockConfig
         val authConnector = mockAuthConnector
@@ -871,6 +873,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin()
         givenTheAppWillBeReturned()
         given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(subscriptions)
+        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier])).willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
@@ -883,6 +886,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin()
         givenTheAppWillBeReturned()
         given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Future.failed(new FetchApplicationSubscriptionsFailed))
+        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier])).willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 

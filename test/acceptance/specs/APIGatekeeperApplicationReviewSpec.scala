@@ -20,11 +20,15 @@ import java.net.URLEncoder
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import model.User
 import play.api.http.Status._
+import play.api.libs.json.Json
 
 import scala.io.Source
 
 class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
+
+  val developers = List[User]{new User("holly.golightly@example.com", "holly", "golightly", None, None, false)}
 
   val approveRequest =
     s"""
@@ -51,11 +55,11 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
       on(ApplicationsPage)
-      stubApplicationToReview()
+      stubApplicationToReview(developers)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Application requiring approval")
@@ -71,7 +75,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       verifyText("data-checked-on", "05 April 2016")
       verifyText("data-checked-by", "gatekeeper.username")
 
-      stubApplicationToReview()
+      stubApplicationToReview(developers)
       clickOnReview("review")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("approve-app")
@@ -79,7 +83,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
-      stubApplicationToReview()
+      stubApplicationToReview(developers)
       on(ApplicationToReviewPage)
     }
   }
@@ -93,11 +97,11 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
       on(ApplicationsPage)
-      stubApplicationToReview()
+      stubApplicationToReview(developers)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Application requiring approval")
@@ -113,7 +117,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       verifyText("data-checked-on", "05 April 2016")
       verifyText("data-checked-by", "gatekeeper.username")
 
-      stubApplicationToReview()
+      stubApplicationToReview(developers)
       clickOnReview("review")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnSubmit()
@@ -132,11 +136,11 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
       signInSuperUserGatekeeper()
       on(ApplicationsPage)
-      stubApplicationToReview()
+      stubApplicationToReview(List())
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Application requiring approval")
@@ -152,7 +156,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       verifyText("data-checked-on", "05 April 2016")
       verifyText("data-checked-by", "gatekeeper.username")
 
-      stubApplicationToReview()
+      stubApplicationToReview(List())
       clickOnReview("review")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("reject-app")
@@ -167,7 +171,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
     }
   }
 
-  def stubApplicationToReview() = {
+  def stubApplicationToReview(developers: List[User]) = {
     stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(OK)))
     stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(OK)))
     stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))

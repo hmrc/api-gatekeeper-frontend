@@ -20,6 +20,7 @@ import java.net.URLEncoder
 
 import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
+import model.User
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
@@ -27,6 +28,8 @@ import play.api.http.Status._
 import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
+
+    val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Application List for Search Functionality") {
 
@@ -42,7 +45,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()
@@ -60,13 +63,13 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()
       on(ApplicationsPage)
 
-      stubApplication(application)
+      stubApplication(application, developers)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
@@ -113,13 +116,13 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription()
+      stubApplicationSubscription(List())
       stubApiDefinition()
 
       signInGatekeeper()
       on(ApplicationsPage)
 
-      stubApplication(application)
+      stubApplication(application, developers)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Automated Test Application")
