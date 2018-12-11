@@ -124,7 +124,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
                 <th tabindex="0" class="sorting_left-aligned">First name</th>
                 <th tabindex="0" class="sorting_left-aligned">Last name</th>
                 <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
-                <th tabindex="0" class="text--right hard--right sorting_left-aligned">MFA</th>
+                <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
 
                 <th class="text--right hard--right visuallyhidden" data-orderable="false" tabindex="0">Subscriptions</th>
             </tr>
@@ -142,7 +142,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
                     case UnregisteredStatus => ("status status--not-verified", "not registered")
                     }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
                 </td>
-                <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">@(developer.mfaEnabled match {
+                <td id="dev-MfaEnabled-@index" class="text--right hard--right" width="8%">@(developer.mfaEnabled match {
                     case true => "Yes"
                     case false => "No"
                     })</td>

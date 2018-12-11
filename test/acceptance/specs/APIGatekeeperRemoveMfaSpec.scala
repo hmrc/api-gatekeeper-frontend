@@ -28,15 +28,15 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
+class APIGatekeeperremoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
   info("As a Gatekeeper superuser")
-  info("I WANT to be able to remove MFA for a developer")
-  info("SO THAT they can reset MFA if they lost their secret")
+  info("I WANT to be able to remove 2SV for a developer")
+  info("SO THAT they can reset 2SV if they lost their secret")
 
-  feature("Remove MFA") {
+  feature("Remove 2SV") {
 
-    scenario("Ensure a super user can remove MFA from a developer", Tag("NonSandboxTest")) {
+    scenario("Ensure a super user can remove 2SV from a developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
@@ -46,29 +46,29 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I can see the button to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove MFA")
+      Then("I can see the button to remove 2SV")
+      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
 
-      When("I click on remove MFA")
+      When("I click on remove 2SV")
       DeveloperDetailsPage.removeMfa()
 
-      Then("I am successfully navigated to the Remove MFA page")
-      on(RemoveMfaPage)
+      Then("I am successfully navigated to the Remove 2SV page")
+      on(removeMfaPage)
 
-      When("I confirm I want to remove MFA")
-      RemoveMfaPage.removeMfa()
+      When("I confirm I want to remove 2SV")
+      removeMfaPage.removeMfa()
 
-      Then("I am successfully navigated to the Remove MFA Success page")
-      on(RemoveMfaSuccessPage)
+      Then("I am successfully navigated to the Remove 2SV Success page")
+      on(removeMfaSuccessPage)
 
       When("I click on Finish")
-      RemoveMfaSuccessPage.finish()
+      removeMfaSuccessPage.finish()
       
       Then("I am successfully navigated to the Developers page")
       on(DeveloperPage)
     }
 
-    scenario("Ensure a non-super user cannot remove MFA from a developer", Tag("NonSandboxTest")) {
+    scenario("Ensure a non-super user cannot remove 2SV from a developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
@@ -78,7 +78,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I cannot see the button to remove MFA")
+      Then("I cannot see the button to remove 2SV")
       assert(DeveloperDetailsPage.removeMfaButton.isEmpty)
     }
   }
@@ -90,7 +90,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
     stubDevelopers()
     stubDeveloper()
     stubApplicationSubscription()
-    stubRemoveMfa()
+    stubremoveMfa()
   }
 
   def navigateToDeveloperDetails(): Unit ={
@@ -143,8 +143,8 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       .willReturn(aResponse().withStatus(OK).withBody(user)))
   }
 
-  def stubRemoveMfa(): Unit = {
-    stubFor(WireMock.delete(urlEqualTo(s"""/developer/$developer8/mfa"""))
+  def stubremoveMfa(): Unit = {
+    stubFor(WireMock.delete(urlEqualTo(s"""/developer/$developer8/2SV"""))
       .willReturn(aResponse().withStatus(OK).withBody(user)))
   }
 }

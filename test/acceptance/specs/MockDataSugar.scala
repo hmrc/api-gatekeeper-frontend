@@ -1113,49 +1113,49 @@ trait MockDataSugar {
        |    "firstName": "$devFirstName",
        |    "lastName": "$devLastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer2",
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer4",
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer5",
        |    "firstName": "$dev5FirstName",
        |    "lastName": "$dev5LastName",
        |    "verified": false,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer6",
        |    "firstName": "$dev6FirstName",
        |    "lastName": "$dev6LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer7",
        |    "firstName": "$dev7FirstName",
        |    "lastName": "$dev7LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "MfaEnabled": false
        |  },
        |  {
        |    "email": "$developer8",
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "MfaEnabled": true
        |  }
        |]
    """.stripMargin
@@ -1167,7 +1167,7 @@ trait MockDataSugar {
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "MfaEnabled": true
        |  }
    """.stripMargin
 

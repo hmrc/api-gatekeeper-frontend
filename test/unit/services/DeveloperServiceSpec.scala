@@ -217,7 +217,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(any[HeaderCarrier])
     }
 
-    "remove MFA" in new Setup {
+    "remove 2SV" in new Setup {
       val developer: User = aUser("Fred")
       removeMfaReturnWillReturn(developer)
 

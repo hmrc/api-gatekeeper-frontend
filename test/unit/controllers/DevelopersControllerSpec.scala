@@ -91,7 +91,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(mockDeveloperService.deleteDeveloper(anyString, anyString)(any[HeaderCarrier])).willReturn(successful(result))
       }
 
-      def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
+      def givenremoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
         given(mockDeveloperService.removeMfa(anyString)(any[HeaderCarrier])).willReturn(user)
       }
     }
@@ -202,7 +202,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "allow a super user to access the page" in new Setup {
         givenASuccessfulSuperUserLogin()
-        givenRemoveMfaReturns(successful(User(emailAddress, "Firstname", "Lastname", Some(true))))
+        givenremoveMfaReturns(successful(User(emailAddress, "Firstname", "Lastname", Some(true))))
 
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 
@@ -210,9 +210,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         verify(mockDeveloperService).removeMfa(eqTo(emailAddress))(any[HeaderCarrier])
       }
 
-      "return an internal server error when it fails to remove MFA" in new Setup {
+      "return an internal server error when it fails to remove 2SV" in new Setup {
         givenASuccessfulSuperUserLogin()
-        givenRemoveMfaReturns(failed(new RuntimeException("Failed to remove MFA")))
+        givenremoveMfaReturns(failed(new RuntimeException("Failed to remove 2SV")))
 
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 

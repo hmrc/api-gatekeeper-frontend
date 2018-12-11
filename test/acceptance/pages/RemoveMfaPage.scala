@@ -18,7 +18,7 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object RemoveMfaPage extends WebPage {
+object removeMfaPage extends WebPage {
 
   override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove?email=Dixie.fakename%40example.com"
 
@@ -26,7 +26,7 @@ object RemoveMfaPage extends WebPage {
     currentUrl == url
   }
 
-  def removeMfaButton: RemoveMfaPage.Element = {
+  def removeMfaButton: removeMfaPage.Element = {
     find(cssSelector("#submit")).get
   }
 

@@ -137,4 +137,3 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
   case class TestUser(firstName: String, lastName:String, emailAddress:String)
 }
-

@@ -112,7 +112,7 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
       result shouldBe DeveloperDeleteFailureResult
     }
 
-    "remove MFA for a developer" in new Setup {
+    "remove 2SV for a developer" in new Setup {
       val user: User = aUserResponse(developer1Email)
       stubFor(delete(urlEqualTo(s"/developer/$developer1Email/mfa"))
         .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(user).toString())))
