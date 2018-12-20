@@ -47,7 +47,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       navigateToDeveloperDetails()
 
       Then("I can see the button to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove MFA")
+      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -78,7 +78,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I cannot see the button to remove MFA")
+      Then("I cannot see the button to remove 2SV")
       assert(DeveloperDetailsPage.removeMfaButton.isEmpty)
     }
   }
