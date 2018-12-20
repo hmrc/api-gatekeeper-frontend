@@ -43,7 +43,7 @@ object DeveloperDetailsPage extends WebPage {
   }
 
   def removeMfaButton = {
-    find(cssSelector("#remove-mfa"))
+    find(cssSelector("#remove-2SV"))
   }
 
   def selectByApplicationName(name: String) = {
