@@ -114,10 +114,11 @@ class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFuture
 
     "remove MFA for a developer" in new Setup {
       val user: User = aUserResponse(developer1Email)
-      stubFor(delete(urlEqualTo(s"/developer/$developer1Email/mfa"))
+      val loggedInUser: String = "admin-user"
+      stubFor(post(urlEqualTo(s"/developer/$developer1Email/mfa/remove"))
         .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(user).toString())))
 
-      val result: User = await(connector.removeMfa(developer1Email))
+      val result: User = await(connector.removeMfa(developer1Email, loggedInUser))
 
       result shouldBe user
     }

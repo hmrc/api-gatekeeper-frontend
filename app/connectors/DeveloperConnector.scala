@@ -22,6 +22,7 @@ import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
@@ -32,7 +33,7 @@ trait DeveloperConnector {
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
-  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User]
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User]
 }
 
 trait HttpDeveloperConnector extends DeveloperConnector {
@@ -64,8 +65,8 @@ trait HttpDeveloperConnector extends DeveloperConnector {
       }
   }
 
-  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User] = {
-    http.DELETE[User](s"$developerBaseUrl/developer/$email/mfa")
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
+    http.POST[JsValue, User](s"$developerBaseUrl/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
 }
 
@@ -84,5 +85,5 @@ object DummyDeveloperConnector extends DeveloperConnector {
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
 
-  def removeMfa(email: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredCollaborator(email))
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredCollaborator(email))
 }

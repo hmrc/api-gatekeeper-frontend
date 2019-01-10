@@ -75,7 +75,7 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
     implicit request => implicit hc =>
-      developerService.removeMfa(email) map { _ =>
+      developerService.removeMfa(email, loggedIn.get) map { _ =>
         Ok(remove_mfa_success(email))
       } recover {
         case e: Exception =>

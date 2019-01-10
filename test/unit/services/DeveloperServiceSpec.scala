@@ -96,7 +96,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     def removeMfaReturnWillReturn(user: User) = {
-      when(mockDeveloperConnector.removeMfa(anyString)(any[HeaderCarrier])).thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.removeMfa(anyString, anyString)(any[HeaderCarrier])).thenReturn(Future.successful(user))
     }
   }
 
@@ -219,12 +219,13 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
     "remove MFA" in new Setup {
       val developer: User = aUser("Fred")
+      val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
-      val result: User = await(underTest.removeMfa(developer.email))
+      val result: User = await(underTest.removeMfa(developer.email, loggedInUser))
 
       result shouldBe developer
-      verify(mockDeveloperConnector).removeMfa(developer.email)
+      verify(mockDeveloperConnector).removeMfa(developer.email, loggedInUser)
     }
   }
 

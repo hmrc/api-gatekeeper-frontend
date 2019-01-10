@@ -52,9 +52,10 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     trait Setup extends ControllerSetupBase {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      val loggedInSuperUser = "superUserName"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
-      given(mockConfig.superUsers).willReturn(Seq("superUserName"))
+      given(mockConfig.superUsers).willReturn(Seq(loggedInSuperUser))
 
       val mockDeveloperService = mock[DeveloperService]
 
@@ -92,7 +93,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
-        given(mockDeveloperService.removeMfa(anyString)(any[HeaderCarrier])).willReturn(user)
+        given(mockDeveloperService.removeMfa(anyString, anyString)(any[HeaderCarrier])).willReturn(user)
       }
     }
 
@@ -207,7 +208,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe 200
-        verify(mockDeveloperService).removeMfa(eqTo(emailAddress))(any[HeaderCarrier])
+        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInSuperUser))(any[HeaderCarrier])
       }
 
       "return an internal server error when it fails to remove MFA" in new Setup {
