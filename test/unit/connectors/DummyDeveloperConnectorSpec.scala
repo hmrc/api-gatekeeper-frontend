@@ -28,6 +28,7 @@ class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutur
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val email: String = "user@example.com"
+  val loggedInUser: String = "admin-user"
 
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
@@ -55,7 +56,7 @@ class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutur
 
   "removeMfa" should {
     "return an UnregisteredCollaborator" in {
-      await(DummyDeveloperConnector.removeMfa(email)) shouldBe UnregisteredCollaborator(email)
+      await(DummyDeveloperConnector.removeMfa(email, loggedInUser)) shouldBe UnregisteredCollaborator(email)
     }
   }
 }

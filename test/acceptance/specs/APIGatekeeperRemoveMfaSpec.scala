@@ -144,7 +144,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   def stubRemoveMfa(): Unit = {
-    stubFor(WireMock.delete(urlEqualTo(s"""/developer/$developer8/mfa"""))
+    stubFor(WireMock.post(urlEqualTo(s"""/developer/$developer8/mfa/remove"""))
       .willReturn(aResponse().withStatus(OK).withBody(user)))
   }
 }

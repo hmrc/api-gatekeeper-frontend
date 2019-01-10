@@ -17,7 +17,7 @@
 package services
 
 import config.AppConfig
-import connectors.{ApplicationConnector, DeveloperConnector, HttpDeveloperConnector, DummyDeveloperConnector}
+import connectors.{ApplicationConnector, DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector}
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -106,8 +106,8 @@ trait DeveloperService {
     developerConnector.fetchByEmails(emails)
   }
 
-  def removeMfa(email: String)(implicit  hc: HeaderCarrier): Future[User] = {
-    developerConnector.removeMfa(email)
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
+    developerConnector.removeMfa(email, loggedInUser)
   }
 
   def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
