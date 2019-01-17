@@ -16,7 +16,8 @@
 
 package services
 
-import config.AppConfig
+import javax.inject.Inject
+
 import connectors._
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment.Environment
@@ -27,20 +28,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object ApplicationService extends ApplicationService {
-  override val applicationConnector = ApplicationConnector
-  override val apiScopeConnector = ApiScopeConnector
-  override val developerConnector =
-    if (AppConfig.isExternalTestEnvironment) DummyDeveloperConnector else HttpDeveloperConnector
-
-  override val subscriptionFieldsService = SubscriptionFieldsService
-}
-
-trait ApplicationService {
-  val applicationConnector: ApplicationConnector
-  val apiScopeConnector: ApiScopeConnector
-  val developerConnector: DeveloperConnector
-  val subscriptionFieldsService: SubscriptionFieldsService
+class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
+                                    apiScopeConnector: ApiScopeConnector,
+                                    developerConnector: DeveloperConnector,
+                                   subscriptionFieldsService: SubscriptionFieldsService) {
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {

@@ -37,12 +37,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   trait Setup {
-    val underTest = new ApplicationService {
-      val applicationConnector = mock[ApplicationConnector]
-      val apiScopeConnector = mock[ApiScopeConnector]
-      val developerConnector = mock[DeveloperConnector]
-      val subscriptionFieldsService = mock[SubscriptionFieldsService]
-    }
+    
+    val mockApplicationConnector = mock[ApplicationConnector]
+    val mockApiScopeConnector = mock[ApiScopeConnector]
+    val mockDeveloperConnector = mock[DeveloperConnector]
+    val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
+    
+    val underTest = new ApplicationService(mockApplicationConnector, mockApiScopeConnector, mockDeveloperConnector, mockSubscriptionFieldsService)
 
     implicit val hc = HeaderCarrier()
 
@@ -61,7 +62,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   "fetchAllSubscribedApplications" should {
 
     "list all subscribed applications" in new Setup {
-      given(underTest.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApplications))
 
       val subscriptions =
@@ -70,7 +71,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
           SubscriptionResponse(APIIdentifier("super-context", "1.0"), allApplications.map(_.id.toString)))
 
 
-      given(underTest.applicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptions))
 
 
@@ -102,7 +103,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
       val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
 
-      given(underTest.applicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
+      given(mockApplicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
         .willReturn(Future.successful(ResendVerificationSuccessful))
 
       val result = await(underTest.resendVerification(applicationId, userName))
@@ -115,7 +116,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   "fetchApplications" should {
 
     "list all applications when filtering not provided" in new Setup {
-      given(underTest.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApplications))
 
       val result: Seq[ApplicationResponse] = await(underTest.fetchApplications)
@@ -125,7 +126,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when specific subscription filtering is provided" in new Setup {
       val filteredApplications = Seq(stdApp1, privilegedApp)
 
-      given(underTest.applicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"), mEq("version"))(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplicationsBySubscription(mEq("subscription"), mEq("version"))(any[HeaderCarrier]))
         .willReturn(Future.successful(filteredApplications))
 
       val result = await(underTest.fetchApplications(Value("subscription", "version")))
@@ -138,9 +139,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val subscriptions = Seq(stdApp2, ropcApp)
 
       val allApps = noSubscriptions ++ subscriptions
-      given(underTest.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApps))
-      given(underTest.applicationConnector.fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier]))
         .willReturn(Future.successful(noSubscriptions))
       val result = await(underTest.fetchApplications(OneOrMoreSubscriptions))
       result shouldBe subscriptions
@@ -149,7 +150,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "list filtered applications when OneOrMoreApplications filtering is provided" in new Setup {
       val allApps = Seq(stdApp1, privilegedApp)
 
-      given(underTest.applicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+      given(mockApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
         .willReturn(Future.successful(allApps))
       val result = await(underTest.fetchApplications(OneOrMoreApplications))
       result shouldBe allApps
@@ -158,28 +159,28 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "updateOverrides" should {
     "call the service to update the overrides for an app with Standard access" in new Setup {
-      given(underTest.applicationConnector.updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier]))
+      given(mockApplicationConnector.updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateOverridesSuccessResult))
-      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+      given(mockApiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key")))))
 
       result shouldBe UpdateOverridesSuccessResult
 
-      verify(underTest.applicationConnector).updateOverrides(mEq(stdApp1.id.toString),
+      verify(mockApplicationConnector).updateOverrides(mEq(stdApp1.id.toString),
         mEq(UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("test.key"))))))(any[HeaderCarrier])
     }
 
     "fail when called with invalid scopes" in new Setup {
-      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+      given(mockApiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key", "invalid.key")))))
 
       result shouldBe UpdateOverridesFailureResult(Set(SuppressIvForAgents(Set("test.key", "invalid.key"))))
 
-      verify(underTest.applicationConnector, never).updateOverrides(any(), any())(any())
+      verify(mockApplicationConnector, never).updateOverrides(any(), any())(any())
     }
 
     "fail when called for an app with Privileged access" in new Setup {
@@ -187,7 +188,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         await(underTest.updateOverrides(privilegedApp, Set(PersistLogin(), SuppressIvForAgents(Set("hello")))))
       }
 
-      verify(underTest.applicationConnector, never).updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier])
+      verify(mockApplicationConnector, never).updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier])
     }
 
     "fail when called for an app with ROPC access" in new Setup {
@@ -195,15 +196,15 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         await(underTest.updateOverrides(ropcApp, Set(PersistLogin(), SuppressIvForAgents(Set("hello")))))
       }
 
-      verify(underTest.applicationConnector, never).updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier])
+      verify(mockApplicationConnector, never).updateOverrides(anyString, any[UpdateOverridesRequest])(any[HeaderCarrier])
     }
   }
 
   "updateScopes" should {
     "call the service to update the scopes for an app with Privileged access" in new Setup {
-      given(underTest.applicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
+      given(mockApplicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
-      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+      given(mockApiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(
           ApiScope("hello", "test name", "test description"),
           ApiScope("individual-benefits", "test name", "test description"))))
@@ -212,14 +213,14 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe UpdateScopesSuccessResult
 
-      verify(underTest.applicationConnector).updateScopes(mEq(privilegedApp.id.toString),
+      verify(mockApplicationConnector).updateScopes(mEq(privilegedApp.id.toString),
         mEq(UpdateScopesRequest(Set("hello", "individual-benefits"))))(any[HeaderCarrier])
     }
 
     "call the service to update the scopes for an app with ROPC access" in new Setup {
-      given(underTest.applicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
+      given(mockApplicationConnector.updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
-      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+      given(mockApiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(
           ApiScope("hello", "test name", "test description"),
           ApiScope("individual-benefits", "test name", "test description"))))
@@ -228,19 +229,19 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe UpdateScopesSuccessResult
 
-      verify(underTest.applicationConnector).updateScopes(mEq(ropcApp.id.toString),
+      verify(mockApplicationConnector).updateScopes(mEq(ropcApp.id.toString),
         mEq(UpdateScopesRequest(Set("hello", "individual-benefits"))))(any[HeaderCarrier])
     }
 
     "fail when called with invalid scopes" in new Setup {
-      given(underTest.apiScopeConnector.fetchAll()(any[HeaderCarrier]))
+      given(mockApiScopeConnector.fetchAll()(any[HeaderCarrier]))
         .willReturn(Future.successful(Seq(ApiScope("hello", "test name", "test description"))))
 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
 
       result shouldBe UpdateScopesInvalidScopesResult
 
-      verify(underTest.applicationConnector, never).updateScopes(any(), any())(any())
+      verify(mockApplicationConnector, never).updateScopes(any(), any())(any())
     }
 
     "fail when called for an app with Standard access" in new Setup {
@@ -248,7 +249,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
       }
 
-      verify(underTest.applicationConnector, never).updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier])
+      verify(mockApplicationConnector, never).updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier])
     }
   }
 
@@ -257,14 +258,14 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val context = "a-context"
       val version = "1.0"
 
-      given(underTest.applicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
+      given(mockApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       val result = await(underTest.subscribeToApi("applicationId", context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(underTest.applicationConnector).subscribeToApi(mEq("applicationId"), mEq(APIIdentifier(context, version)))(any[HeaderCarrier])
+      verify(mockApplicationConnector).subscribeToApi(mEq("applicationId"), mEq(APIIdentifier(context, version)))(any[HeaderCarrier])
     }
   }
 
@@ -273,30 +274,30 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val context = "a-context"
       val version = "1.0"
 
-      given(underTest.applicationConnector.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+      given(mockApplicationConnector.unsubscribeFromApi(anyString, anyString, anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-      given(underTest.subscriptionFieldsService.deleteFieldValues(anyString, anyString, anyString)(any[HeaderCarrier]))
+      given(mockSubscriptionFieldsService.deleteFieldValues(anyString, anyString, anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(FieldsDeleteSuccessResult))
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(underTest.applicationConnector).unsubscribeFromApi(mEq(stdApp1.id.toString), mEq(context), mEq(version))(any[HeaderCarrier])
-      verify(underTest.subscriptionFieldsService).deleteFieldValues(mEq(stdApp1.clientId.toString), mEq(context), mEq(version))(any[HeaderCarrier])
+      verify(mockApplicationConnector).unsubscribeFromApi(mEq(stdApp1.id.toString), mEq(context), mEq(version))(any[HeaderCarrier])
+      verify(mockSubscriptionFieldsService).deleteFieldValues(mEq(stdApp1.clientId.toString), mEq(context), mEq(version))(any[HeaderCarrier])
     }
   }
 
   "updateRateLimitTier" should {
     "call the service to update the rate limit tier" in new Setup {
-      given(underTest.applicationConnector.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
+      given(mockApplicationConnector.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       val result = await(underTest.updateRateLimitTier("applicationId", RateLimitTier.GOLD))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(underTest.applicationConnector).updateRateLimitTier(mEq("applicationId"), mEq(RateLimitTier.GOLD))(any[HeaderCarrier])
+      verify(mockApplicationConnector).updateRateLimitTier(mEq("applicationId"), mEq(RateLimitTier.GOLD))(any[HeaderCarrier])
     }
   }
 
@@ -307,7 +308,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val totpSecrets = Some(TotpSecrets("secret", "I am not used"))
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
-      given(underTest.applicationConnector.createPrivOrROPCApp(any[CreatePrivOrROPCAppRequest])(any[HeaderCarrier]))
+      given(mockApplicationConnector.createPrivOrROPCApp(any[CreatePrivOrROPCAppRequest])(any[HeaderCarrier]))
         .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult("app ID", "New App", "PRODUCTION", "client ID",  totpSecrets, appAccess)))
 
 
@@ -325,7 +326,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val secrets = Seq(ClientSecret(clientSecret))
       val credentials = ClientCredentials(secrets)
 
-      given(underTest.applicationConnector.getClientCredentials(mEq(appId))(any[HeaderCarrier]))
+      given(mockApplicationConnector.getClientCredentials(mEq(appId))(any[HeaderCarrier]))
         .willReturn(Future.successful(GetClientCredentialsResult(credentials)))
 
 
@@ -346,8 +347,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val versions = Seq(VersionSubscription(apiVersion, subscribed = true, versionFields))
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
-      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
-      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+      given(mockSubscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
+      given(mockApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
 
       val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
 
@@ -361,8 +362,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val versions = Seq(VersionSubscription(apiVersion, subscribed = true, Some(subscriptionFieldsWrapper)))
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
-      given(underTest.subscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
-      given(underTest.applicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
+      given(mockSubscriptionFieldsService.fetchFields(stdApp1.clientId, context, version)).willReturn(subscriptionFields)
+      given(mockApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
 
       val result = await(underTest.fetchApplicationSubscriptions(stdApp1, withFields = true))
 
@@ -383,9 +384,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -396,9 +397,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -411,9 +412,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -424,9 +425,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -439,9 +440,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -452,9 +453,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(underTest.applicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
+        given(mockApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
       }
@@ -465,9 +466,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val existingUser = User(email, "firstName", "lastName", verified = Some(true))
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
 
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.applicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new TeamMemberAlreadyExists))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockApplicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new TeamMemberAlreadyExists))
 
         intercept[TeamMemberAlreadyExists] {
           await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
@@ -478,9 +479,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val existingUser = User(email, "firstName", "lastName", verified = Some(true))
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
 
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-        given(underTest.applicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new ApplicationNotFound))
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockApplicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new ApplicationNotFound))
 
         intercept[ApplicationNotFound] {
           await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
@@ -502,13 +503,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val newUser = User(email, "n/a", "n/a", verified = None)
 
-        given(underTest.developerConnector.fetchByEmail(email)).willReturn(Future.successful(newUser))
-        given(underTest.developerConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
-        given(underTest.applicationConnector.addCollaborator(any(), any())(any())).willReturn(response)
+        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(newUser))
+        given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
+        given(mockApplicationConnector.addCollaborator(any(), any())(any())).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adderAdmin.emailAddress)) shouldBe response
 
-        verify(underTest.applicationConnector).addCollaborator(mEq(application.id.toString), mEq(request.copy(adminsToEmail = Set(verifiedAdmin.emailAddress))))(any())
+        verify(mockApplicationConnector).addCollaborator(mEq(application.id.toString), mEq(request.copy(adminsToEmail = Set(verifiedAdmin.emailAddress))))(any())
       }
     }
   }
@@ -521,43 +522,43 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val application = stdApp1
       val response = ApplicationUpdateSuccessResult
 
-      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
 
-      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+      verify(mockApplicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
     }
 
     "remove a member from a privileged app" in new Setup {
       val application = privilegedApp
       val response = ApplicationUpdateSuccessResult
 
-      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
 
-      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+      verify(mockApplicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
     }
 
     "remove a member from an ROPC app" in new Setup {
       val application = ropcApp
       val response = ApplicationUpdateSuccessResult
 
-      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-      given(underTest.applicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
 
-      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
+      verify(mockApplicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())
     }
 
     "propagate TeamMemberLastAdmin error from application connector" in new Setup {
       val lastAdmin = User(memberToRemove, "firstName", "lastName", verified = Some(true))
 
-      given(underTest.developerConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
-      given(underTest.applicationConnector.removeCollaborator(mEq(stdApp1.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(Seq.empty))(any())).willReturn(Future.failed(new TeamMemberLastAdmin))
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockApplicationConnector.removeCollaborator(mEq(stdApp1.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(Seq.empty))(any())).willReturn(Future.failed(new TeamMemberLastAdmin))
 
       intercept[TeamMemberLastAdmin] {
         await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
@@ -577,12 +578,12 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val response = ApplicationUpdateSuccessResult
       val expectedAdminsToEmail = Seq(verifiedAdmin.emailAddress)
 
-      given(underTest.developerConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
-      given(underTest.applicationConnector.removeCollaborator(any(), any(), any(), any())(any())).willReturn(response)
+      given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
+      given(mockApplicationConnector.removeCollaborator(any(), any(), any(), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response
 
-      verify(underTest.applicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(expectedAdminsToEmail))(any())
+      verify(mockApplicationConnector).removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(expectedAdminsToEmail))(any())
     }
   }
 }

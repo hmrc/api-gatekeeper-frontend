@@ -20,17 +20,20 @@ import java.net.URLEncoder.encode
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
+import config.AppConfig
 import connectors.SubscriptionFieldsConnector
 import model.ApiSubscriptionFields.{Fields, SubscriptionField, SubscriptionFields, SubscriptionFieldsPutRequest}
 import model.{FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, JsValidationException, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
 
   implicit val hc = HeaderCarrier()
   val urlPrefix = "/field"
@@ -41,11 +44,15 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with WiremockSugar with B
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
   trait Setup {
+
+    val mockAppConfig = mock[AppConfig]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
     val fieldsId = UUID.randomUUID()
-    val underTest = new SubscriptionFieldsConnector {
-      val subscriptionFieldsBaseUrl: String = wireMockUrl
-      override val http = WSHttp
-    }
+
+    val underTest = new SubscriptionFieldsConnector(mockAppConfig, httpClient)
+
+    when(mockAppConfig.subscriptionFieldsBaseUrl).thenReturn(wireMockUrl)
 
   }
 

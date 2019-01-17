@@ -47,12 +47,6 @@ package object Forms {
     val adminEmail = "adminEmail"
   }
 
-  val loginForm = Form(
-    mapping(
-      "userName" -> nonEmptyText,
-      "password" -> nonEmptyText
-    )(LoginDetails.make)(LoginDetails.unmake))
-
   val accessOverridesForm = Form (
     mapping (
       persistLoginEnabled -> boolean,

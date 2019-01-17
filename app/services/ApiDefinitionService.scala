@@ -16,6 +16,8 @@
 
 package services
 
+import javax.inject.Inject
+
 import connectors.ApiDefinitionConnector
 import model.APIDefinition
 
@@ -23,18 +25,12 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
-object ApiDefinitionService extends ApiDefinitionService {
-  override val apiDefinitionConnnector = ApiDefinitionConnector
-}
-
-trait ApiDefinitionService {
-
-  val apiDefinitionConnnector: ApiDefinitionConnector
+class ApiDefinitionService @Inject()(apiDefinitionConnector: ApiDefinitionConnector) {
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
-      publicApis <- apiDefinitionConnnector.fetchPublic()
-      privateApis <- apiDefinitionConnnector.fetchPrivate()
+      publicApis <- apiDefinitionConnector.fetchPublic()
+      privateApis <- apiDefinitionConnector.fetchPrivate()
     } yield (publicApis ++ privateApis).distinct
   }
 }

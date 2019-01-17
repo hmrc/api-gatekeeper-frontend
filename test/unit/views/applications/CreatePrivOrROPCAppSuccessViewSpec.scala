@@ -19,6 +19,7 @@ package unit.views.applications
 import config.AppConfig
 import model.{AccessType, TotpSecrets}
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits._
 import play.twirl.api.HtmlFormat
@@ -26,7 +27,9 @@ import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
 import views.html
 
-class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite {
+class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
+
+  private val mockAppConfig = mock[AppConfig]
 
   "CreatePrivOrROPCAppSuccess page" when {
     implicit val userFullName = Option("firstname lastname")
@@ -45,7 +48,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = Some(TotpSecrets(totpSecret, ""))
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(Some(""), applicationMessages, AppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(Some(""), applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 
@@ -73,7 +76,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(Some(""), applicationMessages, AppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(Some(""), applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 

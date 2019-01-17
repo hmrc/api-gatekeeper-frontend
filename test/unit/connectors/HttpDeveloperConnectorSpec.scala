@@ -19,27 +19,32 @@ package unit.connectors
 import java.net.URLEncoder
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
+import config.AppConfig
 import connectors.HttpDeveloperConnector
 import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, User}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpDelete, HttpGet, HttpPost}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 
-class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val connector = new HttpDeveloperConnector {
-      override val developerBaseUrl: String = wireMockUrl
-      override val http: HttpPost with HttpGet with HttpDelete = WSHttp
-    }
+    val mockAppConfig = mock[AppConfig]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
+    when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
+
+    val connector = new HttpDeveloperConnector(mockAppConfig, httpClient)
   }
 
 

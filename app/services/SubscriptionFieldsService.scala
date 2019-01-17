@@ -16,6 +16,8 @@
 
 package services
 
+import javax.inject.Inject
+
 import connectors._
 import model.ApiSubscriptionFields.{Fields, SubscriptionField}
 import model.FieldsDeleteResult
@@ -24,12 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object SubscriptionFieldsService extends SubscriptionFieldsService {
-  override val subscriptionFieldsConnnector = SubscriptionFieldsConnector
-}
-
-trait SubscriptionFieldsService {
-  val subscriptionFieldsConnnector: SubscriptionFieldsConnector
+class SubscriptionFieldsService @Inject()(subscriptionFieldsConnector: SubscriptionFieldsConnector) {
 
   def fetchFields(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
 
@@ -39,20 +36,20 @@ trait SubscriptionFieldsService {
 
     def fetchFieldsValues(defs: Seq[SubscriptionField])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
       for {
-        maybeValues <- subscriptionFieldsConnnector.fetchFieldValues(clientId, apiContext, apiVersion)
+        maybeValues <- subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)
       } yield maybeValues.fold(defs) { response =>
         addValuesToDefinitions(defs, response.fields)
       }
     }
 
-    subscriptionFieldsConnnector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
+    subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
   }
 
   def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    subscriptionFieldsConnnector.saveFieldValues(clientId, apiContext, apiVersion, fields)
+    subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fields)
   }
 
   def deleteFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
-    subscriptionFieldsConnnector.deleteFieldValues(clientId, context, version)
+    subscriptionFieldsConnector.deleteFieldValues(clientId, context, version)
   }
 }

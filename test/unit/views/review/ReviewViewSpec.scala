@@ -22,6 +22,7 @@ import config.AppConfig
 import controllers.HandleUpliftForm
 import model._
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
@@ -29,7 +30,10 @@ import uk.gov.hmrc.time.DateTimeUtils
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 
-class ReviewViewSpec extends PlaySpec with OneServerPerSuite {
+class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+
+  val mockAppConfig = mock[AppConfig]
+
   "review view" must {
     implicit val request = FakeRequest().withCSRFToken
 
@@ -49,7 +53,7 @@ class ReviewViewSpec extends PlaySpec with OneServerPerSuite {
 
     "show review information with pass and fail options" in {
 
-      val result = views.html.review.review.render(HandleUpliftForm.form, applicationReviewDetails,request, None, applicationMessages, AppConfig)
+      val result = views.html.review.review.render(HandleUpliftForm.form, applicationReviewDetails,request, None, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 

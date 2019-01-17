@@ -20,8 +20,7 @@ import config.AppConfig
 import connectors.AuthConnector
 import connectors.AuthConnector.InvalidCredentials
 import controllers.AccountController
-import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
-import model.{BearerToken, GatekeeperSessionKeys, LoginDetails, SuccessfulAuthentication}
+import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito.given
 import org.mockito.Matchers._
@@ -30,10 +29,10 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.crypto.Protected
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
+import model.LoginDetails._
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
@@ -43,15 +42,10 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
   implicit val materializer = fakeApplication.materializer
 
   trait Setup {
-    val underTest = new AccountController {
-      val appConfig = mock[AppConfig]
-      val authConnector = mock[AuthConnector]
-      def authProvider = mock[AuthenticationProvider]
-    }
+    implicit val appConfig = mock[AppConfig]
+    val mockAuthConnector = mock[AuthConnector]
 
-    implicit val encryptedStringFormats = JsonStringEncryption
-    implicit val decryptedStringFormats = JsonStringDecryption
-    implicit val format = Json.format[LoginDetails]
+    val underTest = new AccountController(mockAuthConnector)
 
     val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
@@ -75,7 +69,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
   }
 
   "authenticateAction" should {
-    "go to dashboard and set cookie when user authenticated successfully" in new Setup {
+    "go to dashboard and set cookie when user authenticated successfully" in new Setup { //Failing
       val loginDetails = LoginDetails("userName", Protected("password"))
       val aValidFormJson = Json.toJson(loginDetails)
       val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), "userName", None)
@@ -91,7 +85,7 @@ class AccountControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       status(result) shouldBe 400
     }
 
-    "go to login page if user failed to authenticate" in new Setup {
+    "go to login page if user failed to authenticate" in new Setup { //failing
       val loginDetails = LoginDetails("userName", Protected("password"))
       val aValidFormJson = Json.toJson(loginDetails)
       given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.failed(new InvalidCredentials))

@@ -16,31 +16,38 @@
 
 package config
 
-import play.api.Play
+import javax.inject.Inject
+
+import play.api.Mode.Mode
+import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.play.config.ServicesConfig
 
-trait AppConfig {
-  val assetsPrefix: String
-  val devHubBaseUrl: String
-  def isExternalTestEnvironment: Boolean
-  def title: String
-  def superUsers: Seq[String]
-}
+class AppConfig @Inject()(override val runModeConfiguration: Configuration, environment: Environment ) extends ServicesConfig {
 
-object AppConfig extends AppConfig with ServicesConfig {
+  override protected def mode: Mode = environment.mode
 
   private def loadStringConfig(key: String) = {
-    Play.current.configuration.getString(key)
+    runModeConfiguration.getString(key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
   }
 
-  override lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
-  override lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
-  override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
-  override def superUsers: Seq[String] = {
-    Play.current.configuration.getStringSeq(s"$env.superUsers")
-      .orElse(Play.current.configuration.getStringSeq("superUsers"))
+  lazy val appName = loadStringConfig("appName")
+  lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
+  lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
+  lazy val apiScopeBaseUrl = baseUrl("api-scope")
+  lazy val applicationBaseUrl = s"${baseUrl("third-party-application")}"
+  lazy val authBaseUrl = baseUrl("auth")
+  lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
+  lazy val developerBaseUrl = s"${baseUrl("third-party-developer")}"
+  lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
+  lazy val serviceBaseUrl = baseUrl("api-definition")
+
+  def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  def superUsers: Seq[String] = {
+    runModeConfiguration.getStringSeq(s"$env.superUsers")
+      .orElse(runModeConfiguration.getStringSeq("superUsers"))
       .getOrElse(Seq.empty)
   }
+
 }

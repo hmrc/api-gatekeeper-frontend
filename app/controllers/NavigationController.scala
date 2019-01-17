@@ -16,6 +16,8 @@
 
 package controllers
 
+import javax.inject.Inject
+
 import config.AppConfig
 import model.StaticNavLinks
 import play.api.libs.json._
@@ -23,13 +25,9 @@ import play.api.mvc.Action
 
 import scala.concurrent.Future
 
-trait NavigationController extends BaseController {
+class NavigationController @Inject()(override implicit val appConfig: AppConfig) extends BaseController {
 
   def navLinks() = Action.async { implicit request =>
     Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))
   }
-}
-
-object NavigationController extends NavigationController {
-  override val appConfig = AppConfig
 }

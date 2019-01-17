@@ -51,6 +51,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
     trait Setup extends ControllerSetupBase {
 
+      implicit val appConfig = mockConfig
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
@@ -59,12 +60,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       val mockDeveloperService = mock[DeveloperService]
 
-      val developersController = new DevelopersController {
-        val authConnector = mockAuthConnector
-        val authProvider = mockAuthProvider
-        val apiDefinitionService = mockApiDefinitionService
-        val developerService = mockDeveloperService
-        val applicationService = mockApplicationService
+      val developersController = new DevelopersController(mockDeveloperService, mockApplicationService, mockApiDefinitionService, mockAuthConnector) {
         override val appConfig = mockConfig
       }
 

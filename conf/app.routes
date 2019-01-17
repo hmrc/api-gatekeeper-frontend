@@ -1,8 +1,5 @@
 # microservice specific routes
 
-GET         /login                                                  controllers.AccountController.loginPage
-POST        /login                                                  controllers.AccountController.authenticate
-
 GET         /logout                                                 controllers.AccountController.logout
 
 GET         /review                                                 controllers.ApplicationController.reviewPage(id: String)

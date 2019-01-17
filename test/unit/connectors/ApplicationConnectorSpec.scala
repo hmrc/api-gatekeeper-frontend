@@ -19,27 +19,32 @@ package unit.connectors
 import java.net.URLEncoder
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
+import config.AppConfig
 import connectors.ApplicationConnector
 import model._
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar
+class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar
   with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     val authToken = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val connector = new ApplicationConnector {
-      override val http = WSHttp
-      override val applicationBaseUrl: String = wireMockUrl
-    }
+    val mockAppConfig = mock[AppConfig]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
+    val connector = new ApplicationConnector(mockAppConfig, httpClient)
+
+    when(mockAppConfig.applicationBaseUrl).thenReturn(wireMockUrl)
   }
 
   "updateRateLimitTier" should {

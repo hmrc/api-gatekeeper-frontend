@@ -30,9 +30,9 @@ class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
     trait Setup extends ControllerSetupBase {
 
-      val underTest = new NavigationController {
-        val appConfig = mockConfig
-      }
+      implicit val appConfig = mockConfig
+
+      val underTest = new NavigationController
     }
 
     "navigationController" should {

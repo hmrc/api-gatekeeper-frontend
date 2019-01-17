@@ -20,7 +20,7 @@ import java.util.UUID
 
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
-import model.LoginDetails.{JsonStringDecryption, JsonStringEncryption}
+
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -30,23 +30,18 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
+import model.LoginDetails._
 
 import scala.concurrent.Future
 
 trait ControllerSetupBase extends MockitoSugar {
 
   val mockAuthConnector = mock[AuthConnector]
-  val mockAuthProvider = mock[AuthenticationProvider]
   val mockApplicationService = mock[ApplicationService]
   val mockApiDefinitionService = mock[ApiDefinitionService]
   val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]
   val mockDeveloperConnector = mock[DeveloperConnector]
-
-  implicit val encryptedStringFormats = JsonStringEncryption
-  implicit val decryptedStringFormats = JsonStringDecryption
-  implicit val format = Json.format[LoginDetails]
 
   val basicApplication = ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None,
     Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),

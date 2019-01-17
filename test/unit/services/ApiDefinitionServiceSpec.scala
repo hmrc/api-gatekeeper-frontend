@@ -32,9 +32,7 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
   implicit val hc: HeaderCarrier = new HeaderCarrier
   val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
 
-  val definitionService = new ApiDefinitionService {
-    val apiDefinitionConnnector = mockApiDefinitionConnector
-  }
+  val definitionService = new ApiDefinitionService(mockApiDefinitionConnector)
 
   val publicDefinition = APIDefinition(
     "publicAPI", "http://localhost/",

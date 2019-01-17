@@ -16,17 +16,16 @@
 
 package config
 
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.hooks.HttpHooks
-import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.http.ws._
+import javax.inject.Inject
 
-trait Hooks extends HttpHooks with HttpAuditing {
-    override val hooks = Seq(AuditingHook)
-    override lazy val auditConnector: AuditConnector = ApplicationAuditConnector
+import play.api.Configuration
+import play.api.i18n.MessagesApi
+import play.api.mvc.Request
+import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
+
+class ErrorHandler @Inject()(val messagesApi: MessagesApi, val configuration: Configuration)(implicit val appConfig: AppConfig) extends FrontendErrorHandler {
+
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
+    views.html.error_template(pageTitle, heading, message)
+  }
 }
-
-trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with Hooks with AppName
-object WSHttp extends WSHttp

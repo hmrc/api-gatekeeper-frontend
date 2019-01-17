@@ -46,9 +46,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     implicit val hc = HeaderCarrier()
 
-    val underTest = new SubscriptionFieldsService {
-      override val subscriptionFieldsConnnector = mockSubscriptionFieldsConnector
-    }
+    val underTest = new SubscriptionFieldsService(mockSubscriptionFieldsConnector)
   }
 
   "fetchFields" should {

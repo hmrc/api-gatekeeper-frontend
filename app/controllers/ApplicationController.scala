@@ -16,6 +16,9 @@
 
 package controllers
 
+import javax.inject.Inject
+
+import config.AppConfig
 import connectors.AuthConnector
 import model.Forms._
 import model.UpliftAction.{APPROVE, REJECT}
@@ -29,28 +32,20 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper, SubscriptionEnhancer}
+import utils.{GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
 
 import scala.concurrent.Future
 
-object ApplicationController extends ApplicationController with WithAppConfig {
-  override val applicationService = ApplicationService
-  override val apiDefinitionService = ApiDefinitionService
-  override val developerService = DeveloperService
-  override val subscriptionFieldsService = SubscriptionFieldsService
-  override def authProvider = GatekeeperAuthProvider
-  override def authConnector = AuthConnector
-}
+class ApplicationController @Inject()(applicationService: ApplicationService,
+                                      apiDefinitionService: ApiDefinitionService,
+                                      developerService: DeveloperService,
+                                      subscriptionFieldsService: SubscriptionFieldsService,
+                                      override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+  extends BaseController with GatekeeperAuthWrapper {
 
-trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
-
-  val applicationService: ApplicationService
-  val apiDefinitionService: ApiDefinitionService
-  val developerService: DeveloperService
-  val subscriptionFieldsService: SubscriptionFieldsService
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage: Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
@@ -339,11 +334,11 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
 
-  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
-  private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+  private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
     withApp(appId) { app => app.application.access match {
       case _: Standard => f(app)
       case _ if isSuperUser => f(app)
@@ -357,7 +352,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
     }
   }
 
-  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationReviewDetails] = {
+  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
     for {
       app <- applicationService.fetchApplication(appId)
       submission <- lastSubmission(app)
@@ -405,7 +400,7 @@ trait ApplicationController extends BaseController with GatekeeperAuthWrapper {
       SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
-  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
 
     val currentRateLimitTierToDisplay = if (isSuperUser) Some(app.rateLimitTier) else None
 

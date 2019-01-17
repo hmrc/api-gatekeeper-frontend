@@ -16,34 +16,30 @@
 
 package connectors
 
-import config.WSHttp
+import javax.inject.Inject
+
+import config.AppConfig
 import model._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, Upstream5xxResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object ApiDefinitionConnector extends ApiDefinitionConnector with ServicesConfig {
-  override val serviceBaseUrl = baseUrl("api-definition")
-  override val http = WSHttp
-}
-
-trait ApiDefinitionConnector {
-  val serviceBaseUrl: String
-  val http: HttpGet
+class ApiDefinitionConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
+    http.GET[Seq[APIDefinition]](s"${appConfig.serviceBaseUrl}/api-definition")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
 
   def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
+    http.GET[Seq[APIDefinition]](s"${appConfig.serviceBaseUrl}/api-definition?type=private")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
+
 }

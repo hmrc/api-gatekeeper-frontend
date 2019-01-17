@@ -30,33 +30,35 @@ class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutur
   val email: String = "user@example.com"
   val loggedInUser: String = "admin-user"
 
+  val underTest = new DummyDeveloperConnector
+
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
-      await(DummyDeveloperConnector.fetchByEmail(email)) shouldBe UnregisteredCollaborator(email)
+      await(underTest.fetchByEmail(email)) shouldBe UnregisteredCollaborator(email)
     }
   }
 
   "fetchByEmails" should {
     "return an empty sequence" in {
-      await(DummyDeveloperConnector.fetchByEmails(Seq(email))) shouldBe Seq.empty
+      await(underTest.fetchByEmails(Seq(email))) shouldBe Seq.empty
     }
   }
 
   "fetchAll" should {
     "return an empty sequence" in {
-      await(DummyDeveloperConnector.fetchAll()) shouldBe Seq.empty
+      await(underTest.fetchAll()) shouldBe Seq.empty
     }
   }
 
   "deleteDeveloper" should {
     "return a success result" in {
-      await(DummyDeveloperConnector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe  DeveloperDeleteSuccessResult
+      await(underTest.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe  DeveloperDeleteSuccessResult
     }
   }
 
   "removeMfa" should {
     "return an UnregisteredCollaborator" in {
-      await(DummyDeveloperConnector.removeMfa(email, loggedInUser)) shouldBe UnregisteredCollaborator(email)
+      await(underTest.removeMfa(email, loggedInUser)) shouldBe UnregisteredCollaborator(email)
     }
   }
 }
