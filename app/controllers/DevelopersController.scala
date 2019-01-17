@@ -16,6 +16,9 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+
+import config.AppConfig
 import connectors.AuthConnector
 import model._
 import play.api.Logger
@@ -23,21 +26,15 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.GatekeeperAuthWrapper
 import views.html.developers._
 
-object DevelopersController extends DevelopersController with WithAppConfig {
-  override val developerService = DeveloperService
-  override val applicationService = ApplicationService
-  override val apiDefinitionService = ApiDefinitionService
-  override def authConnector = AuthConnector
-  override def authProvider = GatekeeperAuthProvider
-}
-
-trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
-  val applicationService: ApplicationService
-  val developerService: DeveloperService
-  val apiDefinitionService: ApiDefinitionService
+@Singleton
+class DevelopersController @Inject()(developerService: DeveloperService,
+                                     applicationService: ApplicationService,
+                                     apiDefinitionService: ApiDefinitionService,
+                                     override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+  extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage(filter: Option[String], status: Option[String]) = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>

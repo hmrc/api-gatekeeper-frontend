@@ -16,20 +16,16 @@
 
 package controllers
 
+import javax.inject.Inject
+
 import config.AppConfig
 import play.api.i18n.Messages
 import play.api.mvc.Request
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.error_template
 
-trait BaseController extends FrontendController {
-  implicit val appConfig: AppConfig
+abstract class BaseController(implicit val appConfig: AppConfig) extends FrontendController {
 
   def technicalDifficulties(implicit request: Request[_], messages: Messages)  = InternalServerError(error_template("Technical difficulties", "Technical difficulties",
     "Sorry, we’re experiencing technical difficulties"))
-}
-
-trait WithAppConfig {
-  self: BaseController =>
-  override implicit val appConfig = AppConfig
 }

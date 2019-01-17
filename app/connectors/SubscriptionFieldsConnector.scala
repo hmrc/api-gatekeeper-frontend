@@ -17,26 +17,19 @@
 package connectors
 
 import java.net.URLEncoder.encode
+import javax.inject.Inject
 
-import config.WSHttp
-import connectors.AuthConnector.baseUrl
+import config.AppConfig
 import model.ApiSubscriptionFields._
 import model.{FieldsDeleteFailureResult, FieldsDeleteResult, FieldsDeleteSuccessResult}
-import play.api.http.Status.{NO_CONTENT, NOT_FOUND}
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object SubscriptionFieldsConnector extends SubscriptionFieldsConnector {
-  override val subscriptionFieldsBaseUrl: String = s"${baseUrl("api-subscription-fields")}"
-  override val http = WSHttp
-}
-
-trait SubscriptionFieldsConnector {
-  val subscriptionFieldsBaseUrl: String
-
-  val http: HttpGet with HttpPut with HttpDelete
+class SubscriptionFieldsConnector @Inject()(appConfig: AppConfig, http: HttpClient){
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
@@ -69,10 +62,10 @@ trait SubscriptionFieldsConnector {
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
   private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
-    s"$subscriptionFieldsBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+    s"${appConfig.subscriptionFieldsBaseUrl}/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def urlSubscriptionFieldDefinition(apiContext: String, apiVersion: String) =
-    s"$subscriptionFieldsBaseUrl/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+    s"${appConfig.subscriptionFieldsBaseUrl}/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value

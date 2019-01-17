@@ -16,28 +16,17 @@
 
 package services
 
+import javax.inject.Inject
+
 import config.AppConfig
-import connectors.{ApplicationConnector, DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector}
+import connectors.{ApplicationConnector, DeveloperConnector}
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object DeveloperService extends DeveloperService {
-  override val appConfig = AppConfig
-
-  override val developerConnector: DeveloperConnector =
-    if (AppConfig.isExternalTestEnvironment) DummyDeveloperConnector else HttpDeveloperConnector
-
-  override val applicationConnector: ApplicationConnector = ApplicationConnector
-}
-
-trait DeveloperService {
-
-  implicit val appConfig: AppConfig
-  val developerConnector: DeveloperConnector
-  val applicationConnector: ApplicationConnector
+class DeveloperService @Inject()(appConfig: AppConfig, developerConnector: DeveloperConnector, applicationConnector: ApplicationConnector) {
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {

@@ -17,6 +17,7 @@
 package model
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 
 import model.AccessType.AccessType
 import model.OverrideType.OverrideType
@@ -25,26 +26,28 @@ import model.State.State
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.libs.json._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, CompositeSymmetricCrypto, Protected}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.json.Union
 
 
 case class LoginDetails(userName: String, password: Protected[String])
 
-object LoginDetails {
-  implicit val crypto = ApplicationCrypto.JsonCrypto
+object LoginDetials {
+  implicit val formats = Json.format[LoginDetails]
+}
 
+@Singleton
+class JsonEncryptedLoginDetails @Inject()(applicationCrypto: ApplicationCrypto) {
+  implicit val crypto = applicationCrypto.JsonCrypto
   object JsonStringEncryption extends JsonEncryptor[String]
 
   object JsonStringDecryption extends JsonDecryptor[String]
 
   implicit val encryptedStringFormats = JsonStringEncryption
   implicit val decryptedStringFormats = JsonStringDecryption
-
-  implicit val formats = Json.format[LoginDetails]
 
   def make(userName: String, password: String) = LoginDetails(userName, Protected(password))
 

@@ -16,25 +16,20 @@
 
 package connectors
 
-import config.WSHttp
+import javax.inject.Inject
+
+import config.AppConfig
 import model._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, Upstream5xxResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object ApiScopeConnector extends ApiScopeConnector with ServicesConfig {
-  override val serviceBaseUrl = baseUrl("api-scope")
-  override val http = WSHttp
-}
-
-trait ApiScopeConnector {
-  val serviceBaseUrl: String
-  val http: HttpGet
+class ApiScopeConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
-    http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
+    http.GET[Seq[ApiScope]](s"${appConfig.apiScopeBaseUrl}/scope")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }

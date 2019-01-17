@@ -16,27 +16,28 @@
 
 package controllers
 
+import javax.inject.Inject
+
+import config.AppConfig
 import connectors.AuthConnector
-import model.Forms._
-import model.{GatekeeperSessionKeys, LoginDetails}
+import model.{GatekeeperSessionKeys, JsonEncryptedLoginDetails, LoginDetails}
 import play.api.Logger
 import play.api.Play.current
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.GatekeeperAuthWrapper
 import views.html.login._
 
 import scala.concurrent.Future
 
-object AccountController extends AccountController with WithAppConfig {
-  override val authConnector = AuthConnector
-  override def authProvider = GatekeeperAuthProvider
-}
+class AccountController @Inject()(override val authConnector: AuthConnector,
+                                  accountController: AccountController,
+                                  jsonEncryptedLoginDetails: JsonEncryptedLoginDetails)(override implicit val appConfig: AppConfig)
+  extends BaseController with GatekeeperAuthWrapper {
 
-trait AccountController extends BaseController with GatekeeperAuthWrapper {
-
-  val authConnector: AuthConnector
   val welcomePage = routes.ApplicationController.applicationsPage()
 
   val loginPage: Action[AnyContent] = redirectIfLoggedIn(welcomePage) {
@@ -67,5 +68,11 @@ trait AccountController extends BaseController with GatekeeperAuthWrapper {
       }
     }
   }
+
+  val loginForm = Form(
+    mapping(
+      "userName" -> nonEmptyText,
+      "password" -> nonEmptyText
+    )(jsonEncryptedLoginDetails.make)(jsonEncryptedLoginDetails.unmake))
 
 }

@@ -17,44 +17,34 @@
 package utils
 
 import connectors.AuthConnector
-import controllers.routes
+import controllers.{BaseController, routes}
 import model.{GatekeeperSessionKeys, Role}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Request, Result, _}
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import play.api.mvc.{Action, AnyContent, Request, Result}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait GatekeeperAuthWrapper {
-  self: Results =>
-
-  def authProvider: AuthenticationProvider
+  self: BaseController =>
 
   def authConnector: AuthConnector
 
-  implicit val appConfig: config.AppConfig
-
   implicit def loggedIn(implicit request: Request[_]) = request.session.get(GatekeeperSessionKeys.LoggedInUser)
 
-  private def validatedAsyncAction(f: Request[_] => Future[Result]) =
-    SessionTimeoutValidation(authProvider)(Action.async(f))
-
-
-  def requiresLogin()(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
-      val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+  def requiresLogin(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
       request.session.get(GatekeeperSessionKeys.AuthToken) match {
         case Some(_) => body(request)(hc)
-        case _ => authProvider.redirectToLogin
+        case _ => Future.successful(Redirect(routes.AccountController.loginPage()))
       }
-    }
   }
 
   def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
+    requiresLogin { implicit request => implicit hc =>
       def meetsSuperUserRequirement = if (requiresSuperUser) isSuperUser else true
 
       def redirectToLogin = Future.successful(Redirect(routes.AccountController.loginPage()))
@@ -69,13 +59,11 @@ trait GatekeeperAuthWrapper {
     }
   }
 
-  def redirectIfLoggedIn(redirectTo: play.api.mvc.Call)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
-      val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(GatekeeperSessionKeys.AuthToken) match {
-        case Some(_) => Future.successful(Redirect(redirectTo))
-        case _ => body(request)(hc)
-      }
+  def redirectIfLoggedIn(redirectTo: play.api.mvc.Call)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+    request.session.get(GatekeeperSessionKeys.AuthToken) match {
+      case Some(_) => Future.successful(Redirect(redirectTo))
+      case _ => body(request)(hc)
     }
   }
 

@@ -16,14 +16,16 @@
 
 package connectors
 
-import config.WSHttp
-import connectors.AuthConnector._
+import javax.inject.{Inject, Singleton}
+
+import config.AppConfig
 import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
@@ -36,26 +38,25 @@ trait DeveloperConnector {
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User]
 }
 
-trait HttpDeveloperConnector extends DeveloperConnector {
-  val developerBaseUrl: String
-  val http: HttpGet with HttpPost with HttpDelete
+@Singleton
+class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient) extends DeveloperConnector {
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
-    http.GET[User](s"$developerBaseUrl/developer", Seq("email" -> email)).recover{
+    http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover{
       case e: NotFoundException => UnregisteredCollaborator(email)
     }
   }
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = {
-    http.GET[Seq[User]](s"$developerBaseUrl/developers", Seq("emails" -> emails.mkString(",")))
+    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", Seq("emails" -> emails.mkString(",")))
   }
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
-    http.GET[Seq[User]](s"$developerBaseUrl/developers/all")
+    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers/all")
   }
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) = {
-    http.POST(s"$developerBaseUrl/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST(s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case NO_CONTENT => DeveloperDeleteSuccessResult
         case _ => DeveloperDeleteFailureResult
@@ -66,16 +67,12 @@ trait HttpDeveloperConnector extends DeveloperConnector {
   }
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
-    http.POST[JsValue, User](s"$developerBaseUrl/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
+    http.POST[JsValue, User](s"${appConfig.developerBaseUrl}/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
 }
 
-object HttpDeveloperConnector extends HttpDeveloperConnector {
-  override val developerBaseUrl = s"${baseUrl("third-party-developer")}"
-  override val http = WSHttp
-}
-
-object DummyDeveloperConnector extends DeveloperConnector {
+@Singleton
+class DummyDeveloperConnector extends DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)

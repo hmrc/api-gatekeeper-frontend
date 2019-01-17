@@ -3,7 +3,7 @@ import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._
 import net.ground5hark.sbt.concat.Import._
-import play.routes.compiler.StaticRoutesGenerator
+import play.routes.compiler.InjectedRoutesGenerator
 import play.sbt.routes.RoutesKeys.routesGenerator
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
@@ -50,7 +50,7 @@ lazy val microservice =  (project in file("."))
       fork in Test := false,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-      routesGenerator := StaticRoutesGenerator,
+      routesGenerator := InjectedRoutesGenerator,
       shellPrompt := (_ => "> "),
       majorVersion := 0
     )
@@ -105,7 +105,7 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % "acceptance",
+  "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
@@ -146,7 +146,9 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "frontend-bootstrap" % "10.7.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.6.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
+  "uk.gov.hmrc" %% "play-ui" % "7.27.0-play-25",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
