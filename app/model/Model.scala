@@ -35,7 +35,8 @@ import uk.gov.hmrc.play.json.Union
 
 case class LoginDetails(userName: String, password: Protected[String])
 
-object LoginDetials {
+object LoginDetails {
+  implicit val formatProtected = Json.format[Protected[String]]
   implicit val formats = Json.format[LoginDetails]
 }
 
