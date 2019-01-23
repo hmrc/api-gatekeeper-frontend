@@ -70,16 +70,13 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-      val underTest = new ApplicationController {
-        val appConfig = mockConfig
-        val authConnector = mockAuthConnector
-        val authProvider = mockAuthProvider
-        val applicationService = mockApplicationService
-        val apiDefinitionService = mockApiDefinitionService
-        val developerService = mockDeveloperService
-        val subscriptionFieldsService = mockSubscriptionFieldsService
-
-      }
+      val underTest = new ApplicationController(
+        mockApplicationService,
+        mockApiDefinitionService,
+        mockDeveloperService,
+        mockSubscriptionFieldsService,
+        mockAuthConnector
+      )(mockConfig)
 
       given(mockConfig.superUsers).willReturn(Seq("superUserName"))
     }
@@ -175,7 +172,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulLogin
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(underTest.applicationService.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
+        given(mockApplicationService.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
           .willReturn(Future.successful(ResendVerificationSuccessful))
 
         val result = await(underTest.resendVerification(applicationId)(aLoggedInRequest))
@@ -228,7 +225,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
+        given(mockApplicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateScopesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
@@ -257,7 +254,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
+        given(mockApplicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateScopesInvalidScopesResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
@@ -322,7 +319,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier]))
+        given(mockApplicationService.updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateOverridesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -382,7 +379,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier]))
+        given(mockApplicationService.subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -390,7 +387,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
 
-        verify(underTest.applicationService).subscribeToApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+        verify(mockApplicationService).subscribeToApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
       }
 
       "return unauthorised when submitted for a non-super user" in new Setup {
@@ -401,7 +398,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe UNAUTHORIZED
 
-        verify(underTest.applicationService, never).subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier])
+        verify(mockApplicationService, never).subscribeToApi(anyString, anyString, anyString)(any[HeaderCarrier])
       }
     }
 
@@ -410,7 +407,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier]))
+        given(mockApplicationService.unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -418,7 +415,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
 
-        verify(underTest.applicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
       }
 
       "return unauthorised when submitted for a non-super user" in new Setup {
@@ -429,7 +426,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe UNAUTHORIZED
 
-        verify(underTest.applicationService, never).unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier])
+        verify(mockApplicationService, never).unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier])
       }
     }
 
@@ -453,7 +450,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "save subscription field values" in new Setup {
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
-        given(underTest.subscriptionFieldsService.saveFieldValues(any[String], any[String], any[String], any[ApiSubscriptionFields.Fields])(any[HeaderCarrier]))
+        given(mockSubscriptionFieldsService.saveFieldValues(any[String], any[String], any[String], any[ApiSubscriptionFields.Fields])(any[HeaderCarrier]))
           .willReturn(successful(HttpResponse(OK)))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(validForm: _*)
@@ -463,7 +460,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
 
-        verify(underTest.subscriptionFieldsService).saveFieldValues(
+        verify(mockSubscriptionFieldsService).saveFieldValues(
           eqTo(application.application.clientId),
           eqTo(context),
           eqTo(version),
@@ -496,7 +493,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenASuccessfulSuperUserLogin
         givenTheAppWillBeReturned()
 
-        given(underTest.applicationService.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
+        given(mockApplicationService.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
@@ -547,7 +544,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
         val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(underTest.applicationService.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
+        given(mockApplicationService.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
         val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -566,7 +563,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-        given(underTest.applicationService.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+        given(mockApplicationService.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
@@ -575,7 +572,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         appIdCaptor.getValue shouldBe applicationId
         newTierCaptor.getValue shouldBe tier
 
-        verify(underTest.applicationService, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
+        verify(mockApplicationService, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
       }
 
       "not call the application connector for a normal user " in new Setup {
@@ -585,7 +582,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
         status(result) shouldBe SEE_OTHER
 
-        verify(underTest.applicationService, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
+        verify(mockApplicationService, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
       }
     }
 

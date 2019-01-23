@@ -16,8 +16,6 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.AppConfig
 import play.api.i18n.Messages
 import play.api.mvc.Request

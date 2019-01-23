@@ -39,11 +39,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val developerBaseUrl = s"${baseUrl("third-party-developer")}"
   lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
   lazy val serviceBaseUrl = baseUrl("api-definition")
-  def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
   def superUsers: Seq[String] = {
-    Play.current.configuration.getStringSeq(s"$env.superUsers")
-      .orElse(Play.current.configuration.getStringSeq("superUsers"))
+    runModeConfiguration.getStringSeq(s"$env.superUsers")
+      .orElse(runModeConfiguration.getStringSeq("superUsers"))
       .getOrElse(Seq.empty)
   }
 

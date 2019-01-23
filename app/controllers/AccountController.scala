@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.AppConfig
 import connectors.AuthConnector
-import model.{GatekeeperSessionKeys, JsonEncryptedLoginDetails, LoginDetails}
+import model.{GatekeeperSessionKeys, LoginDetails}
 import play.api.Logger
 import play.api.Play.current
 import play.api.data.Form
@@ -33,9 +33,7 @@ import views.html.login._
 
 import scala.concurrent.Future
 
-class AccountController @Inject()(override val authConnector: AuthConnector,
-                                  accountController: AccountController,
-                                  jsonEncryptedLoginDetails: JsonEncryptedLoginDetails)(override implicit val appConfig: AppConfig)
+class AccountController @Inject()(override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
   val welcomePage = routes.ApplicationController.applicationsPage()
@@ -46,7 +44,10 @@ class AccountController @Inject()(override val authConnector: AuthConnector,
 
   val authenticate = Action.async { implicit request =>
     loginForm.bindFromRequest().fold(
-      errors => Future.successful(BadRequest(login(loginForm))),
+      errors => {
+        println(errors)
+        Future.successful(BadRequest(login(loginForm)))
+      },
       loginDetails => processLogin(loginDetails)
     )
   }
@@ -73,6 +74,6 @@ class AccountController @Inject()(override val authConnector: AuthConnector,
     mapping(
       "userName" -> nonEmptyText,
       "password" -> nonEmptyText
-    )(jsonEncryptedLoginDetails.make)(jsonEncryptedLoginDetails.unmake))
+    )(LoginDetails.make)(LoginDetails.unmake))
 
 }

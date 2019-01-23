@@ -18,11 +18,14 @@ package unit.views.developers
 
 import config.AppConfig
 import model._
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
 
-class DevelopersViewSpec extends PlaySpec with OneServerPerSuite {
+class DevelopersViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+
+  private val mockAppConfig = mock[AppConfig]
 
   val users = Seq(
     User("sample@example.com", "Sample", "Email", Some(false)),
@@ -34,7 +37,7 @@ class DevelopersViewSpec extends PlaySpec with OneServerPerSuite {
 
     "list all developers" in {
       implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages, AppConfig)
+      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages, mockAppConfig)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

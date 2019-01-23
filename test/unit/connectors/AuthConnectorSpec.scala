@@ -17,23 +17,28 @@
 package unit.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
+import config.AppConfig
 import connectors.AuthConnector
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 
-class AuthConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class AuthConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val connector = new AuthConnector {
-      override val http = WSHttp
-      override val authUrl: String = s"$wireMockUrl/auth/authenticate/user"
-    }
+    val mockAppConfig = mock[AppConfig]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
+    val connector = new AuthConnector(mockAppConfig, httpClient)
+
+    when(mockAppConfig.authBaseUrl).thenReturn(s"$wireMockUrl/auth/authenticate/user")
   }
 
   "authorised" should {

@@ -23,6 +23,7 @@ import model.Forms._
 import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
@@ -32,9 +33,10 @@ import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 
-class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
+class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
   trait Setup {
     val request = FakeRequest().withCSRFToken
+    val mockAppConfig = mock[AppConfig]
 
     val application =
       ApplicationResponse(
@@ -56,7 +58,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
 
     "show application information, including superuser only actions, when logged in as superuser" in new Setup {
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -66,7 +68,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, false, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, false, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -77,7 +79,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
     "show error message when no collaborator is chosen" in new Setup {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", Messages("application.administrator.missing"))
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -88,7 +90,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite {
     "show error message when the application name doesn't match" in new Setup {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, AppConfig)
+      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 

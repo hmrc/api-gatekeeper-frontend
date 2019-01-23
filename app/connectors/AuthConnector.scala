@@ -37,13 +37,11 @@ class AuthConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
     implicit val reads = Json.reads[AuthResponse]
   }
 
-  class InvalidCredentials extends RuntimeException("Login failed")
-
   def login(loginDetails: LoginDetails)(implicit hc: HeaderCarrier): Future[SuccessfulAuthentication] =
     http.POST[LoginDetails, AuthResponse](appConfig.authBaseUrl, loginDetails)
       .map(_.toAuthSuccess(loginDetails))
       .recoverWith {
-        case e: Upstream4xxResponse if e.upstreamResponseCode == 401 => Future.failed(new InvalidCredentials)
+        case e: Upstream4xxResponse if e.upstreamResponseCode == 401 => Future.failed(new AuthConnector.InvalidCredentials)
       }
 
     def authorized(role: Role)(implicit hc: HeaderCarrier): Future[Boolean] = authorized(role.scope, Some(role.name))
@@ -54,4 +52,8 @@ class AuthConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
         case e: Upstream4xxResponse if e.upstreamResponseCode == 401 => false
       }
   }
+}
+
+object AuthConnector {
+  class InvalidCredentials extends RuntimeException("Login failed")
 }

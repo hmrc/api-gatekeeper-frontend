@@ -21,6 +21,7 @@ import java.util.UUID
 import config.AppConfig
 import model._
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
@@ -29,7 +30,7 @@ import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 import views.html.developers.delete_developer
 
-class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite {
+class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
 
   sealed case class TestApplication(name: String,
                              collaborators: Set[Collaborator],
@@ -43,7 +44,7 @@ class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = Some("gate.keeper")
     implicit val messages = applicationMessages
-    implicit val appConfig = AppConfig
+    implicit val appConfig = mock[AppConfig]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))

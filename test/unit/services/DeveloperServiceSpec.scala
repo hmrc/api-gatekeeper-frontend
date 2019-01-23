@@ -50,11 +50,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     val mockDeveloperConnector = mock[DeveloperConnector]
     val mockAppConfig = mock[AppConfig]
 
-    val underTest = new DeveloperService {
-      val applicationConnector = mockApplicationConnector
-      val developerConnector = mockDeveloperConnector
-      val appConfig = mockAppConfig
-    }
+    val underTest = new DeveloperService(mockAppConfig, mockDeveloperConnector, mockApplicationConnector)
 
     val verifiedAdminUser = aUser("admin1")
     val verifiedAdminTeamMember = Collaborator(verifiedAdminUser.email, CollaboratorRole.ADMINISTRATOR)

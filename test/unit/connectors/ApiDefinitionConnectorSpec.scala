@@ -17,23 +17,28 @@
 package unit.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
-import connectors.{ApiDefinitionConnector, ApplicationConnector}
+import config.AppConfig
+import connectors.ApiDefinitionConnector
 import model._
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val connector = new ApiDefinitionConnector {
-      override val http = WSHttp
-      override val serviceBaseUrl: String = wireMockUrl
-    }
+    val mockAppConfig = mock[AppConfig]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
+    when(mockAppConfig.serviceBaseUrl).thenReturn(wireMockUrl)
+
+    val connector = new ApiDefinitionConnector(mockAppConfig, httpClient)
   }
 
   "fetchAll" should {

@@ -16,7 +16,9 @@
 
 package unit.utils
 
+import config.AppConfig
 import connectors.AuthConnector
+import controllers.BaseController
 import model.{GatekeeperSessionKeys, Role}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
@@ -24,19 +26,20 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{Call, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.GatekeeperAuthWrapper
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   trait Setup {
-    val underTest = new GatekeeperAuthWrapper with Results {
+
+    implicit val appConfig = mock[config.AppConfig]
+
+    val underTest = new BaseController with GatekeeperAuthWrapper {
       val authConnector = mock[AuthConnector]
-      val authProvider = GatekeeperAuthProvider
-      implicit val appConfig = mock[config.AppConfig]
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 
@@ -61,12 +64,12 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
   "requiresLogin" should {
     "execute body if request contains valid logged in token" in new Setup {
-      val result = underTest.requiresLogin()(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresLogin(actionReturns200Body).apply(aLoggedInRequest)
       status(result) shouldBe 200
     }
 
     "redirect to login if the request does not contain a valid logged in token" in new Setup {
-      val result = underTest.requiresLogin()(actionReturns200Body).apply(aLoggedOutRequest)
+      val result = underTest.requiresLogin(actionReturns200Body).apply(aLoggedOutRequest)
       redirectLocation(result) shouldBe Some("/api-gatekeeper/login")
     }
   }
