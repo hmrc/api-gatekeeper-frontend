@@ -1,0 +1,78 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers._
+@import include._
+@import model._
+
+@(unapprovedApps: Seq[APIApprovalSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+
+@main(title = s"${appConfig.title} - API Approval", userFullName = userFullName) {
+<article class="content__body full-width">
+
+    <header>
+        <h1>API approval</h1>
+    </header>
+
+    <form action="@routes.DeploymentApprovalController.pendingPage().url" method="get">
+
+        <table id="application-table"
+               class="dataTable no-footer application-list"
+               width="100%"
+               data-dom="t<'text--center'lip>"
+               data-order='[0,"asc"]'
+               data-page-length="100"
+               data-paginate="true"
+               data-length-change="true"
+               data-length-menu="[10,50,100, 200, 300]"
+               data-responsive="true"
+               data-column-defs='[{"targets": [0,1], "orderable": true, "searchable":true}]'
+               data-language='{"sSearchPlaceholder":"Service ID, Name","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+            <thead>
+            <tr role="row">
+                <th tabindex="0" class="sorting_left-aligned">Service ID</th>
+                <th tabindex="0" class="sorting_left-aligned">Name</th>
+                <th class="text--right hard--right" data-orderable="false" tabindex="0">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for((application, index) <- unapprovedApps.zipWithIndex) {
+            <tr role="row">
+                <td id="app-servicename-@index">@application.serviceName</td>
+                <td id="app-name-@index">@application.name</td>
+                <td class="text--right hard--right"><a data-review- @application.serviceName href="@{
+                                routes.DeploymentApprovalController.reviewPage(application.serviceName)
+                            }">Check and approve</a>
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
+
+        <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left:0">
+            <div class="grid-layout__column--1-3 text--center">
+                @if(unapprovedApps.isEmpty) {"There are no unapproved applications."}
+            </div>
+        </div>
+
+    </form>
+
+    <div class="form-group>">
+        <a class="back-to-top-link" href="#">Back to Top</a>
+    </div>
+
+</article>
+}

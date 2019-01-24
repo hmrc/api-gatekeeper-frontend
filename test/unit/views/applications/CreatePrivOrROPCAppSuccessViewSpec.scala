@@ -32,7 +32,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
   private val mockAppConfig = mock[AppConfig]
 
   "CreatePrivOrROPCAppSuccess page" when {
-    implicit val userFullName = Option("firstname lastname")
+    implicit val userFullName = "firstname lastname"
 
     val appId = "245dfgs-2dfgd578-968sdg5-23f456-dgf324"
     val appName = "This is my app name"

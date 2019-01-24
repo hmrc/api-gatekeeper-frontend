@@ -19,10 +19,11 @@ package utils
 import connectors.AuthConnector
 import controllers.BaseController
 import model.{GatekeeperSessionKeys, Role}
+import play.api.Mode
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
-import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.auth.core.{AuthProviders, Enrolment, InsufficientEnrolments, NoActiveSession}
+import uk.gov.hmrc.auth.core.retrieve.{~, _}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -34,47 +35,49 @@ trait GatekeeperAuthWrapper {
 
   def authConnector: AuthConnector
 
-  // TODO: take from saved value on request/session from Retrieval
-//  implicit def loggedIn(implicit request: Request[_]) = Some("ME!")// request.session.get(GatekeeperSessionKeys.LoggedInUser) <- None.get :(
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
-  case class LoggedInRequest[A](name: String, request: Request[A]) extends WrappedRequest(request)
-
-  def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
-     implicit request =>
-       val enrolment = if (requiresSuperUser) "superuserrole" else "otherrole"
+  def requiresRole(requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
+    implicit request =>
+      val superUserEnrolment = Enrolment(appConfig.superUserRole) or Enrolment(appConfig.adminRole)
+      val anyGatekeeperEnrolment = superUserEnrolment or Enrolment(appConfig.userRole)
+      val enrolment = if (requiresSuperUser) superUserEnrolment else anyGatekeeperEnrolment
 
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-      val predicate = Enrolment(enrolment) and AuthProviders(PrivilegedApplication) // TODO: correct enrolment
-       val retrieval = Retrievals.allEnrolments and Retrievals.authorisedEnrolments and Retrievals.internalId and Retrievals.name // TODO: correct retrievals
-       authConnector.authorise(predicate, retrieval).flatMap {
-         case allEnrolments ~ authorisedEnrolments ~ internalId ~ name =>
-           request.session.data + ("name" -> name.toString)
-           println(s"NAME!!! ${name.toString}") // Name is currently Name(None, None)
-           request.session + ("allEnrolments" -> allEnrolments.toString)
-           request.session + ("internalId" -> internalId.toString)
-           //body(request.withTag("name", name.name.getOrElse("BLEG")))(hc)
-           body(LoggedInRequest(name.toString, request))(hc)
-       } recoverWith {
-         case _: NoActiveSession =>
-           Future.successful(toStrideLogin(request.uri))
-         case _: InsufficientEnrolments =>
-           Future.successful(Forbidden)
-       }
+      val predicate = enrolment and AuthProviders(PrivilegedApplication)
+      val retrieval: Retrieval[~[Name, Enrolments]] = Retrievals.name and Retrievals.authorisedEnrolments
 
-    }
+      authConnector.authorise(predicate, retrieval).flatMap {
+        case name ~ authorisedEnrolments =>
+          body(LoggedInRequest(name.name.get.toString, authorisedEnrolments, request))(hc)
+      } recoverWith {
+        case _: NoActiveSession =>
+          request.secure
+          Future.successful(toStrideLogin(hostUri))
+        case _: InsufficientEnrolments =>
+          Future.successful(Forbidden)
+      }
 
-  private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result =
+  }
+
+  private def hostUri(implicit request: Request[_]) = { //this is unused
+    val protocol = if (request.secure) "https" else "http"
+    s"$protocol://${request.host}${request.uri}"
+  }
+
+  private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result = //this is never used
     Redirect(
       appConfig.strideLoginUrl,
       Map(
         "successURL" -> Seq(successUrl),
-        "origin"     -> Seq(appConfig.appName)
+        "origin" -> Seq(appConfig.appName)
       ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
 
   def isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-    appConfig.superUsers.contains(loggedIn) // TODO: take from enrolments (from either allEnrolments or authorisedEnrolments) on the request/session
+    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
 
 }
+
+case class LoggedInRequest[A](name: String, authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)

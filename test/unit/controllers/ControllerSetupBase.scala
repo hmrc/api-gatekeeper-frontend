@@ -20,17 +20,23 @@ import java.util.UUID
 
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
-
 import model._
+import org.apache.http.auth.InvalidCredentialsException
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import model.LoginDetails._
+import play.api.mvc.Results.Forbidden
+import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
+
+import scala.concurrent.ExecutionContext
+//import model.LoginDetails._
 
 import scala.concurrent.Future
 
@@ -60,21 +66,36 @@ trait ControllerSetupBase extends MockitoSugar {
   val noDevs = Seq.empty[ApplicationDeveloper]
 
   def givenAUnsuccessfulLogin(): Unit = {
-    givenALogin(userName, false)
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(Future.failed(new InvalidBearerToken))
   }
 
-  def givenASuccessfulLogin(): Unit = {
-    givenALogin(userName, true)
+  def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
+
+    val userRole = "userRole" + UUID.randomUUID
+
+    given(mockConfig.userRole).willReturn(userRole)
+
+    val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
+
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(response)
   }
 
-  def givenASuccessfulSuperUserLogin(): Unit = {
-    givenALogin(superUserName, true)
+  def givenTheUserHasInsufficientEnrolments(): Unit = {
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(Future.failed(new InsufficientEnrolments))
   }
 
-  private def givenALogin(userName: String, successful: Boolean): Unit = {
-    val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
-    given(mockAuthConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-    given(mockAuthConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(successful))
+  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
+    val superUserRole = "superUserRole" + UUID.randomUUID
+
+    given(mockConfig.superUserRole).willReturn(superUserRole)
+
+    val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
+
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(response)
   }
 
   def givenTheAppWillBeReturned(application: ApplicationWithHistory = application) = {
