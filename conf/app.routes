@@ -59,3 +59,7 @@ POST        /applications/:id/unblock                               controllers.
 
 GET         /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationPage
 POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
+
+GET         /pending                                                controllers.DeploymentApprovalController.pendingPage
+GET         /pending/:serviceName/review                            controllers.DeploymentApprovalController.reviewPage(serviceName: String)
+POST        /pending/:serviceName/approve                           controllers.DeploymentApprovalController.handleApproval(serviceName: String)

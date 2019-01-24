@@ -34,43 +34,41 @@ trait GatekeeperAuthWrapper {
 
   def authConnector: AuthConnector
 
-  // TODO: take from saved value on request/session from Retrieval
-//  implicit def loggedIn(implicit request: Request[_]) = Some("ME!")// request.session.get(GatekeeperSessionKeys.LoggedInUser) <- None.get :(
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
   case class LoggedInRequest[A](name: String, request: Request[A]) extends WrappedRequest(request)
 
   def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
-     implicit request =>
-       val enrolment = if (requiresSuperUser) "superuserrole" else "otherrole"
+    implicit request =>
+      val enrolment = if (requiresSuperUser) Enrolment(appConfig.superUserRole) else Enrolment(appConfig.superUserRole) or Enrolment(appConfig.userRole)
 
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-      val predicate = Enrolment(enrolment) and AuthProviders(PrivilegedApplication) // TODO: correct enrolment
-       val retrieval = Retrievals.allEnrolments and Retrievals.authorisedEnrolments and Retrievals.internalId and Retrievals.name // TODO: correct retrievals
-       authConnector.authorise(predicate, retrieval).flatMap {
-         case allEnrolments ~ authorisedEnrolments ~ internalId ~ name =>
-           request.session.data + ("name" -> name.toString)
-           println(s"NAME!!! ${name.toString}") // Name is currently Name(None, None)
-           request.session + ("allEnrolments" -> allEnrolments.toString)
-           request.session + ("internalId" -> internalId.toString)
-           //body(request.withTag("name", name.name.getOrElse("BLEG")))(hc)
-           body(LoggedInRequest(name.toString, request))(hc)
-       } recoverWith {
-         case _: NoActiveSession =>
-           Future.successful(toStrideLogin(request.uri))
-         case _: InsufficientEnrolments =>
-           Future.successful(Forbidden)
-       }
+      val predicate = enrolment and AuthProviders(PrivilegedApplication)
+      authConnector.authorise(predicate, Retrievals.name).flatMap {
+        case name =>
+          body(LoggedInRequest(name.name.get.toString, request))(hc)
+      } recoverWith {
+        case _: NoActiveSession =>
+          request.secure
+          Future.successful(toStrideLogin(hostUri))
+        case _: InsufficientEnrolments =>
+          Future.successful(Forbidden)
+      }
 
-    }
+  }
+
+  private def hostUri(implicit request: Request[_]) = {
+    val protocol = if (request.secure) "https" else "http"
+    s"$protocol://${request.host}${request.uri}"
+  }
 
   private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result =
     Redirect(
       appConfig.strideLoginUrl,
       Map(
         "successURL" -> Seq(successUrl),
-        "origin"     -> Seq(appConfig.appName)
+        "origin" -> Seq(appConfig.appName)
       ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
 
   def isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {

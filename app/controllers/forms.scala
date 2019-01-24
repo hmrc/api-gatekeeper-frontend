@@ -48,3 +48,20 @@ object UpdateRateLimitForm {
     )(UpdateRateLimitForm.apply)(UpdateRateLimitForm.unapply)
   )
 }
+
+case class HandleApprovalForm(approval_confirmation: String)
+
+object HandleApprovalForm {
+
+  lazy val form = Form(
+    mapping(
+      "approval_confirmation" -> text(0,20)
+    )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
+  )
+
+  def unrecognisedAction(form: Form[HandleApprovalForm]) = {
+    form
+      .withError("submissionError", "true")
+      .withGlobalError("Action is not recognised")
+  }
+}

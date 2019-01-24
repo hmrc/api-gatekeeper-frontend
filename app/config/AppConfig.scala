@@ -40,7 +40,10 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
   lazy val developerBaseUrl = s"${baseUrl("third-party-developer")}"
   lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
+  lazy val apiPublisherBaseUrl = baseUrl("api-publisher")
   lazy val serviceBaseUrl = baseUrl("api-definition")
+  lazy val superUserRole = loadStringConfig("roles.super-user")
+  lazy val userRole = loadStringConfig("roles.user")
 
   def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"

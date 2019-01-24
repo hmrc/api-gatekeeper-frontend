@@ -29,8 +29,7 @@ class AccountController @Inject()(override val authConnector: AuthConnector)(ove
   val welcomePage = routes.ApplicationController.applicationsPage()
 
   def logout = Action { implicit request =>
-    //Redirect(routes.AccountController.loginPage).removingFromSession(GatekeeperSessionKeys.AuthToken)
-    Ok("still logged in lol")
+    Ok("logged out").withSession(request.session).discardingCookies(DiscardingCookie("mdtp"))
   }
 
 }

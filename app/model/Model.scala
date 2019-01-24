@@ -332,3 +332,17 @@ final case class AddTeamMemberResponse(registeredUser: Boolean)
 object AddTeamMemberResponse {
   implicit val format = Json.format[AddTeamMemberResponse]
 }
+
+case class APIApprovalSummary(serviceName: String, name: String, description: Option[String] )
+
+object APIApprovalSummary {
+  implicit val formatApiDefinitionSummary = Json.format[APIApprovalSummary]
+}
+
+case class ApproveServiceRequest(serviceName: String)
+
+object ApproveServiceRequest {
+  implicit val format = Json.format[ApproveServiceRequest]
+}
+
+class UpdateApiDefinitionsFailed extends Throwable
