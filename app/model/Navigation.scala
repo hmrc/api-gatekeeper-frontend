@@ -43,9 +43,9 @@ case object UserNavLinks {
     NavLink(userFullName, None),
     NavLink("Sign out", Some(routes.AccountController.logout().url)))
 
-  private val loggedOutNavLinks = Seq(
-    NavLink("Sign in", Some(routes.AccountController.loginPage().url)))
+  private val loggedOutNavLinks: Seq[NavLink] = Seq.empty
 
+  // TODO: everywhere now requires login, so get rid of loggedOutNavLinks and make userFullName not optional
   def apply(userFullName: Option[String]): Seq[NavLink] = userFullName match {
     case Some(name) => loggedInNavLinks(name)
     case None => loggedOutNavLinks

@@ -30,7 +30,8 @@ case class WhitelistedCall(uri: String, method: String)
 class SessionTimeoutFilterWithWhitelist @Inject()(config: SessionTimeoutFilterConfig)(implicit ec: ExecutionContext, override val mat: Materializer)
   extends SessionTimeoutFilter(config) {
 
-  val whitelistedCalls = Set(routes.AccountController.loginPage()) map { call => WhitelistedCall(call.url, call.method) }
+  // TODO: delete this file
+  val whitelistedCalls: Set[WhitelistedCall] = Set.empty // Set(routes.AccountController.loginPage()) map { call => WhitelistedCall(call.url, call.method) }
 
   override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     if (whitelistedCalls.contains(WhitelistedCall(rh.path, rh.method))) f(rh)

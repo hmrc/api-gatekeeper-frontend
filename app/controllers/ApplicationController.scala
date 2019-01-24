@@ -334,11 +334,11 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
 
-  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
-  private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: Request[_]) = {
+  private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
     withApp(appId) { app => app.application.access match {
       case _: Standard => f(app)
       case _ if isSuperUser => f(app)
@@ -352,7 +352,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
   }
 
-  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: Request[_]): Future[ApplicationReviewDetails] = {
+  private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
     for {
       app <- applicationService.fetchApplication(appId)
       submission <- lastSubmission(app)
@@ -400,7 +400,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
   }
 
-  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: Request[_]) = {
+  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
 
     val currentRateLimitTierToDisplay = if (isSuperUser) Some(app.rateLimitTier) else None
 

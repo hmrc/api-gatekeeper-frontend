@@ -27,18 +27,21 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   override protected def mode: Mode = environment.mode
 
   private def loadStringConfig(key: String) = {
-    Play.current.configuration.getString(key)
+    runModeConfiguration.getString(key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
   }
 
+  lazy val appName = loadStringConfig("appName")
   lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
   lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
   lazy val apiScopeBaseUrl = baseUrl("api-scope")
   lazy val applicationBaseUrl = s"${baseUrl("third-party-application")}"
-  lazy val authBaseUrl = s"${baseUrl("auth")}/auth/authenticate/user"
+  lazy val authBaseUrl = baseUrl("auth")
+  lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
   lazy val developerBaseUrl = s"${baseUrl("third-party-developer")}"
   lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
   lazy val serviceBaseUrl = baseUrl("api-definition")
+
   def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
   def superUsers: Seq[String] = {
