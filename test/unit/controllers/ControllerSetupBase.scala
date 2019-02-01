@@ -20,17 +20,22 @@ import java.util.UUID
 
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
-
 import model._
+import org.apache.http.auth.InvalidCredentialsException
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval}
 import uk.gov.hmrc.http.HeaderCarrier
-import model.LoginDetails._
+import play.api.mvc.Results.Forbidden
+
+import scala.concurrent.ExecutionContext
+//import model.LoginDetails._
 
 import scala.concurrent.Future
 
@@ -60,21 +65,18 @@ trait ControllerSetupBase extends MockitoSugar {
   val noDevs = Seq.empty[ApplicationDeveloper]
 
   def givenAUnsuccessfulLogin(): Unit = {
-    givenALogin(userName, false)
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(Future.successful(Forbidden))
   }
 
   def givenASuccessfulLogin(): Unit = {
-    givenALogin(userName, true)
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(Future.successful(Name(Some(userName), None)))
   }
 
   def givenASuccessfulSuperUserLogin(): Unit = {
-    givenALogin(superUserName, true)
-  }
-
-  private def givenALogin(userName: String, successful: Boolean): Unit = {
-    val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
-    given(mockAuthConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-    given(mockAuthConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(successful))
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(Future.successful(Name(Some(superUserName), None)))
   }
 
   def givenTheAppWillBeReturned(application: ApplicationWithHistory = application) = {

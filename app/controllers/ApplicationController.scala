@@ -32,7 +32,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
-import utils.{GatekeeperAuthWrapper, SubscriptionEnhancer}
+import utils.{GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
@@ -87,6 +87,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
           } yield Ok(application(devs.toList, app, subs, isSuperUser, latestTOUAgreement(app)))
         }
   }
+
   def resendVerification(appId: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
     implicit request => implicit hc =>
       for {

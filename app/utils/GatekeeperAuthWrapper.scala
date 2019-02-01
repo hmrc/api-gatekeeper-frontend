@@ -19,10 +19,11 @@ package utils
 import connectors.AuthConnector
 import controllers.BaseController
 import model.{GatekeeperSessionKeys, Role}
+import play.api.Mode
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
-import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.auth.core.{AuthProviders, Enrolment, InsufficientEnrolments, NoActiveSession}
+import uk.gov.hmrc.auth.core.retrieve.{~, _}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -36,18 +37,18 @@ trait GatekeeperAuthWrapper {
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
-  case class LoggedInRequest[A](name: String, request: Request[A]) extends WrappedRequest(request)
-
   def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
     implicit request =>
-      val enrolment = if (requiresSuperUser) Enrolment(appConfig.superUserRole) else Enrolment(appConfig.superUserRole) or Enrolment(appConfig.userRole)
+      val enrolment = if (requiresSuperUser) Enrolment(appConfig.superUserRole) else Enrolment(appConfig.superUserRole) or Enrolment(appConfig.userRole) //and or admin?
 
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
       val predicate = enrolment and AuthProviders(PrivilegedApplication)
-      authConnector.authorise(predicate, Retrievals.name).flatMap {
-        case name =>
-          body(LoggedInRequest(name.name.get.toString, request))(hc)
+      val retrieval: Retrieval[~[Name, Enrolments]] = Retrievals.name and Retrievals.authorisedEnrolments
+
+      authConnector.authorise(predicate, retrieval).flatMap {
+        case name ~ authorisedEnrolments =>
+          body(LoggedInRequest(name.name.get.toString, authorisedEnrolments, request))(hc)
       } recoverWith {
         case _: NoActiveSession =>
           request.secure
@@ -58,12 +59,12 @@ trait GatekeeperAuthWrapper {
 
   }
 
-  private def hostUri(implicit request: Request[_]) = {
+  private def hostUri(implicit request: Request[_]) = { //this is unused
     val protocol = if (request.secure) "https" else "http"
     s"$protocol://${request.host}${request.uri}"
   }
 
-  private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result =
+  private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result = //this is never used
     Redirect(
       appConfig.strideLoginUrl,
       Map(
@@ -72,7 +73,12 @@ trait GatekeeperAuthWrapper {
       ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
 
   def isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-    appConfig.superUsers.contains(loggedIn) // TODO: take from enrolments (from either allEnrolments or authorisedEnrolments) on the request/session
+    println(s"AuthorisedEnrolments: ${request.authorisedEnrolments}")
+    println(s"SuperUserRole: ${request.authorisedEnrolments.getEnrolment(appConfig.superUserRole)}")
+    println(s"AppConfig.SuperUserRole: ${appConfig.superUserRole}")
+    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined
   }
 
 }
+  //TODO - change the loggedInRequest below to use enrolments instead of/as well as name
+case class LoggedInRequest[A](name: String, authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
