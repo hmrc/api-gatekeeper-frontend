@@ -18,7 +18,6 @@ package unit.utils
 
 import java.util.UUID
 
-import config.AppConfig
 import connectors.AuthConnector
 import controllers.BaseController
 import model.{GatekeeperSessionKeys, Role}
@@ -49,71 +48,55 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     val role = new Role("scope", "role")
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
-    val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName" //superceded?
-    val superUserToken = GatekeeperSessionKeys.LoggedInUser -> "superUserName" //superceded?
+    val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
     val superUserRole = "SuperUserRole" + UUID.randomUUID()
+    val userRole = "UserRole" + UUID.randomUUID()
 
-    val aLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("username", Enrolments(Set(Enrolment("user-role"))), FakeRequest().withSession(authToken, userToken))
+    val aLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("username", Enrolments(Set(Enrolment(userRole))), FakeRequest())
     val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("superUserName", Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
-    val aLoggedOutRequest = FakeRequest().withSession() //unused?
 
     given(underTest.appConfig.superUsers).willReturn(Seq("superUserName"))
-
     given(appConfig.superUserRole).willReturn(superUserRole)
+    given(appConfig.userRole).willReturn(userRole)
+    given(appConfig.strideLoginUrl).willReturn("https://aUrl")
+    given(appConfig.appName).willReturn("appName123")
 
-//    def theAuthConnectorWillReturn(result: Boolean) {
-//      given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(result))
-//    }
-
-//    def theUserIsNotAuthorised() = theAuthConnectorWillReturn(false)
-//    def theUserIsAuthorised() = theAuthConnectorWillReturn(true)
   }
 
-
   "requiresRole" should {
-//    "redirect to login if the request does not contain a valid logged in token" in new Setup {
-//
-//      given(underTest.authConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-//        .willReturn(Future.failed(MissingBearerToken()))
-//
-//      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedOutRequest)
-//      result shouldBe FORBIDDEN
-//    }
-//
-//    "redirect to unauthorised page if user with role is not authorised" in new Setup {
-//      given(underTest.authConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-//      .willReturn(Future.failed(InsufficientEnrolments()))
-//
-//      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedInRequest)
-//      status(result) shouldBe UNAUTHORIZED
-//    }
 
-    "execute body if user with role is authorised" in new Setup {
+    "execute body if user is logged in" in new Setup {
+
+      val response = Future.successful(new ~(Name(Some("Full Name"), None), Enrolments(Set(Enrolment(userRole)))))
+
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
-        .willReturn(Future.successful(Name(Some("Full Name"), None), Enrolments(Set.empty))))
+        .willReturn(response)
 
       val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedInRequest)
 
-      status(result) shouldBe 200
+      status(result) shouldBe OK
     }
 
-//    "redirect to unauthorised page if user with role is authorised but super user requirement is not met" in new Setup {
-//      given(underTest.authConnector.authorise(any(), any[Retrieval[Name]])(any[HeaderCarrier], any[ExecutionContext]))
-//        .willReturn(Future.successful(Name(Some("Full Name"), None)))
-//
-//      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
-//      status(result) shouldBe 401
-//    }
-//
-//    "execute body if user with role is authorised and the super user requirement is met" in new Setup {
-//      theUserIsAuthorised
-//
-//      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aSuperUserLoggedInRequest)
-//
-//      status(result) shouldBe 200
-//    }
-  }
+    "redirect to login page if user is not logged in" in new Setup {
 
+      given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
+        .willReturn(Future.failed(new SessionRecordNotFound))
+
+      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+
+      status(result) shouldBe SEE_OTHER
+    }
+
+    "return 401 FORBIDDEN if user is logged in and the super user requirement is not met" in new Setup {
+
+      given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
+        .willReturn(Future.failed(new InsufficientEnrolments))
+
+      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+
+      status(result) shouldBe FORBIDDEN
+    }
+  }
 
   "isSuperUser" should {
 

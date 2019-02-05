@@ -37,6 +37,7 @@ trait GatekeeperAuthWrapper {
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
+  //TODO - eliminate requiresRole/use it
   def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
     implicit request =>
       val enrolment = if (requiresSuperUser) Enrolment(appConfig.superUserRole) else Enrolment(appConfig.superUserRole) or Enrolment(appConfig.userRole) //and or admin?
@@ -73,12 +74,9 @@ trait GatekeeperAuthWrapper {
       ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
 
   def isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-    println(s"AuthorisedEnrolments: ${request.authorisedEnrolments}")
-    println(s"SuperUserRole: ${request.authorisedEnrolments.getEnrolment(appConfig.superUserRole)}")
-    println(s"AppConfig.SuperUserRole: ${appConfig.superUserRole}")
     request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined
   }
 
 }
-  //TODO - change the loggedInRequest below to use enrolments instead of/as well as name
+
 case class LoggedInRequest[A](name: String, authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)

@@ -30,9 +30,10 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import services.{ApiDefinitionService, ApplicationService}
-import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval}
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.mvc.Results.Forbidden
+import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 
 import scala.concurrent.ExecutionContext
 //import model.LoginDetails._
@@ -66,17 +67,35 @@ trait ControllerSetupBase extends MockitoSugar {
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-      .willReturn(Future.successful(Forbidden))
+      .willReturn(Future.failed(new InvalidBearerToken))
   }
 
-  def givenASuccessfulLogin(): Unit = {
+  def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
+
+    val userRole = "userRole" + UUID.randomUUID
+
+    given(mockConfig.userRole).willReturn(userRole)
+
+    val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
+
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-      .willReturn(Future.successful(Name(Some(userName), None)))
+      .willReturn(response)
   }
 
-  def givenASuccessfulSuperUserLogin(): Unit = {
+  def givenTheUserHasInsufficientEnrolments(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-      .willReturn(Future.successful(Name(Some(superUserName), None)))
+      .willReturn(Future.failed(new InsufficientEnrolments))
+  }
+
+  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
+    val superUserRole = "superUserRole" + UUID.randomUUID
+
+    given(mockConfig.superUserRole).willReturn(superUserRole)
+
+    val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
+
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(response)
   }
 
   def givenTheAppWillBeReturned(application: ApplicationWithHistory = application) = {
