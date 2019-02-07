@@ -44,6 +44,7 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val serviceBaseUrl = baseUrl("api-definition")
   lazy val superUserRole = loadStringConfig("roles.super-user")
   lazy val userRole = loadStringConfig("roles.user")
+  lazy val adminRole = loadStringConfig("roles.admin")
 
   def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
   def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"

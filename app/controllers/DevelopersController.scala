@@ -36,7 +36,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def developersPage(filter: Option[String], status: Option[String]) = requiresRole(Role.APIGatekeeper) {
+  def developersPage(filter: Option[String], status: Option[String]) = requiresRole() {
     implicit request => implicit hc =>
 
       val apiFilter = ApiFilter(filter)
@@ -60,17 +60,17 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
   }
 
-  def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+  def developerPage(email: String): Action[AnyContent] = requiresRole() {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
     implicit request => implicit hc =>
       developerService.removeMfa(email, loggedIn.get) map { _ =>
         Ok(remove_mfa_success(email))
@@ -81,12 +81,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperPage(email: String) = requiresRole( requiresSuperUser = true) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperAction(email:String) = requiresRole( requiresSuperUser = true) {
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.get).map {
         case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))

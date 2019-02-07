@@ -27,7 +27,7 @@ class AppConfigSpec extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
   var isExternalTest = false
 
-  trait Setup { //TODO - make good
+  trait Setup {
     val appConfig = app.injector.instanceOf[AppConfig]
   }
 

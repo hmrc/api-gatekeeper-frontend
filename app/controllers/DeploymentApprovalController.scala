@@ -37,7 +37,7 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              deploymentApprovalService: DeploymentApprovalService)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def pendingPage(): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+  def pendingPage(): Action[AnyContent] = requiresRole() { implicit request => implicit hc =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
@@ -45,11 +45,11 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
     deploymentApprovalService.fetchApiDefinitionSummary(serviceName)
   }
 
-  def reviewPage(serviceName: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+  def reviewPage(serviceName: String): Action[AnyContent] = requiresRole() { implicit request => implicit hc =>
       fetchApiDefinitionSummary(serviceName).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) { implicit request => implicit hc =>
+  def handleApproval(serviceName: String): Action[AnyContent] = requiresRole() { implicit request => implicit hc =>
       val requestForm = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =

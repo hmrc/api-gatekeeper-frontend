@@ -26,7 +26,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-//TODO - all of these extensions has to be unneccessary?
 class AuthConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {

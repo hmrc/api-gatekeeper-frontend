@@ -46,7 +46,6 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     }
     val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
 
-    val role = new Role("scope", "role")
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
     val superUserRole = "SuperUserRole" + UUID.randomUUID()
@@ -72,7 +71,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(response)
 
-      val result = underTest.requiresRole(role)(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole()(actionReturns200Body).apply(aLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -82,7 +81,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
-      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -92,7 +91,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
-      val result = underTest.requiresRole(role, requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
 
       status(result) shouldBe FORBIDDEN
     }

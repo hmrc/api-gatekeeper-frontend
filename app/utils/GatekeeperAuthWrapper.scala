@@ -37,10 +37,11 @@ trait GatekeeperAuthWrapper {
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
-  //TODO - eliminate requiresRole/use it
-  def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
+  def requiresRole(requiresSuperUser: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
     implicit request =>
-      val enrolment = if (requiresSuperUser) Enrolment(appConfig.superUserRole) else Enrolment(appConfig.superUserRole) or Enrolment(appConfig.userRole) //and or admin?
+      val superUserEnrolment = Enrolment(appConfig.superUserRole) or Enrolment(appConfig.adminRole)
+      val anyGatekeeperEnrolment = superUserEnrolment or Enrolment(appConfig.userRole)
+      val enrolment = if (requiresSuperUser) superUserEnrolment else anyGatekeeperEnrolment
 
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
@@ -74,7 +75,7 @@ trait GatekeeperAuthWrapper {
       ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
 
   def isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined
+    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
 
 }
