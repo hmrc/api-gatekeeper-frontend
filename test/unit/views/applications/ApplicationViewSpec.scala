@@ -244,6 +244,32 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
     }
 
+    "show 'Block Application' button when logged in as admin" in {
+
+      val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
+
+      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = true, None, request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsById(document, "block-application") mustBe true
+
+    }
+
+    "hide 'Block Application' button when logged in as non-admin" in {
+
+      val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
+
+      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = false, None, request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsById(document, "block-application") mustBe false
+
+    }
+
     "show application information and click on associated developer" in {
       val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), false, false, None, request, None, Flash.emptyCookie, applicationMessages, mockAppConfig)
 
