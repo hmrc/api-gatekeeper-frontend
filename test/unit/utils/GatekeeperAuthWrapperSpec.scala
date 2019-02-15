@@ -20,7 +20,7 @@ import java.util.UUID
 
 import connectors.AuthConnector
 import controllers.BaseController
-import model.{GatekeeperSessionKeys, Role}
+import model.{GatekeeperRole, GatekeeperSessionKeys, Role}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.mockito.Matchers.{eq => eqTo, _}
@@ -76,7 +76,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(response)
 
-      val result = underTest.requiresRole()(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -86,7 +86,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
-      val result = underTest.requiresRole(requiresAtLeastSuperUser = true)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -96,20 +96,10 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
-      val result = underTest.requiresRole(requiresAtLeastSuperUser = true)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe FORBIDDEN
       verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), any[Retrieval[Any]])(any(), any())
-    }
-
-    "execute body if admin is logged in and " in new Setup {
-
-      given(underTest.authConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
-        .willReturn(Future.failed(new InsufficientEnrolments))
-
-      val result = underTest.requiresRole(requiresAdmin = true)(actionReturns200Body).apply(aUserLoggedInRequest)
-
-      status(result) shouldBe FORBIDDEN
     }
   }
 
@@ -159,17 +149,17 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     "require an admin enrolment if requiresAdmin is true" in new Setup {
 
-      val result = underTest.authPredicate(requiresAdmin = true)
+      val result = underTest.authPredicate(GatekeeperRole.ADMIN)
       result shouldBe Enrolment(adminRole)
     }
 
     "require either an admin or super-user enrolment if requiresSuperUser is true" in new Setup {
-      val result = underTest.authPredicate(requiresAtLeastSuperUser = true)
+      val result = underTest.authPredicate(GatekeeperRole.SUPERUSER)
       result shouldBe (Enrolment(adminRole) or Enrolment(superUserRole))
     }
 
     "require any gatekeeper enrolment if neither admin or super user is required" in new Setup {
-      val result = underTest.authPredicate()
+      val result = underTest.authPredicate(GatekeeperRole.USER)
       result shouldBe (Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole))
     }
   }

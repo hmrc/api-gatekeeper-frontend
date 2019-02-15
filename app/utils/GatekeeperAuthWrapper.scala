@@ -18,6 +18,8 @@ package utils
 
 import connectors.AuthConnector
 import controllers.BaseController
+import model.GatekeeperRole
+import model.GatekeeperRole.GatekeeperRole
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
@@ -35,11 +37,11 @@ trait GatekeeperAuthWrapper {
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
 
-  def requiresRole(requiresAtLeastSuperUser: Boolean = false, requiresAdmin: Boolean = false)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
     implicit request =>
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-      val predicate = authPredicate(requiresAtLeastSuperUser, requiresAdmin)
+      val predicate = authPredicate(minimumRoleRequired)
       val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
       authConnector.authorise(predicate, retrieval).flatMap {
@@ -75,19 +77,18 @@ trait GatekeeperAuthWrapper {
     request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
 
-  def authPredicate(requiresAtLeastSuperUser: Boolean = false, requiresAdmin: Boolean = false): Predicate = {
+  def authPredicate(minimumRoleRequired: GatekeeperRole): Predicate = {
 
     val adminEnrolment = Enrolment(appConfig.adminRole)
     val superUserEnrolment = Enrolment(appConfig.superUserRole)
     val userEnrolment = Enrolment(appConfig.userRole)
 
-    (requiresAtLeastSuperUser, requiresAdmin) match {
-      case (_, true) => adminEnrolment
-      case (true, false) => adminEnrolment or superUserEnrolment
-      case (false, false) => adminEnrolment or superUserEnrolment or userEnrolment
+    minimumRoleRequired match {
+      case GatekeeperRole.ADMIN => adminEnrolment
+      case GatekeeperRole.SUPERUSER => adminEnrolment or superUserEnrolment
+      case GatekeeperRole.USER => adminEnrolment or superUserEnrolment or userEnrolment
     }
   }
-
 }
 
 case class LoggedInRequest[A](name: String, authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
