@@ -1354,6 +1354,150 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
+    "blockApplicationPage" should {
+
+      "return the page for block app if admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+
+      "return forbidden for a non-admin" in new Setup {
+        givenTheUserHasInsufficientEnrolments
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+
+      }
+    }
+
+    "blockApplicationAction" should {
+      "call the service to block application when a valid form is submitted for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned()
+
+        given(mockApplicationService.blockApplication(anyString, anyString)(any[HeaderCarrier]))
+          .willReturn(Future.successful(ApplicationBlockSuccessResult))
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+
+        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).blockApplication(eqTo(applicationId), any())(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe BAD_REQUEST
+
+        verify(mockApplicationService, never).blockApplication(any(), any())(any[HeaderCarrier])
+      }
+
+      "return forbidden when a form is submitted for a non-admin user" in new Setup {
+        givenTheUserHasInsufficientEnrolments
+        givenTheAppWillBeReturned()
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+
+        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe FORBIDDEN
+
+        verify(mockApplicationService, never).blockApplication(any(), any())(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+    }
+
+    "unblockApplicationPage" should {
+
+      "return the page for unblock app if admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+
+      "return forbidden for a non-admin" in new Setup {
+        givenTheUserHasInsufficientEnrolments
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+
+      }
+    }
+
+    "unblockApplicationAction" should {
+      "call the service to unblock application when a valid form is submitted for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned()
+
+        given(mockApplicationService.unblockApplication(anyString, anyString)(any[HeaderCarrier]))
+          .willReturn(Future.successful(ApplicationUnblockSuccessResult))
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+
+        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).unblockApplication(eqTo(applicationId), any())(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe BAD_REQUEST
+
+        verify(mockApplicationService, never).unblockApplication(any(), any())(any[HeaderCarrier])
+      }
+
+      "return forbidden when a form is submitted for a non-admin user" in new Setup {
+        givenTheUserHasInsufficientEnrolments
+        givenTheAppWillBeReturned()
+
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+
+        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+
+        status(result) shouldBe FORBIDDEN
+
+        verify(mockApplicationService, never).unblockApplication(any(), any())(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+      }
+
+    }
+
     def titleOf(result: Result) = {
       val titleRegEx = """<title[^>]*>(.*)</title>""".r
       val title = titleRegEx.findFirstMatchIn(bodyOf(result)).map(_.group(1))

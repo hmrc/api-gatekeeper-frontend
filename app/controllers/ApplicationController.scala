@@ -265,13 +265,13 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
   }
 
-  def blockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def blockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
     implicit request => implicit hc => withApp(appId) { app =>
       Future.successful(Ok(block_application(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
     }
   }
 
-  def blockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def blockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
@@ -295,13 +295,13 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
   }
 
-  def unblockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def unblockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
     implicit request => implicit hc => withApp(appId) { app =>
       Future.successful(Ok(unblock_application(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
     }
   }
 
-  def unblockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def unblockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
