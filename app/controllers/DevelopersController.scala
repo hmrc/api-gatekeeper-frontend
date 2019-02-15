@@ -62,15 +62,15 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
   def developerPage(email: String): Action[AnyContent] = requiresRole() {
     implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
+      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc =>
       developerService.removeMfa(email, loggedIn.get) map { _ =>
         Ok(remove_mfa_success(email))
@@ -81,12 +81,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresRole( requiresSuperUser = true) {
+  def deleteDeveloperPage(email: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresRole( requiresSuperUser = true) {
+  def deleteDeveloperAction(email:String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.get).map {
         case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))

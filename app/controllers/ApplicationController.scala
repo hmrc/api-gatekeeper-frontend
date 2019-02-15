@@ -54,7 +54,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         apps <- applicationService.fetchAllSubscribedApplications
         apis <- apiDefinitionService.fetchAllApiDefinitions
         subApps = SubscriptionEnhancer.combine(apps, apis)
-      } yield Ok(applications(subApps, groupApisByStatus(apis), isSuperUser))
+      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresRole() {
@@ -84,7 +84,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
           for {
             subs <- subscriptions
             devs <- developerService.fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
-          } yield Ok(application(devs.toList, app, subs, isSuperUser, latestTOUAgreement(app)))
+          } yield Ok(application(devs.toList, app, subs, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
         }
   }
 
@@ -98,29 +98,29 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       }
   }
 
-  def manageSubscription(appId: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def manageSubscription(appId: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
           applicationService.fetchApplicationSubscriptions(app.application, withFields = true).map {
-            subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isSuperUser))
+            subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
           }
         }
   }
 
-  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc =>
       applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
   }
 
-  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
     }
   }
 
   def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
-    requiresRole( requiresSuperUser = true) {
+    requiresRole( requiresAtLeastSuperUser = true) {
       implicit request => implicit hc => withApp(appId) { app =>
         def handleValidForm(validForm: SubscriptionFieldsForm) = {
           if (validForm.fields.nonEmpty) {
@@ -142,17 +142,17 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
   }
 
-  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       app.application.access match {
         case access: Standard => {
-          Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isSuperUser)))
+          Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
         }
       }
     }
   }
 
-  def updateAccessOverrides(appId: String) = requiresRole( requiresSuperUser = true) {
+  def updateAccessOverrides(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
         case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
@@ -168,59 +168,59 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
 
             overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), Messages("invalid.scope")))
 
-            BadRequest(manage_access_overrides(app.application, form, isSuperUser))
+            BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser))
           case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[Set[OverrideFlag]]) = {
-        Future.successful(BadRequest(manage_access_overrides(app.application, form, isSuperUser)))
+        Future.successful(BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser)))
       }
 
       accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
-  def manageScopes(appId: String): Action[AnyContent] = requiresRole( requiresSuperUser = true) {
+  def manageScopes(appId: String): Action[AnyContent] = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       app.application.access match {
         case access: AccessWithRestrictedScopes => {
           val form = scopesForm.fill(access.scopes)
-          Future.successful(Ok(manage_scopes(app.application, form, isSuperUser)))
+          Future.successful(Ok(manage_scopes(app.application, form, isAtLeastSuperUser)))
         }
         case _ => Future.failed(new RuntimeException("Invalid access type on application"))
       }
     }
   }
 
-  def updateScopes(appId: String) = requiresRole( requiresSuperUser = true) {
+  def updateScopes(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
         applicationService.updateScopes(app.application, scopes).map {
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
-            BadRequest(manage_scopes(app.application, form, isSuperUser))
+            BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser))
 
           case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[Set[String]]) = {
-        Future.successful(BadRequest(manage_scopes(app.application, form, isSuperUser)))
+        Future.successful(BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser)))
       }
 
       scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
-  def manageRateLimitTier(appId: String) = requiresRole( requiresSuperUser = true) {
+  def manageRateLimitTier(appId: String) = requiresRole(requiresAdmin = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
-      Future.successful(Ok(manage_rate_limit(app.application, form, isSuperUser)))
+      Future.successful(Ok(manage_rate_limit(app.application, form)))
     }
   }
 
-  def updateRateLimitTier(appId: String) = requiresRole( requiresSuperUser = true) {
+  def updateRateLimitTier(appId: String) = requiresRole( requiresAdmin = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UpdateRateLimitForm) = {
         applicationService.updateRateLimitTier(appId, RateLimitTier.withName(form.tier)).map { _ =>
@@ -229,19 +229,19 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       }
 
       def handleFormError(form: Form[UpdateRateLimitForm]) = {
-        Future.successful(BadRequest(manage_rate_limit(app.application, form, isSuperUser)))
+        Future.successful(BadRequest(manage_rate_limit(app.application, form)))
       }
       UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
-  def deleteApplicationPage(appId: String) = requiresRole( requiresSuperUser = true) {
+  def deleteApplicationPage(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(delete_application(app, isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+      Future.successful(Ok(delete_application(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
     }
   }
 
-  def deleteApplicationAction(appId: String) = requiresRole( requiresSuperUser = true) {
+  def deleteApplicationAction(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
@@ -253,25 +253,25 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         else {
           val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-          Future.successful(BadRequest(delete_application(app, isSuperUser, formWithErrors)))
+          Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, formWithErrors)))
         }
       }
 
       def handleFormError(form: Form[DeleteApplicationForm]) = {
-        Future.successful(BadRequest(delete_application(app, isSuperUser, form)))
+        Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, form)))
       }
 
       deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
-  def blockApplicationPage(appId: String) = requiresRole( requiresSuperUser = true) {
+  def blockApplicationPage(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(block_application(app, isSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
+      Future.successful(Ok(block_application(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
     }
   }
 
-  def blockApplicationAction(appId: String) = requiresRole( requiresSuperUser = true) {
+  def blockApplicationAction(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
@@ -283,25 +283,25 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         else {
           val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-          Future.successful(BadRequest(block_application(app, isSuperUser, formWithErrors)))
+          Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, formWithErrors)))
         }
       }
 
       def handleFormError(form: Form[BlockApplicationForm]) = {
-        Future.successful(BadRequest(block_application(app, isSuperUser, form)))
+        Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, form)))
       }
 
       blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 
-  def unblockApplicationPage(appId: String) = requiresRole( requiresSuperUser = true) {
+  def unblockApplicationPage(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(unblock_application(app, isSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
+      Future.successful(Ok(unblock_application(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
     }
   }
 
-  def unblockApplicationAction(appId: String) = requiresRole( requiresSuperUser = true) {
+  def unblockApplicationAction(appId: String) = requiresRole( requiresAtLeastSuperUser = true) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
@@ -313,12 +313,12 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         else {
           val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-          Future.successful(BadRequest(unblock_application(app, isSuperUser, formWithErrors)))
+          Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, formWithErrors)))
         }
       }
 
       def handleFormError(form: Form[UnblockApplicationForm]) = {
-        Future.successful(BadRequest(unblock_application(app, isSuperUser, form)))
+        Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, form)))
       }
 
       unblockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -342,7 +342,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
     withApp(appId) { app => app.application.access match {
       case _: Standard => f(app)
-      case _ if isSuperUser => f(app)
+      case _ if isAtLeastSuperUser => f(app)
       case _ => Future.successful(Unauthorized(views.html.unauthorized()))
     }}
   }
@@ -403,7 +403,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
 
-    val currentRateLimitTierToDisplay = if (isSuperUser) Some(app.rateLimitTier) else None
+    val currentRateLimitTierToDisplay = if (isAtLeastSuperUser) Some(app.rateLimitTier) else None
 
     val contactDetails = for {
       checkInformation <- app.checkInformation
@@ -462,14 +462,14 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     requiresRole() { implicit request => implicit hc =>
       redirectIfExternalTestEnvironment {
         val result = Redirect(routes.ApplicationController.applicationPage(appId))
-        if (!isSuperUser) {
-          Future.successful(result)
-        } else {
+        if (isAtLeastSuperUser) { //TODO - change this to isAdmin assuming that makes sense for whatever calles this endpoint???
           val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
           applicationService.updateRateLimitTier(appId, newTier) map {
             case ApplicationUpdateSuccessResult =>
               result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
           }
+        } else {
+          Future.successful(result)
         }
       }
     }
@@ -481,7 +481,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
   }
 
-  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresRole( requiresSuperUser = true) {
+  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresRole( requiresAtLeastSuperUser = true) {
     implicit request =>
       implicit hc => {
         Future.successful(Ok(create_application(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
@@ -490,7 +490,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
-    requiresRole( requiresSuperUser = true) {
+    requiresRole( requiresAtLeastSuperUser = true) {
       implicit request => implicit hc => {
 
         def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {

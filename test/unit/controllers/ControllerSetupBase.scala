@@ -57,13 +57,20 @@ trait ControllerSetupBase extends MockitoSugar {
 
   val userName = "userName"
   val superUserName = "superUserName"
+  val adminName = "adminName"
   val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
   val userToken = GatekeeperSessionKeys.LoggedInUser -> userName
   val superUserToken = GatekeeperSessionKeys.LoggedInUser -> superUserName
+  val adminToken = GatekeeperSessionKeys.LoggedInUser -> adminName
   val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
   val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
+  val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)
   val aLoggedOutRequest = FakeRequest().withSession()
   val noDevs = Seq.empty[ApplicationDeveloper]
+
+  val adminRole = "adminRole" + UUID.randomUUID
+  val superUserRole = "superUserRole" + UUID.randomUUID
+  val userRole = "userRole" + UUID.randomUUID
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
@@ -72,7 +79,6 @@ trait ControllerSetupBase extends MockitoSugar {
 
   def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
 
-    val userRole = "userRole" + UUID.randomUUID
 
     given(mockConfig.userRole).willReturn(userRole)
 
@@ -87,12 +93,21 @@ trait ControllerSetupBase extends MockitoSugar {
       .willReturn(Future.failed(new InsufficientEnrolments))
   }
 
-  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
-    val superUserRole = "superUserRole" + UUID.randomUUID
+  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = { //TODO - change this for "the user is just plain authorised"
+
 
     given(mockConfig.superUserRole).willReturn(superUserRole)
 
     val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
+
+    given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+      .willReturn(response)
+  }
+
+  def givenTheUserIsAuthorisedAndIsAnAdmin(): Unit = { //TODO - change this for "the user is just plain authorised"
+    given(mockConfig.adminRole).willReturn(adminRole)
+
+    val response = Future.successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))
 
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
       .willReturn(response)
