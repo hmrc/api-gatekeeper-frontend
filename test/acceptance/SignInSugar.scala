@@ -19,6 +19,9 @@ package acceptance
 import acceptance.pages.SignInPage
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
+import play.api.http.Status.OK
+import play.api.libs.json.Json
+import uk.gov.hmrc.auth.core.Enrolment
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
@@ -52,6 +55,16 @@ trait SignInSugar extends NavigationSugar {
 
     stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
       .willReturn(aResponse().withStatus(200)))
+
+    val json = Json.obj( //TODO - fix this? Integration tests broken
+      "authorise" -> Json.arr((Enrolment("user-role") or Enrolment("super-user-role") or Enrolment("admin-role")).toJson),
+      "retrieve" -> Json.arr()
+    )
+
+    stubFor(post(urlPathEqualTo("/auth/authorise"))
+      .withRequestBody(equalTo(json.toString))
+      .willReturn(aResponse().withBody("""{"authorise":[{"identifiers":[],"state":"Activated","enrolment":"super-user-role"}],"retrieve":[]}""")
+        .withStatus(OK)))
 
     goOn(SignInPage)
 

@@ -23,6 +23,8 @@ import controllers.BaseController
 import model.{GatekeeperSessionKeys, Role}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
+import org.mockito.Matchers.{eq => eqTo, _}
+import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -49,12 +51,15 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
     val superUserRole = "SuperUserRole" + UUID.randomUUID()
+    val adminRole = "AdminRole" + UUID.randomUUID()
     val userRole = "UserRole" + UUID.randomUUID()
 
-    val aLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("username", Enrolments(Set(Enrolment(userRole))), FakeRequest())
+    val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("username", Enrolments(Set(Enrolment(userRole))), FakeRequest())
     val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("superUserName", Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
+    val anAdminLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("adminName", Enrolments(Set(Enrolment(adminRole))), FakeRequest())
 
     given(underTest.appConfig.superUsers).willReturn(Seq("superUserName"))
+    given(appConfig.adminRole).willReturn(adminRole)
     given(appConfig.superUserRole).willReturn(superUserRole)
     given(appConfig.userRole).willReturn(userRole)
     given(appConfig.strideLoginUrl).willReturn("https://aUrl")
@@ -71,7 +76,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(response)
 
-      val result = underTest.requiresRole()(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole()(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -81,35 +86,91 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
-      val result = underTest.requiresRole(requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(requiresAtLeastSuperUser = true)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
 
-    "return 401 FORBIDDEN if user is logged in and the super user requirement is not met" in new Setup {
+    "return 401 FORBIDDEN if user is logged in and has insufficient enrolments" in new Setup {
 
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
-      val result = underTest.requiresRole(requiresSuperUser = true)(actionReturns200Body).apply(aLoggedInRequest)
+      val result = underTest.requiresRole(requiresAtLeastSuperUser = true)(actionReturns200Body).apply(aUserLoggedInRequest)
+
+      status(result) shouldBe FORBIDDEN
+      verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), any[Retrieval[Any]])(any(), any())
+    }
+
+    "execute body if admin is logged in and " in new Setup {
+
+      given(underTest.authConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
+        .willReturn(Future.failed(new InsufficientEnrolments))
+
+      val result = underTest.requiresRole(requiresAdmin = true)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe FORBIDDEN
     }
   }
 
-  "isSuperUser" should {
+  "isAtLeastSuperUser" should {
+
+    "return `true` if the current logged-in user is an admin" in new Setup {
+
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(anAdminLoggedInRequest)
+      isAtLeastSuperUser shouldBe true
+    }
 
     "return `true` if the current logged-in user is a super user" in new Setup {
 
-      val isSuperUser = underTest.isSuperUser(aSuperUserLoggedInRequest)
-      isSuperUser shouldBe true
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aSuperUserLoggedInRequest)
+      isAtLeastSuperUser shouldBe true
     }
 
-    "return `false` if the current logged-in user is not a super user" in new Setup {
+    "return `false` if the current logged-in user is a non super-user" in new Setup {
 
-      val isSuperUser = underTest.isSuperUser(aLoggedInRequest)
-      isSuperUser shouldBe false
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aUserLoggedInRequest)
+      isAtLeastSuperUser shouldBe false
     }
   }
 
+  "isAdmin" should {
+
+    "return `true` if the current logged-in user is an admin" in new Setup {
+
+      val isAdmin = underTest.isAdmin(anAdminLoggedInRequest)
+      isAdmin shouldBe true
+    }
+
+    "return `false` if the current logged-in user is a super user" in new Setup {
+
+      val isAdmin = underTest.isAdmin(aSuperUserLoggedInRequest)
+      isAdmin shouldBe false
+    }
+
+    "return `false` if the current logged-in user is a user" in new Setup {
+
+      val isAdmin = underTest.isAdmin(aUserLoggedInRequest)
+      isAdmin shouldBe false
+    }
+  }
+
+  "authPredicate" should {
+
+    "require an admin enrolment if requiresAdmin is true" in new Setup {
+
+      val result = underTest.authPredicate(requiresAdmin = true)
+      result shouldBe Enrolment(adminRole)
+    }
+
+    "require either an admin or super-user enrolment if requiresSuperUser is true" in new Setup {
+      val result = underTest.authPredicate(requiresAtLeastSuperUser = true)
+      result shouldBe (Enrolment(adminRole) or Enrolment(superUserRole))
+    }
+
+    "require any gatekeeper enrolment if neither admin or super user is required" in new Setup {
+      val result = underTest.authPredicate()
+      result shouldBe (Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole))
+    }
+  }
 }

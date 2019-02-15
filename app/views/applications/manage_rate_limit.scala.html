@@ -17,7 +17,7 @@
 @import model._
 @import include._
 
-@(application: ApplicationResponse, form: Form[UpdateRateLimitForm], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Manage rate limit tier", userFullName = userFullName) {
 

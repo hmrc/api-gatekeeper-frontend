@@ -19,6 +19,11 @@ package unit.controllers
 import java.net.URLEncoder
 import java.util.UUID
 
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
+
+import scala.concurrent.ExecutionContext
+
 //import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
 import model.Environment.Environment
@@ -55,6 +60,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
+      override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken)
 
       val applicationWithOverrides = ApplicationWithHistory(
         basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), Seq.empty)
@@ -79,6 +85,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       )(mockConfig)
 
       given(mockConfig.superUsers).willReturn(Seq("superUserName"))
+
+      given(mockConfig.superUserRole).willReturn(superUserRole)
+      given(mockConfig.adminRole).willReturn(adminRole)
+      given(mockConfig.userRole).willReturn(userRole)
+
       given(mockConfig.strideLoginUrl).willReturn("https://loginUri") // I don't think these are helping
       given(mockConfig.appName).willReturn("Gatekeeper app name") // ""
     }
@@ -445,34 +456,47 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "manageRateLimitTier" should {
-      "fetch the app and return the page for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+      "fetch the app and return the page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheAppWillBeReturned(application)
+
+        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+    }
+
+      "return forbidden for a super user" in new Setup {
+        givenTheUserHasInsufficientEnrolments
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest))
 
-        status(result) shouldBe OK
+        status(result) shouldBe FORBIDDEN
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+
       }
 
-      "return forbidden for a non-super user" in new Setup {
+      "return forbidden for a user" in new Setup {
         givenTheUserHasInsufficientEnrolments
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
       }
     }
 
     "updateRateLimitTier" should {
-      "call the service to update the rate limit tier when a valid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+      "call the service to update the rate limit tier when a valid form is submitted for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
 
         val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
 
@@ -480,13 +504,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(applicationId), eqTo(RateLimitTier.GOLD))(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
       }
 
-      "return a bad request when an invalid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
         val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
 
@@ -495,7 +520,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(mockApplicationService, never).updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier])
       }
 
-      "return forbidden when a form is submitted for a non-super user" in new Setup {
+      "return forbidden when a form is submitted for a non-admin user" in new Setup {
         givenTheUserHasInsufficientEnrolments
         givenTheAppWillBeReturned()
 
@@ -506,6 +531,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier])
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
       }
     }
 
@@ -531,7 +557,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val applicationId = "applicationId"
       val tier = RateLimitTier.GOLD
 
-      "change the rate limit for a super user" in new Setup {
+      "change the rate limit for a super user" in new Setup { //TODO - oh dear
 //        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
 //        given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
 //
