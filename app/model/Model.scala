@@ -36,6 +36,12 @@ object Role {
   val APIGatekeeper = Role("api", "gatekeeper")
 }
 
+object GatekeeperRole extends Enumeration {
+  type GatekeeperRole = Value
+  val USER,SUPERUSER,ADMIN = Value
+}
+
+
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
 }
