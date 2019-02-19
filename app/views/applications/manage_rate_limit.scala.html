@@ -32,8 +32,17 @@
             <li class="breadcrumb-nav__item">Manage rate limit tier</li>
         </ul>
     </nav>
-
     <h1>Manage rate limit tier</h1>
+
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong class="bold-small">
+            Tell the application's administrators that any deprecated APIs are not re-subscribed when we change the rate limit.
+        </strong>
+    </div>
+    <br>
 
     @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id.toString), 'class -> "form") {
         <div>
