@@ -24,12 +24,14 @@ object ApplicationsPage extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/applications"
   override def isCurrentPage: Boolean = {
     currentUrl == url
+
+    // TODO Check a bit more then the URI. Doesn't pick up 'technical difficulties' errors etc?
   }
 
   def previousLink = find(linkText("Previous")).get
 
-  def isUnauthorised() = {
-    find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
+  def isForbidden() = {
+    find(cssSelector("h2")).fold(false)(_.text == "Insufficient enrolments to access this page")
   }
 
   def nextLink = find(linkText("Next")).get

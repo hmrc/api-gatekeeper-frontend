@@ -19,6 +19,8 @@ package acceptance.pages
 import acceptance.WebPage
 import org.openqa.selenium.By
 
+// TODO - This page doesn't exist anymore (in gatekeeper frontend)
+@Deprecated
 object SignInPage extends WebPage {
 
   override val url: String = s"http://localhost:$port/api-gatekeeper/login"

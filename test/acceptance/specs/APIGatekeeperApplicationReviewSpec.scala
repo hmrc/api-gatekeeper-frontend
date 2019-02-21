@@ -58,6 +58,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
+
       on(ApplicationsPage)
       stubApplicationToReview(developers)
 
@@ -83,7 +84,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
-      stubApplicationToReview(developers)
+      //stubApplicationToReview(developers)
       on(ApplicationToReviewPage)
     }
   }
@@ -105,7 +106,6 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("Application requiring approval")
-
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 

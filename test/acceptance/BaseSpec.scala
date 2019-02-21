@@ -18,6 +18,7 @@ package acceptance
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
 import org.scalatest._
@@ -33,7 +34,9 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   implicit val webDriver: WebDriver = Env.driver
 
-  val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
+  val wireMockServer = new WireMockServer(wireMockConfig()
+      .notifier(new ConsoleNotifier(true)) // TODO - Remove me
+    .port(stubPort))
 
   override def newAppForTest(testData: TestData): Application = {
     GuiceApplicationBuilder()
