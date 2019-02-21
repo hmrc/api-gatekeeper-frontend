@@ -343,7 +343,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     withApp(appId) { app => app.application.access match {
       case _: Standard => f(app)
       case _ if isAtLeastSuperUser => f(app)
-      case _ => Future.successful(Unauthorized(views.html.unauthorized()))
+      case _ => Future.successful(Forbidden(views.html.forbidden()))
     }}
   }
 

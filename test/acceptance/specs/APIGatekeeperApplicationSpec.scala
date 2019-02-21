@@ -29,7 +29,9 @@ import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
-    val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+  val developers = List[User] {
+    new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
+  }
 
   feature("Application List for Search Functionality") {
 
@@ -41,7 +43,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
-      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(200)))
@@ -59,7 +61,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 
@@ -72,7 +74,9 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       stubApplication(application, developers)
 
       When("I select to navigate to the Automated Test Application page")
+
       ApplicationsPage.selectByApplicationName("Automated Test Application")
+
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
       verifyText("data-environment", "Production")
@@ -92,7 +96,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       verifyText("data-collaborator-email", "Dixie.fakename@example.com", 2)
       verifyText("data-collaborator-role", "Developer", 2)
       verifyText("data-submitted-on", "22 March 2016")
-      verifyText("data-submitted-by-email", "admin@example.com" )
+      verifyText("data-submitted-by-email", "admin@example.com")
       webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=admin%40example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
@@ -112,7 +116,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n","")
+      val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
 

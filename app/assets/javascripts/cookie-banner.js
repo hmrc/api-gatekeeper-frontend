@@ -1,4 +1,4 @@
 // APIS-1200-cookie-banner
-$(function() {
+$(document).ready(function() {
     $('#global-header').insertAfter( $('#global-cookie-message') );
 });

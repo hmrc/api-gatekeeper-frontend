@@ -20,7 +20,10 @@ import connectors.AuthConnector
 import controllers.BaseController
 import model.GatekeeperRole
 import model.GatekeeperRole.GatekeeperRole
-import play.api.mvc._
+import play.api.Play.current
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
+import play.api.mvc.{Action, AnyContent, Request, Result, _}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
@@ -35,24 +38,33 @@ trait GatekeeperAuthWrapper {
 
   def authConnector: AuthConnector
 
-  implicit def loggedIn(implicit request: LoggedInRequest[_]) = Some(request.name)
+  // TODO: Should we change this to return a String (and NOT an Option[String])
+  // May want to check and throw a runtime exception if there is no name (and not let all the clients to
+  // this code crash as they all just do .get on the option type.
+
+  implicit def loggedIn(implicit request: LoggedInRequest[_]): Option[String] = Option(request.name)
+
+  implicit val appConfig : config.AppConfig
 
   def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
-    implicit request =>
+    implicit request: Request[AnyContent] =>
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
       val predicate = authPredicate(minimumRoleRequired)
-      val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
+      val retrieval: Retrieval[Name ~ Enrolments] = Retrievals.name and Retrievals.authorisedEnrolments
 
-      authConnector.authorise(predicate, retrieval).flatMap {
-        case name ~ authorisedEnrolments =>
+      authConnector.authorise(predicate, retrieval) flatMap {
+        case name ~ authorisedEnrolments => {
+          // TODO: Check. We only use the first name as the GK id. Is this ok. Will it effect auditing. Or is first name ok?
           body(LoggedInRequest(name.name.get.toString, authorisedEnrolments, request))(hc)
+        }
       } recoverWith {
         case _: NoActiveSession =>
           request.secure
           Future.successful(toStrideLogin(hostUri))
         case _: InsufficientEnrolments =>
-          Future.successful(Forbidden)
+          implicit val unauthorisedUserName = None
+          Future.successful(Forbidden(views.html.forbidden()))
       }
   }
 
