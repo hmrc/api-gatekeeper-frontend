@@ -24,16 +24,43 @@ import play.api.http.Status.OK
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
   val superUserGatekeeperId: String = "maxpower"
+  val adminUserGatekeeperId: String = "supermaxpower"
 
   def signInGatekeeper()(implicit webDriver: WebDriver) = {
-    signInUser(gatekeeperId)
+
+    // TODO - Make this nicer - use objects and serialise? (same for below)
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$gatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "user-role"}]
+         |}""".stripMargin
+
+    signInUser(gatekeeperId, responseJson)
   }
 
   def signInSuperUserGatekeeper()(implicit webDriver: WebDriver) = {
-    signInUser(superUserGatekeeperId)
+
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$superUserGatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "super-user-role"}]
+         |}""".stripMargin
+
+    signInUser(superUserGatekeeperId, responseJson)
   }
 
-  def signInUser(id: String)(implicit webDriver: WebDriver) = {
+  def signInAdminUserGatekeeper()(implicit webDriver: WebDriver) = {
+
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$adminUserGatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "admin-role"}]
+         |}""".stripMargin
+
+    signInUser(adminUserGatekeeperId, responseJson)
+  }
+
+  def signInUser(id: String, responseJson: String)(implicit webDriver: WebDriver) = {
 
     val requestJson =
       """
@@ -68,11 +95,6 @@ trait SignInSugar extends NavigationSugar {
 
     // TODO: I had to pass the id passed as the response name (well name) as this is what is expected / needed for other calls (as the gatekeeper id)
     // Check with Gurpreet. How does this work. Is it ok. Some explritory testing around this
-    val responseJson =
-      s"""{
-        |  "name": {"name":"$id","lastName":"Smith"},
-        |  "authorisedEnrolments": []
-        |}""".stripMargin
 
 
     stubFor(post(urlPathEqualTo("/auth/authorise"))

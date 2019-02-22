@@ -60,7 +60,7 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(get(urlMatching(s"/developers.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def navigateToApplicationPageFor(applicationName: String, page: WebPage, developers: List[User]) = {
+  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[User]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
@@ -71,7 +71,7 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubApplicationSubscription(developers)
     stubApiDefinition()
 
-    signInSuperUserGatekeeper
+    signInAdminUserGatekeeper
     on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")
