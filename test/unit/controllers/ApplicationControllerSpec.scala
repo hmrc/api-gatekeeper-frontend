@@ -910,13 +910,13 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "the user is not a superuser" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
       }
@@ -934,13 +934,13 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "the user is not a superuser" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
       }
@@ -979,18 +979,18 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
-            status(result) shouldBe OK //We're getting a 401 :(
+            status(result) shouldBe OK
           }
         }
 
         "the user is not a superuser" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
       }
@@ -1008,13 +1008,13 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         }
 
         "the user is not a superuser" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
             val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
       }
@@ -1120,7 +1120,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       "the user is not a superuser" when {
         "manging a privileged app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
@@ -1130,12 +1130,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 
         "managing an ROPC app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
@@ -1145,7 +1145,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 
@@ -1200,26 +1200,26 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       "the user is not a superuser" when {
         "managing a privileged app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 
         "managing an ROPC app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 
@@ -1316,26 +1316,26 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       "the user is not a superuser" when {
         "when managing a privileged app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
             val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 
         "when managing an ROPC app" should {
-          "show 401 Unauthorized" in new Setup {
+          "show 403 Forbidden" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
             val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
 
-            status(result) shouldBe UNAUTHORIZED
+            status(result) shouldBe FORBIDDEN
           }
         }
 

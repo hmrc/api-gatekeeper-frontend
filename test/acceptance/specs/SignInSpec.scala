@@ -16,8 +16,8 @@
 
 package acceptance.specs
 
+import acceptance.pages.ApplicationsPage
 import acceptance.{BaseSpec, SignInSugar}
-import acceptance.pages.{ApplicationsPage, DashboardPage, SignInPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
@@ -81,7 +81,7 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
       Given("The developer goes to the Gatekeeper home page")
 
-      signInUser("joe.test")
+      signInGatekeeper
 
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
       var actualApplicationTitle = webDriver.getTitle
@@ -98,7 +98,7 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
 
       Given("The developer goes to the Gatekeeper home page")
-      signInUser("joe.test")
+      signInGatekeeper
 
       on(ApplicationsPage)
 

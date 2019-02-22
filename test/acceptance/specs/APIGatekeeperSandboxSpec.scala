@@ -77,7 +77,7 @@ class APIGatekeeperSandboxSpec extends BaseSpec
 
       Given("the developer goes to the Gatekeeper home page")
 
-      signInUser("joe.test")
+      signInGatekeeper
 
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
       var actualApplicationTitle = webDriver.getTitle

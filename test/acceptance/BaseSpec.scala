@@ -35,7 +35,6 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
   implicit val webDriver: WebDriver = Env.driver
 
   val wireMockServer = new WireMockServer(wireMockConfig()
-      .notifier(new ConsoleNotifier(true)) // TODO - Remove me
     .port(stubPort))
 
   override def newAppForTest(testData: TestData): Application = {
