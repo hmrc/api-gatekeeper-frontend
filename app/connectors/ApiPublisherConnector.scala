@@ -45,10 +45,9 @@ class ApiPublisherConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
       .recover { recovery }
   }
 
-  def recovery[U]: PartialFunction[Throwable, U] = {
+  def recovery[U] : PartialFunction[Throwable, U]  = {
     case e: Upstream5xxResponse => throw new UpdateApiDefinitionsFailed
     case _ => throw new UpdateApiDefinitionsFailed
   }
-
 }
 

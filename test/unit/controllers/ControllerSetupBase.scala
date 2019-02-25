@@ -21,19 +21,15 @@ import java.util.UUID
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import model._
-import org.apache.http.auth.InvalidCredentialsException
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import org.scalatest.mockito.MockitoSugar
-import play.api.libs.json.Json
-import play.api.mvc.Result
 import play.api.test.FakeRequest
-import services.{ApiDefinitionService, ApplicationService}
+import services.{ApiDefinitionService, ApplicationService, DeploymentApprovalService}
 import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.mvc.Results.Forbidden
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 //import model.LoginDetails._
@@ -48,6 +44,7 @@ trait ControllerSetupBase extends MockitoSugar {
   val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]
   val mockDeveloperConnector = mock[DeveloperConnector]
+  val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
   val basicApplication = ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None,
     Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
@@ -78,8 +75,6 @@ trait ControllerSetupBase extends MockitoSugar {
   }
 
   def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
-
-
     given(mockConfig.userRole).willReturn(userRole)
 
     val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
@@ -93,9 +88,7 @@ trait ControllerSetupBase extends MockitoSugar {
       .willReturn(Future.failed(new InsufficientEnrolments))
   }
 
-  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = { //TODO - change this for "the user is just plain authorised"
-
-
+  def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
     given(mockConfig.superUserRole).willReturn(superUserRole)
 
     val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
@@ -104,7 +97,7 @@ trait ControllerSetupBase extends MockitoSugar {
       .willReturn(response)
   }
 
-  def givenTheUserIsAuthorisedAndIsAnAdmin(): Unit = { //TODO - change this for "the user is just plain authorised"
+  def givenTheUserIsAuthorisedAndIsAnAdmin(): Unit = {
     given(mockConfig.adminRole).willReturn(adminRole)
 
     val response = Future.successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))

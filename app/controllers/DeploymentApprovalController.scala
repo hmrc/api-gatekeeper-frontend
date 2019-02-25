@@ -16,20 +16,18 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.AppConfig
 import connectors.AuthConnector
+import javax.inject.Inject
 import model._
+import play.api.Play.current
 import play.api.data.Form
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.GatekeeperAuthWrapper
 import views.html.deploymentApproval.{deploymentApproval, deploymentReview}
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
-
 
 import scala.concurrent.Future
 
@@ -37,12 +35,8 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              deploymentApprovalService: DeploymentApprovalService)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
-  }
-
-  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    deploymentApprovalService.fetchApiDefinitionSummary(serviceName)
   }
 
   def reviewPage(serviceName: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
@@ -50,7 +44,7 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
   }
 
   def handleApproval(serviceName: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-      val requestForm = HandleApprovalForm.form.bindFromRequest
+      val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =
         fetchApiDefinitionSummary(serviceName).map(details => BadRequest(deploymentReview(errors, details)))
@@ -61,12 +55,16 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
             deploymentApprovalService.approveService(serviceName) map {
               _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
             }
-          } // TODO handle rejected Services
+          }
           case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
         }
       }
 
       requestForm.fold(errors, approveApplicationWithValidForm)
+  }
+
+  private def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    deploymentApprovalService.fetchApiDefinitionSummary(serviceName)
   }
 }
 

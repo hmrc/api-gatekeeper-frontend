@@ -21,7 +21,6 @@ import controllers.BaseController
 import model.GatekeeperRole
 import model.GatekeeperRole.GatekeeperRole
 import play.api.Play.current
-import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
 import uk.gov.hmrc.auth.core._
