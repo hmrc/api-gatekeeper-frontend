@@ -17,9 +17,9 @@
 package connectors
 
 import java.net.URLEncoder.encode
-import javax.inject.Inject
 
 import config.AppConfig
+import javax.inject.Inject
 import model.ApiSubscriptionFields._
 import model.{FieldsDeleteFailureResult, FieldsDeleteResult, FieldsDeleteSuccessResult}
 import play.api.http.Status.NO_CONTENT
@@ -56,7 +56,7 @@ class SubscriptionFieldsConnector @Inject()(appConfig: AppConfig, http: HttpClie
     } recover {
       case e: NotFoundException => FieldsDeleteSuccessResult
       case _ => FieldsDeleteFailureResult
-    } //TODO - getting a 404 in the recovery should result in a success, getting a 500 or anything else should still result in a failure
+    }
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)

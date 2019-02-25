@@ -30,7 +30,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
-import uk.gov.hmrc.crypto.Protected
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
@@ -101,6 +100,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         givenNoDataSuppliedDelegateServices
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         bodyOf(result) should include("data-page-length=\"100\"")
+        verifyAuthConnectorCalledForUser
       }
 
       "do something else if user is not authenticated" in new Setup {
@@ -117,6 +117,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         bodyOf(result) should include("<h1>Developers</h1>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+        verifyAuthConnectorCalledForUser
       }
 
 
@@ -130,6 +131,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         bodyOf(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+        verifyAuthConnectorCalledForUser
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
@@ -151,6 +153,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
+        verifyAuthConnectorCalledForUser
       }
 
       "display message if no developers found by filter" in new Setup {
@@ -161,6 +164,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("No developers for your selected filter")
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -184,6 +188,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
     }
 
@@ -204,6 +209,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
         status(result) shouldBe OK
         verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInSuperUser))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an internal server error when it fails to remove MFA" in new Setup {
@@ -234,6 +240,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(addToken(developersController.deleteDeveloperPage(emailAddress))(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
     }
 
@@ -255,6 +262,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
         verify(mockDeveloperService).deleteDeveloper(eqTo(emailAddress), eqTo(superUserName))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an internal server error when the delete fails" in new Setup {

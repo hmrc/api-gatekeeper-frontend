@@ -26,14 +26,12 @@ object ApplicationsPage extends WebPage {
 
   override def isCurrentPage: Boolean = {
     currentUrl == url
-
-    // TODO Check a bit more then the URI. Doesn't pick up 'technical difficulties' errors etc?
   }
 
   def previousLink = find(linkText("Previous")).get
 
   def isForbidden() = {
-    find(cssSelector("h2")).fold(false)(_.text == "Insufficient enrolments to access this page")
+    find(cssSelector("h1")).fold(false)(_.text == "You do not have permission to access Gatekeeper")
   }
 
   def nextLink = find(linkText("Next")).get

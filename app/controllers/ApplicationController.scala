@@ -16,10 +16,9 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.AppConfig
 import connectors.AuthConnector
+import javax.inject.Inject
 import model.Forms._
 import model.UpliftAction.{APPROVE, REJECT}
 import model._
@@ -29,9 +28,9 @@ import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc.{Action, AnyContent, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
@@ -462,7 +461,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
       redirectIfExternalTestEnvironment {
         val result = Redirect(routes.ApplicationController.applicationPage(appId))
-        if (isAtLeastSuperUser) { //TODO - change this to isAdmin assuming that makes sense for whatever calles this endpoint???
+        if (isAtLeastSuperUser) {
           val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
           applicationService.updateRateLimitTier(appId, newTier) map {
             case ApplicationUpdateSuccessResult =>

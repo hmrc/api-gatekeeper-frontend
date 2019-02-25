@@ -20,7 +20,6 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import controllers.DeploymentApprovalController
-
 import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
@@ -69,10 +68,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
       verify(mockDeploymentApprovalService).fetchUnapprovedServices()(any[HeaderCarrier])
 
-
-      // TODO - Should check that a call to authConnector is made.
-      // Here as well as the applicationControllerSpec tests.
-      // verify(mockAuthConnector)
+      verifyAuthConnectorCalledForUser
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
@@ -101,6 +97,8 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
       bodyOf(result) should include(serviceName)
 
       verify(mockDeploymentApprovalService).fetchApiDefinitionSummary(eqTo(serviceName))(any[HeaderCarrier])
+
+      verifyAuthConnectorCalledForUser
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
@@ -129,6 +127,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName))(any[HeaderCarrier])
+      verifyAuthConnectorCalledForUser
     }
 
     "return bad request if approval is not confirmed" in new Setup {
