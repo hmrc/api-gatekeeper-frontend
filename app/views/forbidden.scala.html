@@ -17,7 +17,6 @@
 @()(implicit request : Request[_], userFullName: Option[String], messages: Messages, appConfig:config.AppConfig)
 
 @main(title = "Forbidden", userFullName = userFullName) {
-<!-- TODO get this message right-->
-  <h2>Insufficient enrolments to access this page</h2>
-
+  <h1>You do not have permission to access Gatekeeper</h1>
+  <h2>Contact your supervisor for access</h2>
 }
