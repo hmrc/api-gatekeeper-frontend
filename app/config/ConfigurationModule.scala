@@ -19,7 +19,6 @@ package config
 import connectors.{DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector}
 import play.api.inject.Module
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.SessionTimeoutFilter
 
 class ConfigurationModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration) = {
@@ -30,7 +29,6 @@ class ConfigurationModule extends Module {
     }
 
     Seq(
-      bind[SessionTimeoutFilter].to[SessionTimeoutFilterWithWhitelist],
       developerConnectorBinding
     )
   }

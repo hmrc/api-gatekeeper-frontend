@@ -37,11 +37,7 @@ trait GatekeeperAuthWrapper {
 
   def authConnector: AuthConnector
 
-  // TODO: Should we change this to return a String (and NOT an Option[String])
-  // May want to check and throw a runtime exception if there is no name (and not let all the clients to
-  // this code crash as they all just do .get on the option type.
-
-  implicit def loggedIn(implicit request: LoggedInRequest[_]): Option[String] = Option(request.name)
+  implicit def loggedIn(implicit request: LoggedInRequest[_]): Option[String] = request.name
 
   implicit val appConfig : config.AppConfig
 
@@ -54,8 +50,7 @@ trait GatekeeperAuthWrapper {
 
       authConnector.authorise(predicate, retrieval) flatMap {
         case name ~ authorisedEnrolments => {
-          // TODO: Check. We only use the first name as the GK id. Is this ok. Will it effect auditing. Or is first name ok?
-          body(LoggedInRequest(name.name.get.toString, authorisedEnrolments, request))(hc)
+          body(LoggedInRequest(name.name, authorisedEnrolments, request))(hc)
         }
       } recoverWith {
         case _: NoActiveSession =>
@@ -102,4 +97,4 @@ trait GatekeeperAuthWrapper {
   }
 }
 
-case class LoggedInRequest[A](name: String, authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
+case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)

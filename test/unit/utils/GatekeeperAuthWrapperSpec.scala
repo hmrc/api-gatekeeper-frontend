@@ -20,9 +20,8 @@ import java.util.UUID
 
 import connectors.AuthConnector
 import controllers.BaseController
-import model.{GatekeeperRole, GatekeeperSessionKeys, Role}
+import model.{GatekeeperRole, GatekeeperSessionKeys}
 import org.mockito.BDDMockito._
-import org.mockito.Matchers._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
@@ -54,9 +53,9 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     val adminRole = "AdminRole" + UUID.randomUUID()
     val userRole = "UserRole" + UUID.randomUUID()
 
-    val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("username", Enrolments(Set(Enrolment(userRole))), FakeRequest())
-    val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("superUserName", Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
-    val anAdminLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type]("adminName", Enrolments(Set(Enrolment(adminRole))), FakeRequest())
+    val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
+    val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("superUserName"), Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
+    val anAdminLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("adminName"), Enrolments(Set(Enrolment(adminRole))), FakeRequest())
 
     given(underTest.appConfig.superUsers).willReturn(Seq("superUserName"))
     given(appConfig.adminRole).willReturn(adminRole)
