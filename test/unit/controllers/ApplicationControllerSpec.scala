@@ -560,16 +560,16 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val userName = "userName"
 
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
-//        val loginDetails = LoginDetails("userName", Protected("password"))
-//        val successfulAuthentication = SuccessfulAuthentication(BearerToken("bearer-token", DateTime.now().plusMinutes(10)), userName, None)
-//        given(underTest.authConnector.login(any[LoginDetails])(any[HeaderCarrier])).willReturn(Future.successful(successfulAuthentication))
-//        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-//        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
-//        val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-//        given(mockApplicationService.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
-//        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
-//        appIdCaptor.getValue shouldBe applicationId
-//        gatekeeperIdCaptor.getValue shouldBe userName
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
+        val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
+        given(mockApplicationService.approveUplift(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier])).willReturn(Future.successful(ApproveUpliftSuccessful))
+        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
+        appIdCaptor.getValue shouldBe applicationId
+        gatekeeperIdCaptor.getValue shouldBe userName
+
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -577,34 +577,36 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val applicationId = "applicationId"
       val tier = RateLimitTier.GOLD
 
-      "change the rate limit for a super user" in new Setup { //TODO - oh dear
-//        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-//        given(underTest.appConfig.superUsers).willReturn(Seq("userName"))
-//
-//        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
-//        val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
-//        val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
-//
-//        given(mockApplicationService.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
-//          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-//
-//        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
-//        status(result) shouldBe SEE_OTHER
-//
-//        appIdCaptor.getValue shouldBe applicationId
-//        newTierCaptor.getValue shouldBe tier
-//
-//        verify(mockApplicationService, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
+      "change the rate limit for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+
+        val appIdCaptor = ArgumentCaptor.forClass(classOf[String])
+        val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
+        val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+
+        given(mockApplicationService.updateRateLimitTier(appIdCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
+        status(result) shouldBe SEE_OTHER
+
+        appIdCaptor.getValue shouldBe applicationId
+        newTierCaptor.getValue shouldBe tier
+
+        verify(mockApplicationService, times(1)).updateRateLimitTier(applicationId, tier)(hcCaptor.getValue)
+
+        verifyAuthConnectorCalledForUser
       }
 
       "not call the application connector for a normal user " in new Setup {
-//        given(underTest.authConnector.authorized(any[Role])(any[HeaderCarrier])).willReturn(Future.successful(true))
-//        given(underTest.appConfig.superUsers).willReturn(Seq.empty)
-//
-//        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
-//        status(result) shouldBe SEE_OTHER
-//
-//        verify(mockApplicationService, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
+        status(result) shouldBe SEE_OTHER
+
+        verify(mockApplicationService, never()).updateRateLimitTier(anyString(), any[RateLimitTier])(any[HeaderCarrier])
+
+        verifyAuthConnectorCalledForUser
       }
     }
 
