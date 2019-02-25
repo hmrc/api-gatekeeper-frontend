@@ -105,7 +105,7 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % "acceptance",
+  "uk.gov.hmrc" %% "hmrctest" % "3.5.0-play-25" % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
@@ -180,6 +180,6 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
     test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq(s"-Dtest.name=${test.name}", s"-Dtest_driver=${Properties.propOrElse("test_driver", "chrome")}"))))
   }
 
-coverageMinimum := 83
+coverageMinimum := 84
 coverageFailOnMinimum := true
 coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"
