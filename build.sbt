@@ -18,6 +18,7 @@ import scala.util.Properties
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
+lazy val hmrctestVersion = "3.5.0-play-25"
 
 lazy val microservice =  (project in file("."))
     .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -105,7 +106,7 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % "acceptance",
+  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
@@ -126,7 +127,7 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
   "org.jsoup" % "jsoup" % "1.10.2" % "test",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
-  "uk.gov.hmrc" %% "hmrctest" % "3.2.0" % "test",
+  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "test",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test",
@@ -180,6 +181,6 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
     test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq(s"-Dtest.name=${test.name}", s"-Dtest_driver=${Properties.propOrElse("test_driver", "chrome")}"))))
   }
 
-coverageMinimum := 83
+coverageMinimum := 84
 coverageFailOnMinimum := true
 coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"
