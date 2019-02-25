@@ -19,9 +19,6 @@ package unit.controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
-
 import controllers.ApplicationController
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
@@ -38,6 +35,8 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
@@ -108,6 +107,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         responseBody should include("<h1>Applications</h1>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+
+        verifyAuthConnectorCalledForUser
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
@@ -132,6 +133,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val body = bodyOf(result)
 
         body should include("Add privileged or ROPC application")
+
+        verifyAuthConnectorCalledForUser
       }
 
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
@@ -148,6 +151,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         body shouldNot include("Add privileged or ROPC application")
 
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -163,6 +167,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         appIdCaptor.getValue shouldBe applicationId
         gatekeeperIdCaptor.getValue shouldBe userName
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -174,6 +179,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "fetch an app with ROPC access for a super user" in new Setup {
@@ -183,6 +189,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an error for a Standard app" in new Setup {
@@ -192,6 +199,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         intercept[RuntimeException] {
           await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
         }
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden for a non-super user" in new Setup {
@@ -220,6 +228,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         verify(mockApplicationService)
           .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(any[HeaderCarrier])
+
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -232,6 +242,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
@@ -268,6 +279,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an error for a ROPC app" in new Setup {
@@ -327,6 +339,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             SuppressIvForOrganisations(Set("address", "openid:mdtp")),
             SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
           )))(any[HeaderCarrier])
+
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -342,6 +356,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier])
+
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
@@ -372,6 +388,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
 
         verify(mockApplicationService).subscribeToApi(eqTo(applicationId), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -400,6 +417,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
 
         verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -449,6 +467,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           eqTo(context),
           eqTo(version),
           eqTo(Map("field1" -> "value1", "field2" -> "value2")))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForSuperUser
       }
     }
 
@@ -461,6 +480,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+
+        verifyAuthConnectorCalledForAdmin
     }
 
       "return forbidden for a super user" in new Setup {
@@ -502,6 +523,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(applicationId), eqTo(RateLimitTier.GOLD))(any[HeaderCarrier])
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -515,6 +537,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateRateLimitTier(anyString, any[RateLimitTier])(any[HeaderCarrier])
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -657,6 +680,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           status(result) shouldBe OK
 
           bodyOf(result) should include("Application added")
+          verifyAuthConnectorCalledForSuperUser
         }
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
@@ -675,6 +699,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           status(result) shouldBe OK
 
           bodyOf(result) should include("Application added")
+          verifyAuthConnectorCalledForSuperUser
         }
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
@@ -692,6 +717,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           status(result) shouldBe OK
 
           bodyOf(result) should include("Application added")
+          verifyAuthConnectorCalledForSuperUser
         }
 
         "show the correct error message when app description is left empty" in new Setup {
@@ -760,6 +786,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
             bodyOf(result) should include(clientId)
+            verifyAuthConnectorCalledForSuperUser
 
           }
 
@@ -782,7 +809,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
             bodyOf(result) should include(clientId)
-
+            verifyAuthConnectorCalledForSuperUser
           }
 
           "show the success page for an ROPC app in production" in new Setup {
@@ -805,7 +832,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             bodyOf(result) should include("ROPC")
             bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
-
+            verifyAuthConnectorCalledForSuperUser
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
@@ -827,6 +854,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             bodyOf(result) should include("ROPC")
             bodyOf(result) should include(totpSecret)
             bodyOf(result) should include(clientId)
+            verifyAuthConnectorCalledForSuperUser
 
           }
         }
@@ -846,6 +874,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
           status(result) shouldBe OK
           verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))(any[HeaderCarrier])
+          verifyAuthConnectorCalledForSuperUser
         }
       }
 
@@ -878,6 +907,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe OK
         verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(false))(any[HeaderCarrier])
         verify(mockSubscriptionFieldsService, never).fetchFields(anyString, anyString, anyString)(any[HeaderCarrier])
+        verifyAuthConnectorCalledForUser
       }
 
       "return the application details when the subscription service fails" in new Setup {
@@ -890,6 +920,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe OK
         verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(false))(any[HeaderCarrier])
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -903,6 +934,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+
+            // The auth connector checks you are logged on. And the controller checks you are also a super user as it's a privileged app.
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -927,6 +961,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -951,6 +987,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -962,6 +999,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
       }
@@ -977,6 +1015,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -1001,6 +1040,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -1025,6 +1065,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -1036,6 +1077,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
       }
@@ -1058,6 +1100,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService).addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
+            verifyAuthConnectorCalledForUser
           }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
@@ -1071,6 +1114,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             status(result) shouldBe SEE_OTHER
             redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+            verifyAuthConnectorCalledForUser
           }
 
           "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
@@ -1160,6 +1204,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             status(result) shouldBe SEE_OTHER
+            verifyAuthConnectorCalledForUser
           }
         }
       }
@@ -1179,6 +1224,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             status(result) shouldBe OK
             bodyOf(result) should include(email)
+            verifyAuthConnectorCalledForUser
           }
         }
 
@@ -1229,6 +1275,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
 
             status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
           }
         }
       }
@@ -1251,6 +1298,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
               status(result) shouldBe SEE_OTHER
               redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+              verifyAuthConnectorCalledForUser
             }
           }
 
@@ -1269,6 +1317,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               status(result) shouldBe SEE_OTHER
 
               verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(email), eqTo("superUserName"))(any[HeaderCarrier])
+              verifyAuthConnectorCalledForUser
             }
 
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
@@ -1294,6 +1343,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
               status(result) shouldBe SEE_OTHER
               redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/team-members")
+              verifyAuthConnectorCalledForUser
             }
           }
         }
@@ -1361,6 +1411,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+        verifyAuthConnectorCalledForAdmin
       }
 
 
@@ -1392,6 +1443,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         verify(mockApplicationService).blockApplication(eqTo(applicationId), any())(any[HeaderCarrier])
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1405,6 +1457,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).blockApplication(any(), any())(any[HeaderCarrier])
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1433,6 +1486,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+        verifyAuthConnectorCalledForAdmin
       }
 
 
@@ -1464,6 +1518,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         verify(mockApplicationService).unblockApplication(eqTo(applicationId), any())(any[HeaderCarrier])
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1477,6 +1532,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).unblockApplication(any(), any())(any[HeaderCarrier])
+        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
