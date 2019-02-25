@@ -22,9 +22,6 @@ import java.util.UUID
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 
-import scala.concurrent.ExecutionContext
-
-//import connectors.AuthConnector.InvalidCredentials
 import controllers.ApplicationController
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
@@ -90,8 +87,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       given(mockConfig.adminRole).willReturn(adminRole)
       given(mockConfig.userRole).willReturn(userRole)
 
-      given(mockConfig.strideLoginUrl).willReturn("https://loginUri") // I don't think these are helping
-      given(mockConfig.appName).willReturn("Gatekeeper app name") // ""
+      given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
+      given(mockConfig.appName).willReturn("Gatekeeper app name")
     }
 
     "applicationsPage" should {
