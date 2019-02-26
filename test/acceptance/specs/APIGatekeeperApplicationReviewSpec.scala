@@ -22,7 +22,6 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
-import play.api.libs.json.Json
 
 import scala.io.Source
 
@@ -80,11 +79,12 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       clickOnReview("review")
       on(ReviewPage(appPendingApprovalId1, "First Application"))
       clickOnElement("approve-app")
+
       stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/approve-uplift"))
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
-      //stubApplicationToReview(developers)
+
       on(ApplicationToReviewPage)
     }
   }

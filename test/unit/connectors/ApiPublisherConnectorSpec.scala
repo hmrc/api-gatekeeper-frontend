@@ -113,8 +113,6 @@ class ApiPublisherConnectorSpec extends UnitSpec with WiremockSugar with Mockito
     }
   }
 
-  // approveService
-
   "approveService" should {
 
     val serviceName = "ServiceName" + UUID.randomUUID()
@@ -147,5 +145,4 @@ class ApiPublisherConnectorSpec extends UnitSpec with WiremockSugar with Mockito
       }
     }
   }
-
 }

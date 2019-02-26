@@ -62,7 +62,7 @@ trait GatekeeperAuthWrapper {
       }
   }
 
-  private def hostUri(implicit request: Request[_]) = { //this is unused
+  private def hostUri(implicit request: Request[_]) = {
     val protocol = if (request.secure) "https" else "http"
     s"$protocol://${request.host}${request.uri}"
   }
