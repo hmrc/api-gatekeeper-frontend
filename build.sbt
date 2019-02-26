@@ -127,7 +127,7 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
   "org.jsoup" % "jsoup" % "1.10.2" % "test",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
-  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "acceptance",
+  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "test",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test",
