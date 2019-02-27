@@ -45,10 +45,11 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val redirectLoginUrl = s"https://loginUri?successURL=${URLEncoder.encode("http:///", "UTF-8")}&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
+    val redirectLoginUrl = s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
 
     given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
     given(mockConfig.appName).willReturn("Gatekeeper app name")
+    given(mockConfig.gatekeeperBaseUrl).willReturn("http://mock-gatekeeper-frontend")
 
     val underTest = new DeploymentApprovalController(mockAuthConnector, mockDeploymentApprovalService)(mockConfig)
   }
