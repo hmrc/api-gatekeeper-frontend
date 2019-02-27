@@ -63,6 +63,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
     given(appConfig.userRole).willReturn(userRole)
     given(appConfig.strideLoginUrl).willReturn("https://aUrl")
     given(appConfig.appName).willReturn("appName123")
+    given(appConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
 
   }
 

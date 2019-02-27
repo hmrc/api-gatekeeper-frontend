@@ -57,6 +57,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       given(appConfig.superUsers).willReturn(Seq(loggedInSuperUser))
       given(appConfig.strideLoginUrl).willReturn("https://loginUri")
       given(appConfig.appName).willReturn("Gatekeeper app name")
+      given(appConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
 
       val mockDeveloperService = mock[DeveloperService]
 
@@ -230,7 +231,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
         givenTheUserHasInsufficientEnrolments
-        val result= await(developersController.deleteDeveloperPage(emailAddress)(aLoggedInRequest))
+        val result = await(developersController.deleteDeveloperPage(emailAddress)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 

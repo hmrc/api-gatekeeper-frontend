@@ -86,7 +86,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       given(mockConfig.adminRole).willReturn(adminRole)
       given(mockConfig.userRole).willReturn(userRole)
 
-      given(mockConfig.gatekeeperBaseUrl).willReturn("http://mock-gatekeeper-frontend")
+      given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
 
       given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
       given(mockConfig.appName).willReturn("Gatekeeper app name")
