@@ -55,25 +55,24 @@ trait GatekeeperAuthWrapper {
       } recoverWith {
         case _: NoActiveSession =>
           request.secure
-          Future.successful(toStrideLogin(hostUri))
+          Future.successful(toStrideLogin())
         case _: InsufficientEnrolments =>
           implicit val unauthorisedUserName = None
           Future.successful(Forbidden(views.html.forbidden()))
       }
   }
 
-  private def hostUri(implicit request: Request[_]) = {
-    val protocol = if (request.secure) "https" else "http"
-    s"$protocol://${request.host}${request.uri}"
-  }
+  private def toStrideLogin(): Result = {
 
-  private def toStrideLogin(successUrl: String, failureUrl: Option[String] = None): Result =
+    val successUrl = s"${appConfig.gatekeeperBaseUrl}/api-gatekeeper/applications"
+
     Redirect(
       appConfig.strideLoginUrl,
       Map(
         "successURL" -> Seq(successUrl),
         "origin" -> Seq(appConfig.appName)
-      ) ++ failureUrl.map(f => Map("failureURL" -> Seq(f))).getOrElse(Map()))
+      ))
+  }
 
   def isAtLeastSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
     request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined

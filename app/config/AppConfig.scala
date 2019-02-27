@@ -17,7 +17,6 @@
 package config
 
 import javax.inject.Inject
-
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -33,6 +32,7 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
 
   lazy val appName = loadStringConfig("appName")
   lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
+
   lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
   lazy val apiScopeBaseUrl = baseUrl("api-scope")
   lazy val applicationBaseUrl = s"${baseUrl("third-party-application")}"
@@ -42,6 +42,8 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
   lazy val apiPublisherBaseUrl = baseUrl("api-publisher")
   lazy val serviceBaseUrl = baseUrl("api-definition")
+  lazy val gatekeeperBaseUrl = baseUrl("api-gatekeeper-frontend")
+
   lazy val superUserRole = loadStringConfig("roles.super-user")
   lazy val userRole = loadStringConfig("roles.user")
   lazy val adminRole = loadStringConfig("roles.admin")
