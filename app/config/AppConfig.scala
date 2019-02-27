@@ -42,7 +42,7 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
   lazy val apiPublisherBaseUrl = baseUrl("api-publisher")
   lazy val serviceBaseUrl = baseUrl("api-definition")
-  lazy val gatekeeperBaseUrl = baseUrl("api-gatekeeper-frontend")
+  lazy val gatekeeperSuccessUrl = loadStringConfig("api-gatekeeper-frontend-success-url")
 
   lazy val superUserRole = loadStringConfig("roles.super-user")
   lazy val userRole = loadStringConfig("roles.user")

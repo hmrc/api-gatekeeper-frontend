@@ -63,13 +63,10 @@ trait GatekeeperAuthWrapper {
   }
 
   private def toStrideLogin(): Result = {
-
-    val successUrl = s"${appConfig.gatekeeperBaseUrl}/api-gatekeeper/applications"
-
     Redirect(
       appConfig.strideLoginUrl,
       Map(
-        "successURL" -> Seq(successUrl),
+        "successURL" -> Seq(appConfig.gatekeeperSuccessUrl),
         "origin" -> Seq(appConfig.appName)
       ))
   }

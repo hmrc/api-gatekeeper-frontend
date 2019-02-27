@@ -49,7 +49,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
     given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
     given(mockConfig.appName).willReturn("Gatekeeper app name")
-    given(mockConfig.gatekeeperBaseUrl).willReturn("http://mock-gatekeeper-frontend")
+    given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
 
     val underTest = new DeploymentApprovalController(mockAuthConnector, mockDeploymentApprovalService)(mockConfig)
   }
