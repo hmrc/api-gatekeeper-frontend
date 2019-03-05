@@ -18,7 +18,7 @@ import scala.util.Properties
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
-lazy val hmrctestVersion = "3.5.0-play-25"
+lazy val hmrctestVersion = "3.6.0-play-25"
 
 lazy val microservice =  (project in file("."))
     .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -147,13 +147,13 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.6.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
-  "uk.gov.hmrc" %% "play-ui" % "7.27.0-play-25",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.30.0-play-25",
+  "uk.gov.hmrc" %% "play-ui" % "7.33.0-play-25",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
-  "uk.gov.hmrc" %% "json-encryption" % "3.2.0",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
-  "uk.gov.hmrc" %% "emailaddress" % "2.2.0",
+  "uk.gov.hmrc" %% "json-encryption" % "4.1.0",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
+  "uk.gov.hmrc" %% "emailaddress" % "3.2.0",
   "org.slf4j" % "slf4j-api" % slf4jVersion,
   "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
   "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
