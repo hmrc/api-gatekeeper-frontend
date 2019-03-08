@@ -56,7 +56,7 @@ lazy val microservice =  (project in file("."))
       majorVersion := 0
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in Test := Seq(Tests.Filter(unitFilter)),
+    .settings(testOptions in Test := Seq(Tests.Filter(unitFilter), Tests.Argument("-eT")),
       addTestReportOption(Test, "test-reports"),
       unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")),
       unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit"))
@@ -64,7 +64,7 @@ lazy val microservice =  (project in file("."))
     .configs(AcceptanceTest)
     .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
     .settings(
-      testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter), Tests.Argument("-l", "SandboxTest")),
+      testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter), Tests.Argument("-l", "SandboxTest", "-eT")),
       testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
@@ -76,7 +76,7 @@ lazy val microservice =  (project in file("."))
     .configs(SandboxTest)
     .settings(inConfig(SandboxTest)(Defaults.testTasks): _*)
     .settings(
-      testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest"), Tests.Filter(sandboxFilter)),
+      testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT"), Tests.Filter(sandboxFilter)),
       testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),
       unmanagedResourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),

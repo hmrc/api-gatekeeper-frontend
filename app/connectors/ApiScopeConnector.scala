@@ -16,22 +16,54 @@
 
 package connectors
 
-import javax.inject.Inject
-
 import config.AppConfig
+import javax.inject.{Inject, Singleton}
 import model._
+import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiScopeConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
+abstract class ApiScopeConnector {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  val environment: Environment
+  val serviceBaseUrl: String
+  val useProxy: Boolean
+  val bearerToken: String
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
-    http.GET[Seq[ApiScope]](s"${appConfig.apiScopeBaseUrl}/scope")
+    http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
+}
+
+@Singleton
+class SandboxApiScopeConnector @Inject()(appConfig: AppConfig,
+                                         val httpClient: HttpClient,
+                                         val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiScopeConnector {
+
+  val environment = Environment.SANDBOX
+  val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
+  val useProxy = appConfig.apiScopeSandboxUseProxy
+  val bearerToken = appConfig.apiScopeSandboxBearerToken
+}
+
+@Singleton
+class ProductionApiScopeConnector @Inject()(appConfig: AppConfig,
+                                            val httpClient: HttpClient,
+                                            val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiScopeConnector {
+
+  val environment = Environment.PRODUCTION
+  val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
+  val useProxy = appConfig.apiScopeProductionUseProxy
+  val bearerToken = appConfig.apiScopeProductionBearerToken
 }

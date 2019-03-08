@@ -39,20 +39,20 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
-  def reviewPage(serviceName: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-      fetchApiDefinitionSummary(serviceName).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
+  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+      fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
       val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =
-        fetchApiDefinitionSummary(serviceName).map(details => BadRequest(deploymentReview(errors, details)))
+        fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
 
       def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
         validForm.approval_confirmation match {
           case "Yes" => {
-            deploymentApprovalService.approveService(serviceName) map {
+            deploymentApprovalService.approveService(serviceName, Environment.withName(environment)) map {
               _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
             }
           }
@@ -63,8 +63,8 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
       requestForm.fold(errors, approveApplicationWithValidForm)
   }
 
-  private def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    deploymentApprovalService.fetchApiDefinitionSummary(serviceName)
+  private def fetchApiDefinitionSummary(serviceName: String, environment: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    deploymentApprovalService.fetchApprovalSummary(serviceName, Environment.withName(environment))
   }
 }
 

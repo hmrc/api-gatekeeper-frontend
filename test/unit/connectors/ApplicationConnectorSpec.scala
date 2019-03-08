@@ -16,340 +16,315 @@
 
 package unit.connectors
 
-import java.net.URLEncoder
-
-import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
-import connectors.ApplicationConnector
+import connectors.{ApplicationConnector, ProxiedHttpClient}
+import java.net.URLEncoder
+import java.util.UUID
 import model._
-import org.mockito.Mockito.when
+import model.Environment._
+import org.joda.time.DateTime
+import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.Mockito.{when, verify}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar
-  with BeforeAndAfterEach with WithFakeApplication {
+import scala.concurrent.Future
+
+class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
+  private val baseUrl = "https://example.com"
+  private val environmentName = "ENVIRONMENT"
 
   trait Setup {
     val authToken = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val mockAppConfig = mock[AppConfig]
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val mockHttpClient = mock[HttpClient]
+    val mockProxiedHttpClient = mock[ProxiedHttpClient]
+    val mockEnvironment = mock[Environment]
 
-    val connector = new ApplicationConnector(mockAppConfig, httpClient)
+    when(mockEnvironment.toString).thenReturn(environmentName)
 
-    when(mockAppConfig.applicationBaseUrl).thenReturn(wireMockUrl)
+    val connector = new ApplicationConnector {
+      val httpClient = mockHttpClient
+      val proxiedHttpClient = mockProxiedHttpClient
+      val serviceBaseUrl = baseUrl
+      val useProxy = false
+      val bearerToken = "TestBearerToken"
+      val environment = mockEnvironment
+    }
   }
 
   "updateRateLimitTier" should {
 
     val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/rate-limit-tier"
 
     "send Authorisation and return OK if the rate limit tier update was successful on the backend" in new Setup {
-      stubFor(
-        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
-          .withRequestBody(equalTo(
-            s"""{"rateLimitTier":"GOLD"}""".stripMargin))
-          .willReturn(
-            aResponse()
-              .withStatus(NO_CONTENT)))
+      val body = UpdateRateLimitTierRequest(RateLimitTier.GOLD)
+
+      when(mockHttpClient.POST[UpdateRateLimitTierRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
       val result = await(connector.updateRateLimitTier(applicationId, RateLimitTier.GOLD))
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"rateLimitTier":"GOLD"}""")))
 
       result shouldBe ApplicationUpdateSuccessResult
     }
 
     "send Authorisation and propagates 5xx errors" in new Setup {
-      stubFor(
-        post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
-          .withRequestBody(equalTo(
-            s"""{"rateLimitTier":"SILVER"}""".stripMargin))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-              .withBody( """{"code"="UNKNOWN_ERROR", "message":"An unexpected error occurred"}""")))
+      val body = UpdateRateLimitTierRequest(RateLimitTier.SILVER)
+
+      when(mockHttpClient.POST[UpdateRateLimitTierRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.updateRateLimitTier(applicationId, RateLimitTier.SILVER))
       }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/rate-limit-tier"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"rateLimitTier":"SILVER"}""")))
     }
   }
 
   "fetchAllSubscribedApplications" should {
+    val url = s"$baseUrl/application/subscriptions"
+
     "retrieve all applications" in new Setup {
-      val uri = "/application/subscriptions"
-      val body = "[\n  {\n    \"apiIdentifier\": {\n      \"context\": \"individual-benefits\",\n      \"version\": \"1.0\"\n    },\n    \"applications\": [\n      \"a97541e8-f93d-4d0a-ab0b-862e63204b7d\",\n      \"4bf49df9-523a-4aa3-a446-683ff24b619f\",\n      \"42695949-c7e8-4de9-a443-15c0da43143a\"\n    ]\n  }]"
-      stubFor(get(urlEqualTo(uri)).willReturn(aResponse().withStatus(OK).withBody(body)))
+      val response = Seq(SubscriptionResponse(APIIdentifier("individual-benefits", "1.0"), Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
+
+      when(mockHttpClient.GET[Seq[SubscriptionResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(response))
+
       val result: Seq[SubscriptionResponse] = await(connector.fetchAllSubscriptions())
-      verify(1, getRequestedFor(urlPathEqualTo(uri)).withHeader("Authorization", equalTo(authToken)))
+
       result.head.apiIdentifier.context shouldBe "individual-benefits"
     }
   }
 
   "approveUplift" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/approve-uplift"
+    val gatekeeperId = "loggedin.gatekeeper"
+    val body = ApproveUpliftRequest("loggedin.gatekeeper")
+
     "send Authorisation and return OK if the uplift was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/approve-uplift")).willReturn(aResponse().withStatus(NO_CONTENT)))
+      when(mockHttpClient.POST[ApproveUpliftRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+
       val result = await(connector.approveUplift(applicationId, gatekeeperId))
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/approve-uplift"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
 
       result shouldBe ApproveUpliftSuccessful
     }
 
     "handle 412 precondition failed" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/approve-uplift")).willReturn(aResponse().withStatus(PRECONDITION_FAILED)
-        .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_GATEKEEPER_APPROVAL'"}""")))
+      when(mockHttpClient.POST[ApproveUpliftRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream4xxResponse("Application is not in state 'PENDING_GATEKEEPER_APPROVAL'", PRECONDITION_FAILED, PRECONDITION_FAILED)))
 
       intercept[PreconditionFailed] {
         await(connector.approveUplift(applicationId, gatekeeperId))
       }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/approve-uplift"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
     }
   }
 
   "rejectUplift" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/reject-uplift"
+    val gatekeeperId = "loggedin.gatekeeper"
+    val rejectionReason = "A similar name is already taken by another application"
+    val body = RejectUpliftRequest(gatekeeperId, rejectionReason)
+
     "send Authorisation and return Ok if the uplift rejection was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      val rejectionReason = "A similar name is already taken by another application"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/reject-uplift")).willReturn(aResponse().withStatus(NO_CONTENT)))
+      when(mockHttpClient.POST[RejectUpliftRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
       val result = await(connector.rejectUplift(applicationId, gatekeeperId, rejectionReason))
 
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/reject-uplift"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo(
-          s"""{"gatekeeperUserId":"$gatekeeperId","reason":"$rejectionReason"}""")))
-      }
+      result shouldBe RejectUpliftSuccessful
+    }
 
     "hande 412 preconditions failed" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      val rejectionReason = "A similar name is already taken by another application"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/reject-uplift")).willReturn(aResponse().withStatus(PRECONDITION_FAILED)
-        .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_GATEKEEPER_APPROVAL'"}""")))
+      when(mockHttpClient.POST[RejectUpliftRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream4xxResponse("Application is not in state 'PENDING_GATEKEEPER_APPROVAL'", PRECONDITION_FAILED, PRECONDITION_FAILED)))
 
       intercept[PreconditionFailed] {
         await(connector.rejectUplift(applicationId, gatekeeperId, rejectionReason))
       }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/reject-uplift"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo(
-          s"""{"gatekeeperUserId":"$gatekeeperId","reason":"$rejectionReason"}""")))
     }
   }
 
   "resend verification email" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/resend-verification"
+    val gatekeeperId = "loggedin.gatekeeper"
+    val body = ResendVerificationRequest(gatekeeperId)
+
     "send Verification request and return OK if the resend was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/resend-verification")).willReturn(aResponse().withStatus(NO_CONTENT)))
+      when(mockHttpClient.POST[ResendVerificationRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+
       val result = await(connector.resendVerification(applicationId, gatekeeperId))
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/resend-verification"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
 
       result shouldBe ResendVerificationSuccessful
     }
 
     "handle 412 precondition failed" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/resend-verification")).willReturn(aResponse().withStatus(PRECONDITION_FAILED)
-        .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_REQUESTOR_VERIFICATION'"}""")))
+      when(mockHttpClient.POST[ResendVerificationRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream4xxResponse("Application is not in state 'PENDING_REQUESTOR_VERIFICATION'", PRECONDITION_FAILED, PRECONDITION_FAILED)))
 
       intercept[PreconditionFailed] {
         await(connector.resendVerification(applicationId, gatekeeperId))
       }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/resend-verification"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"gatekeeperUserId":"$gatekeeperId"}""")))
     }
   }
 
   "fetchAllApplicationsBySubscription" should {
+    val url = s"$baseUrl/application?subscribesTo=some-context&version=some-version"
+
     "retrieve all applications subscribed to a specific API" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context&version=some-version")).willReturn(aResponse().withStatus(OK)
-        .withBody("[]")))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(Seq.empty))
 
       val result = await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
 
-      verify(1, getRequestedFor(urlPathEqualTo("/application?subscribesTo=some-context&version=some-version"))
-        .withHeader("Authorization", equalTo(authToken)))
+      result shouldBe Seq.empty
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context&version=some-version")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
       }
-
-      verify(1, getRequestedFor(urlPathEqualTo(s"/application?subscribesTo="))
-        .withHeader("Authorization", equalTo(authToken)))
     }
   }
 
   "fetchAllApplications" should {
+    val url = s"$baseUrl/application"
+    val collaborators = Set(
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+    val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+
     "retrieve all applications" in new Setup {
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withStatus(OK)
-        .withBody("[]")))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(applications))
 
       val result = await(connector.fetchAllApplications())
 
-      verify(1, getRequestedFor(urlPathEqualTo("/application"))
-        .withHeader("Authorization", equalTo(authToken)))
+      result shouldBe applications
     }
 
     "propagate fetchAllApplications exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplications())
       }
-
-      verify(1, getRequestedFor(urlPathEqualTo(s"/application"))
-        .withHeader("Authorization", equalTo(authToken)))
     }
   }
 
   "updateOverrides" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/access/overrides"
+    val overridesRequest = UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
+
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(put(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(OK)))
+      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](meq(url), meq(overridesRequest))(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = await(connector.updateOverrides(applicationId,
-        UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
-
-      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"overrides":[{"overrideType":"PERSIST_LOGIN_AFTER_GRANT"},{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
+      val result = await(connector.updateOverrides(applicationId, overridesRequest))
 
       result shouldBe UpdateOverridesSuccessResult
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(put(urlEqualTo(s"/application/$applicationId/access/overrides")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](meq(url), meq(overridesRequest))(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.updateOverrides(applicationId,
-          UpdateOverridesRequest(Set(SuppressIvForAgents(Set("hello", "read:individual-benefits"))))))
+        await(connector.updateOverrides(applicationId, overridesRequest))
       }
-
-      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/overrides"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"overrides":[{"scopes":["hello","read:individual-benefits"],"overrideType":"SUPPRESS_IV_FOR_AGENTS"}]}""")))
     }
   }
 
   "updateScopes" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/access/scopes"
+    val scopesRequest = UpdateScopesRequest(Set("hello", "read:individual-benefits"))
+
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(put(urlEqualTo(s"/application/$applicationId/access/scopes")).willReturn(aResponse().withStatus(OK)))
+      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](meq(url), meq(scopesRequest))(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = await(connector.updateScopes(applicationId, UpdateScopesRequest(Set("hello", "read:individual-benefits"))))
-
-      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/scopes"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"scopes":["hello","read:individual-benefits"]}""")))
+      val result = await(connector.updateScopes(applicationId, scopesRequest))
 
       result shouldBe UpdateScopesSuccessResult
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(put(urlEqualTo(s"/application/$applicationId/access/scopes")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](meq(url), meq(scopesRequest))(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.updateScopes(applicationId, UpdateScopesRequest(Set("hello", "read:individual-benefits"))))
+        await(connector.updateScopes(applicationId, scopesRequest))
       }
-
-      verify(1, putRequestedFor(urlPathEqualTo(s"/application/$applicationId/access/scopes"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"scopes":["hello","read:individual-benefits"]}""")))
     }
   }
 
   "subscribeToApi" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/subscription"
+    val apiIdentifier = APIIdentifier("hello", "1.0")
+
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/subscription")).willReturn(aResponse().withStatus(CREATED)))
+      when(mockHttpClient.POST[APIIdentifier, HttpResponse](meq(url), meq(apiIdentifier), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(CREATED)))
 
-      val result = await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"context":"hello","version":"1.0"}""")))
+      val result = await(connector.subscribeToApi(applicationId, apiIdentifier))
 
       result shouldBe ApplicationUpdateSuccessResult
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(post(urlEqualTo(s"/application/$applicationId/subscription")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.POST[APIIdentifier, HttpResponse](meq(url), meq(apiIdentifier), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
       }
-
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription"))
-        .withHeader("Authorization", equalTo(authToken))
-        .withRequestBody(equalTo( s"""{"context":"hello","version":"1.0"}""")))
     }
   }
 
   "unsubscribeFromApi" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/subscription?context=hello&version=1.0"
+
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(delete(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0")).willReturn(aResponse().withStatus(CREATED)))
+      when(mockHttpClient.DELETE[HttpResponse](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(CREATED)))
 
       val result = await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
-
-      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
-        .withHeader("Authorization", equalTo(authToken)))
 
       result shouldBe ApplicationUpdateSuccessResult
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      stubFor(delete(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.DELETE[HttpResponse](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
       }
-
-      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
-        .withHeader("Authorization", equalTo(authToken)))
     }
   }
 
   "createPrivOrROPCApp" should {
+    val url = s"$baseUrl/application"
+
     "successfully create an application" in new Setup {
 
       val applicationId = "applicationId"
@@ -364,43 +339,25 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       val createPrivOrROPCAppRequestJson = Json.toJson(createPrivOrROPCAppRequest).toString()
       val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", "client ID", totpSecrets, appAccess)
 
-      stubFor(post(urlEqualTo("/application"))
-        .withRequestBody(equalToJson(createPrivOrROPCAppRequestJson))
-        .willReturn(aResponse().withStatus(OK)
-          .withHeader("Content-Type", "application/json")
-          .withBody(Json.toJson(createPrivOrROPCAppResponse).toString())
-        ))
+      when(mockHttpClient.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](meq(url), meq(createPrivOrROPCAppRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(createPrivOrROPCAppResponse))
 
       val result = await(connector.createPrivOrROPCApp(createPrivOrROPCAppRequest))
 
       result shouldBe createPrivOrROPCAppResponse
-      verify(1, postRequestedFor(urlMatching("/application")).withRequestBody(equalToJson(createPrivOrROPCAppRequestJson)))
     }
   }
 
   "getClientCredentials" should {
+    val appId = "APP_ID"
+    val url = s"$baseUrl/application/$appId/credentials"
+
     "return the client credentials" in new Setup {
-      val appId = "APP_ID"
       val productionSecret = "production-secret"
-      val response =
-        s"""
-          |{
-          |  "production": {
-          |    "clientSecrets": [
-          |      {
-          |        "secret": "$productionSecret"
-          |      }
-          |    ]
-          |  }
-          |}
-        """.stripMargin
       val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
 
-      stubFor(get(urlEqualTo(s"/application/$appId/credentials"))
-        .willReturn(aResponse().withStatus(OK)
-          .withHeader("Content-Type", "application/json")
-          .withBody(response)
-        ))
+      when(mockHttpClient.GET[GetClientCredentialsResult](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(expected))
 
       val result = await(connector.getClientCredentials(appId))
 
@@ -410,28 +367,23 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
   "addCollaborator" should {
     val appId = "APP_ID"
+    val url = s"$baseUrl/application/$appId/collaborator"
     val teamMember = Collaborator("newUser@example.com", role = CollaboratorRole.DEVELOPER)
     val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", teamMember, isRegistered = true, Set.empty)
     val requestBody = Json.toJson(addTeamMemberRequest).toString
 
     "post the team member to the service" in new Setup {
-      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
-        .withRequestBody(equalToJson(requestBody))
-        .willReturn(aResponse().withStatus(OK)
-          .withHeader("Content-Type", "application/json")
-          .withBody("{}")))
+      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](any[String], any[AddTeamMemberRequest], any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = await(connector.addCollaborator(appId, addTeamMemberRequest))
+      await(connector.addCollaborator(appId, addTeamMemberRequest))
 
-      verify(1, postRequestedFor(urlMatching(s"/application/$appId/collaborator")).withRequestBody(equalToJson(requestBody)))
+      verify(mockHttpClient).POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any())
     }
 
     "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
-      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
-        .withRequestBody(equalToJson(requestBody))
-        .willReturn(aResponse().withStatus(OK)
-          .withHeader("Content-Type", "application/json")
-          .withBody("{}")))
+      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.addCollaborator(appId, addTeamMemberRequest))
 
@@ -439,11 +391,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
-      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
-        .withRequestBody(equalToJson(requestBody))
-        .willReturn(aResponse().withStatus(CONFLICT)
-          .withHeader("Content-Type", "application/json")
-          .withBody("{}")))
+      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream4xxResponse("Conflict", CONFLICT, CONFLICT)))
 
       intercept[TeamMemberAlreadyExists] {
         await(connector.addCollaborator(appId, addTeamMemberRequest))
@@ -451,11 +400,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
-      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
-        .withRequestBody(equalToJson(requestBody))
-        .willReturn(aResponse().withStatus(NOT_FOUND)
-          .withHeader("Content-Type", "application/json")
-          .withBody("{}")))
+      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(new NotFoundException("Not Found")))
 
       intercept[ApplicationNotFound] {
         await(connector.addCollaborator(appId, addTeamMemberRequest))
@@ -463,11 +409,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw the error when the service returns any other error" in new Setup {
-      stubFor(post(urlEqualTo(s"/application/$appId/collaborator"))
-        .withRequestBody(equalToJson(requestBody))
-        .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)
-          .withHeader("Content-Type", "application/json")
-          .withBody("{}")))
+      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.addCollaborator(appId, addTeamMemberRequest))
@@ -482,18 +425,20 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
     val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")
-    val path = s"/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
+    val url = s"$baseUrl/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
 
     "send a DELETE request to the service with the correct params" in new Setup {
-      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(OK)))
+      when(mockHttpClient.DELETE[HttpResponse](any[String])(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
 
-      verify(1, deleteRequestedFor(urlEqualTo(path)))
+      verify(mockHttpClient).DELETE[HttpResponse](meq(url))(any(), any(), any())
     }
 
     "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
-      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(OK)))
+      when(mockHttpClient.DELETE[HttpResponse](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
 
@@ -501,7 +446,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw TeamMemberLastAdmin when the service responds with 403" in new Setup {
-      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(FORBIDDEN)))
+      when(mockHttpClient.DELETE[HttpResponse](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream4xxResponse("Forbidden", FORBIDDEN, FORBIDDEN)))
 
       intercept[TeamMemberLastAdmin] {
         await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
@@ -509,7 +455,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw the error when the service returns any other error" in new Setup {
-      stubFor(delete(urlEqualTo(path)).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.DELETE[HttpResponse](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))

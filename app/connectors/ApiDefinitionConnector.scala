@@ -16,30 +16,62 @@
 
 package connectors
 
-import javax.inject.Inject
-
 import config.AppConfig
+import javax.inject.{Inject, Singleton}
 import model._
+import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiDefinitionConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
+abstract class ApiDefinitionConnector {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  val environment: Environment
+  val serviceBaseUrl: String
+  val useProxy: Boolean
+  val bearerToken: String
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"${appConfig.serviceBaseUrl}/api-definition")
+    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
 
   def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"${appConfig.serviceBaseUrl}/api-definition?type=private")
+    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
       .recover {
         case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
       }
   }
 
+}
+
+@Singleton
+class SandboxApiDefinitionConnector @Inject()(appConfig: AppConfig,
+                                               val httpClient: HttpClient,
+                                               val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiDefinitionConnector {
+
+  val environment = Environment.SANDBOX
+  val serviceBaseUrl = appConfig.apiDefinitionSandboxBaseUrl
+  val useProxy = appConfig.apiDefinitionSandboxUseProxy
+  val bearerToken = appConfig.apiDefinitionSandboxBearerToken
+}
+
+@Singleton
+class ProductionApiDefinitionConnector @Inject()(appConfig: AppConfig,
+                                            val httpClient: HttpClient,
+                                            val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiDefinitionConnector {
+
+  val environment = Environment.PRODUCTION
+  val serviceBaseUrl = appConfig.apiDefinitionProductionBaseUrl
+  val useProxy = appConfig.apiDefinitionProductionUseProxy
+  val bearerToken = appConfig.apiDefinitionProductionBearerToken
 }

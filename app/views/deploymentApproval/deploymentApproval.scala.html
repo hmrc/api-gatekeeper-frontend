@@ -18,7 +18,7 @@
 @import include._
 @import model._
 
-@(unapprovedApps: Seq[APIApprovalSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(unapprovedApis: Seq[APIApprovalSummary])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - API Approval", userFullName = userFullName) {
 <article class="content__body full-width">
@@ -45,16 +45,18 @@
             <tr role="row">
                 <th tabindex="0" class="sorting_left-aligned">Service ID</th>
                 <th tabindex="0" class="sorting_left-aligned">Name</th>
+                <th tabindex="0" class="sorting_left-aligned">Environment</th>
                 <th class="text--right hard--right" data-orderable="false" tabindex="0">Action</th>
             </tr>
             </thead>
             <tbody>
-            @for((application, index) <- unapprovedApps.zipWithIndex) {
+            @for((api, index) <- unapprovedApis.zipWithIndex) {
             <tr role="row">
-                <td id="app-servicename-@index">@application.serviceName</td>
-                <td id="app-name-@index">@application.name</td>
-                <td class="text--right hard--right"><a data-review- @application.serviceName href="@{
-                                routes.DeploymentApprovalController.reviewPage(application.serviceName)
+                <td id="api-servicename-@index">@api.serviceName</td>
+                <td id="api-name-@index">@api.name</td>
+                <td id="api-environment-@index">@api.env</td>
+                <td class="text--right hard--right"><a data-review- @api.serviceName href="@{
+                                routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)
                             }">Check and approve</a>
                 </td>
             </tr>
@@ -64,7 +66,7 @@
 
         <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left:0">
             <div class="grid-layout__column--1-3 text--center">
-                @if(unapprovedApps.isEmpty) {"There are no unapproved applications."}
+                @if(unapprovedApis.isEmpty) {"There are no unapproved APIs."}
             </div>
         </div>
 

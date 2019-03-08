@@ -16,38 +16,65 @@
 
 package connectors
 
-import javax.inject.Inject
-
 import config.AppConfig
+import javax.inject.{Inject, Singleton}
+import model.Environment.Environment
 import model._
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiPublisherConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
+abstract class ApiPublisherConnector {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  val environment: Environment
+  val serviceBaseUrl: String
+  val useProxy: Boolean
+  val bearerToken: String
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
 
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
-    http.GET[Seq[APIApprovalSummary]](s"${appConfig.apiPublisherBaseUrl}/services/unapproved")
-      .recover { recovery }
+    http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
   }
 
   def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier) : Future[APIApprovalSummary] = {
-    http.GET[APIApprovalSummary](s"${appConfig.apiPublisherBaseUrl}/service/$serviceName/summary")
-      .recover { recovery }
+    http.GET[APIApprovalSummary](s"$serviceBaseUrl/service/$serviceName/summary").map(_.copy(environment = Some(environment)))
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
-    http.POST(s"${appConfig.apiPublisherBaseUrl}/service/$serviceName/approve",
+    http.POST[ApproveServiceRequest, HttpResponse](s"$serviceBaseUrl/service/$serviceName/approve",
       ApproveServiceRequest(serviceName), Seq("Content-Type" -> "application/json"))
       .map(_ => ())
-      .recover { recovery }
+      .recover {
+        case _ => throw new UpdateApiDefinitionsFailed
+      }
   }
 
-  def recovery[U] : PartialFunction[Throwable, U]  = {
-    case e: Upstream5xxResponse => throw new UpdateApiDefinitionsFailed
-    case _ => throw new UpdateApiDefinitionsFailed
-  }
 }
 
+@Singleton
+class SandboxApiPublisherConnector @Inject()(appConfig: AppConfig,
+                                             val httpClient: HttpClient,
+                                             val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiPublisherConnector {
+
+  val environment = Environment.SANDBOX
+  val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
+  val useProxy = appConfig.apiPublisherSandboxUseProxy
+  val bearerToken = appConfig.apiPublisherSandboxBearerToken
+}
+
+@Singleton
+class ProductionApiPublisherConnector @Inject()(appConfig: AppConfig,
+                                                val httpClient: HttpClient,
+                                                val proxiedHttpClient: ProxiedHttpClient)
+  extends ApiPublisherConnector {
+
+  val environment = Environment.PRODUCTION
+  val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
+  val useProxy = appConfig.apiPublisherProductionUseProxy
+  val bearerToken = appConfig.apiPublisherProductionBearerToken
+}

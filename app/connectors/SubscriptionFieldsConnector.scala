@@ -19,9 +19,10 @@ package connectors
 import java.net.URLEncoder.encode
 
 import config.AppConfig
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import model.ApiSubscriptionFields._
-import model.{FieldsDeleteFailureResult, FieldsDeleteResult, FieldsDeleteSuccessResult}
+import model._
+import model.Environment.Environment
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -29,7 +30,15 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SubscriptionFieldsConnector @Inject()(appConfig: AppConfig, http: HttpClient){
+abstract class SubscriptionFieldsConnector {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  val environment: Environment
+  val serviceBaseUrl: String
+  val useProxy: Boolean
+  val bearerToken: String
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
@@ -48,8 +57,7 @@ class SubscriptionFieldsConnector @Inject()(appConfig: AppConfig, http: HttpClie
 
   def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    val eventualResponse = http.DELETE(url)
-    eventualResponse map { response => response.status match {
+    http.DELETE[HttpResponse](url).map { response => response.status match {
         case NO_CONTENT => FieldsDeleteSuccessResult
         case _ => FieldsDeleteFailureResult
       }
@@ -62,12 +70,36 @@ class SubscriptionFieldsConnector @Inject()(appConfig: AppConfig, http: HttpClie
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
   private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
-    s"${appConfig.subscriptionFieldsBaseUrl}/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def urlSubscriptionFieldDefinition(apiContext: String, apiVersion: String) =
-    s"${appConfig.subscriptionFieldsBaseUrl}/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+    s"$serviceBaseUrl/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value
   }
+}
+
+@Singleton
+class SandboxSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
+                                                   val httpClient: HttpClient,
+                                                   val proxiedHttpClient: ProxiedHttpClient)
+  extends SubscriptionFieldsConnector {
+
+  val environment = Environment.SANDBOX
+  val serviceBaseUrl = appConfig.subscriptionFieldsSandboxBaseUrl
+  val useProxy = appConfig.subscriptionFieldsSandboxUseProxy
+  val bearerToken = appConfig.subscriptionFieldsSandboxBearerToken
+}
+
+@Singleton
+class ProductionSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
+                                                      val httpClient: HttpClient,
+                                                      val proxiedHttpClient: ProxiedHttpClient)
+  extends SubscriptionFieldsConnector {
+
+  val environment = Environment.PRODUCTION
+  val serviceBaseUrl = appConfig.subscriptionFieldsProductionBaseUrl
+  val useProxy = appConfig.subscriptionFieldsProductionUseProxy
+  val bearerToken = appConfig.subscriptionFieldsProductionBearerToken
 }

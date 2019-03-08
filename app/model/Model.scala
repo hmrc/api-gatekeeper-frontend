@@ -21,6 +21,7 @@ import java.util.UUID
 import model.AccessType.AccessType
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
+import model.Environment._
 import model.State.State
 import org.joda.time.DateTime
 import play.api.data.Form
@@ -290,7 +291,7 @@ object DeleteDeveloperRequest {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
 
-final case class CreatePrivOrROPCAppForm(accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
+final case class CreatePrivOrROPCAppForm(environment: Environment = SANDBOX, accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
 object CreatePrivOrROPCAppForm {
 
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
@@ -339,7 +340,9 @@ object AddTeamMemberResponse {
   implicit val format = Json.format[AddTeamMemberResponse]
 }
 
-case class APIApprovalSummary(serviceName: String, name: String, description: Option[String] )
+case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment]) {
+  lazy val env = environment.get.toString.toLowerCase.capitalize
+}
 
 object APIApprovalSummary {
   implicit val formatApiDefinitionSummary = Json.format[APIApprovalSummary]

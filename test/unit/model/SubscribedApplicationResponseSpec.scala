@@ -33,16 +33,17 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
     val id = UUID.randomUUID()
     val clientid = randomText
     val name = randomText
+    val deployedTo = "PRODUCTION"
     val description = randomText
     val collaborator = Collaborator(randomText, DEVELOPER)
     val createdOn = DateTime.now
     val state = ApplicationState()
     val sub = SubscriptionNameAndVersion("subName", "subVersion")
-    val appResponse = ApplicationResponse(id, clientid, name, randomText, Some(description), Set(collaborator), createdOn, Standard(), state)
+    val appResponse = ApplicationResponse(id, clientid, name, deployedTo, Some(description), Set(collaborator), createdOn, Standard(), state)
 
     "create from ApplicationResponse" in {
       val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Standard(), Seq(sub),
-        termsOfUseAgreed = false)
+        termsOfUseAgreed = false, deployedTo = deployedTo)
 
       createFrom(appResponse, Seq(sub)) shouldBe expected
     }
@@ -50,7 +51,7 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
       val appResponseToUAgreed = appResponse.copy(checkInformation = Some(CheckInformation(termsOfUseAgreements = Seq(TermsOfUseAgreement("email", createdOn, "1.0")))))
 
       val expected = SubscribedApplicationResponse(id, name, Some(description), Set(collaborator), createdOn, state, Standard(), Seq(sub),
-        termsOfUseAgreed = true)
+        termsOfUseAgreed = true, deployedTo = deployedTo)
 
       createFrom(appResponseToUAgreed, Seq(sub)) shouldBe expected
     }

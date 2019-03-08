@@ -1,4 +1,4 @@
-$(function(undefined) {
+$(document).ready(function() {
   // DataTables
   (function() {
     function getAllFilters (table) {
@@ -78,6 +78,8 @@ $(function(undefined) {
         $filter.on('keypress', search);
         $filter.on('keyup', search);
       }
+
+      //search.apply(this); // TODO: only on applications page
     }
 
     function customDraw (e) {

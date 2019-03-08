@@ -16,10 +16,14 @@
 
 package controllers
 
-import model.UpliftAction
+import model.Environment.Environment
+import model.{Environment, UpliftAction}
 import play.api.data.Forms._
 import play.api.data._
+import play.api.data.format.Formatter
 import uk.gov.voa.play.form.ConditionalMappings._
+
+import scala.util.Try
 
 class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 
