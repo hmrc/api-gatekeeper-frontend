@@ -5,7 +5,7 @@ GET         /review                                                 controllers.
 
 POST        /update-rate-limit-tier                                 controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String] = None)
+GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
 GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
 GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)

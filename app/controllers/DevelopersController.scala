@@ -36,7 +36,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def developersPage(filter: Option[String], status: Option[String], environment: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
+  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
 
       val apiFilter = ApiFilter(filter)
@@ -45,7 +45,6 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
       val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
       val apisF = apiDefinitionService.fetchAllApiDefinitions
-
       val usersF = developerService.fetchUsers
 
       for {
