@@ -78,8 +78,6 @@ $(document).ready(function() {
         $filter.on('keypress', search);
         $filter.on('keyup', search);
       }
-
-      //search.apply(this); // TODO: only on applications page
     }
 
     function customDraw (e) {
