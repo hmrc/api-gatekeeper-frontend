@@ -70,12 +70,13 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[ApplicationDeveloper]): Unit = {
-        val apiFiler = ApiFilter(None)
+        val apiFilter = ApiFilter(Some(""))
+        val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFiler))(any[HeaderCarrier])).willReturn(successful(apps))
+        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockDeveloperService.filterUsersBy(apiFiler, apps)(developers)).willReturn(developers)
+        given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
         given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
         given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))

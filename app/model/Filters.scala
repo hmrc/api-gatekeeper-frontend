@@ -55,3 +55,16 @@ case object StatusFilter extends StatusFilter {
     }
   }
 }
+
+sealed trait ApiSubscriptionInEnvironmentFilter
+case object AnyEnvironment extends ApiSubscriptionInEnvironmentFilter
+case object ProductionEnvironment extends ApiSubscriptionInEnvironmentFilter
+case object SandboxEnvironment extends ApiSubscriptionInEnvironmentFilter
+
+case object ApiSubscriptionInEnvironmentFilter extends ApiSubscriptionInEnvironmentFilter {
+  def apply(value: Option[String]): ApiSubscriptionInEnvironmentFilter = value match {
+    case Some("PRODUCTION") => ProductionEnvironment
+    case Some("SANDBOX") => SandboxEnvironment
+    case _ => AnyEnvironment
+  }
+}

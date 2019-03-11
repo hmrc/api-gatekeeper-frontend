@@ -37,7 +37,7 @@ class DevelopersViewSpec extends PlaySpec with OneServerPerSuite with MockitoSug
 
     "list all developers" in {
       implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, FakeRequest(), None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, None, FakeRequest(), None, applicationMessages, mockAppConfig)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

@@ -68,6 +68,12 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
+  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = filter match {
+    case AnyEnvironment => users
+    case ProductionEnvironment => users.filter(user => user.apps.exists (app => app.deployedTo == "PRODUCTION"))
+    case SandboxEnvironment => users
+  }
+
   def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[ApplicationDeveloper] = {
 
     def collaboratingApps(user: User, apps: Seq[Application]): Seq[Application] = {

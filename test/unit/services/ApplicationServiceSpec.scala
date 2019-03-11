@@ -144,7 +144,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockSandboxApplicationConnector.fetchAllApplicationsBySubscription(any(), any())(any()))
         .willReturn(Future.successful(filteredApplications))
 
-      val result = await(underTest.fetchApplications(Value("subscription", "version")))
+      val result = await(underTest.fetchApplications(Value("subscription", "version"), AnyEnvironment))
       result shouldBe filteredApplications
 
       verify(mockProductionApplicationConnector).fetchAllApplicationsBySubscription(mEq("subscription"), mEq("version"))(any[HeaderCarrier])
@@ -161,7 +161,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockSandboxApplicationConnector.fetchAllApplications()(any())).willReturn(Future.successful(allApps))
       given(mockSandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(any())).willReturn(Future.successful(noSubscriptions))
 
-      val result = await(underTest.fetchApplications(OneOrMoreSubscriptions))
+      val result = await(underTest.fetchApplications(OneOrMoreSubscriptions, AnyEnvironment))
       result shouldBe subscriptions
 
       verify(mockProductionApplicationConnector).fetchAllApplications()(any[HeaderCarrier])
@@ -176,7 +176,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.fetchAllApplications()(any())).willReturn(Future.successful(allApps))
       given(mockSandboxApplicationConnector.fetchAllApplications()(any())).willReturn(Future.successful(Seq.empty))
 
-      val result = await(underTest.fetchApplications(OneOrMoreApplications))
+      val result = await(underTest.fetchApplications(OneOrMoreApplications, AnyEnvironment))
       result shouldBe allApps
 
       verify(mockProductionApplicationConnector).fetchAllApplications()(any[HeaderCarrier])
@@ -189,7 +189,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(any())).willReturn(Future.successful(noSubscriptions))
       given(mockSandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(any())).willReturn(Future.successful(noSubscriptions))
 
-      val result = await(underTest.fetchApplications(NoSubscriptions))
+      val result = await(underTest.fetchApplications(NoSubscriptions, AnyEnvironment))
       result shouldBe noSubscriptions
 
       verify(mockProductionApplicationConnector).fetchAllApplicationsWithNoSubscriptions()(any[HeaderCarrier])

@@ -50,37 +50,33 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    filter match {
+  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    val connectors: Seq[ApplicationConnector] = envFilter match {
+      case ProductionEnvironment => Seq(productionApplicationConnector)
+      case SandboxEnvironment => Seq(sandboxApplicationConnector)
+      case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
+    }
+
+    def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
+
+    apiFilter match {
       case OneOrMoreSubscriptions =>
-        val sandboxAllFuture = sandboxApplicationConnector.fetchAllApplications()
-        val productionAllFuture = productionApplicationConnector.fetchAllApplications()
-        val sandboxNoSubsFuture = sandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()
-        val productionNoSubsFuture = productionApplicationConnector.fetchAllApplicationsWithNoSubscriptions()
+        val allFutures = connectors.map(_.fetchAllApplications)
+        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
         for {
-          sandboxAll <- sandboxAllFuture
-          productionAll <- productionAllFuture
-          sandboxNoSubs <- sandboxNoSubsFuture
-          productionNoSubs <- productionNoSubsFuture
-        } yield {
-          (sandboxAll.filterNot(app => sandboxNoSubs.contains(app)) ++ productionAll.filterNot(app => productionNoSubs.contains(app))).distinct
-        }
+          all <- combine(allFutures)
+          noSubs <- combine(noSubsFutures)
+        } yield all.filterNot(app => noSubs.contains(app)).distinct
       case NoSubscriptions =>
-        val sandboxFuture = sandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()
-        val productionFuture = productionApplicationConnector.fetchAllApplicationsWithNoSubscriptions()
-
+        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
         for {
-          sandboxApps <- sandboxFuture
-          productionApps <- productionFuture
-        } yield (sandboxApps ++ productionApps).distinct
+          apps <- combine(noSubsFutures)
+        } yield apps.distinct
       case Value(subscribesTo, version) =>
-        val sandboxFuture = sandboxApplicationConnector.fetchAllApplicationsBySubscription(subscribesTo, version)
-        val productionFuture = productionApplicationConnector.fetchAllApplicationsBySubscription(subscribesTo, version)
-
+        val futures = connectors.map(_.fetchAllApplicationsBySubscription(subscribesTo, version))
         for {
-          sandboxApps <- sandboxFuture
-          productionApps <- productionFuture
-        } yield (sandboxApps ++ productionApps).distinct
+          apps <- combine(futures)
+        } yield apps.distinct
       case _ => fetchApplications
     }
   }

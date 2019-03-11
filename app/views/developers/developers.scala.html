@@ -22,7 +22,8 @@
 emails: String,
 apis: Map[String, Seq[VersionSummary]],
 filter: Option[String],
-status: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+status: Option[String],
+environment: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
 
@@ -51,7 +52,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
         </div>
 
         <div class="form-group grid-layout grid-layout--stacked push--sides">
-            <div class="grid-layout__column--1-2">
+            <div class="grid-layout__column--1-3">
                 @defining(ApiFilter(filter)) { apiFilter =>
                 <label class="form-label bold" for="filter">Filter by API Subscription
                     <select class="form-control input-select input-select--large"
@@ -78,7 +79,23 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
                 }
             </div>
 
-            <div class="grid-layout__column--1-2">
+            <div class="grid-layout__column--1-3">
+                <label class="form-label bold centered-content hard--right" for="environment">Filter by API Subscription Environment
+                    <select class="form-control input-select input-select--large"
+                            data-datatable-filter="developer-table"
+                            data-datatable-column-filter="2"
+                            id="environment"
+                            name="environment"
+                            value="@environment"
+                            value="@filter" onchange="this.form.submit()">
+                        <option id="default-environment" value="ALL" data-api-name="ALL">All</option>
+                        <option value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
+                        <option value="SANDBOX" data-api-name="SANDBOX">Sandbox</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid-layout__column--1-3">
                 <label class="form-label bold centered-content hard--right" for="status">Filter by Status
                     <select class="form-control input-select input-select--large"
                             data-datatable-filter="developer-table"
@@ -92,6 +109,7 @@ status: Option[String])(implicit request: Request[_], userFullName: Option[Strin
                         }
                     </select>
                 </label>
+
             </div>
 
         </div>
