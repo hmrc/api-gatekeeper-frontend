@@ -21,6 +21,7 @@ import java.util.UUID
 
 import controllers.DeploymentApprovalController
 import model._
+import model.Environment._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
@@ -55,8 +56,10 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
   }
 
   "pendingPage" should {
-    "render the deployment approval page" in new Setup {
-      val approvalSummaries = Seq(APIApprovalSummary(serviceName, "aName", Option("aDescription")))
+    "render the deployment approval page for APIs in all environments" in new Setup {
+      val approvalSummaries = Seq(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchUnapprovedServices()(any[HeaderCarrier])).willReturn(Future.successful(approvalSummaries))
@@ -66,6 +69,8 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
       status(result) shouldBe OK
       bodyOf(result) should include("API approval")
       bodyOf(result) should include(serviceName)
+      bodyOf(result) should include("Production")
+      bodyOf(result) should include("Sandbox")
 
       verify(mockDeploymentApprovalService).fetchUnapprovedServices()(any[HeaderCarrier])
 
@@ -84,20 +89,42 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
   }
 
   "reviewPage" should {
-    "render the deployment review page" in new Setup {
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"))
+    "render the deployment review page for a sandbox API" in new Setup {
+      val environment = SANDBOX
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApiDefinitionSummary(any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
 
-      val result = await(addToken(underTest.reviewPage(serviceName))(aLoggedInRequest))
+      val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
 
       status(result) shouldBe OK
       bodyOf(result) should include("API approval")
       bodyOf(result) should include("You must check if the API meets all the necessary requirements before submitting to live.")
       bodyOf(result) should include(serviceName)
+      bodyOf(result) should include("Sandbox")
 
-      verify(mockDeploymentApprovalService).fetchApiDefinitionSummary(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+
+      verifyAuthConnectorCalledForUser
+    }
+
+    "render the deployment review page for a production API" in new Setup {
+      val environment = PRODUCTION
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+
+      givenTheUserIsAuthorisedAndIsANormalUser()
+      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+
+      val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
+
+      status(result) shouldBe OK
+      bodyOf(result) should include("API approval")
+      bodyOf(result) should include("You must check if the API meets all the necessary requirements before submitting to live.")
+      bodyOf(result) should include(serviceName)
+      bodyOf(result) should include("Production")
+
+      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
 
       verifyAuthConnectorCalledForUser
     }
@@ -105,51 +132,74 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     "redirect to the login page if the user is not logged in" in new Setup {
       givenAUnsuccessfulLogin()
 
-      val result = await(underTest.handleApproval(serviceName)(aLoggedInRequest))
+      val result = await(underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(redirectLoginUrl)
     }
   }
   "handleApproval" should {
-    "call the approveService and redirect if form contains confirmation" in new Setup {
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"))
+    "call the approveService and redirect if form contains confirmation for a sandbox API" in new Setup {
+      val environment = SANDBOX
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApiDefinitionSummary(any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful())
+      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful())
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
-      val result = await(addToken(underTest.handleApproval(serviceName))(request))
+      val result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
 
       status(result) shouldBe SEE_OTHER
 
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+      verifyAuthConnectorCalledForUser
+    }
+
+    "call the approveService and redirect if form contains confirmation for a production API" in new Setup {
+      val environment = PRODUCTION
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+
+      givenTheUserIsAuthorisedAndIsANormalUser()
+      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful())
+
+      val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
+
+      val result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
+
+      status(result) shouldBe SEE_OTHER
+
+      redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
+
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
       verifyAuthConnectorCalledForUser
     }
 
     "return bad request if approval is not confirmed" in new Setup {
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"))
+      val environment = PRODUCTION
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "No")
 
-      assertThrows[UnsupportedOperationException](await(addToken(underTest.handleApproval(serviceName))(request)))
+      assertThrows[UnsupportedOperationException](await(addToken(underTest.handleApproval(serviceName, environment.toString))(request)))
     }
 
     "return bad request if invalid form" in new Setup {
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"))
+      val environment = PRODUCTION
+      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApiDefinitionSummary(any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 
-      var result = await(addToken(underTest.handleApproval(serviceName))(request))
+      var result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
 
       status(result) shouldBe BAD_REQUEST
     }
@@ -157,7 +207,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     "redirect to the login page if the user is not logged in" in new Setup {
       givenAUnsuccessfulLogin
 
-      val result = await(underTest.handleApproval(serviceName)(aLoggedInRequest))
+      val result = await(underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(redirectLoginUrl)

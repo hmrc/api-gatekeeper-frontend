@@ -39,6 +39,9 @@
         apiDefinition.serviceName
         }</p>
 
+    <h2>Environment</h2>
+    <p class="flush--top" data-service-environment>@apiDefinition.env</p>
+
     <h2>Description</h2>
     <p class="flush--top" data-description>@{
         apiDefinition.description
@@ -53,7 +56,7 @@
             <p>Your decision is final and will set the API live.</p>
         </div>
 
-        @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName),
+        @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName, apiDefinition.environment.get.toString),
         'class -> "form") {
         @helper.CSRF.formField
         <label for="approval_confirmation" class="block-label">

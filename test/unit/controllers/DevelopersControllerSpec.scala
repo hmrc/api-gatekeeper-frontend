@@ -70,12 +70,13 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[ApplicationDeveloper]): Unit = {
-        val apiFiler = ApiFilter(None)
+        val apiFilter = ApiFilter(Some(""))
+        val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFiler))(any[HeaderCarrier])).willReturn(successful(apps))
+        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockDeveloperService.filterUsersBy(apiFiler, apps)(developers)).willReturn(developers)
+        given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
         given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
         given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))
@@ -99,21 +100,21 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       "default to page 1 with 100 items in table" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         bodyOf(result) should include("data-page-length=\"100\"")
         verifyAuthConnectorCalledForUser
       }
 
       "do something else if user is not authenticated" in new Setup {
         givenTheUserHasInsufficientEnrolments
-        val result = await(developersController.developersPage(None, None)(aLoggedOutRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedOutRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "load successfully if user is authenticated and authorised" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("<h1>Developers</h1>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
@@ -126,7 +127,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
         given(developersController.appConfig.isExternalTestEnvironment).willReturn(true)
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("<h1>Developers</h1>")
         bodyOf(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
@@ -137,7 +138,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "go to unauthorised page if user is not authorised" in new Setup {
         givenAUnsuccessfulLogin
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe SEE_OTHER
       }
 
@@ -151,7 +152,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val devs = users.map(Developer.createFromUser(_, applications))
         givenTheUserIsAuthorisedAndIsANormalUser
         givenDelegateServicesSupply(applications, devs)
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
         verifyAuthConnectorCalledForUser
@@ -162,7 +163,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         givenTheUserIsAuthorisedAndIsANormalUser
         givenDelegateServicesSupply(applications, noDevs)
-        val result = await(developersController.developersPage(None, None)(aLoggedInRequest))
+        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("No developers for your selected filter")
         verifyAuthConnectorCalledForUser

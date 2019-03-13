@@ -88,13 +88,14 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc =>
+    implicit request => implicit hc => withApp(appId) { app =>
       for {
-        _ <- applicationService.resendVerification(appId, loggedIn.get)
+        _ <- applicationService.resendVerification(app.application, loggedIn.get)
       } yield {
         Redirect(routes.ApplicationController.applicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
       }
+    }
   }
 
   def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
@@ -108,8 +109,9 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc =>
-      applicationService.subscribeToApi(appId, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    implicit request => implicit hc => withApp(appId) { app =>
+      applicationService.subscribeToApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+    }
   }
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
@@ -124,7 +126,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         def handleValidForm(validForm: SubscriptionFieldsForm) = {
           if (validForm.fields.nonEmpty) {
             subscriptionFieldsService.saveFieldValues(
-              app.application.clientId,
+              app.application,
               apiContext,
               apiVersion,
               Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
@@ -222,7 +224,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   def updateRateLimitTier(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UpdateRateLimitForm) = {
-        applicationService.updateRateLimitTier(appId, RateLimitTier.withName(form.tier)).map { _ =>
+        applicationService.updateRateLimitTier(app.application, RateLimitTier.withName(form.tier)).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
@@ -244,7 +246,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.deleteApplication(appId, loggedIn.get, form.collaboratorEmail.get).map {
+          applicationService.deleteApplication(app.application, loggedIn.get, form.collaboratorEmail.get).map {
             case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
             case ApplicationDeleteFailureResult => technicalDifficulties
           }
@@ -274,7 +276,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.blockApplication(appId, loggedIn.get).map {
+          applicationService.blockApplication(app.application, loggedIn.get).map {
             case ApplicationBlockSuccessResult => Ok(block_application_success(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
@@ -304,7 +306,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.unblockApplication(appId, loggedIn.get).map {
+          applicationService.unblockApplication(app.application, loggedIn.get).map {
             case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
@@ -346,10 +348,13 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }}
   }
 
-  def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-    redirectIfExternalTestEnvironment {
-      fetchApplicationReviewDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
-    }
+  def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+    implicit hc =>
+      withApp(appId) { app =>
+        redirectIfIsSandboxApp(app) {
+          fetchApplicationReviewDetails(appId) map (details => Ok(review(HandleUpliftForm.form, details)))
+        }
+      }
   }
 
   private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
@@ -359,36 +364,38 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     } yield applicationReviewDetails(app.application, submission)
   }
 
-  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+    implicit hc =>
+      withApp(appId) { app =>
 
-    def lastApproval(app: ApplicationWithHistory): StateHistory = {
-      app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
-        .sortWith(StateHistory.ascendingDateForAppId)
-        .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
-    }
+        def lastApproval(app: ApplicationWithHistory): StateHistory = {
+          app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+            .sortWith(StateHistory.ascendingDateForAppId)
+            .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
+        }
 
-    def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
-      val emails: Set[String] = app.application.admins.map(_.emailAddress)
-      developerService.fetchDevelopersByEmails(emails.toSeq)
-    }
+        def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+          val emails: Set[String] = app.application.admins.map(_.emailAddress)
+          developerService.fetchDevelopersByEmails(emails.toSeq)
+        }
 
-    def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
-      val verified = app.state.name == State.PRODUCTION
-      val details = applicationReviewDetails(app, submissionDetails)(request)
+        def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+          val verified = app.state.name == State.PRODUCTION
+          val details = applicationReviewDetails(app, submissionDetails)(request)
 
-      ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
-    }
+          ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
+        }
 
-    redirectIfExternalTestEnvironment {
+        redirectIfIsSandboxApp(app) {
 
-      for {
-        app <- applicationService.fetchApplication(appId)
-        approval = lastApproval(app)
-        submission <- lastSubmission(app)
-        admins <- administrators(app)
-        approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
-      } yield Ok(approved(approvedApp))
-    }
+          for {
+            submission <- lastSubmission(app)
+            admins <- administrators(app)
+            approval = lastApproval(app)
+            approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
+          } yield Ok(approved(approvedApp))
+        }
+      }
   }
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
@@ -428,42 +435,44 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       app.privacyPolicyUrl)
   }
 
-  def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-    redirectIfExternalTestEnvironment {
-      val requestForm = HandleUpliftForm.form.bindFromRequest
+  def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request => implicit hc => withApp(appId) { app =>
+      redirectIfIsSandboxApp(app) {
+        val requestForm = HandleUpliftForm.form.bindFromRequest
 
-      def errors(errors: Form[HandleUpliftForm]) =
-        fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
+        def errors(errors: Form[HandleUpliftForm]) =
+          fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
 
-      def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
-        case e: PreconditionFailed => {
-          Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-          Redirect(routes.ApplicationController.applicationsPage())
+        def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
+          case e: PreconditionFailed => {
+            Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
+            Redirect(routes.ApplicationController.applicationsPage())
+          }
         }
-      }
 
-      def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
-        UpliftAction.from(validForm.action) match {
-          case Some(APPROVE) =>
-            applicationService.approveUplift(appId, loggedIn.get) map (
-              ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-          case Some(REJECT) =>
-            applicationService.rejectUplift(appId, loggedIn.get, validForm.reason.get) map (
-              RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+        def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
+          UpliftAction.from(validForm.action) match {
+            case Some(APPROVE) =>
+              applicationService.approveUplift(app.application, loggedIn.get) map (
+                ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+            case Some(REJECT) =>
+              applicationService.rejectUplift(app.application, loggedIn.get, validForm.reason.get) map (
+                RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+          }
         }
-      }
 
-      requestForm.fold(errors, addApplicationWithValidForm)
+        requestForm.fold(errors, addApplicationWithValidForm)
+      }
     }
   }
 
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
     requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-      redirectIfExternalTestEnvironment {
+      withApp(appId) { app =>
         val result = Redirect(routes.ApplicationController.applicationPage(appId))
         if (isAtLeastSuperUser) {
           val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-          applicationService.updateRateLimitTier(appId, newTier) map {
+          applicationService.updateRateLimitTier(app.application, newTier) map {
             case ApplicationUpdateSuccessResult =>
               result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
           }
@@ -473,14 +482,11 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       }
     }
 
-  private def redirectIfExternalTestEnvironment(body: => Future[Result]) = {
-    appConfig.isExternalTestEnvironment match {
-      case true => Future.successful(Redirect(routes.ApplicationController.applicationsPage))
-      case false => body
-    }
+  private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
+    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage)) else body
   }
 
-  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc => {
         Future.successful(Ok(create_application(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
@@ -489,7 +495,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
-    requiresAtLeast( GatekeeperRole.SUPERUSER) {
+    requiresAtLeast(GatekeeperRole.SUPERUSER) {
       implicit request => implicit hc => {
 
         def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
@@ -498,18 +504,16 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
 
         def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
 
-          val env = if(appConfig.isExternalTestEnvironment) Environment.SANDBOX else Environment.PRODUCTION
-
           def handleFormWithValidName: Future[Result] =
             form.accessType.flatMap(AccessType.from) match {
             case Some(accessType) => {
               val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
-              applicationService.createPrivOrROPCApp(env, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) flatMap {
+              applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) flatMap {
                 case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, Some(totp), access) =>
                   Future.successful(Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), Some(totp), clientId)))
                 case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, None, access) =>
-                  applicationService.getClientSecret(appId).map(secret => Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), None, clientId, Some(secret))))
+                  applicationService.getClientSecret(appId, appEnv).map(secret => Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), None, clientId, Some(secret))))
               }
             }
           }
@@ -519,7 +523,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
             Future.successful(BadRequest(create_application(formWithErrors)))
           }
 
-          def hasValidName(apps: Seq[ApplicationResponse]) = env match {
+          def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
             case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
             case _ => true
           }

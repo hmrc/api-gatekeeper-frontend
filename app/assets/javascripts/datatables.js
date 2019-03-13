@@ -1,4 +1,4 @@
-$(function(undefined) {
+$(document).ready(function() {
   // DataTables
   (function() {
     function getAllFilters (table) {

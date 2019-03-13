@@ -33,6 +33,7 @@ trait Application {
   val state: ApplicationState
   val collaborators: Set[Collaborator]
   val clientId: String
+  val deployedTo: String
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 
@@ -161,9 +162,7 @@ case class ApplicationResponse(id: UUID,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
                                blocked: Boolean = false)
-                               extends Application {
-
-}
+                               extends Application
 
 object ApplicationResponse {
   implicit val formatTotpIds = Json.format[TotpIds]
@@ -237,6 +236,7 @@ case class SubscribedApplicationResponse(id: UUID,
                                          access: Access,
                                          subscriptions: Seq[SubscriptionNameAndVersion],
                                          termsOfUseAgreed: Boolean,
+                                         deployedTo: String,
                                          clientId: String = "") extends Application
 
 
@@ -264,7 +264,7 @@ object SubscribedApplicationResponse {
 
   def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
     SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
-      appResponse.collaborators, appResponse.createdOn, appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted))
+      appResponse.collaborators, appResponse.createdOn, appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted), appResponse.deployedTo)
 }
 
 case class DetailedSubscribedApplicationResponse(id: UUID,
@@ -276,6 +276,7 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  access: Access,
                                                  subscriptions: Seq[SubscriptionDetails],
                                                  termsOfUseAgreed: Boolean,
+                                                 deployedTo: String,
                                                  clientId: String = "") extends Application
 
 case class SubscriptionDetails(name: String, context: String, version: String)

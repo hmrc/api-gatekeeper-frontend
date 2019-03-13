@@ -17,51 +17,84 @@
 package services
 
 import javax.inject.Inject
-
 import connectors._
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
-import model.Environment.Environment
+import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
-                                    apiScopeConnector: ApiScopeConnector,
-                                    developerConnector: DeveloperConnector,
+class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
+                                   productionApplicationConnector: ProductionApplicationConnector,
+                                   sandboxApiScopeConnector: SandboxApiScopeConnector,
+                                   productionApiScopeConnector: ProductionApiScopeConnector,
+                                   developerConnector: DeveloperConnector,
                                    subscriptionFieldsService: SubscriptionFieldsService) {
 
-  def resendVerification(applicationId: String, gatekeeperUserId: String)
+  def resendVerification(application: Application, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    applicationConnector.resendVerification(applicationId, gatekeeperUserId)
+    applicationConnectorFor(application).resendVerification(application.id.toString, gatekeeperUserId)
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    applicationConnector.fetchAllApplications()
+    val sandboxApplicationsFuture = sandboxApplicationConnector.fetchAllApplications()
+    val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()
+
+    for {
+      sandboxApps <- sandboxApplicationsFuture
+      productionApps <- productionApplicationsFuture
+    } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplications(filter: ApiFilter[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    filter match {
-      case OneOrMoreSubscriptions => for {
-        all <- applicationConnector.fetchAllApplications()
-        noSubs <- applicationConnector.fetchAllApplicationsWithNoSubscriptions()
-      } yield {
-        all.filterNot(app => noSubs.contains(app))
-      }
-      case NoSubscriptions => applicationConnector.fetchAllApplicationsWithNoSubscriptions()
-      case Value(subscribesTo, version) => applicationConnector.fetchAllApplicationsBySubscription(subscribesTo, version)
-      case _ => applicationConnector.fetchAllApplications()
+  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    val connectors: Seq[ApplicationConnector] = envFilter match {
+      case ProductionEnvironment => Seq(productionApplicationConnector)
+      case SandboxEnvironment => Seq(sandboxApplicationConnector)
+      case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
+    }
+
+    def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
+
+    apiFilter match {
+      case OneOrMoreSubscriptions =>
+        val allFutures = connectors.map(_.fetchAllApplications)
+        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
+        for {
+          all <- combine(allFutures)
+          noSubs <- combine(noSubsFutures)
+        } yield all.filterNot(app => noSubs.contains(app)).distinct
+      case NoSubscriptions =>
+        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
+        for {
+          apps <- combine(noSubsFutures)
+        } yield apps.distinct
+      case Value(subscribesTo, version) =>
+        val futures = connectors.map(_.fetchAllApplicationsBySubscription(subscribesTo, version))
+        for {
+          apps <- combine(futures)
+        } yield apps.distinct
+      case _ => fetchApplications
     }
   }
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier) = {
-    applicationConnector.fetchApplicationsByEmail(email)
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[Application]] = {
+    val sandboxApplicationsFuture = sandboxApplicationConnector.fetchApplicationsByEmail(email)
+    val productionApplicationsFuture = productionApplicationConnector.fetchApplicationsByEmail(email)
+
+    for {
+      sandboxApps <- sandboxApplicationsFuture
+      productionApps <- productionApplicationsFuture
+    } yield (sandboxApps ++ productionApps).distinct
   }
 
   def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    applicationConnector.fetchApplication(appId)
+    productionApplicationConnector.fetchApplication(appId).recoverWith {
+      case e: Upstream4xxResponse if e.upstreamResponseCode == NOT_FOUND => sandboxApplicationConnector.fetchApplication(appId)
+    }
   }
 
   def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
@@ -75,17 +108,25 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
       })
     }
 
+    val sandboxAppsFuture = sandboxApplicationConnector.fetchAllApplications()
+    val productionAppsFuture = productionApplicationConnector.fetchAllApplications()
+    val sandboxSubsFuture = sandboxApplicationConnector.fetchAllSubscriptions()
+    val productionSubsFuture = productionApplicationConnector.fetchAllSubscriptions()
+
     for {
-      apps: Seq[ApplicationResponse] <- applicationConnector.fetchAllApplications()
-      subs: Seq[SubscriptionResponse] <- applicationConnector.fetchAllSubscriptions()
-      subscribedApplications = addSubscriptionsToApplications(apps, subs)
-    } yield subscribedApplications.sortBy(_.name.toLowerCase)
+      sandboxApps: Seq[ApplicationResponse] <- sandboxAppsFuture
+      productionApps: Seq[ApplicationResponse] <- productionAppsFuture
+      sandboxSubs: Seq[SubscriptionResponse] <- sandboxSubsFuture
+      productionSubs: Seq[SubscriptionResponse] <- productionSubsFuture
+      subscribedSandboxApplications = addSubscriptionsToApplications(sandboxApps, sandboxSubs)
+      subscribedProductionApplications = addSubscriptionsToApplications(productionApps, productionSubs)
+    } yield (subscribedSandboxApplications ++ subscribedProductionApplications).sortBy(_.name.toLowerCase).distinct
   }
 
   def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
       if (withFields) {
-        subscriptionFieldsService.fetchFields(application.clientId, subscription.context, version.version.version).map { fields =>
+        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
           VersionSubscription(
             version.version,
             version.subscribed,
@@ -108,7 +149,7 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
     }
 
     for {
-      subs <- applicationConnector.fetchApplicationSubscriptions(application.id.toString)
+      subs <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
       subsWithFields <- Future.sequence(subs.map(toApiVersions))
     } yield subsWithFields
   }
@@ -131,14 +172,14 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
       case _: Standard => {
         (
           for {
-            validScopes <- apiScopeConnector.fetchAll()
+            validScopes <- apiScopeConnectorFor(application).fetchAll()
             overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, validScopes.map(_.key).toSet)
           } yield overrideTypesWithInvalidScopes
         ).flatMap(overrideTypes =>
           if(overrideTypes.nonEmpty) {
             Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
-            applicationConnector.updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+            applicationConnectorFor(application).updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
           }
         )
       }
@@ -151,64 +192,75 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
       case _: AccessWithRestrictedScopes => {
         (
           for {
-            validScopes <- apiScopeConnector.fetchAll()
+            validScopes <- apiScopeConnectorFor(application).fetchAll()
             hasInvalidScopes = !scopes.subsetOf(validScopes.map(_.key).toSet)
           } yield hasInvalidScopes
         ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
-          else applicationConnector.updateScopes(application.id.toString, UpdateScopesRequest(scopes))
+          else applicationConnectorFor(application).updateScopes(application.id.toString, UpdateScopesRequest(scopes))
         )
       }
     }
   }
 
-  def subscribeToApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnector.subscribeToApi(applicationId, APIIdentifier(context, version))
+  def subscribeToApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnectorFor(application).subscribeToApi(application.id.toString, APIIdentifier(context, version))
   }
 
   def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     for {
-      unsubscribeResult <- applicationConnector.unsubscribeFromApi(application.id.toString, context, version)
-      _ <- subscriptionFieldsService.deleteFieldValues(application.clientId, context, version)
+      unsubscribeResult <- applicationConnectorFor(application).unsubscribeFromApi(application.id.toString, context, version)
+      _ <- subscriptionFieldsService.deleteFieldValues(application, context, version)
     } yield unsubscribeResult
   }
 
-  def updateRateLimitTier(applicationId: String, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnector.updateRateLimitTier(applicationId, tier)
+  def updateRateLimitTier(application: Application, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnectorFor(application).updateRateLimitTier(application.id.toString, tier)
   }
 
-  def deleteApplication(applicationId: String, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    applicationConnector.deleteApplication(applicationId, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
+  def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
+    applicationConnectorFor(application).deleteApplication(application.id.toString, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
   }
 
-  def blockApplication(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    applicationConnector.blockApplication(applicationId, BlockApplicationRequest(gatekeeperUserId))
+  def blockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
+    applicationConnectorFor(application).blockApplication(application.id.toString, BlockApplicationRequest(gatekeeperUserId))
   }
 
-  def unblockApplication(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    applicationConnector.unblockApplication(applicationId, UnblockApplicationRequest(gatekeeperUserId))
+  def unblockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
+    applicationConnectorFor(application).unblockApplication(application.id.toString, UnblockApplicationRequest(gatekeeperUserId))
   }
 
-  def approveUplift(applicationId: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    applicationConnector.approveUplift(applicationId, gatekeeperUserId)
+  def approveUplift(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
+    applicationConnectorFor(application).approveUplift(application.id.toString, gatekeeperUserId)
   }
 
-  def rejectUplift(applicationId: String, gatekeeperUserId: String, rejectionReason: String)
+  def rejectUplift(application: Application, gatekeeperUserId: String, rejectionReason: String)
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    applicationConnector.rejectUplift(applicationId, gatekeeperUserId, rejectionReason)
+    applicationConnectorFor(application).rejectUplift(application.id.toString, gatekeeperUserId, rejectionReason)
   }
 
   def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
-    applicationConnector.createPrivOrROPCApp(CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access))
+    val req = CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access)
+
+    appEnv match {
+      case PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
+      case SANDBOX => sandboxApplicationConnector.createPrivOrROPCApp(req)
+    }
   }
 
-  def getClientSecret(appId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    applicationConnector.getClientCredentials(appId) map {
+  def getClientSecret(applicationId: String, appEnv: String)(implicit hc: HeaderCarrier): Future[String] = {
+    val connector = appEnv match {
+      case "PRODUCTION" => productionApplicationConnector
+      case "SANDBOX" => sandboxApplicationConnector
+    }
+
+    connector.getClientCredentials(applicationId) map {
       case res: GetClientCredentialsResult => res.production.clientSecrets.head.secret
     }
   }
 
   def addTeamMember(app: Application, teamMember: Collaborator, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val applicationConnector = applicationConnectorFor(app)
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(requestingEmail))
       developer <- developerConnector.fetchByEmail(teamMember.emailAddress)
@@ -218,6 +270,7 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
   }
 
   def removeTeamMember(app: Application, teamMemberToRemove: String, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val applicationConnector = applicationConnectorFor(app)
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
       response <- applicationConnector.removeCollaborator(app.id.toString, teamMemberToRemove, requestingEmail, adminsToEmail)
@@ -229,4 +282,10 @@ class ApplicationService @Inject()(applicationConnector: ApplicationConnector,
 
     developerConnector.fetchByEmails(adminEmails).map(_.filter(_.verified.contains(true)).map(_.email))
   }
+
+  def applicationConnectorFor(application: Application): ApplicationConnector =
+    if (application.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+
+  def apiScopeConnectorFor(application: Application): ApiScopeConnector =
+    if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
 }

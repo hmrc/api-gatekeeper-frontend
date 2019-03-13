@@ -34,14 +34,46 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
 
   lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
-  lazy val apiScopeBaseUrl = baseUrl("api-scope")
-  lazy val applicationBaseUrl = s"${baseUrl("third-party-application")}"
+
+  lazy val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
+  lazy val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")
+  lazy val apiScopeSandboxBearerToken = bearerToken("api-scope-sandbox")
+  lazy val apiScopeProductionBaseUrl = serviceUrl("api-scope")("api-scope-production")
+  lazy val apiScopeProductionUseProxy = useProxy("api-scope-production")
+  lazy val apiScopeProductionBearerToken = bearerToken("api-scope-production")
+
+  lazy val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
+  lazy val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
+  lazy val applicationSandboxBearerToken = bearerToken("third-party-application-sandbox")
+  lazy val applicationProductionBaseUrl = serviceUrl("third-party-application")("third-party-application-production")
+  lazy val applicationProductionUseProxy = useProxy("third-party-application-production")
+  lazy val applicationProductionBearerToken = bearerToken("third-party-application-production")
+
   lazy val authBaseUrl = baseUrl("auth")
   lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
-  lazy val developerBaseUrl = s"${baseUrl("third-party-developer")}"
-  lazy val subscriptionFieldsBaseUrl = s"${baseUrl("api-subscription-fields")}"
-  lazy val apiPublisherBaseUrl = baseUrl("api-publisher")
-  lazy val serviceBaseUrl = baseUrl("api-definition")
+  lazy val developerBaseUrl = baseUrl("third-party-developer")
+
+  lazy val subscriptionFieldsSandboxBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsSandboxUseProxy = useProxy("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsSandboxBearerToken = bearerToken("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsProductionBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
+  lazy val subscriptionFieldsProductionUseProxy = useProxy("api-subscription-fields-production")
+  lazy val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
+
+  lazy val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
+  lazy val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
+  lazy val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
+  lazy val apiPublisherProductionBaseUrl = serviceUrl("api-publisher")("api-publisher-production")
+  lazy val apiPublisherProductionUseProxy = useProxy("api-publisher-production")
+  lazy val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
+
+  lazy val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
+  lazy val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
+  lazy val apiDefinitionSandboxBearerToken = bearerToken("api-definition-sandbox")
+  lazy val apiDefinitionProductionBaseUrl = serviceUrl("api-definition")("api-definition-production")
+  lazy val apiDefinitionProductionUseProxy = useProxy("api-definition-production")
+  lazy val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
+
   lazy val gatekeeperSuccessUrl = loadStringConfig("api-gatekeeper-frontend-success-url")
 
   lazy val superUserRole = loadStringConfig("roles.super-user")
@@ -56,4 +88,12 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
       .getOrElse(Seq.empty)
   }
 
+  private def serviceUrl(key: String)(serviceName: String): String = {
+    if (useProxy(serviceName)) s"${baseUrl(serviceName)}/${getConfString(s"$serviceName.context", key)}"
+    else baseUrl(serviceName)
+  }
+
+  private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", false)
+
+  private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
 }

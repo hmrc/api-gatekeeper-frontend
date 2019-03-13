@@ -33,10 +33,11 @@ import views.html.developers.delete_developer
 class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
 
   sealed case class TestApplication(name: String,
-                             collaborators: Set[Collaborator],
-                             id: UUID = UUID.randomUUID(),
-                             state: ApplicationState = ApplicationState(State.PRODUCTION),
-                             clientId: String = "a-client-id") extends Application
+                                    collaborators: Set[Collaborator],
+                                    id: UUID = UUID.randomUUID(),
+                                    state: ApplicationState = ApplicationState(State.PRODUCTION),
+                                    clientId: String = "a-client-id",
+                                    deployedTo: String = "PRODUCTION") extends Application
 
   def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR)
 

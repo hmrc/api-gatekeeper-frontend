@@ -17,11 +17,12 @@
 package connectors
 
 import java.net.URLEncoder.encode
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import config.AppConfig
 import model.RateLimitTier.RateLimitTier
 import model._
+import model.Environment.Environment
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
@@ -31,18 +32,26 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
+abstract class ApplicationConnector {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  val environment: Environment
+  val serviceBaseUrl: String
+  val useProxy: Boolean
+  val bearerToken: String
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
 
   def updateRateLimitTier(applicationId: String, tier: RateLimitTier)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/rate-limit-tier",
+    http.POST[UpdateRateLimitTierRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/rate-limit-tier",
       UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ApplicationUpdateSuccessResult)
   }
 
   def approveUplift(applicationId: String, gatekeeperUserId: String)
                    (implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/approve-uplift",
+    http.POST[ApproveUpliftRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/approve-uplift",
       ApproveUpliftRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ApproveUpliftSuccessful)
       .recover {
@@ -52,7 +61,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   def rejectUplift(applicationId: String, gatekeeperUserId: String, rejectionReason: String)
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/reject-uplift",
+    http.POST[RejectUpliftRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/reject-uplift",
       RejectUpliftRequest(gatekeeperUserId, rejectionReason), Seq(CONTENT_TYPE -> JSON))
       .map(_ => RejectUpliftSuccessful)
       .recover {
@@ -62,7 +71,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   def resendVerification(applicationId: String, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/resend-verification",
+    http.POST[ResendVerificationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/resend-verification",
       ResendVerificationRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ResendVerificationSuccessful)
       .recover {
@@ -71,11 +80,11 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def fetchApplication(applicationId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    http.GET[ApplicationWithHistory](s"${appConfig.applicationBaseUrl}/gatekeeper/application/$applicationId")
+    http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/$applicationId")
   }
 
-  def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[Application]] = {
-    http.GET[Seq[ApplicationResponse]](s"${appConfig.applicationBaseUrl}/developer/applications", Seq("emailAddress" -> email))
+  def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
         case e =>
           throw new FetchApplicationsFailed
@@ -84,42 +93,42 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
 
   def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
 
-    http.GET[Seq[ApplicationResponse]](s"${appConfig.applicationBaseUrl}/application?subscribesTo=$subscribesTo&version=$version")
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
 
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    http.GET[Seq[ApplicationResponse]](s"${appConfig.applicationBaseUrl}/application?noSubscriptions=true")
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    http.GET[Seq[ApplicationResponse]](s"${appConfig.applicationBaseUrl}/application")
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
 
   def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
-    http.GET[Seq[SubscriptionResponse]](s"${appConfig.applicationBaseUrl}/application/subscriptions")
+    http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed
       }
   }
 
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    http.GET[Seq[Subscription]](s"${appConfig.applicationBaseUrl}/application/$applicationId/subscription")
+    http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/$applicationId/subscription")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
       }
   }
 
   def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.PUT(s"${appConfig.applicationBaseUrl}/application/$applicationId/access/overrides", updateOverridesRequest)
+    http.PUT[UpdateOverridesRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/access/overrides", updateOverridesRequest)
       .map(_ => UpdateOverridesSuccessResult)
       .recover {
         case e: Upstream4xxResponse => UpdateOverridesFailureResult()
@@ -127,24 +136,24 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def updateScopes(applicationId: String, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
-    http.PUT(s"${appConfig.applicationBaseUrl}/application/$applicationId/access/scopes", updateScopesRequest)
+    http.PUT[UpdateScopesRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/access/scopes", updateScopesRequest)
       .map(_ => UpdateScopesSuccessResult)
   }
 
   def subscribeToApi(applicationId: String, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+    http.POST[APIIdentifier, HttpResponse](s"$serviceBaseUrl/application/$applicationId/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
 
   def unsubscribeFromApi(applicationId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE(s"${appConfig.applicationBaseUrl}/application/$applicationId/subscription?context=$context&version=$version") map { _ =>
+    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/$applicationId/subscription?context=$context&version=$version") map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
 
   def deleteApplication(applicationId: String, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[DeleteApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case NO_CONTENT => ApplicationDeleteSuccessResult
         case _ => ApplicationDeleteFailureResult
@@ -155,7 +164,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def blockApplication(applicationId: String, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[BlockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationBlockSuccessResult
         case _ => ApplicationBlockFailureResult
@@ -166,7 +175,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def unblockApplication(applicationId: String, unblockApplicationRequest: UnblockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[UnblockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationUnblockSuccessResult
         case _ => ApplicationUnblockFailureResult
@@ -177,7 +186,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def addCollaborator(applicationId: String, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST(s"${appConfig.applicationBaseUrl}/application/$applicationId/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
+    http.POST[AddTeamMemberRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
       _ => ApplicationUpdateSuccessResult
     } recover {
       case e: Upstream4xxResponse if e.upstreamResponseCode == CONFLICT => throw new TeamMemberAlreadyExists
@@ -186,7 +195,7 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def removeCollaborator(applicationId: String, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE(s"${appConfig.applicationBaseUrl}/application/$applicationId/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
+    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
     } recover {
       case e: Upstream4xxResponse if e.upstreamResponseCode == FORBIDDEN => throw new TeamMemberLastAdmin
@@ -194,17 +203,42 @@ class ApplicationConnector @Inject()(appConfig: AppConfig, http: HttpClient) {
   }
 
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
-    http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"${appConfig.applicationBaseUrl}/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
         .recover {
         case failure => CreatePrivOrROPCAppFailureResult
       }
   }
 
   def getClientCredentials(appId: String)(implicit hc: HeaderCarrier) : Future[GetClientCredentialsResult] = {
-    http.GET[GetClientCredentialsResult](s"${appConfig.applicationBaseUrl}/application/$appId/credentials")
+    http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }
+}
+
+
+@Singleton
+class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
+                                               val httpClient: HttpClient,
+                                               val proxiedHttpClient: ProxiedHttpClient)
+  extends ApplicationConnector {
+
+  val environment = Environment.SANDBOX
+  val serviceBaseUrl = appConfig.applicationSandboxBaseUrl
+  val useProxy = appConfig.applicationSandboxUseProxy
+  val bearerToken = appConfig.applicationSandboxBearerToken
+}
+
+@Singleton
+class ProductionApplicationConnector @Inject()(appConfig: AppConfig,
+                                            val httpClient: HttpClient,
+                                            val proxiedHttpClient: ProxiedHttpClient)
+  extends ApplicationConnector {
+
+  val environment = Environment.PRODUCTION
+  val serviceBaseUrl = appConfig.applicationProductionBaseUrl
+  val useProxy = appConfig.applicationProductionUseProxy
+  val bearerToken = appConfig.applicationProductionBearerToken
 }

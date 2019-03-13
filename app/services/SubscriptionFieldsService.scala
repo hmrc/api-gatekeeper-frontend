@@ -17,18 +17,19 @@
 package services
 
 import javax.inject.Inject
-
 import connectors._
 import model.ApiSubscriptionFields.{Fields, SubscriptionField}
-import model.FieldsDeleteResult
+import model.{Application, FieldsDeleteResult}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SubscriptionFieldsService @Inject()(subscriptionFieldsConnector: SubscriptionFieldsConnector) {
+class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector,
+                                          productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector) {
 
-  def fetchFields(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+  def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+    val connector = connectorFor(application)
 
     def addValuesToDefinitions(defs: Seq[SubscriptionField], fieldValues: Fields) = {
       defs.map(field => field.withValue(fieldValues.get(field.name)))
@@ -36,20 +37,23 @@ class SubscriptionFieldsService @Inject()(subscriptionFieldsConnector: Subscript
 
     def fetchFieldsValues(defs: Seq[SubscriptionField])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
       for {
-        maybeValues <- subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)
+        maybeValues <- connector.fetchFieldValues(application.clientId, apiContext, apiVersion)
       } yield maybeValues.fold(defs) { response =>
         addValuesToDefinitions(defs, response.fields)
       }
     }
 
-    subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
+    connector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
   }
 
-  def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fields)
+  def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    connectorFor(application).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
-  def deleteFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
-    subscriptionFieldsConnector.deleteFieldValues(clientId, context, version)
+  def deleteFieldValues(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
+    connectorFor(application).deleteFieldValues(application.clientId, context, version)
   }
+
+  def connectorFor(application: Application): SubscriptionFieldsConnector =
+    if (application.deployedTo == "PRODUCTION") productionSubscriptionFieldsConnector else sandboxSubscriptionFieldsConnector
 }

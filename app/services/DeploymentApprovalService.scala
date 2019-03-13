@@ -17,25 +17,33 @@
 package services
 
 import javax.inject.Inject
-
-import connectors.ApiPublisherConnector
+import connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import model.APIApprovalSummary
+import model.Environment._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class DeploymentApprovalService @Inject()(apiPublisherConnector: ApiPublisherConnector){
+class DeploymentApprovalService @Inject()(sandboxApiPublisherConnector: SandboxApiPublisherConnector,
+                                          productionApiPublisherConnector: ProductionApiPublisherConnector)(implicit ec: ExecutionContext) {
 
   def fetchUnapprovedServices()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
-    apiPublisherConnector.fetchUnapproved()
+    val sandboxFuture = sandboxApiPublisherConnector.fetchUnapproved()
+    val productionFuture = productionApiPublisherConnector.fetchUnapproved()
+
+    for {
+      sandbox <- sandboxFuture
+      production <- productionFuture
+    } yield (sandbox ++ production).distinct
   }
 
-  def fetchApiDefinitionSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    apiPublisherConnector.fetchApprovalSummary(serviceName)
+  def fetchApprovalSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    connectorFor(environment).fetchApprovalSummary(serviceName)
   }
 
-  def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
-    apiPublisherConnector.approveService(serviceName)
+  def approveService(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[Unit] = {
+    connectorFor(environment).approveService(serviceName)
   }
+
+  def connectorFor(environment: Environment) = if (environment == PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
 }
-

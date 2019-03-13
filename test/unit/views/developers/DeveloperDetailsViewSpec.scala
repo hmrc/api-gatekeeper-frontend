@@ -30,7 +30,12 @@ import unit.utils.ViewHelpers._
 
 class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
-  sealed case class TestApplication(id: UUID, name: String, state: ApplicationState, collaborators: Set[Collaborator], clientId: String = "a-client-id") extends Application
+  sealed case class TestApplication(id: UUID,
+                                    name: String,
+                                    state: ApplicationState,
+                                    collaborators: Set[Collaborator],
+                                    clientId: String = "a-client-id",
+                                    deployedTo: String = "PRODUCTION") extends Application
 
   "developer details view" must {
     implicit val request = FakeRequest()

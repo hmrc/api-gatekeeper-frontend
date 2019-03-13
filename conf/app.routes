@@ -5,7 +5,7 @@ GET         /review                                                 controllers.
 
 POST        /update-rate-limit-tier                                 controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
 GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
 GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)
@@ -59,5 +59,7 @@ GET         /application/add                                        controllers.
 POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
 
 GET         /pending                                                controllers.DeploymentApprovalController.pendingPage
-GET         /pending/:serviceName/review                            controllers.DeploymentApprovalController.reviewPage(serviceName: String)
-POST        /pending/:serviceName/approve                           controllers.DeploymentApprovalController.handleApproval(serviceName: String)
+GET         /pending/:serviceName/review-sandbox                    controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
+GET         /pending/:serviceName/review-production                 controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
+POST        /pending/:serviceName/approve-sandbox                   controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
+POST        /pending/:serviceName/approve-production                controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
