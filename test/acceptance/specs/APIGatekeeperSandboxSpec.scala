@@ -16,7 +16,6 @@
 
 package acceptance.specs
 
-import acceptance.pages.{ApplicationsPage, SignInPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
@@ -77,24 +76,11 @@ class APIGatekeeperSandboxSpec extends BaseSpec
         .willReturn(aResponse().withStatus(OK)))
 
       Given("the developer goes to the Gatekeeper home page")
-      goOn(SignInPage)
-      on(SignInPage)
 
-      Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
+      signInGatekeeper
+
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
-      actualApplicationName shouldBe "HMRC API Gatekeeper - Developer Sandbox"
-
-      And("the browser window title is HMRC API Gatekeeper - Developer Sandbox - Login")
       var actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Developer Sandbox - Login"
-
-      And("the application header colour is rgba(40, 161, 151)")
-      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
-      actualHeaderColour.replace(" ", "") should include("rgba(40, 161, 151, 1)".replace(" ", ""))
-
-      When("the users signs in")
-      SignInPage.signIn("joe.test", "password")
-      on(ApplicationsPage)
 
       Then("the application name is HMRC API Gatekeeper - Developer Sandbox")
       actualApplicationName shouldBe "HMRC API Gatekeeper - Developer Sandbox"

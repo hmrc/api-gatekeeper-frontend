@@ -26,7 +26,8 @@ trait WiremockSugar extends BeforeAndAfterEach {
   val stubPort = sys.env.getOrElse("WIREMOCK", "22222").toInt
   val stubHost = "localhost"
   val wireMockUrl = s"http://$stubHost:$stubPort"
-  val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
+  val wireMockServer = new WireMockServer(wireMockConfig()
+    .port(stubPort))
 
   override def beforeEach() = {
     wireMockServer.start()

@@ -16,46 +16,140 @@
 
 package acceptance
 
-import acceptance.pages.SignInPage
+import acceptance.pages.ApplicationsPage
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
+import play.api.http.Status.OK
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
   val superUserGatekeeperId: String = "maxpower"
+  val adminUserGatekeeperId: String = "supermaxpower"
+
+  val requestJsonForUser =
+    """
+      |{
+      |  "authorise": [
+      |    {
+      |      "$or": [
+      |        {
+      |          "identifiers": [],
+      |          "state": "Activated",
+      |          "enrolment": "admin-role"
+      |        },
+      |        {
+      |          "identifiers": [],
+      |          "state": "Activated",
+      |          "enrolment": "super-user-role"
+      |        },
+      |        {
+      |          "identifiers": [],
+      |          "state": "Activated",
+      |          "enrolment": "user-role"
+      |        }
+      |      ]
+      |    }
+      |  ],
+      |  "retrieve": [
+      |    "name",
+      |    "authorisedEnrolments"
+      |  ]
+      |}
+    """.stripMargin
+
+  val requestJsonForSuperUser =
+    """
+      |{
+      |  "authorise": [
+      |    {
+      |      "$or": [
+      |        {
+      |          "identifiers": [],
+      |          "state": "Activated",
+      |          "enrolment": "admin-role"
+      |        },
+      |        {
+      |          "identifiers": [],
+      |          "state": "Activated",
+      |          "enrolment": "super-user-role"
+      |        }
+      |      ]
+      |    }
+      |  ],
+      |  "retrieve": [
+      |    "name",
+      |    "authorisedEnrolments"
+      |  ]
+      |}
+    """.stripMargin
+
+  val requestJsonForAdmin =
+    """
+      |{
+      |  "authorise": [
+      |     {
+      |       "identifiers": [],
+      |       "state": "Activated",
+      |       "enrolment": "admin-role"
+      |     }
+      |  ],
+      |  "retrieve": [
+      |    "name",
+      |    "authorisedEnrolments"
+      |  ]
+      |}
+    """.stripMargin
+
 
   def signInGatekeeper()(implicit webDriver: WebDriver) = {
-    signInUser(gatekeeperId)
+
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$gatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "user-role"}]
+         |}""".stripMargin
+
+    setupAuthCall(requestJsonForUser, responseJson)
+
+    go(ApplicationsPage)
+
   }
+
   def signInSuperUserGatekeeper()(implicit webDriver: WebDriver) = {
-    signInUser(superUserGatekeeperId)
+
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$superUserGatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "super-user-role"}]
+         |}""".stripMargin
+
+    setupAuthCall(requestJsonForUser, responseJson)
+    setupAuthCall(requestJsonForSuperUser, responseJson)
+
+    go(ApplicationsPage)
+
   }
 
-  def signInUser(id : String)(implicit webDriver:WebDriver) = {
+  def signInAdminUserGatekeeper()(implicit webDriver: WebDriver) = {
 
-    val authBody =
-      s"""
-        |{
-        | "access_token": {
-        |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-        |     "expiry":1459365831061
-        |     },
-        |     "expires_in":14400,
-        |     "roles":[{"scope":"api","name":"gatekeeper"}],
-        |     "authority_uri":"/auth/oid/$id",
-        |     "token_type":"Bearer"
-        |}
-      """.stripMargin
+    val responseJson =
+      s"""{
+         |  "name": {"name":"$adminUserGatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "admin-role"}]
+         |}""".stripMargin
 
-    stubFor(post(urlEqualTo("/auth/authenticate/user"))
-      .willReturn(aResponse().withBody(authBody).withStatus(200)))
+    setupAuthCall(requestJsonForUser, responseJson)
+    setupAuthCall(requestJsonForSuperUser, responseJson)
+    setupAuthCall(requestJsonForAdmin, responseJson)
 
-    stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-      .willReturn(aResponse().withStatus(200)))
-
-    goOn(SignInPage)
-
-    SignInPage.signIn(id, "password")
+    go(ApplicationsPage)
   }
 
+  private def setupAuthCall(requestJson: String, responseJson: String)(implicit webDriver: WebDriver) = {
+    stubFor(post(urlPathEqualTo("/auth/authorise"))
+      .withRequestBody(equalToJson(requestJson.toString))
+      .willReturn(aResponse()
+        .withBody(responseJson)
+        .withStatus(OK)))
+  }
 }

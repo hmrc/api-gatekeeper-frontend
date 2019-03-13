@@ -16,28 +16,20 @@
 
 package services
 
+import javax.inject.Inject
+
 import config.AppConfig
-import connectors.{ApplicationConnector, DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector}
+import connectors._
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object DeveloperService extends DeveloperService {
-  override val appConfig = AppConfig
-
-  override val developerConnector: DeveloperConnector =
-    if (AppConfig.isExternalTestEnvironment) DummyDeveloperConnector else HttpDeveloperConnector
-
-  override val applicationConnector: ApplicationConnector = ApplicationConnector
-}
-
-trait DeveloperService {
-
-  implicit val appConfig: AppConfig
-  val developerConnector: DeveloperConnector
-  val applicationConnector: ApplicationConnector
+class DeveloperService @Inject()(appConfig: AppConfig,
+                                 developerConnector: DeveloperConnector,
+                                 sandboxApplicationConnector: SandboxApplicationConnector,
+                                 productionApplicationConnector: ProductionApplicationConnector) {
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
@@ -76,6 +68,12 @@ trait DeveloperService {
     }
   }
 
+  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = filter match {
+    case AnyEnvironment => users
+    case ProductionEnvironment => users.filter(user => user.apps.exists (app => app.deployedTo == "PRODUCTION"))
+    case SandboxEnvironment => users
+  }
+
   def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[ApplicationDeveloper] = {
 
     def collaboratingApps(user: User, apps: Seq[Application]): Seq[Application] = {
@@ -98,8 +96,9 @@ trait DeveloperService {
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[ApplicationDeveloper] = {
     for {
       developer <- developerConnector.fetchByEmail(email)
-      applications <- applicationConnector.fetchApplicationsByEmail(email)
-    } yield Developer.createFromUser(developer, applications)
+      sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByEmail(email)
+      productionApplications <- productionApplicationConnector.fetchApplicationsByEmail(email)
+    } yield Developer.createFromUser(developer, (sandboxApplications ++ productionApplications).distinct)
   }
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
@@ -113,7 +112,7 @@ trait DeveloperService {
   def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
 
     def fetchAdminsToEmail(app: Application): Future[Seq[String]] = {
-      if (appConfig.isExternalTestEnvironment) {
+      if (app.deployedTo == "SANDBOX") {
         Future.successful(Seq.empty)
       } else {
         val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
@@ -126,9 +125,11 @@ trait DeveloperService {
     }
 
     def removeTeamMemberFromApp(app: Application) = {
+      val connector = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+
       for {
         adminsToEmail <- fetchAdminsToEmail(app)
-        result <- applicationConnector.removeCollaborator(app.id.toString, email, gatekeeperUserId, adminsToEmail)
+        result <- connector.removeCollaborator(app.id.toString, email, gatekeeperUserId, adminsToEmail)
       } yield result
     }
 

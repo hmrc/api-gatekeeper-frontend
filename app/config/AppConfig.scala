@@ -16,31 +16,84 @@
 
 package config
 
-import play.api.Play
+import javax.inject.Inject
+import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
 
-trait AppConfig {
-  val assetsPrefix: String
-  val devHubBaseUrl: String
-  def isExternalTestEnvironment: Boolean
-  def title: String
-  def superUsers: Seq[String]
-}
+class AppConfig @Inject()(override val runModeConfiguration: Configuration, environment: Environment ) extends ServicesConfig {
 
-object AppConfig extends AppConfig with ServicesConfig {
+  override protected def mode: Mode = environment.mode
 
   private def loadStringConfig(key: String) = {
-    Play.current.configuration.getString(key)
+    runModeConfiguration.getString(key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
   }
 
-  override lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
-  override lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
-  override def isExternalTestEnvironment = Play.current.configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  override def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
-  override def superUsers: Seq[String] = {
-    Play.current.configuration.getStringSeq(s"$env.superUsers")
-      .orElse(Play.current.configuration.getStringSeq("superUsers"))
+  lazy val appName = loadStringConfig("appName")
+  lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
+
+  lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
+
+  lazy val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
+  lazy val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")
+  lazy val apiScopeSandboxBearerToken = bearerToken("api-scope-sandbox")
+  lazy val apiScopeProductionBaseUrl = serviceUrl("api-scope")("api-scope-production")
+  lazy val apiScopeProductionUseProxy = useProxy("api-scope-production")
+  lazy val apiScopeProductionBearerToken = bearerToken("api-scope-production")
+
+  lazy val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
+  lazy val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
+  lazy val applicationSandboxBearerToken = bearerToken("third-party-application-sandbox")
+  lazy val applicationProductionBaseUrl = serviceUrl("third-party-application")("third-party-application-production")
+  lazy val applicationProductionUseProxy = useProxy("third-party-application-production")
+  lazy val applicationProductionBearerToken = bearerToken("third-party-application-production")
+
+  lazy val authBaseUrl = baseUrl("auth")
+  lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
+  lazy val developerBaseUrl = baseUrl("third-party-developer")
+
+  lazy val subscriptionFieldsSandboxBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsSandboxUseProxy = useProxy("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsSandboxBearerToken = bearerToken("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsProductionBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
+  lazy val subscriptionFieldsProductionUseProxy = useProxy("api-subscription-fields-production")
+  lazy val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
+
+  lazy val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
+  lazy val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
+  lazy val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
+  lazy val apiPublisherProductionBaseUrl = serviceUrl("api-publisher")("api-publisher-production")
+  lazy val apiPublisherProductionUseProxy = useProxy("api-publisher-production")
+  lazy val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
+
+  lazy val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
+  lazy val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
+  lazy val apiDefinitionSandboxBearerToken = bearerToken("api-definition-sandbox")
+  lazy val apiDefinitionProductionBaseUrl = serviceUrl("api-definition")("api-definition-production")
+  lazy val apiDefinitionProductionUseProxy = useProxy("api-definition-production")
+  lazy val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
+
+  lazy val gatekeeperSuccessUrl = loadStringConfig("api-gatekeeper-frontend-success-url")
+
+  lazy val superUserRole = loadStringConfig("roles.super-user")
+  lazy val userRole = loadStringConfig("roles.user")
+  lazy val adminRole = loadStringConfig("roles.admin")
+
+  def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
+  def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  def superUsers: Seq[String] = {
+    runModeConfiguration.getStringSeq(s"$env.superUsers")
+      .orElse(runModeConfiguration.getStringSeq("superUsers"))
       .getOrElse(Seq.empty)
   }
+
+  private def serviceUrl(key: String)(serviceName: String): String = {
+    if (useProxy(serviceName)) s"${baseUrl(serviceName)}/${getConfString(s"$serviceName.context", key)}"
+    else baseUrl(serviceName)
+  }
+
+  private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", false)
+
+  private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
 }

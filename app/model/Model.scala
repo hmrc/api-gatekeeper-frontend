@@ -21,36 +21,14 @@ import java.util.UUID
 import model.AccessType.AccessType
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
+import model.Environment._
 import model.State.State
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.libs.json._
-import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.json.Union
-
-
-case class LoginDetails(userName: String, password: Protected[String])
-
-object LoginDetails {
-  implicit val crypto = ApplicationCrypto.JsonCrypto
-
-  object JsonStringEncryption extends JsonEncryptor[String]
-
-  object JsonStringDecryption extends JsonDecryptor[String]
-
-  implicit val encryptedStringFormats = JsonStringEncryption
-  implicit val decryptedStringFormats = JsonStringDecryption
-
-  implicit val formats = Json.format[LoginDetails]
-
-  def make(userName: String, password: String) = LoginDetails(userName, Protected(password))
-
-  def unmake(user: LoginDetails) = Some((user.userName, user.password.decryptedValue))
-}
-
 
 case class Role(scope: String, name: String)
 
@@ -58,6 +36,12 @@ object Role {
   implicit val format = Json.format[Role]
   val APIGatekeeper = Role("api", "gatekeeper")
 }
+
+object GatekeeperRole extends Enumeration {
+  type GatekeeperRole = Value
+  val USER,SUPERUSER,ADMIN = Value
+}
+
 
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
@@ -307,7 +291,7 @@ object DeleteDeveloperRequest {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
 
-final case class CreatePrivOrROPCAppForm(accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
+final case class CreatePrivOrROPCAppForm(environment: Environment = SANDBOX, accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
 object CreatePrivOrROPCAppForm {
 
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
@@ -355,3 +339,19 @@ final case class AddTeamMemberResponse(registeredUser: Boolean)
 object AddTeamMemberResponse {
   implicit val format = Json.format[AddTeamMemberResponse]
 }
+
+case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment]) {
+  lazy val env = environment.get.toString.toLowerCase.capitalize
+}
+
+object APIApprovalSummary {
+  implicit val formatApiDefinitionSummary = Json.format[APIApprovalSummary]
+}
+
+case class ApproveServiceRequest(serviceName: String)
+
+object ApproveServiceRequest {
+  implicit val format = Json.format[ApproveServiceRequest]
+}
+
+class UpdateApiDefinitionsFailed extends Throwable

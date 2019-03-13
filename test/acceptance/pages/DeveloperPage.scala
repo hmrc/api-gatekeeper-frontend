@@ -19,9 +19,7 @@ package acceptance.pages
 import acceptance.WebPage
 import acceptance.pages.DeveloperPage.APIFilter.APIFilterList
 import acceptance.pages.DeveloperPage.StatusFilter.StatusFilterList
-import com.gargoylesoftware.htmlunit.WebClient
-import com.gargoylesoftware.htmlunit.html.{HtmlOption, HtmlPage, HtmlSelect}
-import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.Keys.ENTER
 
 object DeveloperPage extends WebPage {
 
@@ -37,7 +35,11 @@ object DeveloperPage extends WebPage {
   def nextLink = find(linkText("Next")).get
 
   def selectByDeveloperEmail(email: String) = {
-    click on developerEmail(email)
+    // If we use click we sometimes get a selenium error where it can't click on the element.
+    // However, if we open using the keyboard, we don't get these problems.
+    val element = developerEmail(email)
+    element.underlying.sendKeys(ENTER)
+
   }
 
   def selectBySubscription(api: APIFilterList) = {

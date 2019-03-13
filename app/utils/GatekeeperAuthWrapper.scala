@@ -17,70 +17,80 @@
 package utils
 
 import connectors.AuthConnector
-import controllers.routes
-import model.{GatekeeperSessionKeys, Role}
+import controllers.BaseController
+import model.GatekeeperRole
+import model.GatekeeperRole.GatekeeperRole
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProvider
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.{~, _}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait GatekeeperAuthWrapper {
-  self: Results =>
-
-  def authProvider: AuthenticationProvider
+  self: BaseController =>
 
   def authConnector: AuthConnector
 
-  implicit val appConfig: config.AppConfig
+  implicit def loggedIn(implicit request: LoggedInRequest[_]): Option[String] = request.name
 
-  implicit def loggedIn(implicit request: Request[_]) = request.session.get(GatekeeperSessionKeys.LoggedInUser)
+  implicit val appConfig : config.AppConfig
 
-  private def validatedAsyncAction(f: Request[_] => Future[Result]) =
-    SessionTimeoutValidation(authProvider)(Action.async(f))
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
+    implicit request: Request[AnyContent] =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
+      val predicate = authPredicate(minimumRoleRequired)
+      val retrieval: Retrieval[Name ~ Enrolments] = Retrievals.name and Retrievals.authorisedEnrolments
 
-  def requiresLogin()(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
-      val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(GatekeeperSessionKeys.AuthToken) match {
-        case Some(_) => body(request)(hc)
-        case _ => authProvider.redirectToLogin
-      }
-    }
-  }
-
-  def requiresRole(requiredRole: Role, requiresSuperUser: Boolean = false)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
-      def meetsSuperUserRequirement = if (requiresSuperUser) isSuperUser else true
-
-      def redirectToLogin = Future.successful(Redirect(routes.AccountController.loginPage()))
-
-      val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(GatekeeperSessionKeys.AuthToken).fold(redirectToLogin){ _ =>
-        authConnector.authorized(requiredRole)(hc).flatMap { authorized =>
-          if (authorized && meetsSuperUserRequirement) body(request)(hc)
-          else Future.successful(Unauthorized(views.html.unauthorized()))
+      authConnector.authorise(predicate, retrieval) flatMap {
+        case name ~ authorisedEnrolments => {
+          body(LoggedInRequest(name.name, authorisedEnrolments, request))(hc)
         }
+      } recoverWith {
+        case _: NoActiveSession =>
+          request.secure
+          Future.successful(toStrideLogin())
+        case _: InsufficientEnrolments =>
+          implicit val unauthorisedUserName = None
+          Future.successful(Forbidden(views.html.forbidden()))
       }
+  }
+
+  private def toStrideLogin(): Result = {
+    Redirect(
+      appConfig.strideLoginUrl,
+      Map(
+        "successURL" -> Seq(appConfig.gatekeeperSuccessUrl),
+        "origin" -> Seq(appConfig.appName)
+      ))
+  }
+
+  def isAtLeastSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
+    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
+  }
+
+  def isAdmin(implicit request: LoggedInRequest[_]): Boolean = {
+    request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
+  }
+
+  def authPredicate(minimumRoleRequired: GatekeeperRole): Predicate = {
+
+    val adminEnrolment = Enrolment(appConfig.adminRole)
+    val superUserEnrolment = Enrolment(appConfig.superUserRole)
+    val userEnrolment = Enrolment(appConfig.userRole)
+
+    minimumRoleRequired match {
+      case GatekeeperRole.ADMIN => adminEnrolment
+      case GatekeeperRole.SUPERUSER => adminEnrolment or superUserEnrolment
+      case GatekeeperRole.USER => adminEnrolment or superUserEnrolment or userEnrolment
     }
   }
-
-  def redirectIfLoggedIn(redirectTo: play.api.mvc.Call)(body: Request[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = {
-    validatedAsyncAction { implicit request =>
-      val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-      request.session.get(GatekeeperSessionKeys.AuthToken) match {
-        case Some(_) => Future.successful(Redirect(redirectTo))
-        case _ => body(request)(hc)
-      }
-    }
-  }
-
-  def isSuperUser(implicit request: Request[_]): Boolean = {
-    appConfig.superUsers.contains(loggedIn.get)
-  }
-
 }
+
+case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)

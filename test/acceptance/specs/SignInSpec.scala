@@ -16,12 +16,13 @@
 
 package acceptance.specs
 
+import acceptance.pages.ApplicationsPage
 import acceptance.{BaseSpec, SignInSugar}
-import acceptance.pages.{ApplicationsPage, DashboardPage, SignInPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import play.api.http.Status._
 
 import scala.io.Source
 
@@ -33,88 +34,30 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     info("As a gatekeeper")
     info("I would like to sign in")
 
-    scenario("Sign in with valid credentials") {
-      val body =
-        """
-          |{
-          | "access_token": {
-          |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-          |     "expiry":1459365831061
-          |     },
-          |     "expires_in":14400,
-          |     "roles":[{"scope":"api","name":"gatekeeper"}],
-          |     "authority_uri":"/auth/oid/joe.test",
-          |     "token_type":"Bearer"
-          |}
-        """.stripMargin
-      stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(body).withStatus(200)))
+    scenario("Sign in with invalid auth token") {
 
-      stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(200)))
+      stubFor(post(urlPathEqualTo("/auth/authorise"))
+        .willReturn(aResponse()
+          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
+          .withStatus(UNAUTHORIZED)))
 
-      stubFor(get(urlEqualTo("/gatekeeper/applications"))
-        .willReturn(aResponse().withBody("[]").withStatus(200)))
+      goOn(ApplicationsPage)
 
-      goOn(SignInPage)
-
-      SignInPage.signIn("joe.test", "password")
-
-      on(ApplicationsPage)
-    }
-
-
-    scenario("Sign in with invalid credentials"){
-        stubFor(post(urlEqualTo("/auth/authenticate/user"))
-          .willReturn(aResponse().withStatus(401)))
-
-        goOn(SignInPage)
-
-        SignInPage.signIn("joe.test", "password")
-
-        on(SignInPage)
-        SignInPage.isError shouldBe true
-    }
-
-    scenario("Sign in with unauthorised credentials")  {
-      val body =
-        """
-          |{
-          | "access_token": {
-          |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-          |     "expiry":1459365831061
-          |     },
-          |     "expires_in":14400,
-          |     "roles":[{"scope":"something","name":"gatekeeper"}],
-          |     "authority_uri":"/auth/oid/joe.test",
-          |     "token_type":"Bearer"
-          |}
-        """.stripMargin
-      stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(body).withStatus(200)))
-
-      stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(401)))
-
-      goOn(SignInPage)
-
-      SignInPage.signIn("joe.test", "password")
-      on(ApplicationsPage)
-      ApplicationsPage.isUnauthorised shouldBe true
+      ApplicationsPage.isForbidden shouldBe true
     }
 
     scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
 
       stubApplicationList()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(200)))
+        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
       val applicationsList = Source.fromURL(getClass.getResource("/resources/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(200)))
+        .withBody(applicationsList).withStatus(OK)))
 
-      stubApplicationSubscription
-      stubApiDefinition
+      stubApplicationSubscription()
+      stubApiDefinition()
 
       val authBody =
         s"""
@@ -131,29 +74,17 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       """.stripMargin
 
       stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(authBody).withStatus(200)))
+        .willReturn(aResponse().withBody(authBody).withStatus(OK)))
 
       stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(200)))
+        .willReturn(aResponse().withStatus(OK)))
 
       Given("The developer goes to the Gatekeeper home page")
-      goOn(SignInPage)
-      on(SignInPage)
 
-      Then("The application name is HMRC API Gatekeeper")
+      signInGatekeeper
+
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
-      actualApplicationName shouldBe "HMRC API Gatekeeper"
-
-      And("the browser window title is API Gatekeeper - Login")
       var actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Login"
-
-//      And("The application header colour is rgba(0, 94, 165, 1)")
-//      val actualHeaderColour = webDriver.findElement(By.cssSelector("#wrapper div.service-info")).getCssValue("border-top-color")
-//      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
-
-      When("the users signs in")
-      SignInPage.signIn("joe.test", "password")
       on(ApplicationsPage)
 
       Then("the application name is API Gatekeeper")
@@ -162,16 +93,14 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
       And("the browser window title is HMRC API Gatekeeper - Applications")
       actualApplicationTitle = webDriver.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
-
-//      And("the application header colour is rgba(0, 94, 165, 1)")
-//      actualHeaderColour.replace(" ", "") should include("rgba(0, 94, 165, 1)".replace(" ", ""))
     }
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
 
       Given("The developer goes to the Gatekeeper home page")
-      goOn(SignInPage)
-      on(SignInPage)
+      signInGatekeeper
+
+      on(ApplicationsPage)
 
       Then("the cookie banner is displayed at the ")
       val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
@@ -181,22 +110,22 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-      .withBody(applications).withStatus(200)))
+      .withBody(applications).withStatus(OK)))
   }
 
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions"))
-      .willReturn(aResponse().withBody(applicationSubscription).withStatus(200)))
+      .willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
 
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo(s"/api-definition"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
 
     stubFor(get(urlEqualTo(s"/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(200).withBody(apiDefinition)))
+      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 }

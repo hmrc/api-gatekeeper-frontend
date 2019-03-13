@@ -16,215 +16,105 @@
 
 package unit.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import config.WSHttp
-import connectors.{ApiDefinitionConnector, ApplicationConnector}
+import connectors.{ApiDefinitionConnector, ProxiedHttpClient}
+import model.Environment._
 import model._
+import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.http.Status._
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ApiDefinitionConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+import scala.concurrent.Future
 
-  trait Setup {
+class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matchers with ScalaFutures with BeforeAndAfterEach {
+  private val baseUrl = "https://example.com"
+  private val environmentName = "ENVIRONMENT"
+  private val bearer = "TestBearerToken"
+
+  class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
+    val mockHttpClient = mock[HttpClient]
+    val mockProxiedHttpClient = mock[ProxiedHttpClient]
+    val mockEnvironment = mock[Environment]
+
+    when(mockEnvironment.toString).thenReturn(environmentName)
+    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+
     val connector = new ApiDefinitionConnector {
-      override val http = WSHttp
-      override val serviceBaseUrl: String = wireMockUrl
+      val httpClient = mockHttpClient
+      val proxiedHttpClient = mockProxiedHttpClient
+      val serviceBaseUrl = baseUrl
+      val useProxy = proxyEnabled
+      val bearerToken = bearer
+      val environment = mockEnvironment
     }
   }
 
   "fetchAll" should {
+    val url = s"$baseUrl/api-definition"
+
     "respond with 200 and convert body" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-        """
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "dummy-api",
-          |   "versions": [
-          |     {
-          |       "version": "1.0",
-          |       "status": "STABLE",
-          |       "access": {
-          |         "type": "PUBLIC"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchPublic())
-
-      result shouldBe Seq(APIDefinition(
+      val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
-      ))
-    }
+        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
-    "map API status of PROTOTYPED to BETA" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-        """
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "dummy-api",
-          |   "versions": [
-          |     {
-          |       "version": "1.0",
-          |       "status": "PROTOTYPED",
-          |       "access": {
-          |         "type": "PUBLIC"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchPublic())
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(Future.successful(response))
 
-      result shouldBe Seq(APIDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
-      ))
-    }
-
-    "map API status of PUBLISHED to STABLE" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-        """
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "dummy-api",
-          |   "versions": [
-          |     {
-          |       "version": "1.0",
-          |       "status": "PUBLISHED",
-          |       "access": {
-          |         "type": "PUBLIC"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchPublic())
-
-      result shouldBe Seq(APIDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
-      ))
+      await(connector.fetchPublic()) shouldBe response
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(500)))
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
     }
   }
 
   "fetchPrivate" should {
+    val url = s"$baseUrl/api-definition?type=private"
+
     "respond with 200 and convert body" in new Setup {
       val applicationId = "anApplicationId"
       val gatekeeperId = "loggedin.gatekeeper"
-      stubFor(get(urlEqualTo(s"/api-definition?type=private")).willReturn(aResponse().withStatus(200).withBody(
-        """
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "dummy-api",
-          |   "versions": [
-          |     {
-          |       "version": "1.0",
-          |       "status": "STABLE",
-          |       "access": {
-          |         "type": "PRIVATE"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
-      val result: Seq[APIDefinition] = await(connector.fetchPrivate())
-
-      result shouldBe Seq(APIDefinition(
+      val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", "dummy-api",
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
-      ))
+        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
+
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any())).thenReturn(Future.successful(response))
+
+      await(connector.fetchPrivate()) shouldBe response
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/api-definition?type=private")).willReturn(aResponse().withStatus(500)))
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
+    }
+  }
+
+  "http" when {
+    "configured not to use the proxy" should {
+      "use the HttpClient" in new Setup(proxyEnabled = false) {
+        connector.http shouldBe mockHttpClient
+      }
+    }
+
+    "configured to use the proxy" should {
+      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
+        connector.http shouldBe mockProxiedHttpClient
+
+        verify(mockProxiedHttpClient).withAuthorization(bearer)
+      }
     }
   }
 }

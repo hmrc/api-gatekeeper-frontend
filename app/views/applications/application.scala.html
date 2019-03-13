@@ -21,7 +21,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 
-@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isSuperUser: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -41,7 +41,7 @@
         }
     </td>
     <td>
-        @if(isSuperUser) {
+        @if(isAtLeastSuperUser) {
         <a href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
@@ -85,7 +85,7 @@
         }
     </td>
     <td>
-        @if(isSuperUser) {
+        @if(isAtLeastSuperUser) {
             <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
@@ -181,8 +181,8 @@
         <tr>
             <th><h3>Rate limit tier</h3></th>
             <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
-            <td>@if(isSuperUser) {
-                <a href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button--link" role="button">Manage</a>
+            <td>@if(isAdmin) {
+                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }</td>
         </tr>
         <tr>
@@ -281,8 +281,8 @@
                 </table>
             </td>
             <td>
-                @if(isSuperUser) {
-                    <a href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button--link" role="button">Manage</a>
+                @if(isAtLeastSuperUser) {
+                    <a id="manage-subscriptions" href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
@@ -322,7 +322,7 @@
                 </table>
             </td>
             <td class="no-border">
-                @if(isSuperUser || application.access.accessType == AccessType.STANDARD) {
+                @if(isAtLeastSuperUser || application.access.accessType == AccessType.STANDARD) {
                     <a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }
             </td>
@@ -432,8 +432,10 @@
         </tr>
     </table>
     <br>
-    @if(isSuperUser) {
+    @if(isAtLeastSuperUser) {
         <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
+    }
+    @if(isAdmin) {
         @if(application.state.name == PRODUCTION && !application.blocked) {
             <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
         }

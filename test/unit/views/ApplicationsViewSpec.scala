@@ -117,10 +117,10 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
     "Called with application" should {
 
       val applications = Seq[DetailedSubscribedApplicationResponse](
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true),
-        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true)
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+        DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
       )
 
       val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty, false)

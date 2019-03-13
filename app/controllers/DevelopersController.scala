@@ -16,6 +16,9 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+
+import config.AppConfig
 import connectors.AuthConnector
 import model._
 import play.api.Logger
@@ -23,31 +26,25 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.{GatekeeperAuthProvider, GatekeeperAuthWrapper}
+import utils.GatekeeperAuthWrapper
 import views.html.developers._
 
-object DevelopersController extends DevelopersController with WithAppConfig {
-  override val developerService = DeveloperService
-  override val applicationService = ApplicationService
-  override val apiDefinitionService = ApiDefinitionService
-  override def authConnector = AuthConnector
-  override def authProvider = GatekeeperAuthProvider
-}
+@Singleton
+class DevelopersController @Inject()(developerService: DeveloperService,
+                                     applicationService: ApplicationService,
+                                     apiDefinitionService: ApiDefinitionService,
+                                     override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+  extends BaseController with GatekeeperAuthWrapper {
 
-trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
-  val applicationService: ApplicationService
-  val developerService: DeveloperService
-  val apiDefinitionService: ApiDefinitionService
-
-  def developersPage(filter: Option[String], status: Option[String]) = requiresRole(Role.APIGatekeeper) {
+  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
 
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
+      val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
 
-      val appsF = applicationService.fetchApplications(apiFilter)
+      val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
       val apisF = apiDefinitionService.fetchAllApiDefinitions
-
       val usersF = developerService.fetchUsers
 
       for {
@@ -60,20 +57,20 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
         filteredUsers = filterOps(devs)
         sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
         emails = sortedUsers.map(_.email).mkString("; ")
-      } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status))
+      } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
-  def developerPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper) {
+  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isSuperUser)))
+      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.removeMfa(email, loggedIn.get) map { _ =>
         Ok(remove_mfa_success(email))
@@ -84,12 +81,12 @@ trait DevelopersController extends BaseController with GatekeeperAuthWrapper {
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresRole(Role.APIGatekeeper, requiresSuperUser = true) {
+  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.get).map {
         case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))

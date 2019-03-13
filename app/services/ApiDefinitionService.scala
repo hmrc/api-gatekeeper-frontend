@@ -16,25 +16,29 @@
 
 package services
 
-import connectors.ApiDefinitionConnector
+import javax.inject.Inject
+
+import connectors.{ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import model.APIDefinition
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
-object ApiDefinitionService extends ApiDefinitionService {
-  override val apiDefinitionConnnector = ApiDefinitionConnector
-}
-
-trait ApiDefinitionService {
-
-  val apiDefinitionConnnector: ApiDefinitionConnector
+class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
+                                     productionApiDefinitionConnector: ProductionApiDefinitionConnector){
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
+    val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
+    val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
+    val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
+
     for {
-      publicApis <- apiDefinitionConnnector.fetchPublic()
-      privateApis <- apiDefinitionConnnector.fetchPrivate()
-    } yield (publicApis ++ privateApis).distinct
+      sandboxPublicApis <- sandboxPublicApisFuture
+      sandboxPrivateApis <- sandboxPrivateApisFuture
+      productionPublicApis <- productionPublicApisFuture
+      productionPrivateApis <- productionPrivateApisFuture
+    } yield (sandboxPublicApis ++ sandboxPrivateApis ++ productionPublicApis ++ productionPrivateApis).distinct
   }
 }

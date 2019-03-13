@@ -16,6 +16,7 @@
 
 @import include._
 @import model._
+@import model.Environment._
 @import config.AppConfig
 
 @(form: Form[CreatePrivOrROPCAppForm])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: AppConfig)
@@ -26,6 +27,28 @@
 <br>
 
 @helper.form(action = routes.ApplicationController.createPrivOrROPCApplicationAction()) {
+<div class="form-group @if(form.errors("environment").nonEmpty) {form-field--error}">
+<fieldset class="inline" id="environment">
+    @helper.CSRF.formField
+    @fieldError(form.errors, "environment", true)
+    <legend>
+        <p class="form-label-bold">Environment</p>
+    </legend>
+    <div class="multiple-choice">
+        @defining(form.data.get("environment") == Some("PRODUCTION")) { productionChecked =>
+        <input id="environmentProduction" type="radio" name="environment" value="@PRODUCTION" @if(productionChecked) {checked}>
+        }
+        <label for="accessTypeProduction">Production</label>
+    </div>
+    <div class="multiple-choice">
+        @defining(form.data.get("environment") == Some("SANDBOX")) { sandboxChecked =>
+        <input id="environmentSandbox" type="radio" name="environment" value="@SANDBOX" @if(sandboxChecked) {checked}>
+        }
+        <label for="environmentSandbox">Sandbox</label>
+    </div>
+</fieldset>
+</div>
+
 <div class="form-group @if(form.errors("accessType").nonEmpty) {form-field--error}">
 <fieldset class="inline" id="accessType">
     @helper.CSRF.formField

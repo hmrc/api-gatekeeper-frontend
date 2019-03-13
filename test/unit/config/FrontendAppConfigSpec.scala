@@ -17,17 +17,21 @@
 package unit.config
 
 import config.AppConfig
-import org.scalatest.TestData
-import org.scalatestplus.play.OneServerPerTest
+import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AppConfigSpec extends UnitSpec with OneServerPerTest {
+class AppConfigSpec extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
   var isExternalTest = false
 
-  override def newAppForTest(testData: TestData): Application = {
+  trait Setup {
+    val appConfig = app.injector.instanceOf[AppConfig]
+  }
+
+  override def fakeApplication: Application = {
     new GuiceApplicationBuilder()
       .configure("isExternalTestEnvironment" -> isExternalTest)
       .build()
@@ -35,16 +39,16 @@ class AppConfigSpec extends UnitSpec with OneServerPerTest {
 
   "AppConfig" should {
 
-    "be initialized with properties" in {
-      AppConfig.isExternalTestEnvironment shouldBe false
-      AppConfig.title shouldBe "HMRC API Gatekeeper"
+    "be initialized with properties" in new Setup {
+      appConfig.isExternalTestEnvironment shouldBe false
+      appConfig.title shouldBe "HMRC API Gatekeeper"
 
       isExternalTest = true
     }
 
-    "be initialized with properties for external test environment" in {
-      AppConfig.isExternalTestEnvironment shouldBe true
-      AppConfig.title shouldBe "HMRC API Gatekeeper - Developer Sandbox"
+    "be initialized with properties for external test environment" in new Setup {
+      appConfig.isExternalTestEnvironment shouldBe true
+      appConfig.title shouldBe "HMRC API Gatekeeper - Developer Sandbox"
     }
 
   }

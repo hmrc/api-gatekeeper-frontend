@@ -16,7 +16,7 @@
 
 @()(implicit request : Request[_], userFullName: Option[String], messages: Messages, appConfig:config.AppConfig)
 
-@main(title = "Unauthorized", userFullName = userFullName) {
-  <h2>Only Authorised users can access the requested page</h2>
-
+@main(title = "Forbidden", userFullName = userFullName) {
+  <h1>You do not have permission to access Gatekeeper</h1>
+  <h2>Contact your administrator for access</h2>
 }

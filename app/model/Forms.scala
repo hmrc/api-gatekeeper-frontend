@@ -18,11 +18,15 @@ package model
 
 import model.Forms.FormFields._
 import model.OverrideType._
+import model.Environment._
 import model.ApiSubscriptionFields._
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.data.Forms._
+import play.api.data.format.Formatter
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
+
+import scala.util.Try
 
 package object Forms {
 
@@ -45,13 +49,8 @@ package object Forms {
     val applicationName = "applicationName"
     val applicationDescription = "applicationDescription"
     val adminEmail = "adminEmail"
+    val environment = "environment"
   }
-
-  val loginForm = Form(
-    mapping(
-      "userName" -> nonEmptyText,
-      "password" -> nonEmptyText
-    )(LoginDetails.make)(LoginDetails.unmake))
 
   val accessOverridesForm = Form (
     mapping (
@@ -157,11 +156,21 @@ package object Forms {
 
   val createPrivOrROPCAppForm = Form(
     mapping(
+      environment -> of[Environment],
       accessType -> optional(text).verifying("access.type.required", s => s.isDefined),
       applicationName -> text.verifying("application.name.required", _.nonEmpty),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
       adminEmail -> emailValidator
     )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply))
+
+  implicit def environmentFormat: Formatter[Environment] = new Formatter[Environment] {
+    override def bind(key: String, data: Map[String, String]) =
+      data.get(key)
+        .flatMap(name => Try(Environment.withName(name)).toOption)
+        .toRight(Seq(FormError(key, "application.environment.required", Nil)))
+
+    override def unbind(key: String, value: Environment) = Map(key -> value.toString)
+  }
 
   private def emailValidator() = {
     text

@@ -16,7 +16,7 @@
 
 package unit.services
 
-import connectors.ApiDefinitionConnector
+import connectors._
 import model.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
 import org.mockito.BDDMockito._
 import org.scalatest.Matchers
@@ -30,11 +30,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar {
   implicit val hc: HeaderCarrier = new HeaderCarrier
-  val mockApiDefinitionConnector = mock[ApiDefinitionConnector]
+  val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
+  val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
 
-  val definitionService = new ApiDefinitionService {
-    val apiDefinitionConnnector = mockApiDefinitionConnector
-  }
+  val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
   val publicDefinition = APIDefinition(
     "publicAPI", "http://localhost/",
@@ -56,9 +55,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
 
-        given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq.empty))
+
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq.empty))
 
         val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
 
@@ -67,9 +70,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
 
       "Include no duplicates" in {
 
-        given(mockApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
 
-        given(mockApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
+
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
+
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
 
         val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
 

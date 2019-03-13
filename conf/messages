@@ -1,4 +1,3 @@
-invalid.username.or.password=Invalid user ID or password. Try again.
 invalid.action=Review the application
 override.scopes.required=Scopes are required when enabling this access override
 override.scopes.incorrect=You must choose at least one correct scope
@@ -8,6 +7,7 @@ application.administrator.missing=Choose an administrator
 application.confirmation.missing=Provide the application name
 application.confirmation.error=The application name doesn''t match
 application.subscriptions.loader.error=Failed to load API subscriptions
+application.environment.required=Tell us what environment
 access.type.required=Tell us what access type
 application.name.required=Provide an application name
 application.description.required=Provide an application description

@@ -69,7 +69,7 @@ class SubscriptionEnhancerSpec extends UnitSpec {
 
   def createApplicationResponse(name:String, subs:Seq[SubscriptionNameAndVersion]): SubscribedApplicationResponse =
     SubscribedApplicationResponse(java.util.UUID.randomUUID(), name, Some("Description"),
-      Set.empty, DateTime.now(), ApplicationState(), Standard(), subs, termsOfUseAgreed = true)
+      Set.empty, DateTime.now(), ApplicationState(), Standard(), subs, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
 
   def createDefinition(name: String, context:String) = {
     APIDefinition("TestService", "localhost", name, "Test Description", context,

@@ -31,20 +31,17 @@ case object StaticNavLinks {
   def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
     Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
-      NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None).url)),
-      NavLink("API Approvals", Some("/api-service-approval/pending"))
+      NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None, None).url)),
+      NavLink("API Approvals", Some(routes.DeploymentApprovalController.pendingPage().url))
     )
   }
 }
 
 case object UserNavLinks {
 
-  private def loggedInNavLinks(userFullName: String) = Seq(
-    NavLink(userFullName, None),
-    NavLink("Sign out", Some(routes.AccountController.logout().url)))
+  private def loggedInNavLinks(userFullName: String) = Seq(NavLink(userFullName, None))
 
-  private val loggedOutNavLinks = Seq(
-    NavLink("Sign in", Some(routes.AccountController.loginPage().url)))
+  private val loggedOutNavLinks: Seq[NavLink] = Seq.empty
 
   def apply(userFullName: Option[String]): Seq[NavLink] = userFullName match {
     case Some(name) => loggedInNavLinks(name)

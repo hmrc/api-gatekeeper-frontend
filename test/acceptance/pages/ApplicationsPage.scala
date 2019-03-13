@@ -18,18 +18,20 @@ package acceptance.pages
 
 import acceptance.WebPage
 import acceptance.pages.ApplicationsPage.APIFilter.APIFilterList
+import org.openqa.selenium.Keys.ENTER
 
 object ApplicationsPage extends WebPage {
 
   override val url: String = s"http://localhost:$port/api-gatekeeper/applications"
+
   override def isCurrentPage: Boolean = {
     currentUrl == url
   }
 
   def previousLink = find(linkText("Previous")).get
 
-  def isUnauthorised() = {
-    find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
+  def isForbidden() = {
+    find(cssSelector("h1")).fold(false)(_.text == "You do not have permission to access Gatekeeper")
   }
 
   def nextLink = find(linkText("Next")).get
@@ -58,7 +60,10 @@ object ApplicationsPage extends WebPage {
   }
 
   def selectByApplicationName(name: String) = {
-    click on find(linkText(name)).get
+    // If we use click we sometimes get a selenium error where it can't click on the element.
+    // However, if we open using the keyboard, we don't get these problems.
+    val element = find(linkText(name)).get
+    element.underlying.sendKeys(ENTER)
   }
 
   def selectDeveloperByEmail(email: String) = {
@@ -72,14 +77,22 @@ object ApplicationsPage extends WebPage {
   }
 
 
-  object APIFilter  {
+  object APIFilter {
+
     sealed abstract class APIFilterList(val name: String) {}
 
     case object ALLUSERS extends APIFilterList("ALL")
+
     case object ONEORMORESUBSCRIPTION extends APIFilterList("ANYSUB")
+
     case object NOSUBSCRIPTION extends APIFilterList("NOSUB")
+
     case object NOAPPLICATIONS extends APIFilterList("NOAPP")
+
     case object ONEORMOREAPPLICATIONS extends APIFilterList("ANYAPP")
+
     case object EMPLOYERSPAYE extends APIFilterList("Employers PAYE")
+
   }
+
 }

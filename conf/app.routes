@@ -1,16 +1,11 @@
 # microservice specific routes
 
-GET         /login                                                  controllers.AccountController.loginPage
-POST        /login                                                  controllers.AccountController.authenticate
-
-GET         /logout                                                 controllers.AccountController.logout
-
 GET         /review                                                 controllers.ApplicationController.reviewPage(id: String)
 
 
 POST        /update-rate-limit-tier                                 controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String])
+GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
 GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
 GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)
@@ -62,3 +57,9 @@ POST        /applications/:id/unblock                               controllers.
 
 GET         /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationPage
 POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
+
+GET         /pending                                                controllers.DeploymentApprovalController.pendingPage
+GET         /pending/:serviceName/review-sandbox                    controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
+GET         /pending/:serviceName/review-production                 controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
+POST        /pending/:serviceName/approve-sandbox                   controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
+POST        /pending/:serviceName/approve-production                controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
