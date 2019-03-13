@@ -19,17 +19,15 @@ package unit.connectors
 import java.net.URLEncoder.encode
 import java.util.UUID
 
-import config.AppConfig
 import connectors._
 import model.ApiSubscriptionFields._
 import model.Environment._
 import model.{FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -39,6 +37,7 @@ import scala.concurrent.Future
 class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
+  private val bearer = "TestBearerToken"
 
   implicit val hc = HeaderCarrier()
   val clientId: String = UUID.randomUUID().toString
@@ -47,7 +46,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
-  trait Setup {
+  class Setup(proxyEnabled: Boolean = false) {
     val fieldsId = UUID.randomUUID()
 
     val mockHttpClient = mock[HttpClient]
@@ -55,13 +54,14 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
+    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new SubscriptionFieldsConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl
-      val useProxy = false
-      val bearerToken = "TestBearerToken"
+      val useProxy = proxyEnabled
+      val bearerToken = bearer
       val environment = mockEnvironment
     }
   }
@@ -203,4 +203,19 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   }
 
+  "http" when {
+    "configured not to use the proxy" should {
+      "use the HttpClient" in new Setup(proxyEnabled = false) {
+        underTest.http shouldBe mockHttpClient
+      }
+    }
+
+    "configured to use the proxy" should {
+      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
+        underTest.http shouldBe mockProxiedHttpClient
+
+        verify(mockProxiedHttpClient).withAuthorization(bearer)
+      }
+    }
+  }
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package unit.connectors
+
 import connectors.{ApiScopeConnector, ProxiedHttpClient}
 import model.{ApiScope, FetchApiDefinitionsFailed}
 import model.Environment.Environment
@@ -22,7 +24,7 @@ import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.mockito.Matchers.{any, eq => mEq}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 
@@ -30,18 +32,22 @@ import scala.concurrent.Future
 
 class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
   private val baseUrl = "https://example.com"
+  private val bearer = "TestBearerToken"
 
-  trait Setup {
+  class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
     val mockHttpClient = mock[HttpClient]
+    val mockProxiedHttpClient = mock[ProxiedHttpClient]
+
+    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiScopeConnector{
       val httpClient = mockHttpClient
-      val proxiedHttpClient = mock[ProxiedHttpClient]
+      val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl
-      val useProxy = false
-      val bearerToken = "TestBearerToken"
+      val useProxy = proxyEnabled
+      val bearerToken = bearer
       val environment = mock[Environment]
     }
   }
@@ -64,6 +70,22 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(underTest.fetchAll()))
+    }
+  }
+
+  "http" when {
+    "configured not to use the proxy" should {
+      "use the HttpClient" in new Setup(proxyEnabled = false) {
+        underTest.http shouldBe mockHttpClient
+      }
+    }
+
+    "configured to use the proxy" should {
+      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
+        underTest.http shouldBe mockProxiedHttpClient
+
+        verify(mockProxiedHttpClient).withAuthorization(bearer)
+      }
     }
   }
 }

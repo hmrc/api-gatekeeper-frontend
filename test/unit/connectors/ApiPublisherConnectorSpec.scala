@@ -22,7 +22,7 @@ import connectors.{ApiPublisherConnector, ProxiedHttpClient}
 import model.Environment._
 import model._
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
@@ -35,22 +35,24 @@ import scala.concurrent.Future
 class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
+  private val bearer = "TestBearerToken"
 
   implicit val hc = HeaderCarrier()
 
-  trait Setup {
+  class Setup(proxyEnabled: Boolean = false) {
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
+    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiPublisherConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl
-      val useProxy = false
-      val bearerToken = "TestBearerToken"
+      val useProxy = proxyEnabled
+      val bearerToken = bearer
       val environment = mockEnvironment
     }
   }
@@ -120,6 +122,22 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
 
       intercept[UpdateApiDefinitionsFailed] {
         await(underTest.approveService(serviceName))
+      }
+    }
+  }
+
+  "http" when {
+    "configured not to use the proxy" should {
+      "use the HttpClient" in new Setup(proxyEnabled = false) {
+        underTest.http shouldBe mockHttpClient
+      }
+    }
+
+    "configured to use the proxy" should {
+      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
+        underTest.http shouldBe mockProxiedHttpClient
+
+        verify(mockProxiedHttpClient).withAuthorization(bearer)
       }
     }
   }

@@ -39,8 +39,9 @@ import scala.concurrent.Future
 class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
+  private val bearer = "TestBearerToken"
 
-  trait Setup {
+  class Setup(proxyEnabled: Boolean = false) {
     val authToken = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
@@ -49,13 +50,14 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
+    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApplicationConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl
-      val useProxy = false
-      val bearerToken = "TestBearerToken"
+      val useProxy = proxyEnabled
+      val bearerToken = bearer
       val environment = mockEnvironment
     }
   }
@@ -460,6 +462,22 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
       intercept[Upstream5xxResponse] {
         await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
+      }
+    }
+  }
+
+  "http" when {
+    "configured not to use the proxy" should {
+      "use the HttpClient" in new Setup(proxyEnabled = false) {
+        connector.http shouldBe mockHttpClient
+      }
+    }
+
+    "configured to use the proxy" should {
+      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
+        connector.http shouldBe mockProxiedHttpClient
+
+        verify(mockProxiedHttpClient).withAuthorization(bearer)
       }
     }
   }

@@ -33,7 +33,7 @@ import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse, Upstream5xxResponse}
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -239,7 +239,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockSandboxApplicationConnector, never).fetchApplication(anyString)(any[HeaderCarrier])
     }
 
-    "return the the app in sandbox when not found in production"  in new Setup {
+    "return the the app in sandbox when not found in production" in new Setup {
       given(mockProductionApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
         .willReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
       given(mockSandboxApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
@@ -249,6 +249,17 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       verify(mockProductionApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
       verify(mockSandboxApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
+    }
+
+    "throw the production error when production connector fails" in new Setup {
+      given(mockProductionApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
+        .willReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(underTest.fetchApplication(stdApp1.id.toString))
+      }
+
+      verify(mockSandboxApplicationConnector, never).fetchApplication(any())(any())
     }
   }
 
@@ -837,7 +848,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  "blockApplication" should {
+  "unblockApplication" should {
     "unblock the application in the correct environment" in new Setup {
       val application = stdApp1.copy(deployedTo = "PRODUCTION")
       val unblockApplicationRequest = UnblockApplicationRequest(gatekeeperUserId)
@@ -871,7 +882,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-    "applicationConnectorFor" should {
+  "applicationConnectorFor" should {
     "return the production application connector for an application deployed to production" in new Setup {
       val application = stdApp1.copy(deployedTo = "PRODUCTION")
 

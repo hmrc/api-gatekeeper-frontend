@@ -153,7 +153,7 @@ abstract class ApplicationConnector {
   }
 
   def deleteApplication(applicationId: String, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST(s"$serviceBaseUrl/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[DeleteApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case NO_CONTENT => ApplicationDeleteSuccessResult
         case _ => ApplicationDeleteFailureResult
@@ -164,7 +164,7 @@ abstract class ApplicationConnector {
   }
 
   def blockApplication(applicationId: String, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    http.POST(s"$serviceBaseUrl/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[BlockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationBlockSuccessResult
         case _ => ApplicationBlockFailureResult
@@ -175,7 +175,7 @@ abstract class ApplicationConnector {
   }
 
   def unblockApplication(applicationId: String, unblockApplicationRequest: UnblockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    http.POST(s"$serviceBaseUrl/application/$applicationId/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[UnblockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationUnblockSuccessResult
         case _ => ApplicationUnblockFailureResult

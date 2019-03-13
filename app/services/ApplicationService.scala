@@ -17,13 +17,13 @@
 package services
 
 import javax.inject.Inject
-
 import connectors._
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -93,7 +93,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
-      case _ => sandboxApplicationConnector.fetchApplication(appId)
+      case e: Upstream4xxResponse if e.upstreamResponseCode == NOT_FOUND => sandboxApplicationConnector.fetchApplication(appId)
     }
   }
 
