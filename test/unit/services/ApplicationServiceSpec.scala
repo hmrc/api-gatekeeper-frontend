@@ -250,17 +250,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockProductionApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
       verify(mockSandboxApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
     }
-
-    "throw the production error when production connector fails" in new Setup {
-      given(mockProductionApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
-        .willReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-      intercept[Upstream5xxResponse] {
-        await(underTest.fetchApplication(stdApp1.id.toString))
-      }
-
-      verify(mockSandboxApplicationConnector, never).fetchApplication(any())(any())
-    }
   }
 
   "updateOverrides" should {

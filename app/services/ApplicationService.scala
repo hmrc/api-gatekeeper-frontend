@@ -93,7 +93,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == NOT_FOUND => sandboxApplicationConnector.fetchApplication(appId)
+      case e => sandboxApplicationConnector.fetchApplication(appId)
     }
   }
 
