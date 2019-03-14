@@ -23,10 +23,9 @@ import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiScopeConnector {
+abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -47,7 +46,7 @@ abstract class ApiScopeConnector {
 @Singleton
 class SandboxApiScopeConnector @Inject()(appConfig: AppConfig,
                                          val httpClient: HttpClient,
-                                         val proxiedHttpClient: ProxiedHttpClient)
+                                         val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.SANDBOX
@@ -59,7 +58,7 @@ class SandboxApiScopeConnector @Inject()(appConfig: AppConfig,
 @Singleton
 class ProductionApiScopeConnector @Inject()(appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.PRODUCTION

@@ -28,6 +28,7 @@ import org.mockito.Mockito.{verify, when}
 import org.mockito.Matchers.{any, eq => mEq}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
@@ -42,7 +43,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
 
     when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
 
-    val underTest = new ApiScopeConnector{
+    val underTest = new ApiScopeConnector() {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl

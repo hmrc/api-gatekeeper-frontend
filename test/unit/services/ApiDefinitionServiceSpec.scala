@@ -18,7 +18,9 @@ package unit.services
 
 import connectors._
 import model.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
+import model.Environment._
 import org.mockito.BDDMockito._
+import org.mockito.Mockito.{never, verify}
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 import services.ApiDefinitionService
@@ -29,56 +31,86 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar {
-  implicit val hc: HeaderCarrier = new HeaderCarrier
-  val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
-  val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
+  trait Setup {
+    implicit val hc: HeaderCarrier = new HeaderCarrier
+    val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
+    val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
 
-  val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
+    val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
-  val publicDefinition = APIDefinition(
-    "publicAPI", "http://localhost/",
-    "publicAPI", "public api.", "public-api",
-    Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
-  )
+    val publicDefinition = APIDefinition(
+      "publicAPI", "http://localhost/",
+      "publicAPI", "public api.", "public-api",
+      Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+    )
 
-  val privateDefinition = APIDefinition(
-    "privateAPI", "http://localhost/",
-    "privateAPI", "private api.", "private-api",
-    Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
-  )
+    val privateDefinition = APIDefinition(
+      "privateAPI", "http://localhost/",
+      "privateAPI", "private api.", "private-api",
+      Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+    )
+  }
 
   "DefinitionService" when {
 
     "Definitions are requested" should {
 
-      "Return a combination of public and private APIs" in {
+      "Return a combination of public and private APIs in both environments" in new Setup {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
         given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
-
         given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
-
         given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq.empty))
-
         given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq.empty))
 
-        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
         await(allDefinitions) shouldBe expectedApiDefintions
       }
 
-      "Include no duplicates" in {
+      "Return a combination of public and private APIs in sandbox" in new Setup {
+
+        val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
+
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions(Some(SANDBOX))
+
+        await(allDefinitions) shouldBe expectedApiDefintions
+
+        verify(mockProductionApiDefinitionConnector, never).fetchPublic()
+        verify(mockProductionApiDefinitionConnector, never).fetchPrivate()
+        verify(mockSandboxApiDefinitionConnector).fetchPublic()
+        verify(mockSandboxApiDefinitionConnector).fetchPrivate()
+      }
+
+      "Return a combination of public and private APIs in production" in new Setup {
+
+        val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
+
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions(Some(PRODUCTION))
+
+        await(allDefinitions) shouldBe expectedApiDefintions
+
+        verify(mockProductionApiDefinitionConnector).fetchPublic()
+        verify(mockProductionApiDefinitionConnector).fetchPrivate()
+        verify(mockSandboxApiDefinitionConnector, never).fetchPublic()
+        verify(mockSandboxApiDefinitionConnector, never).fetchPrivate()
+      }
+
+      "Include no duplicates" in new Setup {
 
         given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
-
         given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
-
         given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
-
         given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
 
-        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
         await(allDefinitions) should have size 2
       }

@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class HttpDeveloperConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 

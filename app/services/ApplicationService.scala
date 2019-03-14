@@ -16,24 +16,22 @@
 
 package services
 
-import javax.inject.Inject
 import connectors._
+import javax.inject.Inject
 import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
-import play.api.http.Status.NOT_FOUND
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
                                    sandboxApiScopeConnector: SandboxApiScopeConnector,
                                    productionApiScopeConnector: ProductionApiScopeConnector,
                                    developerConnector: DeveloperConnector,
-                                   subscriptionFieldsService: SubscriptionFieldsService) {
+                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) {
 
   def resendVerification(application: Application, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -56,8 +54,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       case SandboxEnvironment => Seq(sandboxApplicationConnector)
       case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
     }
-
-    def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
 
     apiFilter match {
       case OneOrMoreSubscriptions =>
@@ -93,11 +89,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
-      case e => sandboxApplicationConnector.fetchApplication(appId)
+      case _: NotFoundException => sandboxApplicationConnector.fetchApplication(appId)
     }
   }
 
-  def fetchAllSubscribedApplications(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
+  def fetchAllSubscribedApplications(env: Option[Environment])(implicit hc: HeaderCarrier): Future[Seq[SubscribedApplicationResponse]] = {
 
     def addSubscriptionsToApplications(applications: Seq[ApplicationResponse], subscriptions: Seq[SubscriptionResponse]) = {
 
@@ -108,19 +104,20 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       })
     }
 
-    val sandboxAppsFuture = sandboxApplicationConnector.fetchAllApplications()
-    val productionAppsFuture = productionApplicationConnector.fetchAllApplications()
-    val sandboxSubsFuture = sandboxApplicationConnector.fetchAllSubscriptions()
-    val productionSubsFuture = productionApplicationConnector.fetchAllSubscriptions()
+    val connectors = env match {
+      case Some(PRODUCTION) => Seq(productionApplicationConnector)
+      case Some(SANDBOX) => Seq(sandboxApplicationConnector)
+      case _ => Seq(sandboxApplicationConnector, productionApplicationConnector)
+    }
+
+    val appsFutures = connectors.map(_.fetchAllApplications())
+    val subsFutures = connectors.map(_.fetchAllSubscriptions())
 
     for {
-      sandboxApps: Seq[ApplicationResponse] <- sandboxAppsFuture
-      productionApps: Seq[ApplicationResponse] <- productionAppsFuture
-      sandboxSubs: Seq[SubscriptionResponse] <- sandboxSubsFuture
-      productionSubs: Seq[SubscriptionResponse] <- productionSubsFuture
-      subscribedSandboxApplications = addSubscriptionsToApplications(sandboxApps, sandboxSubs)
-      subscribedProductionApplications = addSubscriptionsToApplications(productionApps, productionSubs)
-    } yield (subscribedSandboxApplications ++ subscribedProductionApplications).sortBy(_.name.toLowerCase).distinct
+      apps: Seq[ApplicationResponse] <- combine(appsFutures)
+      subs: Seq[SubscriptionResponse] <- combine(subsFutures)
+      subscribedApplications = addSubscriptionsToApplications(apps, subs)
+    } yield subscribedApplications.sortBy(_.name.toLowerCase).distinct
   }
 
   def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
@@ -288,4 +285,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def apiScopeConnectorFor(application: Application): ApiScopeConnector =
     if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
+
+  private def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
 }

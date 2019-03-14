@@ -22,11 +22,10 @@ import model.ApiSubscriptionFields.{Fields, SubscriptionField}
 import model.{Application, FieldsDeleteResult}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector,
-                                          productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector) {
+                                          productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector)(implicit ec: ExecutionContext) {
 
   def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
     val connector = connectorFor(application)

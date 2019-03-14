@@ -36,7 +36,7 @@
 
     <nav class="breadcrumb-nav">
         <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage}">Applications</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None, None, None, None, None, None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>

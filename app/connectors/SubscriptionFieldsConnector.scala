@@ -27,10 +27,9 @@ import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-abstract class SubscriptionFieldsConnector {
+abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -83,7 +82,7 @@ abstract class SubscriptionFieldsConnector {
 @Singleton
 class SandboxSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
                                                    val httpClient: HttpClient,
-                                                   val proxiedHttpClient: ProxiedHttpClient)
+                                                   val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends SubscriptionFieldsConnector {
 
   val environment = Environment.SANDBOX
@@ -95,7 +94,7 @@ class SandboxSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
 @Singleton
 class ProductionSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
                                                       val httpClient: HttpClient,
-                                                      val proxiedHttpClient: ProxiedHttpClient)
+                                                      val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends SubscriptionFieldsConnector {
 
   val environment = Environment.PRODUCTION

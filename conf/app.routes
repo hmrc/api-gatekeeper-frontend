@@ -13,7 +13,7 @@ POST        /developer/delete                                       controllers.
 GET         /developer/mfa/remove                                   controllers.DevelopersController.removeMfaPage(email: String)
 POST        /developer/mfa/remove                                   controllers.DevelopersController.removeMfaAction(email: String)
 
-GET         /applications                                           controllers.ApplicationController.applicationsPage
+GET         /applications                                           controllers.ApplicationController.applicationsPage(search: Option[String], filter: Option[String], status: Option[String], touStatus: Option[String], accessType: Option[String], environment: Option[String])
 
 GET         /applications/:id                                       controllers.ApplicationController.applicationPage(id: String)
 

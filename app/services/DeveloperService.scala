@@ -16,20 +16,18 @@
 
 package services
 
-import javax.inject.Inject
-
 import config.AppConfig
 import connectors._
+import javax.inject.Inject
 import model._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
-                                 productionApplicationConnector: ProductionApplicationConnector) {
+                                 productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {

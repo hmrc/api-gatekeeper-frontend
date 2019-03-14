@@ -17,28 +17,28 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.{ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import model.APIDefinition
+import model.Environment._
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
-                                     productionApiDefinitionConnector: ProductionApiDefinitionConnector){
+                                     productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
-    val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
-    val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
-    val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
+  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    val connectors = environment match {
+      case Some(PRODUCTION) => Seq(productionApiDefinitionConnector)
+      case Some(SANDBOX) => Seq(sandboxApiDefinitionConnector)
+      case _ => Seq(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+    }
+    val publicApisFuture = connectors.map(_.fetchPublic())
+    val privateApisFuture = connectors.map(_.fetchPrivate())
 
     for {
-      sandboxPublicApis <- sandboxPublicApisFuture
-      sandboxPrivateApis <- sandboxPrivateApisFuture
-      productionPublicApis <- productionPublicApisFuture
-      productionPrivateApis <- productionPrivateApisFuture
-    } yield (sandboxPublicApis ++ sandboxPrivateApis ++ productionPublicApis ++ productionPrivateApis).distinct
+      publicApis <- Future.reduce(publicApisFuture)(_ ++ _)
+      privateApis <- Future.reduce(privateApisFuture)(_ ++ _)
+    } yield (publicApis ++ privateApis).distinct
   }
 }
