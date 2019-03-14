@@ -46,13 +46,8 @@ class ProxiedHttpClient @Inject()(config: Configuration,
   override def wsProxyServer: Option[WSProxyServer] = WSProxyConfiguration(s"$env.proxy")
 
   override def buildRequest[A](url: String)(implicit hc: HeaderCarrier) = {
-    val gkAuth = hc.authorization match {
-      case Some(token) => Map("X-Gatekeeper-Authorization" -> token.value)
-      case None => Map.empty
-    }
-
     val hcWithBearerAndAccept = hc.copy(authorization = authorization,
-      extraHeaders = hc.extraHeaders ++ Map(ACCEPT -> "application/hmrc.vnd.1.0+json") ++ gkAuth)
+      extraHeaders = hc.extraHeaders ++ Map(ACCEPT -> "application/hmrc.vnd.1.0+json"))
 
     super.buildRequest(url)(hcWithBearerAndAccept)
   }
