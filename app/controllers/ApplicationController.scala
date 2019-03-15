@@ -37,6 +37,7 @@ import views.html.approvedApplication.approved
 import views.html.review.review
 
 import scala.concurrent.Future
+import scala.util.Try
 
 class ApplicationController @Inject()(applicationService: ApplicationService,
                                       apiDefinitionService: ApiDefinitionService,
@@ -47,13 +48,15 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def applicationsPage: Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def applicationsPage(search: Option[String] = None, filter: Option[String] = None, status: Option[String] = None, touStatus: Option[String] = None, accessType: Option[String] = None, environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
+      val env = Try(Environment.withName(environment.getOrElse("PRODUCTION"))).toOption
+
       for {
-        apps <- applicationService.fetchAllSubscribedApplications
-        apis <- apiDefinitionService.fetchAllApiDefinitions
+        apps <- applicationService.fetchAllSubscribedApplications(env)
+        apis <- apiDefinitionService.fetchAllApiDefinitions(env)
         subApps = SubscriptionEnhancer.combine(apps, apis)
-      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser))
+      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, search, filter, status, touStatus, accessType, env.map(_.toString)))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -446,7 +449,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
           case e: PreconditionFailed => {
             Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-            Redirect(routes.ApplicationController.applicationsPage())
+            Redirect(routes.ApplicationController.applicationsPage(None, None, None, None, None, None))
           }
         }
 
@@ -483,7 +486,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
-    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage)) else body
+    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(None, None, None, None, None, Some("SANDBOX")))) else body
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresAtLeast(GatekeeperRole.SUPERUSER) {

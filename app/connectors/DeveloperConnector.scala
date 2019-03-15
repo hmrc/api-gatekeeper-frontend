@@ -17,7 +17,6 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
-
 import config.AppConfig
 import model._
 import play.api.http.ContentTypes.JSON
@@ -26,9 +25,8 @@ import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
@@ -39,7 +37,7 @@ trait DeveloperConnector {
 }
 
 @Singleton
-class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient) extends DeveloperConnector {
+class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends DeveloperConnector {
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
     http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover{
@@ -72,7 +70,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient) e
 }
 
 @Singleton
-class DummyDeveloperConnector extends DeveloperConnector {
+class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)

@@ -17,7 +17,6 @@
 package controllers
 
 import javax.inject.{Inject, Singleton}
-
 import config.AppConfig
 import connectors.AuthConnector
 import model._
@@ -44,7 +43,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
 
       val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
-      val apisF = apiDefinitionService.fetchAllApiDefinitions
+      val apisF = apiDefinitionService.fetchAllApiDefinitions()
       val usersF = developerService.fetchUsers
 
       for {

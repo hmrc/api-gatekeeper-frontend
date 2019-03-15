@@ -29,7 +29,6 @@ import uk.gov.hmrc.auth.core.retrieve.{~, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait GatekeeperAuthWrapper {

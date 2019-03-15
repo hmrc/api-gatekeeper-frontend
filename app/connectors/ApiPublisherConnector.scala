@@ -23,10 +23,9 @@ import model._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiPublisherConnector {
+abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -58,7 +57,7 @@ abstract class ApiPublisherConnector {
 @Singleton
 class SandboxApiPublisherConnector @Inject()(appConfig: AppConfig,
                                              val httpClient: HttpClient,
-                                             val proxiedHttpClient: ProxiedHttpClient)
+                                             val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.SANDBOX
@@ -70,7 +69,7 @@ class SandboxApiPublisherConnector @Inject()(appConfig: AppConfig,
 @Singleton
 class ProductionApiPublisherConnector @Inject()(appConfig: AppConfig,
                                                 val httpClient: HttpClient,
-                                                val proxiedHttpClient: ProxiedHttpClient)
+                                                val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.PRODUCTION

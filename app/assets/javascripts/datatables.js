@@ -99,7 +99,13 @@ $(document).ready(function() {
       var filters = getAllFilters(id);
 
       // trigger table updates on filter changes
-      $.each(filters, dataTableEvents);
+      $.each(filters, function(i, filter) {
+        dataTableEvents(i, filter);
+
+        if (id === 'applications-table') {
+          search.call(filter);
+        }
+      });
 
       // hook up a custom filter triggers
       var customFilters = getCustomFilters(id);

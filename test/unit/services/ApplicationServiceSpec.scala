@@ -20,20 +20,22 @@ import java.util.UUID
 
 import connectors._
 import model.ApiSubscriptionFields._
+import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
-import org.mockito.Mockito.{never, spy, verify}
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
+import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import services.{ApplicationService, SubscriptionFieldsService}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream4xxResponse, Upstream5xxResponse}
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -61,30 +63,82 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val allApplications = Seq(stdApp1, stdApp2, privilegedApp)
+    val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
+    val allSandboxApplications = allProductionApplications.map(_.copy(id = UUID.randomUUID, deployedTo = "SANDBOX"))
   }
 
   "fetchAllSubscribedApplications" should {
 
-    "list all subscribed applications" in new Setup {
+    "list all subscribed applications from both environments" in new Setup {
       given(mockProductionApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
-        .willReturn(Future.successful(allApplications))
+        .willReturn(Future.successful(allProductionApplications))
       given(mockSandboxApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
-        .willReturn(Future.successful(allApplications))
+        .willReturn(Future.successful(allSandboxApplications))
+
+      val productionSubscriptions =
+        Seq(SubscriptionResponse(APIIdentifier("test-context", "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier("unknown-context", "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier("super-context", "1.0"), allProductionApplications.map(_.id.toString)))
+      val sandboxSubscriptions =
+        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+
+
+      given(mockProductionApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
+        .willReturn(Future.successful(productionSubscriptions))
+      given(mockSandboxApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
+        .willReturn(Future.successful(sandboxSubscriptions))
+
+
+      val result: Seq[SubscribedApplicationResponse] = await(underTest.fetchAllSubscribedApplications(None))
+
+      val prodApp1 = result.find(sa => sa.name == "application1" && sa.deployedTo == "PRODUCTION").get
+      val prodApp2 = result.find(sa => sa.name == "application2" && sa.deployedTo == "PRODUCTION").get
+      val prodApp3 = result.find(sa => sa.name == "application3" && sa.deployedTo == "PRODUCTION").get
+      val sandboxApp1 = result.find(sa => sa.name == "application1" && sa.deployedTo == "SANDBOX").get
+      val sandboxApp2 = result.find(sa => sa.name == "application2" && sa.deployedTo == "SANDBOX").get
+      val sandboxApp3 = result.find(sa => sa.name == "application3" && sa.deployedTo == "SANDBOX").get
+
+      prodApp1.subscriptions should have size 1
+      prodApp1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context","1.0"))
+
+      prodApp2.subscriptions should have size 2
+      prodApp2.subscriptions shouldBe Seq(
+        SubscriptionNameAndVersion("super-context", "1.0"),
+        SubscriptionNameAndVersion("test-context", "1.0")
+      )
+
+      prodApp3.subscriptions should have size 1
+      prodApp3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context", "1.0"))
+
+      sandboxApp1.subscriptions should have size 1
+      sandboxApp1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context","1.0"))
+
+      sandboxApp2.subscriptions should have size 2
+      sandboxApp2.subscriptions shouldBe Seq(
+        SubscriptionNameAndVersion("sandbox-super-context", "1.0"),
+        SubscriptionNameAndVersion("sandbox-test-context", "1.0")
+      )
+
+      sandboxApp3.subscriptions should have size 1
+      sandboxApp3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
+    }
+
+    "list all subscribed applications from production" in new Setup {
+      given(mockProductionApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+        .willReturn(Future.successful(allProductionApplications))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("test-context", "1.0"), Seq(allApplications.tail.head.id.toString)),
+        Seq(SubscriptionResponse(APIIdentifier("test-context", "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
           SubscriptionResponse(APIIdentifier("unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("super-context", "1.0"), allApplications.map(_.id.toString)))
+          SubscriptionResponse(APIIdentifier("super-context", "1.0"), allProductionApplications.map(_.id.toString)))
 
 
       given(mockProductionApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptions))
-      given(mockSandboxApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
-        .willReturn(Future.successful(subscriptions))
 
-
-      val result: Seq[SubscribedApplicationResponse] = await(underTest.fetchAllSubscribedApplications)
+      val result: Seq[SubscribedApplicationResponse] = await(underTest.fetchAllSubscribedApplications(Some(PRODUCTION)))
 
       val app1 = result.find(sa => sa.name == "application1").get
       val app2 = result.find(sa => sa.name == "application2").get
@@ -101,6 +155,38 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       app3.subscriptions should have size 1
       app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context", "1.0"))
+    }
+
+    "list all subscribed applications from sandbox" in new Setup {
+      given(mockSandboxApplicationConnector.fetchAllApplications()(any[HeaderCarrier]))
+        .willReturn(Future.successful(allSandboxApplications))
+
+      val subscriptions =
+        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+
+
+      given(mockSandboxApplicationConnector.fetchAllSubscriptions()(any[HeaderCarrier]))
+        .willReturn(Future.successful(subscriptions))
+
+      val result: Seq[SubscribedApplicationResponse] = await(underTest.fetchAllSubscribedApplications(Some(SANDBOX)))
+
+      val app1 = result.find(sa => sa.name == "application1").get
+      val app2 = result.find(sa => sa.name == "application2").get
+      val app3 = result.find(sa => sa.name == "application3").get
+
+      app1.subscriptions should have size 1
+      app1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context","1.0"))
+
+      app2.subscriptions should have size 2
+      app2.subscriptions shouldBe Seq(
+        SubscriptionNameAndVersion("sandbox-super-context", "1.0"),
+        SubscriptionNameAndVersion("sandbox-test-context", "1.0")
+      )
+
+      app3.subscriptions should have size 1
+      app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
     }
   }
 
@@ -125,12 +211,12 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "list all applications from sandbox and production when filtering not provided" in new Setup {
       given(mockProductionApplicationConnector.fetchAllApplications()(any()))
-        .willReturn(Future.successful(allApplications))
+        .willReturn(Future.successful(allProductionApplications))
       given(mockSandboxApplicationConnector.fetchAllApplications()(any()))
-        .willReturn(Future.successful(allApplications))
+        .willReturn(Future.successful(allProductionApplications))
 
       val result: Seq[ApplicationResponse] = await(underTest.fetchApplications)
-      result shouldEqual allApplications
+      result shouldEqual allProductionApplications
 
       verify(mockProductionApplicationConnector).fetchAllApplications()(any[HeaderCarrier])
       verify(mockSandboxApplicationConnector).fetchAllApplications()(any[HeaderCarrier])
@@ -229,7 +315,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(applicationWithHistory))
       given(mockSandboxApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
-        .willReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+        .willReturn(Future.failed(new NotFoundException("Not Found")))
 
       val result = await(underTest.fetchApplication(stdApp1.id.toString))
 
@@ -241,7 +327,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "return the the app in sandbox when not found in production" in new Setup {
       given(mockProductionApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
-        .willReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+        .willReturn(Future.failed(new NotFoundException("Not Found")))
       given(mockSandboxApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(applicationWithHistory))
 

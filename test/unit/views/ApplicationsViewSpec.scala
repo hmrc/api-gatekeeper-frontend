@@ -62,9 +62,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display only subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option value data-api-name>All applications</option>")
-        appView.body should include("<option value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option selected value data-api-name>All applications</option>")
+        appView.body should include("<option  value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
+        appView.body should include("<option  value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
       "Not include application state filters" in {
@@ -79,9 +79,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display the Terms of Use filters" in {
         val appView = applicationView()
 
-        appView.body should include("""<option id="default-tou-status" value data-api-name>All</option>""")
-        appView.body should include("""<option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
-        appView.body should include("""<option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
+        appView.body should include("""<option selected id="default-tou-status" value data-api-name>All</option>""")
+        appView.body should include("""<option  value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
+        appView.body should include("""<option  value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
       }
     }
 
@@ -99,9 +99,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display the subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option value data-api-name>All applications</option>")
-        appView.body should include("<option value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option selected value data-api-name>All applications</option>")
+        appView.body should include("<option  value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
+        appView.body should include("<option  value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
       }
 
       "Include the application state filters" in {

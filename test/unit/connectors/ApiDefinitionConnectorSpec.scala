@@ -29,6 +29,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matchers with ScalaFutures with BeforeAndAfterEach {
@@ -53,6 +54,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
       val useProxy = proxyEnabled
       val bearerToken = bearer
       val environment = mockEnvironment
+      implicit val ec = global
     }
   }
 

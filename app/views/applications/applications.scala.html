@@ -19,7 +19,8 @@
 @import model.AccessType._
 @import org.joda.time.format.DateTimeFormat
 
-@(applications: Seq[DetailedSubscribedApplicationResponse], apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean)(
+@(applications: Seq[DetailedSubscribedApplicationResponse], apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean,
+  search: Option[String] = None, filter: Option[String] = None, status: Option[String] = None, touStatus: Option[String] = None, accessType: Option[String] = None, environment: Option[String] = None)(
 implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
@@ -39,7 +40,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
             }
 
             <form name="developer-filters"
-            action="@routes.ApplicationController.applicationsPage().url"
+            action="@routes.ApplicationController.applicationsPage(None, None, None, None, None, None).url"
             method="get">
 
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
@@ -52,6 +53,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             data-datatable-custom-filter="applications-table"
                             name="search"
                             type="text"
+                            value="@search"
                             placeholder="Application name or ID" />
                         </label>
                     </div>
@@ -68,9 +70,9 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             name="filter"
                             value="">
 
-                                <option value data-api-name>All applications</option>
-                                <option value="ANYSUB" data-api-name="ANYSUB">One or more subscriptions</option>
-                                <option value="NOSUB" data-api-name="NOSUB">No subscriptions</option>
+                                <option @if(filter == None || filter == Some("")){selected} value data-api-name>All applications</option>
+                                <option @if(filter == Some("ANYSUB")){selected} value="ANYSUB" data-api-name="ANYSUB">One or more subscriptions</option>
+                                <option @if(filter == Some("NOYSUB")){selected} value="NOSUB" data-api-name="NOSUB">No subscriptions</option>
 
                                 @for((status, versions) <- apis) {
 
@@ -91,15 +93,15 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                         <label class="form-label bold centered-content hard--right" for="status">Filter by Status
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
-                            data-datatable-column-filter="4"
+                            data-datatable-column-filter="5"
                             id="status"
                             name="status"
                             value="">
-                                <option value="ALL" selected>All</option>
-                                <option value="CREATED">Created</option>
-                                <option value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
-                                <option value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
-                                <option value="ACTIVE">Active</option>
+                                <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
+                                <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
+                                <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
+                                <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
+                                <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
                             </select>
                         </label>
                     </div>
@@ -111,11 +113,11 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
                             id="tou_status"
-                            name="tou_status"
+                            name="touStatus"
                             value="">
-                                <option id="default-tou-status" value data-api-name>All</option>
-                                <option value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>
-                                <option value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>
+                                <option @if(touStatus == None || touStatus == Some("ALL")){selected} id="default-tou-status" value data-api-name>All</option>
+                                <option @if(touStatus == Some("TOU_NOT_ACCEPTED")){selected} value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>
+                                <option @if(touStatus == Some("TOU_ACCEPTED")){selected} value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>
                             </select>
                         </label>
                     </div>
@@ -125,12 +127,12 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             <select class="form-control input-select input-select--large"
                             data-datatable-filter="applications-table"
                             id="access_type"
-                            name="access_type"
+                            name="accessType"
                             value="">
-                                <option id="default-access-type" value data-api-name>All</option>
-                                <option value="ACCESS_TYPE_STANDARD" data-api-name="ACCESS_TYPE_STANDARD">Standard</option>
-                                <option value="ACCESS_TYPE_ROPC" data-api-name="ACCESS_TYPE_ROPC">ROPC</option>
-                                <option value="ACCESS_TYPE_PRIVILEGED" data-api-name="ACCESS_TYPE_PRIVILEGED">
+                                <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value data-api-name>All</option>
+                                <option @if(accessType == Some("ACCESS_TYPE_STANDARD")){selected} value="ACCESS_TYPE_STANDARD" data-api-name="ACCESS_TYPE_STANDARD">Standard</option>
+                                <option @if(accessType == Some("ACCESS_TYPE_ROPC")){selected} value="ACCESS_TYPE_ROPC" data-api-name="ACCESS_TYPE_ROPC">ROPC</option>
+                                <option @if(accessType == Some("ACCESS_TYPE_PRIVILEGED")){selected} value="ACCESS_TYPE_PRIVILEGED" data-api-name="ACCESS_TYPE_PRIVILEGED">
                                     Privileged</option>
                             </select>
                         </label>
@@ -139,12 +141,12 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                     <div class="grid-layout__column--1-3 hard--right">
                         <label class="form-label bold" for="filter">Filter by Environment
                             <select class="form-control input-select input-select--large"
-                            data-datatable-filter="applications-table"
-                            id="environment"
-                            name="environment"
-                            value="">
-                                <option id="default-environment" value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
-                                <option value="SANDBOX" data-api-name="SANDBOX">Sandbox</option>
+                                    data-datatable-filter="applications-table"
+                                    id="environment"
+                                    name="environment"
+                                    onchange="this.form.submit()">
+                                <option @if(environment == Some("PRODUCTION") || environment == None){selected} id="default-environment" value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
+                                <option @if(environment == Some("SANDBOX")){selected} value="SANDBOX" data-api-name="SANDBOX">Sandbox</option>
                             </select>
                         </label>
                     </div>

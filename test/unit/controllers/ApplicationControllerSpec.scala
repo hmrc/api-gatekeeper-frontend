@@ -20,7 +20,7 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import controllers.ApplicationController
-import model.Environment.Environment
+import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
@@ -94,11 +94,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "applicationsPage" should {
 
-      "on request all applications supplied" in new Setup {
+      "on request all production applications supplied" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.fetchAllSubscribedApplications(any())(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
 
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
@@ -111,12 +111,59 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
 
         verifyAuthConnectorCalledForUser
+
+        verify(mockApplicationService).fetchAllSubscribedApplications(eqTo(Some(PRODUCTION)))(any[HeaderCarrier])
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(PRODUCTION)))(any[HeaderCarrier])
+      }
+
+      "on request for production all production applications supplied" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any())(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockConfig.title).willReturn("Unit Test Title")
+
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("PRODUCTION"))(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+        titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody should include("<h1>Applications</h1>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+
+        verifyAuthConnectorCalledForUser
+
+        verify(mockApplicationService).fetchAllSubscribedApplications(eqTo(Some(PRODUCTION)))(any[HeaderCarrier])
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(PRODUCTION)))(any[HeaderCarrier])
+      }
+
+      "on request for sandbox all sandbox applications supplied" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
+        given(mockApplicationService.fetchAllSubscribedApplications(any())(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockConfig.title).willReturn("Unit Test Title")
+
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("SANDBOX"))(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+        titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody should include("<h1>Applications</h1>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+
+        verifyAuthConnectorCalledForUser
+
+        verify(mockApplicationService).fetchAllSubscribedApplications(eqTo(Some(SANDBOX)))(any[HeaderCarrier])
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(any[HeaderCarrier])
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
         givenAUnsuccessfulLogin
 
-        val result = await(underTest.applicationsPage(aLoggedInRequest))
+        val result = await(underTest.applicationsPage()(aLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}")
@@ -125,8 +172,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "show button to add Privileged or ROPC app to superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.fetchAllSubscribedApplications(any())(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
@@ -142,8 +189,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         val allSubscribedApplications: Seq[SubscribedApplicationResponse] = Seq.empty
-        given(mockApplicationService.fetchAllSubscribedApplications(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.fetchAllSubscribedApplications(any())(any[HeaderCarrier])).willReturn(Future(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aLoggedInRequest))

@@ -17,8 +17,8 @@
 package connectors
 
 import java.net.URLEncoder.encode
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import config.AppConfig
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -29,10 +29,9 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApplicationConnector {
+abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -222,7 +221,7 @@ abstract class ApplicationConnector {
 @Singleton
 class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
                                                val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)
+                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.SANDBOX
@@ -234,7 +233,7 @@ class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
 @Singleton
 class ProductionApplicationConnector @Inject()(appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.PRODUCTION

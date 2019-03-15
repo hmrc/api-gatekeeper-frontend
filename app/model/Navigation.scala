@@ -30,7 +30,7 @@ case object StaticNavLinks {
 
   def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
     Seq(
-      NavLink("Applications", Some(routes.ApplicationController.applicationsPage().url)),
+      NavLink("Applications", Some(routes.ApplicationController.applicationsPage(None, None, None, None, None, None).url)),
       NavLink("Developers", Some(routes.DevelopersController.developersPage(None, None, None).url)),
       NavLink("API Approvals", Some(routes.DeploymentApprovalController.pendingPage().url))
     )
