@@ -115,7 +115,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             id="tou_status"
                             name="touStatus"
                             value="">
-                                <option @if(touStatus == None || touStatus == Some("")){selected} id="default-tou-status" value data-api-name>All</option>
+                                <option @if(touStatus == None || touStatus == Some("ALL")){selected} id="default-tou-status" value data-api-name>All</option>
                                 <option @if(touStatus == Some("TOU_NOT_ACCEPTED")){selected} value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>
                                 <option @if(touStatus == Some("TOU_ACCEPTED")){selected} value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>
                             </select>
@@ -129,7 +129,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             id="access_type"
                             name="accessType"
                             value="">
-                                <option @if(accessType == None || accessType == Some("")){selected} id="default-access-type" value data-api-name>All</option>
+                                <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value data-api-name>All</option>
                                 <option @if(accessType == Some("ACCESS_TYPE_STANDARD")){selected} value="ACCESS_TYPE_STANDARD" data-api-name="ACCESS_TYPE_STANDARD">Standard</option>
                                 <option @if(accessType == Some("ACCESS_TYPE_ROPC")){selected} value="ACCESS_TYPE_ROPC" data-api-name="ACCESS_TYPE_ROPC">ROPC</option>
                                 <option @if(accessType == Some("ACCESS_TYPE_PRIVILEGED")){selected} value="ACCESS_TYPE_PRIVILEGED" data-api-name="ACCESS_TYPE_PRIVILEGED">
@@ -145,7 +145,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                                     id="environment"
                                     name="environment"
                                     onchange="this.form.submit()">
-                                <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
+                                <option @if(environment == Some("PRODUCTION") || environment == None){selected} id="default-environment" value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
                                 <option @if(environment == Some("SANDBOX")){selected} value="SANDBOX" data-api-name="SANDBOX">Sandbox</option>
                             </select>
                         </label>
