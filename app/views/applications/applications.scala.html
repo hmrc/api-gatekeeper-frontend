@@ -190,10 +190,13 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                     <tbody>
                     @for((application, index) <- applications.zipWithIndex) {
                         <tr role="row">
-                            <td id="app-name-@index"><a href="@{
-                                routes.ApplicationController.applicationPage(application.id.toString)
-                            }">@application.name</a>
-                            </td>
+                           <td id="app-name-@index">
+                               <div class="constrain_width">
+                                   <a href="@{
+                                        routes.ApplicationController.applicationPage(application.id.toString)
+                                    }">@application.name</a>
+                               </div>
+                           </td>
                             <td id="app-created-@index">@{
                                 dateFormatter.print(application.createdOn)
                             }</td>
