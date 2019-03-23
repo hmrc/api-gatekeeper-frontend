@@ -84,3 +84,44 @@ textarea.full-width {
 [data-teamMember-row] .button--link {
   padding: 0;
 }
+
+.pagination {
+    margin-top: 1rem;
+}
+
+th {
+  &.sorting {
+    position: relative;
+    padding-left: 2rem;
+
+    &::before, &::after {
+      font-size: 1rem;
+      position: absolute;
+      left: 0;
+    }
+
+    &.unsorted {
+      &::before {
+        bottom: 47.5%;
+        color: #aaa;
+        content: "\25b2";
+      }
+
+      &::after {
+        color: #aaa;
+        content: "\25bc";
+        top: 47.5%;
+      }
+    }
+
+    &.sorted_asc::before {
+      bottom: 47.5%;
+      content: "\25b2";
+    }
+
+    &.sorted_desc::before {
+      content: "\25bc";
+      top: 47.5%;
+    }
+  }
+}

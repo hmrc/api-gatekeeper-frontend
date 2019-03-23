@@ -16,14 +16,14 @@
 
 package utils
 
-import model.{APIDefinition, DetailedSubscribedApplicationResponse, SubscribedApplicationResponse, SubscriptionDetails}
+import model._
 import play.api.Logger
 
 trait SubscriptionEnhancer {
 
-  def combine(appResponses: Seq[SubscribedApplicationResponse],
-              definitions: Seq[APIDefinition]): Seq[DetailedSubscribedApplicationResponse] = {
-    appResponses.map { ar =>
+  def combine(appResponse: PaginatedSubscribedApplicationResponse,
+              definitions: Seq[APIDefinition]): PaginatedDetailedSubscribedApplicationResponse = {
+    val apps = appResponse.applications.map { ar =>
       val details = ar.subscriptions.map(sub =>
         SubscriptionDetails(definitions.find(_.context == sub.name) match {
           case Some(x) => x.name
@@ -35,6 +35,8 @@ trait SubscriptionEnhancer {
       )
       DetailedSubscribedApplicationResponse(ar.id, ar.name, ar.description, ar.collaborators, ar.createdOn, ar.state, ar.access, details, ar.termsOfUseAgreed, ar.deployedTo)
     }
+
+    PaginatedDetailedSubscribedApplicationResponse(appResponse, apps)
   }
 }
 

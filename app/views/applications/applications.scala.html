@@ -18,10 +18,25 @@
 @import model._
 @import model.AccessType._
 @import org.joda.time.format.DateTimeFormat
+@import include.pagination
 
-@(applications: Seq[DetailedSubscribedApplicationResponse], apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean,
-  search: Option[String] = None, filter: Option[String] = None, status: Option[String] = None, touStatus: Option[String] = None, accessType: Option[String] = None, environment: Option[String] = None)(
+@(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
 implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+
+@pageUrl(extra: (String, String)) = @{
+    val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
+    val uri = routes.ApplicationController.applicationsPage(None).url
+
+    s"$uri?$qs"
+}
+
+@sortClass(sort: Option[String], prefix: String) = @{
+    sort match {
+        case Some(str) if str == s"${prefix}_ASC" => "sorted_asc"
+        case Some(str) if str == s"${prefix}_DESC" => "sorted_desc"
+        case _ => "unsorted"
+    }
+}
 
 @main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
 
@@ -39,10 +54,11 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
             </a>
             }
 
-            <form name="developer-filters"
-            action="@routes.ApplicationController.applicationsPage(None, None, None, None, None, None).url"
-            method="get">
-
+            @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort").map(params.get(_))) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: _ =>
+            <form name="application-filters"
+                  action="@routes.ApplicationController.applicationsPage(None).url"
+                  method="get">
+                <input type="hidden" name="page" value="1" />
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
 
                     <div class="grid-layout__column">
@@ -50,11 +66,10 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             <span class="label__text bold">Search</span>
 
                             <input class="form-control input--cleared input-select--large full-width"
-                            data-datatable-custom-filter="applications-table"
-                            name="search"
-                            type="text"
-                            value="@search"
-                            placeholder="Application name or ID" />
+                                   name="search"
+                                   type="text"
+                                   value="@search"
+                                   placeholder="Application name or ID" />
                         </label>
                     </div>
 
@@ -64,24 +79,21 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-2">
                         <label class="form-label bold" for="filter">Filter by API Subscription
-                            <select class="form-control input-select input-select--large"
-                            data-datatable-filter="applications-table"
-                            id="filter"
-                            name="filter"
-                            value="">
-
-                                <option @if(filter == None || filter == Some("")){selected} value data-api-name>All applications</option>
-                                <option @if(filter == Some("ANYSUB")){selected} value="ANYSUB" data-api-name="ANYSUB">One or more subscriptions</option>
-                                <option @if(filter == Some("NOYSUB")){selected} value="NOSUB" data-api-name="NOSUB">No subscriptions</option>
+                            <select class="form-control input-select input-select--large" id="filter" name="apiSubscription" onchange="this.form.submit()">
+                                <option @if(apiSubscription == None){selected} value>All applications</option>
+                                <option @if(apiSubscription == Some("ANY")){selected} value="ANY">One or more subscriptions</option>
+                                <option @if(apiSubscription == Some("NONE")){selected} value="NONE">No subscriptions</option>
 
                                 @for((status, versions) <- apis) {
-
                                     <optgroup label="@{
                                         status
                                     }">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        <option value="@version.name (@version.apiIdentifier.version)" data-api-name="@version.name (@version.apiIdentifier.version)">@version.name
-                                            (@version.apiIdentifier.version)</option>
+                                        @defining(s"${version.apiIdentifier.context}--${version.apiIdentifier.version}") { value =>
+                                            <option @if(apiSubscription == Some(value)){selected} value="@value">
+                                                @version.name (@version.apiIdentifier.version)
+                                            </option>
+                                        }
                                     }
                                     </optgroup>
                                 }
@@ -91,12 +103,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-2">
                         <label class="form-label bold centered-content hard--right" for="status">Filter by Status
-                            <select class="form-control input-select input-select--large"
-                            data-datatable-filter="applications-table"
-                            data-datatable-column-filter="5"
-                            id="status"
-                            name="status"
-                            value="">
+                            <select class="form-control input-select input-select--large" id="status" name="status" onchange="this.form.submit()">
                                 <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
                                 <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
                                 <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
@@ -110,43 +117,30 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
                     <div class="grid-layout__column--1-3">
                         <label class="form-label bold" for="filter">Filter by Terms of Use status
-                            <select class="form-control input-select input-select--large"
-                            data-datatable-filter="applications-table"
-                            id="tou_status"
-                            name="touStatus"
-                            value="">
-                                <option @if(touStatus == None || touStatus == Some("ALL")){selected} id="default-tou-status" value data-api-name>All</option>
-                                <option @if(touStatus == Some("TOU_NOT_ACCEPTED")){selected} value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>
-                                <option @if(touStatus == Some("TOU_ACCEPTED")){selected} value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>
+                            <select class="form-control input-select input-select--large" id="tou_status" name="termsOfUse" onchange="this.form.submit()">
+                                <option @if(termsOfUse == None || termsOfUse == Some("ALL")){selected} id="default-tou-status" value>All</option>
+                                <option @if(termsOfUse == Some("NOT_ACCEPTED")){selected} value="NOT_ACCEPTED">Not agreed</option>
+                                <option @if(termsOfUse == Some("ACCEPTED")){selected} value="ACCEPTED">Agreed</option>
                             </select>
                         </label>
                     </div>
 
                     <div class="grid-layout__column--1-3">
                         <label class="form-label bold centered-content" for="filter">Filter by Access type
-                            <select class="form-control input-select input-select--large"
-                            data-datatable-filter="applications-table"
-                            id="access_type"
-                            name="accessType"
-                            value="">
-                                <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value data-api-name>All</option>
-                                <option @if(accessType == Some("ACCESS_TYPE_STANDARD")){selected} value="ACCESS_TYPE_STANDARD" data-api-name="ACCESS_TYPE_STANDARD">Standard</option>
-                                <option @if(accessType == Some("ACCESS_TYPE_ROPC")){selected} value="ACCESS_TYPE_ROPC" data-api-name="ACCESS_TYPE_ROPC">ROPC</option>
-                                <option @if(accessType == Some("ACCESS_TYPE_PRIVILEGED")){selected} value="ACCESS_TYPE_PRIVILEGED" data-api-name="ACCESS_TYPE_PRIVILEGED">
-                                    Privileged</option>
+                            <select class="form-control input-select input-select--large" id="access_type" name="accessType" onchange="this.form.submit()">
+                                <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value>All</option>
+                                <option @if(accessType == Some("STANDARD")){selected} value="STANDARD">Standard</option>
+                                <option @if(accessType == Some("ROPC")){selected} value="ROPC">ROPC</option>
+                                <option @if(accessType == Some("PRIVILEGED")){selected} value="PRIVILEGED">Privileged</option>
                             </select>
                         </label>
                     </div>
 
                     <div class="grid-layout__column--1-3 hard--right">
                         <label class="form-label bold" for="filter">Filter by Environment
-                            <select class="form-control input-select input-select--large"
-                                    data-datatable-filter="applications-table"
-                                    id="environment"
-                                    name="environment"
-                                    onchange="this.form.submit()">
-                                <option @if(environment == Some("PRODUCTION") || environment == None){selected} id="default-environment" value="PRODUCTION" data-api-name="PRODUCTION">Production</option>
-                                <option @if(environment == Some("SANDBOX")){selected} value="SANDBOX" data-api-name="SANDBOX">Sandbox</option>
+                            <select class="form-control input-select input-select--large" id="environment" name="environment" onchange="this.form.submit()">
+                                <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION">Production</option>
+                                <option @if(environment == Some("SANDBOX") || environment == None){selected} value="SANDBOX">Sandbox</option>
                             </select>
                         </label>
                     </div>
@@ -157,38 +151,18 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                     </div>
                 </div>
 
-                <table id="applications-table"
-                class="dataTable no-footer application-list"
-                width="100%"
-                data-dom="t<'text--center'lip>"
-                data-order='[0,"asc"]'
-                data-page-length="100"
-                data-paginate="true"
-                data-length-change="true"
-                data-length-menu="[10, 50, 100, 200, 300]"
-                data-responsive="true"
-                data-column-defs='[{"targets": [0,3], "orderable": true},
-                                   {"targets": [1], "orderable": true, "orderData": [2]},
-                                   {"targets": [2], "visible": false, "searchable": false},
-                                   {"targets": [4,5], "visible": true, "searchable": true, "orderable": false},
-                                   {"targets": [6,7,8,9], "visible": false, "searchable": true, "orderable": false}]'
-                data-language='{"sSearchPlaceholder":"Application name or subscriptions","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'>
+                <table id="applications-table" class="no-footer application-list" width="100%">
                     <thead>
                         <tr role="row">
-                            <th tabindex="0" class="sorting_left-aligned">Name</th>
-                            <th tabindex="0" class="sorting_left-aligned">Submitted</th>
-                            <th tabindex="0" class="visuallyhidden">Unformatted Submitted Dates</th>
+                            <th tabindex="0" class="sorting_left-aligned sorting @sortClass(sort, "NAME")"><a href="@pageUrl("sort" -> (if (sort == Some("NAME_ASC")) "NAME_DESC" else "NAME_ASC"))">Name</a></th>
+                            <th tabindex="0" class="sorting_left-aligned sorting @sortClass(sort, "SUBMITTED")"><a href="@pageUrl("sort" -> (if (sort == Some("SUBMITTED_ASC")) "SUBMITTED_DESC" else "SUBMITTED_ASC"))">Submitted</a></th>
                             <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th tabindex="0">Environment</th>
                             <th class="text--right hard--right" tabindex="0">Status</th>
-                            <th class="text--right hard--right visuallyhidden" tabindex="0">All Subscriptions</th>
-                            <th class="text--right hard--right visuallyhidden" tabindex="0">Terms of Use status</th>
-                            <th class="text--right hard--right visuallyhidden" tabindex="0">Access type</th>
-                            <th class="text--right hard--right visuallyhidden" tabindex="0">Application ID</th>
                         </tr>
                     </thead>
                     <tbody>
-                    @for((application, index) <- applications.zipWithIndex) {
+                    @for((application, index) <- paginatedApplications.applications.zipWithIndex) {
                         <tr role="row">
                            <td id="app-name-@index">
                                <div class="constrain_width">
@@ -200,7 +174,6 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                             <td id="app-created-@index">@{
                                 dateFormatter.print(application.createdOn)
                             }</td>
-                            <td class="visuallyhidden">@application.createdOn</td>
                             <td id="app-subs-@index" title="@application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
                             <td id="app-env-@index">
                                 @application.deployedTo.toLowerCase.capitalize
@@ -213,41 +186,25 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                                 case _ => ("status", "Created")
                             }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                             </td>
-                            <td id="app-subs-full-@index" class="text--right hard--right visuallyhidden">
-                            @if(application.subscriptions.isEmpty) {
-                                NOSUB
-                            } else {
-                                ANYSUB,
-                                @application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(",")
-                            }
-                            </td>
-                            <td id="app-tou-@index" class="text--right hard--right visuallyhidden">
-                            @if(application.termsOfUseAgreed) {
-                                TOU_ACCEPTED
-                            } else {
-                                TOU_NOT_ACCEPTED
-                            }
-                            </td>
-                            <td id="app-access-type-@index" class="text--right hard--right visuallyhidden">
-                            @{
-                                application.access.accessType match {
-                                    case STANDARD => <span>ACCESS_TYPE_STANDARD</span>
-                                    case ROPC => <span>ACCESS_TYPE_ROPC</span>
-                                    case PRIVILEGED => <span>ACCESS_TYPE_PRIVILEGED</span>
-                                }
-                            }
-                            </td>
-                            <td id="app-id-@index" class="text--right hard--right visuallyhidden">@{application.id}</td>
                         </tr>
                     }
                     </tbody>
                 </table>
-                <div class="js-hidden grid-layout grid-layout--stacked" style="margin-left: 0">
+                <div class="grid-layout grid-layout--stacked" style="margin-left: 0">
                     <div class="grid-layout__column--1-3 text--center">
-                    @if(applications.isEmpty) {"No developers for your selected filter"}
+                        @if(paginatedApplications.applications.isEmpty) {
+                            No applications for your selected filter
+                        }
                     </div>
                 </div>
+
+                @if(!paginatedApplications.applications.isEmpty) {
+                    @defining(paginatedApplications.page, paginatedApplications.pageSize, paginatedApplications.matching, paginatedApplications.applications.size, paginatedApplications.total) { case (page, pageSize, matching, numDocs, total) =>
+                        @pagination(page, pageSize, matching, total, numDocs, routes.ApplicationController.applicationsPage(None).url, params)
+                    }
+                }
             </form>
+            }
 
             <div class="form-group>">
                 <a class="back-to-top-link" href="#">Back to Top</a>

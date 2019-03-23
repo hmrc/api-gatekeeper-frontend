@@ -15,7 +15,7 @@
     width: 100%;
 }
 
-form[name=developer-filters] {
+form[name$=-filters] {
     margin-bottom: 1.5em;
 
     input[name=main-submit] {

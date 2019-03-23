@@ -48,15 +48,17 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def applicationsPage(search: Option[String] = None, filter: Option[String] = None, status: Option[String] = None, touStatus: Option[String] = None, accessType: Option[String] = None, environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
-      val env = Try(Environment.withName(environment.getOrElse("PRODUCTION"))).toOption
+    val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+    val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
       for {
-        apps <- applicationService.fetchAllSubscribedApplications(env)
+        par <- applicationService.searchApplications(env, params)
         apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-        subApps = SubscriptionEnhancer.combine(apps, apis)
-      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, search, filter, status, touStatus, accessType, env.map(_.toString)))
+        subApps = SubscriptionEnhancer.combine(par, apis)
+      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -449,7 +451,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
           case e: PreconditionFailed => {
             Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-            Redirect(routes.ApplicationController.applicationsPage(None, None, None, None, None, None))
+            Redirect(routes.ApplicationController.applicationsPage(None))
           }
         }
 
@@ -486,7 +488,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
-    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(None, None, None, None, None, Some("SANDBOX")))) else body
+    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresAtLeast(GatekeeperRole.SUPERUSER) {

@@ -48,10 +48,10 @@ class APIGatekeeperSandboxSpec extends BaseSpec
       stubApplicationList()
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
+      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
 
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(OK)))
+      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse()
+        .withBody(paginatedApplications).withStatus(OK)))
       stubApplicationSubscription
       stubApiDefinition
 

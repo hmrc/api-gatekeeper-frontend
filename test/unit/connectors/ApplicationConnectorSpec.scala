@@ -467,6 +467,39 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
   }
 
+  "searchApplications" should {
+    val url = s"$baseUrl/applications"
+    val params = Map("page" -> "1", "pageSize" -> "10")
+    val expectedResponse = PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0)
+
+    "send a GET request to the service with the correct params" in new Setup {
+      when(mockHttpClient.GET[PaginatedApplicationResponse](any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      await(connector.searchApplications(params))
+
+      verify(mockHttpClient).GET[PaginatedApplicationResponse](meq(url), meq(params.toSeq))(any(), any(), any())
+    }
+
+    "return the paginated application response when the call is successful" in new Setup {
+      when(mockHttpClient.GET[PaginatedApplicationResponse](any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0)))
+
+      val result = await(connector.searchApplications(params))
+
+      result shouldBe expectedResponse
+    }
+
+    "throw the error when the service returns an error" in new Setup {
+      when(mockHttpClient.GET[PaginatedApplicationResponse](any(), any())(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("Internal Server Error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.searchApplications(params))
+      }
+    }
+  }
+
   "http" when {
     "configured not to use the proxy" should {
       "use the HttpClient" in new Setup(proxyEnabled = false) {
