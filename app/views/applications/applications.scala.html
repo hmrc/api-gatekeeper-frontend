@@ -49,7 +49,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
             </header>
 
             @if(isSuperUser) {
-            <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivOrROPCApplicationPage()}" class="button text--center float--right">
+            <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivOrROPCApplicationPage()}" class="button text--center float--right flush--right">
                 Add privileged or ROPC application
             </a>
             }
@@ -79,7 +79,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-2">
                         <label class="form-label bold" for="filter">Filter by API Subscription
-                            <select class="form-control input-select input-select--large" id="filter" name="apiSubscription" onchange="this.form.submit()">
+                            <select class="form-control input-select input-select--large" id="filter" name="apiSubscription">
                                 <option @if(apiSubscription == None){selected} value>All applications</option>
                                 <option @if(apiSubscription == Some("ANY")){selected} value="ANY">One or more subscriptions</option>
                                 <option @if(apiSubscription == Some("NONE")){selected} value="NONE">No subscriptions</option>
@@ -103,7 +103,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-2">
                         <label class="form-label bold centered-content hard--right" for="status">Filter by Status
-                            <select class="form-control input-select input-select--large" id="status" name="status" onchange="this.form.submit()">
+                            <select class="form-control input-select input-select--large" id="status" name="status">
                                 <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
                                 <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
                                 <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
@@ -117,7 +117,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
                     <div class="grid-layout__column--1-3">
                         <label class="form-label bold" for="filter">Filter by Terms of Use status
-                            <select class="form-control input-select input-select--large" id="tou_status" name="termsOfUse" onchange="this.form.submit()">
+                            <select class="form-control input-select input-select--large" id="tou_status" name="termsOfUse">
                                 <option @if(termsOfUse == None || termsOfUse == Some("ALL")){selected} id="default-tou-status" value>All</option>
                                 <option @if(termsOfUse == Some("NOT_ACCEPTED")){selected} value="NOT_ACCEPTED">Not agreed</option>
                                 <option @if(termsOfUse == Some("ACCEPTED")){selected} value="ACCEPTED">Agreed</option>
@@ -127,7 +127,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-3">
                         <label class="form-label bold centered-content" for="filter">Filter by Access type
-                            <select class="form-control input-select input-select--large" id="access_type" name="accessType" onchange="this.form.submit()">
+                            <select class="form-control input-select input-select--large" id="access_type" name="accessType">
                                 <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value>All</option>
                                 <option @if(accessType == Some("STANDARD")){selected} value="STANDARD">Standard</option>
                                 <option @if(accessType == Some("ROPC")){selected} value="ROPC">ROPC</option>
@@ -138,17 +138,15 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
 
                     <div class="grid-layout__column--1-3 hard--right">
                         <label class="form-label bold" for="filter">Filter by Environment
-                            <select class="form-control input-select input-select--large" id="environment" name="environment" onchange="this.form.submit()">
+                            <select class="form-control input-select input-select--large" id="environment" name="environment">
                                 <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION">Production</option>
                                 <option @if(environment == Some("SANDBOX") || environment == None){selected} value="SANDBOX">Sandbox</option>
                             </select>
                         </label>
                     </div>
                 </div>
-                <div class="form-group grid-layout grid-layout--stacked push--sides js-hidden">
-                    <div class="float-right js-hidden">
-                        <input type="submit" value="Submit" name="main-submit" class="button text--center flush--right" />
-                    </div>
+                <div class="form-group grid-layout grid-layout--stacked push--sides">
+                    <input type="submit" value="Submit" name="main-submit" class="button text--center float--right flush--right" />
                 </div>
 
                 <table id="applications-table" class="no-footer application-list" width="100%">
