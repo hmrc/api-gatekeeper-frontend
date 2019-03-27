@@ -212,6 +212,10 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
   }
 
+  def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
+    http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
+  }
+
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }

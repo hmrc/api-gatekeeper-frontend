@@ -47,7 +47,6 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html
 
-
 class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with OneServerPerSuite {
 
   "ApplicationsView" when {
@@ -57,14 +56,14 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
 
 
     "Called with no APIs" should {
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, false)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
 
       "Display only subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option selected value data-api-name>All applications</option>")
-        appView.body should include("<option  value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option  value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option selected value>All applications</option>")
+        appView.body should include("""<option  value="ANY">One or more subscriptions</option>""")
+        appView.body should include("""<option  value="NONE">No subscriptions</option>""")
       }
 
       "Not include application state filters" in {
@@ -79,9 +78,9 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
       "Display the Terms of Use filters" in {
         val appView = applicationView()
 
-        appView.body should include("""<option selected id="default-tou-status" value data-api-name>All</option>""")
-        appView.body should include("""<option  value="TOU_NOT_ACCEPTED" data-api-name="TOU_NOT_ACCEPTED">Not agreed</option>""")
-        appView.body should include("""<option  value="TOU_ACCEPTED" data-api-name="TOU_ACCEPTED">Agreed</option>""")
+        appView.body should include("""<option selected id="default-tou-status" value>All</option>""")
+        appView.body should include("""<option  value="NOT_ACCEPTED">Not agreed</option>""")
+        appView.body should include("""<option  value="ACCEPTED">Agreed</option>""")
       }
     }
 
@@ -94,14 +93,14 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
       )
 
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, apis, false)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
 
       "Display the subscription filters" in {
         val appView = applicationView()
 
-        appView.body should include("<option selected value data-api-name>All applications</option>")
-        appView.body should include("<option  value=\"ANYSUB\" data-api-name=\"ANYSUB\">One or more subscriptions</option>")
-        appView.body should include("<option  value=\"NOSUB\" data-api-name=\"NOSUB\">No subscriptions</option>")
+        appView.body should include("<option selected value>All applications</option>")
+        appView.body should include("""<option  value="ANY">One or more subscriptions</option>""")
+        appView.body should include("""<option  value="NONE">No subscriptions</option>""")
       }
 
       "Include the application state filters" in {
@@ -123,7 +122,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
         DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
       )
 
-      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(applications, Map.empty, false)
+      val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
 
       "Display all four applications in all four states" in {
         val appView = applicationView()
@@ -179,7 +178,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
     "Called by a superuser" should {
 
       "Display the 'Add privileged or ROPC application' button" in {
-        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, true)
+        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, true, Map.empty)
 
         val appView = applicationView()
 
@@ -190,7 +189,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
     "Called by a non-superuser" should {
 
       "Not display the 'Add privileged or ROPC application' button" in {
-        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(Seq.empty, Map.empty, false)
+        val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
 
         val appView = applicationView()
 

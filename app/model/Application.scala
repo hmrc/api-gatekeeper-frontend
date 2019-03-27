@@ -207,6 +207,12 @@ object ApplicationResponse {
   implicit val format6 = Json.format[TermsOfUseAgreement]
 }
 
+case class PaginatedApplicationResponse(applications: Seq[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+
+object PaginatedApplicationResponse {
+  implicit val format = Json.format[PaginatedApplicationResponse]
+}
+
 object AccessType extends Enumeration {
   type AccessType = Value
   val STANDARD, PRIVILEGED, ROPC = Value
@@ -267,6 +273,15 @@ object SubscribedApplicationResponse {
       appResponse.collaborators, appResponse.createdOn, appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted), appResponse.deployedTo)
 }
 
+case class PaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+
+object PaginatedSubscribedApplicationResponse {
+  def apply(par: PaginatedApplicationResponse, apps: Seq[SubscribedApplicationResponse]) =
+    new PaginatedSubscribedApplicationResponse(apps, par.page, par.pageSize, par.total, par.matching)
+
+  implicit val format = Json.format[PaginatedSubscribedApplicationResponse]
+}
+
 case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  name: String,
                                                  description: Option[String] = None,
@@ -278,6 +293,13 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  termsOfUseAgreed: Boolean,
                                                  deployedTo: String,
                                                  clientId: String = "") extends Application
+
+case class PaginatedDetailedSubscribedApplicationResponse(applications: Seq[DetailedSubscribedApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+
+object PaginatedDetailedSubscribedApplicationResponse {
+  def apply(psar: PaginatedSubscribedApplicationResponse, applications: Seq[DetailedSubscribedApplicationResponse]) =
+    new PaginatedDetailedSubscribedApplicationResponse(applications, psar.page, psar.pageSize, psar.total, psar.matching)
+}
 
 case class SubscriptionDetails(name: String, context: String, version: String)
 

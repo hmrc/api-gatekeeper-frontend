@@ -25,7 +25,7 @@
 <div class="">
     <nav class="breadcrumb-nav">
         <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None, None, None, None, None, None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">@application.name</li>
         </ul>
@@ -44,7 +44,7 @@
     </div>
     <p>We've sent an email to all team members to let them know.</p>
     <div>
-        @helper.form(action = routes.ApplicationController.applicationsPage(None, None, None, None, None, None), 'class -> "form") {
+        @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
             @helper.CSRF.formField
             <div class="form-field form-field--submit">
                 <button id="submit" class=" text--center flush--right" type="submit">Finish</button>
