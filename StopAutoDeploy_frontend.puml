@@ -1,0 +1,29 @@
+@startuml
+
+title "API Service Approval"
+
+control "Approval Frontend" as App
+control "Service" as Service
+control "API Publisher" as Pub
+control "API Definition" as Def
+control "WSO2 Publisher\n11111" as WSO2
+control "Third Party App\n11111" as TPA
+control "API Scope\n9690" as Scope
+database "MongoDB\n27017" as MongoDB
+
+App -> Pub : fetchUnapprovedServices
+Pub -> MongoDB: Fetch Unapproved Apps
+Pub -> App : Unapproved Apps
+App -> Pub : fetchServiceSummary
+Pub -> MongoDB: Fetch Service Details
+Pub -> App : Service Details
+App -> Pub : approve
+Pub -> MongoDB : approve service
+Pub -> Service : Fetch API definition & RAML
+Pub -> Def
+Def -> MongoDB : api-definition
+Def -> WSO2
+Def -> TPA
+Pub -> Scope
+Def -> MongoDB : api-scope
+@enduml

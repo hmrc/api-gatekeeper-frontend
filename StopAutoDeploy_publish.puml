@@ -1,0 +1,26 @@
+@startuml
+
+title "Stop Auto Deploy - Components"
+
+control "Application" as App
+control "Service Locator\n9602" as SL
+control "API Publisher" as Pub
+control "API Definition" as Def
+control "WSO2 Publisher\n11111" as WSO2
+control "Third Party App\n11111" as TPA
+control "API Scope\n9690" as Scope
+database "MongoDB\n27017" as MongoDB
+
+App -> SL : Publish
+SL -> Pub
+Pub -> App : Fetch API definition & RAML
+Pub -> MongoDB : api-publisher
+alt if service approved
+    Pub -> Def
+    Def -> MongoDB : api-definition
+    Def -> WSO2
+    Def -> TPA
+    Pub -> Scope
+    Def -> MongoDB : api-scope
+end
+@enduml
