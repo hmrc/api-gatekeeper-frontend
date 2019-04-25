@@ -14,7 +14,9 @@
  * limitations under the License.
  *@
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+@import utils.LoggedInUser
+
+@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig, loggedInUser: LoggedInUser)
 
 @main(title = pageTitle) {
   <h1>@heading</h1>

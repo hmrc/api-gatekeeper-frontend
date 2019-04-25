@@ -71,7 +71,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
-      developerService.removeMfa(email, loggedIn.get) map { _ =>
+      developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
         Ok(remove_mfa_success(email))
       } recover {
         case e: Exception =>
@@ -87,7 +87,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
-      developerService.deleteDeveloper(email, loggedIn.get).map {
+      developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))
         case _ => technicalDifficulties
       }

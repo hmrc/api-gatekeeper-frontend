@@ -25,6 +25,7 @@ import play.api.i18n.Messages.Implicits._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
+import utils.LoggedInUser
 import views.html
 
 class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
@@ -47,8 +48,10 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val accessType = Some(AccessType.PRIVILEGED)
         val totp = Some(TotpSecrets(totpSecret, ""))
 
+        implicit val loggedInUser = LoggedInUser(Some(""))
+
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(Some(""), applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(loggedInUser, applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 
@@ -76,7 +79,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(Some(""), applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 

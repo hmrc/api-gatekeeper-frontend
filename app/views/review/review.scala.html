@@ -16,9 +16,10 @@
 
 @import model.ApplicationReviewDetails
 @import include._
+@import utils.LoggedInUser
 
-@(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
-@main(title = s"${appConfig.title} - Review Application", userFullName = userFullName) {
+@(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@main(title = s"${appConfig.title} - Review Application") {
 <div class="content__body">
 
     <nav class="breadcrumb-nav">

@@ -16,18 +16,24 @@
 
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import config.AppConfig
-import model.StaticNavLinks
-import play.api.libs.json._
-import play.api.mvc.Action
+import connectors.AuthConnector
+import model._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+import utils.GatekeeperAuthWrapper
+import views.html.developers._
 
 import scala.concurrent.Future
 
-class NavigationController @Inject()(override implicit val appConfig: AppConfig)
-  extends BaseController {
+@Singleton
+class Developers2Controller @Inject()(val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+  extends BaseController with GatekeeperAuthWrapper {
 
-  def navLinks() = Action.async { implicit request =>
-    Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))
+  def developersPage() = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      implicit hc => Future.successful(Ok(developers2()))
   }
 }
+

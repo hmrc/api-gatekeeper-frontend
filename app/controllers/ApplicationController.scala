@@ -31,7 +31,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
+import utils.{GatekeeperAuthWrapper, LoggedInRequest, LoggedInUser, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
@@ -95,7 +95,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc => withApp(appId) { app =>
       for {
-        _ <- applicationService.resendVerification(app.application, loggedIn.get)
+        _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
       } yield {
         Redirect(routes.ApplicationController.applicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
@@ -251,7 +251,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.deleteApplication(app.application, loggedIn.get, form.collaboratorEmail.get).map {
+          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
             case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
             case ApplicationDeleteFailureResult => technicalDifficulties
           }
@@ -281,7 +281,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.blockApplication(app.application, loggedIn.get).map {
+          applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationBlockSuccessResult => Ok(block_application_success(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
@@ -311,7 +311,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.unblockApplication(app.application, loggedIn.get).map {
+          applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
@@ -458,10 +458,10 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
           UpliftAction.from(validForm.action) match {
             case Some(APPROVE) =>
-              applicationService.approveUplift(app.application, loggedIn.get) map (
+              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
                 ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
             case Some(REJECT) =>
-              applicationService.rejectUplift(app.application, loggedIn.get, validForm.reason.get) map (
+              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
                 RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
           }
         }
@@ -559,7 +559,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc => withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
-        applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.get)
+        applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
           .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
             case _: TeamMemberAlreadyExists => BadRequest(add_team_member(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
           }
@@ -590,7 +590,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request => implicit hc => withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         form.confirm match {
-          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.get).map {
+          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
             _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
           } recover {
             case _: TeamMemberLastAdmin =>

@@ -27,6 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
+import utils.LoggedInUser
 import views.html
 
 class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneServerPerSuite {
@@ -35,7 +36,7 @@ class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneSer
 
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
-      implicit val userFullName = Option("firstName lastName")
+      implicit val userFullName = LoggedInUser(Some("firstName lastName"))
       implicit val request = FakeRequest().withCSRFToken
 
     "with no fields filled" should {

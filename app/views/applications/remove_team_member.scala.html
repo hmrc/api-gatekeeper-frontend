@@ -17,10 +17,11 @@
 @import model._
 @import model.Forms.RemoveTeamMemberConfirmationForm
 @import include._
+@import utils.LoggedInUser
 
-@(application: Application, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], userFullName: Option[String], message: Messages, appConfig: config.AppConfig)
+@(application: Application, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], loggedInUser: LoggedInUser, message: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Remove Team Member", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Remove Team Member") {
 
 <div class="content-body">
     <nav class="breadcrumb-nav">

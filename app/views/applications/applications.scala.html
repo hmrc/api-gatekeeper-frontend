@@ -19,9 +19,10 @@
 @import model.AccessType._
 @import org.joda.time.format.DateTimeFormat
 @import include.pagination
+@import utils._
 
 @(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
-implicit userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @pageUrl(extra: (String, String)) = @{
     val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
@@ -38,7 +39,7 @@ implicit userFullName: Option[String], messages: Messages, appConfig: config.App
     }
 }
 
-@main(title = s"${appConfig.title} - Applications", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Applications") {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
 

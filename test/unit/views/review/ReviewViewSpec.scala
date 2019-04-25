@@ -29,6 +29,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.time.DateTimeUtils
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
+import utils.LoggedInUser
 
 class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
@@ -53,7 +54,7 @@ class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
     "show review information with pass and fail options" in {
 
-      val result = views.html.review.review.render(HandleUpliftForm.form, applicationReviewDetails,request, None, applicationMessages, mockAppConfig)
+      val result = views.html.review.review.render(HandleUpliftForm.form, applicationReviewDetails,request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 

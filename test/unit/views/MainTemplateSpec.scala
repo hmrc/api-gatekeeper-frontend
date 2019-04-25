@@ -25,6 +25,7 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html
 import play.api.i18n.Messages.Implicits.applicationMessages
+import utils.LoggedInUser
 
 
 class MainTemplateSpec extends UnitSpec with Matchers with MockitoSugar with OneServerPerSuite {
@@ -37,13 +38,17 @@ class MainTemplateSpec extends UnitSpec with Matchers with MockitoSugar with One
 
       given(mockConfig.isExternalTestEnvironment).willReturn(true)
 
-      val mainView: Html = html.main("Test", userFullName = Some("TestUser"))(mainContent=HtmlFormat.empty)
+      implicit val loggedInUser = LoggedInUser(Some("TestUser"))
+
+      val mainView: Html = html.main("Test")(mainContent=HtmlFormat.empty)
 
       mainView.body should include("class=\"sandbox")
     }
 
     "Not use the sandbox class when the Enhanced Sandbox configuration is switched off" in {
       given(mockConfig.isExternalTestEnvironment).willReturn(false)
+
+      implicit val loggedInUser = LoggedInUser(Some("TestUser"))
 
       val mainView: Html = html.main("Test")(mainContent=Html.apply("<h1>Dummy Header</h1>"))
 

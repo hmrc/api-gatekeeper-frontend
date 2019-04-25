@@ -18,10 +18,11 @@
 @import model._
 @import model.Environment._
 @import config.AppConfig
+@import utils.LoggedInUser
 
-@(form: Form[CreatePrivOrROPCAppForm])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: AppConfig)
+@(form: Form[CreatePrivOrROPCAppForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: AppConfig)
 
-@main(title = s"${appConfig.title} - Create privileged or ROPC application", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Create privileged or ROPC application") {
 
 <h1 class="heading-large">Add privileged or ROPC application</h1>
 <br>

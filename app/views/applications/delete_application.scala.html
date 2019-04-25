@@ -19,12 +19,13 @@
 @import model.AccessType.AccessType
 @import model.OverrideType.OverrideType
 @import model.State._
+@import utils.LoggedInUser
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${appConfig.title} - Delete Application", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Delete Application") {
 
 <div class="">
 

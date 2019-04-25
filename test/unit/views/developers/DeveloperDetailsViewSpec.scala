@@ -26,6 +26,7 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import unit.utils.ViewHelpers._
+import utils.LoggedInUser
 
 
 class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
@@ -73,7 +74,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
 
       val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
-      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -90,7 +91,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
 
       val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
 
-      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -107,7 +108,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
 
       val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
-      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -120,7 +121,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
 
       val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
 
-      val result = views.html.developers.developer_details.render(developer, false, request, None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developer_details.render(developer, false, request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -130,7 +131,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
     }
 
     def testDeveloperDetails(developer: Developer) = {
-      val result = views.html.developers.developer_details.render(developer, true, request, None, applicationMessages, mockAppConfig)
+      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 

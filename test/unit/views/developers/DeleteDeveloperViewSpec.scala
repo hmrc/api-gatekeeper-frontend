@@ -28,6 +28,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import unit.utils.ViewHelpers._
 import utils.CSRFTokenHelper._
+import utils.LoggedInUser
 import views.html.developers.delete_developer
 
 class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
@@ -43,7 +44,7 @@ class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with Mocki
 
   "delete developer view" should {
     implicit val request = FakeRequest().withCSRFToken
-    implicit val userName = Some("gate.keeper")
+    implicit val userName = LoggedInUser(Some("gate.keeper"))
     implicit val messages = applicationMessages
     implicit val appConfig = mock[AppConfig]
 

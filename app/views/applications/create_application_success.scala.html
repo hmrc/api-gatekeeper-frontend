@@ -19,13 +19,13 @@
 @import model.AccessType
 @import model.AccessType.AccessType
 @import model.TotpSecrets
-
+@import utils.LoggedInUser
 
 @(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String, clientSecret: Option[String] = None
-)(implicit userFullName: Option[String], messages: Messages, appConfig: AppConfig)
+)(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: AppConfig)
 
 @secretType = @{ if (totpSecret.isDefined) "TOTP" else "client" }
-@main(title = s"${appConfig.title} - Create privileged or ROPC application success", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Create privileged or ROPC application success") {
 
 <h1 class="heading-large">@applicationName</h1>
 

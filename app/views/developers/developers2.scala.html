@@ -14,11 +14,19 @@
  * limitations under the License.
  *@
 
-@import utils.LoggedInUser
+@import controllers._
+@import include._
+@import model._
+@import utils._
 
-@()(implicit request : Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig:config.AppConfig)
+@()(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = "Forbidden") {
-  <h1>You do not have permission to access Gatekeeper</h1>
-  <h2>Contact your administrator for access</h2>
+@main(title = s"${appConfig.title} - Developers 2") {
+
+<article class="content__body full-width">
+    <header>
+        <h1>Developers 2</h1>
+    </header>
+</article>
+
 }

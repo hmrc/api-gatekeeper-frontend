@@ -31,14 +31,14 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.Future
 
+case class LoggedInUser(userFullName: Option[String])
+
 trait GatekeeperAuthWrapper {
   self: BaseController =>
 
   def authConnector: AuthConnector
 
-  implicit def loggedIn(implicit request: LoggedInRequest[_]): Option[String] = request.name
-
-  implicit val appConfig : config.AppConfig
+  implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
   def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
@@ -56,7 +56,7 @@ trait GatekeeperAuthWrapper {
           request.secure
           Future.successful(toStrideLogin())
         case _: InsufficientEnrolments =>
-          implicit val unauthorisedUserName = None
+          implicit val unauthorisedUser = LoggedInUser(None)
           Future.successful(Forbidden(views.html.forbidden()))
       }
   }

@@ -15,8 +15,10 @@
  *@
 
 @import config.AppConfig
-@(title: String, mainContentHeader: Html = HtmlFormat.empty, userFullName: Option[String] = None)(mainContent: Html)(
-         implicit messages: Messages, appConfig: AppConfig)
+@import utils.LoggedInUser
+
+@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(
+         implicit messages: Messages, appConfig: AppConfig, loggedInUser: LoggedInUser)
 
 @import uk.gov.hmrc.play.views.html.layouts
 @import include._
@@ -25,7 +27,7 @@
 @userBanner = {
 <div id="user-nav-links" class="header__menu__proposition--sub-header">
   <ul class="header__menu__proposition-links">
-    @headerNavLinks(UserNavLinks(userFullName), anchorClass=Some("link-style"))
+    @headerNavLinks(UserNavLinks(loggedInUser.userFullName), anchorClass=Some("link-style"))
   </ul>
 </div>
 }
