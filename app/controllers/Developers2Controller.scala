@@ -22,18 +22,30 @@ import connectors.AuthConnector
 import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
+import services.DeveloperService
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
 
 import scala.concurrent.Future
 
 @Singleton
-class Developers2Controller @Inject()(val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+class Developers2Controller @Inject()(val authConnector: AuthConnector, developerService: DeveloperService)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage() = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc => Future.successful(Ok(developers2()))
+  }
+
+  def developersPage(emailAddress : Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      implicit hc => {
+
+        // TODO: Naked get.
+        developerService.searchDevelopers(emailAddress.get)
+
+        Future.successful(Ok(developers2()))
+      }
   }
 }
 
