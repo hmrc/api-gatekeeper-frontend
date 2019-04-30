@@ -32,19 +32,17 @@ import scala.concurrent.Future
 class Developers2Controller @Inject()(val authConnector: AuthConnector, developerService: DeveloperService)(override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def developersPage() = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      implicit hc => Future.successful(Ok(developers2()))
-  }
-
-  def developersPage(emailAddress : Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
+  def developersPage(maybeEmailFilter: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc => {
-
-        // TODO: Naked get.
-        developerService.searchDevelopers(emailAddress.get)
-
-        Future.successful(Ok(developers2()))
+        maybeEmailFilter match {
+          case Some(emailFilter) => {
+            developerService.searchDevelopers(emailFilter) map {
+              users => Ok(developers2(users))
+            }
+          }
+          case None => Future.successful(Ok(developers2(Seq.empty)))
+        }
       }
   }
 }

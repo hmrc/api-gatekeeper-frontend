@@ -219,6 +219,8 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }
+
+  def searchCollaborators(emailFilter: String): Future[Seq[String]] = ???
 }
 
 

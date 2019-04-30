@@ -22,7 +22,7 @@ import controllers.DevelopersController
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
-import org.mockito.Matchers.{any, anyString, eq => eqTo}
+import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
@@ -74,16 +74,16 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
+        given(mockApplicationService.fetchApplications(meq(apiFilter), meq(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
-        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
+        given(mockDeveloperService.getDevelopersWithApps(meq(apps), meq(users))(any[HeaderCarrier])).willReturn(developers)
         given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
-        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(any[HeaderCarrier])).willReturn(successful(developer))
+        given(mockDeveloperService.fetchDeveloper(meq(developer.email))(any[HeaderCarrier])).willReturn(successful(developer))
       }
 
       def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
@@ -189,7 +189,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(any[HeaderCarrier])
+        verify(mockDeveloperService).fetchDeveloper(meq(emailAddress))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
     }
@@ -210,7 +210,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInSuperUser))(any[HeaderCarrier])
+        verify(mockDeveloperService).removeMfa(meq(emailAddress), meq(loggedInSuperUser))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -241,7 +241,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         givenFetchDeveloperReturns(developer)
         val result = await(addToken(developersController.deleteDeveloperPage(emailAddress))(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(any[HeaderCarrier])
+        verify(mockDeveloperService).fetchDeveloper(meq(emailAddress))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
     }
@@ -263,7 +263,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         givenDeleteDeveloperReturns(DeveloperDeleteSuccessResult)
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(emailAddress), eqTo(superUserName))(any[HeaderCarrier])
+        verify(mockDeveloperService).deleteDeveloper(meq(emailAddress), meq(superUserName))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
 

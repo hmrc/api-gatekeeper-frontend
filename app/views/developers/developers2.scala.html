@@ -19,7 +19,7 @@
 @import model._
 @import utils._
 
-@()(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(users: Seq[User])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
 
@@ -27,6 +27,48 @@
     <header>
         <h1>Developers New</h1>
     </header>
+
+ <table id="developer-table"
+        class="dataTable no-footer developer-list"
+        width="100%">
+  <thead>
+  <tr role="row">
+   <th tabindex="0" class="sorting_left-aligned">Email</th>
+   <th tabindex="0" class="sorting_left-aligned">First name</th>
+   <th tabindex="0" class="sorting_left-aligned">Last name</th>
+   <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+   <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
+  </tr>
+  </thead>
+  <tbody>
+  @for((user, index) <- users.zipWithIndex) {
+  <tr role="row">
+   <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(user.email)}">@user.email</a></td>
+   <td id="dev-fn-@index">@user.firstName</td>
+   <td id="dev-sn-@index">@user.lastName</td>
+   <td class="text--right hard--right" id="dev-status-@index">
+    @defining(user.status match {
+    case VerifiedStatus => ("status status--verified", "verified")
+    case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+    case UnregisteredStatus => ("status status--not-verified", "not registered")
+    }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+   </td>
+   <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
+    @(user.mfaEnabled match {
+    case true => "Yes"
+    case false => "No"
+    })
+   </td>
+  </tr>
+  }
+  </tbody>
+ </table>
+
+
+
+
+
+
 </article>
 
 }

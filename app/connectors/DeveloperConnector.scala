@@ -29,6 +29,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DeveloperConnector {
+  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]]
+
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
@@ -40,7 +42,7 @@ trait DeveloperConnector {
 class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends DeveloperConnector {
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
-    http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover{
+    http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover {
       case e: NotFoundException => UnregisteredCollaborator(email)
     }
   }
@@ -67,6 +69,10 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
     http.POST[JsValue, User](s"${appConfig.developerBaseUrl}/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
+
+  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", Seq("emailFilter" -> email))
+  }
 }
 
 @Singleton
@@ -81,4 +87,6 @@ class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends D
     Future.successful(DeveloperDeleteSuccessResult)
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredCollaborator(email))
+
+  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = Future.successful(Seq.empty)
 }
