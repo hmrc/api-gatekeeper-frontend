@@ -28,8 +28,32 @@
         <h1>Developers New</h1>
     </header>
 
- <table id="developer-table"
-        class="dataTable no-footer developer-list"
+ <form name="developers-filters"
+       action="@routes.Developers2Controller.developersPage(None).url"
+       method="get">
+  <input type="hidden" name="page" value="1" />
+  <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
+
+   <div class="grid-layout__column">
+    <label class="bold centered-content hard--left label--full-length">
+     <span class="label__text bold">Search</span>
+
+     <input class="form-control input--cleared input-select--large full-width"
+            name="emailFilter"
+            type="text"
+            value=""
+            placeholder="Partial Email" />
+    </label>
+   </div>
+
+  </div>
+
+  <div class="form-group grid-layout grid-layout--stacked push--sides">
+   <input type="submit" value="Submit" name="main-submit" class="button text--center float--right flush--right" />
+  </div>
+
+  <table id="developer-table"
+        class="no-footer developer-list"
         width="100%">
   <thead>
   <tr role="row">
@@ -64,11 +88,7 @@
   </tbody>
  </table>
 
-
-
-
-
-
+ </form>
 </article>
 
 }
