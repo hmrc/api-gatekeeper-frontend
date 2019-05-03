@@ -19,7 +19,7 @@
 @import model._
 @import utils._
 
-@(users: Seq[User])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(users: Seq[User], params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
 
@@ -28,67 +28,71 @@
         <h1>Developers New</h1>
     </header>
 
- <form name="developers-filters"
-       action="@routes.Developers2Controller.developersPage(None).url"
-       method="get">
-  <input type="hidden" name="page" value="1" />
-  <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
+    @defining(Seq("emailFilter").map(params.get(_))) { case emailFilter :: _ =>
+    <form name="developers-filters"
+          action="@routes.Developers2Controller.developersPage(None).url"
+          method="get">
+        <input type="hidden" name="page" value="1"/>
+        <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
 
-   <div class="grid-layout__column">
-    <label class="bold centered-content hard--left label--full-length">
-     <span class="label__text bold">Search</span>
+            <div class="grid-layout__column">
+                <label class="bold centered-content hard--left label--full-length">
+                    <span class="label__text bold">Search</span>
 
-     <input class="form-control input--cleared input-select--large full-width"
-            name="emailFilter"
-            type="text"
-            value=""
-            placeholder="Partial Email" />
-    </label>
-   </div>
+                    <input class="form-control input--cleared input-select--large full-width"
+                           name="emailFilter"
+                           type="text"
+                           value="@emailFilter"
+                           placeholder="Partial Email"/>
+                </label>
+            </div>
 
-  </div>
+        </div>
 
-  <div class="form-group grid-layout grid-layout--stacked push--sides">
-   <input type="submit" value="Submit" name="main-submit" class="button text--center float--right flush--right" />
-  </div>
+        <div class="form-group grid-layout grid-layout--stacked push--sides">
+            <input type="submit" value="Submit" name="main-submit"
+                   class="button text--center float--right flush--right"/>
+        </div>
 
-  <table id="developer-table"
-        class="no-footer developer-list"
-        width="100%">
-  <thead>
-  <tr role="row">
-   <th tabindex="0" class="sorting_left-aligned">Email</th>
-   <th tabindex="0" class="sorting_left-aligned">First name</th>
-   <th tabindex="0" class="sorting_left-aligned">Last name</th>
-   <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
-   <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
-  </tr>
-  </thead>
-  <tbody>
-  @for((user, index) <- users.zipWithIndex) {
-  <tr role="row">
-   <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(user.email)}">@user.email</a></td>
-   <td id="dev-fn-@index">@user.firstName</td>
-   <td id="dev-sn-@index">@user.lastName</td>
-   <td class="text--right hard--right" id="dev-status-@index">
-    @defining(user.status match {
-    case VerifiedStatus => ("status status--verified", "verified")
-    case UnverifiedStatus => ("status status--not-verified", "not yet verified")
-    case UnregisteredStatus => ("status status--not-verified", "not registered")
-    }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
-   </td>
-   <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
-    @(user.mfaEnabled match {
-    case true => "Yes"
-    case false => "No"
-    })
-   </td>
-  </tr>
-  }
-  </tbody>
- </table>
+        <table id="developer-table"
+               class="no-footer developer-list"
+               width="100%">
+            <thead>
+            <tr role="row">
+                <th tabindex="0" class="sorting_left-aligned">Email</th>
+                <th tabindex="0" class="sorting_left-aligned">First name</th>
+                <th tabindex="0" class="sorting_left-aligned">Last name</th>
+                <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for((user, index) <- users.zipWithIndex) {
+            <tr role="row">
+                <td id="dev-email-@index" width="45%"><a
+                        href="@{routes.DevelopersController.developerPage(user.email)}">@user.email</a></td>
+                <td id="dev-fn-@index">@user.firstName</td>
+                <td id="dev-sn-@index">@user.lastName</td>
+                <td class="text--right hard--right" id="dev-status-@index">
+                    @defining(user.status match {
+                    case VerifiedStatus => ("status status--verified", "verified")
+                    case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                    case UnregisteredStatus => ("status status--not-verified", "not registered")
+                    }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+                </td>
+                <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
+                    @(user.mfaEnabled match {
+                    case true => "Yes"
+                    case false => "No"
+                    })
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
 
- </form>
+    </form>
+    }
 </article>
 
 }

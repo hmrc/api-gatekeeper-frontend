@@ -18,7 +18,7 @@ package unit.controllers
 
 import java.util.UUID
 
-import controllers.{Developers2Controller, DevelopersController}
+import controllers.Developers2Controller
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -26,7 +26,6 @@ import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
@@ -35,7 +34,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 
 class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
 
@@ -128,9 +127,24 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         bodyOf(result) should include(emailAddress)
 
-
         verify(mockDeveloperService).searchDevelopers(meq(partialEmailAddress))(any[HeaderCarrier])
       }
+
+      "remember the search filter text on submit" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val searchFilter = "aFilter"
+
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List.empty)
+
+        implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
+
+        val result: Result = await(developersController.developersPage(Some(searchFilter))(request))
+
+        bodyOf(result) should include(s"""value="$searchFilter"""")
+      }
+
 
       // TODO: verifyAuthConnectorCalledForUser
     }

@@ -35,13 +35,16 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector, develope
   def developersPage(maybeEmailFilter: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc => {
+
+        val params = request.queryString.map { case (k, v) => k -> v.mkString }
+
         maybeEmailFilter match {
           case Some(emailFilter) => {
             developerService.searchDevelopers(emailFilter) map {
-              users => Ok(developers2(users))
+              users => Ok(developers2(users, params))
             }
           }
-          case None => Future.successful(Ok(developers2(Seq.empty)))
+          case None => Future.successful(Ok(developers2(Seq.empty, params)))
         }
       }
   }
