@@ -16,10 +16,11 @@
 
 @import model._
 @import include._
+@import utils.LoggedInUser
 
-@(application: ApplicationResponse, form: Form[Set[String]], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(application: ApplicationResponse, form: Form[Set[String]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Manage scopes", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Manage scopes") {
 
 <div class="">
 

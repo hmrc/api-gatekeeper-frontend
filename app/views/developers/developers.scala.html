@@ -17,20 +17,34 @@
 @import controllers._
 @import include._
 @import model._
+@import utils.LoggedInUser
 
 @(users: Seq[ApplicationDeveloper],
 emails: String,
 apis: Map[String, Seq[VersionSummary]],
 filter: Option[String],
 status: Option[String],
-environment: Option[String])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Developers", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Developers") {
 
 <article class="content__body full-width">
     <header>
         <h1>Developers</h1>
     </header>
+
+    <div style="
+        padding: 15px;
+        background-color: #005ea5;
+        color: #fff;
+        margin-top: 15px;
+        margin-bottom: 15px;">
+        <h2 style="margin: 0px">New beta search</h2>
+        <p>
+            We are building a new search page. It is not finished yet, but you can access the beta page
+            <a style="color: #fff" href="@{routes.Developers2Controller.developersPage(None)}">here</a> if you wish.
+        </p>
+    </div>
 
     <form name="developer-filters"
           action="@routes.DevelopersController.developersPage(filter, status, environment).url"

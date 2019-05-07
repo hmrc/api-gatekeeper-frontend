@@ -45,6 +45,7 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.LoggedInUser
 import views.html
 
 class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with OneServerPerSuite {
@@ -52,8 +53,7 @@ class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with
   "ApplicationsView" when {
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
-    implicit val userName = Option("Bob Dole")
-
+    implicit val loggedInUser = LoggedInUser(Some("Bob Dole"))
 
     "Called with no APIs" should {
       val applicationView: () => HtmlFormat.Appendable = () => html.applications.applications(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)

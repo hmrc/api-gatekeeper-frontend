@@ -18,10 +18,11 @@
 @import model.RateLimitTier
 @import org.joda.time.format.DateTimeFormat
 @import utils.GatekeeperAuthWrapper
+@import utils.LoggedInUser
 
-@(application: ApprovedApplication)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(application: ApprovedApplication)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Dashboard", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Dashboard") {
 
     @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
         <div class="content__body">

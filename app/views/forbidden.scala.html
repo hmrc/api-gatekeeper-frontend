@@ -14,9 +14,11 @@
  * limitations under the License.
  *@
 
-@()(implicit request : Request[_], userFullName: Option[String], messages: Messages, appConfig:config.AppConfig)
+@import utils.LoggedInUser
 
-@main(title = "Forbidden", userFullName = userFullName) {
+@()(implicit request : Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig:config.AppConfig)
+
+@main(title = "Forbidden") {
   <h1>You do not have permission to access Gatekeeper</h1>
   <h2>Contact your administrator for access</h2>
 }

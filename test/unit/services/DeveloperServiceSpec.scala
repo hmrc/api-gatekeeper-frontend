@@ -47,7 +47,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")
-  def aSandboxApp(name: String, collaborators: Set[Collaborator]) :ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
+
+  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
   trait Setup {
     val mockProductionApplicationConnector = mock[ProductionApplicationConnector]
@@ -106,8 +107,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   def bob(apps: Seq[Application] = Seq.empty) = aDeveloper("Bob", apps)
+
   def jim(apps: Seq[Application] = Seq.empty) = aDeveloper("Jim", apps)
+
   def jacob(apps: Seq[Application] = Seq.empty) = aDeveloper("Jacob", apps)
+
   def julia(apps: Set[Application]) = createUnregisteredDeveloper("Julia@example.com", apps)
 
   "developerService" should {
@@ -320,5 +324,46 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockProductionApplicationConnector, never).removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier])
       verify(mockSandboxApplicationConnector, never).removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier])
     }
+  }
+
+  "developerService searchDevelopers" should {
+    //    "find both users and collaborators" in new Setup{
+    //      underTest.searchDevelopers("")
+    //    }
+
+    "find users" in new Setup {
+      private val user = aUser("fred")
+      private val emailFilter = "example"
+
+      when(mockProductionApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
+      when(mockSandboxApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
+
+      when(mockDeveloperConnector.searchDevelopers(emailFilter)).thenReturn(List(user))
+
+      val result = await(underTest.searchDevelopers(emailFilter))
+
+      result shouldBe List(user)
+
+      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+    }
+
+    "find collaborators" in new Setup {
+      private val sandboxEmail = "sandbox@example.com"
+      private val productionEmail = "production@example.com"
+      private val emailFilter = "example"
+
+      when(mockDeveloperConnector.searchDevelopers(any())(any[HeaderCarrier])).thenReturn(Seq.empty)
+
+      when(mockProductionApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(productionEmail))
+      when(mockSandboxApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(sandboxEmail))
+
+      val result = await(underTest.searchDevelopers(emailFilter))
+
+      result shouldBe List(UnregisteredCollaborator(productionEmail), UnregisteredCollaborator(sandboxEmail))
+
+      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+    }
+
+    // TODO Distinct list
   }
 }

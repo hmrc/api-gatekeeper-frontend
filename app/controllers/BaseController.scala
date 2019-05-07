@@ -20,10 +20,16 @@ import config.AppConfig
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.LoggedInUser
 import views.html.error_template
 
 abstract class BaseController(implicit val appConfig: AppConfig) extends FrontendController {
 
-  def technicalDifficulties(implicit request: Request[_], messages: Messages)  = InternalServerError(error_template("Technical difficulties", "Technical difficulties",
-    "Sorry, we’re experiencing technical difficulties"))
+  def technicalDifficulties(implicit request: Request[_], messages: Messages)  = {
+
+    implicit val loggedInUser = LoggedInUser(None)
+
+    InternalServerError(error_template("Technical difficulties", "Technical difficulties",
+      "Sorry, we’re experiencing technical difficulties"))
+  }
 }

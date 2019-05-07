@@ -18,7 +18,7 @@ import scala.util.Properties
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
-lazy val hmrctestVersion = "3.6.0-play-25"
+lazy val hmrctestVersion = "3.8.0-play-25"
 
 lazy val microservice =  (project in file("."))
     .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -58,16 +58,16 @@ lazy val microservice =  (project in file("."))
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in Test := Seq(Tests.Filter(unitFilter), Tests.Argument("-eT")),
       addTestReportOption(Test, "test-reports"),
-      unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")),
-      unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit"))
+      unmanagedSourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")).value,
+      unmanagedResourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")).value
     )
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(
     testOptions in IntegrationTest := Seq(Tests.Filter(itFilter), Tests.Argument("-eT")),
       addTestReportOption(IntegrationTest, "integration-test-reports"),
-      unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest) (base => Seq(base / "test")),
-      unmanagedResourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest) (base => Seq(base / "test/it")),
+      unmanagedSourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest) (base => Seq(base / "test")).value,
+      unmanagedResourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest) (base => Seq(base / "test/it")).value,
       fork in IntegrationTest := false,
       parallelExecution in IntegrationTest := false
     )
@@ -76,8 +76,8 @@ lazy val microservice =  (project in file("."))
     .settings(
       testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter), Tests.Argument("-l", "SandboxTest", "-eT")),
       testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
-      unmanagedSourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
-      unmanagedResourceDirectories in AcceptanceTest <<= (baseDirectory in AcceptanceTest) (base => Seq(base / "test")),
+      unmanagedSourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
+      unmanagedResourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
       unmanagedResourceDirectories in AcceptanceTest <+= baseDirectory(_ / "target/web/public/test"),
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
@@ -88,8 +88,8 @@ lazy val microservice =  (project in file("."))
     .settings(
       testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT"), Tests.Filter(sandboxFilter)),
       testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
-      unmanagedSourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),
-      unmanagedResourceDirectories in SandboxTest <<= (baseDirectory in SandboxTest) (base => Seq(base / "test")),
+      unmanagedSourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
+      unmanagedResourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
       unmanagedResourceDirectories in SandboxTest <+= baseDirectory(_ / "target/web/public/test"),
       Keys.fork in SandboxTest := false,
       parallelExecution in SandboxTest := false,
@@ -157,9 +157,9 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.11.0",
   "uk.gov.hmrc" %% "govuk-template" % "5.30.0-play-25",
-  "uk.gov.hmrc" %% "play-ui" % "7.33.0-play-25",
+  "uk.gov.hmrc" %% "play-ui" % "7.39.0-play-25",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
   "uk.gov.hmrc" %% "json-encryption" % "4.1.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",

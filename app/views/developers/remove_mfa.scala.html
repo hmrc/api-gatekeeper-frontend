@@ -17,10 +17,11 @@
 @import controllers._
 @import include._
 @import model._
+@import utils.LoggedInUser
 
-@(developer: Developer)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(developer: Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Remove 2SV", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Remove 2SV") {
 
 <article class="content__body full-width">
     <nav class="breadcrumb-nav">

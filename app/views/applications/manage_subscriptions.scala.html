@@ -18,10 +18,11 @@
 @import model.Forms._
 @import views.helper.IdFormatter
 @import include._
+@import utils.LoggedInUser
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], userFullName: Option[String], flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
-@main(title = s"${appConfig.title} - Manage Subscriptions", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Manage Subscriptions") {
 
 <div class="content__body">
 

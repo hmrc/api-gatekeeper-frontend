@@ -16,10 +16,11 @@
 
 @import model._
 @import include._
+@import utils.LoggedInUser
 
-@(application: Application)(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(application: Application)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Manage Team Members", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Manage Team Members") {
 
 <div class="content-body">
     <nav class="breadcrumb-nav">

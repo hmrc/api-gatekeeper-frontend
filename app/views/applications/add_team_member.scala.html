@@ -17,10 +17,11 @@
 @import include._
 @import model._
 @import model.Forms.AddTeamMemberForm
+@import utils.LoggedInUser
 
-@(application: Application, form: Form[AddTeamMemberForm])(implicit request: Request[_], userFullName: Option[String], messages: Messages, appConfig: config.AppConfig)
+@(application: Application, form: Form[AddTeamMemberForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Add Team Member", userFullName = userFullName) {
+@main(title = s"${appConfig.title} - Add Team Member") {
 
 <div class="content-body">
     <nav class="breadcrumb-nav">

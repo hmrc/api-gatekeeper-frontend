@@ -219,8 +219,10 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
     encode(str, encoding)
   }
-}
 
+// TODO Need to implement
+  def searchCollaborators(emailFilter: String): Future[Seq[String]] = Future.successful(Seq.empty)
+}
 
 @Singleton
 class SandboxApplicationConnector @Inject()(appConfig: AppConfig,

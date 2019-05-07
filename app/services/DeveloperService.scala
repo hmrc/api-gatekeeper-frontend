@@ -28,6 +28,15 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
+  def searchDevelopers(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    for {
+      developers <- developerConnector.searchDevelopers(emailFilter)
+      productionCollaboratorsEmails <- productionApplicationConnector.searchCollaborators(emailFilter)
+      productionCollaborators <- Future.successful(productionCollaboratorsEmails.map(UnregisteredCollaborator.apply))
+      sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
+      sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
+    } yield developers ++ productionCollaborators ++ sandboxCollaborators
+  }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
@@ -68,7 +77,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
   def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = filter match {
     case AnyEnvironment => users
-    case ProductionEnvironment => users.filter(user => user.apps.exists (app => app.deployedTo == "PRODUCTION"))
+    case ProductionEnvironment => users.filter(user => user.apps.exists(app => app.deployedTo == "PRODUCTION"))
     case SandboxEnvironment => users
   }
 
@@ -107,7 +116,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.removeMfa(email, loggedInUser)
   }
 
-  def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit  hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+  def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
 
     def fetchAdminsToEmail(app: Application): Future[Seq[String]] = {
       if (app.deployedTo == "SANDBOX") {
@@ -134,7 +143,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     fetchDeveloper(email).flatMap { developer =>
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.apps.partition(_.isSoleAdmin(email))
 
-      if(appsSoleAdminOn.isEmpty) {
+      if (appsSoleAdminOn.isEmpty) {
         for {
           _ <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp)
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
