@@ -59,7 +59,7 @@
         <h1>Developers New</h1>
     </header>
 
-    @defining(Seq("emailFilter").map(params.get(_))) { case emailFilter :: _ =>
+    @defining(Seq("emailFilter", "apiVersionFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: _ =>
     <form name="developers-filters"
           action="@routes.Developers2Controller.developersPage(None).url"
           method="get">
@@ -67,24 +67,27 @@
         <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
 
             <div class="grid-layout__column">
-                <label class="bold centered-content hard--left label--full-length">
+                <label class="bold centered-content hard--left label--full-length" for="emailFilter">
                     <span class="label__text bold">Search</span>
 
-                    <input class="form-control input--cleared input-select--large full-width"
-                           name="emailFilter"
-                           type="text"
-                           value="@emailFilter"
-                           placeholder="Partial Email"/>
+                        <input class="form-control input--cleared input-select--large full-width"
+                               id="emailFilter"
+                               name="emailFilter"
+                               type="text"
+                               value="@emailFilter"
+                               placeholder="Partial Email"/>
                 </label>
             </div>
 
         </div>
 
-        <label class="form-label bold" for="filter">Filter by API Subscription
-            <select class="form-control input-select input-select--large" id="filter" name="filter" value="">
+        <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
+            <select class="form-control input-select input-select--large" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
                 <option selected="" value=""></option>
                 @for(apiVersion <- apiVersions){
-                    <option value="@apiVersion">@apiVersion</option>
+                    <option @if(apiVersionFilter == Some(apiVersion)){selected} value="@apiVersion">
+                        @apiVersion
+                    </option>
                 }
             </select>
         </label>
