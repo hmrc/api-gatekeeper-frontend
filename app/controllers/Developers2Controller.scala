@@ -16,20 +16,23 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
 import config.AppConfig
 import connectors.AuthConnector
+import javax.inject.{Inject, Singleton}
 import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import services.DeveloperService
+import services.{ApiDefinitionService, DeveloperService}
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
 
 import scala.concurrent.Future
 
 @Singleton
-class Developers2Controller @Inject()(val authConnector: AuthConnector, developerService: DeveloperService)(override implicit val appConfig: AppConfig)
+class Developers2Controller @Inject()(val authConnector: AuthConnector,
+                                      developerService: DeveloperService,
+                                      val apiDefinitionService: ApiDefinitionService)
+                                     (override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage(maybeEmailFilter: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
@@ -40,6 +43,16 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector, develope
           users.map(_.email).mkString("; ")
         }
 
+        def mapToApiVersionFilterOption(apiDefinitions: Seq[APIDefinition]) = {
+          (for {
+            api <- apiDefinitions
+            version <- api.versions
+          } yield s"${api.name} (${version.version})")
+            .sorted
+        }
+
+        val apiDefinitions = apiDefinitionService.fetchAllApiDefinitions()
+
         val queryParameters = request.queryString.map { case (k, v) => k -> v.mkString }
 
         val filteredUsers = maybeEmailFilter match {
@@ -47,9 +60,10 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector, develope
           case None => Future.successful(Seq.empty)
         }
 
-        filteredUsers.map {
-          users => Ok(developers2(users, usersToEmailCopyText(users), queryParameters))
-        }
+        for {
+          users <- filteredUsers
+          apiVersions <- apiDefinitions
+        } yield Ok(developers2(users, usersToEmailCopyText(users), mapToApiVersionFilterOption(apiVersions), queryParameters))
       }
   }
 }

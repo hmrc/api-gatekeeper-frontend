@@ -19,7 +19,10 @@
 @import model._
 @import utils._
 
-@(users: Seq[User], emails: String, params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(users: Seq[User],
+    emails: String,
+    apiVersions : Seq[String],
+    params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
 
@@ -76,6 +79,15 @@
             </div>
 
         </div>
+
+        <label class="form-label bold" for="filter">Filter by API Subscription
+            <select class="form-control input-select input-select--large" id="filter" name="filter" value="">
+                <option selected="" value=""></option>
+                @for(apiVersion <- apiVersions){
+                    <option value="@apiVersion">@apiVersion</option>
+                }
+            </select>
+        </label>
 
         <div class="form-group grid-layout grid-layout--stacked push--sides">
             <input type="submit" value="Submit" name="main-submit"

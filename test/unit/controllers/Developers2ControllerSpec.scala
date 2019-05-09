@@ -66,7 +66,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       val mockDeveloperService = mock[DeveloperService]
 
-      val developersController = new Developers2Controller(mockAuthConnector, mockDeveloperService) {
+      val developersController = new Developers2Controller(mockAuthConnector, mockDeveloperService, mockApiDefinitionService) {
         override val appConfig = mockConfig
       }
 
@@ -160,6 +160,22 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result: Result = await(developersController.developersPage(Some(""))(request))
 
         bodyOf(result) should include(s"$email1; $email2" )
+      }
+
+      "show an api version filter dropdown " in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiDefinition = APIDefinition("", "", "MyApi", "", "", apiVersions, None)
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
+
+        val result = await(developersController.developersPage()(aLoggedInRequest))
+
+        bodyOf(result) should include("MyApi (1.0)")
+        bodyOf(result) should include("MyApi (2.0)")
+
+        verifyAuthConnectorCalledForUser
       }
 
       // TODO: verifyAuthConnectorCalledForUser
