@@ -19,7 +19,7 @@
 @import model._
 @import utils._
 
-@(users: Seq[User], params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(users: Seq[User], emails: String, params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
 
@@ -121,6 +121,18 @@
 
     </form>
     }
+
+    @if(users.nonEmpty) {
+    <div class="form-group>">
+        <p>
+            <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
+        </p>
+    </div>
+    }
+    <div class="form-group>">
+        <a class="back-to-top-link" href="#">Back to Top</a>
+    </div>
+
 </article>
 
 }

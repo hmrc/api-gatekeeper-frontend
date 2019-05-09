@@ -36,15 +36,19 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector, develope
     implicit request =>
       implicit hc => {
 
-        val params = request.queryString.map { case (k, v) => k -> v.mkString }
+        def usersToEmailCopyText(users: Seq[User]): String = {
+          users.map(_.email).mkString("; ")
+        }
 
-        maybeEmailFilter match {
-          case Some(emailFilter) => {
-            developerService.searchDevelopers(emailFilter) map {
-              users => Ok(developers2(users, params))
-            }
-          }
-          case None => Future.successful(Ok(developers2(Seq.empty, params)))
+        val queryParameters = request.queryString.map { case (k, v) => k -> v.mkString }
+
+        val filteredUsers = maybeEmailFilter match {
+          case Some(emailFilter) => developerService.searchDevelopers(emailFilter)
+          case None => Future.successful(Seq.empty)
+        }
+
+        filteredUsers.map {
+          users => Ok(developers2(users, usersToEmailCopyText(users), queryParameters))
         }
       }
   }
