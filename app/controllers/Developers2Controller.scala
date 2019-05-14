@@ -23,7 +23,7 @@ import model._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import services.{ApiDefinitionService, DeveloperService}
-import utils.GatekeeperAuthWrapper
+import utils.{GatekeeperAuthWrapper, LoggedInRequest}
 import views.html.developers._
 
 import scala.concurrent.Future
@@ -36,35 +36,45 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
   extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage(maybeEmailFilter: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      implicit hc => {
+    implicit request => implicit hc => {
 
-        def usersToEmailCopyText(users: Seq[User]): String = {
-          users.map(_.email).mkString("; ")
-        }
+      val queryParameters = getQueryParametersAsKeyValues(request)
 
-        def mapToApiVersionFilterOption(apiDefinitions: Seq[APIDefinition]) = {
-          (for {
-            api <- apiDefinitions
-            version <- api.versions
-          } yield s"${api.name} (${version.version})")
-            .sorted
-        }
-
-        val apiDefinitions = apiDefinitionService.fetchAllApiDefinitions()
-
-        val queryParameters = request.queryString.map { case (k, v) => k -> v.mkString }
-
-        val filteredUsers = maybeEmailFilter match {
-          case Some(emailFilter) => developerService.searchDevelopers(emailFilter)
-          case None => Future.successful(Seq.empty)
-        }
-
-        for {
-          users <- filteredUsers
-          apiVersions <- apiDefinitions
-        } yield Ok(developers2(users, usersToEmailCopyText(users), mapToApiVersionFilterOption(apiVersions), queryParameters))
+      val filteredUsers = maybeEmailFilter match {
+        case Some(emailFilter) => developerService.searchDevelopers(emailFilter)
+        case None => Future.successful(Seq.empty)
       }
+
+      for {
+        users <- filteredUsers
+        apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
+      } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
+    }
   }
+
+  private def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
+    request.queryString.map { case (k, v) => k -> v.mkString }
+  }
+
+  def usersToEmailCopyText(users: Seq[User]): String = {
+    users.map(_.email).mkString("; ")
+  }
+
+  def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
+    def toKeyValue(api: APIDefinition, version: APIVersion) = {
+      val value = s"${api.context}__${version.version}"
+
+      val description = s"${api.name} (${version.version})"
+
+      DropDownValue(value, description)
+    }
+
+    (for {
+      api <- apiDefinitions
+      version <- api.versions
+    } yield toKeyValue(api, version))
+      .sortBy(keyValue => keyValue.description)
+  }
+
 }
 

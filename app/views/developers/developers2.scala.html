@@ -21,7 +21,7 @@
 
 @(users: Seq[User],
     emails: String,
-    apiVersions : Seq[String],
+    apiVersions : Seq[DropDownValue],
     params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
@@ -85,8 +85,8 @@
             <select class="form-control input-select input-select--large" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
                 <option selected="" value=""></option>
                 @for(apiVersion <- apiVersions){
-                    <option @if(apiVersionFilter == Some(apiVersion)){selected} value="@apiVersion">
-                        @apiVersion
+                    <option @if(apiVersionFilter == Some(apiVersion)){selected} value="@apiVersion.value">
+                        @apiVersion.description
                     </option>
                 }
             </select>

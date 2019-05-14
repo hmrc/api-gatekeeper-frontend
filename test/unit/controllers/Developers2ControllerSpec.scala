@@ -40,10 +40,6 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
   implicit val materializer = fakeApplication.materializer
 
-  // Search by email
-  // with submit
-  // List of emails and other columns
-
   Helpers.running(fakeApplication) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
@@ -162,18 +158,34 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         bodyOf(result) should include(s"$email1; $email2" )
       }
 
-      "show an api version filter dropdown " in new Setup {
+      "show an api version filter dropdown with correct display text" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
 
         val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
-        val apiDefinition = APIDefinition("", "", "MyApi", "", "", apiVersions, None)
+        val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
         bodyOf(result) should include("MyApi (1.0)")
         bodyOf(result) should include("MyApi (2.0)")
+
+        verifyAuthConnectorCalledForUser
+      }
+
+      "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiDefinition = APIDefinition("", "", name = "", "", context = "my-api-context", apiVersions, None)
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
+
+        val result = await(developersController.developersPage()(aLoggedInRequest))
+
+        bodyOf(result) should include("my-api-context__1.0")
+        bodyOf(result) should include("my-api-context__2.0")
 
         verifyAuthConnectorCalledForUser
       }
