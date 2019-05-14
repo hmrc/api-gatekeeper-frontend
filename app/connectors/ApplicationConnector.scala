@@ -82,7 +82,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/$applicationId")
   }
 
-  def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
         case e =>
@@ -203,12 +203,12 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
 
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
-        .recover {
+      .recover {
         case failure => CreatePrivOrROPCAppFailureResult
       }
   }
 
-  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier) : Future[GetClientCredentialsResult] = {
+  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier): Future[GetClientCredentialsResult] = {
     http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
   }
 
@@ -220,14 +220,19 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     encode(str, encoding)
   }
 
-// TODO Need to implement
+  // TODO Need to remove?
   def searchCollaborators(emailFilter: String): Future[Seq[String]] = Future.successful(Seq.empty)
+
+  // TODO: Rename and remove '2'
+  def searchCollaborators2(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+    http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", Seq("context" -> apiContext, "version" -> apiVersion))
+  }
 }
 
 @Singleton
 class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
-                                               val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                            val httpClient: HttpClient,
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.SANDBOX
@@ -238,8 +243,8 @@ class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
 
 @Singleton
 class ProductionApplicationConnector @Inject()(appConfig: AppConfig,
-                                            val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                               val httpClient: HttpClient,
+                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.PRODUCTION
