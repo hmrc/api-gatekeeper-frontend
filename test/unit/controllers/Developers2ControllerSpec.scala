@@ -117,13 +117,14 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List(user))
+        given(mockDeveloperService.searchDevelopers2(any())(any[HeaderCarrier])).willReturn(List(user))
 
         val result: Result = await(developersController.developersPage(Some(partialEmailAddress))(aLoggedInRequest))
 
         bodyOf(result) should include(emailAddress)
 
-        verify(mockDeveloperService).searchDevelopers(meq(partialEmailAddress))(any[HeaderCarrier])
+        val expectedFilter = Developers2Filter(Some(partialEmailAddress))
+        verify(mockDeveloperService).searchDevelopers2(meq(expectedFilter))(any[HeaderCarrier])
       }
 
       "remember the search filter text on submit" in new Setup {
@@ -132,7 +133,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         private val searchFilter = "aFilter"
 
-        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List.empty)
+        given(mockDeveloperService.searchDevelopers2(any())(any[HeaderCarrier])).willReturn(List.empty)
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
 
@@ -149,7 +150,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         private val email2 = "b@example.com"
         val users = List(aUser(email1),aUser(email2))
 
-        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(users)
+        given(mockDeveloperService.searchDevelopers2(any())(any[HeaderCarrier])).willReturn(users)
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
@@ -190,6 +191,25 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verifyAuthConnectorCalledForUser
       }
 
+      "search by api version" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val emailAddress = "developer@example.com"
+        private val user = aUser(emailAddress)
+        private val apiDefinitionValueFromDropDown = "api-definition__1.0"
+
+        // Note: Developers is both users and collaborators
+        given(mockDeveloperService.searchDevelopers2(any())(any[HeaderCarrier])).willReturn(List(user))
+
+        val result: Result = await(developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest))
+
+        bodyOf(result) should include(emailAddress)
+
+        val filter = ApiContextVersion("api-definition", "1.0")
+        val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
+        verify(mockDeveloperService).searchDevelopers2(meq(expectedFilter))(any[HeaderCarrier])
+      }
       // TODO: verifyAuthConnectorCalledForUser
     }
   }

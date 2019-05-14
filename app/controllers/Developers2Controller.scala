@@ -35,22 +35,25 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                      (override implicit val appConfig: AppConfig)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def developersPage(maybeEmailFilter: Option[String] = None) = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => {
+  def developersPage(maybeEmailFilter: Option[String] = None, maybeApiVersionFilter: Option[String] = None) =
+    requiresAtLeast(GatekeeperRole.USER) {
 
-      val queryParameters = getQueryParametersAsKeyValues(request)
+      implicit request =>
+        implicit hc => {
 
-      val filteredUsers = maybeEmailFilter match {
-        case Some(emailFilter) => developerService.searchDevelopers(emailFilter)
-        case None => Future.successful(Seq.empty)
-      }
+          val queryParameters = getQueryParametersAsKeyValues(request)
 
-      for {
-        users <- filteredUsers
-        apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
-      } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
+          val filteredUsers = (maybeEmailFilter,maybeApiVersionFilter) match {
+            case (None, None) => Future.successful(Seq.empty)
+            case _ => developerService.searchDevelopers2(Developers2Filter(maybeEmailFilter, ApiContextVersion(maybeApiVersionFilter)))
+          }
+
+          for {
+            users <- filteredUsers
+            apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
+          } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
+        }
     }
-  }
 
   private def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
     request.queryString.map { case (k, v) => k -> v.mkString }
@@ -62,8 +65,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
   def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
     def toKeyValue(api: APIDefinition, version: APIVersion) = {
-      val value = s"${api.context}__${version.version}"
-
+      val value = ApiContextVersion(api.context, version.version).toStringValue
       val description = s"${api.name} (${version.version})"
 
       DropDownValue(value, description)
@@ -75,6 +77,5 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
     } yield toKeyValue(api, version))
       .sortBy(keyValue => keyValue.description)
   }
-
 }
 

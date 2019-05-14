@@ -28,6 +28,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
+  // TODO: For the bin
   def searchDevelopers(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     for {
       developers <- developerConnector.searchDevelopers(emailFilter)
@@ -36,6 +37,11 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
       sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
     } yield developers ++ productionCollaborators ++ sandboxCollaborators
+  }
+
+  // TODO: Rename without '2'
+  def searchDevelopers2(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    Future.successful(Seq.empty)
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
