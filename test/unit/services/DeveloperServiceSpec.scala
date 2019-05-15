@@ -366,4 +366,95 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
     // TODO Distinct list
   }
+
+  "developerService searchDevelopers2" should {
+    "find users" in new Setup {
+      private val user = aUser("fred")
+      private val emailFilter = "example"
+
+      when(mockProductionApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
+      when(mockSandboxApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
+      when(mockDeveloperConnector.searchDevelopers(emailFilter)).thenReturn(List(user))
+
+      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
+
+      val result = await(underTest.searchDevelopers2(filter))
+
+      result shouldBe List(user)
+
+      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+    }
+
+    "find collaborators" in new Setup {
+      private val sandboxEmail = "sandbox@example.com"
+      private val productionEmail = "production@example.com"
+      private val emailFilter = "example"
+
+      when(mockDeveloperConnector.searchDevelopers(any())(any[HeaderCarrier])).thenReturn(Seq.empty)
+
+      when(mockProductionApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(productionEmail))
+      when(mockSandboxApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(sandboxEmail))
+
+      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
+
+      val result = await(underTest.searchDevelopers2(filter))
+
+      result shouldBe List(UnregisteredCollaborator(productionEmail), UnregisteredCollaborator(sandboxEmail))
+
+      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+    }
+
+    "find by emails and api version errors" in new Setup {
+      val filter = Developers2Filter(maybeEmailFilter = Some("user@example.com"), maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+
+      val exception = intercept[NotImplementedError] {
+        await(underTest.searchDevelopers2(filter))
+      }
+
+      exception.getMessage() shouldBe "Currently does not support subscription and email filtering"
+    }
+
+    "find by api context and version" in new Setup {
+      private val productionEmail = "production@example.com"
+      private val sandboxEmail = "sandbox@example.com"
+
+      when(mockProductionApplicationConnector.searchCollaborators2(any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(productionEmail))
+      when(mockSandboxApplicationConnector.searchCollaborators2(any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(sandboxEmail))
+
+      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+
+      val result = await(underTest.searchDevelopers2(filter))
+
+      result shouldBe List(
+        User(productionEmail, firstName = "", lastName = "", verified = None),
+        User(sandboxEmail, firstName = "", lastName = "", verified = None)
+      )
+
+      verify(mockProductionApplicationConnector).searchCollaborators2("api", "1.0")
+      verify(mockSandboxApplicationConnector).searchCollaborators2("api", "1.0")
+    }
+
+    "find by api context and version where same email in production and sandbox" in new Setup {
+      private val email = "user@example.com"
+
+      when(mockProductionApplicationConnector.searchCollaborators2(any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(email))
+      when(mockSandboxApplicationConnector.searchCollaborators2(any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(email))
+
+      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+
+      val result = await(underTest.searchDevelopers2(filter))
+
+      result shouldBe List(
+        User(email, firstName = "", lastName = "", verified = None)
+      )
+    }
+
+
+    // TODO Distinct list
+  }
+
 }

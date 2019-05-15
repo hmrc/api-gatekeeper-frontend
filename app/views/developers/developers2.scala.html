@@ -61,7 +61,7 @@
 
     @defining(Seq("emailFilter", "apiVersionFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: _ =>
     <form name="developers-filters"
-          action="@routes.Developers2Controller.developersPage(None).url"
+          action="@routes.Developers2Controller.developersPage(None,None).url"
           method="get">
         <input type="hidden" name="page" value="1"/>
         <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
@@ -80,12 +80,11 @@
             </div>
 
         </div>
-
         <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
             <select class="form-control input-select input-select--large" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
-                <option selected="" value=""></option>
+                <option value=""></option>
                 @for(apiVersion <- apiVersions){
-                    <option @if(apiVersionFilter == Some(apiVersion)){selected} value="@apiVersion.value">
+                    <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">
                         @apiVersion.description
                     </option>
                 }

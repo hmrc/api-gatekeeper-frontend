@@ -45,7 +45,13 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
           val filteredUsers = (maybeEmailFilter,maybeApiVersionFilter) match {
             case (None, None) => Future.successful(Seq.empty)
-            case _ => developerService.searchDevelopers2(Developers2Filter(maybeEmailFilter, ApiContextVersion(maybeApiVersionFilter)))
+            case _ => {
+              val filter = Developers2Filter(
+                mapEmptyStringToNone(maybeEmailFilter),
+                ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)))
+
+              developerService.searchDevelopers2(filter)
+            }
           }
 
           for {
@@ -54,6 +60,13 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
         }
     }
+
+  def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
+    filter match {
+      case None | Some("")  => None
+      case _ => filter
+    }
+  }
 
   private def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
     request.queryString.map { case (k, v) => k -> v.mkString }

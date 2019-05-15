@@ -127,6 +127,21 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(mockDeveloperService).searchDevelopers2(meq(expectedFilter))(any[HeaderCarrier])
       }
 
+      "search by empty filters values doesn't filter by them" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val emailFilter = ""
+        private val apiVersionFilter = ""
+
+        given(mockDeveloperService.searchDevelopers2(any())(any[HeaderCarrier])).willReturn(List())
+
+        val result: Result = await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
+
+        val expectedEmptyFilter = Developers2Filter()
+        verify(mockDeveloperService).searchDevelopers2(meq(expectedEmptyFilter))(any[HeaderCarrier])
+      }
+
       "remember the search filter text on submit" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices

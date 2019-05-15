@@ -41,7 +41,21 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
   // TODO: Rename without '2'
   def searchDevelopers2(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    Future.successful(Seq.empty)
+    (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+      case (None, None) => searchDevelopers("")
+      case (Some(emailFilter), None) => searchDevelopers(emailFilter)
+      case (Some(_), Some(_)) => throw new NotImplementedError("Currently does not support subscription and email filtering")
+      case (None, Some(apiFilter)) => {
+        val allEmails = for {
+          emailsProduction <- productionApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version)
+          emailsSandbox <- sandboxApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version)
+        } yield (emailsProduction ++ emailsSandbox)
+
+        for{
+          emails <- allEmails
+        } yield emails.distinct.map(email => User(email, firstName = "", lastName = "" , verified = None))
+      }
+    }
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
