@@ -28,22 +28,11 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
-  // TODO: For the bin
-  def searchDevelopers(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    for {
-      developers <- developerConnector.searchDevelopers(emailFilter)
-      productionCollaboratorsEmails <- productionApplicationConnector.searchCollaborators(emailFilter)
-      productionCollaborators <- Future.successful(productionCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-      sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
-      sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-    } yield developers ++ productionCollaborators ++ sandboxCollaborators
-  }
 
-  // TODO: Rename without '2'
-  def searchDevelopers2(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     (filter.maybeEmailFilter, filter.maybeApiFilter) match {
-      case (None, None) => searchDevelopers("")
-      case (Some(emailFilter), None) => searchDevelopers(emailFilter)
+      case (None, None) => searchDevelopersByEmailFilter("")
+      case (Some(emailFilter), None) => searchDevelopersByEmailFilter(emailFilter)
       case (Some(_), Some(_)) => throw new NotImplementedError("Currently does not support subscription and email filtering")
       case (None, Some(apiFilter)) => {
         val allEmails = for {
@@ -172,5 +161,15 @@ class DeveloperService @Inject()(appConfig: AppConfig,
         Future.successful(DeveloperDeleteFailureResult)
       }
     }
+  }
+
+  private def searchDevelopersByEmailFilter(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    for {
+      developers <- developerConnector.searchDevelopers(emailFilter)
+      productionCollaboratorsEmails <- productionApplicationConnector.searchCollaborators(emailFilter)
+      productionCollaborators <- Future.successful(productionCollaboratorsEmails.map(UnregisteredCollaborator.apply))
+      sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
+      sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
+    } yield developers ++ productionCollaborators ++ sandboxCollaborators
   }
 }

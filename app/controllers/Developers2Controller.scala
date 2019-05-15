@@ -50,7 +50,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                 mapEmptyStringToNone(maybeEmailFilter),
                 ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)))
 
-              developerService.searchDevelopers2(filter)
+              developerService.searchDevelopers(filter)
             }
           }
 
