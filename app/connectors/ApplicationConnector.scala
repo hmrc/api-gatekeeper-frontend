@@ -18,11 +18,11 @@ package connectors
 
 import java.net.URLEncoder.encode
 
-import javax.inject.{Inject, Singleton}
 import config.AppConfig
+import javax.inject.{Inject, Singleton}
+import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
 import model._
-import model.Environment.Environment
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
@@ -224,8 +224,18 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   def searchCollaborators(emailFilter: String): Future[Seq[String]] = Future.successful(Seq.empty)
 
   // TODO: Rename and remove '2'
-  def searchCollaborators2(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
-    http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", Seq("context" -> apiContext, "version" -> apiVersion))
+  def searchCollaborators2(apiContext: String, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+    val queryParameters = List(
+      "context" -> apiContext,
+      "version" -> apiVersion
+    )
+
+    val withOptionalQueryParameters = partialEmailMatch match {
+      case Some(email) => queryParameters ++ List(("partialEmailMatch", email))
+      case None => queryParameters
+    }
+
+    http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
   }
 }
 

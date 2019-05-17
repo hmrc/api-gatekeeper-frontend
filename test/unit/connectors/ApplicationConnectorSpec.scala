@@ -509,7 +509,24 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
         .thenReturn(Future.successful(Seq(email)))
 
-      val result: Seq[String] = await(connector.searchCollaborators2("api-context", "1.0"))
+      val result: Seq[String] = await(connector.searchCollaborators2("api-context", "1.0", None))
+
+      verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
+
+      result shouldBe Seq(email)
+    }
+
+    "return emails with emailFilter" in new Setup {
+      private val email = "user@example.com"
+
+      val expectedQueryParams = Seq(
+        "context" -> "api-context", "version" -> "1.0",
+        "partialEmailMatch" -> email)
+
+      when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
+        .thenReturn(Future.successful(Seq(email)))
+
+      val result: Seq[String] = await(connector.searchCollaborators2("api-context", "1.0", Some(email)))
 
       verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
 

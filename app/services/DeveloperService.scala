@@ -28,21 +28,23 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
-
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (None, None) => searchDevelopersByEmailFilter("")
       case (Some(emailFilter), None) => searchDevelopersByEmailFilter(emailFilter)
-      case (Some(_), Some(_)) => throw new NotImplementedError("Currently does not support subscription and email filtering")
-      case (None, Some(apiFilter)) => {
-        val allEmails = for {
-          emailsProduction <- productionApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version)
-          emailsSandbox <- sandboxApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version)
-        } yield (emailsProduction ++ emailsSandbox)
+      case (maybeEmailFilter, Some(apiFilter)) => {
 
-        for{
-          emails <- allEmails
-        } yield emails.distinct.map(email => User(email, firstName = "", lastName = "" , verified = None))
+        val allCollaboratorEmails = for {
+          emailsProduction <- productionApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version, maybeEmailFilter)
+          emailsSandbox <- sandboxApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version, maybeEmailFilter)
+        } yield (emailsProduction ++ emailsSandbox)
+          .distinct
+
+        for {
+          collaboratorEmails <- allCollaboratorEmails
+          users <- developerConnector.fetchByEmails(collaboratorEmails)
+          filteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email))) // TODO: Use a HashSet (not a list)
+        } yield filteredUsers
       }
     }
   }
