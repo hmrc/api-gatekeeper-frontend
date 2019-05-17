@@ -220,11 +220,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     encode(str, encoding)
   }
 
-  // TODO Need to remove?
-  def searchCollaborators(emailFilter: String): Future[Seq[String]] = Future.successful(Seq.empty)
-
-  // TODO: Rename and remove '2'
-  def searchCollaborators2(apiContext: String, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  def searchCollaborators(apiContext: String, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     val queryParameters = List(
       "context" -> apiContext,
       "version" -> apiVersion

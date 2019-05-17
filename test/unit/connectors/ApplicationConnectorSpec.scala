@@ -509,7 +509,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
         .thenReturn(Future.successful(Seq(email)))
 
-      val result: Seq[String] = await(connector.searchCollaborators2("api-context", "1.0", None))
+      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", None))
 
       verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
 
@@ -526,7 +526,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
         .thenReturn(Future.successful(Seq(email)))
 
-      val result: Seq[String] = await(connector.searchCollaborators2("api-context", "1.0", Some(email)))
+      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", Some(email)))
 
       verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
 

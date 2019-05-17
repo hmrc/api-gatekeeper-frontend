@@ -331,8 +331,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       private val user = aUser("fred")
       private val emailFilter = "example"
 
-      when(mockProductionApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
-      when(mockSandboxApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
       when(mockDeveloperConnector.searchDevelopers(emailFilter)).thenReturn(List(user))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
@@ -344,25 +342,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockDeveloperConnector).searchDevelopers(emailFilter)
     }
 
-    "find collaborators" in new Setup {
-      private val sandboxEmail = "sandbox@example.com"
-      private val productionEmail = "production@example.com"
-      private val emailFilter = "example"
-
-      when(mockDeveloperConnector.searchDevelopers(any())(any[HeaderCarrier])).thenReturn(Seq.empty)
-
-      when(mockProductionApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(productionEmail))
-      when(mockSandboxApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(sandboxEmail))
-
-      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
-
-      val result = await(underTest.searchDevelopers(filter))
-
-      result shouldBe List(UnregisteredCollaborator(productionEmail), UnregisteredCollaborator(sandboxEmail))
-
-      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
-    }
-
     "find by api context and version" in new Setup {
       val user1 = aUser("production")
       val user2 = aUser("sandbox")
@@ -370,12 +349,12 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       private val email1 = user1.email
       private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators2(any(), any(), any())(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user1.email))
-      when(mockSandboxApplicationConnector.searchCollaborators2(any(), any(),any())(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(),any())(any[HeaderCarrier]))
         .thenReturn(Seq(user2.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Seq(email1, email2))).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
@@ -383,19 +362,19 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe List(user1, user2)
 
-      verify(mockProductionApplicationConnector).searchCollaborators2("api", "1.0", None)
-      verify(mockSandboxApplicationConnector).searchCollaborators2("api", "1.0", None)
+      verify(mockProductionApplicationConnector).searchCollaborators("api", "1.0", None)
+      verify(mockSandboxApplicationConnector).searchCollaborators("api", "1.0", None)
     }
 
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      when(mockProductionApplicationConnector.searchCollaborators2(any(), any(), any())(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user.email))
-      when(mockSandboxApplicationConnector.searchCollaborators2(any(), any(), any())(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Seq(user.email))).thenReturn(Seq(user))
+      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
@@ -417,14 +396,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
-        .searchCollaborators2(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
         .thenReturn(Seq(email1, email2, email3))
 
       when(mockSandboxApplicationConnector
-        .searchCollaborators2(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
         .thenReturn(Seq.empty)
 
-      when(mockDeveloperConnector.fetchByEmails(Seq(email1, email2, email3))).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 

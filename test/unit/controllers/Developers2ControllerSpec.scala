@@ -225,7 +225,6 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
       }
-      // TODO: verifyAuthConnectorCalledForUser
     }
   }
 }

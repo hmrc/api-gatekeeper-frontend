@@ -30,20 +30,21 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     (filter.maybeEmailFilter, filter.maybeApiFilter) match {
-      case (None, None) => searchDevelopersByEmailFilter("")
-      case (Some(emailFilter), None) => searchDevelopersByEmailFilter(emailFilter)
+      case (None, None) => developerConnector.searchDevelopers("")
+      case (Some(emailFilter), None) => developerConnector.searchDevelopers(emailFilter)
       case (maybeEmailFilter, Some(apiFilter)) => {
 
         val allCollaboratorEmails = for {
-          emailsProduction <- productionApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version, maybeEmailFilter)
-          emailsSandbox <- sandboxApplicationConnector.searchCollaborators2(apiFilter.context, apiFilter.version, maybeEmailFilter)
+          emailsProduction <- productionApplicationConnector.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter)
+          emailsSandbox <- sandboxApplicationConnector.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter)
         } yield (emailsProduction ++ emailsSandbox)
           .distinct
+          .toSet
 
         for {
           collaboratorEmails <- allCollaboratorEmails
           users <- developerConnector.fetchByEmails(collaboratorEmails)
-          filteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email))) // TODO: Use a HashSet (not a list)
+          filteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
         } yield filteredUsers
       }
     }
@@ -163,15 +164,5 @@ class DeveloperService @Inject()(appConfig: AppConfig,
         Future.successful(DeveloperDeleteFailureResult)
       }
     }
-  }
-
-  private def searchDevelopersByEmailFilter(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    for {
-      developers <- developerConnector.searchDevelopers(emailFilter)
-      productionCollaboratorsEmails <- productionApplicationConnector.searchCollaborators(emailFilter)
-      productionCollaborators <- Future.successful(productionCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-      sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
-      sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-    } yield developers ++ productionCollaborators ++ sandboxCollaborators
   }
 }
