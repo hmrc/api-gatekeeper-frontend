@@ -40,10 +40,6 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
   implicit val materializer = fakeApplication.materializer
 
-  // Search by email
-  // with submit
-  // List of emails and other columns
-
   Helpers.running(fakeApplication) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
@@ -66,7 +62,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       val mockDeveloperService = mock[DeveloperService]
 
-      val developersController = new Developers2Controller(mockAuthConnector, mockDeveloperService) {
+      val developersController = new Developers2Controller(mockAuthConnector, mockDeveloperService, mockApiDefinitionService) {
         override val appConfig = mockConfig
       }
 
@@ -127,7 +123,23 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         bodyOf(result) should include(emailAddress)
 
-        verify(mockDeveloperService).searchDevelopers(meq(partialEmailAddress))(any[HeaderCarrier])
+        val expectedFilter = Developers2Filter(Some(partialEmailAddress))
+        verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
+      }
+
+      "search by empty filters values doesn't filter by them" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val emailFilter = ""
+        private val apiVersionFilter = ""
+
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List())
+
+        val result: Result = await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
+
+        val expectedEmptyFilter = Developers2Filter()
+        verify(mockDeveloperService).searchDevelopers(meq(expectedEmptyFilter))(any[HeaderCarrier])
       }
 
       "remember the search filter text on submit" in new Setup {
@@ -162,7 +174,57 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         bodyOf(result) should include(s"$email1; $email2" )
       }
 
-      // TODO: verifyAuthConnectorCalledForUser
+      "show an api version filter dropdown with correct display text" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
+
+        val result = await(developersController.developersPage()(aLoggedInRequest))
+
+        bodyOf(result) should include("MyApi (1.0)")
+        bodyOf(result) should include("MyApi (2.0)")
+
+        verifyAuthConnectorCalledForUser
+      }
+
+      "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiDefinition = APIDefinition("", "", name = "", "", context = "my-api-context", apiVersions, None)
+        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
+
+        val result = await(developersController.developersPage()(aLoggedInRequest))
+
+        bodyOf(result) should include("my-api-context__1.0")
+        bodyOf(result) should include("my-api-context__2.0")
+
+        verifyAuthConnectorCalledForUser
+      }
+
+      "search by api version" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val emailAddress = "developer@example.com"
+        private val user = aUser(emailAddress)
+        private val apiDefinitionValueFromDropDown = "api-definition__1.0"
+
+        // Note: Developers is both users and collaborators
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List(user))
+
+        val result: Result = await(developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest))
+
+        bodyOf(result) should include(emailAddress)
+
+        val filter = ApiContextVersion("api-definition", "1.0")
+        val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
+        verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
+      }
     }
   }
 }

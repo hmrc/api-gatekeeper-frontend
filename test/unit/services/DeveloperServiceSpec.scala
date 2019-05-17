@@ -327,43 +327,89 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   "developerService searchDevelopers" should {
-    //    "find both users and collaborators" in new Setup{
-    //      underTest.searchDevelopers("")
-    //    }
-
     "find users" in new Setup {
       private val user = aUser("fred")
       private val emailFilter = "example"
 
-      when(mockProductionApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
-      when(mockSandboxApplicationConnector.searchCollaborators(any())).thenReturn(Seq.empty)
-
       when(mockDeveloperConnector.searchDevelopers(emailFilter)).thenReturn(List(user))
 
-      val result = await(underTest.searchDevelopers(emailFilter))
+      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
+
+      val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(user)
 
       verify(mockDeveloperConnector).searchDevelopers(emailFilter)
     }
 
-    "find collaborators" in new Setup {
-      private val sandboxEmail = "sandbox@example.com"
-      private val productionEmail = "production@example.com"
-      private val emailFilter = "example"
+    "find by api context and version" in new Setup {
+      val user1 = aUser("production")
+      val user2 = aUser("sandbox")
 
-      when(mockDeveloperConnector.searchDevelopers(any())(any[HeaderCarrier])).thenReturn(Seq.empty)
+      private val email1 = user1.email
+      private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(productionEmail))
-      when(mockSandboxApplicationConnector.searchCollaborators(emailFilter)).thenReturn(List(sandboxEmail))
+      when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(user1.email))
+      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(),any())(any[HeaderCarrier]))
+        .thenReturn(Seq(user2.email))
 
-      val result = await(underTest.searchDevelopers(emailFilter))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
 
-      result shouldBe List(UnregisteredCollaborator(productionEmail), UnregisteredCollaborator(sandboxEmail))
+      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
-      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(user1, user2)
+
+      verify(mockProductionApplicationConnector).searchCollaborators("api", "1.0", None)
+      verify(mockSandboxApplicationConnector).searchCollaborators("api", "1.0", None)
     }
 
-    // TODO Distinct list
+    "find by api context and version where same email in production and sandbox" in new Setup {
+      val user = aUser("user")
+
+      when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(user.email))
+      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
+        .thenReturn(Seq(user.email))
+
+      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
+
+      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(user)
+    }
+
+    "find by api context and version with email filter with a collaborator who is not registered" in new Setup {
+
+      val user1 = aUser("user1")
+      val user2 = aUser("user2")
+      val user3 = aUser("user3")
+
+      private val email1 = user1.email
+      private val email2 = user2.email
+      private val email3 = user3.email
+
+      val emailFilter = "emailFilter"
+
+      when(mockProductionApplicationConnector
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .thenReturn(Seq(email1, email2, email3))
+
+      when(mockSandboxApplicationConnector
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .thenReturn(Seq.empty)
+
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
+
+      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(user1, user2)
+    }
   }
 }

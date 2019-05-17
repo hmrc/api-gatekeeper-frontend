@@ -19,7 +19,10 @@
 @import model._
 @import utils._
 
-@(users: Seq[User], emails: String, params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(users: Seq[User],
+    emails: String,
+    apiVersions : Seq[DropDownValue],
+    params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers 2") {
 
@@ -56,26 +59,37 @@
         <h1>Developers New</h1>
     </header>
 
-    @defining(Seq("emailFilter").map(params.get(_))) { case emailFilter :: _ =>
+    @defining(Seq("emailFilter", "apiVersionFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: _ =>
     <form name="developers-filters"
-          action="@routes.Developers2Controller.developersPage(None).url"
+          action="@routes.Developers2Controller.developersPage(None,None).url"
           method="get">
         <input type="hidden" name="page" value="1"/>
         <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
 
             <div class="grid-layout__column">
-                <label class="bold centered-content hard--left label--full-length">
+                <label class="bold centered-content hard--left label--full-length" for="emailFilter">
                     <span class="label__text bold">Search</span>
 
-                    <input class="form-control input--cleared input-select--large full-width"
-                           name="emailFilter"
-                           type="text"
-                           value="@emailFilter"
-                           placeholder="Partial Email"/>
+                        <input class="form-control input--cleared input-select--large full-width"
+                               id="emailFilter"
+                               name="emailFilter"
+                               type="text"
+                               value="@emailFilter"
+                               placeholder="Partial Email"/>
                 </label>
             </div>
 
         </div>
+        <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
+            <select class="form-control input-select input-select--large" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
+                <option value=""></option>
+                @for(apiVersion <- apiVersions){
+                    <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">
+                        @apiVersion.description
+                    </option>
+                }
+            </select>
+        </label>
 
         <div class="form-group grid-layout grid-layout--stacked push--sides">
             <input type="submit" value="Submit" name="main-submit"

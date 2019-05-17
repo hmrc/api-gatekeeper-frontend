@@ -18,11 +18,11 @@ package connectors
 
 import java.net.URLEncoder.encode
 
-import javax.inject.{Inject, Singleton}
 import config.AppConfig
+import javax.inject.{Inject, Singleton}
+import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
 import model._
-import model.Environment.Environment
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
@@ -82,7 +82,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/$applicationId")
   }
 
-  def fetchApplicationsByEmail(email:String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
         case e =>
@@ -203,12 +203,12 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
 
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     http.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest, Seq(CONTENT_TYPE -> JSON))
-        .recover {
+      .recover {
         case failure => CreatePrivOrROPCAppFailureResult
       }
   }
 
-  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier) : Future[GetClientCredentialsResult] = {
+  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier): Future[GetClientCredentialsResult] = {
     http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
   }
 
@@ -220,14 +220,25 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     encode(str, encoding)
   }
 
-// TODO Need to implement
-  def searchCollaborators(emailFilter: String): Future[Seq[String]] = Future.successful(Seq.empty)
+  def searchCollaborators(apiContext: String, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+    val queryParameters = List(
+      "context" -> apiContext,
+      "version" -> apiVersion
+    )
+
+    val withOptionalQueryParameters = partialEmailMatch match {
+      case Some(email) => queryParameters ++ List(("partialEmailMatch", email))
+      case None => queryParameters
+    }
+
+    http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
+  }
 }
 
 @Singleton
 class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
-                                               val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                            val httpClient: HttpClient,
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.SANDBOX
@@ -238,8 +249,8 @@ class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
 
 @Singleton
 class ProductionApplicationConnector @Inject()(appConfig: AppConfig,
-                                            val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                               val httpClient: HttpClient,
+                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.PRODUCTION

@@ -28,14 +28,26 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
-  def searchDevelopers(emailFilter: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    for {
-      developers <- developerConnector.searchDevelopers(emailFilter)
-      productionCollaboratorsEmails <- productionApplicationConnector.searchCollaborators(emailFilter)
-      productionCollaborators <- Future.successful(productionCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-      sandboxCollaboratorsEmails <- sandboxApplicationConnector.searchCollaborators(emailFilter)
-      sandboxCollaborators <- Future.successful(sandboxCollaboratorsEmails.map(UnregisteredCollaborator.apply))
-    } yield developers ++ productionCollaborators ++ sandboxCollaborators
+  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+      case (None, None) => developerConnector.searchDevelopers("")
+      case (Some(emailFilter), None) => developerConnector.searchDevelopers(emailFilter)
+      case (maybeEmailFilter, Some(apiFilter)) => {
+
+        val allCollaboratorEmails = for {
+          emailsProduction <- productionApplicationConnector.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter)
+          emailsSandbox <- sandboxApplicationConnector.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter)
+        } yield (emailsProduction ++ emailsSandbox)
+          .distinct
+          .toSet
+
+        for {
+          collaboratorEmails <- allCollaboratorEmails
+          users <- developerConnector.fetchByEmails(collaboratorEmails)
+          filteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
+        } yield filteredUsers
+      }
+    }
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])

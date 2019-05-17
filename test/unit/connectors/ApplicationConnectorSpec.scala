@@ -16,15 +16,15 @@
 
 package unit.connectors
 
-import config.AppConfig
-import connectors.{ApplicationConnector, ProxiedHttpClient}
 import java.net.URLEncoder
 import java.util.UUID
-import model._
+
+import connectors.{ApplicationConnector, ProxiedHttpClient}
 import model.Environment._
+import model._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{when, verify}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
@@ -497,6 +497,40 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       intercept[Upstream5xxResponse] {
         await(connector.searchApplications(params))
       }
+    }
+  }
+
+  "search collaborators" should {
+    val url = s"$baseUrl/collaborators"
+    "return emails" in new Setup {
+
+      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+      private val email = "user@example.com"
+      when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
+        .thenReturn(Future.successful(Seq(email)))
+
+      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", None))
+
+      verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
+
+      result shouldBe Seq(email)
+    }
+
+    "return emails with emailFilter" in new Setup {
+      private val email = "user@example.com"
+
+      val expectedQueryParams = Seq(
+        "context" -> "api-context", "version" -> "1.0",
+        "partialEmailMatch" -> email)
+
+      when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any()))
+        .thenReturn(Future.successful(Seq(email)))
+
+      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", Some(email)))
+
+      verify(mockHttpClient).GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())
+
+      result shouldBe Seq(email)
     }
   }
 
