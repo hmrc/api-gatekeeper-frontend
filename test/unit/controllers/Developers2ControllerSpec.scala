@@ -239,6 +239,24 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         result.size shouldBe 1
         result.head.value shouldBe "myApiContext__1.0"
       }
+
+      "show number of entries" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val email1 = "a@example.com"
+        private val email2 = "b@example.com"
+
+        val users = List(aUser(email1),aUser(email2))
+
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(users)
+
+        implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
+
+        val result: Result = await(developersController.developersPage(Some(""))(request))
+
+        bodyOf(result) should include("Showing 2 entries")
+      }
     }
   }
 }
