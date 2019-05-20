@@ -89,6 +89,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
       api <- apiDefinitions
       version <- api.versions
     } yield toKeyValue(api, version))
+      .distinct
       .sortBy(keyValue => keyValue.description)
   }
 }

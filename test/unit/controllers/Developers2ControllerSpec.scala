@@ -225,6 +225,20 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
       }
+
+      "show an api version filter dropdown without duplicates" in new Setup {
+
+        val apiVersion = APIVersion("1.0",APIStatus.ALPHA)
+
+        val apiVersions = List(apiVersion, apiVersion)
+        val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", "myApiContext", apiVersions, None))
+
+        val result = developersController.getApiVersionsDropDownValues(apiDefinition)
+
+
+        result.size shouldBe 1
+        result.head.value shouldBe "myApiContext__1.0"
+      }
     }
   }
 }
