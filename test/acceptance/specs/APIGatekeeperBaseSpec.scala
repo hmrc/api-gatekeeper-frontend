@@ -19,7 +19,7 @@ package acceptance.specs
 
 import acceptance.pages.{ApplicationsPage, BlockedApplicationPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar, WebPage}
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, stubFor, urlEqualTo, urlMatching}
 import component.matchers.CustomMatchers
 import model.User
 import org.scalatest.{GivenWhenThen, Matchers}
@@ -34,7 +34,9 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
     stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+
     stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
+    stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
   def stubBlockedApplication(application: String, developers: List[User]) = {
@@ -57,7 +59,9 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
   def stubApplicationSubscription(developers: List[User]) = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
     stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(OK)))
+
     stubFor(get(urlMatching(s"/developers.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
+    stubFor(post(urlMatching(s"/developers/get-by-emails.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[User]) = {
