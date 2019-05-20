@@ -89,16 +89,21 @@ class HttpDeveloperConnectorSpec
       verifyUserResponse(result, developerEmailWithSpecialCharacter, "first", "last")
     }
 
-    "fetch all developers by emails" in new Setup {
-      val encodedEmailsParam = encode(s"$developerEmail,$developerEmailWithSpecialCharacter")
-      stubFor(get(urlEqualTo(s"/developers?emails=$encodedEmailsParam")).willReturn(
-        aResponse().withStatus(OK).withBody(
-          Json.toJson(Seq(aUserResponse(developerEmail), aUserResponse(developerEmailWithSpecialCharacter))).toString()))
+    "fetch all developers by emails (new)" in new Setup {
+      val postBody = Json.toJson(List(developerEmail, developerEmailWithSpecialCharacter))
+
+      stubFor(post(urlEqualTo(s"/developers/get-by-emails"))
+        .withRequestBody(equalToJson(postBody.toString))
+        .willReturn(
+          aResponse().withStatus(OK).withBody(
+            Json.toJson(Seq(aUserResponse(developerEmail), aUserResponse(developerEmailWithSpecialCharacter))).toString()))
       )
+
       val result = await(connector.fetchByEmails(Seq(developerEmail, developerEmailWithSpecialCharacter)))
       verifyUserResponse(result(0), developerEmail, "first", "last")
       verifyUserResponse(result(1), developerEmailWithSpecialCharacter, "first", "last")
     }
+
 
     "fetch all developers" in new Setup {
       stubFor(get(urlEqualTo("/developers/all")).willReturn(
@@ -135,7 +140,7 @@ class HttpDeveloperConnectorSpec
       result shouldBe user
     }
 
-    "search by email filter" in new Setup{
+    "search by email filter" in new Setup {
 
       val url = s"/developers?emailFilter=${encode(developerEmail)}"
       stubFor(get(urlEqualTo(url)).willReturn(

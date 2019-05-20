@@ -32,14 +32,20 @@ trait DeveloperConnector {
   def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
+
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
+
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
+
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
+
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User]
 }
 
 @Singleton
 class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends DeveloperConnector {
+
+  private val postHeaders: Seq[(String, String)] = Seq(CONTENT_TYPE -> JSON)
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = {
     http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover {
@@ -47,8 +53,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
     }
   }
 
-  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = {
-    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", Seq("emails" -> emails.mkString(",")))
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    http.POST[JsValue, Seq[User]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", Json.toJson(emails) ,postHeaders)
   }
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
@@ -56,7 +62,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
   }
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) = {
-    http.POST(s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST(s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, postHeaders)
       .map(response => response.status match {
         case NO_CONTENT => DeveloperDeleteSuccessResult
         case _ => DeveloperDeleteFailureResult
