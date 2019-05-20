@@ -178,14 +178,14 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
 
-        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiVersions = List(APIVersion("1.0",APIStatus.ALPHA), APIVersion("2.0",APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
-        bodyOf(result) should include("MyApi (1.0)")
-        bodyOf(result) should include("MyApi (2.0)")
+        bodyOf(result) should include("MyApi (1.0) (Alpha)")
+        bodyOf(result) should include("MyApi (2.0) (Stable)")
 
         verifyAuthConnectorCalledForUser
       }

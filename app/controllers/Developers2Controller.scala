@@ -79,7 +79,8 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
   def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
     def toKeyValue(api: APIDefinition, version: APIVersion) = {
       val value = ApiContextVersion(api.context, version.version).toStringValue
-      val description = s"${api.name} (${version.version})"
+      val displayedStatus = APIStatus.displayedStatus(version.status)
+      val description = s"${api.name} (${version.version}) ($displayedStatus)"
 
       DropDownValue(value, description)
     }
