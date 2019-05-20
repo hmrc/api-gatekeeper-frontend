@@ -137,12 +137,17 @@
     }
 
     @if(users.nonEmpty) {
-    <div class="form-group>">
-        <p>
-            <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
-        </p>
-    </div>
+        <div class="text--center">
+            <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length} entries</div>
+        </div>
+
+        <div class="form-group>">
+            <p>
+                <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
+            </p>
+        </div>
     }
+
     <div class="form-group>">
         <a class="back-to-top-link" href="#">Back to Top</a>
     </div>

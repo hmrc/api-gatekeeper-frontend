@@ -178,14 +178,14 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsANormalUser
         givenNoDataSuppliedDelegateServices
 
-        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiVersions = List(APIVersion("1.0",APIStatus.ALPHA), APIVersion("2.0",APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
-        bodyOf(result) should include("MyApi (1.0)")
-        bodyOf(result) should include("MyApi (2.0)")
+        bodyOf(result) should include("MyApi (1.0) (Alpha)")
+        bodyOf(result) should include("MyApi (2.0) (Stable)")
 
         verifyAuthConnectorCalledForUser
       }
@@ -224,6 +224,38 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val filter = ApiContextVersion("api-definition", "1.0")
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
+      }
+
+      "show an api version filter dropdown without duplicates" in new Setup {
+
+        val apiVersion = APIVersion("1.0",APIStatus.ALPHA)
+
+        val apiVersions = List(apiVersion, apiVersion)
+        val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", "myApiContext", apiVersions, None))
+
+        val result = developersController.getApiVersionsDropDownValues(apiDefinition)
+
+
+        result.size shouldBe 1
+        result.head.value shouldBe "myApiContext__1.0"
+      }
+
+      "show number of entries" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser
+        givenNoDataSuppliedDelegateServices
+
+        private val email1 = "a@example.com"
+        private val email2 = "b@example.com"
+
+        val users = List(aUser(email1),aUser(email2))
+
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(users)
+
+        implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
+
+        val result: Result = await(developersController.developersPage(Some(""))(request))
+
+        bodyOf(result) should include("Showing 2 entries")
       }
     }
   }
