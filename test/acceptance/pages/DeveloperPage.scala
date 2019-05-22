@@ -39,7 +39,6 @@ object DeveloperPage extends WebPage {
     // However, if we open using the keyboard, we don't get these problems.
     val element = developerEmail(email)
     element.underlying.sendKeys(ENTER)
-
   }
 
   def selectBySubscription(api: APIFilterList) = {
@@ -66,7 +65,12 @@ object DeveloperPage extends WebPage {
      find(cssSelector("#content div p a:nth-child(1)")).get
   }
 
-  object APIFilter  {
+  def newDevelopersLink = find(linkText("here")).get
+
+  def selectNewDevelopersPage() = click on newDevelopersLink
+
+
+object APIFilter  {
 
     sealed abstract class APIFilterList(val name: String) {}
 
