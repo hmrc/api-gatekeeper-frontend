@@ -47,7 +47,7 @@ trait MockDataSugar {
 
   val developer3 = "gurpreet.fakename@example.com"
   val dev3FirstName = "Gurpreet"
-  val dev3LastName =  "Fakename"
+  val dev3LastName = "Fakename"
 
   val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
@@ -55,11 +55,11 @@ trait MockDataSugar {
 
   val developer5 = "John.fakename@example.com"
   val dev5FirstName = "John"
-  val dev5LastName =  "Fakename"
+  val dev5LastName = "Fakename"
 
   val developer6 = "Vijaya.fakename@example.com"
   val dev6FirstName = "Vijaya"
-  val dev6LastName =  "Fakename"
+  val dev6LastName = "Fakename"
 
   val developer7 = "Kerri.fakename@example.com"
   val dev7FirstName = "Kerri"
@@ -1175,16 +1175,16 @@ trait MockDataSugar {
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {
       s""",
-          |    {
-          |      "applicationId": "$approvedApp1",
-          |      "clientId": "clientid1",
-          |      "state": "PRODUCTION",
-          |      "actor": {
-          |        "id": "gatekeeper.username",
-          |        "actorType": "GATEKEEPER"
-          |      },
-          |      "changedAt": 1459868522961
-          |    }
+         |    {
+         |      "applicationId": "$approvedApp1",
+         |      "clientId": "clientid1",
+         |      "state": "PRODUCTION",
+         |      "actor": {
+         |        "id": "gatekeeper.username",
+         |        "actorType": "GATEKEEPER"
+         |      },
+         |      "changedAt": 1459868522961
+         |    }
       """.stripMargin
     } else {
       ""
@@ -1269,120 +1269,120 @@ trait MockDataSugar {
 
   val apiDefinition =
     s"""
-    |[
-    | {
-    |   "serviceName": "employersPayeAPI",
-    |   "serviceBaseUrl": "http://localhost/",
-    |   "name": "Employers PAYE",
-    |   "description": "EMPLOYERS PAYE API.",
-    |    "deployedTo": "PRODUCTION",
-    |   "context": "employers-paye",
-    |   "versions": [
-    |     {
-    |       "version": "1.0",
-    |       "status": "PUBLISHED",
-    |       "access": {
-    |         "type": "PUBLIC"
-    |       },
-    |       "endpoints": [
-    |         {
-    |           "uriPattern": "/qwerty",
-    |           "endpointName": "employersPayeAPI",
-    |           "method": "GET",
-    |           "authType": "USER",
-    |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:employers-paye-1"
-    |         }
-    |       ]
-    |     }
-    |   ],
-    |   "requiresTrust": false
-    | },
-    |  {
-    |   "serviceName": "payeCreditsAPI",
-    |   "serviceBaseUrl": "http://localhost/",
-    |   "name": "Paye Credits",
-    |   "description": "PAYE CREDITS API",
-    |    "deployedTo": "PRODUCTION",
-    |   "context": "paye-credits",
-    |   "versions": [
-    |     {
-    |       "version": "1.0",
-    |       "status": "DEPRECATED",
-    |       "access": {
-    |         "type": "PUBLIC"
-    |       },
-    |       "endpoints": [
-    |         {
-    |           "uriPattern": "/qwerty",
-    |           "endpointName": "payeCreditsAPI",
-    |           "method": "GET",
-    |           "authType": "USER",
-    |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:paye-credits-1"
-    |         }
-    |       ]
-    |     }
-    |   ],
-    |   "requiresTrust": false
-    | },
-    |  {
-    |   "serviceName": "individualBenefitsAPI",
-    |   "serviceBaseUrl": "http://localhost/",
-    |   "name": "Individual Benefits",
-    |   "description": "INDIVIDUAL BENEFITS API.",
-    |    "deployedTo": "PRODUCTION",
-    |   "context": "individual-benefits",
-    |   "versions": [
-    |     {
-    |       "version": "1.0",
-    |       "status": "PUBLISHED",
-    |       "access": {
-    |         "type": "PUBLIC"
-    |       },
-    |       "endpoints": [
-    |         {
-    |           "uriPattern": "/qwerty",
-    |           "endpointName": "individualBenefitsAPI",
-    |           "method": "GET",
-    |           "authType": "USER",
-    |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:individual-benefits-1"
-    |         }
-    |       ]
-    |     }
-    |   ],
-    |   "requiresTrust": false
-    | },
-    |   {
-    |   "serviceName": "selfAssessmentAPI",
-    |   "serviceBaseUrl": "http://localhost/",
-    |   "name": "Self Assessment",
-    |   "description": "SELF ASSESSMENT API.",
-    |    "deployedTo": "PRODUCTION",
-    |   "context": "self-assessment",
-    |   "versions": [
-    |     {
-    |       "version": "1.0",
-    |       "status": "PUBLISHED",
-    |       "access": {
-    |         "type": "PUBLIC"
-    |       },
-    |       "endpoints": [
-    |         {
-    |           "uriPattern": "/qwerty",
-    |           "endpointName": "selfAssessmentAPI",
-    |           "method": "GET",
-    |           "authType": "USER",
-    |           "throttlingTier": "UNLIMITED",
-    |           "scope": "read:self-assessment-1"
-    |         }
-    |       ]
-    |     }
-    |   ],
-    |   "requiresTrust": false    
-    | }
-    |]
+       |[
+       | {
+       |   "serviceName": "employersPayeAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Employers PAYE",
+       |   "description": "EMPLOYERS PAYE API.",
+       |    "deployedTo": "PRODUCTION",
+       |   "context": "employers-paye",
+       |   "versions": [
+       |     {
+       |       "version": "1.0",
+       |       "status": "PUBLISHED",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "employersPayeAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:employers-paye-1"
+       |         }
+       |       ]
+       |     }
+       |   ],
+       |   "requiresTrust": false
+       | },
+       |  {
+       |   "serviceName": "payeCreditsAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Paye Credits",
+       |   "description": "PAYE CREDITS API",
+       |    "deployedTo": "PRODUCTION",
+       |   "context": "paye-credits",
+       |   "versions": [
+       |     {
+       |       "version": "1.0",
+       |       "status": "DEPRECATED",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "payeCreditsAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:paye-credits-1"
+       |         }
+       |       ]
+       |     }
+       |   ],
+       |   "requiresTrust": false
+       | },
+       |  {
+       |   "serviceName": "individualBenefitsAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Individual Benefits",
+       |   "description": "INDIVIDUAL BENEFITS API.",
+       |    "deployedTo": "PRODUCTION",
+       |   "context": "individual-benefits",
+       |   "versions": [
+       |     {
+       |       "version": "1.0",
+       |       "status": "PUBLISHED",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "individualBenefitsAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:individual-benefits-1"
+       |         }
+       |       ]
+       |     }
+       |   ],
+       |   "requiresTrust": false
+       | },
+       |   {
+       |   "serviceName": "selfAssessmentAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Self Assessment",
+       |   "description": "SELF ASSESSMENT API.",
+       |    "deployedTo": "PRODUCTION",
+       |   "context": "self-assessment",
+       |   "versions": [
+       |     {
+       |       "version": "1.0",
+       |       "status": "PUBLISHED",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "selfAssessmentAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:self-assessment-1"
+       |         }
+       |       ]
+       |     }
+       |   ],
+       |   "requiresTrust": false
+       | }
+       |]
   """.stripMargin
 
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
@@ -1390,17 +1390,19 @@ trait MockDataSugar {
   private val DeveloperGenerator: Gen[User] = for {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
-    email =  randomEmail
+    email = randomEmail
     verified = Option(true)
     registered = None
   } yield User(email, forename, surname, verified)
 
-  def userListGenerator(number:Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
+  def userListGenerator(number: Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 
-  def developerListJsonGenerator(number:Int): Option[String] = userListGenerator(number)
-    .sample.map(_.sortWith((userA, userB) => userA.lastName > userB.lastName))
-    .map(userList => Json.toJson(userList))
-    .map(Json.stringify)
+  def developerListJsonGenerator(number: Int): Option[String] =
+    userListGenerator(number)
+      .sample
+      .map(_.sortWith((userA, userB) => userA.lastName > userB.lastName))
+      .map(userList => Json.toJson(userList))
+      .map(Json.stringify)
 
 
   def administrator(email: String = adminEmail, firstName: String = firstName, lastName: String = lastName) =
@@ -1543,7 +1545,8 @@ trait MockDataSugar {
    """.stripMargin
 
 
-val applicationSubscriptions = s"""
+  val applicationSubscriptions =
+    s"""
 [
   {
     "name": "Hello World",
@@ -2345,24 +2348,24 @@ val applicationSubscriptions = s"""
           "status": "STABLE"
         },
         "subscribed": false
- |     },
- |     {
- |       "version": {
- |         "version": "6.0",
- |         "status": "STABLE"
- |       },
- |       "subscribed": false
- |     },
- |     {
- |       "version": {
- |         "version": "7.0",
- |         "status": "STABLE"
- |       },
- |       "subscribed": false
- |     }
- |   ],
- |   "isTestSupport": false
- | }
- |]
+       |     },
+       |     {
+       |       "version": {
+       |         "version": "6.0",
+       |         "status": "STABLE"
+       |       },
+       |       "subscribed": false
+       |     },
+       |     {
+       |       "version": {
+       |         "version": "7.0",
+       |         "status": "STABLE"
+       |       },
+       |       "subscribed": false
+       |     }
+       |   ],
+       |   "isTestSupport": false
+       | }
+       |]
   """.stripMargin
 }

@@ -546,6 +546,4 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
     }
   }
-
-
 }
