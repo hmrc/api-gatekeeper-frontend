@@ -27,7 +27,9 @@ object Developer2Page extends WebPage {
 
   private def searchBox = textField("emailFilter")
 
-  private def submitButton = find(id("submit")).get
+  private def submitButton = singleSel(id("submit"))
+
+  private def filterBySubscription = singleSel(id("apiVersionFilter"))
 
   def writeInSearchBox(text: String) = {
     searchBox.value = text
@@ -39,11 +41,7 @@ object Developer2Page extends WebPage {
   }
 
   def selectBySubscription(api: APIFilterList) = {
-    singleSel("filter").value = api.name
-  }
-
-  def emailButton() {
-     find(cssSelector("#content div p a:nth-child(1)")).get
+    filterBySubscription.value = api.name
   }
 
   object APIFilter  {

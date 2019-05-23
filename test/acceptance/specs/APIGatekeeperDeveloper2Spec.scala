@@ -16,11 +16,13 @@
 
 package acceptance.specs
 
+import acceptance.pages.Developer2Page.APIFilter
 import acceptance.pages.{ApplicationsPage, Developer2Page, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import component.matchers.CustomMatchers
 import model.User
+import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -37,16 +39,19 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
-      Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
-      stubApplicationSubscription()
-      stubApiDefinition()
-      stubRandomDevelopers(100)
-
       val users = List(User(email = developer4,
         firstName = dev4FirstName,
         lastName = dev4LastName,
         verified = Some(true)))
+
+      Given("I have successfully logged in to the API Gatekeeper")
+      stubApplicationList()
+      stubApplicationSubscription()
+      stubApplicationsCollaborators(users)
+      stubApiDefinition()
+      stubRandomDevelopers(100)
+
+      stubGetDevelopersByEmails(users)
 
       stubDevelopersSearch("partialEmail", users)
 
@@ -55,13 +60,20 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
+
       DeveloperPage.selectNewDevelopersPage()
 
       Then("I am successfully navigated to the Developers page")
       on(Developer2Page)
 
       When("I enter a partial email to filter by")
-      Developer2Page.searchByPartialEmail("partialEmail")
+      Developer2Page.writeInSearchBox("partialEmail")
+
+      And("I pick a an API definition")
+      Developer2Page.selectBySubscription(APIFilter.EMPLOYERSPAYE)
+
+      And("I submit my search")
+      Developer2Page.submit()
 
       Then("I see a list of filtered developers")
 
@@ -76,10 +88,14 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
   private def stubApplicationList(): Unit = {
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
+      .willReturn(aResponse()
+        .withBody(approvedApplications)
+        .withStatus(OK)))
 
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponse).withStatus(OK)))
+    stubFor(get(urlEqualTo("/application"))
+      .willReturn(aResponse()
+      .withBody(applicationResponse)
+        .withStatus(OK)))
   }
 
   private def stubApiDefinition(): Unit = {
@@ -91,35 +107,61 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
   }
 
   private def stubApplicationSubscription(): Unit = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
+    stubFor(get(urlEqualTo("/application/subscriptions"))
+      .willReturn(aResponse()
+        .withBody(applicationSubscription)
+        .withStatus(OK)))
+  }
+
+  private def stubApplicationsCollaborators(users: Seq[User]): Unit = {
+    val usersJson = Json.toJson(users.map(u => u.email)).toString
+
+    stubFor(get(urlPathEqualTo("/collaborators"))
+      .withQueryParam("context", equalTo("employers-paye"))
+      .withQueryParam("version", equalTo("1.0"))
+      .withQueryParam("partialEmailMatch", equalTo("partialEmail"))
+      .willReturn(aResponse()
+        .withBody(usersJson)
+        .withStatus(OK)))
   }
 
   private def stubRandomDevelopers(randomDevelopersCount: Int): Unit = {
     val developersList: String = developerListJsonGenerator(randomDevelopersCount).get
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersList).withStatus(OK)))
+      .willReturn(aResponse()
+        .withBody(developersList)
+        .withStatus(OK)))
   }
 
   private def stubDevelopersSearch(emailFilter: String, developers: Seq[User]): Unit = {
-    developers
-      .map(developer => Map(
-        "email" -> developer.email,
-        "firstName" -> developer.firstName,
-        "lastName" -> developer.lastName,
-        "verified" -> developer.verified
-      ))
-
     val developersListJson: String = Json.toJson(developers).toString
 
     stubFor(
       get(urlPathEqualTo("/developers"))
         .withQueryParam("emailFilter", equalTo(emailFilter))
-        .willReturn(aResponse().withBody(developersListJson).withStatus(OK))
+        .willReturn(aResponse()
+          .withBody(developersListJson)
+          .withStatus(OK))
+    )
+  }
+
+  private def stubGetDevelopersByEmails(developers: Seq[User]): Unit = {
+    val emailsResponseJson = Json.toJson(developers).toString()
+
+    stubFor(
+      post(urlPathEqualTo("/developers/get-by-emails"))
+        .willReturn(aResponse()
+          .withBody(emailsResponseJson)
+          .withStatus(OK))
     )
   }
 
   private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
-    for ((_, _) <- devList) {
+    for ((dev, index) <- devList) {
+      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
+      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
+      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
+      val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
     }
   }
 }
