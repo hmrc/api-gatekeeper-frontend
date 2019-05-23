@@ -86,7 +86,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
       .recover {
         case e =>
-          throw new FetchApplicationsFailed
+          throw new FetchApplicationsFailed(e)
       }
   }
 
@@ -94,28 +94,28 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
 
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
       .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
       .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application")
       .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
     http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
       .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
       }
   }
 

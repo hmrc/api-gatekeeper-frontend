@@ -195,12 +195,17 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
-      intercept[FetchApplicationsFailed] {
+      private val thrownException: Upstream5xxResponse = Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(thrownException))
+
+      val exception: FetchApplicationsFailed = intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
       }
+
+      exception.getCause() shouldBe thrownException
     }
   }
 

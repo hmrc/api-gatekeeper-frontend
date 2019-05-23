@@ -103,7 +103,7 @@ object ApplicationWithUpliftRequest {
 
 class PreconditionFailed extends Throwable
 
-class FetchApplicationsFailed extends Throwable
+class FetchApplicationsFailed(cause: Throwable) extends Throwable(cause)
 
 class FetchApplicationSubscriptionsFailed extends Throwable
 
