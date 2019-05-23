@@ -39,7 +39,7 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
-      val users = List(User(email = developer4,
+      val developers = List(User(email = developer4,
         firstName = dev4FirstName,
         lastName = dev4LastName,
         verified = Some(true)))
@@ -47,13 +47,13 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
       stubApplicationSubscription()
-      stubApplicationsCollaborators(users)
+      stubApplicationsCollaborators(developers)
       stubApiDefinition()
       stubRandomDevelopers(100)
 
-      stubGetDevelopersByEmails(users)
+      stubGetDevelopersByEmails(developers)
 
-      stubDevelopersSearch("partialEmail", users)
+      stubDevelopersSearch("partialEmail", developers)
 
       signInGatekeeper()
       on(ApplicationsPage)
@@ -113,15 +113,15 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubApplicationsCollaborators(users: Seq[User]): Unit = {
-    val usersJson = Json.toJson(users.map(u => u.email)).toString
+  private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
+    val developersJson = Json.toJson(developers.map(u => u.email)).toString
 
     stubFor(get(urlPathEqualTo("/collaborators"))
       .withQueryParam("context", equalTo("employers-paye"))
       .withQueryParam("version", equalTo("1.0"))
       .withQueryParam("partialEmailMatch", equalTo("partialEmail"))
       .willReturn(aResponse()
-        .withBody(usersJson)
+        .withBody(developersJson)
         .withStatus(OK)))
   }
 

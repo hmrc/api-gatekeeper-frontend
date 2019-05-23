@@ -48,29 +48,7 @@ object Developer2Page extends WebPage {
 
     sealed abstract class APIFilterList(val name: String) {}
 
-    case object ALLUSERS extends APIFilterList("ALL")
-
-    case object INDIVIDUALPAYE extends APIFilterList("individual-paye")
-
-    case object INDIVIDUALBENEFITS extends APIFilterList("individual-benefits")
-
     case object EMPLOYERSPAYE extends APIFilterList("employers-paye__1.0")
-
-    case object INDIVIDUALTAX extends APIFilterList("itax")
-
-    case object MARRIAGEALLOWANCE extends APIFilterList("marriageallowance")
-
-    case object NATIONALINSURANCE extends APIFilterList("ni")
-
-    case object PAYECHARGES extends APIFilterList("payech")
-
-    case object PAYECREDITS extends APIFilterList("paye-credits")
-
-    case object PAYEINTEREST extends APIFilterList("payei")
-
-    case object PAYEPAYMENTS extends APIFilterList("payep")
-
-    case object SELFASSESSMENT extends APIFilterList("self-assessment")
 
   }
 }
