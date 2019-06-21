@@ -55,6 +55,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
 
             When("I select to navigate to the Developers page")
             ApplicationsPage.selectDevelopers()
+            DeveloperPage.selectOldDevelopersPage()
 
             Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
             on(DeveloperPage)

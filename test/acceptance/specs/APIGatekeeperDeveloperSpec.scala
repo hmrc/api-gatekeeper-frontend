@@ -53,6 +53,8 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
 
+      DeveloperPage.selectOldDevelopersPage()
+
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
       on(DeveloperPage)
     }
@@ -70,6 +72,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
@@ -134,6 +137,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(ApplicationsPage)
 
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       When("I select one or more subscriptions from the filter drop down")
@@ -194,6 +198,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       When("I select no subscription from the filter drop down")
@@ -249,6 +254,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       When("I select one or more applications from the filter drop down")
@@ -303,6 +309,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       When("I select no applications from the filter drop down")
@@ -355,6 +362,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       signInGatekeeper()
       on(ApplicationsPage)
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       When("I select Employers PAYE from the API filter drop down")
@@ -411,6 +419,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       Then("I should be able to view the Copy to Clipboard buttons")
@@ -430,6 +439,7 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
       Then("the copy to clipboard button should contain all of the developers email addresses")

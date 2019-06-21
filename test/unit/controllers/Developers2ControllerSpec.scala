@@ -103,7 +103,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
-        bodyOf(result) should include("Developers New")
+        bodyOf(result) should include("Developers")
 
         verifyAuthConnectorCalledForUser
       }

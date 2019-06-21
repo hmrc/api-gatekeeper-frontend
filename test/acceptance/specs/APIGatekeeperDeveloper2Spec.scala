@@ -61,8 +61,6 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
 
-      DeveloperPage.selectNewDevelopersPage()
-
       Then("I am successfully navigated to the Developers page")
       on(Developer2Page)
 

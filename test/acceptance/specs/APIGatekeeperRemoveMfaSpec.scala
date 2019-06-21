@@ -96,6 +96,7 @@ class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
   def navigateToDeveloperDetails(): Unit ={
     When("I select to navigate to the Developers page")
     ApplicationsPage.selectDevelopers()
+    DeveloperPage.selectOldDevelopersPage()
 
     Then("I am successfully navigated to the Developers page")
     on(DeveloperPage)
