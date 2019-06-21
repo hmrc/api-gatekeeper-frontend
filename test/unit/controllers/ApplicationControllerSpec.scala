@@ -78,7 +78,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         mockDeveloperService,
         mockSubscriptionFieldsService,
         mockAuthConnector
-      )(mockConfig)
+      )(mockConfig, global)
 
       given(mockConfig.superUsers).willReturn(Seq("superUserName"))
 
@@ -104,7 +104,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     "applicationsPage" should {
 
       "on request with no specified environment all sandbox applications supplied" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
@@ -123,7 +123,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "on request for production all production applications supplied" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("PRODUCTION"))(aLoggedInRequest)
@@ -635,7 +635,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "handleUpdateRateLimitTier" should {
-      val applicationId = "applicationId"
       val tier = RateLimitTier.GOLD
 
       "change the rate limit for a super user" in new Setup {
@@ -1085,7 +1084,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "managing a privileged app" when {
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
-            givenTheUserIsAuthorisedAndIsASuperUser
+            givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
             val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))

@@ -96,9 +96,9 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
   "approveService" should {
     "approve the service in sandbox" in new Setup {
 
-      given(mockSandboxApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful())
+      given(mockSandboxApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful(()))
 
-      val result = await(underTest.approveService(serviceName, SANDBOX))
+      await(underTest.approveService(serviceName, SANDBOX))
 
       verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
       verify(mockProductionApiPublisherConnector, never).approveService(any())(any())
@@ -106,9 +106,9 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "approve the service in production" in new Setup {
 
-      given(mockProductionApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful())
+      given(mockProductionApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful(()))
 
-      val result = await(underTest.approveService(serviceName, PRODUCTION))
+      await(underTest.approveService(serviceName, PRODUCTION))
 
       verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
       verify(mockSandboxApiPublisherConnector, never).approveService(any())(any())

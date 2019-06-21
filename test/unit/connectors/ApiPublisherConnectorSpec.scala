@@ -114,7 +114,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](meq(url), meq(approveServiceRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      await(underTest.approveService(serviceName)) shouldBe ()
+      await(underTest.approveService(serviceName)) shouldBe ((): Unit)
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {

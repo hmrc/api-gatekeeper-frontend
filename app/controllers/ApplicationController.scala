@@ -31,34 +31,36 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{GatekeeperAuthWrapper, LoggedInRequest, LoggedInUser, SubscriptionEnhancer}
+import utils.{GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class ApplicationController @Inject()(applicationService: ApplicationService,
                                       apiDefinitionService: ApiDefinitionService,
                                       developerService: DeveloperService,
                                       subscriptionFieldsService: SubscriptionFieldsService,
-                                      override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+                                      override val authConnector: AuthConnector
+                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc =>
-    val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
-    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
-    val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    implicit request =>
+      implicit hc =>
+        val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+        val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+        val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
-      for {
-        par <- applicationService.searchApplications(env, params)
-        apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-        subApps = SubscriptionEnhancer.combine(par, apis)
-      } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
+        for {
+          par <- applicationService.searchApplications(env, params)
+          apis <- apiDefinitionService.fetchAllApiDefinitions(env)
+          subApps = SubscriptionEnhancer.combine(par, apis)
+        } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -93,17 +95,19 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      for {
-        _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
-      } yield {
-        Redirect(routes.ApplicationController.applicationPage(appId))
-          .flashing("success" -> "Verification email has been sent")
-      }
-    }
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          for {
+            _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
+          } yield {
+            Redirect(routes.ApplicationController.applicationPage(appId))
+              .flashing("success" -> "Verification email has been sent")
+          }
+        }
   }
 
-  def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
+  def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
@@ -113,222 +117,253 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         }
   }
 
-  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      applicationService.subscribeToApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-    }
+  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          applicationService.subscribeToApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+        }
   }
 
-  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-    }
+  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+        }
   }
 
   def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
-    requiresAtLeast( GatekeeperRole.SUPERUSER) {
-      implicit request => implicit hc => withApp(appId) { app =>
-        def handleValidForm(validForm: SubscriptionFieldsForm) = {
-          if (validForm.fields.nonEmpty) {
-            subscriptionFieldsService.saveFieldValues(
-              app.application,
-              apiContext,
-              apiVersion,
-              Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
+    requiresAtLeast(GatekeeperRole.SUPERUSER) {
+      implicit request =>
+        implicit hc =>
+          withApp(appId) { app =>
+            def handleValidForm(validForm: SubscriptionFieldsForm) = {
+              if (validForm.fields.nonEmpty) {
+                subscriptionFieldsService.saveFieldValues(
+                  app.application,
+                  apiContext,
+                  apiVersion,
+                  Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
+              }
+
+              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+            }
+
+            def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
+              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+
+            SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+          }
+    }
+  }
+
+  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          app.application.access match {
+            case access: Standard => {
+              Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
+            }
+          }
+        }
+  }
+
+  def updateAccessOverrides(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
+            case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
+            case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
+            case SuppressIvForIndividuals(_) => FormFields.suppressIvForIndividualsScopes
+            case GrantWithoutConsent(_) => FormFields.grantWithoutConsentScopes
           }
 
-          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+          def handleValidForm(overrides: Set[OverrideFlag]) = {
+            applicationService.updateOverrides(app.application, overrides).map {
+              case UpdateOverridesFailureResult(overrideFlagErrors) =>
+                var form = accessOverridesForm.fill(overrides)
+
+                overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), Messages("invalid.scope")))
+
+                BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser))
+              case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+            }
+          }
+
+          def handleFormError(form: Form[Set[OverrideFlag]]) = {
+            Future.successful(BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser)))
+          }
+
+          accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
         }
-
-        def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
-          Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
-
-        SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-      }
-    }
   }
 
-  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      app.application.access match {
-        case access: Standard => {
-          Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
+  def manageScopes(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          app.application.access match {
+            case access: AccessWithRestrictedScopes => {
+              val form = scopesForm.fill(access.scopes)
+              Future.successful(Ok(manage_scopes(app.application, form, isAtLeastSuperUser)))
+            }
+            case _ => Future.failed(new RuntimeException("Invalid access type on application"))
+          }
         }
-      }
-    }
   }
 
-  def updateAccessOverrides(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
-        case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
-        case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
-        case SuppressIvForIndividuals(_) => FormFields.suppressIvForIndividualsScopes
-        case GrantWithoutConsent(_) => FormFields.grantWithoutConsentScopes
-      }
+  def updateScopes(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(scopes: Set[String]) = {
+            applicationService.updateScopes(app.application, scopes).map {
+              case UpdateScopesInvalidScopesResult =>
+                val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
+                BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser))
 
-      def handleValidForm(overrides: Set[OverrideFlag]) = {
-        applicationService.updateOverrides(app.application, overrides).map {
-          case UpdateOverridesFailureResult(overrideFlagErrors) =>
-            var form = accessOverridesForm.fill(overrides)
+              case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+            }
+          }
 
-            overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), Messages("invalid.scope")))
+          def handleFormError(form: Form[Set[String]]) = {
+            Future.successful(BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser)))
+          }
 
-            BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser))
-          case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+          scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
         }
-      }
-
-      def handleFormError(form: Form[Set[OverrideFlag]]) = {
-        Future.successful(BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser)))
-      }
-
-      accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
-  }
-
-  def manageScopes(appId: String): Action[AnyContent] = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      app.application.access match {
-        case access: AccessWithRestrictedScopes => {
-          val form = scopesForm.fill(access.scopes)
-          Future.successful(Ok(manage_scopes(app.application, form, isAtLeastSuperUser)))
-        }
-        case _ => Future.failed(new RuntimeException("Invalid access type on application"))
-      }
-    }
-  }
-
-  def updateScopes(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def handleValidForm(scopes: Set[String]) = {
-        applicationService.updateScopes(app.application, scopes).map {
-          case UpdateScopesInvalidScopesResult =>
-            val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
-            BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser))
-
-          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
-        }
-      }
-
-      def handleFormError(form: Form[Set[String]]) = {
-        Future.successful(BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser)))
-      }
-
-      scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
   }
 
   def manageRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
-      Future.successful(Ok(manage_rate_limit(app.application, form)))
-    }
-  }
-
-  def updateRateLimitTier(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def handleValidForm(form: UpdateRateLimitForm) = {
-        applicationService.updateRateLimitTier(app.application, RateLimitTier.withName(form.tier)).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
+          Future.successful(Ok(manage_rate_limit(app.application, form)))
         }
-      }
-
-      def handleFormError(form: Form[UpdateRateLimitForm]) = {
-        Future.successful(BadRequest(manage_rate_limit(app.application, form)))
-      }
-      UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
   }
 
-  def deleteApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(delete_application(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
-    }
-  }
-
-  def deleteApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def handleValidForm(form: DeleteApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
-            case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
-            case ApplicationDeleteFailureResult => technicalDifficulties
+  def updateRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(form: UpdateRateLimitForm) = {
+            applicationService.updateRateLimitTier(app.application, RateLimitTier.withName(form.tier)).map { _ =>
+              Redirect(routes.ApplicationController.applicationPage(appId))
+            }
           }
-        }
-        else {
-          val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-          Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, formWithErrors)))
-        }
-      }
-
-      def handleFormError(form: Form[DeleteApplicationForm]) = {
-        Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, form)))
-      }
-
-      deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
-  }
-
-  def blockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(block_application(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
-    }
-  }
-
-  def blockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def handleValidForm(form: BlockApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
-            case ApplicationBlockSuccessResult => Ok(block_application_success(app))
-            case ApplicationBlockFailureResult => technicalDifficulties
+          def handleFormError(form: Form[UpdateRateLimitForm]) = {
+            Future.successful(BadRequest(manage_rate_limit(app.application, form)))
           }
+
+          UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
         }
-        else {
-          val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
-
-          Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, formWithErrors)))
-        }
-      }
-
-      def handleFormError(form: Form[BlockApplicationForm]) = {
-        Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, form)))
-      }
-
-      blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
   }
 
-  def unblockApplicationPage(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      Future.successful(Ok(unblock_application(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
-    }
+  def deleteApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(delete_application(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+        }
   }
 
-  def unblockApplicationAction(appId: String) = requiresAtLeast( GatekeeperRole.ADMIN) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      def handleValidForm(form: UnblockApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
-            case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app))
-            case ApplicationUnblockFailureResult => technicalDifficulties
+  def deleteApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(form: DeleteApplicationForm) = {
+            if (app.application.name == form.applicationNameConfirmation) {
+              applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
+                case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
+                case ApplicationDeleteFailureResult => technicalDifficulties
+              }
+            }
+            else {
+              val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+
+              Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, formWithErrors)))
+            }
           }
+
+          def handleFormError(form: Form[DeleteApplicationForm]) = {
+            Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, form)))
+          }
+
+          deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
         }
-        else {
-          val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+  }
 
-          Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, formWithErrors)))
+  def blockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(block_application(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
         }
-      }
+  }
 
-      def handleFormError(form: Form[UnblockApplicationForm]) = {
-        Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, form)))
-      }
+  def blockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(form: BlockApplicationForm) = {
+            if (app.application.name == form.applicationNameConfirmation) {
+              applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
+                case ApplicationBlockSuccessResult => Ok(block_application_success(app))
+                case ApplicationBlockFailureResult => technicalDifficulties
+              }
+            }
+            else {
+              val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-      unblockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
+              Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, formWithErrors)))
+            }
+          }
+
+          def handleFormError(form: Form[BlockApplicationForm]) = {
+            Future.successful(BadRequest(block_application(app, isAtLeastSuperUser, form)))
+          }
+
+          blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+        }
+  }
+
+  def unblockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(unblock_application(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
+        }
+  }
+
+  def unblockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(form: UnblockApplicationForm) = {
+            if (app.application.name == form.applicationNameConfirmation) {
+              applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
+                case ApplicationUnblockSuccessResult => Ok(unblock_application_success(app))
+                case ApplicationUnblockFailureResult => technicalDifficulties
+              }
+            }
+            else {
+              val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+
+              Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, formWithErrors)))
+            }
+          }
+
+          def handleFormError(form: Form[UnblockApplicationForm]) = {
+            Future.successful(BadRequest(unblock_application(app, isAtLeastSuperUser, form)))
+          }
+
+          unblockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+        }
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
@@ -346,11 +381,13 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
-    withApp(appId) { app => app.application.access match {
-      case _: Standard => f(app)
-      case _ if isAtLeastSuperUser => f(app)
-      case _ => Future.successful(Forbidden(views.html.forbidden()))
-    }}
+    withApp(appId) { app =>
+      app.application.access match {
+        case _: Standard => f(app)
+        case _ if isAtLeastSuperUser => f(app)
+        case _ => Future.successful(Forbidden(views.html.forbidden()))
+      }
+    }
   }
 
   def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
@@ -441,169 +478,184 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   }
 
   def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withApp(appId) { app =>
-      redirectIfIsSandboxApp(app) {
-        val requestForm = HandleUpliftForm.form.bindFromRequest
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          redirectIfIsSandboxApp(app) {
+            val requestForm = HandleUpliftForm.form.bindFromRequest
 
-        def errors(errors: Form[HandleUpliftForm]) =
-          fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
+            def errors(errors: Form[HandleUpliftForm]) =
+              fetchApplicationReviewDetails(appId) map (details => BadRequest(review(errors, details)))
 
-        def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
-          case e: PreconditionFailed => {
-            Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-            Redirect(routes.ApplicationController.applicationsPage(None))
+            def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
+              case e: PreconditionFailed => {
+                Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
+                Redirect(routes.ApplicationController.applicationsPage(None))
+              }
+            }
+
+            def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
+              UpliftAction.from(validForm.action) match {
+                case Some(APPROVE) =>
+                  applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
+                    ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+                case Some(REJECT) =>
+                  applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
+                    RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+              }
+            }
+
+            requestForm.fold(errors, addApplicationWithValidForm)
           }
         }
-
-        def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
-          UpliftAction.from(validForm.action) match {
-            case Some(APPROVE) =>
-              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
-                ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-            case Some(REJECT) =>
-              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
-                RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-          }
-        }
-
-        requestForm.fold(errors, addApplicationWithValidForm)
-      }
-    }
   }
 
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
-    requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
-      withApp(appId) { app =>
-        val result = Redirect(routes.ApplicationController.applicationPage(appId))
-        if (isAtLeastSuperUser) {
-          val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-          applicationService.updateRateLimitTier(app.application, newTier) map {
-            case ApplicationUpdateSuccessResult =>
-              result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+    requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          val result = Redirect(routes.ApplicationController.applicationPage(appId))
+          if (isAtLeastSuperUser) {
+            val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
+            applicationService.updateRateLimitTier(app.application, newTier) map {
+              case ApplicationUpdateSuccessResult =>
+                result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+            }
+          } else {
+            Future.successful(result)
           }
-        } else {
-          Future.successful(result)
         }
-      }
     }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
     if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
   }
 
-  def createPrivOrROPCApplicationPage(): Action[AnyContent] = { requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-      implicit hc => {
-        Future.successful(Ok(create_application(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
-      }
+  def createPrivOrROPCApplicationPage(): Action[AnyContent] = {
+    requiresAtLeast(GatekeeperRole.SUPERUSER) {
+      implicit request =>
+        implicit hc => {
+          Future.successful(Ok(create_application(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
+        }
     }
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER) {
-      implicit request => implicit hc => {
+      implicit request =>
+        implicit hc => {
 
-        def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
-          Future.successful(BadRequest(create_application(form)))
-        }
+          def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
+            Future.successful(BadRequest(create_application(form)))
+          }
 
-        def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
+          def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
 
-          def handleFormWithValidName: Future[Result] =
-            form.accessType.flatMap(AccessType.from) match {
-            case Some(accessType) => {
-              val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
+            def handleFormWithValidName: Future[Result] =
+              form.accessType.flatMap(AccessType.from) match {
+                case Some(accessType) => {
+                  val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
-              applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) flatMap {
-                case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, Some(totp), access) =>
-                  Future.successful(Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), Some(totp), clientId)))
-                case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, None, access) =>
-                  applicationService.getClientSecret(appId, appEnv).map(secret => Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), None, clientId, Some(secret))))
+                  applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) flatMap {
+                    case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, Some(totp), access) =>
+                      Future.successful(Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), Some(totp), clientId)))
+                    case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, None, access) =>
+                      applicationService.getClientSecret(appId, appEnv).map(secret => Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), None, clientId, Some(secret))))
+                  }
+                }
               }
+
+            def handleFormWithInvalidName: Future[Result] = {
+              val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
+              Future.successful(BadRequest(create_application(formWithErrors)))
             }
+
+            def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
+              case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
+              case _ => true
+            }
+
+            for {
+              appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
+              result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
+            } yield result
           }
 
-          def handleFormWithInvalidName: Future[Result] = {
-            val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
-            Future.successful(BadRequest(create_application(formWithErrors)))
-          }
-
-          def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
-            case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
-            case _ => true
-          }
-
-          for {
-            appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
-            result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
-          } yield result
+          createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
         }
-
-        createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-      }
     }
   }
 
   def manageTeamMembers(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withRestrictedApp(appId) { app =>
-      Future.successful(Ok(manage_team_members(app.application)))
-    }
+    implicit request =>
+      implicit hc =>
+        withRestrictedApp(appId) { app =>
+          Future.successful(Ok(manage_team_members(app.application)))
+        }
   }
 
   def addTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withRestrictedApp(appId) { app =>
-      Future.successful(Ok(add_team_member(app.application, AddTeamMemberForm.form)))
-    }
+    implicit request =>
+      implicit hc =>
+        withRestrictedApp(appId) { app =>
+          Future.successful(Ok(add_team_member(app.application, AddTeamMemberForm.form)))
+        }
   }
 
   def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withRestrictedApp(appId) { app =>
-      def handleValidForm(form: AddTeamMemberForm) = {
-        applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
-          .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-            case _: TeamMemberAlreadyExists => BadRequest(add_team_member(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
+    implicit request =>
+      implicit hc =>
+        withRestrictedApp(appId) { app =>
+          def handleValidForm(form: AddTeamMemberForm) = {
+            applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
+              .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
+              case _: TeamMemberAlreadyExists => BadRequest(add_team_member(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
+            }
           }
-      }
 
-      def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
-        Future.successful(BadRequest(add_team_member(app.application, formWithErrors)))
+          def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
+            Future.successful(BadRequest(add_team_member(app.application, formWithErrors)))
 
-      AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-    }
+          AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        }
   }
 
   def removeTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withRestrictedApp(appId) { app =>
-      def handleValidForm(form: RemoveTeamMemberForm) =
-        Future.successful(Ok(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
+    implicit request =>
+      implicit hc =>
+        withRestrictedApp(appId) { app =>
+          def handleValidForm(form: RemoveTeamMemberForm) =
+            Future.successful(Ok(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
 
-      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
-        val email = formWithErrors("email").value.getOrElse("")
-        Future.successful(BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
-      }
+          def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
+            val email = formWithErrors("email").value.getOrElse("")
+            Future.successful(BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
+          }
 
-      RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-    }
+          RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        }
   }
 
   def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc => withRestrictedApp(appId) { app =>
-      def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-        form.confirm match {
-          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
-            _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
-          } recover {
-            case _: TeamMemberLastAdmin =>
-              BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", Messages("team.member.error.email.last.admin")), form.email))
+    implicit request =>
+      implicit hc =>
+        withRestrictedApp(appId) { app =>
+          def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
+            form.confirm match {
+              case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
+                _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
+              } recover {
+                case _: TeamMemberLastAdmin =>
+                  BadRequest(remove_team_member(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", Messages("team.member.error.email.last.admin")), form.email))
+              }
+              case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+            }
           }
-          case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+
+          def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
+            Future.successful(BadRequest(remove_team_member(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
+
+          RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
         }
-      }
-
-      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
-        Future.successful(BadRequest(remove_team_member(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
-
-      RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-    }
   }
 }

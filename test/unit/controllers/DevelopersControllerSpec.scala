@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
@@ -98,22 +99,22 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     "developersPage" should {
 
       "default to page 1 with 100 items in table" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         bodyOf(result) should include("data-page-length=\"100\"")
         verifyAuthConnectorCalledForUser
       }
 
       "do something else if user is not authenticated" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         val result = await(developersController.developersPage(None, None, None)(aLoggedOutRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "load successfully if user is authenticated and authorised" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("<h1>Developers Old</h1>")
@@ -124,8 +125,8 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
 
       "load successfully if user is authenticated and authorised, but not show dashboard tab if external test" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
         given(developersController.appConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
@@ -137,7 +138,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
-        givenAUnsuccessfulLogin
+        givenAUnsuccessfulLogin()
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe SEE_OTHER
       }
@@ -147,10 +148,12 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
           User("sample@example.com", "Sample", "Email", Some(false)),
           User("another@example.com", "Sample2", "Email", Some(true)),
           User("someone@example.com", "Sample3", "Email", Some(true)))
-        val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        val collaborators = Set(
+          Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+        val applications = Seq(
+          ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, devs)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
@@ -160,8 +163,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
-        val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
-        givenTheUserIsAuthorisedAndIsANormalUser
+        val applications = Seq(
+          ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, noDevs)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
@@ -174,7 +178,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       val emailAddress = "someone@example.com"
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         val result: Result = await(developersController.removeMfaPage(emailAddress)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
@@ -198,7 +202,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       val emailAddress = "someone@example.com"
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
@@ -231,13 +235,13 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       val developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         val result = await(developersController.deleteDeveloperPage(emailAddress)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenFetchDeveloperReturns(developer)
         val result = await(addToken(developersController.deleteDeveloperPage(emailAddress))(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -248,18 +252,15 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
 
     "deleteDeveloperAction" should {
       val emailAddress = "someone@example.com"
-      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
-      val developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
 
       "not allow an unauthorised user to access the page" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenDeleteDeveloperReturns(DeveloperDeleteSuccessResult)
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -268,7 +269,7 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       }
 
       "return an internal server error when the delete fails" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenDeleteDeveloperReturns(DeveloperDeleteFailureResult)
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
         status(result) shouldBe INTERNAL_SERVER_ERROR

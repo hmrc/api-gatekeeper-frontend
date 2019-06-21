@@ -22,9 +22,9 @@ import model.StaticNavLinks
 import play.api.libs.json._
 import play.api.mvc.Action
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class NavigationController @Inject()(override implicit val appConfig: AppConfig)
+class NavigationController @Inject()(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController {
 
   def navLinks() = Action.async { implicit request =>

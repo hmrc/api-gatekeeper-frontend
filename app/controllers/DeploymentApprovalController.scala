@@ -29,10 +29,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.GatekeeperAuthWrapper
 import views.html.deploymentApproval.{deploymentApproval, deploymentReview}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
-                                             deploymentApprovalService: DeploymentApprovalService)(override implicit val appConfig: AppConfig)
+                                             deploymentApprovalService: DeploymentApprovalService
+                                            )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper {
 
   def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>

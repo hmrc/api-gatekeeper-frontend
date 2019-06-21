@@ -22,6 +22,8 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   implicit val materializer = fakeApplication.materializer

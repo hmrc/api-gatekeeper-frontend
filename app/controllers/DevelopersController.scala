@@ -28,11 +28,14 @@ import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
 
+import scala.concurrent.ExecutionContext
+
 @Singleton
 class DevelopersController @Inject()(developerService: DeveloperService,
                                      applicationService: ApplicationService,
                                      apiDefinitionService: ApiDefinitionService,
-                                     override val authConnector: AuthConnector)(override implicit val appConfig: AppConfig)
+                                     override val authConnector: AuthConnector
+                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
