@@ -116,9 +116,9 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         givenNoDataSuppliedDelegateServices
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
-        bodyOf(result) should include("<h1>Developers</h1>")
+        bodyOf(result) should include("<h1>Developers Old</h1>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
         verifyAuthConnectorCalledForUser
       }
 
@@ -129,10 +129,10 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(developersController.appConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
-        bodyOf(result) should include("<h1>Developers</h1>")
+        bodyOf(result) should include("<h1>Developers Old</h1>")
         bodyOf(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
         bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
         verifyAuthConnectorCalledForUser
       }
 

@@ -18,6 +18,7 @@ package acceptance.pages
 
 import acceptance.WebPage
 import acceptance.pages.Developer2Page.APIFilter.APIFilterList
+import org.openqa.selenium.Keys.ENTER
 
 object Developer2Page extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/developers2"
@@ -25,11 +26,20 @@ object Developer2Page extends WebPage {
     currentUrl == url
   }
 
+  def developerEmail(email:String) = find(linkText(email)).get
+
   private def searchBox = textField("emailFilter")
 
   private def submitButton = singleSel(id("submit"))
 
   private def filterBySubscription = singleSel(id("apiVersionFilter"))
+
+  def selectByDeveloperEmail(email: String) = {
+    // If we use click we sometimes get a selenium error where it can't click on the element.
+    // However, if we open using the keyboard, we don't get these problems.
+    val element = developerEmail(email)
+    element.underlying.sendKeys(ENTER)
+  }
 
   def writeInSearchBox(text: String) = {
     searchBox.value = text

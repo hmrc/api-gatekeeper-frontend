@@ -41,7 +41,7 @@ class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(mockConfig.isExternalTestEnvironment).willReturn(false)
         val result = await(underTest.navLinks()(aLoggedInRequest))
         status(result) shouldBe OK
-        bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
+        bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
       }
 
 
@@ -49,7 +49,7 @@ class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         given(mockConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(underTest.navLinks()(aLoggedInRequest))
         status(result) shouldBe OK
-        bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
+        bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
       }
     }
   }

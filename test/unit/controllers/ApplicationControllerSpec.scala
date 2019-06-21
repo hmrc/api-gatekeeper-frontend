@@ -114,7 +114,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers\">Developers</a>")
+        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
 
         verifyAuthConnectorCalledForUser
 

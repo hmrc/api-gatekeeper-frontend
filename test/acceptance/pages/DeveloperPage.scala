@@ -65,9 +65,9 @@ object DeveloperPage extends WebPage {
      find(cssSelector("#content div p a:nth-child(1)")).get
   }
 
-  def newDevelopersLink = find(linkText("here")).get
+  def oldDevelopersLink = find(linkText("Old developer search")).get
 
-  def selectNewDevelopersPage() = click on newDevelopersLink
+  def selectOldDevelopersPage() = click on oldDevelopersLink
 
 
 object APIFilter  {
