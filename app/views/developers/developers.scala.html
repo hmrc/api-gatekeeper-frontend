@@ -30,21 +30,8 @@ environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedI
 
 <article class="content__body full-width">
     <header>
-        <h1>Developers</h1>
+        <h1>Developers Old</h1>
     </header>
-
-    <div style="
-        padding: 15px;
-        background-color: #005ea5;
-        color: #fff;
-        margin-top: 15px;
-        margin-bottom: 15px;">
-        <h2 style="margin: 0px">New beta search</h2>
-        <p>
-            We are building a new search page. It is not finished yet, but you can access the beta page
-            <a style="color: #fff" href="@{routes.Developers2Controller.developersPage(None, None)}">here</a> if you wish.
-        </p>
-    </div>
 
     <form name="developer-filters"
           action="@routes.DevelopersController.developersPage(filter, status, environment).url"
