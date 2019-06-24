@@ -23,7 +23,11 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.LoggedInUser
 import views.html.error_template
 
+import scala.concurrent.ExecutionContext
+
 abstract class BaseController(implicit val appConfig: AppConfig) extends FrontendController {
+
+  implicit val ec: ExecutionContext
 
   def technicalDifficulties(implicit request: Request[_], messages: Messages)  = {
 

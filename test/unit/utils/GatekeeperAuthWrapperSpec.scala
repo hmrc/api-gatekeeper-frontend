@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.{GatekeeperAuthWrapper, LoggedInRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
@@ -44,8 +45,9 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     val underTest = new BaseController with GatekeeperAuthWrapper {
       val authConnector = mock[AuthConnector]
+      val ec = global
     }
-    val actionReturns200Body: (Request[_] => HeaderCarrier => Future[Result]) = _ => _ => Future.successful(Results.Ok)
+    val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"

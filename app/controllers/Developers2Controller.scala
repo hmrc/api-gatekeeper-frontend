@@ -26,13 +26,13 @@ import services.{ApiDefinitionService, DeveloperService}
 import utils.{GatekeeperAuthWrapper, LoggedInRequest}
 import views.html.developers._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developerService: DeveloperService,
-                                      val apiDefinitionService: ApiDefinitionService)
-                                     (override implicit val appConfig: AppConfig)
+                                      val apiDefinitionService: ApiDefinitionService
+                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper {
 
   def developersPage(maybeEmailFilter: Option[String] = None, maybeApiVersionFilter: Option[String] = None) =

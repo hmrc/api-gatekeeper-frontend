@@ -16,11 +16,8 @@
 
 package unit.controllers
 
-import java.util.UUID
-
 import controllers.Developers2Controller
 import model._
-import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
@@ -33,6 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
@@ -41,10 +39,6 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
   implicit val materializer = fakeApplication.materializer
 
   Helpers.running(fakeApplication) {
-
-    def anApplication(collaborators: Set[Collaborator]) = {
-      ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
-    }
 
     def aUser(email: String) = User(email, "first", "last", verified = Some(false))
 
@@ -98,8 +92,8 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "developersPage" should {
       "show no results when initially opened" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
@@ -109,8 +103,8 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "allow searching by email or partial email" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
         private val partialEmailAddress = "example"
@@ -128,8 +122,8 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "search by empty filters values doesn't filter by them" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val emailFilter = ""
         private val apiVersionFilter = ""
@@ -143,8 +137,8 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "remember the search filter text on submit" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val searchFilter = "aFilter"
 
@@ -158,12 +152,12 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "allow me to copy all the email addresses" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
         private val email2 = "b@example.com"
-        val users = List(aUser(email1),aUser(email2))
+        val users = List(aUser(email1), aUser(email2))
 
         given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(users)
 
@@ -171,14 +165,14 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         val result: Result = await(developersController.developersPage(Some(""))(request))
 
-        bodyOf(result) should include(s"$email1; $email2" )
+        bodyOf(result) should include(s"$email1; $email2")
       }
 
       "show an api version filter dropdown with correct display text" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(APIVersion("1.0",APIStatus.ALPHA), APIVersion("2.0",APIStatus.STABLE))
+        val apiVersions = List(APIVersion("1.0", APIStatus.ALPHA), APIVersion("2.0", APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
 
@@ -191,10 +185,10 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(APIVersion("1.0",APIStatus.STABLE), APIVersion("2.0",APIStatus.STABLE))
+        val apiVersions = List(APIVersion("1.0", APIStatus.STABLE), APIVersion("2.0", APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "", "", context = "my-api-context", apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(List(apiDefinition))
 
@@ -207,8 +201,8 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "search by api version" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
         private val user = aUser(emailAddress)
@@ -228,7 +222,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       "show an api version filter dropdown without duplicates" in new Setup {
 
-        val apiVersion = APIVersion("1.0",APIStatus.ALPHA)
+        val apiVersion = APIVersion("1.0", APIStatus.ALPHA)
 
         val apiVersions = List(apiVersion, apiVersion)
         val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", "myApiContext", apiVersions, None))
@@ -241,13 +235,13 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "show number of entries" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
-        givenNoDataSuppliedDelegateServices
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
         private val email2 = "b@example.com"
 
-        val users = List(aUser(email1),aUser(email2))
+        val users = List(aUser(email1), aUser(email2))
 
         given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(users)
 

@@ -20,8 +20,8 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import controllers.DeploymentApprovalController
-import model._
 import model.Environment._
+import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
@@ -46,13 +47,15 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val redirectLoginUrl = s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
+    val redirectLoginUrl = s"https://loginUri" +
+      s"?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
+      s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
 
     given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
     given(mockConfig.appName).willReturn("Gatekeeper app name")
     given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
 
-    val underTest = new DeploymentApprovalController(mockAuthConnector, mockDeploymentApprovalService)(mockConfig)
+    val underTest = new DeploymentApprovalController(mockAuthConnector, mockDeploymentApprovalService)(mockConfig, global)
   }
 
   "pendingPage" should {
@@ -78,7 +81,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
-      givenAUnsuccessfulLogin
+      givenAUnsuccessfulLogin()
 
       val result = await(underTest.pendingPage()(aLoggedInRequest))
 
@@ -145,7 +148,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
       givenTheUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful())
+      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -165,7 +168,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
       givenTheUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful())
+      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -205,7 +208,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
-      givenAUnsuccessfulLogin
+      givenAUnsuccessfulLogin()
 
       val result = await(underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest))
 
