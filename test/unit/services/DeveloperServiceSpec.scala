@@ -43,7 +43,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     Developer(s"$name@example.com", name, s"${name}son", Some(verified), apps)
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
-    ApplicationResponse(UUID.randomUUID(), "clientId", name, deployedTo, None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    ApplicationResponse(UUID.randomUUID(), "clientId", "gatewayId", name, deployedTo, None, collaborators, DateTime.now(), Standard(), ApplicationState())
   }
 
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")
@@ -87,18 +87,27 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     def deleteDeveloperWillSucceed = {
-      when(mockDeveloperConnector.deleteDeveloper(any[DeleteDeveloperRequest])(any[HeaderCarrier])).thenReturn(Future.successful(DeveloperDeleteSuccessResult))
-      when(mockProductionApplicationConnector.removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier])).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
-      when(mockSandboxApplicationConnector.removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier])).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+      when(mockDeveloperConnector.deleteDeveloper(any[DeleteDeveloperRequest])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(DeveloperDeleteSuccessResult))
+      when(mockProductionApplicationConnector.removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+      when(mockSandboxApplicationConnector.removeCollaborator(anyString, anyString, anyString, any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
 
-    def verifyTeamMemberRemovedFromApp(app: Application, userToRemove: String, gatekeeperUserId: String, adminsToEmail: Seq[String], environment: String = "PRODUCTION") = environment match {
-      case "PRODUCTION" =>
-        verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id.toString), eqTo(userToRemove),
-          eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
-      case "SANDBOX" =>
-        verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id.toString), eqTo(userToRemove),
-          eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+    def verifyTeamMemberRemovedFromApp(app: Application,
+                                       userToRemove: String,
+                                       gatekeeperUserId: String,
+                                       adminsToEmail: Seq[String],
+                                       environment: String = "PRODUCTION") = {
+      environment match {
+        case "PRODUCTION" =>
+          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id.toString), eqTo(userToRemove),
+            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+        case "SANDBOX" =>
+          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id.toString), eqTo(userToRemove),
+            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+      }
     }
 
     def removeMfaReturnWillReturn(user: User) = {
@@ -299,7 +308,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val gatekeeperUserId = "gate.keeper"
       val developer = aUser("Fred")
       val productionApps = Seq(anApp("productionApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
-      val sandboxApps = Seq(anApp("sandboxApplication", Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))))
+      val sandboxApps = Seq(anApp(
+        name = "sandboxApplication",
+        collaborators = Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))
+      ))
       fetchDeveloperWillReturn(developer, productionApps, sandboxApps)
 
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
@@ -313,7 +325,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
       val gatekeeperUserId = "gate.keeper"
       val developer = aUser("Fred")
-      val productionApps = Seq(anApp("productionApplication", Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))))
+      val productionApps = Seq(anApp(
+        name = "productionApplication",
+        collaborators = Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))
+      ))
       val sandboxApps = Seq(anApp("sandboxApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
       fetchDeveloperWillReturn(developer, productionApps, sandboxApps)
 
@@ -351,7 +366,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
       when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user1.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(),any())(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user2.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))

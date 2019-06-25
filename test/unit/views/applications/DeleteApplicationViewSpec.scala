@@ -35,6 +35,7 @@ import utils.CSRFTokenHelper._
 import utils.LoggedInUser
 
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
+
   trait Setup {
     val request = FakeRequest().withCSRFToken
     val mockAppConfig = mock[AppConfig]
@@ -43,6 +44,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
       ApplicationResponse(
         UUID.randomUUID(),
         "clientid",
+        "gatewayId",
         "application1",
         "PRODUCTION",
         None,
@@ -59,7 +61,9 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
 
     "show application information, including superuser only actions, when logged in as superuser" in new Setup {
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.delete_application.apply(
+        applicationWithHistory, isSuperUser = true, deleteApplicationForm.fill(DeleteApplicationForm("", None))
+      )(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -69,7 +73,9 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, false, deleteApplicationForm.fill(DeleteApplicationForm("", None)))(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.delete_application.apply(
+        applicationWithHistory, isSuperUser = false, deleteApplicationForm.fill(DeleteApplicationForm("", None))
+      )(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -80,7 +86,8 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
     "show error message when no collaborator is chosen" in new Setup {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", Messages("application.administrator.missing"))
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.delete_application.apply(
+        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -89,9 +96,11 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
     }
 
     "show error message when the application name doesn't match" in new Setup {
-      val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
+      val form = deleteApplicationForm.fill(
+        DeleteApplicationForm("", None)).withError("applicationNameConfirmation", Messages("application.confirmation.error"))
 
-      val result = views.html.applications.delete_application.apply(applicationWithHistory, true, form)(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.delete_application.apply(
+        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 

@@ -132,12 +132,12 @@ case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScop
 object OverrideType extends Enumeration {
   type OverrideType = Value
   val PERSIST_LOGIN_AFTER_GRANT,
-      GRANT_WITHOUT_TAXPAYER_CONSENT,
-      SUPPRESS_IV_FOR_AGENTS,
-      SUPPRESS_IV_FOR_ORGANISATIONS,
-      SUPPRESS_IV_FOR_INDIVIDUALS = Value
+  GRANT_WITHOUT_TAXPAYER_CONSENT,
+  SUPPRESS_IV_FOR_AGENTS,
+  SUPPRESS_IV_FOR_ORGANISATIONS,
+  SUPPRESS_IV_FOR_INDIVIDUALS = Value
 
-  val displayedType: (OverrideType) => String = {
+  val displayedType: OverrideType => String = {
     case PERSIST_LOGIN_AFTER_GRANT => "Persist login after grant"
     case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
     case SUPPRESS_IV_FOR_AGENTS => "Suppress IV for agents"
@@ -150,6 +150,7 @@ object OverrideType extends Enumeration {
 
 case class ApplicationResponse(id: UUID,
                                clientId: String,
+                               gatewayId: String,
                                name: String,
                                deployedTo: String,
                                description: Option[String] = None,
@@ -162,7 +163,7 @@ case class ApplicationResponse(id: UUID,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
                                blocked: Boolean = false)
-                               extends Application
+  extends Application
 
 object ApplicationResponse {
   implicit val formatTotpIds = Json.format[TotpIds]
@@ -187,6 +188,7 @@ object ApplicationResponse {
   val applicationResponseReads: Reads[ApplicationResponse] = (
     (JsPath \ "id").read[UUID] and
       (JsPath \ "clientId").read[String] and
+      (JsPath \ "gatewayId").read[String] and
       (JsPath \ "name").read[String] and
       (JsPath \ "deployedTo").read[String] and
       (JsPath \ "description").readNullable[String] and
@@ -199,7 +201,7 @@ object ApplicationResponse {
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false))
-    )(ApplicationResponse.apply _)
+    ) (ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {
     Format(applicationResponseReads, Json.writes[ApplicationResponse])
@@ -217,14 +219,15 @@ object AccessType extends Enumeration {
   type AccessType = Value
   val STANDARD, PRIVILEGED, ROPC = Value
 
-  val displayedType: (AccessType) => String = {
+  val displayedType: AccessType => String = {
     case STANDARD => "Standard"
     case PRIVILEGED => "Privileged"
     case ROPC => "ROPC"
   }
-   def from(accessType: String) = {
-     AccessType.values.find(e => e.toString == accessType.toUpperCase)
-   }
+
+  def from(accessType: String) = {
+    AccessType.values.find(e => e.toString == accessType.toUpperCase)
+  }
 }
 
 case class TotpIds(production: String, sandbox: String)
@@ -269,8 +272,8 @@ object SubscribedApplicationResponse {
   }
 
   def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
-    SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description,
-      appResponse.collaborators, appResponse.createdOn, appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted), appResponse.deployedTo)
+    SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description, appResponse.collaborators, appResponse.createdOn,
+      appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted), appResponse.deployedTo)
 }
 
 case class PaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
@@ -294,7 +297,11 @@ case class DetailedSubscribedApplicationResponse(id: UUID,
                                                  deployedTo: String,
                                                  clientId: String = "") extends Application
 
-case class PaginatedDetailedSubscribedApplicationResponse(applications: Seq[DetailedSubscribedApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+case class PaginatedDetailedSubscribedApplicationResponse(applications: Seq[DetailedSubscribedApplicationResponse],
+                                                          page: Int,
+                                                          pageSize: Int,
+                                                          total: Int,
+                                                          matching: Int)
 
 object PaginatedDetailedSubscribedApplicationResponse {
   def apply(psar: PaginatedSubscribedApplicationResponse, applications: Seq[DetailedSubscribedApplicationResponse]) =
@@ -329,18 +336,22 @@ object State extends Enumeration {
   val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
   implicit val format = EnumJson.enumFormat(State)
 
-  val displayedState: (State) => String = {
+  val displayedState: State => String = {
     case TESTING => "Created"
     case PENDING_GATEKEEPER_APPROVAL => "Pending gatekeeper check"
     case PENDING_REQUESTER_VERIFICATION => "Pending submitter verification"
     case PRODUCTION => "Active"
   }
 
-  val additionalInformation: (State) => String = {
-    case TESTING => "A production application that its admin has created but not submitted for checking"
-    case PENDING_GATEKEEPER_APPROVAL => "A production application that one of its admins has submitted for checking"
-    case PENDING_REQUESTER_VERIFICATION => "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
-    case PRODUCTION => "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
+  val additionalInformation: State => String = {
+    case TESTING =>
+      "A production application that its admin has created but not submitted for checking"
+    case PENDING_GATEKEEPER_APPROVAL =>
+      "A production application that one of its admins has submitted for checking"
+    case PENDING_REQUESTER_VERIFICATION =>
+      "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
+    case PRODUCTION =>
+      "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
   }
 }
 
@@ -354,7 +365,8 @@ object CollaboratorRole extends Enumeration {
   type CollaboratorRole = Value
   val DEVELOPER, ADMINISTRATOR = Value
 
-  def displayedRole: (CollaboratorRole) => String = _.toString.toLowerCase.capitalize
+  def displayedRole: CollaboratorRole => String = _.toString.toLowerCase.capitalize
+
   def from(role: Option[String]) = role match {
     case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
     case _ => Some(CollaboratorRole.DEVELOPER)
@@ -373,7 +385,7 @@ object RateLimitTier extends Enumeration {
 
   def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
 
-  def displayedTier: (RateLimitTier) => String = {
+  def displayedTier: RateLimitTier => String = {
     case BRONZE => "Bronze"
     case SILVER => "Silver"
     case GOLD => "Gold"
