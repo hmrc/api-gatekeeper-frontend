@@ -26,6 +26,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito.{spy, verify}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
+import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import services.SubscriptionFieldsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -42,7 +43,8 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   val clientId = "clientId"
   val mockSandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
   val mockProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
-  val application = ApplicationResponse(UUID.randomUUID(), clientId, applicationName, "PRODUCTION", None, Set.empty, DateTime.now(), Standard(), ApplicationState())
+  val application = ApplicationResponse(
+    UUID.randomUUID(), clientId, "gatewayId", applicationName, "PRODUCTION", None, Set.empty, DateTime.now(), Standard(), ApplicationState())
 
   trait Setup {
     lazy val locked = false
@@ -58,12 +60,18 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "return custom fields for a given application in the correct environment (fields populated)" in new Setup {
       val fieldsId = UUID.randomUUID()
-      val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, Fields("field1" -> "val001", "field2" -> "val002"))
+      val fieldValuesResponse: SubscriptionFields =
+        SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, Fields("field1" -> "val001", "field2" -> "val002"))
       val fieldDefinitions = List(SubscriptionField("field1", "desc1", "hint1", "some type"), SubscriptionField("field2", "desc2", "hint2", "some other type"))
-      val mergedDefValues = List(SubscriptionField("field1", "desc1", "hint1", "some type", Some("val001")), SubscriptionField("field2", "desc2", "hint2", "some other type", Some("val002")))
+      val mergedDefValues = List(
+        SubscriptionField("field1", "desc1", "hint1", "some type", Some("val001")),
+        SubscriptionField("field2", "desc2", "hint2", "some other type", Some("val002"))
+      )
 
-      given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(Some(fieldValuesResponse)))
-      given(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion)).willReturn(Future.successful(fieldDefinitions))
+      given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
+        .willReturn(Future.successful(Some(fieldValuesResponse)))
+      given(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
+        .willReturn(Future.successful(fieldDefinitions))
 
       val result: Seq[SubscriptionField] = await(underTest.fetchFields(application, apiContext, apiVersion))
       result shouldBe mergedDefValues
@@ -100,7 +108,8 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       val fields = Fields("field1" -> "val001", "field2" -> "val002")
       val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields)
 
-      given(mockProductionSubscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fields)).willReturn(Future.successful(HttpResponse(201)))
+      given(mockProductionSubscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fields))
+        .willReturn(Future.successful(HttpResponse(CREATED)))
 
       val result = await(underTest.saveFieldValues(application, apiContext, apiVersion, fields))
 
@@ -116,7 +125,8 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       val fields = Fields("field1" -> "val001", "field2" -> "val002")
       val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields)
 
-      given(mockProductionSubscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(FieldsDeleteSuccessResult))
+      given(mockProductionSubscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))
+        .willReturn(Future.successful(FieldsDeleteSuccessResult))
 
       val result = await(underTest.deleteFieldValues(application, apiContext, apiVersion))
 

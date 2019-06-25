@@ -95,7 +95,10 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val url = s"$baseUrl/application/subscriptions"
 
     "retrieve all applications" in new Setup {
-      val response = Seq(SubscriptionResponse(APIIdentifier("individual-benefits", "1.0"), Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
+      val response = Seq(
+        SubscriptionResponse(
+          APIIdentifier("individual-benefits", "1.0"),
+          Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
 
       when(mockHttpClient.GET[Seq[SubscriptionResponse]](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(response))
@@ -174,7 +177,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
     "handle 412 precondition failed" in new Setup {
       when(mockHttpClient.POST[ResendVerificationRequest, HttpResponse](meq(url), meq(body), any())(any(), any(), any(), any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("Application is not in state 'PENDING_REQUESTOR_VERIFICATION'", PRECONDITION_FAILED, PRECONDITION_FAILED)))
+        .thenReturn(
+          Future.failed(Upstream4xxResponse("Application is not in state 'PENDING_REQUESTOR_VERIFICATION'", PRECONDITION_FAILED, PRECONDITION_FAILED)))
 
       intercept[PreconditionFailed] {
         await(connector.resendVerification(applicationId, gatekeeperId))
@@ -205,7 +209,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
         await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
       }
 
-      exception.getCause() shouldBe thrownException
+      exception.getCause shouldBe thrownException
     }
   }
 
@@ -214,7 +218,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
-    val applications = Seq(ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+    val applications = Seq(ApplicationResponse(
+      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
 
     "retrieve all applications" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))
@@ -347,7 +352,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       val createPrivOrROPCAppRequestJson = Json.toJson(createPrivOrROPCAppRequest).toString()
       val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", "client ID", totpSecrets, appAccess)
 
-      when(mockHttpClient.POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](meq(url), meq(createPrivOrROPCAppRequest), any())(any(), any(), any(), any()))
+      when(mockHttpClient
+        .POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](meq(url), meq(createPrivOrROPCAppRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(createPrivOrROPCAppResponse))
 
       val result = await(connector.createPrivOrROPCApp(createPrivOrROPCAppRequest))
@@ -378,7 +384,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val url = s"$baseUrl/application/$appId/collaborator"
     val teamMember = Collaborator("newUser@example.com", role = CollaboratorRole.DEVELOPER)
     val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", teamMember, isRegistered = true, Set.empty)
-    val requestBody = Json.toJson(addTeamMemberRequest).toString
 
     "post the team member to the service" in new Setup {
       when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](any[String], any[AddTeamMemberRequest], any())(any(), any(), any(), any()))
@@ -418,7 +423,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
     "throw the error when the service returns any other error" in new Setup {
       when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](meq(url), meq(addTeamMemberRequest), any())(any(), any(), any(), any()))
-        .thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+        .thenReturn(Future.failed( Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.addCollaborator(appId, addTeamMemberRequest))
@@ -433,7 +438,8 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
     val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")
-    val url = s"$baseUrl/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
+    val url =
+      s"$baseUrl/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
 
     "send a DELETE request to the service with the correct params" in new Setup {
       when(mockHttpClient.DELETE[HttpResponse](any[String])(any(), any(), any()))

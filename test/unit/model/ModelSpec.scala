@@ -24,8 +24,6 @@ import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
 import AccessType._
 
-
-
 class ModelSpec  extends UnitSpec with Matchers {
 
   "UpliftAction" should {
@@ -34,7 +32,7 @@ class ModelSpec  extends UnitSpec with Matchers {
       UpliftAction.from("reject") shouldBe Some(UpliftAction.REJECT)
     }
 
-    "convert string value to enum with mixedcase" in {
+    "convert string value to enum with mixed case" in {
       UpliftAction.from("aPProve") shouldBe Some(UpliftAction.APPROVE)
       UpliftAction.from("rEJect") shouldBe Some(UpliftAction.REJECT)
     }
@@ -49,7 +47,7 @@ class ModelSpec  extends UnitSpec with Matchers {
 
     "have all rate limit tiers" in {
       import RateLimitTier._
-      RateLimitTier.values.toSet shouldBe Set(PLATINUM, GOLD, SILVER, BRONZE)
+      RateLimitTier.values shouldBe Set(PLATINUM, GOLD, SILVER, BRONZE)
     }
 
     "convert string value to enum with lowercase" in {
@@ -76,7 +74,8 @@ class ModelSpec  extends UnitSpec with Matchers {
     val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)
 
     def application(teamMembers: Set[Collaborator]) =
-      ApplicationResponse(UUID.randomUUID(), "clientid", "application", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
+      ApplicationResponse(
+        UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, teamMembers, DateTime.now(), Standard(), ApplicationState())
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))

@@ -44,9 +44,17 @@ trait ControllerSetupBase extends MockitoSugar {
   val mockDeveloperConnector = mock[DeveloperConnector]
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
-  val basicApplication = ApplicationResponse(UUID.randomUUID(), "clientid1", "application1", "PRODUCTION", None,
+  val basicApplication = ApplicationResponse(
+    UUID.randomUUID(),
+    "clientId1",
+    "gatewayId1",
+    "application1",
+    "PRODUCTION",
+    None,
     Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
-    DateTime.now(), Standard(), ApplicationState())
+    DateTime.now(),
+    Standard(),
+    ApplicationState())
   val application = ApplicationWithHistory(basicApplication, Seq.empty)
   val applicationId = application.application.id.toString
 

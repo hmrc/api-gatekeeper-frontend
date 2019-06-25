@@ -70,7 +70,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
-      val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+      val developers = List[User] {
+        new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
+      }
 
       val underTest = new ApplicationController(
         mockApplicationService,
@@ -135,7 +137,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("SANDBOX"))(aLoggedInRequest)
@@ -147,7 +149,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
         val aLoggedInRequestWithParams = aLoggedInRequest.copyFakeRequest(
@@ -169,16 +171,19 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
-        givenAUnsuccessfulLogin
+        givenAUnsuccessfulLogin()
 
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}")
+        redirectLocation(result) shouldBe
+          Some(
+            s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
+              s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}")
       }
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
@@ -195,7 +200,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
@@ -214,7 +219,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "resendVerification" should {
       "call backend with correct application id and gatekeeper id when resend verification is invoked" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
@@ -232,7 +237,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "manageScopes" should {
       "fetch an app with Privileged access for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(privilegedApplication)
 
         val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
@@ -242,7 +247,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "fetch an app with ROPC access for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(ropcApplication)
 
         val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
@@ -252,7 +257,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return an error for a Standard app" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(application)
 
         intercept[RuntimeException] {
@@ -262,7 +267,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageScopes(applicationId))(aLoggedInRequest))
@@ -273,7 +278,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "updateScopes" should {
       "call the service to update scopes when a valid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
@@ -283,7 +288,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.updateScopes(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
 
         verify(mockApplicationService)
           .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(any[HeaderCarrier])
@@ -292,7 +297,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
@@ -305,7 +310,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier]))
@@ -318,7 +323,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody()
@@ -332,7 +337,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "manageOverrides" should {
       "fetch an app with Standard access for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
@@ -342,7 +347,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return an error for a ROPC app" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(ropcApplication)
 
         intercept[RuntimeException] {
@@ -351,7 +356,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return an error for a Privileged app" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(privilegedApplication)
 
         intercept[RuntimeException] {
@@ -360,7 +365,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest))
@@ -371,7 +376,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "updateOverrides" should {
       "call the service to update overrides when a valid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateOverrides(any[ApplicationResponse], any[Set[OverrideFlag]])(any[HeaderCarrier]))
@@ -387,7 +392,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
 
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
@@ -403,7 +408,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -420,7 +425,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
@@ -435,7 +440,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "subscribeToApi" should {
       "call the service to subscribe to the API when submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.subscribeToApi(any[Application], anyString, anyString)(any[HeaderCarrier]))
@@ -444,14 +449,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
 
         verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
@@ -464,7 +469,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "unsubscribeFromApi" should {
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.unsubscribeFromApi(any[Application], anyString, anyString)(any[HeaderCarrier]))
@@ -473,14 +478,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
 
         verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(any[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
@@ -509,7 +514,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       )
 
       "save subscription field values" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser
+        givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
         given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[ApiSubscriptionFields.Fields])(any[HeaderCarrier]))
           .willReturn(successful(HttpResponse(OK)))
@@ -532,7 +537,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "manageRateLimitTier" should {
       "fetch the app and return the page for an admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest))
@@ -541,10 +546,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
 
         verifyAuthConnectorCalledForAdmin
-    }
+      }
 
       "return forbidden for a super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest))
@@ -555,7 +560,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden for a user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest))
@@ -567,7 +572,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "updateRateLimitTier" should {
       "call the service to update the rate limit tier when a valid form is submitted for an admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateRateLimitTier(any[Application], any[RateLimitTier])(any[HeaderCarrier]))
@@ -578,7 +583,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(any[HeaderCarrier])
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
@@ -586,7 +591,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -600,7 +605,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
@@ -615,8 +620,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "handleUplift" should {
-      val applicationId = "applicationId"
-      val userName = "userName"
 
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
@@ -692,7 +695,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", ""), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", ""),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", appName),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -703,7 +711,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", ""), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", ""),
+              ("applicationName", appName),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -714,7 +727,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", ""), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", ""),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -724,13 +742,19 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(
+            UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "I Already Exist"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -740,17 +764,23 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "allow creation of a sandbox app if name already exists in production" in new Setup {
 
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(
+            UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
-          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+          given(mockApplicationService
+            .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest
-              .withFormUrlEncodedBody(("environment", Environment.SANDBOX.toString), ("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.SANDBOX.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "I Already Exist"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe OK
 
@@ -760,16 +790,23 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(
+            UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockConfig.isExternalTestEnvironment).willReturn(true)
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
-          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+          given(mockApplicationService
+            .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.SANDBOX.toString), ("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.SANDBOX.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "I Already Exist"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe OK
 
@@ -779,15 +816,22 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
-          val existingApp = ApplicationResponse(UUID.randomUUID(), "clientid1", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+          val existingApp = ApplicationResponse(
+            UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
-          given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+          given(mockApplicationService
+            .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", "I Already Exist"), ("applicationDescription", description), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "I Already Exist"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe OK
 
@@ -799,7 +843,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", ""), ("adminEmail", adminEmail))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", appName),
+              ("applicationDescription", ""),
+              ("adminEmail", adminEmail))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -810,7 +859,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", ""))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", appName),
+              ("applicationDescription", description),
+              ("adminEmail", ""))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -821,7 +875,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "notAValidEmailAddress"))))
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", appName),
+              ("applicationDescription", description),
+              ("adminEmail", "notAValidEmailAddress"))))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -832,10 +891,15 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "with valid form fields" can {
         "but the user is not a superuser" should {
           "show 403 forbidden" in new Setup {
-            givenTheUserHasInsufficientEnrolments
+            givenTheUserHasInsufficientEnrolments()
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-              aLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+              aLoggedInRequest.withFormUrlEncodedBody(
+                ("environment", Environment.PRODUCTION.toString),
+                ("accessType", privilegedAccessType.toString),
+                ("applicationName", appName),
+                ("applicationDescription", description),
+                ("adminEmail", "a@example.com"))))
 
             status(result) shouldBe FORBIDDEN
           }
@@ -845,11 +909,17 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "show the success page for a priv app in production" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
-            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            given(mockApplicationService
+              .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+                ("environment", Environment.PRODUCTION.toString),
+                ("accessType", privilegedAccessType.toString),
+                ("applicationName", appName),
+                ("applicationDescription", description),
+                ("adminEmail", "a@example.com"))))
 
             status(result) shouldBe OK
 
@@ -868,11 +938,17 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "show the success page for a priv app in sandbox" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
-            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            given(mockApplicationService
+              .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.SANDBOX.toString), ("accessType", privilegedAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+                ("environment", Environment.SANDBOX.toString),
+                ("accessType", privilegedAccessType.toString),
+                ("applicationName", appName),
+                ("applicationDescription", description),
+                ("adminEmail", "a@example.com"))))
 
             status(result) shouldBe OK
 
@@ -890,12 +966,18 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "show the success page for an ROPC app in production" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
-            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            given(mockApplicationService
+              .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, None, ropcAccess)))
             given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("PRODUCTION"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.PRODUCTION.toString), ("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+                ("environment", Environment.PRODUCTION.toString),
+                ("accessType", ropcAccessType.toString),
+                ("applicationName", appName),
+                ("applicationDescription", description),
+                ("adminEmail", "a@example.com"))))
 
             status(result) shouldBe OK
 
@@ -913,11 +995,17 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "show the success page for an ROPC app in sandbox" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
-            given(mockApplicationService.createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
+            given(mockApplicationService
+              .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, ropcAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(("environment", Environment.SANDBOX.toString), ("accessType", ropcAccessType.toString), ("applicationName", appName), ("applicationDescription", description), ("adminEmail", "a@example.com"))))
+              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+                ("environment", Environment.SANDBOX.toString),
+                ("accessType", ropcAccessType.toString),
+                ("applicationName", appName),
+                ("applicationDescription", description),
+                ("adminEmail", "a@example.com"))))
 
             status(result) shouldBe OK
 
@@ -941,7 +1029,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "fetch the subscriptions with the fields" in new Setup {
 
           val subscription = Subscription("name", "serviceName", "context", Seq())
-          givenTheUserIsAuthorisedAndIsASuperUser
+          givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
           given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Seq(subscription))
 
@@ -957,7 +1045,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "show 403 forbidden" in new Setup {
           val subscription = Subscription("name", "serviceName", "context", Seq())
 
-          givenTheUserHasInsufficientEnrolments
+          givenTheUserHasInsufficientEnrolments()
 
           given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Seq(subscription))
 
@@ -975,7 +1063,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
         given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(subscriptions)
-        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier])).willReturn(developers)
+        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier]))
+          .willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
@@ -988,8 +1077,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "return the application details when the subscription service fails" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Future.failed(new FetchApplicationSubscriptionsFailed))
-        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier])).willReturn(developers)
+        given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier]))
+          .willReturn(Future.failed(new FetchApplicationSubscriptionsFailed))
+        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier]))
+          .willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
@@ -1169,12 +1260,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier]))
+              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            verify(mockApplicationService).addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
+            verify(mockApplicationService)
+              .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
             verifyAuthConnectorCalledForUser
           }
 
@@ -1182,7 +1275,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier]))
+              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -1196,7 +1290,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberAlreadyExists))
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier]))
+              .willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -1270,7 +1365,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(any[Application], any[Collaborator], anyString)(any[HeaderCarrier]))
+              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
@@ -1384,7 +1480,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier]))
+                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
@@ -1399,7 +1496,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.failed(new TeamMemberLastAdmin))
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier]))
+                .willReturn(Future.failed(new TeamMemberLastAdmin))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
@@ -1411,7 +1509,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+              given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier]))
+                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
               val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
@@ -1465,7 +1564,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "show 303 OK" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
-            given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier])).willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.removeTeamMember(any[Application], anyString, anyString)(any[HeaderCarrier]))
+              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
             val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
@@ -1479,7 +1579,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     "blockApplicationPage" should {
 
       "return the page for block app if admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest))
@@ -1491,7 +1591,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
 
       "return forbidden for a non-admin" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
@@ -1504,7 +1604,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "blockApplicationAction" should {
       "call the service to block application when a valid form is submitted for an admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.blockApplication(any[Application], anyString)(any[HeaderCarrier]))
@@ -1522,7 +1622,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -1536,7 +1636,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1554,7 +1654,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     "unblockApplicationPage" should {
 
       "return the page for unblock app if admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest))
@@ -1566,7 +1666,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
 
       "return forbidden for a non-admin" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
         val result = await(addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
@@ -1579,7 +1679,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
     "unblockApplicationAction" should {
       "call the service to unblock application when a valid form is submitted for an admin" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.unblockApplication(any[Application], anyString)(any[HeaderCarrier]))
@@ -1597,7 +1697,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheUserIsAuthorisedAndIsAnAdmin
+        givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -1611,7 +1711,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheUserHasInsufficientEnrolments
+        givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1641,8 +1741,10 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
     }
 
-    def aPaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse]): PaginatedSubscribedApplicationResponse =
-      PaginatedSubscribedApplicationResponse(applications, page = 1, pageSize = 10, total = applications.size, matching = applications.size)
-
+    def aPaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse]): PaginatedSubscribedApplicationResponse = {
+      val page = 1
+      val pageSize = 10
+      PaginatedSubscribedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+    }
   }
 }

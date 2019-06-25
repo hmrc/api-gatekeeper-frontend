@@ -87,6 +87,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$appPendingApprovalId2",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId2",
        |    "name": "Second Application",
        |    "submittedOn": 1458832690624,
        |    "state": "PENDING_GATEKEEPER_APPROVAL"
@@ -94,6 +95,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$appPendingApprovalId1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "First Application",
        |    "submittedOn": 1458659208000,
        |    "state": "PENDING_GATEKEEPER_APPROVAL"
@@ -101,6 +103,7 @@ trait MockDataSugar {
        |  {
        |    "id": "9688ad02-230e-42b7-8f9a-be593565bfdc",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId3",
        |    "name": "Third",
        |    "submittedOn": 1458831410657,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
@@ -108,6 +111,7 @@ trait MockDataSugar {
        |  {
        |    "id": "56148b28-65b0-47dd-a3ce-2f02840ddd31",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId4",
        |    "name": "Fourth",
        |    "submittedOn": 1458832728156,
        |    "state": "PRODUCTION"
@@ -121,6 +125,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Application",
        |    "submittedOn": 1458832690624,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
@@ -128,6 +133,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$approvedApp2",
        |    "clientId": "clientid2",
+       |    "gatewayId": "gatewayId2",
        |    "name": "ZApplication",
        |    "submittedOn": 1458659208000,
        |    "state": "PRODUCTION"
@@ -135,6 +141,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$approvedApp3",
        |    "clientId": "clientid3",
+       |    "gatewayId": "gatewayId3",
        |    "name": "rapplication",
        |    "submittedOn": 1458831410657,
        |    "state": "PENDING_REQUESTER_VERIFICATION"
@@ -142,6 +149,7 @@ trait MockDataSugar {
        |  {
        |    "id": "$approvedApp4",
        |    "clientId": "clientid4",
+       |    "gatewayId": "gatewayId4",
        |    "name": "BApplication",
        |    "submittedOn": 1458832728156,
        |    "state": "PRODUCTION"
@@ -155,6 +163,7 @@ trait MockDataSugar {
        |  "application": {
        |    "id": "$appPendingApprovalId1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "First Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -259,6 +268,7 @@ trait MockDataSugar {
        |  "application": {
        |    "id": "$appPendingApprovalId1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "First Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -363,6 +373,7 @@ trait MockDataSugar {
        |  "application": {
        |    "id": "$appToDelete",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Automated Test Application",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -448,6 +459,7 @@ trait MockDataSugar {
        |  "application": {
        |    "id": "$appUnblock",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Automated Test Application - Blocked",
        |    "description": "$applicationDescription",
        |    "deployedTo": "PRODUCTION",
@@ -530,6 +542,7 @@ trait MockDataSugar {
        |  [{
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -561,6 +574,7 @@ trait MockDataSugar {
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "clientId": "clientId1",
+       |    "gatewayId": "gatewayId2",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -600,6 +614,7 @@ trait MockDataSugar {
        |  [{
        |    "id": "$appToDelete",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Automated Test Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -634,6 +649,7 @@ trait MockDataSugar {
        |  [{
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -665,6 +681,7 @@ trait MockDataSugar {
        |    {
        |    "id": "a97541e8-f93d-4d0a-ab0b-862e63204b7d",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId2",
        |    "name": "My new app",
        |    "description": "my description",
        |    "deployedTo": "PRODUCTION",
@@ -701,6 +718,7 @@ trait MockDataSugar {
        |  {
        |    "id": "79ad57d6-3691-45d5-b85d-6b8e0be8bcb1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId3",
        |    "name": "An application for my user",
        |    "description": "And my user has a very tricky email address",
        |    "deployedTo": "PRODUCTION",
@@ -727,6 +745,7 @@ trait MockDataSugar {
        |  {
        |    "id": "c9736f52-4202-4d14-85b5-cbd29601fa99",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId4",
        |    "name": "Mango",
        |    "description": "a",
        |    "deployedTo": "PRODUCTION",
@@ -753,6 +772,7 @@ trait MockDataSugar {
        |  {
        |    "id": "ac1db09b-f8cf-440a-a3d2-86a81bc6b303",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId5",
        |    "name": "Mark App",
        |    "description": "anything",
        |    "deployedTo": "PRODUCTION",
@@ -779,6 +799,7 @@ trait MockDataSugar {
        |   {
        |    "id": "4afc248d-1c3e-4274-a77b-e89a25b4d764",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId6",
        |    "name": "A Wonderful Application",
        |    "description": "I would like to see this wonderful application in production",
        |    "deployedTo": "PRODUCTION",
@@ -809,6 +830,7 @@ trait MockDataSugar {
        |  {
        |    "id": "e55def1d-763c-4a26-a44e-82a63f4cb70b",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId7",
        |    "name": "Any App",
        |    "description": "Stuff",
        |    "deployedTo": "PRODUCTION",
@@ -843,6 +865,7 @@ trait MockDataSugar {
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId8",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -882,6 +905,7 @@ trait MockDataSugar {
        |  [{
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -913,6 +937,7 @@ trait MockDataSugar {
        |  {
        |    "id": "414660d0-9b0c-49dc-ad7f-c36f32772c10",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId2",
        |    "name": "Tim",
        |    "description": "Tim paye tests",
        |    "deployedTo": "PRODUCTION",
@@ -943,6 +968,7 @@ trait MockDataSugar {
        |  {
        |    "id": "7800ee15-ccc1-4103-b21f-81ddde793be1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId3",
        |    "name": "Test Application",
        |    "description": "My test app",
        |    "deployedTo": "PRODUCTION",
@@ -969,6 +995,7 @@ trait MockDataSugar {
        |  {
        |    "id": "d22cc11f-59e6-4148-b0d4-1751e9181d45",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId4",
        |    "name": "QA User App 2",
        |    "collaborators": [
        |      {
@@ -1001,6 +1028,7 @@ trait MockDataSugar {
        |  {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId5",
        |    "name": "Imrans Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
@@ -1041,10 +1069,11 @@ trait MockDataSugar {
        |  [{
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
-       |   "collaborators": [],
+       |    "collaborators": [],
        |    "createdOn": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
@@ -1067,26 +1096,27 @@ trait MockDataSugar {
        |  [{
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer4",
-       |     "role": "ADMINISTRATOR"
-       |    },
-       |    {
-       |      "emailAddress": "$developer5",
-       |     "role": "DEVELOPER"
-       |    },
-       |    {
-       |      "emailAddress": "$developer6",
-       |     "role": "DEVELOPER"
-       |    },
-       |    {
-       |      "emailAddress": "peter.fakename@example.com",
-       |     "role": "DEVELOPER"
-       |    }
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer4",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer5",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer6",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "peter.fakename@example.com",
+       |        "role": "DEVELOPER"
+       |      }
        |    ],
        |    "createdOn": 1458832690624,
        |    "access": {
@@ -1214,6 +1244,7 @@ trait MockDataSugar {
        |  "application": {
        |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
        |    "name": "Application",
        |    "description": "$description",
        |    "deployedTo": "PRODUCTION",

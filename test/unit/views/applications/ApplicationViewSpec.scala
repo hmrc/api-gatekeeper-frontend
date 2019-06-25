@@ -34,7 +34,9 @@ import utils.LoggedInUser
 class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
   private val mockAppConfig = mock[AppConfig]
-  private val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+  private val developers = List[User] {
+    new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
+  }
 
   "application view" must {
     implicit val request = FakeRequest()
@@ -44,6 +46,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       ApplicationResponse(
         UUID.randomUUID(),
         "clientid",
+        "gatewayId",
         "application1",
         "PRODUCTION",
         None,
@@ -57,20 +60,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
     "show application with no check information" in {
 
-      val application =
-        ApplicationResponse(
-          UUID.randomUUID(),
-          "clientid",
-          "application1",
-          "PRODUCTION",
-          None,
-          Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
-          DateTime.now(),
-          Standard(),
-          ApplicationState()
-        )
-
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), false, false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -85,6 +76,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
         UUID.randomUUID(),
         "clientid",
+        "gatewayId",
         "name",
         "PRODUCTION",
         None,
@@ -95,7 +87,9 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         checkInformation = Option(checkInformation)
       )
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Right(Seq.empty), false, false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(
+        developers, applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -115,6 +109,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
         UUID.randomUUID(),
         "clientid",
+        "gatewayId",
         "name",
         "PRODUCTION",
         None,
@@ -124,15 +119,19 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         ApplicationState(),
         checkInformation = Option(checkInformation)
       )
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Right(Seq.empty), false, false, Some(termsOfUseAgreement), request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(
+        developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, Some(termsOfUseAgreement), request, LoggedInUser(None),
+        Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}") mustBe true
-
+      val agreedText =
+        s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(termsOfUseAgreement)}"
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", agreedText) mustBe true
     }
 
     "show application with check information and multiple terms of use agreed" in {
@@ -143,11 +142,11 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       val newTOUAgreement = TermsOfUseAgreement("test", DateTime.now(), newVersion)
       val checkInformation = CheckInformation(termsOfUseAgreements = Seq(oldTOUAgreement, newTOUAgreement))
 
-
       val applicationWithTermsOfUse = ApplicationResponse(
 
         UUID.randomUUID(),
         "clientid",
+        "gatewayId",
         "name",
         "PRODUCTION",
         None,
@@ -157,21 +156,25 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         ApplicationState(),
         checkInformation = Option(checkInformation)
       )
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Right(Seq.empty), false, false, Some(newTOUAgreement), request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(
+        developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, Some(newTOUAgreement), request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByAttr(document, "div", "data-terms") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") mustBe false
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", s"v${newTOUAgreement.version} agreed by ${newTOUAgreement.emailAddress} on ${DateTimeFormat.forPattern("dd MMMM yyyy").print(newTOUAgreement.timeStamp)}") mustBe true
+      val agreedText = s"v${newTOUAgreement.version} agreed by ${newTOUAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(newTOUAgreement)}"
+      elementIdentifiedByAttrContainsText(document, "div", "data-terms", agreedText) mustBe true
       result.body.contains(s"v$oldTOUAgreement.version") mustBe false
       result.body.contains(DateTimeFormat.longDate.print(oldTOUAgreement.timeStamp)) mustBe false
     }
 
     "show application information, including status information" in {
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), false, false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -179,7 +182,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       elementExistsByAttr(document, "div", "data-status") mustBe true
       elementExistsByAttr(document, "div", "data-status-info") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-status", "Created") mustBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", "A production application that its admin has created but not submitted for checking") mustBe true
+      val checkingText = "A production application that its admin has created but not submitted for checking"
+      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", checkingText) mustBe true
       elementExistsById(document, "review") mustBe false
     }
 
@@ -187,7 +191,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
       val applicationPendingCheck = application.copy(state = ApplicationState(State.PENDING_GATEKEEPER_APPROVAL))
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = applicationPendingCheck), Right(Seq.empty), false, false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = applicationPendingCheck), Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -195,13 +200,15 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       elementExistsByAttr(document, "div", "data-status") mustBe true
       elementExistsByAttr(document, "div", "data-status-info") mustBe true
       elementIdentifiedByAttrContainsText(document, "div", "data-status", "Pending gatekeeper check") mustBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", "A production application that one of its admins has submitted for checking") mustBe true
+      val checkingText = "A production application that one of its admins has submitted for checking"
+      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", checkingText) mustBe true
       elementIdentifiedByIdContainsText(document, "a", "review", "Check application") mustBe true
     }
 
     "show application information, including superuser specific actions, when logged in as superuser" in {
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -213,7 +220,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
     }
 
     "show application information, excluding superuser specific actions, when logged in as non superuser" in {
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -225,7 +233,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
     "show 'Manage' rate limit link when logged in as admin" in {
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -236,7 +245,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
     }
 
     "not show 'Manage' rate limit link when logged in as non admin" in {
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -249,7 +259,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
       val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty),
+        isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -262,7 +273,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
 
       val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
 
-      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty), isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory.copy(application = activeApplication), Right(Seq.empty),
+        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -272,7 +284,8 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
     }
 
     "show application information and click on associated developer" in {
-      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty), false, false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+      val result = views.html.applications.application.render(developers, applicationWithHistory, Right(Seq.empty),
+        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
 
       val document = Jsoup.parse(result.body)
 
@@ -291,5 +304,9 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       result.contentType must include("text/html")
       elementExistsByText(document, "a", "Resend verify email") mustBe true
     }
+  }
+
+  private def formatTermsOfUseAgreedDateTime(termsOfUseAgreement: TermsOfUseAgreement) = {
+    DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)
   }
 }

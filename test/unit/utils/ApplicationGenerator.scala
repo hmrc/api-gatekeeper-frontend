@@ -25,22 +25,29 @@ import uk.gov.hmrc.time.DateTimeUtils
 
 object ApplicationGenerator {
 
-
-  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: Seq[StateHistory] = Seq.empty ): ApplicationWithHistory =
+  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(),
+                               stateHistories: Seq[StateHistory] = Seq.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
+  }
 
-  def anApplicationResponse(dateTime: DateTime = DateTimeUtils.now): ApplicationResponse =
-    ApplicationResponse(randomUUID(), "clientid", "appName", "deployedTo", None, Set.empty, dateTime, Privileged(), ApplicationState(),
+  def anApplicationResponse(dateTime: DateTime = DateTimeUtils.now): ApplicationResponse = {
+    ApplicationResponse(randomUUID(), "clientid", "gatewayId", "appName", "deployedTo", None, Set.empty, dateTime, Privileged(), ApplicationState(),
       RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
+  }
 
-  def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = anApplicationResponse().copy(checkInformation = Some(checkInformation))
+  def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
+    anApplicationResponse().copy(checkInformation = Some(checkInformation))
+  }
 
-  def aCheckInformation(): CheckInformation =
+  def aCheckInformation(): CheckInformation = {
     CheckInformation(contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
       confirmedName = true, providedPrivacyPolicyURL = true, providedTermsAndConditionsURL = true,
       applicationDetails = Some("application details"))
+  }
 
-  def aStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = StateHistory(randomUUID(), state, anActor(), None, changedAt)
+  def aStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+    StateHistory(randomUUID(), state, anActor(), None, changedAt)
+  }
 
   def anActor() = Actor("actor id")
 }
