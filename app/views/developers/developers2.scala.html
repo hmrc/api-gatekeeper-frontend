@@ -20,9 +20,9 @@
 @import utils._
 
 @(users: Seq[User],
-    emails: String,
-    apiVersions : Seq[DropDownValue],
-    params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+emails: String,
+apiVersions : Seq[DropDownValue],
+params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Developers") {
 
@@ -36,7 +36,8 @@
         <a href="@{routes.DevelopersController.developersPage(None, None, None)}">Old developer search</a>
     </p>
 
-    @defining(Seq("emailFilter", "apiVersionFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: _ =>
+    @defining(Seq("emailFilter", "apiVersionFilter", "developerStatusFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: developerStatusFilter :: _ =>
+
     <form name="developers-filters"
           action="@routes.Developers2Controller.developersPage(None,None).url"
           method="get">
@@ -47,26 +48,54 @@
                 <label class="bold centered-content hard--left label--full-length" for="emailFilter">
                     <span class="label__text bold">Search</span>
 
-                        <input class="form-control input--cleared input-select--large full-width"
-                               id="emailFilter"
-                               name="emailFilter"
-                               type="text"
-                               value="@emailFilter"
-                               placeholder="Partial Email"/>
+                    <input class="form-control input--cleared input-select--large full-width"
+                           id="emailFilter"
+                           name="emailFilter"
+                           type="text"
+                           value="@emailFilter"
+                           placeholder="Partial Email"/>
                 </label>
             </div>
 
         </div>
-        <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
-            <select class="form-control input-select input-select--large" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
-                <option value=""></option>
-                @for(apiVersion <- apiVersions){
-                    <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">
+
+
+        <div class="grid-layout__column--1-2">
+
+            <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
+                <select class="form-control input-select input-select--large"
+                        id="apiVersionFilter"
+                        name="apiVersionFilter"
+                        value="@apiVersionFilter">
+                    <option value=""></option>
+                    @for(apiVersion <- apiVersions){
+                    <option @if(apiVersionFilter== Some(apiVersion.value)) {selected} value="@apiVersion.value">
                         @apiVersion.description
                     </option>
-                }
-            </select>
-        </label>
+                    }
+                </select>
+            </label>
+
+        </div>
+
+        <div class="grid-layout__column--1-2">
+
+            <label class="form-label bold centered-content hard--right" for="developerStatusFilter">Filter by developer
+                status
+                <select class="form-control input-select input-select--large "
+                        id="developerStatusFilter"
+                        name="developerStatusFilter"
+                        value="">
+
+                    <option value="All" @if(developerStatusFilter==Some("All")) {selected}>All</option>
+                    <option value="Verified" @if(developerStatusFilter==Some("Verified")) {selected}>Verified</option>
+                    <option value="NotVerified" @if(developerStatusFilter==Some("NotVerified")) {selected}>Not
+                        verified
+                    </option>
+                </select>
+            </label>
+
+        </div>
 
         <div class="form-group grid-layout grid-layout--stacked push--sides">
             <input id="submit" type="submit" value="Submit" name="main-submit"
@@ -81,7 +110,8 @@
                 <th tabindex="0" class="sorting_left-aligned">Email</th>
                 <th tabindex="0" class="sorting_left-aligned">First name</th>
                 <th tabindex="0" class="sorting_left-aligned">Last name</th>
-                <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+                <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status
+                </th>
                 <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
             </tr>
             </thead>
@@ -114,15 +144,19 @@
     }
 
     @if(users.nonEmpty) {
-        <div class="text--center">
-            <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length} entries</div>
+    <div class="text--center">
+        <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length}
+            entries
         </div>
+    </div>
 
-        <div class="form-group>">
-            <p>
-                <a id="copy-users-to-clip" class="button copy-to-clip" href="#" title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy to clipboard</a>
-            </p>
-        </div>
+    <div class="form-group>">
+        <p>
+            <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
+               title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy
+                to clipboard</a>
+        </p>
+    </div>
     }
 
     <div class="form-group>">
