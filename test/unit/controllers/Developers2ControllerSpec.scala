@@ -18,6 +18,7 @@ package unit.controllers
 
 import controllers.Developers2Controller
 import model._
+import model.DeveloperStatusFilter.{VerifiedStatus, DeveloperStatusFilter}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
@@ -250,6 +251,25 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val result: Result = await(developersController.developersPage(Some(""))(request))
 
         bodyOf(result) should include("Showing 2 entries")
+      }
+
+      "allow searching by developerStatusFilter" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val statusFilter = "VERIFIED"
+        private val user = aUser(emailAddress)
+
+        // Note: Developers is both users and collaborators
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List(user))
+
+        val result: Result = await(developersController.developersPage(maybeDeveloperStatusFilter = Some(statusFilter))(aLoggedInRequest))
+
+        bodyOf(result) should include(emailAddress)
+
+        val expectedFilter = Developers2Filter(maybeDeveloperStatusFilter = VerifiedStatus)
+        verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
       }
     }
   }

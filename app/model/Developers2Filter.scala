@@ -16,7 +16,11 @@
 
 package model
 
-case class Developers2Filter(maybeEmailFilter: Option[String] = None, maybeApiFilter: Option[ApiContextVersion] = None)
+import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
+
+case class Developers2Filter(maybeEmailFilter: Option[String] = None,
+                             maybeApiFilter: Option[ApiContextVersion] = None,
+                             maybeDeveloperStatusFilter: DeveloperStatusFilter = AllStatus)
 
 case class ApiContextVersion(context: String, version: String){
   def toStringValue : String = s"${context}__$version"
@@ -30,6 +34,27 @@ object ApiContextVersion {
       case None => None
       case Some(ApiIdPattern(context, version)) => Some(ApiContextVersion(context, version))
       case _ => throw new Exception("Invalid API context or version")
+    }
+  }
+}
+
+
+case object DeveloperStatusFilter {
+
+  sealed trait DeveloperStatusFilter {
+    val value : String
+  }
+  case object UnverifiedStatus extends DeveloperStatusFilter { val value = "UNVERIFIED"}
+  case object VerifiedStatus extends DeveloperStatusFilter { val value = "VERIFIED"}
+  case object AllStatus extends DeveloperStatusFilter { val value = "ALL"}
+
+  def apply(value: Option[String]): DeveloperStatusFilter = {
+    value match {
+      case Some(UnverifiedStatus.value) => UnverifiedStatus
+      case Some(VerifiedStatus.value) => VerifiedStatus
+      case Some(AllStatus.value) => AllStatus
+      case None => AllStatus
+      case Some(text) => throw new Exception("Invalid developer status filter: " + text)
     }
   }
 }

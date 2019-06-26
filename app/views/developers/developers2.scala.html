@@ -87,9 +87,9 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
                         name="developerStatusFilter"
                         value="">
 
-                    <option value="All" @if(developerStatusFilter==Some("All")) {selected}>All</option>
-                    <option value="Verified" @if(developerStatusFilter==Some("Verified")) {selected}>Verified</option>
-                    <option value="NotVerified" @if(developerStatusFilter==Some("NotVerified")) {selected}>Not
+                    <option value="ALL" @if(developerStatusFilter==Some("ALL")) {selected}>All</option>
+                    <option value="VERIFIED" @if(developerStatusFilter==Some("VERIFIED")) {selected}>Verified</option>
+                    <option value="UNVERIFIED" @if(developerStatusFilter==Some("UNVERIFIED")) {selected}>Not
                         verified
                     </option>
                 </select>
@@ -145,9 +145,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
 
     @if(users.nonEmpty) {
     <div class="text--center">
-        <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length}
-            entries
-        </div>
+        <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length} entries</div>
     </div>
 
     <div class="form-group>">
