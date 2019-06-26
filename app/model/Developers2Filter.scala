@@ -20,10 +20,10 @@ import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              maybeApiFilter: Option[ApiContextVersion] = None,
-                             maybeDeveloperStatusFilter: DeveloperStatusFilter = AllStatus)
+                             developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
-case class ApiContextVersion(context: String, version: String){
-  def toStringValue : String = s"${context}__$version"
+case class ApiContextVersion(context: String, version: String) {
+  def toStringValue: String = s"${context}__$version"
 }
 
 object ApiContextVersion {
@@ -42,11 +42,31 @@ object ApiContextVersion {
 case object DeveloperStatusFilter {
 
   sealed trait DeveloperStatusFilter {
-    val value : String
+    def isMatch(user: User): Boolean
+
+    val value: String
   }
-  case object UnverifiedStatus extends DeveloperStatusFilter { val value = "UNVERIFIED"}
-  case object VerifiedStatus extends DeveloperStatusFilter { val value = "VERIFIED"}
-  case object AllStatus extends DeveloperStatusFilter { val value = "ALL"}
+
+  case object UnverifiedStatus extends DeveloperStatusFilter {
+    val value = "UNVERIFIED"
+
+    override def isMatch(user: User): Boolean = user.verified match {
+      case None => false
+      case Some(verified) => !verified
+    }
+  }
+
+  case object VerifiedStatus extends DeveloperStatusFilter {
+    val value = "VERIFIED"
+
+    override def isMatch(user: User): Boolean = !UnverifiedStatus.isMatch(user)
+  }
+
+  case object AllStatus extends DeveloperStatusFilter {
+    val value = "ALL"
+
+    override def isMatch(user: User): Boolean = true
+  }
 
   def apply(value: Option[String]): DeveloperStatusFilter = {
     value match {

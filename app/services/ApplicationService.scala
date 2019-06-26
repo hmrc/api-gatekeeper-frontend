@@ -273,7 +273,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
 
-    developerConnector.fetchByEmails(adminEmails, DeveloperStatusFilter.AllStatus).map(_.filter(_.verified.contains(true)).map(_.email))
+    developerConnector.fetchByEmails(adminEmails).map(_.filter(_.verified.contains(true)).map(_.email))
   }
 
   def applicationConnectorFor(application: Application): ApplicationConnector =

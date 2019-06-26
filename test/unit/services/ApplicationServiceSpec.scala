@@ -586,7 +586,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -600,7 +600,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -616,7 +616,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -630,7 +630,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -646,7 +646,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -660,7 +660,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val response = ApplicationUpdateSuccessResult
         val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
 
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
         given(mockProductionApplicationConnector.addCollaborator(application.id.toString, request)).willReturn(response)
 
@@ -675,7 +675,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
 
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockProductionApplicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new TeamMemberAlreadyExists))
 
         intercept[TeamMemberAlreadyExists] {
@@ -688,7 +688,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
 
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+        given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
         given(mockProductionApplicationConnector.addCollaborator(stdApp1.id.toString, request)).willReturn(Future.failed(new ApplicationNotFound))
 
         intercept[ApplicationNotFound] {
@@ -712,7 +712,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         val newUser = User(email, "n/a", "n/a", verified = None)
 
         given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(newUser))
-        given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)), mEq(DeveloperStatusFilter.AllStatus))(any())).willReturn(Future.successful(nonAdderAdmins))
+        given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
         given(mockProductionApplicationConnector.addCollaborator(any(), any())(any())).willReturn(response)
 
         await(underTest.addTeamMember(application, teamMember, adderAdmin.emailAddress)) shouldBe response
@@ -730,7 +730,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val application = stdApp1
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
       given(mockProductionApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
@@ -743,7 +743,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val application = privilegedApp
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
       given(mockProductionApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
@@ -756,7 +756,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val application = ropcApp
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
       given(mockProductionApplicationConnector.removeCollaborator(mEq(application.id.toString), mEq(memberToRemove), mEq(requestingUser), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe response
@@ -768,7 +768,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     "propagate TeamMemberLastAdmin error from application connector" in new Setup {
       val lastAdmin = User(memberToRemove, "firstName", "lastName", verified = Some(true))
 
-      given(mockDeveloperConnector.fetchByEmails(any(), any())(any())).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(any())(any())).willReturn(Future.successful(Seq.empty))
       given(mockProductionApplicationConnector.removeCollaborator(mEq(stdApp1.id.toString), mEq(memberToRemove), mEq(requestingUser), mEq(Seq.empty))(any())).willReturn(Future.failed(new TeamMemberLastAdmin))
 
       intercept[TeamMemberLastAdmin] {
@@ -789,7 +789,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val response = ApplicationUpdateSuccessResult
       val expectedAdminsToEmail = Seq(verifiedAdmin.emailAddress)
 
-      given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)), mEq(DeveloperStatusFilter.AllStatus))(any())).willReturn(Future.successful(nonAdderAdmins))
+      given(mockDeveloperConnector.fetchByEmails(mEq(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(any())).willReturn(Future.successful(nonAdderAdmins))
       given(mockProductionApplicationConnector.removeCollaborator(any(), any(), any(), any())(any())).willReturn(response)
 
       await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response

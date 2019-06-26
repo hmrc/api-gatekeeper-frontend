@@ -34,7 +34,7 @@ trait DeveloperConnector {
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
 
-  def fetchByEmails(emails: Iterable[String], status: DeveloperStatusFilter = DeveloperStatusFilter.AllStatus)(implicit hc: HeaderCarrier): Future[Seq[User]]
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
 
@@ -54,9 +54,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
     }
   }
 
-  def fetchByEmails(emails: Iterable[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     http.POST[JsValue, Seq[User]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", Json.toJson(emails), postHeaders)
-    //TODO implement status and test
   }
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
@@ -93,7 +92,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
 class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
 
-  def fetchByEmails(emails: Iterable[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
+  def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 

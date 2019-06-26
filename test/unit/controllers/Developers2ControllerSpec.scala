@@ -268,7 +268,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         bodyOf(result) should include(emailAddress)
 
-        val expectedFilter = Developers2Filter(maybeDeveloperStatusFilter = VerifiedStatus)
+        val expectedFilter = Developers2Filter(developerStatusFilter = VerifiedStatus)
         verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
       }
     }

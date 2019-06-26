@@ -29,12 +29,12 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    (filter.maybeEmailFilter, filter.maybeApiFilter, filter.maybeDeveloperStatusFilter) match {
-      case (emailFilter, None , developerStatusFilter) =>
-        developerConnector.searchDevelopers(emailFilter, developerStatusFilter)
+    (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+      case (emailFilter, None) =>
+        developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
 
 
-      case (maybeEmailFilter, Some(apiFilter), _) => {
+      case (maybeEmailFilter, Some(apiFilter)) => {
 
         val allCollaboratorEmails = for {
           emailsProduction <- productionApplicationConnector.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter)
@@ -45,9 +45,11 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
         for {
           collaboratorEmails <- allCollaboratorEmails
-          users <- developerConnector.fetchByEmails(collaboratorEmails, filter.maybeDeveloperStatusFilter)
-          filteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
-        } yield filteredUsers
+          users <- developerConnector.fetchByEmails(collaboratorEmails)
+          filteredRegisteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
+          filteredByDeveloperStatusUsers <- Future.successful(filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch))
+
+        } yield filteredByDeveloperStatusUsers
       }
     }
   }

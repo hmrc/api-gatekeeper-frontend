@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package model
+package unit.model
 
+import model.{DeveloperStatusFilter, User}
 import org.scalatest.{Matchers, WordSpec}
 
 class DeveloperStatusFilterSpec extends WordSpec with Matchers {
-  "DeveloperStatusFilter" should {
+
+  def aUser(name: String, verified: Option[Boolean]) = User(s"$name@example.com", "Fred", "Example", verified)
+
+  "DeveloperStatusFilter parsing" should {
 
     "parses verified" in {
       DeveloperStatusFilter(Some("VERIFIED")) shouldBe DeveloperStatusFilter.VerifiedStatus
@@ -45,6 +49,31 @@ class DeveloperStatusFilterSpec extends WordSpec with Matchers {
         DeveloperStatusFilter(Some(invalidStatusString))
       }
       assert(thrown.getMessage === "Invalid developer status filter: " + invalidStatusString)
+    }
+  }
+  "DeveloperStatusFilter isMatch" should {
+
+    val verifiedUser = aUser("user1", verified = Some(true))
+    val unverifiedUser = aUser("user2", verified = Some(false))
+    val noneVerifiedUser = aUser("user3", verified = None)
+
+    "match verified" in {
+      DeveloperStatusFilter.VerifiedStatus.isMatch(verifiedUser) shouldBe true
+      DeveloperStatusFilter.VerifiedStatus.isMatch(unverifiedUser) shouldBe false
+      DeveloperStatusFilter.VerifiedStatus.isMatch(noneVerifiedUser) shouldBe true
+
+    }
+
+    "match unverified" in {
+      DeveloperStatusFilter.UnverifiedStatus.isMatch(unverifiedUser) shouldBe true
+      DeveloperStatusFilter.UnverifiedStatus.isMatch(verifiedUser) shouldBe false
+      DeveloperStatusFilter.UnverifiedStatus.isMatch(noneVerifiedUser) shouldBe false
+    }
+
+    "match all" in {
+      DeveloperStatusFilter.AllStatus.isMatch(unverifiedUser) shouldBe true
+      DeveloperStatusFilter.AllStatus.isMatch(verifiedUser) shouldBe true
+      DeveloperStatusFilter.AllStatus.isMatch(noneVerifiedUser) shouldBe true
     }
   }
 }

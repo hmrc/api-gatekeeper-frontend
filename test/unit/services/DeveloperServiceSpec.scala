@@ -78,7 +78,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
-      when(mockDeveloperConnector.fetchByEmails(any(), any())(any())).thenAnswer(new Answer[Future[Seq[User]]] {
+      when(mockDeveloperConnector.fetchByEmails(any())(any())).thenAnswer(new Answer[Future[Seq[User]]] {
         override def answer(invocationOnMock: InvocationOnMock) = {
           val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[String]].toSet
           Future.successful(commonUsers.filter(user => developersRequested.contains(user.email)))
@@ -354,7 +354,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       when(mockSandboxApplicationConnector.searchCollaborators(any(), any(),any())(any[HeaderCarrier]))
         .thenReturn(Seq(user2.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2), DeveloperStatusFilter.AllStatus)).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
@@ -374,7 +374,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       when(mockSandboxApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(user.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(user.email), DeveloperStatusFilter.AllStatus)).thenReturn(Seq(user))
+      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
@@ -403,7 +403,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
         .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
         .thenReturn(Seq.empty)
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3), DeveloperStatusFilter.AllStatus)).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
 
@@ -429,25 +429,27 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
     "find by api context, version and developer status" in new Setup {
 
-      val user1 = aUser("user1")
-      val user2 = aUser("user2")
-      val user3 = aUser("user3")
+      val user1 = aUser("user1", verified = true)
+      val user2 = aUser("user2", verified = true)
+      val user3 = aUser("user3", verified = false)
+      val user4 = aUser("user4", verified = true)
 
       private val email1 = user1.email
       private val email2 = user2.email
       private val email3 = user3.email
+      private val email4 = user4.email
 
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
         .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
-        .thenReturn(Seq(email1, email2, email3))
+        .thenReturn(Seq(email1, email2, email3, email4))
 
       when(mockSandboxApplicationConnector
         .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
         .thenReturn(Seq.empty)
 
-      when(mockDeveloperConnector.fetchByEmails(any(), any()) (any())).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(any()) (any())).thenReturn(Seq(user1, user2, user3))
 
       val filter = Developers2Filter(maybeEmailFilter =
         Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")), DeveloperStatusFilter.VerifiedStatus)
@@ -456,7 +458,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe List(user1, user2)
 
-      verify(mockDeveloperConnector).fetchByEmails(Set(email1, email2, email3), DeveloperStatusFilter.VerifiedStatus)
+      verify(mockDeveloperConnector).fetchByEmails(Set(email1, email2, email3, email4))
     }
   }
 }
