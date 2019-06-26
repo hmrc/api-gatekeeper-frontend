@@ -39,7 +39,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
     @defining(Seq("emailFilter", "apiVersionFilter", "developerStatusFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: developerStatusFilter :: _ =>
 
     <form name="developers-filters"
-          action="@routes.Developers2Controller.developersPage(None,None).url"
+          action="@routes.Developers2Controller.developersPage(None,None, None).url"
           method="get">
         <input type="hidden" name="page" value="1"/>
         <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
