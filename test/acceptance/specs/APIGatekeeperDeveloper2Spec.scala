@@ -42,7 +42,11 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       val developers = List(User(email = developer4,
         firstName = dev4FirstName,
         lastName = dev4LastName,
-        verified = Some(true)))
+        verified = Some(true)),
+        User(email = developer5,
+          firstName = dev5FirstName,
+          lastName = dev5LastName,
+          verified = Some(false)))
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
@@ -70,6 +74,9 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       And("I pick a an API definition")
       Developer2Page.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
+      And("I pick a an Developer Status")
+      Developer2Page.selectByDeveloperStatus("VERIFIED")
+
       And("I submit my search")
       Developer2Page.submit()
 
@@ -81,7 +88,14 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper.zipWithIndex
 
       assertDevelopersList(allDevs)
+
+      assertDeveloperAtRowDoesNotExist(1)
     }
+  }
+
+  private def assertDeveloperAtRowDoesNotExist(rowIndex: Int) = {
+    val elements = webDriver.findElements(By.id(s"dev-fn-$rowIndex"))
+    elements.size() shouldBe 0
   }
 
   private def stubApplicationList(): Unit = {
