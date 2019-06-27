@@ -29,7 +29,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+
+    val unsortedResults: Future[Seq[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None) =>
         developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
 
@@ -48,10 +49,13 @@ class DeveloperService @Inject()(appConfig: AppConfig,
           users <- developerConnector.fetchByEmails(collaboratorEmails)
           filteredRegisteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
           filteredByDeveloperStatusUsers <- Future.successful(filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch))
-
         } yield filteredByDeveloperStatusUsers
       }
     }
+
+    for {
+      results: Seq[User] <- unsortedResults
+    } yield results.sortBy(r => (r.email))
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])

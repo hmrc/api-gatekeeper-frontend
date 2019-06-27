@@ -460,5 +460,22 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
       verify(mockDeveloperConnector).fetchByEmails(Set(email1, email2, email3, email4))
     }
+
+    "find by developer status should sort users by email" in new Setup {
+
+      val firstInTheListUser = User("101@example.com", "alphaFirstName", "alphaLastName", Some(true))
+      val secondInTheListUser = User("lalala@example.com", "betaFirstName", "betaLastName", Some(false))
+      val thirdInTheListUser = User("zigzag@example.com", "thetaFirstName", "thetaLastName", Some(false))
+
+      val filter = Developers2Filter(None, None, DeveloperStatusFilter.AllStatus)
+
+      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.AllStatus)).thenReturn(List(thirdInTheListUser, firstInTheListUser, secondInTheListUser))
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(firstInTheListUser, secondInTheListUser, thirdInTheListUser)
+
+      verify(mockDeveloperConnector).searchDevelopers(None, DeveloperStatusFilter.AllStatus)
+    }
   }
 }
