@@ -34,6 +34,8 @@ object Developer2Page extends WebPage {
 
   private def filterBySubscription = singleSel(id("apiVersionFilter"))
 
+  private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
+
   def selectByDeveloperEmail(email: String) = {
     // If we use click we sometimes get a selenium error where it can't click on the element.
     // However, if we open using the keyboard, we don't get these problems.
@@ -52,6 +54,10 @@ object Developer2Page extends WebPage {
 
   def selectBySubscription(api: APIFilterList) = {
     filterBySubscription.value = api.name
+  }
+
+  def selectByDeveloperStatus(status: String) = {
+    filterByDeveloperStatus.value = status
   }
 
   object APIFilter  {

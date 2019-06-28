@@ -16,10 +16,14 @@
 
 package model
 
-case class Developers2Filter(maybeEmailFilter: Option[String] = None, maybeApiFilter: Option[ApiContextVersion] = None)
+import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
-case class ApiContextVersion(context: String, version: String){
-  def toStringValue : String = s"${context}__$version"
+case class Developers2Filter(maybeEmailFilter: Option[String] = None,
+                             maybeApiFilter: Option[ApiContextVersion] = None,
+                             developerStatusFilter: DeveloperStatusFilter = AllStatus)
+
+case class ApiContextVersion(context: String, version: String) {
+  def toStringValue: String = s"${context}__$version"
 }
 
 object ApiContextVersion {
@@ -30,6 +34,46 @@ object ApiContextVersion {
       case None => None
       case Some(ApiIdPattern(context, version)) => Some(ApiContextVersion(context, version))
       case _ => throw new Exception("Invalid API context or version")
+    }
+  }
+}
+
+case object DeveloperStatusFilter {
+
+  sealed trait DeveloperStatusFilter {
+    def isMatch(user: User): Boolean
+
+    val value: String
+  }
+
+  case object VerifiedStatus extends DeveloperStatusFilter {
+    val value = "VERIFIED"
+
+    override def isMatch(user: User): Boolean =  user.verified match {
+      case None => true
+      case Some(verified) => verified
+    }
+  }
+
+  case object UnverifiedStatus extends DeveloperStatusFilter {
+    val value = "UNVERIFIED"
+
+    override def isMatch(user: User): Boolean = !VerifiedStatus.isMatch(user)
+  }
+
+  case object AllStatus extends DeveloperStatusFilter {
+    val value = "ALL"
+
+    override def isMatch(user: User): Boolean = true
+  }
+
+  def apply(value: Option[String]): DeveloperStatusFilter = {
+    value match {
+      case Some(UnverifiedStatus.value) => UnverifiedStatus
+      case Some(VerifiedStatus.value) => VerifiedStatus
+      case Some(AllStatus.value) => AllStatus
+      case None => AllStatus
+      case Some(text) => throw new Exception("Invalid developer status filter: " + text)
     }
   }
 }

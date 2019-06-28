@@ -21,7 +21,7 @@ import java.util.UUID
 import config.AppConfig
 import connectors._
 import model.Developer.createUnregisteredDeveloper
-import model._
+import model.{DeveloperStatusFilter, _}
 import org.joda.time.DateTime
 import org.mockito.Matchers.{any, anyString, eq => eqTo}
 import org.mockito.Mockito._
@@ -346,7 +346,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       private val user = aUser("fred")
       private val emailFilter = "example"
 
-      when(mockDeveloperConnector.searchDevelopers(emailFilter)).thenReturn(List(user))
+      when(mockDeveloperConnector.searchDevelopers(any(), any())(any())).thenReturn(List(user))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
 
@@ -354,7 +354,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe List(user)
 
-      verify(mockDeveloperConnector).searchDevelopers(emailFilter)
+      verify(mockDeveloperConnector).searchDevelopers(Some(emailFilter), DeveloperStatusFilter.AllStatus)
     }
 
     "find by api context and version" in new Setup {
@@ -425,6 +425,72 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(user1, user2)
+    }
+
+    "find by developer status" in new Setup {
+
+      val user1 = aUser("user1")
+
+      val filter = Developers2Filter(None, None, DeveloperStatusFilter.VerifiedStatus)
+
+      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus)).thenReturn(List(user1))
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(user1)
+
+      verify(mockDeveloperConnector).searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus)
+    }
+
+    "find by api context, version and developer status" in new Setup {
+
+      val user1 = aUser("user1", verified = true)
+      val user2 = aUser("user2", verified = true)
+      val user3 = aUser("user3", verified = false)
+      val user4 = aUser("user4", verified = true)
+
+      private val email1 = user1.email
+      private val email2 = user2.email
+      private val email3 = user3.email
+      private val email4 = user4.email
+
+      val emailFilter = "emailFilter"
+
+      when(mockProductionApplicationConnector
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .thenReturn(Seq(email1, email2, email3, email4))
+
+      when(mockSandboxApplicationConnector
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .thenReturn(Seq.empty)
+
+      when(mockDeveloperConnector.fetchByEmails(any()) (any())).thenReturn(Seq(user1, user2, user3))
+
+      val filter = Developers2Filter(maybeEmailFilter =
+        Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")), DeveloperStatusFilter.VerifiedStatus)
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(user1, user2)
+
+      verify(mockDeveloperConnector).fetchByEmails(Set(email1, email2, email3, email4))
+    }
+
+    "find by developer status should sort users by email" in new Setup {
+
+      val firstInTheListUser = User("101@example.com", "alphaFirstName", "alphaLastName", Some(true))
+      val secondInTheListUser = User("lalala@example.com", "betaFirstName", "betaLastName", Some(false))
+      val thirdInTheListUser = User("zigzag@example.com", "thetaFirstName", "thetaLastName", Some(false))
+
+      val filter = Developers2Filter(None, None, DeveloperStatusFilter.AllStatus)
+
+      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.AllStatus)).thenReturn(List(thirdInTheListUser, firstInTheListUser, secondInTheListUser))
+
+      val result = await(underTest.searchDevelopers(filter))
+
+      result shouldBe List(firstInTheListUser, secondInTheListUser, thirdInTheListUser)
+
+      verify(mockDeveloperConnector).searchDevelopers(None, DeveloperStatusFilter.AllStatus)
     }
   }
 }

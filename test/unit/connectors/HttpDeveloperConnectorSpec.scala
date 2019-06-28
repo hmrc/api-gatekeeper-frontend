@@ -21,7 +21,7 @@ import java.net.URLEncoder
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import connectors.HttpDeveloperConnector
-import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, User}
+import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, DeveloperStatusFilter, User}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -142,12 +142,42 @@ class HttpDeveloperConnectorSpec
 
     "search by email filter" in new Setup {
 
-      val url = s"/developers?emailFilter=${encode(developerEmail)}"
+      val url = s"/developers?emailFilter=${encode(developerEmail)}&status=${"ALL"}"
       stubFor(get(urlEqualTo(url)).willReturn(
         aResponse().withStatus(OK).withBody(
           Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
       )
-      val result = await(connector.searchDevelopers(developerEmail))
+      val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.AllStatus))
+
+      verify(getRequestedFor(urlPathEqualTo(url)))
+
+      result shouldBe List(aUserResponse(developerEmail))
+
+    }
+
+    "search by developer status filter" in new Setup {
+
+      val url = s"/developers?status=${encode("VERIFIED")}"
+      stubFor(get(urlEqualTo(url)).willReturn(
+        aResponse().withStatus(OK).withBody(
+          Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+      )
+      val result = await(connector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus))
+
+      verify(getRequestedFor(urlPathEqualTo(url)))
+
+      result shouldBe List(aUserResponse(developerEmail))
+
+    }
+
+    "search by email filter and developer status filter" in new Setup {
+
+      val url = s"/developers?emailFilter=${encode(developerEmail)}&status=${encode("VERIFIED")}"
+      stubFor(get(urlEqualTo(url)).willReturn(
+        aResponse().withStatus(OK).withBody(
+          Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+      )
+      val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.VerifiedStatus))
 
       verify(getRequestedFor(urlPathEqualTo(url)))
 

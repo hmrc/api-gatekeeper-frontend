@@ -18,6 +18,7 @@ package connectors
 
 import javax.inject.{Inject, Singleton}
 import config.AppConfig
+import model.DeveloperStatusFilter.DeveloperStatusFilter
 import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
@@ -29,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DeveloperConnector {
-  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]]
+  def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
 
@@ -54,7 +55,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
   }
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    http.POST[JsValue, Seq[User]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", Json.toJson(emails) ,postHeaders)
+    http.POST[JsValue, Seq[User]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", Json.toJson(emails), postHeaders)
   }
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
@@ -76,8 +77,14 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
     http.POST[JsValue, User](s"${appConfig.developerBaseUrl}/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
 
-  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", Seq("emailFilter" -> email))
+  def searchDevelopers(maybeEmail: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+
+    val queryParams = (maybeEmail, status) match {
+      case (None, status) => Seq("status" -> status.value)
+      case (Some(email), status) => Seq("emailFilter" -> email, "status" -> status.value)
+    }
+
+    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", queryParams)
   }
 }
 
@@ -94,5 +101,5 @@ class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends D
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredCollaborator(email))
 
-  def searchDevelopers(email: String)(implicit hc: HeaderCarrier): Future[Seq[User]] = Future.successful(Seq.empty)
+  def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]] = Future.successful(Seq.empty)
 }

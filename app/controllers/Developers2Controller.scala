@@ -35,7 +35,9 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                      )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper {
 
-  def developersPage(maybeEmailFilter: Option[String] = None, maybeApiVersionFilter: Option[String] = None) =
+  def developersPage(maybeEmailFilter: Option[String] = None,
+                     maybeApiVersionFilter: Option[String] = None,
+                     maybeDeveloperStatusFilter: Option[String] = None) =
     requiresAtLeast(GatekeeperRole.USER) {
 
       implicit request =>
@@ -43,12 +45,13 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
           val queryParameters = getQueryParametersAsKeyValues(request)
 
-          val filteredUsers = (maybeEmailFilter,maybeApiVersionFilter) match {
-            case (None, None) => Future.successful(Seq.empty)
+          val filteredUsers = (maybeEmailFilter,maybeApiVersionFilter, maybeDeveloperStatusFilter) match {
+            case (None, None, None) => Future.successful(Seq.empty)
             case _ => {
               val filter = Developers2Filter(
                 mapEmptyStringToNone(maybeEmailFilter),
-                ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)))
+                ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                DeveloperStatusFilter(maybeDeveloperStatusFilter))
 
               developerService.searchDevelopers(filter)
             }
