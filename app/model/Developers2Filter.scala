@@ -38,7 +38,6 @@ object ApiContextVersion {
   }
 }
 
-
 case object DeveloperStatusFilter {
 
   sealed trait DeveloperStatusFilter {
@@ -47,19 +46,19 @@ case object DeveloperStatusFilter {
     val value: String
   }
 
-  case object UnverifiedStatus extends DeveloperStatusFilter {
-    val value = "UNVERIFIED"
-
-    override def isMatch(user: User): Boolean = user.verified match {
-      case None => false
-      case Some(verified) => !verified
-    }
-  }
-
   case object VerifiedStatus extends DeveloperStatusFilter {
     val value = "VERIFIED"
 
-    override def isMatch(user: User): Boolean = !UnverifiedStatus.isMatch(user)
+    override def isMatch(user: User): Boolean =  user.verified match {
+      case None => true
+      case Some(verified) => verified
+    }
+  }
+
+  case object UnverifiedStatus extends DeveloperStatusFilter {
+    val value = "UNVERIFIED"
+
+    override def isMatch(user: User): Boolean = !VerifiedStatus.isMatch(user)
   }
 
   case object AllStatus extends DeveloperStatusFilter {
