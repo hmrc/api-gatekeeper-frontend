@@ -20,6 +20,7 @@ import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              maybeApiFilter: Option[ApiContextVersion] = None,
+                             environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
 case class ApiContextVersion(context: String, version: String) {

@@ -34,6 +34,8 @@ object Developer2Page extends WebPage {
 
   private def filterBySubscription = singleSel(id("apiVersionFilter"))
 
+  private def filterByEnvironment = singleSel(id("environmentFilter"))
+
   private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
 
   def selectByDeveloperEmail(email: String) = {
@@ -54,6 +56,10 @@ object Developer2Page extends WebPage {
 
   def selectBySubscription(api: APIFilterList) = {
     filterBySubscription.value = api.name
+  }
+
+  def selectByEnvironment(environment: String) = {
+    filterByEnvironment.value = environment
   }
 
   def selectByDeveloperStatus(status: String) = {

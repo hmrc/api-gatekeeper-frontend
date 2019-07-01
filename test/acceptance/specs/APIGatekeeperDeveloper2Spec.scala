@@ -74,7 +74,10 @@ class APIGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       And("I pick a an API definition")
       Developer2Page.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
-      And("I pick a an Developer Status")
+      And("I pick an environment")
+      Developer2Page.selectByEnvironment("PRODUCTION")
+
+      And("I pick a Developer Status")
       Developer2Page.selectByDeveloperStatus("VERIFIED")
 
       And("I submit my search")
