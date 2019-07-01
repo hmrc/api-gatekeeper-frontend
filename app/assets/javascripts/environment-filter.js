@@ -1,30 +1,24 @@
 $(document).ready(function () {
 
-    var filters = $('.environment-filter-disable');
+    var environmentFilter = $("#environmentFilter");
 
-    filters.each(function (index) {
+    function disable() {
+        environmentFilter.attr("disabled", true)
+    }
 
-        var apiVersionFilter = this
-        var environmentFilter = document.getElementById("environmentFilter");
+    function enable() {
+        environmentFilter.attr("disabled", false)
+    }
 
-        function disable() {
-            environmentFilter.disabled = true;
+    var checkAndSetEnvironmentFilter = function () {
+        if ("" === $(this).find(":selected").text()) {
+            disable();
+        } else {
+            enable();
         }
+    };
 
-        function enable() {
-            environmentFilter.disabled = false;
-        }
+    $('.environment-filter-disable').on("change", checkAndSetEnvironmentFilter);
 
-        var checkAndSetEnvironmentFilter = function () {
-            if ("" === apiVersionFilter.options[apiVersionFilter.selectedIndex].value) {
-                disable();
-            } else {
-                enable();
-            }
-        }
-
-        apiVersionFilter.addEventListener("change", checkAndSetEnvironmentFilter);
-
-        checkAndSetEnvironmentFilter();
-    })
+    checkAndSetEnvironmentFilter();
 });
