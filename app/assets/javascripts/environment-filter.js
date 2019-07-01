@@ -20,5 +20,5 @@ $(document).ready(function () {
 
     $('.environment-filter-disable').on("change", checkAndSetEnvironmentFilter);
 
-    checkAndSetEnvironmentFilter();
+    $('.environment-filter-disable').each(checkAndSetEnvironmentFilter);
 });
