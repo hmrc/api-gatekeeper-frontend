@@ -37,7 +37,9 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,
-                     maybeDeveloperStatusFilter: Option[String] = None) =
+                     maybeEnvironmentFilter: Option[String] = None,
+                     maybeDeveloperStatusFilter: Option[String] = None) = {
+
     requiresAtLeast(GatekeeperRole.USER) {
 
       implicit request =>
@@ -45,12 +47,13 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
           val queryParameters = getQueryParametersAsKeyValues(request)
 
-          val filteredUsers = (maybeEmailFilter,maybeApiVersionFilter, maybeDeveloperStatusFilter) match {
-            case (None, None, None) => Future.successful(Seq.empty)
+          val filteredUsers = (maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) match {
+            case (None, None, None, None) => Future.successful(Seq.empty)
             case _ => {
               val filter = Developers2Filter(
                 mapEmptyStringToNone(maybeEmailFilter),
                 ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
                 DeveloperStatusFilter(maybeDeveloperStatusFilter))
 
               developerService.searchDevelopers(filter)
@@ -63,6 +66,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
         }
     }
+  }
 
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
     filter match {

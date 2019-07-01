@@ -36,10 +36,10 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
         <a href="@{routes.DevelopersController.developersPage(None, None, None)}">Old developer search</a>
     </p>
 
-    @defining(Seq("emailFilter", "apiVersionFilter", "developerStatusFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: developerStatusFilter :: _ =>
+    @defining(Seq("emailFilter", "apiVersionFilter", "developerStatusFilter", "environmentFilter").map(params.get(_))) { case emailFilter :: apiVersionFilter :: developerStatusFilter :: environmentFilter :: _ =>
 
     <form name="developers-filters"
-          action="@routes.Developers2Controller.developersPage(None,None, None).url"
+          action="@routes.Developers2Controller.developersPage(None,None, None, None).url"
           method="get">
         <input type="hidden" name="page" value="1"/>
         <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
@@ -60,9 +60,9 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
         </div>
 
 
-        <div class="grid-layout__column--1-2">
+        <div class="grid-layout__column--1-3">
 
-            <label class="form-label bold" for="apiVersionFilter">Filter by API Subscription
+            <label class="form-label bold" for="apiVersionFilter">Filter by </br>API Subscription
                 <select class="form-control input-select input-select--large"
                         id="apiVersionFilter"
                         name="apiVersionFilter"
@@ -78,10 +78,27 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Mess
 
         </div>
 
-        <div class="grid-layout__column--1-2">
+        <div class="grid-layout__column--1-3">
 
-            <label class="form-label bold centered-content hard--right" for="developerStatusFilter">Filter by developer
+            <label class="form-label bold centered-content hard--right" for="environmentFilter">Filter selected subscription by </br>environment
+                <select class="form-control input-select input-select--large "
+                id="environmentFilter"
+                name="environmentFilter"
+                value="">
+
+                    <option value="ALL" @if(environmentFilter==Some("ALL")) {selected}>All</option>
+                    <option value="SANDBOX" @if(environmentFilter==Some("SANDBOX")) {selected}>Sandbox</option>
+                    <option value="PRODUCTION" @if(environmentFilter==Some("PRODUCTION")) {selected}>Production</option>
+                </select>
+            </label>
+
+        </div>
+
+        <div class="grid-layout__column--1-3">
+
+            <label class="form-label bold centered-content hard--right" for="developerStatusFilter">Filter by </br>developer
                 status
+
                 <select class="form-control input-select input-select--large "
                         id="developerStatusFilter"
                         name="developerStatusFilter"

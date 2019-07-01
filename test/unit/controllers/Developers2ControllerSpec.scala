@@ -271,6 +271,25 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val expectedFilter = Developers2Filter(developerStatusFilter = VerifiedStatus)
         verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
       }
+
+      "allow searching by environmentFilter" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val user = aUser(emailAddress)
+        private val environmentFilter = "PRODUCTION"
+
+        // Note: Developers is both users and collaborators
+        given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List(user))
+
+        val result: Result = await(developersController.developersPage(maybeEnvironmentFilter = Some(environmentFilter))(aLoggedInRequest))
+
+        bodyOf(result) should include(emailAddress)
+
+        val expectedFilter = Developers2Filter(environmentFilter = ProductionEnvironment)
+        verify(mockDeveloperService).searchDevelopers(meq(expectedFilter))(any[HeaderCarrier])
+      }
     }
   }
 }
