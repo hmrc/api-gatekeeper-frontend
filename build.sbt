@@ -135,14 +135,14 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "test,it",
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "test,it",
   "org.pegdown" % "pegdown" % "1.6.0" % "test,it",
-  "org.jsoup" % "jsoup" % "1.10.2" % "test,it",
+  "org.jsoup" % "jsoup" % "1.12.1" % "test,it",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test,it",
   "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "test,it",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test,it",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test,it",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test,it",
   "org.mockito" % "mockito-all" % "1.10.19" % "test,it",
-  "org.scalacheck" %% "scalacheck" % "1.13.5" % "test,it"
+  "org.scalacheck" %% "scalacheck" % "1.14.0" % "test,it"
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),
