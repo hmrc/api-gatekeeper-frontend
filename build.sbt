@@ -16,10 +16,6 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 
 import scala.util.Properties
 
-lazy val slf4jVersion = "1.7.23"
-lazy val logbackVersion = "1.1.10"
-lazy val hmrctestVersion = "3.9.0-play-25"
-
 lazy val microservice =  (project in file("."))
     .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
     .settings(
@@ -78,7 +74,7 @@ lazy val microservice =  (project in file("."))
       testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
       unmanagedResourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in AcceptanceTest <+= baseDirectory(_ / "target/web/public/test"),
+      unmanagedResourceDirectories in AcceptanceTest += baseDirectory(_ / "target/web/public/test").value,
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
       addTestReportOption(AcceptanceTest, "acceptance-test-reports")
@@ -90,7 +86,7 @@ lazy val microservice =  (project in file("."))
       testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
       unmanagedSourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
       unmanagedResourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in SandboxTest <+= baseDirectory(_ / "target/web/public/test"),
+      unmanagedResourceDirectories in SandboxTest += baseDirectory(_ / "target/web/public/test").value,
       Keys.fork in SandboxTest := false,
       parallelExecution in SandboxTest := false,
       addTestReportOption(SandboxTest, "sandbox-test-reports")
@@ -110,18 +106,25 @@ lazy val appName = "api-gatekeeper-frontend"
 lazy val plugins: Seq[Plugins] = Seq(
   SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin
 )
+
+lazy val slf4jVersion = "1.7.23"
+lazy val logbackVersion = "1.1.10"
+lazy val hmrctestVersion = "3.9.0-play-25"
+lazy val jsoupVersion = "1.12.1"
+lazy val scalaCheckVersion = "1.14.0"
+
 lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "acceptance",
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "acceptance",
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
-  "org.jsoup" % "jsoup" % "1.10.2" % "acceptance",
+  "org.jsoup" % "jsoup" % jsoupVersion % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
   "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
   "org.mockito" % "mockito-all" % "1.10.19" % "acceptance",
-  "org.scalacheck" %% "scalacheck" % "1.13.5" % "acceptance"
+  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "acceptance"
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),
@@ -135,14 +138,14 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "test,it",
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "test,it",
   "org.pegdown" % "pegdown" % "1.6.0" % "test,it",
-  "org.jsoup" % "jsoup" % "1.12.1" % "test,it",
+  "org.jsoup" % "jsoup" % jsoupVersion % "test,it",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test,it",
   "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "test,it",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test,it",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test,it",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test,it",
   "org.mockito" % "mockito-all" % "1.10.19" % "test,it",
-  "org.scalacheck" %% "scalacheck" % "1.14.0" % "test,it"
+  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test,it"
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),
