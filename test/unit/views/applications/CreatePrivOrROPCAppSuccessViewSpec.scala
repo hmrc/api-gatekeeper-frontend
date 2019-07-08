@@ -51,7 +51,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         implicit val loggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(loggedInUser, applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId, clientSecret)(loggedInUser, applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 
@@ -59,14 +59,14 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
 
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h1", "Application added") shouldBe true
-        document.body().toString.contains("This is your only chance to copy and save this application's TOTP secret.") shouldBe true
+        document.body().toString.contains("This is your only chance to copy and save this application's TOTP and client secrets.") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's client secret.") shouldBe false
         elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
         elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
         elementExistsByText(document, "tr", s"Environment $env") shouldBe true
         elementExistsByText(document, "tr", "Access type Privileged") shouldBe true
         elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe true
-        elementExistsByText(document, "tr", s"Client secret $clientSecret") shouldBe false
+        elementExistsByText(document, "tr", s"Client secret $clientSecret") shouldBe true
         elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
 
       }
@@ -79,7 +79,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, Some(clientSecret))(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, clientSecret)(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 
@@ -87,7 +87,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
 
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h1", "Application added") shouldBe true
-        document.body().toString.contains("This is your only chance to copy and save this application's TOTP secret.") shouldBe false
+        document.body().toString.contains("This is your only chance to copy and save this application's TOTP and client secrets.") shouldBe false
         document.body().toString.contains("This is your only chance to copy and save this application's client secret.") shouldBe true
         elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
         elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
