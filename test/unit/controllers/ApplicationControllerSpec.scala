@@ -773,6 +773,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           given(mockApplicationService
             .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+          given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("SANDBOX"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -799,6 +800,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           given(mockApplicationService
             .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+          given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("SANDBOX"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -824,6 +826,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           given(mockApplicationService
             .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
+          given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("PRODUCTION"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -912,6 +915,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             given(mockApplicationService
               .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "PRODUCTION", clientId, totp, privAccess)))
+            given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("PRODUCTION"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -925,11 +929,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP and client secrets.")
             bodyOf(result) should include(appId)
             bodyOf(result) should include("Production")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
             verifyAuthConnectorCalledForSuperUser
 
@@ -941,6 +946,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             given(mockApplicationService
               .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, privAccess)))
+            given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("SANDBOX"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -954,11 +960,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP and client secrets.")
             bodyOf(result) should include(appId)
             bodyOf(result) should include("Sandbox")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
             verifyAuthConnectorCalledForSuperUser
           }
@@ -997,7 +1004,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService
               .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, totp, ropcAccess)))
+              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(appId, appName, "SANDBOX", clientId, None, ropcAccess)))
+            given(mockApplicationService.getClientSecret(eqTo(appId), eqTo("SANDBOX"))(any[HeaderCarrier])).willReturn(Future.successful(clientSecret))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1011,11 +1019,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP secret.")
+            bodyOf(result) should include("This is your only chance to copy and save this application's client secret.")
             bodyOf(result) should include(appId)
             bodyOf(result) should include("Sandbox")
             bodyOf(result) should include("ROPC")
-            bodyOf(result) should include(totpSecret)
+            bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
             verifyAuthConnectorCalledForSuperUser
 
