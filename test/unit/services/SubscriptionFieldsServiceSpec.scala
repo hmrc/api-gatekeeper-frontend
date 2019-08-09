@@ -19,7 +19,7 @@ package unit.services
 import java.util.UUID
 
 import connectors._
-import model.ApiSubscriptionFields.{Fields, SubscriptionField, SubscriptionFields}
+import model.ApiSubscriptionFields.{SubscriptionField, SubscriptionFields, fields}
 import model.{ApplicationResponse, ApplicationState, FieldsDeleteSuccessResult, Standard}
 import org.joda.time.DateTime
 import org.mockito.BDDMockito.given
@@ -27,7 +27,6 @@ import org.mockito.Mockito.{spy, verify}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import services.SubscriptionFieldsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -41,27 +40,25 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   val apiVersion: String = "1.0"
   val applicationName: String = "third-party-application"
   val clientId = "clientId"
-  val mockSandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
-  val mockProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
+  private val mockSandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
+  private val mockProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
   val application = ApplicationResponse(
     UUID.randomUUID(), clientId, "gatewayId", applicationName, "PRODUCTION", None, Set.empty, DateTime.now(), Standard(), ApplicationState())
 
   trait Setup {
-    lazy val locked = false
-    val response = mock[WSResponse]
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val service = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
-    val underTest = spy(service)
+    val underTest: SubscriptionFieldsService = spy(service)
   }
 
   "fetchFields" should {
 
     "return custom fields for a given application in the correct environment (fields populated)" in new Setup {
-      val fieldsId = UUID.randomUUID()
+      private val fieldsId = UUID.randomUUID()
       val fieldValuesResponse: SubscriptionFields =
-        SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, Fields("field1" -> "val001", "field2" -> "val002"))
+        SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields("field1" -> "val001", "field2" -> "val002"))
       val fieldDefinitions = List(SubscriptionField("field1", "desc1", "hint1", "some type"), SubscriptionField("field2", "desc2", "hint2", "some other type"))
       val mergedDefValues = List(
         SubscriptionField("field1", "desc1", "hint1", "some type", Some("val001")),
@@ -104,16 +101,16 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
   "saveFieldsValues" should {
     "save the field values in the correct environment" in new Setup {
-      val fieldsId = UUID.randomUUID()
-      val fields = Fields("field1" -> "val001", "field2" -> "val002")
-      val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields)
+      private val fieldsId = UUID.randomUUID()
+      private val fieldsToSave = fields("field1" -> "val001", "field2" -> "val002")
+      val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fieldsToSave)
 
-      given(mockProductionSubscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fields))
+      given(mockProductionSubscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
         .willReturn(Future.successful(HttpResponse(CREATED)))
 
-      val result = await(underTest.saveFieldValues(application, apiContext, apiVersion, fields))
+      await(underTest.saveFieldValues(application, apiContext, apiVersion, fieldsToSave))
 
-      verify(mockProductionSubscriptionFieldsConnector).saveFieldValues(clientId, apiContext, apiVersion, fields)
+      verify(mockProductionSubscriptionFieldsConnector).saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave)
 
       verify(underTest).connectorFor(application)
     }
@@ -121,14 +118,11 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
   "deleteFieldValues" should {
     "delete the field values in the correct environment" in new Setup {
-      val fieldsId = UUID.randomUUID()
-      val fields = Fields("field1" -> "val001", "field2" -> "val002")
-      val fieldValuesResponse: SubscriptionFields = SubscriptionFields(clientId, apiContext, apiVersion, fieldsId, fields)
 
       given(mockProductionSubscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))
         .willReturn(Future.successful(FieldsDeleteSuccessResult))
 
-      val result = await(underTest.deleteFieldValues(application, apiContext, apiVersion))
+      await(underTest.deleteFieldValues(application, apiContext, apiVersion))
 
       verify(mockProductionSubscriptionFieldsConnector).deleteFieldValues(clientId, apiContext, apiVersion)
 
@@ -138,17 +132,17 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
   "connectorFor" should {
     "return the production api scope connector for an application deployed to production" in new Setup {
-      val app = application.copy(deployedTo = "PRODUCTION")
+      private val app = application.copy(deployedTo = "PRODUCTION")
 
-      val result = underTest.connectorFor(app)
+      private val result = underTest.connectorFor(app)
 
       result shouldBe mockProductionSubscriptionFieldsConnector
     }
 
     "return the sandbox api scope connector for an application deployed to sandbox" in new Setup {
-      val app = application.copy(deployedTo = "SANDBOX")
+      private val app = application.copy(deployedTo = "SANDBOX")
 
-      val result = underTest.connectorFor(app)
+      private val result = underTest.connectorFor(app)
 
       result shouldBe mockSandboxSubscriptionFieldsConnector
     }

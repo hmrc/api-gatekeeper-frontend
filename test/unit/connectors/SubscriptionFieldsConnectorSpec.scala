@@ -133,8 +133,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   "saveFieldValues" should {
 
-    val fields = Fields("field001" -> "value001", "field002" -> "value002")
-    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)
+    val fieldsToSave = fields("field001" -> "value001", "field002" -> "value002")
+    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsToSave)
 
     val url = s"$baseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
@@ -142,7 +142,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(url), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+      await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
@@ -150,7 +150,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
       }
     }
 
@@ -159,7 +159,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
-        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
       }
     }
   }
