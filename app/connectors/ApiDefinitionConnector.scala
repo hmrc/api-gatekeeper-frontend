@@ -33,7 +33,7 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
   val useProxy: Boolean
   val bearerToken: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")

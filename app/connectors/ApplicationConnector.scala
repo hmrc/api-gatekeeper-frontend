@@ -39,7 +39,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   val useProxy: Boolean
   val bearerToken: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
 
   def updateRateLimitTier(applicationId: String, tier: RateLimitTier)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

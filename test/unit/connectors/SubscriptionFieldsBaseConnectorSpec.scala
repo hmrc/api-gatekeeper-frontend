@@ -52,7 +52,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
     val mockHttpClient: HttpClient = mock[HttpClient]
     val mockProxiedHttpClient: ProxiedHttpClient = mock[ProxiedHttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
-//    when(mockAppConfig.apiSubscriptionFieldsSandboxApiKey).thenReturn(apiKey)
+    when(mockAppConfig.subscriptionFieldsSandboxApiKey).thenReturn(apiKey)
 
     val underTest = new SubscriptionFieldsTestConnector(
       useProxy = false, bearerToken = "", apiKey = "", mockHttpClient, mockProxiedHttpClient, mockAppConfig)
@@ -60,16 +60,15 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
 
   trait ProxiedSetup extends Setup {
 
-//    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     override val underTest = new SubscriptionFieldsTestConnector(
       useProxy = true, bearerToken, apiKey, mockHttpClient, mockProxiedHttpClient, mockAppConfig)
-
   }
 
   class SubscriptionFieldsTestConnector(val useProxy: Boolean,
                                         val bearerToken: String,
-                                        apiKey: String,
+                                        val apiKey: String,
                                         val httpClient: HttpClient,
                                         val proxiedHttpClient: ProxiedHttpClient,
                                         val appConfig: AppConfig)(implicit val ec: ExecutionContext)
@@ -110,14 +109,14 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       result shouldBe None
     }
 
-//    "send the x-api-header key when retrieving subscription fields for an API" in new ProxiedSetup {
-//
-//      when(mockProxiedHttpClient.GET[SubscriptionFields](any())(any(), any(), any())).thenReturn(Future.successful(response))
-//
-//      await(underTest.fetchFieldValues(clientId, apiContext, apiVersion))
-//
-//      verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
-//    }
+    "send the x-api-header key when retrieving subscription fields for an API" in new ProxiedSetup {
+
+      when(mockProxiedHttpClient.GET[SubscriptionFields](any())(any(), any(), any())).thenReturn(Future.successful(response))
+
+      await(underTest.fetchFieldValues(clientId, apiContext, apiVersion))
+
+      verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
+    }
   }
 
   "fetchFieldDefinitions" should {

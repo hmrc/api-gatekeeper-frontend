@@ -49,13 +49,13 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   class Setup(proxyEnabled: Boolean = false) {
     val fieldsId = UUID.randomUUID()
-
+    val testApiKey: String = UUID.randomUUID().toString
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new SubscriptionFieldsConnector {
       val httpClient = mockHttpClient
@@ -64,6 +64,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       val useProxy = proxyEnabled
       val bearerToken = bearer
       val environment = mockEnvironment
+      val apiKey = testApiKey
     }
   }
 
@@ -215,7 +216,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer)
       }
     }
   }

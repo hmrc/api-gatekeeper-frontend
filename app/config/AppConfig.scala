@@ -56,9 +56,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val subscriptionFieldsSandboxBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-sandbox")
   lazy val subscriptionFieldsSandboxUseProxy = useProxy("api-subscription-fields-sandbox")
   lazy val subscriptionFieldsSandboxBearerToken = bearerToken("api-subscription-fields-sandbox")
+  lazy val subscriptionFieldsSandboxApiKey = apiKey("api-subscription-fields-sandbox")
   lazy val subscriptionFieldsProductionBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
   lazy val subscriptionFieldsProductionUseProxy = useProxy("api-subscription-fields-production")
   lazy val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
+  lazy val subscriptionFieldsProductionApiKey = apiKey("api-subscription-fields-production")
 
   lazy val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
   lazy val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
@@ -96,4 +98,8 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", false)
 
   private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
+
+  private def apiKey(serviceName: String) = getConfString(s"$serviceName.api-key", "")
+
+
 }

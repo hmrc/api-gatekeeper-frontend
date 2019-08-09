@@ -45,7 +45,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any())).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApiDefinitionConnector {
       val httpClient = mockHttpClient
@@ -115,7 +115,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         connector.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer)
       }
     }
   }
