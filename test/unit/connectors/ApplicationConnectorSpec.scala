@@ -51,7 +51,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApplicationConnector {
       val httpClient = mockHttpClient

@@ -45,7 +45,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApiDefinitionConnector {
       val httpClient = mockHttpClient

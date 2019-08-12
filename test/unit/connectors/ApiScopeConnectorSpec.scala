@@ -41,7 +41,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
 
-    when(mockProxiedHttpClient.withHeaders(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiScopeConnector() {
       val httpClient = mockHttpClient
