@@ -18,18 +18,21 @@ package connectors
 
 import java.net.URLEncoder.encode
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.ApiSubscriptionFields._
 import model._
 import model.Environment.Environment
 import play.api.http.Status.NO_CONTENT
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
+abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extends Retries {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -42,12 +45,16 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    http.GET[SubscriptionFields](url).map(Some(_)) recover recovery(None)
+    retry {
+      http.GET[SubscriptionFields](url).map(Some(_))
+    } recover recovery(None)
   }
 
   def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
-    http.GET[FieldDefinitionsResponse](url).map(response => response.fieldDefinitions) recover recovery(Seq.empty[SubscriptionField])
+    retry {
+      http.GET[FieldDefinitionsResponse](url).map(response => response.fieldDefinitions)
+    } recover recovery(Seq.empty[SubscriptionField])
   }
 
   def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
@@ -62,7 +69,7 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
         case _ => FieldsDeleteFailureResult
       }
     } recover {
-      case e: NotFoundException => FieldsDeleteSuccessResult
+      case _: NotFoundException => FieldsDeleteSuccessResult
       case _ => FieldsDeleteFailureResult
     }
   }
@@ -81,27 +88,31 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
 }
 
 @Singleton
-class SandboxSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
+class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                    val httpClient: HttpClient,
-                                                   val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                                   val proxiedHttpClient: ProxiedHttpClient,
+                                                   val actorSystem: ActorSystem,
+                                                   val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends SubscriptionFieldsConnector {
 
-  val environment = Environment.SANDBOX
-  val serviceBaseUrl = appConfig.subscriptionFieldsSandboxBaseUrl
-  val useProxy = appConfig.subscriptionFieldsSandboxUseProxy
-  val bearerToken = appConfig.subscriptionFieldsSandboxBearerToken
-  val apiKey = appConfig.subscriptionFieldsSandboxApiKey
+  val environment: Environment = Environment.SANDBOX
+  val serviceBaseUrl: String = appConfig.subscriptionFieldsSandboxBaseUrl
+  val useProxy: Boolean = appConfig.subscriptionFieldsSandboxUseProxy
+  val bearerToken: String = appConfig.subscriptionFieldsSandboxBearerToken
+  val apiKey: String = appConfig.subscriptionFieldsSandboxApiKey
 }
 
 @Singleton
-class ProductionSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
+class ProductionSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                       val httpClient: HttpClient,
-                                                      val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                                      val proxiedHttpClient: ProxiedHttpClient,
+                                                      val actorSystem: ActorSystem,
+                                                      val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends SubscriptionFieldsConnector {
 
-  val environment = Environment.PRODUCTION
-  val serviceBaseUrl = appConfig.subscriptionFieldsProductionBaseUrl
-  val useProxy = appConfig.subscriptionFieldsProductionUseProxy
-  val bearerToken = appConfig.subscriptionFieldsProductionBearerToken
-  val apiKey = appConfig.subscriptionFieldsProductionApiKey
+  val environment: Environment = Environment.PRODUCTION
+  val serviceBaseUrl: String = appConfig.subscriptionFieldsProductionBaseUrl
+  val useProxy: Boolean = appConfig.subscriptionFieldsProductionUseProxy
+  val bearerToken: String = appConfig.subscriptionFieldsProductionBearerToken
+  val apiKey: String = appConfig.subscriptionFieldsProductionApiKey
 }

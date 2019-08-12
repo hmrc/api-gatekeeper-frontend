@@ -16,12 +16,16 @@
 
 package config
 
+import akka.pattern.FutureTimeoutSupport
 import connectors.{DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector}
 import play.api.inject.Module
 import play.api.{Configuration, Environment}
+import utils.FutureTimeoutSupportImpl
 
 class ConfigurationModule extends Module {
+
   override def bindings(environment: Environment, configuration: Configuration) = {
+
     val developerConnectorBinding = if (configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)) {
       bind[DeveloperConnector].to[DummyDeveloperConnector]
     } else {
@@ -29,7 +33,8 @@ class ConfigurationModule extends Module {
     }
 
     Seq(
-      developerConnectorBinding
+      developerConnectorBinding,
+      bind[FutureTimeoutSupport].to[FutureTimeoutSupportImpl]
     )
   }
 }
