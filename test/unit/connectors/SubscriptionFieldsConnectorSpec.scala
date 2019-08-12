@@ -49,13 +49,13 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   class Setup(proxyEnabled: Boolean = false) {
     val fieldsId = UUID.randomUUID()
-
+    val testApiKey: String = UUID.randomUUID().toString
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new SubscriptionFieldsConnector {
       val httpClient = mockHttpClient
@@ -64,6 +64,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       val useProxy = proxyEnabled
       val bearerToken = bearer
       val environment = mockEnvironment
+      val apiKey = testApiKey
     }
   }
 
@@ -133,8 +134,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   "saveFieldValues" should {
 
-    val fields = Fields("field001" -> "value001", "field002" -> "value002")
-    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)
+    val fieldsToSave = fields("field001" -> "value001", "field002" -> "value002")
+    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsToSave)
 
     val url = s"$baseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
@@ -142,7 +143,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(url), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+      await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
@@ -150,7 +151,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
       }
     }
 
@@ -159,7 +160,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
-        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fields))
+        await(underTest.saveFieldValues(clientId, apiContext, apiVersion, fieldsToSave))
       }
     }
   }
@@ -215,7 +216,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer, testApiKey)
       }
     }
   }

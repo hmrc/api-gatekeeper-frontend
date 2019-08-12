@@ -46,7 +46,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiPublisherConnector {
       val httpClient = mockHttpClient
@@ -138,7 +138,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer)
       }
     }
   }

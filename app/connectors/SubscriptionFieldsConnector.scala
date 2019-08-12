@@ -36,8 +36,9 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) {
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
@@ -89,6 +90,7 @@ class SandboxSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
   val serviceBaseUrl = appConfig.subscriptionFieldsSandboxBaseUrl
   val useProxy = appConfig.subscriptionFieldsSandboxUseProxy
   val bearerToken = appConfig.subscriptionFieldsSandboxBearerToken
+  val apiKey = appConfig.subscriptionFieldsSandboxApiKey
 }
 
 @Singleton
@@ -101,4 +103,5 @@ class ProductionSubscriptionFieldsConnector @Inject()(appConfig: AppConfig,
   val serviceBaseUrl = appConfig.subscriptionFieldsProductionBaseUrl
   val useProxy = appConfig.subscriptionFieldsProductionUseProxy
   val bearerToken = appConfig.subscriptionFieldsProductionBearerToken
+  val apiKey = appConfig.subscriptionFieldsProductionApiKey
 }

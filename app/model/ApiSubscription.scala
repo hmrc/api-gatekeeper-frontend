@@ -26,7 +26,7 @@ package object ApiSubscriptionFields {
 
   type Fields = Map[String, String]
 
-  def Fields(tpl: (String, String)*) = Map[String, String](tpl: _*)
+  def fields(tpl: (String, String)*) = Map[String, String](tpl: _*)
 
   case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionField])
   object FieldDefinitionsResponse {

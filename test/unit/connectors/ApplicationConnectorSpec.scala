@@ -51,7 +51,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockEnvironment = mock[Environment]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApplicationConnector {
       val httpClient = mockHttpClient
@@ -556,7 +556,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         connector.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer)
       }
     }
   }

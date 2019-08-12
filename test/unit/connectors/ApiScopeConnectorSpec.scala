@@ -41,7 +41,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
 
-    when(mockProxiedHttpClient.withAuthorization(any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiScopeConnector() {
       val httpClient = mockHttpClient
@@ -85,7 +85,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withAuthorization(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer)
       }
     }
   }

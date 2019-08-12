@@ -33,7 +33,7 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
   val useProxy: Boolean
   val bearerToken: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withAuthorization(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
     http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
