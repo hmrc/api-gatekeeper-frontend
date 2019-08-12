@@ -34,6 +34,8 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
 
   lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
+  lazy val retryCount = runModeConfiguration.getInt("retryCount").getOrElse(0)
+  lazy val retryDelayMilliseconds = runModeConfiguration.getInt("retryDelayMilliseconds").getOrElse(500)
 
   lazy val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
   lazy val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")

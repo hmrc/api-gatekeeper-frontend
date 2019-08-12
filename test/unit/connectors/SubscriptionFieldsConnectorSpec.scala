@@ -19,6 +19,8 @@ package unit.connectors
 import java.net.URLEncoder.encode
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import config.AppConfig
 import connectors._
 import model.ApiSubscriptionFields._
 import model.Environment._
@@ -31,9 +33,10 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
   private val baseUrl = "https://example.com"
@@ -44,6 +47,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
   val clientId: String = UUID.randomUUID().toString
   val apiContext: String = "i-am-a-test"
   val apiVersion: String = "1.0"
+  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
+  private val testActorSystem = ActorSystem("test-actor-system")
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
@@ -53,6 +58,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
+    val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
@@ -65,6 +71,10 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       val bearerToken = bearer
       val environment = mockEnvironment
       val apiKey = testApiKey
+      val actorSystem = testActorSystem
+      val futureTimeout = futureTimeoutSupport
+      val appConfig = mockAppConfig
+      implicit val ec : ExecutionContext = global
     }
   }
 

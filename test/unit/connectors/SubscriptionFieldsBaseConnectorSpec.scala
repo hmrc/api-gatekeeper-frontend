@@ -18,6 +18,8 @@ package unit.connectors
 
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import connectors.{ProxiedHttpClient, SubscriptionFieldsConnector}
 import model.ApiSubscriptionFields._
@@ -31,6 +33,7 @@ import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.{HttpResponse, _}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,6 +48,8 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
   private val upstream500Response = Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
+  private val actorSystem = ActorSystem("test-actor-system")
 
   trait Setup {
     val apiKey: String = UUID.randomUUID().toString
@@ -52,10 +57,11 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
     val mockHttpClient: HttpClient = mock[HttpClient]
     val mockProxiedHttpClient: ProxiedHttpClient = mock[ProxiedHttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
+
     when(mockAppConfig.subscriptionFieldsSandboxApiKey).thenReturn(apiKey)
 
     val underTest = new SubscriptionFieldsTestConnector(
-      useProxy = false, bearerToken = "", apiKey = "", mockHttpClient, mockProxiedHttpClient, mockAppConfig)
+      useProxy = false, bearerToken = "", apiKey = "", mockHttpClient, mockProxiedHttpClient, mockAppConfig, actorSystem, futureTimeoutSupport)
   }
 
   trait ProxiedSetup extends Setup {
@@ -63,7 +69,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
     override val underTest = new SubscriptionFieldsTestConnector(
-      useProxy = true, bearerToken, apiKey, mockHttpClient, mockProxiedHttpClient, mockAppConfig)
+      useProxy = true, bearerToken, apiKey, mockHttpClient, mockProxiedHttpClient, mockAppConfig, actorSystem, futureTimeoutSupport)
   }
 
   class SubscriptionFieldsTestConnector(val useProxy: Boolean,
@@ -71,11 +77,21 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
                                         val apiKey: String,
                                         val httpClient: HttpClient,
                                         val proxiedHttpClient: ProxiedHttpClient,
-                                        val appConfig: AppConfig)(implicit val ec: ExecutionContext)
+                                        val appConfig: AppConfig,
+                                        val actorSystem: ActorSystem,
+                                        val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
     extends SubscriptionFieldsConnector {
     val serviceBaseUrl = ""
     val environment: Environment = Environment.SANDBOX
 
+  }
+
+  private def squidProxyRelatedBadRequest = {
+    new BadRequestException(
+      "GET of 'https://api.development.tax.service.gov.uk:443/testing/api-subscription-fields/field/application/" +
+        "xxxyyyzzz/context/api-platform-test/version/7.0' returned 400 (Bad Request). Response body " +
+        "'<html>\n<head><title>400 Bad Request</title></head>\n<body bgcolor=\"white\">\n" +
+        "<center><h1>400 Bad Request</h1></center>\n<hr><center>nginx</center>\n</body>\n</html>\n'")
   }
 
   "fetchFieldValues" should {
@@ -116,6 +132,19 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       await(underTest.fetchFieldValues(clientId, apiContext, apiVersion))
 
       verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
+    }
+
+    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[SubscriptionFields](meq(getUrl))(any(), any(), any()))
+        .thenReturn(
+          Future.failed(squidProxyRelatedBadRequest),
+          Future.successful(response)
+        )
+      val result: Option[SubscriptionFields] = await(underTest.fetchFieldValues(clientId, apiContext, apiVersion))
+
+      result shouldBe Some(response)
     }
   }
 
@@ -162,6 +191,18 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       intercept[JsValidationException] {
         await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
       }
+    }
+
+    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[FieldDefinitionsResponse](meq(url))(any(), any(), any()))
+        .thenReturn(
+          Future.failed(new BadRequestException("")),
+          Future.successful(validResponse)
+        )
+      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+
+      result shouldBe fields
     }
   }
 
