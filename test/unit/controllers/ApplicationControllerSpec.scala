@@ -929,12 +929,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP and client secrets.")
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP.")
             bodyOf(result) should include(appId)
             bodyOf(result) should include("Production")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
             verifyAuthConnectorCalledForSuperUser
 
@@ -960,12 +959,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
             bodyOf(result) should include(appName)
             bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP and client secrets.")
+            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP.")
             bodyOf(result) should include(appId)
             bodyOf(result) should include("Sandbox")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientSecret)
             bodyOf(result) should include(clientId)
             verifyAuthConnectorCalledForSuperUser
           }
