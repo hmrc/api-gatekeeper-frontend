@@ -18,6 +18,8 @@ package unit.connectors
 
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import config.AppConfig
 import connectors.{ApiPublisherConnector, ProxiedHttpClient}
 import model.Environment._
 import model._
@@ -29,14 +31,17 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
+  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
+  private val actorSystemTest = ActorSystem("test-actor-system")
 
   implicit val hc = HeaderCarrier()
 
@@ -44,6 +49,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
+    val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
@@ -55,6 +61,10 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       val useProxy = proxyEnabled
       val bearerToken = bearer
       val environment = mockEnvironment
+      val appConfig = mockAppConfig
+      val actorSystem = actorSystemTest
+      val futureTimeout = futureTimeoutSupport
+      implicit val ec: ExecutionContext = ExecutionContext.global
     }
   }
 
@@ -79,6 +89,18 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
         await(underTest.fetchUnapproved())
       }
     }
+
+    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[APIApprovalSummary]](meq(url))(any(), any(), any()))
+        .thenReturn(
+          Future.failed(new BadRequestException("")),
+          Future.successful(response)
+        )
+      await(underTest.fetchUnapproved()) shouldBe response
+    }
   }
 
   "fetchApprovalSummary" should {
@@ -101,6 +123,18 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       intercept[Upstream5xxResponse] {
         await(underTest.fetchApprovalSummary(serviceName))
       }
+    }
+
+    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+      val validResponse = (APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment)))
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[APIApprovalSummary](meq(url))(any(), any(), any()))
+        .thenReturn(
+          Future.failed(new BadRequestException("")),
+          Future.successful(validResponse)
+        )
+      await(underTest.fetchApprovalSummary(serviceName)) shouldBe validResponse
     }
   }
 
