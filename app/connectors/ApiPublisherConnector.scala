@@ -35,8 +35,9 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Retr
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
     retry {
@@ -73,6 +74,7 @@ class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
   val useProxy = appConfig.apiPublisherSandboxUseProxy
   val bearerToken = appConfig.apiPublisherSandboxBearerToken
+  val apiKey = appConfig.apiPublisherSandboxApiKey
 }
 
 @Singleton
@@ -87,4 +89,5 @@ class ProductionApiPublisherConnector @Inject()(val appConfig: AppConfig,
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
   val useProxy = appConfig.apiPublisherProductionUseProxy
   val bearerToken = appConfig.apiPublisherProductionBearerToken
+  val apiKey = appConfig.apiPublisherProductionApiKey
 }

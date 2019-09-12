@@ -42,6 +42,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
   private val bearer = "TestBearerToken"
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
   private val actorSystemTest = ActorSystem("test-actor-system")
+  private val apiKeyTest = UUID.randomUUID().toString
 
   implicit val hc = HeaderCarrier()
 
@@ -64,6 +65,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       val appConfig = mockAppConfig
       val actorSystem = actorSystemTest
       val futureTimeout = futureTimeoutSupport
+      val apiKey = apiKeyTest
       implicit val ec: ExecutionContext = ExecutionContext.global
     }
   }
@@ -172,7 +174,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withHeaders(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
       }
     }
   }

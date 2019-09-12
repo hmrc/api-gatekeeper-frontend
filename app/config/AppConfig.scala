@@ -67,9 +67,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
   lazy val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
   lazy val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
+  lazy val apiPublisherSandboxApiKey = apiKey("api-publisher-sandbox")
   lazy val apiPublisherProductionBaseUrl = serviceUrl("api-publisher")("api-publisher-production")
   lazy val apiPublisherProductionUseProxy = useProxy("api-publisher-production")
   lazy val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
+  lazy val apiPublisherProductionApiKey = apiKey("api-publisher-production")
 
   lazy val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
   lazy val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
