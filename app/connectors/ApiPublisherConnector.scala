@@ -16,31 +16,39 @@
 
 package connectors
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
+abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Retries {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
-    http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
+    retry {
+      http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
+    }
   }
 
-  def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier) : Future[APIApprovalSummary] = {
-    http.GET[APIApprovalSummary](s"$serviceBaseUrl/service/$serviceName/summary").map(_.copy(environment = Some(environment)))
+  def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    retry {
+      http.GET[APIApprovalSummary](s"$serviceBaseUrl/service/$serviceName/summary").map(_.copy(environment = Some(environment)))
+    }
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
@@ -55,25 +63,31 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 }
 
 @Singleton
-class SandboxApiPublisherConnector @Inject()(appConfig: AppConfig,
+class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
                                              val httpClient: HttpClient,
-                                             val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                             val proxiedHttpClient: ProxiedHttpClient,
+                                             val actorSystem: ActorSystem,
+                                             val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
   val useProxy = appConfig.apiPublisherSandboxUseProxy
   val bearerToken = appConfig.apiPublisherSandboxBearerToken
+  val apiKey = appConfig.apiPublisherSandboxApiKey
 }
 
 @Singleton
-class ProductionApiPublisherConnector @Inject()(appConfig: AppConfig,
+class ProductionApiPublisherConnector @Inject()(val appConfig: AppConfig,
                                                 val httpClient: HttpClient,
-                                                val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                                val proxiedHttpClient: ProxiedHttpClient,
+                                                val actorSystem: ActorSystem,
+                                                val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
   val useProxy = appConfig.apiPublisherProductionUseProxy
   val bearerToken = appConfig.apiPublisherProductionBearerToken
+  val apiKey = appConfig.apiPublisherProductionApiKey
 }
