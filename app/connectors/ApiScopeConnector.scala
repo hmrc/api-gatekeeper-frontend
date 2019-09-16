@@ -16,53 +16,65 @@
 
 package connectors
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
+abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends Retries{
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
-    http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
+    retry {
+      http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
+        .recover {
+          case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+        }
+    }
   }
 }
 
 @Singleton
-class SandboxApiScopeConnector @Inject()(appConfig: AppConfig,
+class SandboxApiScopeConnector @Inject()(val appConfig: AppConfig,
                                          val httpClient: HttpClient,
-                                         val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                         val proxiedHttpClient: ProxiedHttpClient,
+                                         val actorSystem: ActorSystem,
+                                         val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
   val useProxy = appConfig.apiScopeSandboxUseProxy
   val bearerToken = appConfig.apiScopeSandboxBearerToken
+  val apiKey = appConfig.apiScopeSandboxApiKey
 }
 
 @Singleton
-class ProductionApiScopeConnector @Inject()(appConfig: AppConfig,
+class ProductionApiScopeConnector @Inject()(val appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                            val proxiedHttpClient: ProxiedHttpClient,
+                                            val actorSystem: ActorSystem,
+                                            val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
   val useProxy = appConfig.apiScopeProductionUseProxy
   val bearerToken = appConfig.apiScopeProductionBearerToken
+  val apiKey = appConfig.apiScopeProductionApiKey
 }

@@ -40,9 +40,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
   lazy val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")
   lazy val apiScopeSandboxBearerToken = bearerToken("api-scope-sandbox")
+  lazy val apiScopeSandboxApiKey = apiKey("api-scope-sandbox")
   lazy val apiScopeProductionBaseUrl = serviceUrl("api-scope")("api-scope-production")
   lazy val apiScopeProductionUseProxy = useProxy("api-scope-production")
   lazy val apiScopeProductionBearerToken = bearerToken("api-scope-production")
+  lazy val apiScopeProductionApiKey = apiKey("api-scope-production")
 
   lazy val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
   lazy val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
