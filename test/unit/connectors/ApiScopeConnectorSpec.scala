@@ -16,30 +16,40 @@
 
 package unit.connectors
 
+import java.util.UUID
+
+import akka.actor.ActorSystem
+import config.AppConfig
 import connectors.{ApiScopeConnector, ProxiedHttpClient}
 import model.{ApiScope, FetchApiDefinitionsFailed}
 import model.Environment.Environment
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.{verify, when}
 import org.mockito.Matchers.{any, eq => mEq}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
+import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
   private val baseUrl = "https://example.com"
   private val bearer = "TestBearerToken"
+  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
+  private val actorSystemTest = ActorSystem("test-actor-system")
+  private val apiKeyTest = UUID.randomUUID().toString
 
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
+    val mockEnvironment = mock[Environment]
+    val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
@@ -49,20 +59,36 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
       val serviceBaseUrl = baseUrl
       val useProxy = proxyEnabled
       val bearerToken = bearer
-      val environment = mock[Environment]
+      val environment = mockEnvironment
+      val appConfig = mockAppConfig
+      val actorSystem = actorSystemTest
+      val futureTimeout = futureTimeoutSupport
+      val apiKey = apiKeyTest
+      implicit val ec: ExecutionContext = ExecutionContext.global
     }
   }
 
   "fetchAll" should {
-    "fetch a sequence of API scopes" in new Setup {
 
-      val scopes = Seq(ApiScope("aKey", "aName", "aDescription"))
+    val scopes = Seq(ApiScope("aKey", "aName", "aDescription"))
+
+    "fetch a sequence of API scopes" in new Setup {
 
       when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any())).thenReturn(Future.successful(scopes))
 
       val result = await(underTest.fetchAll())
 
       result shouldBe scopes
+    }
+
+    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(scopes))
+
+      await(underTest.fetchAll()) shouldBe scopes
     }
 
     "fail to fetch a sequence of API scopes" in new Setup {
@@ -85,7 +111,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         underTest.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withHeaders(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
       }
     }
   }
