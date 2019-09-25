@@ -16,61 +16,75 @@
 
 package connectors
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
+abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) extends Retries {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
+    retry {
+      http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
+        .recover {
+          case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+        }
+    }
   }
 
   def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
+    retry {
+      http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
+        .recover {
+          case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+        }
+    }
   }
 
 }
 
 @Singleton
-class SandboxApiDefinitionConnector @Inject()(appConfig: AppConfig,
+class SandboxApiDefinitionConnector @Inject()( val appConfig: AppConfig,
                                                val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                               val proxiedHttpClient: ProxiedHttpClient,
+                                               val actorSystem: ActorSystem,
+                                               val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiDefinitionConnector {
 
   val environment = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiDefinitionSandboxBaseUrl
   val useProxy = appConfig.apiDefinitionSandboxUseProxy
   val bearerToken = appConfig.apiDefinitionSandboxBearerToken
+  val apiKey = appConfig.apiDefinitionSandboxApiKey
 }
 
 @Singleton
-class ProductionApiDefinitionConnector @Inject()(appConfig: AppConfig,
-                                            val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+class ProductionApiDefinitionConnector @Inject()(val appConfig: AppConfig,
+                                                 val httpClient: HttpClient,
+                                                 val proxiedHttpClient: ProxiedHttpClient,
+                                                 val actorSystem: ActorSystem,
+                                                 val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
   extends ApiDefinitionConnector {
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiDefinitionProductionBaseUrl
   val useProxy = appConfig.apiDefinitionProductionUseProxy
   val bearerToken = appConfig.apiDefinitionProductionBearerToken
+  val apiKey = appConfig.apiDefinitionProductionApiKey
 }
