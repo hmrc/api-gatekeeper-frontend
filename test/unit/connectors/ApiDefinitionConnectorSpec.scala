@@ -86,14 +86,18 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
       await(connector.fetchPublic()) shouldBe response
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
 
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(Future.successful(response))
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(response)
+      )
 
       await(connector.fetchPublic()) shouldBe response
     }
@@ -128,7 +132,11 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(Future.successful(response))
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(response)
+      )
 
       await(connector.fetchPrivate()) shouldBe response
     }
