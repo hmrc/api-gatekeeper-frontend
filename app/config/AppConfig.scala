@@ -78,9 +78,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
   lazy val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
   lazy val apiDefinitionSandboxBearerToken = bearerToken("api-definition-sandbox")
+  lazy val apiDefinitionSandboxApiKey = apiKey("api-definition-sandbox")
   lazy val apiDefinitionProductionBaseUrl = serviceUrl("api-definition")("api-definition-production")
   lazy val apiDefinitionProductionUseProxy = useProxy("api-definition-production")
   lazy val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
+  lazy val apiDefinitionProductionApiKey = apiKey("api-definition-production")
 
   lazy val gatekeeperSuccessUrl = loadStringConfig("api-gatekeeper-frontend-success-url")
 
