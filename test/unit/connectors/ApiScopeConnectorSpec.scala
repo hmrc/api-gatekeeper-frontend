@@ -81,7 +81,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
       result shouldBe scopes
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any())).thenReturn(

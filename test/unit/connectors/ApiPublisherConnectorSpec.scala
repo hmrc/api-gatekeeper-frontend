@@ -92,7 +92,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       }
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
       val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
@@ -127,7 +127,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       }
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
       val validResponse = (APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment)))
 
       when(mockAppConfig.retryCount).thenReturn(1)

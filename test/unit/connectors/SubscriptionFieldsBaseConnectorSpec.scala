@@ -134,7 +134,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[SubscriptionFields](meq(getUrl))(any(), any(), any()))
@@ -193,7 +193,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       }
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[FieldDefinitionsResponse](meq(url))(any(), any(), any()))
         .thenReturn(
