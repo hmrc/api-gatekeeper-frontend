@@ -126,7 +126,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
       await(connector.fetchPrivate()) shouldBe response
     }
 
-    "when retry logic is enabled should retry if call returns 400 Bad Request" in new Setup {
+    "when retry logic is enabled should retry on failure" in new Setup {
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", "dummy-api",
