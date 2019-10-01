@@ -117,6 +117,15 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
     Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - START")
 
+    val httpFuture: Future[HttpResponse] = http.doGet(s"$serviceBaseUrl/application/subscriptions")
+
+    httpFuture.map{
+      res => {
+        Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map body === ${res.body}")
+        Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map allHeaders === ${res.allHeaders}")
+      }
+    }
+
     val future = http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
       .recover {
         case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
