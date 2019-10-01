@@ -120,7 +120,7 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     val httpFuture: Future[HttpResponse] = http.doGet(s"$serviceBaseUrl/application/subscriptions")
 
     httpFuture.map{
-      res => {
+      res: HttpResponse => {
         Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map body === ${res.body}")
         Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map allHeaders === ${res.allHeaders}")
       }
