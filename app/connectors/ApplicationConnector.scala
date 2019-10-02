@@ -119,6 +119,9 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
     Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - START")
 
     val httpFuture: Future[HttpResponse] = http.doGet(s"$serviceBaseUrl/application/subscriptions")
+      .recover{
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+    }
 
     httpFuture.onComplete {
       case Success(_) => Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - httpFuture.onComplete: Success")
