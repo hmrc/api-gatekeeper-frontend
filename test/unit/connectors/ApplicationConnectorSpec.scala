@@ -95,16 +95,17 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val url = s"$baseUrl/application/subscriptions"
 
     "retrieve all applications" in new Setup {
-      val httpResponse = HttpResponse.apply(OK, None, Map.empty, None)
       val response = Seq(
         SubscriptionResponse(
           APIIdentifier("individual-benefits", "1.0"),
           Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
+      val httpResponse = HttpResponse.apply(OK, Some(Json.toJson(response)), Map.empty, None)
+
 
       when(mockHttpClient.doGet(meq(url))(any())).thenReturn(Future.successful(httpResponse))
 
-      when(mockHttpClient.GET[Seq[SubscriptionResponse]](meq(url))(any(), any(), any()))
-        .thenReturn(Future.successful(response))
+//      when(mockHttpClient.GET[Seq[SubscriptionResponse]](meq(url))(any(), any(), any()))
+//        .thenReturn(Future.successful(response))
 
       val result: Seq[SubscriptionResponse] = await(connector.fetchAllSubscriptions())
 

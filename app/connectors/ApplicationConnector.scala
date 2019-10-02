@@ -27,6 +27,7 @@ import play.api.Logger
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -119,26 +120,34 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
 
     val httpFuture: Future[HttpResponse] = http.doGet(s"$serviceBaseUrl/application/subscriptions")
 
-    httpFuture.map{
+    httpFuture.onComplete {
+      case Success(_) => Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - httpFuture.onComplete: Success")
+      case Failure(exception) => Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - httpFuture.onComplete: Failure", exception)
+    }
+
+    httpFuture.map {
       res: HttpResponse => {
         Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map body === ${res.body}")
         Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() httpFuture.map allHeaders === ${res.allHeaders}")
+
+        val x = Json.parse(res.body)
+        x.as[Seq[SubscriptionResponse]]
       }
     }
 
-    val future = http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-        }
-
-    future.onComplete((res: Try[Seq[SubscriptionResponse]]) =>{
-      res match {
-        case Success(_) =>       Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - future.onComplete: Success")
-        case Failure(exception) =>  Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - future.onComplete: Failure", exception )
-      }
-    })
-
-    future
+//    val future = http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
+//      .recover {
+//        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+//        }
+//
+//    future.onComplete((res: Try[Seq[SubscriptionResponse]]) =>{
+//      res match {
+//        case Success(_) =>       Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - future.onComplete: Success")
+//        case Failure(exception) =>  Logger.info(s"Pomegranate - In ApplicationConnector.fetchAllSubscriptions() - future.onComplete: Failure", exception )
+//      }
+//    })
+//
+//    future
   }
 
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
