@@ -52,6 +52,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
         DateTime.now(),
+        DateTime.now(),
         Standard(),
         ApplicationState()
       )
@@ -81,6 +82,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         "PRODUCTION",
         None,
         Set.empty,
+        DateTime.now(),
         DateTime.now(),
         Standard(),
         ApplicationState(),
@@ -114,6 +116,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         "PRODUCTION",
         None,
         Set.empty,
+        DateTime.now(),
         DateTime.now(),
         Standard(),
         ApplicationState(),
@@ -151,6 +154,7 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
         "PRODUCTION",
         None,
         Set.empty,
+        DateTime.now(),
         DateTime.now(),
         Standard(),
         ApplicationState(),

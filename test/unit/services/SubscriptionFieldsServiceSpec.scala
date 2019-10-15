@@ -43,7 +43,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   private val mockSandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
   private val mockProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
   val application = ApplicationResponse(
-    UUID.randomUUID(), clientId, "gatewayId", applicationName, "PRODUCTION", None, Set.empty, DateTime.now(), Standard(), ApplicationState())
+    UUID.randomUUID(), clientId, "gatewayId", applicationName, "PRODUCTION", None, Set.empty, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
   trait Setup {
 
