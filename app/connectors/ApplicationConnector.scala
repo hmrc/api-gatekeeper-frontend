@@ -18,6 +18,8 @@ package connectors
 
 import java.net.URLEncoder.encode
 
+import akka.actor.ActorSystem
+import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
@@ -26,26 +28,28 @@ import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApplicationConnector(implicit ec: ExecutionContext) {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends Retries {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
   val useProxy: Boolean
   val bearerToken: String
+  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken) else httpClient
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def updateRateLimitTier(applicationId: String, tier: RateLimitTier)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[UpdateRateLimitTierRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/rate-limit-tier",
-      UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
-      .map(_ => ApplicationUpdateSuccessResult)
+      http.POST[UpdateRateLimitTierRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/rate-limit-tier",
+        UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
+        .map(_ => ApplicationUpdateSuccessResult)
   }
 
   def approveUplift(applicationId: String, gatekeeperUserId: String)
@@ -79,51 +83,64 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   }
 
   def fetchApplication(applicationId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/$applicationId")
+    retry{
+      http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/$applicationId")
+    }
   }
 
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
-      .recover {
-        case e =>
-          throw new FetchApplicationsFailed(e)
-      }
+    retry{
+      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
+        .recover {
+          case e =>
+            throw new FetchApplicationsFailed(e)
+        }
+    }
   }
 
   def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-      }
+    retry{
+      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
+        .recover {
+          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+        }
+    }
   }
 
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-      }
+    retry{
+      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
+        .recover {
+          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+        }
+    }
   }
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-      }
+    retry{
+      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application")
+        .recover {
+          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+        }
+    }
   }
 
   def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
-    http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-      }
+    retry{
+      http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
+        .recover {
+          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+        }
+    }
   }
 
   def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/$applicationId/subscription")
-      .recover {
-        case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
-      }
+    retry{
+      http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/$applicationId/subscription")
+        .recover {
+          case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
+        }
+    }
   }
 
   def updateOverrides(applicationId: String, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
@@ -209,11 +226,15 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
   }
 
   def getClientCredentials(appId: String)(implicit hc: HeaderCarrier): Future[GetClientCredentialsResult] = {
-    http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
+    retry{
+      http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
+    }
   }
 
   def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
-    http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
+    retry{
+      http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
+    }
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
@@ -231,30 +252,38 @@ abstract class ApplicationConnector(implicit ec: ExecutionContext) {
       case None => queryParameters
     }
 
-    http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
+    retry{
+      http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
+    }
   }
 }
 
 @Singleton
-class SandboxApplicationConnector @Inject()(appConfig: AppConfig,
+class SandboxApplicationConnector @Inject()(val appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                            val proxiedHttpClient: ProxiedHttpClient,
+                                            val actorSystem: ActorSystem,
+                                            val futureTimeout: FutureTimeoutSupport)(implicit override val ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.SANDBOX
   val serviceBaseUrl = appConfig.applicationSandboxBaseUrl
   val useProxy = appConfig.applicationSandboxUseProxy
   val bearerToken = appConfig.applicationSandboxBearerToken
+  val apiKey = appConfig.applicationSandboxApiKey
 }
 
 @Singleton
-class ProductionApplicationConnector @Inject()(appConfig: AppConfig,
+class ProductionApplicationConnector @Inject()(val appConfig: AppConfig,
                                                val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)(implicit ec: ExecutionContext)
+                                               val proxiedHttpClient: ProxiedHttpClient,
+                                               val actorSystem: ActorSystem,
+                                               val futureTimeout: FutureTimeoutSupport)(implicit override val ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.applicationProductionBaseUrl
   val useProxy = appConfig.applicationProductionUseProxy
   val bearerToken = appConfig.applicationProductionBearerToken
+  val apiKey = appConfig.applicationProductionApiKey
 }
