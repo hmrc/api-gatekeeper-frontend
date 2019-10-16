@@ -62,13 +62,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
 
     val stdApp1 = ApplicationResponse(
-      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val stdApp2 = ApplicationResponse(
-      UUID.randomUUID(), "clientid2", "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+      UUID.randomUUID(), "clientid2", "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val privilegedApp = ApplicationResponse(
-      UUID.randomUUID(), "clientid3", "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), Privileged(), ApplicationState())
+      UUID.randomUUID(), "clientid3", "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
     val ropcApp = ApplicationResponse(
-      UUID.randomUUID(), "clientid4", "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), Ropc(), ApplicationState())
+      UUID.randomUUID(), "clientid4", "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 

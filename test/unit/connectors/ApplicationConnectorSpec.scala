@@ -240,7 +240,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
     val applications = Seq(ApplicationResponse(
-      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState()))
+      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
 
     "retrieve all applications" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any()))

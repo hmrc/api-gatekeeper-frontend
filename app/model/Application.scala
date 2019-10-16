@@ -156,6 +156,7 @@ case class ApplicationResponse(id: UUID,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
+                               lastAccess: DateTime,
                                access: Access,
                                state: ApplicationState,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
@@ -194,6 +195,7 @@ object ApplicationResponse {
       (JsPath \ "description").readNullable[String] and
       (JsPath \ "collaborators").read[Set[Collaborator]] and
       (JsPath \ "createdOn").read[DateTime] and
+      (JsPath \ "lastAccess").read[DateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
       (JsPath \ "rateLimitTier").read[RateLimitTier] and

@@ -53,6 +53,7 @@ trait ControllerSetupBase extends MockitoSugar {
     None,
     Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
     DateTime.now(),
+    DateTime.now(),
     Standard(),
     ApplicationState())
   val application = ApplicationWithHistory(basicApplication, Seq.empty)

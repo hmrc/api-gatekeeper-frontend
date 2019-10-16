@@ -182,6 +182,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1459866628433,
+       |    "lastAccess": 1459866628433,
        |    "redirectUris": [],
        |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
        |    "privacyPolicyUrl": "http://www.example.com/privacy",
@@ -287,6 +288,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1459866628433,
+       |    "lastAccess": 1459866628433,
        |    "redirectUris": [],
        |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
        |    "privacyPolicyUrl": "http://www.example.com/privacy",
@@ -392,6 +394,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1459866628433,
+       |    "lastAccess": 1459866628433,
        |    "redirectUris": [],
        |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
        |    "privacyPolicyUrl": "http://www.example.com/privacy",
@@ -478,6 +481,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1459866628433,
+       |    "lastAccess": 1459866628433,
        |    "redirectUris": [],
        |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
        |    "privacyPolicyUrl": "http://www.example.com/privacy",
@@ -557,6 +561,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -593,6 +598,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -629,6 +635,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -664,6 +671,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -692,6 +700,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1460111080651,
+       |    "lastAccess": 1460111080651,
        |    "redirectUris": [
        |      "http://localhost:8080/callback"
        |    ],
@@ -729,6 +738,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1465388917873,
+       |    "lastAccess": 1465388917873,
        |    "redirectUris": [],
        |    "access": {
        |      "redirectUris": [],
@@ -756,6 +766,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1469113456930,
+       |    "lastAccess": 1469113456930,
        |    "redirectUris": [],
        |    "access": {
        |      "redirectUris": [],
@@ -783,6 +794,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1464686294991,
+       |    "lastAccess": 1464686294991,
        |    "redirectUris": [],
        |    "access": {
        |      "redirectUris": [],
@@ -814,6 +826,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1460114002204,
+       |    "lastAccess": 1460114002204,
        |    "redirectUris": [],
        |    "access": {
        |      "redirectUris": [],
@@ -841,6 +854,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1460623310886,
+       |    "lastAccess": 1460623310886,
        |    "redirectUris": [
        |      "http://localhost:9000",
        |      "https://localhost:9000"
@@ -884,6 +898,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -920,6 +935,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -948,6 +964,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1460553066047,
+       |    "lastAccess": 1460553066047,
        |    "redirectUris": [
        |      "http://localhost:9000"
        |    ],
@@ -979,6 +996,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1469698551644,
+       |    "lastAccess": 1469698551644,
        |    "redirectUris": [],
        |    "access": {
        |      "redirectUris": [],
@@ -1004,6 +1022,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1469694187353,
+       |    "lastAccess": 1469694187353,
        |    "redirectUris": [
        |      "http://localhost:9000"
        |    ],
@@ -1047,6 +1066,7 @@ trait MockDataSugar {
        |    }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -1075,6 +1095,7 @@ trait MockDataSugar {
        |    "deployedTo": "PRODUCTION",
        |    "collaborators": [],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -1119,6 +1140,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
        |    "access": {
        |      "redirectUris": [],
        |      "overrides": [],
@@ -1263,6 +1285,7 @@ trait MockDataSugar {
        |      }
        |    ],
        |    "createdOn": 1459866628433,
+       |    "lastAccess": 1459866628433,
        |    "redirectUris": [],
        |    "subscriptions": [],
        |    "access": {

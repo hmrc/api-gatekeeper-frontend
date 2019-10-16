@@ -185,6 +185,16 @@
             </td>
         </tr>
         <tr>
+            <th><h3>Created on</h3></th>
+            <td data-created-on>@ApplicationFormatter.getCreatedOn(application)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Last API call</h3></th>
+            <td data-last-access>@ApplicationFormatter.getLastAccess(application)</td>
+            <td></td>
+        </tr>
+        <tr>
             <th><h3>Rate limit tier</h3></th>
             <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
             <td>@if(isAdmin) {

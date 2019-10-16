@@ -50,6 +50,7 @@ class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with Moc
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
         DateTime.now(),
+        DateTime.now(),
         Standard(),
         ApplicationState()
       )

@@ -30,9 +30,9 @@ object ApplicationGenerator {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
-  def anApplicationResponse(dateTime: DateTime = DateTimeUtils.now): ApplicationResponse = {
-    ApplicationResponse(randomUUID(), "clientid", "gatewayId", "appName", "deployedTo", None, Set.empty, dateTime, Privileged(), ApplicationState(),
-      RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
+  def anApplicationResponse(createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now): ApplicationResponse = {
+    ApplicationResponse(randomUUID(), "clientid", "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
+      lastAccess, Privileged(), ApplicationState(), RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
 
   def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
