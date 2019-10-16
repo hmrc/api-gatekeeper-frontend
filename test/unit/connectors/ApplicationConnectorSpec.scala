@@ -278,7 +278,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val applicationId = "anApplicationId"
     val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
     val application = ApplicationResponse(
-      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val response = ApplicationWithHistory(application, Seq(applicationState))
 
 
