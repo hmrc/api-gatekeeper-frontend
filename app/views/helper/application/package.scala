@@ -17,7 +17,12 @@
 package views.helper.application
 
 import model._
+import org.joda.time.DateTime
+import org.joda.time.Days.daysBetween
+import org.joda.time.Months.monthsBetween
+import org.joda.time.Seconds.secondsBetween
 import org.joda.time.format.DateTimeFormat
+import uk.gov.hmrc.time.DateTimeUtils.now
 
 object ApplicationPublicDescription {
   def apply(application: ApplicationResponse): Option[String] = {
@@ -25,6 +30,25 @@ object ApplicationPublicDescription {
       checkInformation <- application.checkInformation
       description <- checkInformation.applicationDetails
     } yield description
+  }
+}
+
+object ApplicationFormatter {
+  val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  val initialLastAccessDate = new DateTime(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
+
+  def getCreatedOn(app: ApplicationResponse): String = {
+    dateFormatter.print(app.createdOn)
+  }
+
+  def getLastAccess(app: ApplicationResponse): String = {
+    if (secondsBetween(app.createdOn, app.lastAccess).getSeconds == 0) {
+      "No API called"
+    } else if (daysBetween(initialLastAccessDate.toLocalDate, app.lastAccess.toLocalDate).getDays > 0) {
+      dateFormatter.print(app.lastAccess)
+    } else {
+      s"More than ${monthsBetween(app.lastAccess, now).getMonths} months ago"
+    }
   }
 }
 
