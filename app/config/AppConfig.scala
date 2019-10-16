@@ -49,9 +49,11 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
   lazy val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
   lazy val applicationSandboxBearerToken = bearerToken("third-party-application-sandbox")
+  lazy val applicationSandboxApiKey = apiKey("third-party-application-sandbox")
   lazy val applicationProductionBaseUrl = serviceUrl("third-party-application")("third-party-application-production")
   lazy val applicationProductionUseProxy = useProxy("third-party-application-production")
   lazy val applicationProductionBearerToken = bearerToken("third-party-application-production")
+  lazy val applicationProductionApiKey = apiKey("third-party-application-production")
 
   lazy val authBaseUrl = baseUrl("auth")
   lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"

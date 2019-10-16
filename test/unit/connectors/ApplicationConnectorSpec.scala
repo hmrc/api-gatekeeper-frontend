@@ -19,6 +19,8 @@ package unit.connectors
 import java.net.URLEncoder
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import config.AppConfig
 import connectors.{ApplicationConnector, ProxiedHttpClient}
 import model.Environment._
 import model._
@@ -33,6 +35,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,6 +44,9 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
+  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
+  private val actorSystemTest = ActorSystem("test-actor-system")
+  private val apiKeyTest = UUID.randomUUID().toString
 
   class Setup(proxyEnabled: Boolean = false) {
     val authToken = "Bearer Token"
@@ -49,6 +55,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockHttpClient = mock[HttpClient]
     val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val mockEnvironment = mock[Environment]
+    val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
@@ -60,6 +67,10 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       val useProxy = proxyEnabled
       val bearerToken = bearer
       val environment = mockEnvironment
+      val appConfig = mockAppConfig
+      val actorSystem = actorSystemTest
+      val futureTimeout = futureTimeoutSupport
+      val apiKey = apiKeyTest
     }
   }
 
@@ -211,6 +222,16 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
       exception.getCause shouldBe thrownException
     }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(Seq.empty)
+      )
+
+      await(connector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe Seq.empty
+    }
   }
 
   "fetchAllApplications" should {
@@ -237,6 +258,57 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplications())
       }
+    }
+    "when retry logic is enabled should retry on failure" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(applications)
+      )
+
+      await(connector.fetchAllApplications()) shouldBe applications
+    }
+  }
+
+  "fetchApplication" should {
+    val url = s"$baseUrl/gatekeeper/application/anApplicationId"
+    val collaborators = Set(
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+    val applicationId = "anApplicationId"
+    val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
+    val application = ApplicationResponse(
+      UUID.randomUUID(), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), Standard(), ApplicationState())
+    val response = ApplicationWithHistory(application, Seq(applicationState))
+
+
+    "retrieve an application" in new Setup {
+      when(mockHttpClient.GET[ApplicationWithHistory](any())(any(), any(), any()))
+        .thenReturn(Future.successful(response))
+
+      val result = await(connector.fetchApplication(applicationId))
+
+      verify(mockHttpClient).GET(meq(url))(any(), any(), any())
+
+      result shouldBe response
+    }
+
+    "propagate fetchApplication exception" in new Setup {
+      when(mockHttpClient.GET[Seq[ApplicationWithHistory]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchApplication(applicationId))
+      }
+    }
+    "when retry logic is enabled should retry on failure" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[ApplicationWithHistory](meq(url))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(response)
+      )
+
+      await(connector.fetchApplication(applicationId)) shouldBe response
     }
   }
 
@@ -365,17 +437,26 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
   "getClientCredentials" should {
     val appId = "APP_ID"
     val url = s"$baseUrl/application/$appId/credentials"
+    val productionSecret = "production-secret"
+    val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
 
     "return the client credentials" in new Setup {
-      val productionSecret = "production-secret"
-      val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
-
       when(mockHttpClient.GET[GetClientCredentialsResult](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(expected))
 
       val result = await(connector.getClientCredentials(appId))
 
       result shouldBe expected
+    }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[GetClientCredentialsResult](meq(url))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(expected)
+      )
+
+      await(connector.getClientCredentials(appId)) shouldBe expected
     }
   }
 
@@ -509,6 +590,16 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
         await(connector.searchApplications(params))
       }
     }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[PaginatedApplicationResponse](any(), any())(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(expectedResponse)
+      )
+      val result = await(connector.searchApplications(params))
+      result shouldBe expectedResponse
+    }
   }
 
   "search collaborators" should {
@@ -543,6 +634,18 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
 
       result shouldBe Seq(email)
     }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+      private val email = "user@example.com"
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[String]](meq(url), meq(expectedQueryParams))(any(), any(), any())).thenReturn(
+        Future.failed(new BadRequestException("")),
+        Future.successful(Seq(email))
+      )
+      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", None))
+      result shouldBe Seq(email)
+    }
   }
 
   "http" when {
@@ -556,7 +659,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
         connector.http shouldBe mockProxiedHttpClient
 
-        verify(mockProxiedHttpClient).withHeaders(bearer)
+        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
       }
     }
   }
