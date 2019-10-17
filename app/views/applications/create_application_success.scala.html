@@ -39,10 +39,7 @@
         <span class="visually-hidden">Warning</span>
     </i>
 
-    @{accessType match {
-        case Some(AccessType.PRIVILEGED) => <strong class="bold-small">This is your only chance to copy and save this application's TOTP.</strong>
-        case Some(AccessType.ROPC) => <strong class="bold-small">This is your only chance to copy and save this application's {secretType}</strong>
-    }}
+    <strong class="bold-small">This is your only chance to copy and save this application's TOTP.</strong>
 
 </div>
 
@@ -74,12 +71,6 @@
             <th>TOTP secret</th>
             <td>@totpSecret.get.production</td>
         </tr>
-    }
-    @if(accessType == Some(AccessType.ROPC)) {
-    <tr>
-        <th>Client secret</th>
-        <td>@clientSecret</td>
-    </tr>
     }
     <tr>
         <th>Client ID</th>
