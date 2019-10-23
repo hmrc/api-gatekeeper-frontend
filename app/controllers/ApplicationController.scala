@@ -277,7 +277,6 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
       implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: DeleteApplicationForm) = {
-            Logger.info(s"Pomegranate - In ApplicationController.deleteApplicationAction() - before the if - app.application.name = *${app.application.name}*, form.applicationNameConfirmation = *${form.applicationNameConfirmation}*")
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
                 case ApplicationDeleteSuccessResult => Ok(delete_application_success(app))
@@ -285,7 +284,6 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
               }
             }
             else {
-              Logger.info(s"Pomegranate - In ApplicationController.deleteApplicationAction() - in the else - app.application.name = *${app.application.name}*, form.applicationNameConfirmation = *${form.applicationNameConfirmation}*")
               val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
               Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, formWithErrors)))
