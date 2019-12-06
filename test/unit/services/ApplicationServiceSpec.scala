@@ -30,7 +30,7 @@ import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.mockito.MockitoSugar
 import services.{ApplicationService, SubscriptionFieldsService}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -415,6 +415,54 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       }
 
       verify(mockProductionApplicationConnector, never).updateScopes(anyString, any[UpdateScopesRequest])(any[HeaderCarrier])
+    }
+  }
+
+  "addWhitelistedIp" should {
+    "send the updated IP whitelist to the TPA connector" in new Setup {
+      val existingWhitelistedIp = "192.168.1.0/24"
+      val app: ApplicationResponse = stdApp1.copy(ipWhitelist = Set(existingWhitelistedIp))
+      val newWhitelistedIp = "192.168.2.0/24"
+      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+        .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+
+      val result: UpdateIpWhitelistResult = await(underTest.addWhitelistedIp(app, newWhitelistedIp))
+
+      result shouldBe UpdateIpWhitelistSuccessResult
+      verify(mockProductionApplicationConnector).updateIpWhitelist(mEq(app.id.toString), mEq(Set(existingWhitelistedIp, newWhitelistedIp)))(any[HeaderCarrier])
+    }
+
+    "propagate connector errors" in new Setup {
+      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+        .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
+
+      intercept[Upstream5xxResponse] {
+        await(underTest.addWhitelistedIp(stdApp1, "192.168.1.0/24"))
+      }
+    }
+  }
+
+  "removeWhitelistedIp" should {
+    "send the updated IP whitelist to the TPA connector" in new Setup {
+      val whitelistedIpToKeep = "192.168.1.0/24"
+      val whitelistedIpToRemove = "192.168.2.0/24"
+      val app: ApplicationResponse = stdApp1.copy(ipWhitelist = Set(whitelistedIpToKeep, whitelistedIpToRemove))
+      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+        .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+
+      val result: UpdateIpWhitelistResult = await(underTest.removeWhitelistedIp(app, whitelistedIpToRemove))
+
+      result shouldBe UpdateIpWhitelistSuccessResult
+      verify(mockProductionApplicationConnector).updateIpWhitelist(mEq(app.id.toString), mEq(Set(whitelistedIpToKeep)))(any[HeaderCarrier])
+    }
+
+    "propagate connector errors" in new Setup {
+      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+        .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
+
+      intercept[Upstream5xxResponse] {
+        await(underTest.removeWhitelistedIp(stdApp1, "192.168.1.0/24"))
+      }
     }
   }
 

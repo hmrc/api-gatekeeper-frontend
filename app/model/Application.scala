@@ -163,7 +163,8 @@ case class ApplicationResponse(id: UUID,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
-                               blocked: Boolean = false)
+                               blocked: Boolean = false,
+                               ipWhitelist: Set[String] = Set.empty)
   extends Application
 
 object ApplicationResponse {
@@ -202,7 +203,8 @@ object ApplicationResponse {
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
-      ((JsPath \ "blocked").read[Boolean] or Reads.pure(false))
+      ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
+      ((JsPath \ "ipWhitelist").read[Set[String]] or Reads.pure(Set.empty[String]))
     ) (ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {

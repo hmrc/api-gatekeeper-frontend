@@ -125,3 +125,21 @@ th {
     }
   }
 }
+
+.ip-whitelist {
+  h1 {
+    width: 60%;
+  }
+
+  table {
+    width: 40%;
+
+    td:nth-of-type(2) {
+      text-align: right;
+    }
+  }
+
+  input {
+    width: 25%;
+  }
+}

@@ -16,17 +16,19 @@
 
 package model
 
+import model.ApiSubscriptionFields._
+import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
-import model.Environment._
-import model.ApiSubscriptionFields._
-import play.api.data.{Form, FormError}
+import org.apache.commons.net.util.SubnetUtils
 import play.api.data.Forms._
 import play.api.data.format.Formatter
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 package object Forms {
 
@@ -50,6 +52,7 @@ package object Forms {
     val applicationDescription = "applicationDescription"
     val adminEmail = "adminEmail"
     val environment = "environment"
+    val whitelistedIp = "whitelistedIp"
   }
 
   val accessOverridesForm = Form (
@@ -131,6 +134,24 @@ package object Forms {
     mapping (
       "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
+
+  case class WhitelistedIpForm(whitelistedIp: String)
+
+  object WhitelistedIpForm {
+    val whitelistedIpConstraint: Constraint[String] = Constraint({
+      whitelistedIp =>
+        Try(new SubnetUtils(whitelistedIp)) match {
+          case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid")))
+          case _ =>
+            if (whitelistedIp.split("/")(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
+            else Valid
+        }
+    })
+
+    val form = Form(mapping(
+      whitelistedIp -> text.verifying(whitelistedIpConstraint).verifying("whitelistedIp.required", _.nonEmpty)
+    )(WhitelistedIpForm.apply)(WhitelistedIpForm.unapply))
+  }
 
   val deleteApplicationForm = Form(
     mapping(

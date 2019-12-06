@@ -285,6 +285,27 @@
             }
         </tr>
         <tr>
+            <th>
+                <h3>Whitelisted IPs</h3>
+            </th>
+            <td>
+            @if(application.ipWhitelist.isEmpty) {
+                <span class="faded-text">No whitelisted IPs</span>
+            } else {
+                <table class="table-plain">
+                @for(ipRange <-application.ipWhitelist.toSeq.sorted) {
+                    <tr><td>@ipRange</td></tr>
+                }
+                </table>
+            }
+            </td>
+            <td>
+            @if(isAtLeastSuperUser) {
+                <a href="@{routes.ApplicationController.manageIpWhitelist(application.id.toString)}" class="button--link" role="button">Manage</a>
+            }
+            </td>
+        </tr>
+        <tr>
             <th><h3>API subscriptions</h3></th>
             <td data-subscriptions>
               <table class="table-plain">
