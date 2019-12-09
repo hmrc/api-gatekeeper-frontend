@@ -237,6 +237,58 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         }
   }
 
+  def manageIpWhitelist(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(manage_ip_whitelist(app.application)))
+        }
+  }
+
+  def removeWhitelistedIp(appId: String, whitelistedIp: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(remove_whitelisted_ip(app.application, whitelistedIp)))
+        }
+  }
+
+  def removeWhitelistedIpAction(appId: String, whitelistedIp: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          applicationService.removeWhitelistedIp(app.application, whitelistedIp).map { _ =>
+            Redirect(routes.ApplicationController.manageIpWhitelist(appId))
+          }
+        }
+  }
+
+  def addWhitelistedIp(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          Future.successful(Ok(add_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(WhitelistedIpForm("")))))
+        }
+  }
+
+  def addWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withApp(appId) { app =>
+          def handleValidForm(form: WhitelistedIpForm) = {
+            applicationService.addWhitelistedIp(app.application, form.whitelistedIp).map { _ =>
+              Redirect(routes.ApplicationController.manageIpWhitelist(appId))
+            }
+          }
+
+          def handleFormError(form: Form[WhitelistedIpForm]) = {
+            Future.successful(BadRequest(add_whitelisted_ip(app.application, form)))
+          }
+
+          WhitelistedIpForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+        }
+  }
+
   def manageRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
       implicit hc =>

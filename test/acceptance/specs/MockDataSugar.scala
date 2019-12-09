@@ -238,7 +238,8 @@ trait MockDataSugar {
        |      "approvedOn": 1459968573962,
        |      "verified": true
        |    },
-       |    "blocked": false
+       |    "blocked": false,
+       |    "ipWhitelist": []
        |  },
        |  "history": [
        |      {
@@ -344,7 +345,8 @@ trait MockDataSugar {
        |      "approvedOn": 1459968573962,
        |      "verified": true
        |    },
-       |    "blocked": false
+       |    "blocked": false,
+       |    "ipWhitelist": []
        |  },
        |  "history": [
        |      {
@@ -429,7 +431,8 @@ trait MockDataSugar {
        |      }]
        |    },
        |    "subscriptions": [],
-       |    "blocked": false
+       |    "blocked": false,
+       |    "ipWhitelist": []
        |  },
        |  "history": [
        |      {
@@ -516,7 +519,8 @@ trait MockDataSugar {
        |      }]
        |    },
        |    "subscriptions": [],
-       |    "blocked": true
+       |    "blocked": true,
+       |    "ipWhitelist": []
        |  },
        |  "history": [
        |      {

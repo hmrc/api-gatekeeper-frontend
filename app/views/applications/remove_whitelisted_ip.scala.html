@@ -1,0 +1,62 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import utils.LoggedInUser
+
+@(application: ApplicationResponse, whitelistedIp: String)(implicit request: Request[_], loggedInUser: LoggedInUser, message: Messages, appConfig: config.AppConfig)
+
+@main(title = s"${appConfig.title} - Remove whitelisted IP") {
+
+<div class="ip-whitelist">
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.manageIpWhitelist(application.id.toString)}">Manage whitelisted IPs</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Remove whitelisted IP</li>
+        </ul>
+    </nav>
+
+    <h1 class="heading-xlarge">Are you sure you want to remove this IP?</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="hard">Whitelisted IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@whitelistedIp</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    @helper.form(action = controllers.routes.ApplicationController.removeWhitelistedIpAction(application.id.toString, whitelistedIp)) {
+        @helper.CSRF.formField
+        <div class="form-field">
+            <button id="submit" class="button button--padded" type="submit">Remove IP</button>
+            <a href="@routes.ApplicationController.manageIpWhitelist(application.id.toString)" class="secondary-button">Cancel</a>
+        </div>
+    }
+
+</div>
+
+}

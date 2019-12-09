@@ -360,6 +360,31 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
   }
 
+  "updateIpWhitelist" should {
+    val applicationId = "anApplicationId"
+    val url = s"$baseUrl/application/$applicationId/ipWhitelist"
+    val newIpWhitelist = Set("192.168.1.0/24", "192.168.2.0/24")
+
+    "make a PUT request and return a successful result if the request was successful on the backend" in new Setup {
+      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](meq(url), meq(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK)))
+
+      val result = await(connector.updateIpWhitelist(applicationId, newIpWhitelist))
+
+      result shouldBe UpdateIpWhitelistSuccessResult
+      verify(mockHttpClient).PUT(meq(url), meq(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any())
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](meq(url), meq(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.updateIpWhitelist(applicationId, newIpWhitelist))
+      }
+    }
+  }
+
   "subscribeToApi" should {
     val applicationId = "anApplicationId"
     val url = s"$baseUrl/application/$applicationId/subscription"

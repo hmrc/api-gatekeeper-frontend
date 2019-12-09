@@ -40,6 +40,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import unit.utils.WithCSRFAddToken
+import utils.CSRFTokenHelper._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,9 +55,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     trait Setup extends ControllerSetupBase {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
-      override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken)
+      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
+      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
+      override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
         basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), Seq.empty)
@@ -332,6 +333,202 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateScopes(any[ApplicationResponse], any[Set[String]])(any[HeaderCarrier])
+      }
+    }
+
+    "manageIpWhitelist" should {
+      "return the manage whitelisted IPs page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.manageIpWhitelist(applicationId)(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Manage whitelisted IPs")
+      }
+
+      "return the manage whitelisted IPs page for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.manageIpWhitelist(applicationId)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Manage whitelisted IPs")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.manageIpWhitelist(applicationId)(aLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        bodyOf(result) should include("You do not have permission")
+      }
+    }
+
+    "removeWhitelistedIp" should {
+      val whitelistedIpToRemove: String = "192.168.1.0/24"
+
+      "return the remove whitelisted IP page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.removeWhitelistedIp(applicationId, whitelistedIpToRemove)(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Remove whitelisted IP")
+      }
+
+      "return the remove whitelisted IP page for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.removeWhitelistedIp(applicationId, whitelistedIpToRemove)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Remove whitelisted IP")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.removeWhitelistedIp(applicationId, whitelistedIpToRemove)(aLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        bodyOf(result) should include("You do not have permission")
+      }
+    }
+
+    "removeWhitelistedIpAction" should {
+      val whitelistedIpToRemove: String = "192.168.1.0/24"
+
+      "remove whitelisted IP using the app service and redirect to the manage whitelisted IPs page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.removeWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+
+        val result = await(underTest.removeWhitelistedIpAction(applicationId, whitelistedIpToRemove)(anAdminLoggedInRequest))
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
+        verify(mockApplicationService).removeWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToRemove))(any[HeaderCarrier])
+      }
+
+      "remove whitelisted IP using the app service and redirect to the manage whitelisted IPs page for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.removeWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+
+        val result = await(underTest.removeWhitelistedIpAction(applicationId, whitelistedIpToRemove)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
+        verify(mockApplicationService).removeWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToRemove))(any[HeaderCarrier])
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.removeWhitelistedIpAction(applicationId, whitelistedIpToRemove)(aLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        bodyOf(result) should include("You do not have permission")
+      }
+    }
+
+    "addWhitelistedIp" should {
+      "return the add whitelisted IP page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.addWhitelistedIp(applicationId)(anAdminLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Add whitelisted IP")
+      }
+
+      "return the add whitelisted IP page for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.addWhitelistedIp(applicationId)(aSuperUserLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("Add whitelisted IP")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.addWhitelistedIp(applicationId)(aLoggedInRequest))
+
+        status(result) shouldBe FORBIDDEN
+        bodyOf(result) should include("You do not have permission")
+      }
+    }
+
+    "addWhitelistedIpAction" should {
+      val whitelistedIpToAdd: String = "192.168.1.0/24"
+
+      "add whitelisted IP using the app service and redirect to the manage whitelisted IPs page for an admin" in new Setup {
+        givenTheUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.addWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
+
+        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
+        verify(mockApplicationService).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+      }
+
+      "add whitelisted IP using the app service and redirect to the manage whitelisted IPs page for a super user" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.addWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
+
+        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
+        verify(mockApplicationService).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+      }
+
+      "error" in new Setup {
+        val invalidWhitelistedIps: Seq[String] = Seq("192.168.1.0", "192.168.1.0/33", "192.168.1.0/23", "192.168.1.0/", "192.168.1/24")
+        invalidWhitelistedIps.foreach { invalidWhitelistedIp =>
+          givenTheUserIsAuthorisedAndIsASuperUser()
+          givenTheAppWillBeReturned()
+          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> invalidWhitelistedIp)
+
+          val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+
+          status(result) shouldBe BAD_REQUEST
+          bodyOf(result) should include("Manage whitelisted IPs")
+          verify(mockApplicationService, times(0)).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+        }
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+        val request = aLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
+
+        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+
+        status(result) shouldBe FORBIDDEN
+        bodyOf(result) should include("You do not have permission")
       }
     }
 

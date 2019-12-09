@@ -28,7 +28,7 @@ import model._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
 
@@ -154,6 +154,11 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   def updateScopes(applicationId: String, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
     http.PUT[UpdateScopesRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/access/scopes", updateScopesRequest)
       .map(_ => UpdateScopesSuccessResult)
+  }
+
+  def updateIpWhitelist(applicationId: String, ipWhitelist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
+    http.PUT[UpdateIpWhitelistRequest, HttpResponse](s"$serviceBaseUrl/application/$applicationId/ipWhitelist", UpdateIpWhitelistRequest(ipWhitelist))
+      .map(_ => UpdateIpWhitelistSuccessResult)
   }
 
   def subscribeToApi(applicationId: String, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
