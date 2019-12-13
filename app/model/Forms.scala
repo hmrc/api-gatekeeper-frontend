@@ -30,7 +30,7 @@ import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 import scala.util.{Failure, Try}
 
-package object Forms {
+object Forms {
 
   private val scopesRegex = """^[a-z:\-\,\s][^\r\n]+$""".r
   private def validScopes = text.verifying("override.scopes.incorrect", s => scopesRegex.findFirstIn(s).isDefined)
@@ -138,12 +138,19 @@ package object Forms {
   case class WhitelistedIpForm(whitelistedIp: String)
 
   object WhitelistedIpForm {
+    val privateNetworkRanges = Set(
+      new SubnetUtils("10.0.0.0/8").getInfo,
+      new SubnetUtils("172.16.0.0/12").getInfo,
+      new SubnetUtils("192.168.0.0/16").getInfo
+    )
     val whitelistedIpConstraint: Constraint[String] = Constraint({
       whitelistedIp =>
         Try(new SubnetUtils(whitelistedIp)) match {
           case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid")))
           case _ =>
-            if (whitelistedIp.split("/")(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
+            val ipAndMask = whitelistedIp.split("/")
+            if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private")))
+            else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
             else Valid
         }
     })

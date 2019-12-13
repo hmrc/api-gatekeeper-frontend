@@ -43,7 +43,7 @@
     </td>
     <td>
         @if(isAtLeastSuperUser) {
-        <a href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
+        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -87,7 +87,7 @@
     </td>
     <td>
         @if(isAtLeastSuperUser) {
-            <a href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
+            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -301,7 +301,7 @@
             </td>
             <td>
             @if(isAtLeastSuperUser) {
-                <a href="@{routes.ApplicationController.manageIpWhitelist(application.id.toString)}" class="button--link" role="button">Manage</a>
+                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageIpWhitelist(application.id.toString)}" class="button--link" role="button">Manage</a>
             }
             </td>
         </tr>
@@ -360,7 +360,7 @@
             </td>
             <td class="no-border">
                 @if(isAtLeastSuperUser || application.access.accessType == AccessType.STANDARD) {
-                    <a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
+                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>

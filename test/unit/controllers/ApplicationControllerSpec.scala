@@ -369,7 +369,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "removeWhitelistedIp" should {
-      val whitelistedIpToRemove: String = "192.168.1.0/24"
+      val whitelistedIpToRemove: String = "1.1.1.0/24"
 
       "return the remove whitelisted IP page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
@@ -403,7 +403,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "removeWhitelistedIpAction" should {
-      val whitelistedIpToRemove: String = "192.168.1.0/24"
+      val whitelistedIpToRemove: String = "1.1.1.0/24"
 
       "remove whitelisted IP using the app service and redirect to the manage whitelisted IPs page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
@@ -475,7 +475,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
     }
 
     "addWhitelistedIpAction" should {
-      val whitelistedIpToAdd: String = "192.168.1.0/24"
+      val whitelistedIpToAdd: String = "1.1.1.0/24"
 
       "add whitelisted IP using the app service and redirect to the manage whitelisted IPs page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
@@ -505,8 +505,18 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(mockApplicationService).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
       }
 
-      "error" in new Setup {
-        val invalidWhitelistedIps: Seq[String] = Seq("192.168.1.0", "192.168.1.0/33", "192.168.1.0/23", "192.168.1.0/", "192.168.1/24")
+      "return bad request for invalid values" in new Setup {
+        val invalidWhitelistedIps: Seq[String] = Seq(
+          "1.1.1.0", // no mask
+          "1.1.1.0/33", // mask greater than 32
+          "1.1.1.0/23", // mask less than 24
+          "1.1.1.0/", // incomplete mask
+          "1.1.1/24", // IP address missing one octet
+          "10.1.1.0/24", // within a private network range
+          "172.20.1.0/24", // within a private network range
+          "192.168.1.0/24" // within a private network range
+        )
+
         invalidWhitelistedIps.foreach { invalidWhitelistedIp =>
           givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
