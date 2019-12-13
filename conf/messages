@@ -4,6 +4,7 @@ override.scopes.incorrect=You must choose at least one correct scope
 scopes.required=Scopes are required
 whitelistedIp.required=Required field
 whitelistedIp.invalid=Invalid value
+whitelistedIp.invalid.private=Private network range
 whitelistedIp.invalid.range=Out of range
 invalid.scope=You have used a scope we don''t recognise
 application.administrator.missing=Choose an administrator
