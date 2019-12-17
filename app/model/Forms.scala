@@ -138,11 +138,14 @@ object Forms {
   case class WhitelistedIpForm(whitelistedIp: String)
 
   object WhitelistedIpForm {
-    val privateNetworkRanges = Set(
-      new SubnetUtils("10.0.0.0/8").getInfo,
-      new SubnetUtils("172.16.0.0/12").getInfo,
-      new SubnetUtils("192.168.0.0/16").getInfo
-    )
+    private val privateNetworkRanges = Set(
+      new SubnetUtils("10.0.0.0/8"),
+      new SubnetUtils("172.16.0.0/12"),
+      new SubnetUtils("192.168.0.0/16")
+    ) map { su =>
+      su.setInclusiveHostCount(true)
+      su.getInfo
+    }
     val whitelistedIpConstraint: Constraint[String] = Constraint({
       whitelistedIp =>
         Try(new SubnetUtils(whitelistedIp)) match {

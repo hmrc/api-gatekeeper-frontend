@@ -514,7 +514,9 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           "1.1.1/24", // IP address missing one octet
           "10.1.1.0/24", // within a private network range
           "172.20.1.0/24", // within a private network range
-          "192.168.1.0/24" // within a private network range
+          "192.168.1.0/24", // within a private network range
+          "10.0.0.0/24", // within a private network range, using the network address
+          "10.255.255.255/24" // within a private network range, using the broadcast address
         )
 
         invalidWhitelistedIps.foreach { invalidWhitelistedIp =>
