@@ -426,7 +426,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
 
-      val result: UpdateIpWhitelistResult = await(underTest.addWhitelistedIp(app, newWhitelistedIp))
+      val result: UpdateIpWhitelistResult = await(underTest.updateWhitelistedIp(app, newWhitelistedIp))
 
       result shouldBe UpdateIpWhitelistSuccessResult
       verify(mockProductionApplicationConnector).updateIpWhitelist(mEq(app.id.toString), mEq(Set(existingWhitelistedIp, newWhitelistedIp)))(any[HeaderCarrier])
@@ -437,7 +437,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
         .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
 
       intercept[Upstream5xxResponse] {
-        await(underTest.addWhitelistedIp(stdApp1, "192.168.1.0/24"))
+        await(underTest.updateWhitelistedIp(stdApp1, "192.168.1.0/24"))
       }
     }
   }

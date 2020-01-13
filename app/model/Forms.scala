@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import model.OverrideType._
 import org.apache.commons.net.util.SubnetUtils
 import play.api.data.Forms._
 import play.api.data.format.Formatter
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError, ValidationResult}
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
@@ -130,12 +130,16 @@ object Forms {
     }
   }
 
+  object ScopesForm {
+    def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet
+
+    def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
+  }
+
   val scopesForm = Form (
     mapping (
       "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
-
-  case class WhitelistedIpForm(whitelistedIp: String)
 
   object WhitelistedIpForm {
     private val privateNetworkRanges = Set(
@@ -147,20 +151,38 @@ object Forms {
       su.getInfo
     }
     val whitelistedIpConstraint: Constraint[String] = Constraint({
-      whitelistedIp =>
-        Try(new SubnetUtils(whitelistedIp)) match {
-          case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid")))
-          case _ =>
-            val ipAndMask = whitelistedIp.split("/")
-            if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private")))
-            else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
-            else Valid
-        }
+      whitelistedIps => toSetOfWhitelistedIp(whitelistedIps).map(validateWhitelistedIp(_)).reduce(reduceValidationResults)
     })
+
+    def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
+      (a, b) match {
+        case (Valid, Valid) => Valid
+        case (Valid, i: Invalid) => i
+        case (i: Invalid, Valid) => i
+        case (Invalid(e1), Invalid(e2)) => Invalid(e1 ++ e2)
+      }
+
+    }
+
+    def validateWhitelistedIp(whitelistedIp: String): ValidationResult = {
+
+      Try(new SubnetUtils(whitelistedIp)) match {
+        case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid")))
+        case _ =>
+          val ipAndMask = whitelistedIp.split("/")
+          if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private")))
+          else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
+          else Valid
+      }
+    }
+
+    def toSetOfWhitelistedIp(whitelistedIps: String): Set[String] = whitelistedIps.split(",").map(_.trim).toSet
+
+    def fromSetOfWhitelistedIp(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString(", "))
 
     val form = Form(mapping(
       whitelistedIp -> text.verifying(whitelistedIpConstraint).verifying("whitelistedIp.required", _.nonEmpty)
-    )(WhitelistedIpForm.apply)(WhitelistedIpForm.unapply))
+    )(WhitelistedIpForm.toSetOfWhitelistedIp)(WhitelistedIpForm.fromSetOfWhitelistedIp))
   }
 
   val deleteApplicationForm = Form(
@@ -179,11 +201,7 @@ object Forms {
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
     )(UnblockApplicationForm.apply)(UnblockApplicationForm.unapply))
 
-  object ScopesForm {
-    def toSetOfScopes(scopes: String): Set[String] = scopes.split(",").map(_.trim).toSet
 
-    def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
-  }
 
   val createPrivOrROPCAppForm = Form(
     mapping(

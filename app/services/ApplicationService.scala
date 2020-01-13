@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,12 +196,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def addWhitelistedIp(application: ApplicationResponse, whitelistedIp: String)(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    applicationConnectorFor(application).updateIpWhitelist(application.id.toString, application.ipWhitelist + whitelistedIp)
-  }
-
-  def removeWhitelistedIp(application: ApplicationResponse, whitelistedIp: String)(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    applicationConnectorFor(application).updateIpWhitelist(application.id.toString, application.ipWhitelist - whitelistedIp)
+  def updateWhitelistedIp(application: ApplicationResponse, whitelistedIp: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
+    applicationConnectorFor(application).updateIpWhitelist(application.id.toString, application.ipWhitelist ++ whitelistedIp)
   }
 
   def subscribeToApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

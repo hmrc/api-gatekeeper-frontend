@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,52 +237,26 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         }
   }
 
-  def manageIpWhitelist(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def updateWhitelistedIp(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          Future.successful(Ok(manage_ip_whitelist(app.application)))
+          Future.successful(Ok(update_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
         }
   }
 
-  def removeWhitelistedIp(appId: String, whitelistedIp: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-      implicit hc =>
-        withApp(appId) { app =>
-          Future.successful(Ok(remove_whitelisted_ip(app.application, whitelistedIp)))
-        }
-  }
-
-  def removeWhitelistedIpAction(appId: String, whitelistedIp: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-      implicit hc =>
-        withApp(appId) { app =>
-          applicationService.removeWhitelistedIp(app.application, whitelistedIp).map { _ =>
-            Redirect(routes.ApplicationController.manageIpWhitelist(appId))
-          }
-        }
-  }
-
-  def addWhitelistedIp(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-      implicit hc =>
-        withApp(appId) { app =>
-          Future.successful(Ok(add_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(WhitelistedIpForm("")))))
-        }
-  }
-
-  def addWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def updateWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: WhitelistedIpForm) = {
-            applicationService.addWhitelistedIp(app.application, form.whitelistedIp).map { _ =>
-              Redirect(routes.ApplicationController.manageIpWhitelist(appId))
+            applicationService.updateWhitelistedIp(app.application, form.whitelistedIps).map { _ =>
+              Redirect(routes.ApplicationController.applicationPage(appId))
             }
           }
 
           def handleFormError(form: Form[WhitelistedIpForm]) = {
-            Future.successful(BadRequest(add_whitelisted_ip(app.application, form)))
+            Future.successful(BadRequest(update_whitelisted_ip(app.application, form)))
           }
 
           WhitelistedIpForm.form.bindFromRequest.fold(handleFormError, handleValidForm)

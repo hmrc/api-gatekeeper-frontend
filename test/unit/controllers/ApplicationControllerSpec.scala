@@ -447,7 +447,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.addWhitelistedIp(applicationId)(anAdminLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIp(applicationId)(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Add whitelisted IP")
@@ -457,7 +457,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.addWhitelistedIp(applicationId)(aSuperUserLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIp(applicationId)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Add whitelisted IP")
@@ -467,7 +467,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.addWhitelistedIp(applicationId)(aLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIp(applicationId)(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
         bodyOf(result) should include("You do not have permission")
@@ -480,29 +480,29 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "add whitelisted IP using the app service and redirect to the manage whitelisted IPs page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.addWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+        given(mockApplicationService.updateWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
 
-        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.updateWhitelistedIpAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
-        verify(mockApplicationService).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+        verify(mockApplicationService).updateWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
       }
 
       "add whitelisted IP using the app service and redirect to the manage whitelisted IPs page for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.addWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
+        given(mockApplicationService.updateWhitelistedIp(any[ApplicationResponse], any[String])(any[HeaderCarrier]))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
 
-        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.updateWhitelistedIpAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/ip-whitelist")
-        verify(mockApplicationService).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+        verify(mockApplicationService).updateWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
       }
 
       "return bad request for invalid values" in new Setup {
@@ -524,11 +524,11 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           givenTheAppWillBeReturned()
           val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> invalidWhitelistedIp)
 
-          val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+          val result = await(underTest.updateWhitelistedIpAction(applicationId)(request))
 
           status(result) shouldBe BAD_REQUEST
           bodyOf(result) should include("Manage whitelisted IPs")
-          verify(mockApplicationService, times(0)).addWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
+          verify(mockApplicationService, times(0)).updateWhitelistedIp(eqTo(application.application), eqTo(whitelistedIpToAdd))(any[HeaderCarrier])
         }
       }
 
@@ -537,7 +537,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheAppWillBeReturned()
         val request = aLoggedInRequest.withFormUrlEncodedBody("whitelistedIp" -> whitelistedIpToAdd)
 
-        val result = await(underTest.addWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.updateWhitelistedIpAction(applicationId)(request))
 
         status(result) shouldBe FORBIDDEN
         bodyOf(result) should include("You do not have permission")
