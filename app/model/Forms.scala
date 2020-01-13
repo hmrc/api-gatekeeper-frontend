@@ -52,7 +52,6 @@ object Forms {
     val applicationDescription = "applicationDescription"
     val adminEmail = "adminEmail"
     val environment = "environment"
-    val whitelistedIp = "whitelistedIp"
   }
 
   val accessOverridesForm = Form (
@@ -136,7 +135,7 @@ object Forms {
     def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
   }
 
-  val scopesForm = Form (
+  val scopesForm: Form[Set[String]] = Form (
     mapping (
       "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
@@ -150,8 +149,8 @@ object Forms {
       su.setInclusiveHostCount(true)
       su.getInfo
     }
-    val whitelistedIpConstraint: Constraint[String] = Constraint({
-      whitelistedIps => toSetOfWhitelistedIp(whitelistedIps).map(validateWhitelistedIp(_)).reduce(reduceValidationResults)
+    val whitelistedIpsConstraint: Constraint[String] = Constraint({
+      whitelistedIps => toSetOfWhitelistedIps(whitelistedIps).map(validateWhitelistedIp).reduce(reduceValidationResults)
     })
 
     def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
@@ -176,13 +175,13 @@ object Forms {
       }
     }
 
-    def toSetOfWhitelistedIp(whitelistedIps: String): Set[String] = whitelistedIps.split(",").map(_.trim).toSet
+    def toSetOfWhitelistedIps(whitelistedIps: String): Set[String] = whitelistedIps.split(",").map(_.trim).toSet
 
-    def fromSetOfWhitelistedIp(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString(", "))
+    def fromSetOfWhitelistedIps(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString(", "))
 
-    val form = Form(mapping(
-      whitelistedIp -> text.verifying(whitelistedIpConstraint).verifying("whitelistedIp.required", _.nonEmpty)
-    )(WhitelistedIpForm.toSetOfWhitelistedIp)(WhitelistedIpForm.fromSetOfWhitelistedIp))
+    val form: Form[Set[String]] = Form(mapping(
+      "whitelistedIps" -> text.verifying(whitelistedIpsConstraint).verifying("whitelistedIp.required", _.nonEmpty)
+    )(WhitelistedIpForm.toSetOfWhitelistedIps)(WhitelistedIpForm.fromSetOfWhitelistedIps))
   }
 
   val deleteApplicationForm = Form(

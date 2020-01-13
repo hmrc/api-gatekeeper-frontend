@@ -19,7 +19,7 @@
 @import utils.LoggedInUser
 @import model.Forms.WhitelistedIpForm
 
-@(application: ApplicationResponse, form: Form[WhitelistedIpForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
 @main(title = s"${appConfig.title} - Update whitelisted IP") {
 
@@ -42,19 +42,19 @@
         <p>Separate multiple IP addresses per line</p>
         @helper.CSRF.formField
         <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
-            <label for="whitelistedIp" id="whitelistedIp-label">IP address</label>
-            @fieldError(form.errors, "whitelistedIp", false)
+            <label for="whitelistedIps" id="whitelistedIps-label">IP address</label>
+            @fieldError(form.errors, "whitelistedIps", false)
             <textarea
             inputtype="text"
-            id="whitelistedIp"
-            name="whitelistedIp"
+            id="whitelistedIps"
+            name="whitelistedIps"
             cols="20"
             rows="5"
             style="resize:none"
             value="@form.data.getOrElse("whitelistedIps", "")"
-            class="form-control @if(form.errors("whitelistedIp").nonEmpty) {form-control-error}"
-            aria-labelledby="whitelistedIp-label"
-            aria-describedby="whitelistedIp-note"></textarea>
+            class="form-control @if(form.errors("whitelistedIps").nonEmpty) {form-control-error}"
+            aria-labelledby="whitelistedIps-label"
+            aria-describedby="whitelistedIps-note"></textarea>
         </div>
 
         <div class="form-field">
