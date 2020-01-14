@@ -150,7 +150,7 @@ object Forms {
       su.getInfo
     }
     val whitelistedIpsConstraint: Constraint[String] = Constraint({
-      whitelistedIps => toSetOfWhitelistedIps(whitelistedIps).map(validateWhitelistedIp).reduce(reduceValidationResults)
+      whitelistedIps => toSetOfWhitelistedIps(whitelistedIps).map(validateWhitelistedIp).fold(Valid)(reduceValidationResults)
     })
 
     def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
@@ -166,21 +166,21 @@ object Forms {
     def validateWhitelistedIp(whitelistedIp: String): ValidationResult = {
 
       Try(new SubnetUtils(whitelistedIp)) match {
-        case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid")))
+        case Failure(_) => Invalid(Seq(ValidationError("whitelistedIp.invalid", whitelistedIp)))
         case _ =>
           val ipAndMask = whitelistedIp.split("/")
-          if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private")))
-          else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range")))
+          if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private", whitelistedIp)))
+          else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range", whitelistedIp)))
           else Valid
       }
     }
 
-    def toSetOfWhitelistedIps(whitelistedIps: String): Set[String] = whitelistedIps.split(",").map(_.trim).toSet
+    def toSetOfWhitelistedIps(whitelistedIps: String): Set[String] = whitelistedIps.split("""\s+""").map(_.trim).toSet.filterNot(_.isEmpty)
 
-    def fromSetOfWhitelistedIps(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString(", "))
+    def fromSetOfWhitelistedIps(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString("\n"))
 
     val form: Form[Set[String]] = Form(mapping(
-      "whitelistedIps" -> text.verifying(whitelistedIpsConstraint).verifying("whitelistedIp.required", _.nonEmpty)
+      "whitelistedIps" -> text.verifying(whitelistedIpsConstraint)
     )(WhitelistedIpForm.toSetOfWhitelistedIps)(WhitelistedIpForm.fromSetOfWhitelistedIps))
   }
 
@@ -274,3 +274,5 @@ object Forms {
     )
   }
 }
+
+

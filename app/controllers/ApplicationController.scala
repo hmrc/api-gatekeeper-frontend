@@ -249,13 +249,13 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          def handleValidForm(form: WhitelistedIpForm) = {
-            applicationService.updateWhitelistedIp(app.application, form.whitelistedIps).map { _ =>
+          def handleValidForm(whitelistedIps: Set[String]) = {
+            applicationService.updateWhitelistedIp(app.application, whitelistedIps).map { _ =>
               Redirect(routes.ApplicationController.applicationPage(appId))
             }
           }
 
-          def handleFormError(form: Form[WhitelistedIpForm]) = {
+          def handleFormError(form: Form[Set[String]]) = {
             Future.successful(BadRequest(update_whitelisted_ip(app.application, form)))
           }
 

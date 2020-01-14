@@ -21,7 +21,7 @@
 
 @(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Update whitelisted IP") {
+@main(title = s"${appConfig.title} - Update whitelisted IPs") {
 
 <div class="ip-whitelist">
     <nav class="breadcrumb-nav">
@@ -30,19 +30,19 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Update whitelisted IP</li>
+            <li class="breadcrumb-nav__item">Update whitelisted IPs</li>
         </ul>
     </nav>
 
-    <h1 class="heading-xlarge">Whitelist an IP address</h1>
+    <h1 class="heading-xlarge">Update whitelisted IPs</h1>
 
     @helper.form(action = controllers.routes.ApplicationController.updateWhitelistedIpAction(application.id.toString)) {
-        <p>The IP address must be between the ranges: 0.0.0.0/24 - 255.255.255.255/32</p>
+        <p>Each IP address must be between the ranges: 0.0.0.0/24 - 255.255.255.255/32</p>
         <p>For example: 1.1.1.1/24</p>
-        <p>Separate multiple IP addresses per line</p>
+        <p>Enter each IP address on a separate line.</p>
         @helper.CSRF.formField
         <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
-            <label for="whitelistedIps" id="whitelistedIps-label">IP address</label>
+            <label for="whitelistedIps" id="whitelistedIps-label">IP address ranges:</label>
             @fieldError(form.errors, "whitelistedIps", false)
             <textarea
             inputtype="text"
@@ -50,11 +50,9 @@
             name="whitelistedIps"
             cols="20"
             rows="5"
-            style="resize:none"
-            value="@form.data.getOrElse("whitelistedIps", "")"
             class="form-control @if(form.errors("whitelistedIps").nonEmpty) {form-control-error}"
             aria-labelledby="whitelistedIps-label"
-            aria-describedby="whitelistedIps-note"></textarea>
+            aria-describedby="whitelistedIps-note">@form.data.getOrElse("whitelistedIps", "")</textarea>
         </div>
 
         <div class="form-field">
