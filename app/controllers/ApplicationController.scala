@@ -237,7 +237,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         }
   }
 
-  def updateWhitelistedIp(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def updateWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>

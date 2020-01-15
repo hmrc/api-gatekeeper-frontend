@@ -341,7 +341,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.updateWhitelistedIp(applicationId)(anAdminLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIpPage(applicationId)(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Update whitelisted IP")
@@ -351,7 +351,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.updateWhitelistedIp(applicationId)(aSuperUserLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIpPage(applicationId)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Update whitelisted IP")
@@ -361,7 +361,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.updateWhitelistedIp(applicationId)(aLoggedInRequest))
+        val result = await(underTest.updateWhitelistedIpPage(applicationId)(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
         bodyOf(result) should include("You do not have permission")
