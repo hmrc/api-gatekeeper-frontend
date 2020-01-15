@@ -143,8 +143,10 @@ object Forms {
   object WhitelistedIpForm {
     private val privateNetworkRanges = Set(
       new SubnetUtils("10.0.0.0/8"),
+      new SubnetUtils("127.0.0.1/32"),
       new SubnetUtils("172.16.0.0/12"),
-      new SubnetUtils("192.168.0.0/16")
+      new SubnetUtils("192.168.0.0/16"),
+      new SubnetUtils("255.255.255.255/32")
     ) map { su =>
       su.setInclusiveHostCount(true)
       su.getInfo
