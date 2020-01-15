@@ -143,14 +143,21 @@ object Forms {
   object WhitelistedIpForm {
     private val privateNetworkRanges = Set(
       new SubnetUtils("10.0.0.0/8"),
-      new SubnetUtils("127.0.0.1/32"),
       new SubnetUtils("172.16.0.0/12"),
-      new SubnetUtils("192.168.0.0/16"),
-      new SubnetUtils("255.255.255.255/32")
+      new SubnetUtils("192.168.0.0/16")
     ) map { su =>
       su.setInclusiveHostCount(true)
       su.getInfo
     }
+
+    private val invalidNetworkRanges = Set(
+      new SubnetUtils("127.0.0.1/32"),
+      new SubnetUtils("255.255.255.255/32")
+    ) map { sub =>
+        sub.setInclusiveHostCount(true)
+        sub.getInfo
+    }
+
     val whitelistedIpsConstraint: Constraint[String] = Constraint({
       whitelistedIps => toSetOfWhitelistedIps(whitelistedIps).map(validateWhitelistedIp).fold(Valid)(reduceValidationResults)
     })
@@ -172,6 +179,7 @@ object Forms {
         case _ =>
           val ipAndMask = whitelistedIp.split("/")
           if (privateNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.private", whitelistedIp)))
+          else if (invalidNetworkRanges.exists(_.isInRange(ipAndMask(0)))) Invalid(Seq(ValidationError("whitelistedIp.invalid.network", whitelistedIp)))
           else if (ipAndMask(1).toInt < 24) Invalid(Seq(ValidationError("whitelistedIp.invalid.range", whitelistedIp)))
           else Valid
       }

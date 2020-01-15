@@ -5,6 +5,7 @@ scopes.required=Scopes are required
 whitelistedIp.invalid= {0} is an invalid value
 whitelistedIp.invalid.private= {0} is a private network range
 whitelistedIp.invalid.range= {0} is out of range
+whitelistedIp.invalid.network= {0} is invalid
 invalid.scope=You have used a scope we don''t recognise
 application.administrator.missing=Choose an administrator
 application.confirmation.missing=Provide the application name
