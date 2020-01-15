@@ -139,7 +139,15 @@ th {
     }
   }
 
+  textarea {
+    width: auto;
+    }
+
   input {
     width: 25%;
   }
+}
+
+p.error-notification {
+    margin-bottom: 0;
 }

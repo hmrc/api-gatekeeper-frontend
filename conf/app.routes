@@ -25,11 +25,8 @@ GET         /applications/:id/resend-verification                   controllers.
 GET         /applications/:id/access/scopes                         controllers.ApplicationController.manageScopes(id: String)
 POST        /applications/:id/access/scopes                         controllers.ApplicationController.updateScopes(id: String)
 
-GET         /applications/:id/ip-whitelist                          controllers.ApplicationController.manageIpWhitelist(id: String)
-GET         /applications/:id/ip-whitelist/:whitelistedIp/remove    controllers.ApplicationController.removeWhitelistedIp(id: String, whitelistedIp: String)
-POST        /applications/:id/ip-whitelist/:whitelistedIp/remove    controllers.ApplicationController.removeWhitelistedIpAction(id: String, whitelistedIp: String)
-GET         /applications/:id/ip-whitelist/add                      controllers.ApplicationController.addWhitelistedIp(id: String)
-POST        /applications/:id/ip-whitelist/add                      controllers.ApplicationController.addWhitelistedIpAction(id: String)
+GET         /applications/:id/ip-whitelist/update                   controllers.ApplicationController.updateWhitelistedIpPage(id: String)
+POST        /applications/:id/ip-whitelist/update                   controllers.ApplicationController.updateWhitelistedIpAction(id: String)
 
 GET         /applications/:id/access/overrides                      controllers.ApplicationController.manageAccessOverrides(id: String)
 POST        /applications/:id/access/overrides                      controllers.ApplicationController.updateAccessOverrides(id: String)
