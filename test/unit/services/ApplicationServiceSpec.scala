@@ -423,21 +423,21 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val existingWhitelistedIp = "192.168.1.0/24"
       val app: ApplicationResponse = stdApp1.copy(ipWhitelist = Set(existingWhitelistedIp))
       val newWhitelistedIp = "192.168.2.0/24"
-      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+      given(mockProductionApplicationConnector.manageIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
         .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
 
-      val result: UpdateIpWhitelistResult = await(underTest.updateWhitelistedIp(app, Set(existingWhitelistedIp, newWhitelistedIp)))
+      val result: UpdateIpWhitelistResult = await(underTest.manageWhitelistedIp(app, Set(existingWhitelistedIp, newWhitelistedIp)))
 
       result shouldBe UpdateIpWhitelistSuccessResult
-      verify(mockProductionApplicationConnector).updateIpWhitelist(mEq(app.id.toString), mEq(Set(existingWhitelistedIp, newWhitelistedIp)))(any[HeaderCarrier])
+      verify(mockProductionApplicationConnector).manageIpWhitelist(mEq(app.id.toString), mEq(Set(existingWhitelistedIp, newWhitelistedIp)))(any[HeaderCarrier])
     }
 
     "propagate connector errors" in new Setup {
-      given(mockProductionApplicationConnector.updateIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
+      given(mockProductionApplicationConnector.manageIpWhitelist(anyString, any[Set[String]])(any[HeaderCarrier]))
         .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
 
       intercept[Upstream5xxResponse] {
-        await(underTest.updateWhitelistedIp(stdApp1, Set("192.168.1.0/24")))
+        await(underTest.manageWhitelistedIp(stdApp1, Set("192.168.1.0/24")))
       }
     }
   }

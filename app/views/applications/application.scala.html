@@ -301,7 +301,7 @@
             </td>
             <td>
             @if(isAtLeastSuperUser) {
-                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.updateWhitelistedIpPage(application.id.toString)}" class="button--link" role="button">Manage</a>
+                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id.toString)}" class="button--link" role="button">Manage</a>
             }
             </td>
         </tr>
