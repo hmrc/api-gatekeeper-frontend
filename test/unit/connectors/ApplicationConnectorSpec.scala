@@ -369,7 +369,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](meq(url), meq(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = await(connector.updateIpWhitelist(applicationId, newIpWhitelist))
+      val result = await(connector.manageIpWhitelist(applicationId, newIpWhitelist))
 
       result shouldBe UpdateIpWhitelistSuccessResult
       verify(mockHttpClient).PUT(meq(url), meq(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any())
@@ -380,7 +380,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.updateIpWhitelist(applicationId, newIpWhitelist))
+        await(connector.manageIpWhitelist(applicationId, newIpWhitelist))
       }
     }
   }

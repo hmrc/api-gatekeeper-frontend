@@ -237,26 +237,26 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
         }
   }
 
-  def updateWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def manageWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          Future.successful(Ok(update_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
+          Future.successful(Ok(manage_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
         }
   }
 
-  def updateWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def manageWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(whitelistedIps: Set[String]) = {
-            applicationService.updateWhitelistedIp(app.application, whitelistedIps).map { _ =>
+            applicationService.manageWhitelistedIp(app.application, whitelistedIps).map { _ =>
               Redirect(routes.ApplicationController.applicationPage(appId))
             }
           }
 
           def handleFormError(form: Form[Set[String]]) = {
-            Future.successful(BadRequest(update_whitelisted_ip(app.application, form)))
+            Future.successful(BadRequest(manage_whitelisted_ip(app.application, form)))
           }
 
           WhitelistedIpForm.form.bindFromRequest.fold(handleFormError, handleValidForm)

@@ -21,7 +21,7 @@
 
 @(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
 
-@main(title = s"${appConfig.title} - Update whitelisted IPs") {
+@main(title = s"${appConfig.title} - Manage whitelisted IPs") {
 
 <div class="ip-whitelist">
     <nav class="breadcrumb-nav">
@@ -30,13 +30,13 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Update whitelisted IPs</li>
+            <li class="breadcrumb-nav__item">Manage whitelisted IPs</li>
         </ul>
     </nav>
 
-    <h1 class="heading-xlarge">Update whitelisted IPs</h1>
+    <h1 class="heading-xlarge">Manage whitelisted IPs</h1>
 
-    @helper.form(action = controllers.routes.ApplicationController.updateWhitelistedIpAction(application.id.toString)) {
+    @helper.form(action = controllers.routes.ApplicationController.manageWhitelistedIpAction(application.id.toString)) {
         <p>Each IP address must be between the ranges: 0.0.0.0/24 - 255.255.255.255/32</p>
         <p>For example: 1.1.1.1/24</p>
         <p>Enter each IP address on a separate line.</p>
