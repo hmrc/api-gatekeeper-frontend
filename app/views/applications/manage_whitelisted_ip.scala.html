@@ -38,14 +38,18 @@
 
     @helper.form(action = controllers.routes.ApplicationController.manageWhitelistedIpAction(application.id.toString)) {
 
-        <p>A CIDR block is the IP address identifying the network with some extra information that tells you about the range of that network. The number after the / identifies how big the network is.</p>
-        <p>Each CIDR block must be between the ranges: 0.0.0.0/24 - 255.255.255.255/32</p>
-        <p>For example: 1.1.1.1/24</p>
-        <p>Enter each CIDR block on a separate line.</p>
+        <p>Whitelisted IP addresses control where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
+        <p>The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
+        <p style ="margin-left: 40px">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
+
+        <p>The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
+        <p>The netmask identifies how large the network is.<p>
+        <p>This notation can be used to give access to a single IP address (by using a 32bit netmask) or a larger network by varying the IP address.</p>
+        <p><strong class="bold">Third parties should be as specific as possible about the IP address range that requires whitelisting. Keep IP address ranges as small as possible.</strong></p>
 
         @helper.CSRF.formField
         <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
-            <label for="whitelistedIps" id="whitelistedIps-label">CIDR blocks:</label>
+            <label for="whitelistedIps" id="whitelistedIps-label">Enter each CIDR block on a separate line:</label>
             @fieldError(form.errors, "whitelistedIps", false)
             <textarea
             inputtype="text"
