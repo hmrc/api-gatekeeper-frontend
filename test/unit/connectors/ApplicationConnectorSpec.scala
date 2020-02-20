@@ -459,32 +459,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
   }
 
-  "getClientCredentials" should {
-    val appId = "APP_ID"
-    val url = s"$baseUrl/application/$appId/credentials"
-    val productionSecret = "production-secret"
-    val expected = GetClientCredentialsResult(ClientCredentials(Seq(ClientSecret(productionSecret))))
-
-    "return the client credentials" in new Setup {
-      when(mockHttpClient.GET[GetClientCredentialsResult](meq(url))(any(), any(), any()))
-        .thenReturn(Future.successful(expected))
-
-      val result = await(connector.getClientCredentials(appId))
-
-      result shouldBe expected
-    }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[GetClientCredentialsResult](meq(url))(any(), any(), any())).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(expected)
-      )
-
-      await(connector.getClientCredentials(appId)) shouldBe expected
-    }
-  }
-
   "addCollaborator" should {
     val appId = "APP_ID"
     val url = s"$baseUrl/application/$appId/collaborator"

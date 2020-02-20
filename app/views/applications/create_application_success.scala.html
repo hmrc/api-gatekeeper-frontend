@@ -21,7 +21,7 @@
 @import model.TotpSecrets
 @import utils.LoggedInUser
 
-@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String, clientSecret: String
+@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String
 )(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: AppConfig)
 
 @secretType = @{ if (totpSecret.isDefined) "TOTP and client secrets." else "client secret." }

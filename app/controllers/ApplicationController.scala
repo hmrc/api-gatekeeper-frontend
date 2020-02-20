@@ -582,9 +582,9 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
                 case Some(accessType) => {
                   val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
-                  applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) flatMap { result =>
+                  applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
                     val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
-                    applicationService.getClientSecret(appId, appEnv).map(secret => Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), totp, clientId, secret)))
+                    Ok(create_application_success(appId, appName, appEnv, Some(access.accessType), totp, clientId))
                   }
                 }
               }
