@@ -24,7 +24,6 @@
 @(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String
 )(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: AppConfig)
 
-@secretType = @{ if (totpSecret.isDefined) "TOTP and client secrets." else "client secret." }
 @main(title = s"${appConfig.title} - Create privileged or ROPC application success") {
 
 <h1 class="heading-large">@applicationName</h1>
