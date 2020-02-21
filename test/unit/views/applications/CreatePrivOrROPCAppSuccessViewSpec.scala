@@ -40,7 +40,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
     val env = "Production"
     val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
     val totpSecret = "DSKL595KJDHK540K09421"
-    val clientSecret = "ASDFGHJK-9087EWTRGFHJ;KJHGDFJTH"
 
     "a privileged application is created" should {
       "render" in {
@@ -51,7 +50,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         implicit val loggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId, clientSecret)(loggedInUser, applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(loggedInUser, applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 
@@ -77,7 +76,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId, clientSecret)(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
+          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
 
         page().contentType should include("text/html")
 

@@ -245,17 +245,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def getClientSecret(applicationId: String, appEnv: String)(implicit hc: HeaderCarrier): Future[String] = {
-    val connector = appEnv match {
-      case "PRODUCTION" => productionApplicationConnector
-      case "SANDBOX" => sandboxApplicationConnector
-    }
-
-    connector.getClientCredentials(applicationId) map {
-      case res: GetClientCredentialsResult => res.production.clientSecrets.head.secret
-    }
-  }
-
   def addTeamMember(app: Application, teamMember: Collaborator, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     val applicationConnector = applicationConnectorFor(app)
     for {

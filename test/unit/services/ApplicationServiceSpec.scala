@@ -534,44 +534,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  "getClientSecret" should {
-    "call the production connector to get the client secret for a production app" in new Setup {
-      val appEnv = "PRODUCTION"
-      val appId = "app ID"
-      val clientSecret = "I AM A SECRET"
-      val secrets = Seq(ClientSecret(clientSecret))
-      val credentials = ClientCredentials(secrets)
-
-      given(mockProductionApplicationConnector.getClientCredentials(mEq(appId))(any[HeaderCarrier]))
-        .willReturn(Future.successful(GetClientCredentialsResult(credentials)))
-
-
-      val result = await(underTest.getClientSecret(appId, appEnv))
-
-      result shouldBe clientSecret
-
-      verify(mockSandboxApplicationConnector, never).getClientCredentials(any())(any())
-    }
-
-    "call the sandbox connector to get the client secret for a sandbox app" in new Setup {
-      val appEnv = "SANDBOX"
-      val appId = "app ID"
-      val clientSecret = "I AM A SECRET"
-      val secrets = Seq(ClientSecret(clientSecret))
-      val credentials = ClientCredentials(secrets)
-
-      given(mockSandboxApplicationConnector.getClientCredentials(mEq(appId))(any[HeaderCarrier]))
-        .willReturn(Future.successful(GetClientCredentialsResult(credentials)))
-
-
-      val result = await(underTest.getClientSecret(appId, appEnv))
-
-      result shouldBe clientSecret
-
-      verify(mockProductionApplicationConnector, never).getClientCredentials(any())(any())
-    }
-  }
-
   "fetchApplicationSubscriptions" should {
     val context = "a-context"
     val version = "1.0"

@@ -230,12 +230,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       }
   }
 
-  def getClientCredentials(appId: String)(implicit hc: HeaderCarrier): Future[GetClientCredentialsResult] = {
-    retry{
-      http.GET[GetClientCredentialsResult](s"$serviceBaseUrl/application/$appId/credentials")
-    }
-  }
-
   def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
     retry{
       http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)

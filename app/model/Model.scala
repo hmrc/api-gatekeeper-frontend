@@ -325,16 +325,6 @@ object CreatePrivOrROPCAppRequest {
 
 case class AppAccess(accessType: AccessType, scopes: Seq[String])
 
-final case class ClientSecret(secret: String)
-final case class ClientCredentials(clientSecrets: Seq[ClientSecret])
-final case class GetClientCredentialsResult(production: ClientCredentials)
-
-object GetClientCredentialsResult {
-  implicit val reads1 = Json.reads[ClientSecret]
-  implicit val reads2 = Json.reads[ClientCredentials]
-  implicit val reads3 = Json.reads[GetClientCredentialsResult]
-}
-
 final case class AddTeamMemberRequest(adminEmail: String, collaborator: Collaborator, isRegistered: Boolean, adminsToEmail: Set[String])
 
 object AddTeamMemberRequest {
