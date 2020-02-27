@@ -234,9 +234,9 @@ object AccessType extends Enumeration {
   }
 }
 
-case class TotpIds(production: String, sandbox: String)
+case class TotpIds(production: String)
 
-case class TotpSecrets(production: String, sandbox: String)
+case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 

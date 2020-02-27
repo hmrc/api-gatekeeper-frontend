@@ -442,7 +442,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       val appDescription = "An application description"
       val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
       val access = AppAccess(AccessType.PRIVILEGED, Seq())
-      val totpSecrets = Some(TotpSecrets("secret", "I am not used"))
+      val totpSecrets = Some(TotpSecrets("secret"))
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
       val createPrivOrROPCAppRequest = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
