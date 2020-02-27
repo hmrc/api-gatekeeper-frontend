@@ -45,7 +45,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
       "render" in {
 
         val accessType = Some(AccessType.PRIVILEGED)
-        val totp = Some(TotpSecrets(totpSecret, ""))
+        val totp = Some(TotpSecrets(totpSecret))
 
         implicit val loggedInUser = LoggedInUser(Some(""))
 
