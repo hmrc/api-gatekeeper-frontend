@@ -28,16 +28,9 @@ package object apiSubscriptionFields {
 
   def fields(tpl: (String, String)*): Map[String, String] = Map[String, String](tpl: _*)
 
-  // TODO: Remove 'response' from name (as used as a general DTO)
   case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionField])
   object FieldDefinitionsResponse {
     implicit val format: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
-  }
-
-  // TODO: Test me?
-  case class AllFieldDefinitionsResponse(apis: FieldDefinitionsResponse)
-  object AllFieldDefinitionsResponse {
-    implicit val format: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
   }
 
   case class SubscriptionFieldsWrapper(applicationId: String, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionField])
