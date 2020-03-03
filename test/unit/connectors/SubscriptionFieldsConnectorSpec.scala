@@ -110,17 +110,25 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
   }
 
   "fetchFieldDefinitions" should {
-    val fields = List(SubscriptionField("field1", "desc1", "hint1", "some type"), SubscriptionField("field2", "desc2", "hint2", "some other type"))
+    val fields = List(
+      SubscriptionField("field1", "desc1", "hint1", "some type"),
+      SubscriptionField("field2", "desc2", "hint2", "some other type")
+    )
+
+    val expectedDefinitions = List(
+      SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"),
+      SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
+    )
+
     val url = s"$baseUrl/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
-    val validResponse = Map("fieldDefinitions" -> fields)
 
     "return subscription fields definition for an API" in new Setup {
       when(mockHttpClient.GET[FieldDefinitionsResponse](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(FieldDefinitionsResponse(fields)))
 
-      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+      val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe fields
+      result shouldBe expectedDefinitions
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
@@ -136,8 +144,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
       when(mockHttpClient.GET[FieldDefinitionsResponse](meq(url))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
-      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
-      result shouldBe Seq.empty[SubscriptionField]
+      val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+      result shouldBe Seq.empty[SubscriptionFieldDefinition]
     }
 
   }

@@ -555,7 +555,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "fetch subscriptions with fields" in new Setup {
       val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
-      val subscriptionFields = Seq(SubscriptionField("name", "description", "hint", "type", Some("value")))
+      val subscriptionFields = Seq(SubscriptionFieldValue("name", "description", "hint", "type", Some("value")))
       val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, context, version, subscriptionFields)
       val versions = Seq(VersionSubscription(apiVersion, subscribed = true, Some(subscriptionFieldsWrapper)))
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))

@@ -18,8 +18,8 @@ package services
 
 import javax.inject.Inject
 import connectors._
-import model.apiSubscriptionFields.{Fields, SubscriptionField}
-import model.{Application, FieldsDeleteResult}
+import model.apiSubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.{Application, FieldsDeleteResult, apiSubscriptionFields}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,20 +27,22 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector,
                                           productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector)(implicit ec: ExecutionContext) {
 
-  def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+  // TODO: Rename to fetchFieldValues
+  def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     val connector = connectorFor(application)
 
-    def addValuesToDefinitions(defs: Seq[SubscriptionField], fieldValues: Fields) = {
-      defs.map(field => field.withValue(fieldValues.get(field.name)))
+    def addValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
+      defs.map(field => SubscriptionFieldValue(field, fieldValues.get(field.name)))
     }
 
-    def fetchFieldsValues(defs: Seq[SubscriptionField])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+    def fetchFieldsValues(defs: Seq[SubscriptionFieldDefinition])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
       if (defs.isEmpty) Future.successful(Seq.empty)
       else {
         for {
-          maybeValues <- connector.fetchFieldValues(application.clientId, apiContext, apiVersion)
-        } yield maybeValues.fold(defs) { response =>
-          addValuesToDefinitions(defs, response.fields)
+          maybeValues: Option[apiSubscriptionFields.SubscriptionFields] <-
+            connector.fetchFieldValues(application.clientId, apiContext, apiVersion)
+        } yield maybeValues.fold(defs.map(definition => SubscriptionFieldValue(definition, None))) {
+          response =>addValuesToDefinitions(defs, response.fields)
         }
       }
     }

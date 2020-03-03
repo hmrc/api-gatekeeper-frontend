@@ -53,13 +53,15 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
     } recover recovery(None)
   }
 
-  def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+  def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
     retry {
       // TODO: Remove me
       Logger.info(s"fetchFieldDefinitions() - About to call $url in ${environment.toString}")
-      http.GET[FieldDefinitionsResponse](url).map(response => response.fieldDefinitions)
-    } recover recovery(Seq.empty[SubscriptionField])
+      http.GET[FieldDefinitionsResponse](url)
+        .map(response => response.fieldDefinitions)
+        .map(fields => fields.map(SubscriptionFieldDefinition.apply))
+    } recover recovery(Seq.empty[SubscriptionFieldDefinition])
   }
 
   // TODO: Test me

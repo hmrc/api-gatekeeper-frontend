@@ -17,7 +17,7 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.apiSubscriptionFields.SubscriptionFieldsWrapper
+import model.apiSubscriptionFields.{SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.CollaboratorRole.CollaboratorRole
 import play.api.libs.json.Json
 
@@ -47,6 +47,7 @@ object APIDefinition {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val formatAPISubscription = Json.format[APISubscription]
@@ -142,8 +143,8 @@ object Subscription {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val versionJsonFormatter = Json.format[APIVersion]
-  implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
-  implicit val formatVersionSubscription = Json.format[VersionSubscription]
+  implicit val subscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]
+  implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val subscriptionJsonFormatter = Json.format[Subscription]
 }

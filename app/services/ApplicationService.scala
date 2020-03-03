@@ -119,7 +119,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
       if (withFields) {
-        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
+        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields: Seq[apiSubscriptionFields.SubscriptionFieldValue] =>
           VersionSubscription(
             version.version,
             version.subscribed,

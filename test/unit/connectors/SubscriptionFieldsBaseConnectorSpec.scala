@@ -150,8 +150,18 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
 
   "fetchFieldDefinitions" should {
 
-    val fields = List(SubscriptionField("field1", "desc1", "hint1", "some type"), SubscriptionField("field2", "desc2", "hint2", "some other type"))
+    val fields = List(
+      SubscriptionField("field1", "desc1", "hint1", "some type"),
+      SubscriptionField("field2", "desc2", "hint2", "some other type")
+    )
+
+    val fieldDefinitions = List(
+      SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"),
+      SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
+    )
+
     val validResponse = FieldDefinitionsResponse(fields)
+
     val url = s"/definition/context/$apiContext/version/$apiVersion"
 
     "return subscription fields definition for an API" in new Setup {
@@ -159,9 +169,9 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       when(mockHttpClient.GET[FieldDefinitionsResponse](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(validResponse))
 
-      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+      val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe fields
+      result shouldBe fieldDefinitions
     }
 
     "fail when api-subscription-fields returns a 500" in new Setup {
@@ -179,8 +189,8 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
       when(mockHttpClient.GET[SubscriptionFields](meq(url))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
-      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
-      result shouldBe Seq.empty[SubscriptionField]
+      val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+      result shouldBe Seq.empty[SubscriptionFieldDefinition]
     }
 
     "fail when api-subscription-fields returns unexpected response" in new Setup {
@@ -200,9 +210,9 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
           Future.failed(new BadRequestException("")),
           Future.successful(validResponse)
         )
-      val result: Seq[SubscriptionField] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
+      val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe fields
+      result shouldBe fieldDefinitions
     }
   }
 
