@@ -35,14 +35,19 @@ class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: Sa
     }
 
     def fetchFieldsValues(defs: Seq[SubscriptionField])(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
-      for {
-        maybeValues <- connector.fetchFieldValues(application.clientId, apiContext, apiVersion)
-      } yield maybeValues.fold(defs) { response =>
-        addValuesToDefinitions(defs, response.fields)
+      if (defs.isEmpty) Future.successful(Seq.empty)
+      else {
+        for {
+          maybeValues <- connector.fetchFieldValues(application.clientId, apiContext, apiVersion)
+        } yield maybeValues.fold(defs) { response =>
+          addValuesToDefinitions(defs, response.fields)
+        }
       }
     }
 
-    connector.fetchFieldDefinitions(apiContext, apiVersion).flatMap(fetchFieldsValues)
+    connector
+      .fetchFieldDefinitions(apiContext, apiVersion)
+      .flatMap(fetchFieldsValues)
   }
 
   def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
