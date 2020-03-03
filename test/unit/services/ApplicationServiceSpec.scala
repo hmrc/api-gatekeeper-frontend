@@ -19,7 +19,7 @@ package unit.services
 import java.util.UUID
 
 import connectors._
-import model.ApiSubscriptionFields._
+import model.apiSubscriptionFields._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._

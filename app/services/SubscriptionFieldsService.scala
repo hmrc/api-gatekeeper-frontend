@@ -18,7 +18,7 @@ package services
 
 import javax.inject.Inject
 import connectors._
-import model.ApiSubscriptionFields.{Fields, SubscriptionField}
+import model.apiSubscriptionFields.{Fields, SubscriptionField}
 import model.{Application, FieldsDeleteResult}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 

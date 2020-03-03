@@ -16,7 +16,7 @@
 
 package model
 
-import model.ApiSubscriptionFields._
+import model.apiSubscriptionFields._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._

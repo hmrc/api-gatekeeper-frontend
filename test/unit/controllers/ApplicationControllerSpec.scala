@@ -618,7 +618,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "save subscription field values" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[ApiSubscriptionFields.Fields])(any[HeaderCarrier]))
+        given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[apiSubscriptionFields.Fields])(any[HeaderCarrier]))
           .willReturn(successful(HttpResponse(OK)))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(validForm: _*)

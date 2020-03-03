@@ -19,7 +19,7 @@ package unit.services
 import java.util.UUID
 
 import connectors._
-import model.ApiSubscriptionFields.{SubscriptionField, SubscriptionFields, fields}
+import model.apiSubscriptionFields.{SubscriptionField, SubscriptionFields, fields}
 import model.{ApplicationResponse, ApplicationState, FieldsDeleteSuccessResult, Standard}
 import org.joda.time.DateTime
 import org.mockito.BDDMockito.given
