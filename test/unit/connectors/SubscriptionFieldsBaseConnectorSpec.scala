@@ -22,7 +22,7 @@ import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import connectors.{ProxiedHttpClient, SubscriptionFieldsConnector}
-import model.ApiSubscriptionFields._
+import model.apiSubscriptionFields._
 import model.{Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import model.Environment.Environment
 import org.mockito.Matchers.{any, eq => meq}

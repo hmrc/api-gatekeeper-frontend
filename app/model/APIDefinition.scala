@@ -17,7 +17,7 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
+import model.apiSubscriptionFields.SubscriptionFieldsWrapper
 import model.CollaboratorRole.CollaboratorRole
 import play.api.libs.json.Json
 

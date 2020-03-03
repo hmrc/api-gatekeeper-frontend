@@ -19,11 +19,11 @@ package unit.services
 import java.util.UUID
 
 import connectors._
-import model.ApiSubscriptionFields.{SubscriptionField, SubscriptionFields, fields}
+import model.apiSubscriptionFields.{SubscriptionField, SubscriptionFields, fields}
 import model.{ApplicationResponse, ApplicationState, FieldsDeleteSuccessResult, Standard}
 import org.joda.time.DateTime
 import org.mockito.BDDMockito.given
-import org.mockito.Mockito.{spy, verify}
+import org.mockito.Mockito.{spy, verify, never}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
@@ -79,14 +79,29 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     "return custom fields for a given application in the correct environment (fields not populated)" in new Setup {
       val fieldDefinitions = List(SubscriptionField("field1", "desc1", "hint1", "some type"), SubscriptionField("field2", "desc2", "hint2", "some other type"))
 
-      given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(None))
       given(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion)).willReturn(Future.successful(fieldDefinitions))
+      given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(None))
 
       val result: Seq[SubscriptionField] = await(underTest.fetchFields(application, apiContext, apiVersion))
       result shouldBe fieldDefinitions
 
       verify(underTest).connectorFor(application)
     }
+
+    "return custom fields for a given application in the correct environment when there are no fields defined, does not try and get the values" in new Setup {
+      private val fieldDefinitions = List.empty
+
+      given(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion)).willReturn(Future.successful(fieldDefinitions))
+      given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(None))
+
+      val result: Seq[SubscriptionField] = await(underTest.fetchFields(application, apiContext, apiVersion))
+      result shouldBe fieldDefinitions
+
+      verify(underTest).connectorFor(application)
+
+      verify(mockProductionSubscriptionFieldsConnector,never()).fetchFieldValues(clientId, apiContext, apiVersion)
+    }
+
 
     "return empty sequence if no definitions have been found in the correct environment" in new Setup {
       given(mockProductionSubscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion)).willReturn(Future.successful(None))

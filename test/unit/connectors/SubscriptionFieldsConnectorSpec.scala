@@ -22,7 +22,7 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import config.AppConfig
 import connectors._
-import model.ApiSubscriptionFields._
+import model.apiSubscriptionFields._
 import model.Environment._
 import model.{FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.Matchers.{any, eq => meq}

@@ -22,9 +22,10 @@ import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import model.ApiSubscriptionFields._
+import model.apiSubscriptionFields._
 import model._
 import model.Environment.Environment
+import play.api.Logger
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient

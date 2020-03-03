@@ -22,11 +22,11 @@ import model.Forms.SubscriptionFieldsForm
 import play.api.data.Form
 import play.api.libs.json.{Format, Json}
 
-package object ApiSubscriptionFields {
+package object apiSubscriptionFields {
 
   type Fields = Map[String, String]
 
-  def fields(tpl: (String, String)*) = Map[String, String](tpl: _*)
+  def fields(tpl: (String, String)*): Map[String, String] = Map[String, String](tpl: _*)
 
   case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionField])
   object FieldDefinitionsResponse {

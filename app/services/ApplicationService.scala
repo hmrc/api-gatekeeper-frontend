@@ -18,7 +18,7 @@ package services
 
 import connectors._
 import javax.inject.Inject
-import model.ApiSubscriptionFields.SubscriptionFieldsWrapper
+import model.apiSubscriptionFields.SubscriptionFieldsWrapper
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
