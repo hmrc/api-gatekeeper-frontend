@@ -31,46 +31,16 @@ package object apiSubscriptionFields {
   case class SubscriptionFieldsWrapper(applicationId: String, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
 
   case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String)
-  object SubscriptionFieldDefinition {
-
-    // TODO: Remove this
-    def apply(field : SubscriptionField): SubscriptionFieldDefinition ={
-
-      // TODO: Test. Do we need this check?
-      if (field.value.isDefined){
-        throw new RuntimeException("Cannot map SubscriptionField with field value to definition")
-      }
-
-      SubscriptionFieldDefinition(field.name, field.description, field.hint, field.`type`)
-    }
-  }
 
   // TODO: Should the value be an option type? Or an empty string? (I think the latter)
   case class SubscriptionFieldValue(name: String, description: String, hint: String, `type`: String, value: Option[String])
 
   object SubscriptionFieldValue {
-//    def apply(field: SubscriptionFields): SubscriptionFieldValue = {
-//      SubscriptionFieldValue(SubscriptionFieldDefinition("","","",""),"")
-//    }
 
     // TODO: Should this take an option or a string for the value
     def apply(definition: SubscriptionFieldDefinition, value: Option[String]): SubscriptionFieldValue = {
       new SubscriptionFieldValue(definition.name, definition.description, definition.hint,definition.`type`, value)
     }
-  }
-
-  // TODO: Review the usage of this. Move somewhere?
-  @deprecated
-  case class SubscriptionField(name: String, description: String, hint: String, `type`: String, value: Option[String] = None) {
-    def withValue(updatedValue: Option[String]): SubscriptionField = {
-      copy(name, description, hint, `type`, updatedValue)
-    }
-  }
-
-  @deprecated
-  object SubscriptionField {
-
-    implicit val format: Format[SubscriptionField] = Json.format[SubscriptionField]
   }
 
   // TODO: What / is fieldsId actually used?
