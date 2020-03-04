@@ -123,14 +123,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                   version: VersionSubscription): Future[VersionSubscription] = {
 
       if (withFields) {
-
         val apiContextVersion = ApiContextVersion(subscription.context, version.version.version)
 
-        // TODO: Inline this var
-        val values2 = subscriptionFieldsService
-          .fetchFieldsWithDefinitionCache(application, apiContextVersion, allDefinitionsByApiVersion)
-
-          values2.map {
+        subscriptionFieldsService
+          .fetchFieldsWithPrefetchedDefinitions(application, apiContextVersion, allDefinitionsByApiVersion)
+          .map {
             fields: Seq[apiSubscriptionFields.SubscriptionFieldValue] =>
               VersionSubscription(
                 version.version,
@@ -154,15 +151,10 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
     for {
       // TODO: Only do this is withFields is set.
-      allDefinitionsByApiVersion: DefinitionsByApiVersion
-        <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
-
-      subscriptions: Seq[Subscription] <- applicationConnectorFor(application)
-        .fetchApplicationSubscriptions(application.id.toString)
-
-      apiVersions: Seq[Subscription] <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
-
-    } yield apiVersions
+      allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
+      subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
+      subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
+    } yield subscriptionsWithSubscriptionFields
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {

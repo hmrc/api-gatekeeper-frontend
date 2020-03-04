@@ -60,8 +60,8 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
     } recover recovery(None)
   }
 
-  def fetchFieldsValuesWithDefinitionCache(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
-                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
+                                                (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.get(field.name)))
     }
@@ -78,9 +78,9 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
     val definitions: Seq[SubscriptionFieldDefinition] = definitionsCache.getOrElse(apiContextVersion,Seq.empty)
 
     for {
-      values: Option[SubscriptionFields] <- ifDefinitionsGetValues(definitions)
-      fields: Fields = values.fold(Map.empty[String, String])(s => s.fields)
-    } yield joinFieldValuesToDefinitions(definitions, fields)
+      subscriptionFields <- ifDefinitionsGetValues(definitions)
+      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
+    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
   // TODO: Test me

@@ -33,14 +33,12 @@ class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: Sa
      connectorFor(deployedTo).fetchAllFieldDefinitions()
   }
 
-  // TODO: Don't like name cache (pre fetch?)
-  def fetchFieldsWithDefinitionCache(application: Application,
-                                     apiContextVersion: ApiContextVersion,
-                                     definitions: DefinitionsByApiVersion)
-                                    (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
-    val connector = connectorFor(application)
-
-    connector.fetchFieldsValuesWithDefinitionCache(application.clientId, apiContextVersion, definitions)
+  // TODO: Test me
+  def fetchFieldsWithPrefetchedDefinitions(application: Application,
+                                           apiContextVersion: ApiContextVersion,
+                                           definitions: DefinitionsByApiVersion)
+                                          (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+    connectorFor(application).fetchFieldsValuesWithPrefetchedDefinitions(application.clientId, apiContextVersion, definitions)
   }
 
   def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

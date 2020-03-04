@@ -26,6 +26,10 @@ package object apiSubscriptionFields {
 
   type Fields = Map[String, String]
 
+  object Fields {
+    val empty = Map.empty[String, String]
+  }
+
   def fields(tpl: (String, String)*): Map[String, String] = Map[String, String](tpl: _*)
 
   case class SubscriptionFieldsWrapper(applicationId: String, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
