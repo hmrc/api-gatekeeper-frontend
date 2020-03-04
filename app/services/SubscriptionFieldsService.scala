@@ -20,6 +20,7 @@ import javax.inject.Inject
 import connectors._
 import model.apiSubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
 import model.{APIVersion, ApiContextVersion, Application, FieldsDeleteResult, apiSubscriptionFields}
+import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,11 +28,19 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector,
                                           productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector)(implicit ec: ExecutionContext) {
 
-  // TODO: Rename to fetchFieldValues
-  def fetchFields(application: Application, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+  // TODO : Test me
+  def fetchAllFieldDefinitions(deployedTo: String)(implicit hc: HeaderCarrier) : Future[DefinitionsByApiVersion] = {
+     connectorFor(deployedTo).fetchAllFieldDefinitions()
+  }
+
+  // TODO: Don't like name cache (pre fetch?)
+  def fetchFieldsWithDefinitionCache(application: Application,
+                                     apiContextVersion: ApiContextVersion,
+                                     definitions: DefinitionsByApiVersion)
+                                    (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     val connector = connectorFor(application)
 
-    connector.fetchFieldsValues(application.clientId, ApiContextVersion(apiContext, apiVersion))
+    connector.fetchFieldsValuesWithDefinitionCache(application.clientId, apiContextVersion, definitions)
   }
 
   def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
@@ -42,6 +51,20 @@ class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: Sa
     connectorFor(application).deleteFieldValues(application.clientId, context, version)
   }
 
-  def connectorFor(application: Application): SubscriptionFieldsConnector =
-    if (application.deployedTo == "PRODUCTION") productionSubscriptionFieldsConnector else sandboxSubscriptionFieldsConnector
+  def connectorFor(application: Application): SubscriptionFieldsConnector = connectorFor(application.deployedTo)
+
+  def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
+    if (deployedTo == "PRODUCTION") {
+      productionSubscriptionFieldsConnector
+    } else {
+      sandboxSubscriptionFieldsConnector
+    }
+}
+
+object SubscriptionFieldsService {
+  type DefinitionsByApiVersion = Map[ApiContextVersion, Seq[SubscriptionFieldDefinition]]
+
+  object DefinitionsByApiVersion {
+    val empty = Map.empty[ApiContextVersion, Seq[SubscriptionFieldDefinition]]
+  }
 }

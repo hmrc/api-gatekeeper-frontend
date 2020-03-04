@@ -58,14 +58,14 @@ package object apiSubscriptionFields {
 
   // TODO: Remove 'response' from name (as used as a general DTO)
   // TODO: Change SubscriptionField to definition (is this only used for definition and not values?)
-  case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionFieldDefinition])
+  case class FieldDefinitionsResponse(apiContext: String, apiVersion: String, fieldDefinitions: List[SubscriptionFieldDefinition])
   object FieldDefinitionsResponse {
     import APIDefinition._
     implicit val formatFieldDefinitionsResponse: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
   }
 
   // TODO: Test me?
-  case class AllFieldDefinitionsResponse(apis: FieldDefinitionsResponse)
+  case class AllFieldDefinitionsResponse(apis: Seq[FieldDefinitionsResponse])
   object AllFieldDefinitionsResponse {
     import APIDefinition._
     implicit val formatAllFieldDefinitionsResponse: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
