@@ -151,11 +151,6 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
   "fetchFieldDefinitions" should {
 
     val fields = List(
-      SubscriptionField("field1", "desc1", "hint1", "some type"),
-      SubscriptionField("field2", "desc2", "hint2", "some other type")
-    )
-
-    val fieldDefinitions = List(
       SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"),
       SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
     )
@@ -171,7 +166,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
 
       val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe fieldDefinitions
+      result shouldBe fields
     }
 
     "fail when api-subscription-fields returns a 500" in new Setup {
@@ -212,7 +207,7 @@ class SubscriptionFieldsBaseConnectorSpec extends UnitSpec with ScalaFutures wit
         )
       val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe fieldDefinitions
+      result shouldBe fields
     }
   }
 

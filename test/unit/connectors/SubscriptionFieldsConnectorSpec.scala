@@ -111,11 +111,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
   "fetchFieldDefinitions" should {
     val fields = List(
-      SubscriptionField("field1", "desc1", "hint1", "some type"),
-      SubscriptionField("field2", "desc2", "hint2", "some other type")
-    )
-
-    val expectedDefinitions = List(
       SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"),
       SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
     )
@@ -128,7 +123,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with MockitoSugar with Be
 
       val result: Seq[SubscriptionFieldDefinition] = await(underTest.fetchFieldDefinitions(apiContext, apiVersion))
 
-      result shouldBe expectedDefinitions
+      result shouldBe fields
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {

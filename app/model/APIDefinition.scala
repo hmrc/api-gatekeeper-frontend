@@ -17,9 +17,9 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.apiSubscriptionFields.{SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import model.apiSubscriptionFields.{AllFieldDefinitionsResponse, FieldDefinitionsResponse, SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.CollaboratorRole.CollaboratorRole
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 import scala.util.Try
 
@@ -47,6 +47,7 @@ object APIDefinition {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
   implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
@@ -142,7 +143,9 @@ object Subscription {
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
+  // TODO: Rename this to formatAPIVersion?
   implicit val versionJsonFormatter = Json.format[APIVersion]
+  implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldDefinition]
   implicit val subscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]

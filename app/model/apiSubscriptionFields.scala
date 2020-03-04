@@ -28,23 +28,12 @@ package object apiSubscriptionFields {
 
   def fields(tpl: (String, String)*): Map[String, String] = Map[String, String](tpl: _*)
 
-  // TODO: Remove 'response' from name (as used as a general DTO)
-  // TODO: Change SubscriptionField to definition (is this only used for definition and not values?)
-  case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionField])
-  object FieldDefinitionsResponse {
-    implicit val format: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
-  }
-
-  // TODO: Test me?
-  case class AllFieldDefinitionsResponse(apis: FieldDefinitionsResponse)
-  object AllFieldDefinitionsResponse {
-    implicit val format: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
-  }
-
   case class SubscriptionFieldsWrapper(applicationId: String, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
 
   case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String)
   object SubscriptionFieldDefinition {
+
+    // TODO: Remove this
     def apply(field : SubscriptionField): SubscriptionFieldDefinition ={
 
       // TODO: Test. Do we need this check?
@@ -101,4 +90,20 @@ package object apiSubscriptionFields {
   }
 
   case class SubscriptionFieldsViewModel(applicationId: String, apiContext: String, apiVersion: String, subFieldsForm: Form[SubscriptionFieldsForm])
+
+  // TODO: Remove 'response' from name (as used as a general DTO)
+  // TODO: Change SubscriptionField to definition (is this only used for definition and not values?)
+  case class FieldDefinitionsResponse(fieldDefinitions: List[SubscriptionFieldDefinition])
+  object FieldDefinitionsResponse {
+    import APIDefinition._
+    implicit val formatFieldDefinitionsResponse: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
+  }
+
+  // TODO: Test me?
+  case class AllFieldDefinitionsResponse(apis: FieldDefinitionsResponse)
+  object AllFieldDefinitionsResponse {
+    import APIDefinition._
+    implicit val formatAllFieldDefinitionsResponse: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
+  }
+
 }

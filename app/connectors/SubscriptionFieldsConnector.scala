@@ -60,18 +60,17 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
       Logger.info(s"fetchFieldDefinitions() - About to call $url in ${environment.toString}")
       http.GET[FieldDefinitionsResponse](url)
         .map(response => response.fieldDefinitions)
-        .map(fields => fields.map(SubscriptionFieldDefinition.apply))
     } recover recovery(Seq.empty[SubscriptionFieldDefinition])
   }
 
   // TODO: Test me
-  def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionField]] = {
+  def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = s"$serviceBaseUrl/definition"
     // TODO: Remove me
     Logger.info(s"fetchAllFieldDefinitions() - About to call $url in ${environment.toString}")
     retry {
       http.GET[AllFieldDefinitionsResponse](url).map(response => response.apis.fieldDefinitions)
-    } recover recovery(Seq.empty[SubscriptionField])
+    } recover recovery(Seq.empty[SubscriptionFieldDefinition])
   }
 
   def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
