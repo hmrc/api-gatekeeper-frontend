@@ -17,6 +17,7 @@
 package connectors
 
 import java.net.URLEncoder.encode
+import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
@@ -27,6 +28,7 @@ import model._
 import model.Environment.Environment
 import play.api.Logger
 import play.api.http.Status.NO_CONTENT
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
@@ -34,6 +36,9 @@ import utils.Retries
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extends Retries {
+
+  import SubscriptionFieldsConnector._
+
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -44,7 +49,8 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  def fetchFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
+  private def fetchApplicationApiValues(clientId: String, apiContext: String, apiVersion: String)
+                                       (implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     retry {
       // TODO: Remove me
@@ -53,7 +59,31 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
     } recover recovery(None)
   }
 
-  def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
+  // TODO: fetchFieldValuesForApplicationApi
+  def fetchFieldsValues(clientId: String, apiContextVersion: ApiContextVersion)
+                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
+    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
+      defs.map(field => SubscriptionFieldValue(field, fieldValues.get(field.name)))
+    }
+
+    def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[SubscriptionFields]] = {
+      if (definitions.isEmpty) {
+        Future.successful(None)
+      }
+      else {
+        fetchApplicationApiValues(clientId, apiContextVersion.context, apiContextVersion.version)
+      }
+    }
+
+    for {
+      definitions: Seq[SubscriptionFieldDefinition] <- fetchFieldDefinitionsForApi(apiContextVersion.context, apiContextVersion.version)
+      values: Option[SubscriptionFields] <- ifDefinitionsGetValues(definitions)
+      fields: Fields = values.fold(Map.empty[String, String])(s => s.fields)
+    } yield joinFieldValuesToDefinitions(definitions, fields)
+  }
+
+  private def fetchFieldDefinitionsForApi(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
     retry {
       // TODO: Remove me
@@ -80,7 +110,8 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
 
   def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    http.DELETE[HttpResponse](url).map { response => response.status match {
+    http.DELETE[HttpResponse](url).map { response =>
+      response.status match {
         case NO_CONTENT => FieldsDeleteSuccessResult
         case _ => FieldsDeleteFailureResult
       }
@@ -101,6 +132,22 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value
   }
+}
+
+object SubscriptionFieldsConnector {
+
+  // TODO: Move all the formatters here
+
+  case class DefinitionDto(name: String, description: String, hint: String, `type`: String)
+
+  case class ValueDto(name: String, description: String, hint: String, `type`: String, value: Option[String])
+
+  case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
+
+  object SubscriptionFields {
+    implicit val format: Format[SubscriptionFields] = Json.format[SubscriptionFields]
+  }
+
 }
 
 @Singleton

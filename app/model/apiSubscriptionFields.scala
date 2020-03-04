@@ -43,11 +43,6 @@ package object apiSubscriptionFields {
     }
   }
 
-  // TODO: What / is fieldsId actually used?
-  case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
-  object SubscriptionFields {
-    implicit val format: Format[SubscriptionFields] = Json.format[SubscriptionFields]
-  }
 
   case class SubscriptionFieldsPutRequest(clientId: String, apiContext: String, apiVersion: String, fields: Map[String, String])
   object SubscriptionFieldsPutRequest {
