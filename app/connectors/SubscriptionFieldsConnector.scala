@@ -140,7 +140,9 @@ object SubscriptionFieldsConnector {
 
   private[connectors] case class ValueDto(name: String, description: String, hint: String, `type`: String, value: Option[String])
 
-  private[connectors] case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
+  // TODO: Sort test package so it just 'connectors' not unit.connectors.
+  //private[connectors]
+  case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
 
   object SubscriptionFields {
     implicit val format: Format[SubscriptionFields] = Json.format[SubscriptionFields]
