@@ -54,8 +54,6 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
                                        (implicit hc: HeaderCarrier): Future[Option[SubscriptionFields]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     retry {
-      // TODO: Remove me
-      Logger.info(s"fetchFieldValues() - About to call $url in ${environment.toString}")
       http.GET[SubscriptionFields](url).map(Some(_))
     } recover recovery(None)
   }
@@ -83,15 +81,12 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
     } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
-  // TODO: Test me
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
 
     def toMapEntry(definitions: FieldDefinitionsResponse) =
       (ApiContextVersion(definitions.apiContext, definitions.apiVersion), definitions.fieldDefinitions)
 
     val url = s"$serviceBaseUrl/definition"
-    // TODO: Remove me
-    Logger.info(s"fetchAllFieldDefinitions() - About to call $url in ${environment.toString}")
     retry {
       for {
         response <- http.GET[AllFieldDefinitionsResponse](url)
@@ -134,8 +129,7 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
 
 object SubscriptionFieldsConnector {
 
-  // TODO: Move all the formatters here
-
+  // TODO: Migrate connector to use these
   private[connectors] case class DefinitionDto(name: String, description: String, hint: String, `type`: String)
 
   private[connectors] case class ValueDto(name: String, description: String, hint: String, `type`: String, value: Option[String])
@@ -144,9 +138,31 @@ object SubscriptionFieldsConnector {
   //private[connectors]
   case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
 
+  // TODO: Sort test package so it just 'connectors' not unit.connectors.
+  //private[connectors]
   object SubscriptionFields {
     implicit val format: Format[SubscriptionFields] = Json.format[SubscriptionFields]
   }
+
+  // TODO: Change SubscriptionField to definition (is this only used for definition and not values?)
+  // TODO: Sort test package so it just 'connectors' not unit.connectors.
+  //private[connectors]
+  case class FieldDefinitionsResponse(apiContext: String, apiVersion: String, fieldDefinitions: List[SubscriptionFieldDefinition])
+  // TODO: Sort test package so it just 'connectors' not unit.connectors.
+  //private[connectors]
+  object FieldDefinitionsResponse {
+    import APIDefinition._
+    implicit val formatFieldDefinitionsResponse: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
+  }
+
+  // TODO: Sort test package so it just 'connectors' not unit.connectors.
+  //private[connectors]
+  case class AllFieldDefinitionsResponse(apis: Seq[FieldDefinitionsResponse])
+  object AllFieldDefinitionsResponse {
+    import APIDefinition._
+    implicit val formatAllFieldDefinitionsResponse: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
+  }
+
 }
 
 @Singleton

@@ -17,7 +17,7 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.apiSubscriptionFields.{AllFieldDefinitionsResponse, FieldDefinitionsResponse, SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import model.apiSubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.CollaboratorRole.CollaboratorRole
 import play.api.libs.json.{Format, Json}
 
@@ -32,10 +32,6 @@ case class APIDefinition( serviceName: String,
                           context: String,
                           versions: Seq[APIVersion],
                           requiresTrust: Option[Boolean]) {
-
-  private def uniqueVersions = {
-    !versions.map(_.version).groupBy(identity).mapValues(_.size).exists(_._2 > 1)
-  }
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.toDouble > v2.version.version.toDouble
@@ -143,8 +139,7 @@ object Subscription {
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
-  // TODO: Rename this to formatAPIVersion?
-  implicit val versionJsonFormatter = Json.format[APIVersion]
+  implicit val formatAPIVersion = Json.format[APIVersion]
   implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldDefinition]
   implicit val subscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]

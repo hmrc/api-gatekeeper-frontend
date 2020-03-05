@@ -23,9 +23,9 @@ import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
 import connectors.{ProxiedHttpClient, SubscriptionFieldsConnector}
+import model.Environment.Environment
 import model.apiSubscriptionFields._
 import model.{ApiContextVersion, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
-import model.Environment.Environment
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -121,7 +121,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .GET[SubscriptionFields](meq(getUrl))(any(), any(), any()))
         .thenReturn(Future.successful(subscriptionFields))
 
-      val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
 
       result shouldBe expectedResults
     }
@@ -141,7 +141,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[SubscriptionFields](meq(getUrl))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
-      val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
       result shouldBe Seq(subscriptionFieldValue.copy(value = None))
     }
 
@@ -163,13 +163,12 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
           Future.successful(subscriptionFields)
         )
 
-      val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
 
       result shouldBe Seq(subscriptionFieldValue)
     }
   }
 
-  // TODO: Replace with fetchAllFieldDefinitions
   "fetchAllFieldDefinitions" should {
 
     val url = s"/definition"
@@ -181,7 +180,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
       )
 
-      val validResponse = AllFieldDefinitionsResponse(apis = Seq(FieldDefinitionsResponse(apiContext, apiVersion, definitions)))
+      private val validResponse = AllFieldDefinitionsResponse(apis = Seq(FieldDefinitionsResponse(apiContext, apiVersion, definitions)))
 
       when(mockHttpClient.GET[AllFieldDefinitionsResponse](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(validResponse))
@@ -220,7 +219,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         SubscriptionFieldDefinition("field2", "desc2", "hint2", "some other type")
       )
 
-      val validResponse = AllFieldDefinitionsResponse(apis = Seq(FieldDefinitionsResponse(apiContext, apiVersion, definitions)))
+      private val validResponse = AllFieldDefinitionsResponse(apis = Seq(FieldDefinitionsResponse(apiContext, apiVersion, definitions)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[AllFieldDefinitionsResponse](meq(url))(any(), any(), any()))
