@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package utils
+package pages
 
-import play.api.Application
-import play.filters.csrf.CSRFAddToken
+import _root_.WebPage
 
-trait WithCSRFAddToken  {
-  val fakeApplication: Application
-  val addToken = fakeApplication.injector.instanceOf[CSRFAddToken]
+object RemoveMfaSuccessPage extends WebPage {
+
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove?email=Dixie.fakename%40example.com"
+
+  override def isCurrentPage: Boolean = {
+    currentUrl == url
+  }
+
+  def finishButton: RemoveMfaSuccessPage.Element = {
+    find(cssSelector("#finish")).get
+  }
+
+  def finish(): Unit = {
+    click on finishButton
+  }
 }

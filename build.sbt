@@ -5,7 +5,7 @@ import com.typesafe.sbt.web.Import._
 import net.ground5hark.sbt.concat.Import._
 import play.routes.compiler.InjectedRoutesGenerator
 import play.sbt.routes.RoutesKeys.routesGenerator
-import sbt.Keys._
+import sbt.Keys.{baseDirectory, unmanagedSourceDirectories, _}
 import sbt.Tests.{Group, SubProcess}
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
@@ -52,45 +52,43 @@ lazy val microservice =  (project in file("."))
       majorVersion := 0
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in Test := Seq(Tests.Filter(unitFilter), Tests.Argument("-eT")),
+    .settings(testOptions in Test := Seq(Tests.Argument("-eT")),
       addTestReportOption(Test, "test-reports"),
-      unmanagedSourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")).value,
-      unmanagedResourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test/unit")).value
+      unmanagedSourceDirectories in Test += baseDirectory(_ / "test").value
     )
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(
-    testOptions in IntegrationTest := Seq(Tests.Filter(itFilter), Tests.Argument("-eT")),
+    testOptions in IntegrationTest := Seq(Tests.Argument("-eT")),
       addTestReportOption(IntegrationTest, "integration-test-reports"),
-      unmanagedSourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest) (base => Seq(base / "test/it")).value,
+      unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
       fork in IntegrationTest := false,
       parallelExecution in IntegrationTest := false
     )
     .configs(AcceptanceTest)
     .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
     .settings(
-      testOptions in AcceptanceTest := Seq(Tests.Filter(acceptanceFilter), Tests.Argument("-l", "SandboxTest", "-eT")),
-      testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
-      unmanagedSourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in AcceptanceTest := (baseDirectory in AcceptanceTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in AcceptanceTest += baseDirectory(_ / "target/web/public/test").value,
+      testOptions in AcceptanceTest := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
+      testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("_root_.AfterHook").newInstance),
+      unmanagedSourceDirectories in AcceptanceTest += baseDirectory(_ / "acceptance").value,
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
       addTestReportOption(AcceptanceTest, "acceptance-test-reports")
     )
+
     .configs(SandboxTest)
     .settings(inConfig(SandboxTest)(Defaults.testTasks): _*)
     .settings(
       testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT"), Tests.Filter(sandboxFilter)),
-      testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
-      unmanagedSourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in SandboxTest := (baseDirectory in SandboxTest) (base => Seq(base / "test")).value,
-      unmanagedResourceDirectories in SandboxTest += baseDirectory(_ / "target/web/public/test").value,
+      testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("_root_.AfterHook").newInstance),
+      unmanagedSourceDirectories in SandboxTest += baseDirectory(_ / "acceptance").value,
       Keys.fork in SandboxTest := false,
       parallelExecution in SandboxTest := false,
       addTestReportOption(SandboxTest, "sandbox-test-reports")
     )
+
+
+
     .settings(
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),

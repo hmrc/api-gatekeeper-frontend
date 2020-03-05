@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package utils
+package pages
 
-import play.api.Application
-import play.filters.csrf.CSRFAddToken
+import _root_.WebPage
 
-trait WithCSRFAddToken  {
-  val fakeApplication: Application
-  val addToken = fakeApplication.injector.instanceOf[CSRFAddToken]
+object DeleteApplicationSuccessPage extends WebPage {
+
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete"
+
+  override def isCurrentPage: Boolean = {
+    currentUrl == url
+  }
 }
