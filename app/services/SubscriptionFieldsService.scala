@@ -28,12 +28,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionFieldsService @Inject()(sandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector,
                                           productionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector)(implicit ec: ExecutionContext) {
 
-  // TODO : Test me
   def fetchAllFieldDefinitions(deployedTo: String)(implicit hc: HeaderCarrier) : Future[DefinitionsByApiVersion] = {
      connectorFor(deployedTo).fetchAllFieldDefinitions()
   }
 
-  // TODO: Test me
   def fetchFieldsWithPrefetchedDefinitions(application: Application,
                                            apiContextVersion: ApiContextVersion,
                                            definitions: DefinitionsByApiVersion)
