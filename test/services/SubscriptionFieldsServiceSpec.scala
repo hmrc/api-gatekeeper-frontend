@@ -17,7 +17,7 @@
 package services
 
 import connectors._
-import model.apiSubscriptionFields.{Fields, SubscriptionFieldValue}
+import model.SubscriptionFields.{Fields, SubscriptionFieldValue}
 import model.{ApiContextVersion, Application, FieldsDeleteResult}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, spy, verify, when}

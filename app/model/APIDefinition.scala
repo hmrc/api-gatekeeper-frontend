@@ -17,9 +17,9 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.apiSubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.CollaboratorRole.CollaboratorRole
-import play.api.libs.json.{Format, Json}
+import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import play.api.libs.json.Json
 
 import scala.util.Try
 

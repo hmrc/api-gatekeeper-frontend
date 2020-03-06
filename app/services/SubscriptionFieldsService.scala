@@ -16,10 +16,10 @@
 
 package services
 
-import javax.inject.Inject
 import connectors._
-import model.apiSubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIVersion, ApiContextVersion, Application, FieldsDeleteResult, apiSubscriptionFields}
+import javax.inject.Inject
+import model.SubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.{ApiContextVersion, Application, FieldsDeleteResult}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 

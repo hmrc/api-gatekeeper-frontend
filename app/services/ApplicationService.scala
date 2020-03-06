@@ -18,7 +18,7 @@ package services
 
 import connectors._
 import javax.inject.Inject
-import model.apiSubscriptionFields.SubscriptionFieldsWrapper
+import model.SubscriptionFields._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -128,7 +128,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
         subscriptionFieldsService
           .fetchFieldsWithPrefetchedDefinitions(application, apiContextVersion, allDefinitionsByApiVersion)
           .map {
-            fields: Seq[apiSubscriptionFields.SubscriptionFieldValue] =>
+            fields: Seq[SubscriptionFieldValue] =>
               VersionSubscription(
                 version.version,
                 version.subscribed,

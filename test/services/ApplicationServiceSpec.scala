@@ -22,7 +22,7 @@ import connectors._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
-import model.apiSubscriptionFields._
+import model.SubscriptionFields._
 import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._

@@ -21,6 +21,7 @@ import java.util.UUID
 
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
+import model.SubscriptionFields.Fields
 import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -617,7 +618,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       "save subscription field values" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[apiSubscriptionFields.Fields])(any[HeaderCarrier]))
+        given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[Fields])(any[HeaderCarrier]))
           .willReturn(successful(HttpResponse(OK)))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(validForm: _*)

@@ -20,7 +20,7 @@ import model.Forms.SubscriptionFieldsForm
 import play.api.data.Form
 import play.api.libs.json.{Format, Json}
 
-package object apiSubscriptionFields {
+object SubscriptionFields {
 
   type Fields = Map[String, String]
 
