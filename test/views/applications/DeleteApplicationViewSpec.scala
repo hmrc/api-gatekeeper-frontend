@@ -30,9 +30,9 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 
 class DeleteApplicationViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
 

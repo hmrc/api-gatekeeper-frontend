@@ -16,7 +16,6 @@
 
 package connectors
 
-import connectors.DummyDeveloperConnector
 import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, Matchers}

@@ -20,7 +20,6 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import config.AppConfig
-import connectors.{ApiPublisherConnector, ProxiedHttpClient}
 import model.Environment._
 import model._
 import org.mockito.Matchers.{any, eq => meq}

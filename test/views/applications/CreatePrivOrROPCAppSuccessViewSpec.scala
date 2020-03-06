@@ -24,8 +24,8 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ViewHelpers._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 import views.html
 
 class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {

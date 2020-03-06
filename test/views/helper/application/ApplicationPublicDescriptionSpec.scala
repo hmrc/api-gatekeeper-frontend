@@ -18,7 +18,6 @@ package views.helper.application
 
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ApplicationGenerator._
-import views.helper.application.ApplicationPublicDescription
 
 class ApplicationPublicDescriptionSpec extends UnitSpec {
   "ApplicationsPublicDescription" when {

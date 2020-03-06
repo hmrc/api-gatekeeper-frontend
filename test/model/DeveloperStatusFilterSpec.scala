@@ -16,7 +16,6 @@
 
 package model
 
-import model.{DeveloperStatusFilter, User}
 import org.scalatest.{Matchers, WordSpec}
 
 class DeveloperStatusFilterSpec extends WordSpec with Matchers {

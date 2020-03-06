@@ -19,7 +19,6 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import controllers.DeploymentApprovalController
 import model.Environment._
 import model._
 import org.mockito.BDDMockito._

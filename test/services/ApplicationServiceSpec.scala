@@ -19,10 +19,10 @@ package services
 import java.util.UUID
 
 import connectors._
-import model.apiSubscriptionFields._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
+import model.apiSubscriptionFields._
 import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
@@ -30,7 +30,6 @@ import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.mockito.MockitoSugar
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 

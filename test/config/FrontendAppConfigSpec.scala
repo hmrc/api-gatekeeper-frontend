@@ -16,7 +16,6 @@
 
 package config
 
-import config.AppConfig
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application

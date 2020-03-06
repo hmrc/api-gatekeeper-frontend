@@ -20,7 +20,6 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import config.AppConfig
-import connectors._
 import model.Environment._
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}

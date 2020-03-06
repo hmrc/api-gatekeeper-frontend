@@ -17,7 +17,6 @@
 package connectors
 
 import config.AppConfig
-import connectors.AuthConnector
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar

@@ -16,7 +16,6 @@
 
 package controllers
 
-import controllers.{HandleUpliftForm, UpdateRateLimitForm}
 import org.scalatest.Matchers
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec

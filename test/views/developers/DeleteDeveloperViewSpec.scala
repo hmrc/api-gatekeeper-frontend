@@ -26,9 +26,9 @@ import org.scalatestplus.play.OneServerPerSuite
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 import views.html.developers.delete_developer
 
 class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {

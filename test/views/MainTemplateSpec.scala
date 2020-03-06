@@ -21,10 +21,9 @@ import org.mockito.BDDMockito.given
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.i18n.Messages.Implicits.applicationMessages
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.play.test.UnitSpec
-import views.html
-import play.api.i18n.Messages.Implicits.applicationMessages
 import utils.LoggedInUser
 
 

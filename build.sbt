@@ -17,7 +17,8 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 import scala.util.Properties
 
 lazy val microservice =  (project in file("."))
-    .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
+    .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+
     .settings(
       Concat.groups := Seq(
         "javascripts/apis-app.js" -> group(
@@ -37,58 +38,46 @@ lazy val microservice =  (project in file("."))
     )
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
-    .settings(defaultSettings(): _*)
     .settings(
       targetJvm := "jvm-1.8",
       scalaVersion := "2.11.11",
       name:= appName,
       libraryDependencies ++= appDependencies,
-      parallelExecution in Test := false,
-      fork in Test := false,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
       routesGenerator := InjectedRoutesGenerator,
       shellPrompt := (_ => "> "),
       majorVersion := 0
     )
-    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in Test := Seq(Tests.Argument("-eT")),
-      addTestReportOption(Test, "test-reports"),
-      unmanagedSourceDirectories in Test += baseDirectory(_ / "test").value
-    )
     .configs(IntegrationTest)
-    .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(
-    testOptions in IntegrationTest := Seq(Tests.Argument("-eT")),
-      addTestReportOption(IntegrationTest, "integration-test-reports"),
-      unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
-      fork in IntegrationTest := false,
-      parallelExecution in IntegrationTest := false
+      Keys.fork in IntegrationTest := false,
+      Defaults.itSettings,
+      parallelExecution in IntegrationTest := false,
+      unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value
     )
     .configs(AcceptanceTest)
-    .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
     .settings(
-      testOptions in AcceptanceTest := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
-      testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("_root_.AfterHook").newInstance),
-      unmanagedSourceDirectories in AcceptanceTest += baseDirectory(_ / "acceptance").value,
+      inConfig(AcceptanceTest)(Defaults.testSettings): _*
+    )
+    .settings(
       Keys.fork in AcceptanceTest := false,
       parallelExecution in AcceptanceTest := false,
-      addTestReportOption(AcceptanceTest, "acceptance-test-reports")
+      testOptions in AcceptanceTest := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
+      testOptions in AcceptanceTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
+      unmanagedSourceDirectories in AcceptanceTest += baseDirectory(_ / "acceptance").value
     )
-
     .configs(SandboxTest)
-    .settings(inConfig(SandboxTest)(Defaults.testTasks): _*)
     .settings(
-      testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT"), Tests.Filter(sandboxFilter)),
-      testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("_root_.AfterHook").newInstance),
-      unmanagedSourceDirectories in SandboxTest += baseDirectory(_ / "acceptance").value,
+      inConfig(SandboxTest)(Defaults.testSettings): _*
+    )
+    .settings(
       Keys.fork in SandboxTest := false,
       parallelExecution in SandboxTest := false,
-      addTestReportOption(SandboxTest, "sandbox-test-reports")
+      testOptions in SandboxTest := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT")),
+      testOptions in SandboxTest += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
+      unmanagedSourceDirectories in SandboxTest += baseDirectory(_ / "acceptance").value
     )
-
-
-
     .settings(
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
@@ -96,14 +85,12 @@ lazy val microservice =  (project in file("."))
         Resolver.jcenterRepo)
     )
     .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
+
 lazy val TemplateTest = config("tt") extend Test
 lazy val TemplateItTest = config("tit") extend IntegrationTest
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
 lazy val appName = "api-gatekeeper-frontend"
-lazy val plugins: Seq[Plugins] = Seq(
-  SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin
-)
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
@@ -132,18 +119,21 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
     ExclusionRule("org.slf4j", "slf4j-log412"),
     ExclusionRule("org.slf4j", "slf4j-jdk14")
   ))
+
+lazy val testScope = "test,it"
+
 lazy val testDeps: Seq[ModuleID] = Seq(
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test,it",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "test,it",
-  "org.pegdown" % "pegdown" % "1.6.0" % "test,it",
-  "org.jsoup" % "jsoup" % jsoupVersion % "test,it",
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % "test,it",
-  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "test,it",
-  "com.github.tomakehurst" % "wiremock" % "1.58" % "test,it",
-  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test,it",
-  "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test,it",
-  "org.mockito" % "mockito-all" % "1.10.19" % "test,it",
-  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test,it"
+  "org.scalatest" %% "scalatest" % "2.2.6" % testScope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % testScope,
+  "org.pegdown" % "pegdown" % "1.6.0" % testScope,
+  "org.jsoup" % "jsoup" % jsoupVersion % testScope,
+  "com.typesafe.play" %% "play-test" % PlayVersion.current % testScope,
+  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % testScope,
+  "com.github.tomakehurst" % "wiremock" % "1.58" % testScope,
+  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % testScope,
+  "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % testScope,
+  "org.mockito" % "mockito-all" % "1.10.19" % testScope,
+  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % testScope
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),
@@ -181,14 +171,6 @@ lazy val compile = Seq(
     ExclusionRule("org.slf4j", "slf4j-jdk14")
   ))
 
-
-def sandboxFilter(name: String): Boolean = name startsWith "acceptance"
-
-def unitFilter(name: String): Boolean = name startsWith "unit"
-
-def acceptanceFilter(name: String): Boolean = name startsWith "acceptance"
-
-def itFilter(name: String): Boolean = name startsWith "it"
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests map {

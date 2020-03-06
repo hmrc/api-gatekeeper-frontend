@@ -16,10 +16,9 @@
 
 package views.helper.application
 
+import model.State._
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ApplicationGenerator._
-import views.helper.application.ApplicationSubmission
-import model.State._
 
 class ApplicationSubmissionSpec extends UnitSpec {
   "ApplicationsSubmission" when {

@@ -22,7 +22,6 @@ import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
-import connectors.{ProxiedHttpClient, SubscriptionFieldsConnector}
 import model.Environment.Environment
 import model.apiSubscriptionFields._
 import model.{ApiContextVersion, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}

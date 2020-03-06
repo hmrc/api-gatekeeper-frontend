@@ -25,9 +25,9 @@ import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 import views.html
 
 class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneServerPerSuite {

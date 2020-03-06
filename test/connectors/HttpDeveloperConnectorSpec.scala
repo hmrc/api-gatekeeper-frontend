@@ -20,8 +20,7 @@ import java.net.URLEncoder
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
-import connectors.HttpDeveloperConnector
-import model.{DeleteDeveloperRequest, DeveloperDeleteFailureResult, DeveloperDeleteSuccessResult, DeveloperStatusFilter, User}
+import model._
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar

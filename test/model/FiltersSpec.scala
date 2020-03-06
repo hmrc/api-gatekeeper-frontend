@@ -16,7 +16,6 @@
 
 package model
 
-import model.{ApiFilter, Value}
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
 

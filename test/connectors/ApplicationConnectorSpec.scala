@@ -21,7 +21,6 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import config.AppConfig
-import connectors.{ApplicationConnector, ProxiedHttpClient}
 import model.Environment._
 import model._
 import org.joda.time.DateTime

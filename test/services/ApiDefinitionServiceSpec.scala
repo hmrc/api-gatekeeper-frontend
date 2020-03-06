@@ -17,18 +17,17 @@
 package services
 
 import connectors._
-import model.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
 import model.Environment._
+import model._
 import org.mockito.BDDMockito._
 import org.mockito.Mockito.{never, verify}
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
-import services.ApiDefinitionService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar {
   trait Setup {

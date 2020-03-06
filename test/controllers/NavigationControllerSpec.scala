@@ -16,7 +16,6 @@
 
 package controllers
 
-import controllers.NavigationController
 import org.mockito.BDDMockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.test.Helpers._

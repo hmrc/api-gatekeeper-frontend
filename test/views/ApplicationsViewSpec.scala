@@ -46,7 +46,6 @@ import play.api.i18n.Messages.Implicits.applicationMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.LoggedInUser
-import views.html
 
 class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with OneServerPerSuite {
 

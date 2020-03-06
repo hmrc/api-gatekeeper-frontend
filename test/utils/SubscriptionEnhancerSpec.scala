@@ -19,8 +19,6 @@ package utils
 import model._
 import org.joda.time.DateTime
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.SubscriptionEnhancer
-
 
 class SubscriptionEnhancerSpec extends UnitSpec {
 

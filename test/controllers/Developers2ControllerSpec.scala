@@ -16,9 +16,8 @@
 
 package controllers
 
-import controllers.Developers2Controller
+import model.DeveloperStatusFilter.VerifiedStatus
 import model._
-import model.DeveloperStatusFilter.{VerifiedStatus, DeveloperStatusFilter}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify

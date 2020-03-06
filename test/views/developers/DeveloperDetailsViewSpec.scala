@@ -25,8 +25,8 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
-import utils.ViewHelpers._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 
 
 class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {

@@ -19,7 +19,6 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import controllers.ApplicationController
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -39,8 +38,8 @@ import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.WithCSRFAddToken
 import utils.CSRFTokenHelper._
+import utils.WithCSRFAddToken
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

@@ -18,11 +18,10 @@ package model
 
 import java.util.UUID
 
-import model._
+import model.AccessType._
 import org.joda.time.DateTime
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec
-import AccessType._
 
 class ModelSpec  extends UnitSpec with Matchers {
 

@@ -18,7 +18,6 @@ package controllers
 
 import java.util.UUID
 
-import controllers.DevelopersController
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._

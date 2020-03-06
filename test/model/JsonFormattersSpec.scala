@@ -16,7 +16,6 @@
 
 package model
 
-import model.{APIStatus, APIStatusJson}
 import play.api.libs.json.{JsError, JsObject, JsString, JsSuccess}
 import uk.gov.hmrc.play.test.UnitSpec
 

@@ -17,12 +17,11 @@
 package views.helper.application
 
 
+import model.State._
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.DateTimeUtils
 import utils.ApplicationGenerator._
-import model.State._
-import views.helper.application.ApplicationReview
 
 class ApplicationReviewSpec extends UnitSpec {
   "ApplicationsReview" when {

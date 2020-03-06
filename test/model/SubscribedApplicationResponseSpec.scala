@@ -20,7 +20,6 @@ import java.util.UUID
 
 import model.CollaboratorRole._
 import model.SubscribedApplicationResponse._
-import model._
 import org.joda.time.DateTime
 import org.scalatest.Matchers
 import uk.gov.hmrc.play.test.UnitSpec

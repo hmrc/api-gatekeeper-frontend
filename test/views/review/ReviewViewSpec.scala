@@ -27,9 +27,9 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.time.DateTimeUtils
-import utils.ViewHelpers._
 import utils.CSRFTokenHelper._
 import utils.LoggedInUser
+import utils.ViewHelpers._
 
 class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 

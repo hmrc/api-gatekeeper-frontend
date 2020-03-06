@@ -19,9 +19,8 @@ package connectors
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import connectors.ProxiedHttpClient
-import org.mockito.Mockito.when
 import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.ws.{WSClient, WSRequest}
