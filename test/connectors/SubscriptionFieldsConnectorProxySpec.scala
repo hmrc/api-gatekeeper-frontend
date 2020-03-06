@@ -25,7 +25,6 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
-import services.SubscriptionFieldsService.SubscriptionFieldsConnector
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -57,7 +56,7 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
     when(mockEnvironment.toString).thenReturn(environmentName)
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
-    val underTest: AbstractSubscriptionFieldsConnector = new AbstractSubscriptionFieldsConnector {
+    val connector: AbstractSubscriptionFieldsConnector = new AbstractSubscriptionFieldsConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl
@@ -75,13 +74,13 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
   "http" when {
     "configured not to use the proxy" should {
       "use the HttpClient" in new Setup(proxyEnabled = false) {
-        underTest.http shouldBe mockHttpClient
+        connector.http shouldBe mockHttpClient
       }
     }
 
     "configured to use the proxy" should {
       "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
-        underTest.http shouldBe mockProxiedHttpClient
+        connector.http shouldBe mockProxiedHttpClient
 
         verify(mockProxiedHttpClient).withHeaders(bearer, testApiKey)
       }
