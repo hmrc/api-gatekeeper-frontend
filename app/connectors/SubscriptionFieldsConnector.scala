@@ -17,7 +17,6 @@
 package connectors
 
 import java.net.URLEncoder.encode
-import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
@@ -28,8 +27,6 @@ import model._
 import model.Environment.Environment
 import play.api.Logger
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.{Format, Json}
-import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
@@ -37,9 +34,6 @@ import utils.Retries
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extends Retries {
-
-  import SubscriptionFieldsConnector._
-
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
