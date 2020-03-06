@@ -23,20 +23,19 @@ import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import model.SubscriptionFields._
-import model._
 import model.Environment.Environment
-import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
+import model._
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.{Format, Json}
-import services.SubscriptionFieldsService.DefinitionsByApiVersion
+import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extends Retries {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with Retries {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -45,8 +44,8 @@ abstract class SubscriptionFieldsConnector(implicit ec: ExecutionContext) extend
   val bearerToken: String
   val apiKey: String
 
-  import SubscriptionFieldsConnector._
   import SubscriptionFieldsConnector.JsonFormatters._
+  import SubscriptionFieldsConnector._
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
@@ -160,7 +159,7 @@ class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                    val proxiedHttpClient: ProxiedHttpClient,
                                                    val actorSystem: ActorSystem,
                                                    val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
-  extends SubscriptionFieldsConnector {
+  extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
   val serviceBaseUrl: String = appConfig.subscriptionFieldsSandboxBaseUrl
@@ -175,7 +174,7 @@ class ProductionSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                       val proxiedHttpClient: ProxiedHttpClient,
                                                       val actorSystem: ActorSystem,
                                                       val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
-  extends SubscriptionFieldsConnector {
+  extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.PRODUCTION
   val serviceBaseUrl: String = appConfig.subscriptionFieldsProductionBaseUrl
