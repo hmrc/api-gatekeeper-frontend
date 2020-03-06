@@ -17,16 +17,19 @@
 package connectors
 
 import java.net.URLEncoder.encode
+import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
+import connectors.SubscriptionFieldsConnector.{AllFieldDefinitionsResponse, FieldDefinitionsResponse, SubscriptionFields}
 import javax.inject.{Inject, Singleton}
 import model.apiSubscriptionFields._
 import model._
 import model.Environment.Environment
-import play.api.Logger
 import play.api.http.Status.NO_CONTENT
+import play.api.libs.json.{Format, Json}
+import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries

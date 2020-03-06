@@ -16,8 +16,6 @@
 
 package model
 
-import java.util.UUID
-
 import model.Forms.SubscriptionFieldsForm
 import play.api.data.Form
 import play.api.libs.json.{Format, Json}
