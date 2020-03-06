@@ -131,32 +131,22 @@ object SubscriptionFieldsConnector {
 
   private[connectors] case class ValueDto(name: String, description: String, hint: String, `type`: String, value: Option[String])
 
-  // TODO: Sort test package so it just 'connectors' not unit.connectors.
-  //private[connectors]
-  case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
+  private[connectors] case class SubscriptionFields(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
 
-  // TODO: Sort test package so it just 'connectors' not unit.connectors.
-  //private[connectors]
-  object SubscriptionFields {
+  private[connectors] object SubscriptionFields {
     implicit val format: Format[SubscriptionFields] = Json.format[SubscriptionFields]
   }
 
   // TODO: Change SubscriptionField to definition (is this only used for definition and not values?)
-  // TODO: Sort test package so it just 'connectors' not unit.connectors.
-  //private[connectors]
-  case class FieldDefinitionsResponse(apiContext: String, apiVersion: String, fieldDefinitions: List[SubscriptionFieldDefinition])
-  // TODO: Sort test package so it just 'connectors' not unit.connectors.
-  //private[connectors]
-  object FieldDefinitionsResponse {
-    import APIDefinition._
+  private[connectors] case class FieldDefinitionsResponse(apiContext: String, apiVersion: String, fieldDefinitions: List[SubscriptionFieldDefinition])
+
+  private[connectors] object FieldDefinitionsResponse {
+    implicit val formatSubscriptionFieldDefinition: Format[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
     implicit val formatFieldDefinitionsResponse: Format[FieldDefinitionsResponse] = Json.format[FieldDefinitionsResponse]
   }
 
-  // TODO: Sort test package so it just 'connectors' not unit.connectors.
-  //private[connectors]
-  case class AllFieldDefinitionsResponse(apis: Seq[FieldDefinitionsResponse])
+  private[connectors] case class AllFieldDefinitionsResponse(apis: Seq[FieldDefinitionsResponse])
   object AllFieldDefinitionsResponse {
-    import APIDefinition._
     implicit val formatAllFieldDefinitionsResponse: Format[AllFieldDefinitionsResponse] = Json.format[AllFieldDefinitionsResponse]
   }
 
