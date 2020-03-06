@@ -108,7 +108,9 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     val connector = applicationConnectorFor(env)
 
     val appsFuture = connector.searchApplications(params)
-    val subsFuture = connector.fetchAllSubscriptions()
+
+    //connector.fetchAllSubscriptions()
+    val subsFuture = Future.successful(Seq.empty)
 
     for {
       par: PaginatedApplicationResponse <- appsFuture
