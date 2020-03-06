@@ -25,6 +25,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
+import services.SubscriptionFieldsService.SubscriptionFieldsConnector
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -56,7 +57,7 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
     when(mockEnvironment.toString).thenReturn(environmentName)
     when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
 
-    val underTest: SubscriptionFieldsConnector = new SubscriptionFieldsConnector {
+    val underTest: AbstractSubscriptionFieldsConnector = new AbstractSubscriptionFieldsConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
       val serviceBaseUrl = baseUrl

@@ -82,7 +82,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
                                         val appConfig: AppConfig,
                                         val actorSystem: ActorSystem,
                                         val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
-    extends SubscriptionFieldsConnector {
+    extends AbstractSubscriptionFieldsConnector {
     val serviceBaseUrl = ""
     val environment: Environment = Environment.SANDBOX
 
