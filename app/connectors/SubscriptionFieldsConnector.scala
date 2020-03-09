@@ -150,7 +150,6 @@ object SubscriptionFieldsConnector {
     implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions] = Json.format[ApiFieldDefinitions]
     implicit val formatAllApiFieldDefinitionsResponse: Format[AllApiFieldDefinitions] = Json.format[AllApiFieldDefinitions]
   }
-
 }
 
 @Singleton
