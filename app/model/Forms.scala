@@ -16,7 +16,7 @@
 
 package model
 
-import model.apiSubscriptionFields._
+import model.SubscriptionFields._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
@@ -236,7 +236,7 @@ object Forms {
       .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
   }
 
-  case class SubscriptionFieldsForm(fields: Seq[SubscriptionField])
+  case class SubscriptionFieldsForm(fields: Seq[SubscriptionFieldValue])
 
   object SubscriptionFieldsForm {
     val form = Form(
@@ -247,7 +247,7 @@ object Forms {
             "description" -> text,
             "hint" -> text,
             "type" -> text,
-            "value" -> optional(text))(SubscriptionField.apply)(SubscriptionField.unapply))
+            "value" -> optional(text))(SubscriptionFieldValue.apply)(SubscriptionFieldValue.unapply))
       )(SubscriptionFieldsForm.apply)(SubscriptionFieldsForm.unapply)
     )
   }

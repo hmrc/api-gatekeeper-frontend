@@ -17,8 +17,8 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.apiSubscriptionFields.SubscriptionFieldsWrapper
 import model.CollaboratorRole.CollaboratorRole
+import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import play.api.libs.json.Json
 
 import scala.util.Try
@@ -33,10 +33,6 @@ case class APIDefinition( serviceName: String,
                           versions: Seq[APIVersion],
                           requiresTrust: Option[Boolean]) {
 
-  private def uniqueVersions = {
-    !versions.map(_.version).groupBy(identity).mapValues(_.size).exists(_._2 > 1)
-  }
-
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.toDouble > v2.version.version.toDouble
   }
@@ -47,6 +43,8 @@ object APIDefinition {
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
+  implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val formatAPISubscription = Json.format[APISubscription]
@@ -70,6 +68,7 @@ object APIDefinition {
   }
 }
 
+// TODO: Move version subscription to controller layer as it is an output only DTO.
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
                                fields: Option[SubscriptionFieldsWrapper] = None)
@@ -141,9 +140,10 @@ object Subscription {
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
-  implicit val versionJsonFormatter = Json.format[APIVersion]
-  implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
-  implicit val formatVersionSubscription = Json.format[VersionSubscription]
+  implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldDefinition]
+  implicit val subscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]
+  implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val subscriptionJsonFormatter = Json.format[Subscription]
 }

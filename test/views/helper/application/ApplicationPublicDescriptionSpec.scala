@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package views.helper.application
 
-import play.api.Application
-import play.filters.csrf.CSRFAddToken
+import uk.gov.hmrc.play.test.UnitSpec
+import utils.ApplicationGenerator._
 
-trait WithCSRFAddToken  {
-  val fakeApplication: Application
-  val addToken = fakeApplication.injector.instanceOf[CSRFAddToken]
+class ApplicationPublicDescriptionSpec extends UnitSpec {
+  "ApplicationsPublicDescription" when {
+    "submittedBy" should {
+      "is present" in {
+        val app = anApplicationResponseWith(aCheckInformation())
+        ApplicationPublicDescription.apply(app) shouldBe Some("application details")
+      }
+      "is not present" in {
+        val app = anApplicationResponse()
+        ApplicationPublicDescription.apply(app) shouldBe None
+      }
+    }
+  }
 }

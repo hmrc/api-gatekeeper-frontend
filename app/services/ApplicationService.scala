@@ -18,11 +18,12 @@ package services
 
 import connectors._
 import javax.inject.Inject
-import model.apiSubscriptionFields.SubscriptionFieldsWrapper
+import model.SubscriptionFields._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -119,34 +120,43 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-    def toApiSubscriptionStatuses(subscription: Subscription, version: VersionSubscription): Future[VersionSubscription] = {
+    def toApiSubscriptionStatuses(allDefinitionsByApiVersion: DefinitionsByApiVersion,
+                                  subscription: Subscription,
+                                  version: VersionSubscription): Future[VersionSubscription] = {
+
       if (withFields) {
-        subscriptionFieldsService.fetchFields(application, subscription.context, version.version.version).map { fields =>
-          VersionSubscription(
-            version.version,
-            version.subscribed,
-            Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
-        }
+        val apiContextVersion = ApiContextVersion(subscription.context, version.version.version)
+
+        subscriptionFieldsService
+          .fetchFieldsWithPrefetchedDefinitions(application, apiContextVersion, allDefinitionsByApiVersion)
+          .map {
+            fields: Seq[SubscriptionFieldValue] =>
+              VersionSubscription(
+                version.version,
+                version.subscribed,
+                Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
+          }
       } else {
         Future.successful(VersionSubscription(version.version, version.subscribed))
       }
     }
 
-    def toApiVersions(subscription: Subscription): Future[Subscription] = {
+    def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: Subscription): Future[Subscription] = {
       val apiSubscriptionStatues = subscription.versions
           .filterNot(_.version.status == APIStatus.RETIRED)
           .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
           .sortWith(APIDefinition.descendingVersion)
-          .map(toApiSubscriptionStatuses(subscription, _))
+          .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
 
       Future.sequence(apiSubscriptionStatues).map(vs => subscription.copy(versions = vs))
-
     }
 
     for {
-      subs <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
-      subsWithFields <- Future.sequence(subs.map(toApiVersions))
-    } yield subsWithFields
+      // TODO: Only do this is withFields is set.
+      allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
+      subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
+      subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
+    } yield subscriptionsWithSubscriptionFields
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
