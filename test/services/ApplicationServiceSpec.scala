@@ -111,17 +111,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 1
-      app1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context", "1.0"))
+      app1.subscriptions should have size 0
 
-      app2.subscriptions should have size 2
-      app2.subscriptions shouldBe Seq(
-        SubscriptionNameAndVersion("super-context", "1.0"),
-        SubscriptionNameAndVersion("test-context", "1.0")
-      )
+      app2.subscriptions should have size 0
 
-      app3.subscriptions should have size 1
-      app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("super-context", "1.0"))
+      app3.subscriptions should have size 0
     }
 
     "list all subscribed applications from sandbox when SANDBOX environment is specified" in new Setup {
@@ -143,17 +137,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 1
-      app1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
+      app1.subscriptions should have size 0
 
-      app2.subscriptions should have size 2
-      app2.subscriptions shouldBe Seq(
-        SubscriptionNameAndVersion("sandbox-super-context", "1.0"),
-        SubscriptionNameAndVersion("sandbox-test-context", "1.0")
-      )
+      app2.subscriptions should have size 0
 
-      app3.subscriptions should have size 1
-      app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
+      app3.subscriptions should have size 0
     }
 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
@@ -175,17 +163,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 1
-      app1.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
+      app1.subscriptions should have size 0
 
-      app2.subscriptions should have size 2
-      app2.subscriptions shouldBe Seq(
-        SubscriptionNameAndVersion("sandbox-super-context", "1.0"),
-        SubscriptionNameAndVersion("sandbox-test-context", "1.0")
-      )
+      app2.subscriptions should have size 0
 
-      app3.subscriptions should have size 1
-      app3.subscriptions shouldBe Seq(SubscriptionNameAndVersion("sandbox-super-context", "1.0"))
+      app3.subscriptions should have size 0
     }
   }
 
