@@ -52,7 +52,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
-      defs.map(field => SubscriptionFieldValue(field, fieldValues.get(field.name)))
+      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
     }
 
     def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {

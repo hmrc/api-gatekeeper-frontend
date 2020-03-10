@@ -34,15 +34,14 @@ object SubscriptionFields {
 
   case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String)
 
-  // TODO: Should the value be an option type? Or an empty string? (I think the latter)
-  case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: Option[String])
+  case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: String)
 
   object SubscriptionFieldValue {
-    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: Option[String]) = {
+    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: String) = {
         SubscriptionFieldValue(SubscriptionFieldDefinition(name, description, hint, `type`), value)
     }
 
-    def toFormValues(subscriptionFieldValue: SubscriptionFieldValue): Option[(String, String, String, String, Option[String])] = {
+    def toFormValues(subscriptionFieldValue: SubscriptionFieldValue): Option[(String, String, String, String, String)] = {
       Some((subscriptionFieldValue.definition.name,
         subscriptionFieldValue.definition.description,
         subscriptionFieldValue.definition.hint,
