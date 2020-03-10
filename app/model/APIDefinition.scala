@@ -68,7 +68,6 @@ object APIDefinition {
   }
 }
 
-// TODO: Move version subscription to controller layer as it is an output only DTO.
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
                                fields: Option[SubscriptionFieldsWrapper] = None)
