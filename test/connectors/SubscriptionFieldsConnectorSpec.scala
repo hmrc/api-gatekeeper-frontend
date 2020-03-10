@@ -98,18 +98,14 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "fetchFieldsValuesWithPrefetchedDefinitions" should {
 
-    val subscriptionFieldValue = SubscriptionFieldValue("my-name", "my-description", "my-hint", "my-type", Some("my-value"))
+    val subscriptionDefinition = SubscriptionFieldDefinition("my-name", "my-description", "my-hint", "my-type")
+
+    val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, Some("my-value"))
 
     val subscriptionFields =
-      ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.name -> subscriptionFieldValue.value.get))
+      ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.definition.name -> subscriptionFieldValue.value.get))
 
     val expectedResults = Seq(subscriptionFieldValue)
-
-    val subscriptionDefinition = SubscriptionFieldDefinition(
-      subscriptionFieldValue.name,
-      subscriptionFieldValue.description,
-      subscriptionFieldValue.hint,
-      subscriptionFieldValue.`type`)
 
     val prefetchedDefinitions = Map(apiContextVersion -> Seq(subscriptionDefinition))
 
