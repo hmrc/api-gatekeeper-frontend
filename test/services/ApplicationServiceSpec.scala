@@ -544,6 +544,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
 
       result shouldBe subscriptions
+
+      verify(mockSubscriptionFieldsService,never()).fetchAllFieldDefinitions(any())(any[HeaderCarrier])
     }
 
     "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
