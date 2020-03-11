@@ -17,13 +17,10 @@
 package model
 
 import model.APIStatus.APIStatus
-import model.CollaboratorRole.CollaboratorRole
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import play.api.libs.json.Json
 
 import scala.util.Try
-
-case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription])
 
 case class APIDefinition( serviceName: String,
                           serviceBaseUrl: String,
@@ -47,7 +44,6 @@ object APIDefinition {
   implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
-  implicit val formatAPISubscription = Json.format[APISubscription]
   implicit val formatAPIIdentifier = Json.format[APIIdentifier]
   implicit val formatApiDefinitions = Json.format[APIDefinition]
 
@@ -68,7 +64,6 @@ object APIDefinition {
   }
 }
 
-// TODO: Move version subscription to controller layer as it is an output only DTO.
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
                                fields: Option[SubscriptionFieldsWrapper] = None)
@@ -103,14 +98,6 @@ object APIAccessType extends Enumeration {
 case class APIIdentifier(context: String, version: String)
 object APIIdentifier {
   implicit val format = Json.format[APIIdentifier]
-}
-
-case class APISubscriptionStatus(name: String, serviceName: String,
-                                 context: String, version: APIVersion, subscribed: Boolean, requiresTrust: Boolean,
-                                 fields: Option[SubscriptionFieldsWrapper] = None, isTestSupport: Boolean = false) {
-  def canUnsubscribe(role: CollaboratorRole) = {
-    role == CollaboratorRole.ADMINISTRATOR && subscribed && version.status != APIStatus.DEPRECATED
-  }
 }
 
 class FetchApiDefinitionsFailed extends Throwable

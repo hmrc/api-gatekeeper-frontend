@@ -34,17 +34,21 @@ object SubscriptionFields {
 
   case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String)
 
-  // TODO: Should the value be an option type? Or an empty string? (I think the latter)
-  case class SubscriptionFieldValue(name: String, description: String, hint: String, `type`: String, value: Option[String])
+  case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: String)
 
   object SubscriptionFieldValue {
+    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: String) = {
+        SubscriptionFieldValue(SubscriptionFieldDefinition(name, description, hint, `type`), value)
+    }
 
-    // TODO: Should this take an option or a string for the value
-    def apply(definition: SubscriptionFieldDefinition, value: Option[String]): SubscriptionFieldValue = {
-      new SubscriptionFieldValue(definition.name, definition.description, definition.hint,definition.`type`, value)
+    def toFormValues(subscriptionFieldValue: SubscriptionFieldValue): Option[(String, String, String, String, String)] = {
+      Some((subscriptionFieldValue.definition.name,
+        subscriptionFieldValue.definition.description,
+        subscriptionFieldValue.definition.hint,
+        subscriptionFieldValue.definition.`type`,
+        subscriptionFieldValue.value))
     }
   }
-
 
   case class SubscriptionFieldsPutRequest(clientId: String, apiContext: String, apiVersion: String, fields: Map[String, String])
   object SubscriptionFieldsPutRequest {

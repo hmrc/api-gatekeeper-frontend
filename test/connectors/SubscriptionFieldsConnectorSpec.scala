@@ -98,18 +98,14 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "fetchFieldsValuesWithPrefetchedDefinitions" should {
 
-    val subscriptionFieldValue = SubscriptionFieldValue("my-name", "my-description", "my-hint", "my-type", Some("my-value"))
+    val subscriptionDefinition = SubscriptionFieldDefinition("my-name", "my-description", "my-hint", "my-type")
+
+    val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, "my-value")
 
     val subscriptionFields =
-      ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.name -> subscriptionFieldValue.value.get))
+      ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.definition.name -> subscriptionFieldValue.value))
 
     val expectedResults = Seq(subscriptionFieldValue)
-
-    val subscriptionDefinition = SubscriptionFieldDefinition(
-      subscriptionFieldValue.name,
-      subscriptionFieldValue.description,
-      subscriptionFieldValue.hint,
-      subscriptionFieldValue.`type`)
 
     val prefetchedDefinitions = Map(apiContextVersion -> Seq(subscriptionDefinition))
 
@@ -141,7 +137,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .thenReturn(Future.failed(new NotFoundException("")))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
-      result shouldBe Seq(subscriptionFieldValue.copy(value = None))
+      result shouldBe Seq(subscriptionFieldValue.copy(value = ""))
     }
 
     "send the x-api-header key when retrieving subscription fields for an API" in new ProxiedSetup {

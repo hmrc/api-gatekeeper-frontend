@@ -144,7 +144,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
                   app.application,
                   apiContext,
                   apiVersion,
-                  Map(validForm.fields.map(f => f.name -> f.value.getOrElse("")): _ *))
+                  Map(validForm.fields.map(f => f.definition.name -> f.value): _ *))
               }
 
               Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))

@@ -151,9 +151,16 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       Future.sequence(apiSubscriptionStatues).map(vs => subscription.copy(versions = vs))
     }
 
+    def getFieldDefinitionsIfNeeded() : Future[DefinitionsByApiVersion] = {
+      if (withFields) {
+        subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
+      } else {
+         Future.successful(DefinitionsByApiVersion.empty)
+      }
+    }
+
     for {
-      // TODO: Only do this is withFields is set.
-      allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
+      allDefinitionsByApiVersion <- getFieldDefinitionsIfNeeded()
       subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
       subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
     } yield subscriptionsWithSubscriptionFields
