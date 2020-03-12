@@ -18,10 +18,10 @@
 @import config.AppConfig
 @import model.AccessType
 @import model.AccessType.AccessType
-@import model.TotpSecrets
+@import model.TotpSecret
 @import utils.LoggedInUser
 
-@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String
+@(applicationId: String, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecret], clientId: String
 )(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: AppConfig)
 
 @main(title = s"${appConfig.title} - Create privileged or ROPC application success") {
@@ -68,7 +68,7 @@
     @if(totpSecret.isDefined) {
         <tr>
             <th>TOTP secret</th>
-            <td>@totpSecret.get.production</td>
+            <td>@totpSecret.get.secret</td>
         </tr>
     }
     <tr>

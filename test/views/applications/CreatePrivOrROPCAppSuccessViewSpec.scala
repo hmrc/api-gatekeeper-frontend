@@ -17,7 +17,7 @@
 package views.applications
 
 import config.AppConfig
-import model.{AccessType, TotpSecrets}
+import model.{AccessType, TotpSecret}
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
@@ -45,7 +45,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
       "render" in {
 
         val accessType = Some(AccessType.PRIVILEGED)
-        val totp = Some(TotpSecrets(totpSecret))
+        val totp = Some(TotpSecret(totpSecret))
 
         implicit val loggedInUser = LoggedInUser(Some(""))
 

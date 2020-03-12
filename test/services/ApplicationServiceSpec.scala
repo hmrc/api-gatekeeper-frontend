@@ -485,7 +485,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "createPrivOrROPCApp" should {
     val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
-    val totpSecrets = Some(TotpSecrets("secret"))
+    val totpSecrets = Some(TotpSecret("secret"))
     val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
     val name = "New app"
