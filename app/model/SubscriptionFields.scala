@@ -37,7 +37,7 @@ object SubscriptionFields {
   case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: String)
 
   object SubscriptionFieldValue {
-    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: String) = {
+    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: String): SubscriptionFieldValue = {
         SubscriptionFieldValue(SubscriptionFieldDefinition(name, description, hint, `type`), value)
     }
 
@@ -48,10 +48,5 @@ object SubscriptionFields {
         subscriptionFieldValue.definition.`type`,
         subscriptionFieldValue.value))
     }
-  }
-
-  object SubscriptionRedirect extends Enumeration {
-    type SubscriptionRedirectType = Value
-    val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value
   }
 }
