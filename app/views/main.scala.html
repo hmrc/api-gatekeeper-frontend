@@ -73,12 +73,9 @@
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
 }
 
-
-
-
 @views.html.layouts.govuk_template(
   title = Option(title),
-  bodyClasses = if(appConfig.isExternalTestEnvironment) { Some("sandbox") } else None)(
+  bodyClasses = None)(
   head = layouts.head(linkElem = None, headScripts = None),
   bodyEnd = bodyEnd,
   insideHeader = insideHeader,

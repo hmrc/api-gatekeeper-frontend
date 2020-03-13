@@ -92,8 +92,7 @@ class AppConfig @Inject()(override val runModeConfiguration: Configuration, envi
   lazy val userRole = loadStringConfig("roles.user")
   lazy val adminRole = loadStringConfig("roles.admin")
 
-  def isExternalTestEnvironment = runModeConfiguration.getBoolean("isExternalTestEnvironment").getOrElse(false)
-  def title = if (isExternalTestEnvironment) "HMRC API Gatekeeper - Developer Sandbox" else "HMRC API Gatekeeper"
+  def title = "HMRC API Gatekeeper"
   def superUsers: Seq[String] = {
     runModeConfiguration.getStringSeq(s"$env.superUsers")
       .orElse(runModeConfiguration.getStringSeq("superUsers"))

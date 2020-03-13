@@ -24,32 +24,20 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class AppConfigSpec extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
-  var isExternalTest = false
-
   trait Setup {
     val appConfig = app.injector.instanceOf[AppConfig]
   }
 
   override def fakeApplication: Application = {
     new GuiceApplicationBuilder()
-      .configure("isExternalTestEnvironment" -> isExternalTest)
       .build()
   }
 
   "AppConfig" should {
 
     "be initialized with properties" in new Setup {
-      appConfig.isExternalTestEnvironment shouldBe false
       appConfig.title shouldBe "HMRC API Gatekeeper"
-
-      isExternalTest = true
     }
-
-    "be initialized with properties for external test environment" in new Setup {
-      appConfig.isExternalTestEnvironment shouldBe true
-      appConfig.title shouldBe "HMRC API Gatekeeper - Developer Sandbox"
-    }
-
   }
 
 }

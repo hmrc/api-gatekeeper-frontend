@@ -870,7 +870,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockConfig.isExternalTestEnvironment).willReturn(true)
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
@@ -896,7 +895,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
             UUID.randomUUID(), "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockConfig.isExternalTestEnvironment).willReturn(true)
           given(mockApplicationService.fetchApplications(any[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(any[Environment], any[String], any[String], any[Seq[Collaborator]], any[AppAccess])(any[HeaderCarrier]))
