@@ -39,15 +39,6 @@ class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
     "navigationController" should {
 
       "render all nav links for standard site" in new Setup {
-        given(mockConfig.isExternalTestEnvironment).willReturn(false)
-        val result = await(underTest.navLinks()(aLoggedInRequest))
-        status(result) shouldBe OK
-        bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
-      }
-
-
-      "render all nav links for ET site" in new Setup {
-        given(mockConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(underTest.navLinks()(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) shouldBe """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""

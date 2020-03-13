@@ -127,7 +127,6 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
       "load successfully if user is authenticated and authorised, but not show dashboard tab if external test" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
-        given(developersController.appConfig.isExternalTestEnvironment).willReturn(true)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
         status(result) shouldBe OK
         bodyOf(result) should include("<h1>Developers Old</h1>")
