@@ -50,11 +50,6 @@ object SubscriptionFields {
     }
   }
 
-  case class SubscriptionFieldsPutRequest(clientId: String, apiContext: String, apiVersion: String, fields: Map[String, String])
-  object SubscriptionFieldsPutRequest {
-    implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
-  }
-
   object SubscriptionRedirect extends Enumeration {
     type SubscriptionRedirectType = Value
     val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value

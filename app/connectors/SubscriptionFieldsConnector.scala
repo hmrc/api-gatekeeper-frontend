@@ -27,7 +27,7 @@ import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, Json, OWrites, Reads}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -144,8 +144,16 @@ object SubscriptionFieldsConnector {
 
   private[connectors] case class AllApiFieldDefinitions(apis: Seq[ApiFieldDefinitions])
 
+  private[connectors] case class SubscriptionFieldsPutRequest(clientId: String, apiContext: String, apiVersion: String, fields: Map[String, String])
+
   object JsonFormatters {
-    implicit val format: Format[ApplicationApiFieldValues] = Json.format[ApplicationApiFieldValues]
+    // Write Only
+    implicit val formatSubscriptionFieldsPutRequest: OWrites[SubscriptionFieldsPutRequest] = Json.writes[SubscriptionFieldsPutRequest]
+
+    // Read Only
+    implicit val format: Reads[ApplicationApiFieldValues] = Json.reads[ApplicationApiFieldValues]
+
+    // Read and Write
     implicit val formatFieldDefinition: Format[FieldDefinition] = Json.format[FieldDefinition]
     implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions] = Json.format[ApiFieldDefinitions]
     implicit val formatAllApiFieldDefinitionsResponse: Format[AllApiFieldDefinitions] = Json.format[AllApiFieldDefinitions]
