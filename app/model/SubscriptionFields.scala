@@ -54,6 +54,4 @@ object SubscriptionFields {
     type SubscriptionRedirectType = Value
     val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value
   }
-
-  case class SubscriptionFieldsViewModel(applicationId: String, apiContext: String, apiVersion: String, subFieldsForm: Form[SubscriptionFieldsForm])
 }
