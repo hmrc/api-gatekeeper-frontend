@@ -166,7 +166,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "fetchAllFieldDefinitions" should {
 
-    val url = s"/definition"
+    val url = "/definition"
 
     "return all field definitions" in new Setup {
 
@@ -228,6 +228,51 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       val expectedResult = Map(apiContextVersion -> definitions.map(toDomain))
 
       result shouldBe expectedResult
+    }
+  }
+
+  "fetchFieldDefinitions" should {
+    val url = s"/definition/context/$apiContext/version/$apiVersion"
+
+    val definitionsFromRestService = List(
+      FieldDefinition("field1", "desc1", "hint1", "some type")
+    )
+
+    val expectedDefinitions = List(SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"))
+
+    val validResponse = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
+
+    "return definitions" in new Setup {
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+        .thenReturn(Future.successful(validResponse))
+
+      private val result = await (subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
+
+      result shouldBe expectedDefinitions
+    }
+
+    "fail when api-subscription-fields returns a 500" in new Setup {
+
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(upstream500Response))
+
+      intercept[Upstream5xxResponse] {
+        await(subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
+      }
+    }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+        .thenReturn(
+          Future.failed(new BadRequestException("")),
+          Future.successful(validResponse)
+        )
+
+      private val result = await (subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
+
+      result shouldBe expectedDefinitions
     }
   }
 
