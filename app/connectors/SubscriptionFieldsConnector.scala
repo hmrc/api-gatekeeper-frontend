@@ -73,19 +73,16 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
-//  private def urlEncode(str: String, encoding: String = "UTF-8") = {
-//    encode(str, encoding)
-//  }
-//
-//  private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
-//    s"$serviceBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
-
+  // TODO: Test me
+  // TODO: Merge with above method (as similar)
   def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
+    // TODO: Copy of method above -  private & reuse?
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
     }
 
+    // TODO: Copy of method above -  private & reuse?
     def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
       if (definitions.isEmpty) {
         Future.successful(None)

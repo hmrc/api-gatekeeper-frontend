@@ -19,7 +19,6 @@ package services
 import javax.inject.{Inject, Named, Singleton}
 import model.SubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
 import model.{APIIdentifier, ApiContextVersion, Application, FieldsDeleteResult}
-import play.api.Logger
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -29,14 +28,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
                                           @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector) {
 
+  // TODO: Test me
   def fetchFieldsValues(application: Application, fieldDefinitions: Seq[SubscriptionFieldDefinition], apiIdentifier: APIIdentifier)
                        (implicit ec: ExecutionContext, hc: HeaderCarrier)
                         : Future[Seq[SubscriptionFieldValue]] = {
     val connector = connectorFor(application)
-
-    def addValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields) = {
-      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
-    }
 
     if (fieldDefinitions.isEmpty) {
       Future.successful(Seq.empty[SubscriptionFieldValue])
@@ -49,6 +45,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
      connectorFor(deployedTo).fetchAllFieldDefinitions()
   }
 
+  // TODO: Test me
   def fetchFieldDefinitions(deployedTo: String, apiContextVersion: ApiContextVersion)
                            (implicit hc: HeaderCarrier) : Future[Seq[SubscriptionFieldDefinition]] = {
     connectorFor(deployedTo)

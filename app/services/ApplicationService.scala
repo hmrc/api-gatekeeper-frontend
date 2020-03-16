@@ -244,8 +244,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
 
     for {
-      subscribeResponse: ApplicationUpdateResult <- applicationConnector.subscribeToApi(application.id.toString, apiIdentifier)
-      fieldDefinitions: Seq[SubscriptionFieldDefinition] <- subscriptionFieldsService
+      subscribeResponse <- applicationConnector.subscribeToApi(application.id.toString, apiIdentifier)
+      fieldDefinitions <- subscriptionFieldsService
         .fetchFieldDefinitions(application.deployedTo, ApiContextVersion(apiIdentifier.context, apiIdentifier.version))
     } yield {
       if (fieldDefinitions.nonEmpty){

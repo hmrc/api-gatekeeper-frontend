@@ -441,14 +441,28 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "subscribeToApi" should {
     "call the service to subscribe to the API" in new Setup {
+      private val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
+
       given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
+
+      // TODO: Verify was called?
+      given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
+          .willReturn(Future.successful(definitions))
+
+      // TODO : What should the value be
+      val subscriptionFieldValues: Seq[SubscriptionFieldValue] = Seq(SubscriptionFieldValue(definitions.head, ""))
+
+      given(mockSubscriptionFieldsService.fetchFieldsValues(stdApp1, definitions, apiIdentifier))
+        .willReturn(Future.successful(subscriptionFieldValues))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(APIIdentifier(context, version)))(any[HeaderCarrier])
+      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
     }
   }
 
