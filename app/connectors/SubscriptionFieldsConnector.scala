@@ -26,6 +26,7 @@ import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
+import play.api.Logger
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.{Format, Json}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -72,6 +73,44 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
+//  private def urlEncode(str: String, encoding: String = "UTF-8") = {
+//    encode(str, encoding)
+//  }
+//
+//  private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
+//    s"$serviceBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+
+  def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
+    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
+      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
+    }
+
+    def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
+      if (definitions.isEmpty) {
+        Future.successful(None)
+      }
+      else {
+        fetchApplicationApiValues(clientId, context, version)
+      }
+    }
+
+    for {
+      definitions <- fetchFieldDefinitions(context, version)
+      subscriptionFields <- ifDefinitionsGetValues(definitions)
+      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
+    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
+  }
+
+  def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
+    val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
+    Logger.debug(s"fetchFieldDefinitions() - About to call $url in ${environment.toString}")
+    retry {
+      http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain))
+    } recover recovery(Seq.empty[SubscriptionFieldDefinition])
+  }
+
+
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
     val url = s"$serviceBaseUrl/definition"
     retry {
@@ -112,6 +151,9 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+
+  private def urlSubscriptionFieldDefinition(apiContext: String, apiVersion: String) =
+    s"$serviceBaseUrl/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value

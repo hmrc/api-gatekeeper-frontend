@@ -220,7 +220,40 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def subscribeToApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnectorFor(application).subscribeToApi(application.id.toString, APIIdentifier(context, version))
+    val applicationConnector: ApplicationConnector = applicationConnectorFor(application)
+//    connector.subscribeToApi(application.id.toString, APIIdentifier(context, version))
+
+    val apiIdentifier = APIIdentifier(context, version)
+
+    def createEmptyFieldValues(fieldDefinitions: Seq[SubscriptionFieldDefinition]) = {
+      fieldDefinitions
+        .map(d => (d.name, ""))
+        .toMap
+    }
+
+    def ifNoSubscriptionValuesSaveEmptyValues(fieldDefinitions: Seq[SubscriptionFieldDefinition]) = {
+      subscriptionFieldsService
+        .fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
+        .map(fieldDefinitionValues => {
+          // TODO: Dodgy
+          if(!fieldDefinitionValues.exists(field => field.value != "")) {
+            println("**** - Saving empty fields values")
+            subscriptionFieldsService.saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions))
+          }
+        })
+    }
+
+    for {
+      subscribeResponse: ApplicationUpdateResult <- applicationConnector.subscribeToApi(application.id.toString, apiIdentifier)
+      fieldDefinitions: Seq[SubscriptionFieldDefinition] <- subscriptionFieldsService
+        .fetchFieldDefinitions(application.deployedTo, ApiContextVersion(apiIdentifier.context, apiIdentifier.version))
+    } yield {
+      if (fieldDefinitions.nonEmpty){
+        ifNoSubscriptionValuesSaveEmptyValues(fieldDefinitions)
+      }
+
+      subscribeResponse
+    }
   }
 
   def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
