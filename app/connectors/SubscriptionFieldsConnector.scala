@@ -52,35 +52,29 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
-    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
-      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
-    }
 
-    def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
-      if (definitions.isEmpty) {
-        Future.successful(None)
-      }
-      else {
-        fetchApplicationApiValues(clientId, apiContextVersion.context, apiContextVersion.version)
-      }
-    }
+    def getDefinitions(): Future[Seq[SubscriptionFieldDefinition]] = Future.successful(definitionsCache.getOrElse(apiContextVersion, Seq.empty))
 
-    val definitions: Seq[SubscriptionFieldDefinition] = definitionsCache.getOrElse(apiContextVersion,Seq.empty)
-
-    for {
-      subscriptionFields <- ifDefinitionsGetValues(definitions)
-      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
+    internalFetchFieldValues(clientId, apiContextVersion.context, apiContextVersion.version, getDefinitions)
   }
 
   def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    // TODO: Copy of method above -  private & reuse?
+    def getDefinitions(): Future[Seq[SubscriptionFieldDefinition]] = fetchFieldDefinitions(context, version)
+
+    internalFetchFieldValues(clientId, context, version, getDefinitions)
+  }
+
+  private def internalFetchFieldValues(clientId: String,
+                                       context: String,
+                                       version: String,
+                                       getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
+                                      (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
     }
 
-    // TODO: Copy of method above -  private & reuse?
     def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
       if (definitions.isEmpty) {
         Future.successful(None)
@@ -91,10 +85,10 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
 
     for {
-      definitions <- fetchFieldDefinitions(context, version)
+      definitions: Seq[SubscriptionFieldDefinition] <- getDefinitions()
       subscriptionFields <- ifDefinitionsGetValues(definitions)
-    fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-  } yield joinFieldValuesToDefinitions(definitions, fieldValues)
+      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
+    }  yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
   def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
