@@ -278,20 +278,21 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldValues" should {
+    val definitionsUrl = s"/definition/context/$apiContext/version/$apiVersion"
+    val valuesUrl = s"/field/application/$clientId/context/$apiContext/version/$apiVersion"
+
+    val definitionsFromRestService = List(
+      FieldDefinition("field1", "desc1", "hint1", "some type")
+    )
+
+    val validDefinitionsResponse: ApiFieldDefinitions = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
+
     "return field values" in new Setup {
-      val definitionsUrl = s"/definition/context/$apiContext/version/$apiVersion"
-      val valuesUrl = s"/field/application/$clientId/context/$apiContext/version/$apiVersion"
-
-      val definitionsFromRestService = List(
-        FieldDefinition("field1", "desc1", "hint1", "some type")
-      )
-
       val expectedDefinitions = definitionsFromRestService.map(d => SubscriptionFieldDefinition(d.name, d.description, d.hint, d.`type`))
       val expectedFieldValues = expectedDefinitions.map(definition => SubscriptionFieldValue(definition, "my-value"))
 
       val fieldsValues: Map[String, String] = fields(expectedFieldValues.map(v => v.definition.name -> v.value): _*)
 
-      val validDefinitionsResponse: ApiFieldDefinitions = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
       val validValuesResponse: ApplicationApiFieldValues = ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fieldsValues)
 
       when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
@@ -303,6 +304,27 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       private val result = await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
 
       result shouldBe expectedFieldValues
+    }
+
+    "fail when fetching field definitions returns a 500" in new Setup {
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+        .thenReturn(Future.failed(upstream500Response))
+
+      intercept[Upstream5xxResponse] {
+        await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
+      }
+    }
+
+    "fail when fetching field definition values returns a 500" in new Setup {
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+        .thenReturn(Future.successful(validDefinitionsResponse))
+
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(valuesUrl))(any(), any(), any()))
+        .thenReturn(Future.failed(upstream500Response))
+
+      intercept[Upstream5xxResponse] {
+        await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
+      }
     }
   }
 
