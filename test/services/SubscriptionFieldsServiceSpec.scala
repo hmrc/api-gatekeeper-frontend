@@ -17,8 +17,8 @@
 package services
 
 import connectors._
-import model.SubscriptionFields.{Fields, SubscriptionFieldValue}
-import model.{ApiContextVersion, Application, FieldsDeleteResult}
+import model.SubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.{APIIdentifier, ApiContextVersion, Application, FieldsDeleteResult}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, spy, verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar {
@@ -110,7 +111,6 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     when(application.clientId).thenReturn("client-id")
     when(application.deployedTo).thenReturn("SANDBOX")
 
-
     "fetchAllFieldDefinitions" in new Setup {
 
       when(mockSandboxSubscriptionFieldsConnector.fetchAllFieldDefinitions()(any[HeaderCarrier]()))
@@ -167,11 +167,32 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   }
 
   "When fetchFieldValues is called" should {
+    val application = mock[Application]
+    when(application.clientId).thenReturn("client-id")
+    when(application.deployedTo).thenReturn("PRODUCTION")
+
     "return return no field values when given no field definitions" in new Setup {
-//      when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(any(), any(), any()(any[HeaderCarrier])
+      private val definitions = Seq.empty
+
+      when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiContextVersion.context), eqTo(apiContextVersion.version))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Seq.empty))
+
+      await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiContextVersion.context, apiContextVersion.version)))
+
+      verify(mockProductionSubscriptionFieldsConnector, never)
+        .fetchFieldValues(any(),any(), any())(any[HeaderCarrier])
     }
 
     "return somme field values when given some field definitions" in new Setup {
+      private val definitions = Seq(SubscriptionFieldDefinition("field1","description", "hint", "type"))
+
+      when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiContextVersion.context), eqTo(apiContextVersion.version))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Seq.empty))
+
+      await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiContextVersion.context, apiContextVersion.version)))
+
+      verify(mockProductionSubscriptionFieldsConnector)
+        .fetchFieldValues(eqTo(application.clientId),eqTo(apiContextVersion.context), eqTo(apiContextVersion.version))(any[HeaderCarrier])
     }
   }
 }

@@ -74,6 +74,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val gatekeeperUserId = "loggedin.gatekeeper"
 
     val apiContextVersion = ApiContextVersion("a-context","1.0")
+    val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
+
     val context = apiContextVersion.context
     val version = apiContextVersion.version
 
@@ -441,18 +443,19 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   "subscribeToApi" should {
+
+    val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
+
+
     "field definitions with empty values will persist empty values" in new Setup {
-      private val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
 
       given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-      val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
-
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
           .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues: Seq[SubscriptionFieldValue] = Seq(SubscriptionFieldValue(definitions.head, ""))
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -471,17 +474,14 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "field definitions with non-empty values will not persist anything" in new Setup {
-      private val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
 
       given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-      val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
-
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
         .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues: Seq[SubscriptionFieldValue] = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(8)))
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(length = 8)))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptionFieldValues))
