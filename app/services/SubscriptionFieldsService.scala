@@ -28,10 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
                                           @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector) {
 
-  // TODO: Test me
-  // TODO: ExecutionContext? Do we need this
   def fetchFieldsValues(application: Application, fieldDefinitions: Seq[SubscriptionFieldDefinition], apiIdentifier: APIIdentifier)
-                       (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     val connector = connectorFor(application)
 
     if (fieldDefinitions.isEmpty) {

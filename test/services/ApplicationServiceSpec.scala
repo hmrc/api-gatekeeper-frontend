@@ -74,7 +74,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val gatekeeperUserId = "loggedin.gatekeeper"
 
     val apiContextVersion = ApiContextVersion("a-context","1.0")
-    val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
+    val apiIdentifier: APIIdentifier = APIIdentifier(apiContextVersion.context, apiContextVersion.version)
 
     val context = apiContextVersion.context
     val version = apiContextVersion.version
@@ -457,7 +457,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
 
-      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
+      given(mockSubscriptionFieldsService.fetchFieldsValues(any(), any(), any())(any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptionFieldValues))
 
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
@@ -483,7 +483,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(length = 8)))
 
-      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
+      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptionFieldValues))
 
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap

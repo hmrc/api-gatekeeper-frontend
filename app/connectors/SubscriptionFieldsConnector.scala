@@ -93,8 +93,8 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     for {
       definitions <- fetchFieldDefinitions(context, version)
       subscriptionFields <- ifDefinitionsGetValues(definitions)
-      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
+    fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
+  } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
   def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
