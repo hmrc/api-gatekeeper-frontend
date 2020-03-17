@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.FutureTimeoutSupportImpl
 
+import scala.collection.immutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -246,7 +247,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
         .thenReturn(Future.successful(validResponse))
 
-      private val result = await (subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
+      private val result = await(subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
 
       result shouldBe expectedDefinitions
     }
@@ -273,6 +274,35 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       private val result = await (subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
 
       result shouldBe expectedDefinitions
+    }
+  }
+
+  "fetchFieldValues" should {
+    "return field values" in new Setup {
+      val definitionsUrl = s"/definition/context/$apiContext/version/$apiVersion"
+      val valuesUrl = s"/field/application/$clientId/context/$apiContext/version/$apiVersion"
+
+      val definitionsFromRestService = List(
+        FieldDefinition("field1", "desc1", "hint1", "some type")
+      )
+
+      val expectedDefinitions = definitionsFromRestService.map(d => SubscriptionFieldDefinition(d.name, d.description, d.hint, d.`type`))
+      val expectedFieldValues = expectedDefinitions.map(definition => SubscriptionFieldValue(definition, "my-value"))
+
+      val fieldsValues: Map[String, String] = fields(expectedFieldValues.map(v => v.definition.name -> v.value): _*)
+
+      val validDefinitionsResponse: ApiFieldDefinitions = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
+      val validValuesResponse: ApplicationApiFieldValues = ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fieldsValues)
+
+      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+        .thenReturn(Future.successful(validDefinitionsResponse))
+
+      when(mockHttpClient.GET[ApplicationApiFieldValues](meq(valuesUrl))(any(), any(), any()))
+        .thenReturn(Future.successful(validValuesResponse))
+
+      private val result = await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
+
+      result shouldBe expectedFieldValues
     }
   }
 
