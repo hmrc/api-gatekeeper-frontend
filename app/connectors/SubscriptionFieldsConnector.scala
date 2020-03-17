@@ -53,22 +53,23 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    def getDefinitions(): Future[Seq[SubscriptionFieldDefinition]] = Future.successful(definitionsCache.getOrElse(apiContextVersion, Seq.empty))
+    def getDefinitions() =
+      Future.successful(definitionsCache.getOrElse(apiContextVersion, Seq.empty))
 
-    internalFetchFieldValues(clientId, apiContextVersion.context, apiContextVersion.version, getDefinitions)
+    internalFetchFieldValues(getDefinitions)(clientId, apiContextVersion)
   }
 
   def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    def getDefinitions(): Future[Seq[SubscriptionFieldDefinition]] = fetchFieldDefinitions(context, version)
+    def getDefinitions() =
+      fetchFieldDefinitions(context, version)
 
-    internalFetchFieldValues(clientId, context, version, getDefinitions)
+    internalFetchFieldValues(getDefinitions)(clientId, ApiContextVersion(context, version))
   }
 
-  private def internalFetchFieldValues(clientId: String,
-                                       context: String,
-                                       version: String,
-                                       getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
+  private def internalFetchFieldValues(getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
+                                      (clientId: String,
+                                       apiContextVersion: ApiContextVersion)
                                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
@@ -80,7 +81,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
         Future.successful(None)
       }
       else {
-        fetchApplicationApiValues(clientId, context, version)
+        fetchApplicationApiValues(clientId, apiContextVersion.context, apiContextVersion.version)
       }
     }
 
