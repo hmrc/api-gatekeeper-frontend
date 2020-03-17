@@ -73,8 +73,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
-  // TODO: Test me
-  // TODO: Merge with above method (as similar)
   def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     // TODO: Copy of method above -  private & reuse?

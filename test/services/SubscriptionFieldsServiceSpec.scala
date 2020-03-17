@@ -165,4 +165,13 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       verify(mockProductionSubscriptionFieldsConnector, never()).deleteFieldValues(any(),any(),any())(any[HeaderCarrier]())
     }
   }
+
+  "When fetchFieldValues is called" should {
+    "return return no field values when given no field definitions" in new Setup {
+//      when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(any(), any(), any()(any[HeaderCarrier])
+    }
+
+    "return somme field values when given some field definitions" in new Setup {
+    }
+  }
 }

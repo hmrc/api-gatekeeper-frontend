@@ -30,8 +30,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
   // TODO: Test me
   def fetchFieldsValues(application: Application, fieldDefinitions: Seq[SubscriptionFieldDefinition], apiIdentifier: APIIdentifier)
-                       (implicit ec: ExecutionContext, hc: HeaderCarrier)
-                        : Future[Seq[SubscriptionFieldValue]] = {
+                       (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
     val connector = connectorFor(application)
 
     if (fieldDefinitions.isEmpty) {

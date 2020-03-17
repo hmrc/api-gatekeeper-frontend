@@ -30,11 +30,12 @@ import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.mockito.MockitoSugar
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -440,7 +441,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   "subscribeToApi" should {
-    "call the service to subscribe to the API" in new Setup {
+    "field definitions with empty values will persist empty values" in new Setup {
       private val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
 
       given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
@@ -448,21 +449,51 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
       val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
 
-      // TODO: Verify was called?
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
           .willReturn(Future.successful(definitions))
 
-      // TODO : What should the value be
       val subscriptionFieldValues: Seq[SubscriptionFieldValue] = Seq(SubscriptionFieldValue(definitions.head, ""))
 
-      given(mockSubscriptionFieldsService.fetchFieldsValues(stdApp1, definitions, apiIdentifier))
+      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
         .willReturn(Future.successful(subscriptionFieldValues))
+
+      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
+
+      given(mockSubscriptionFieldsService.saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier]))
+          .willReturn(Future.successful(HttpResponse(200)))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
       verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
+      verify(mockSubscriptionFieldsService).saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier])
+    }
+
+    "field definitions with non-empty values will not persist anything" in new Setup {
+      private val apiIdentifier: APIIdentifier = APIIdentifier(context, version)
+
+      given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
+
+      given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(definitions))
+
+      val subscriptionFieldValues: Seq[SubscriptionFieldValue] = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(8)))
+
+      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[ExecutionContext], any[HeaderCarrier]))
+        .willReturn(Future.successful(subscriptionFieldValues))
+
+      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
+
+      val result = await(underTest.subscribeToApi(stdApp1, context, version))
+
+      result shouldBe ApplicationUpdateSuccessResult
+
+      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
+      verify(mockSubscriptionFieldsService, never).saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier])
     }
   }
 
