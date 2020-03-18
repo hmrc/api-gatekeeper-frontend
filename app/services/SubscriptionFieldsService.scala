@@ -43,7 +43,6 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
      connectorFor(deployedTo).fetchAllFieldDefinitions()
   }
 
-  // TODO: Test me
   def fetchFieldDefinitions(deployedTo: String, apiIdentifier: APIIdentifier)
                            (implicit hc: HeaderCarrier) : Future[Seq[SubscriptionFieldDefinition]] = {
     connectorFor(deployedTo)
