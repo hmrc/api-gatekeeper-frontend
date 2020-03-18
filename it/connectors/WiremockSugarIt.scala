@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.scalatest.{BeforeAndAfterEach, Suite}
 
-trait WiremockSugar extends BeforeAndAfterEach {
+trait WiremockSugarIt extends BeforeAndAfterEach {
   this: Suite =>
   val stubPort = sys.env.getOrElse("WIREMOCK", "22222").toInt
   val stubHost = "localhost"

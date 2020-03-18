@@ -15,7 +15,7 @@
  */
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.ProductionApiDefinitionConnector
+import connectors.{ProductionApiDefinitionConnector, WiremockSugarIt}
 import model._
 import org.scalatest.Matchers
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -23,9 +23,8 @@ import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import connectors.WiremockSugar
 
-class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceOneAppPerSuite with WiremockSugar {
+class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceOneAppPerSuite with WiremockSugarIt {
   val config = Configuration(
     "microservice.services.api-definition-production.host" -> stubHost,
     "microservice.services.api-definition-production.port" -> stubPort)

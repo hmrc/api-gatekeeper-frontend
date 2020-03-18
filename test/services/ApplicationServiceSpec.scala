@@ -30,11 +30,12 @@ import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.mockito.MockitoSugar
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -72,24 +73,24 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiContextVersion = ApiContextVersion("a-context","1.0")
-    val context = apiContextVersion.context
-    val version = apiContextVersion.version
+    val apiIdentifier = APIIdentifier("a-context","1.0")
+
+    val context = apiIdentifier.context
+    val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = UUID.randomUUID, deployedTo = "SANDBOX"))
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
-    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiContextVersion -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String")))
+    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String")))
 
     def subscriptionFields : Seq[SubscriptionFieldValue]
 
     given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-    given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+    given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
       .willReturn(subscriptionFields)
   }
-
 
   "searchApplications" should {
 
@@ -440,15 +441,57 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   "subscribeToApi" should {
-    "call the service to subscribe to the API" in new Setup {
+
+    val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
+
+
+    "field definitions with empty values will persist empty values" in new Setup {
+
       given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
+          .willReturn(Future.successful(definitions))
+
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
+
+      given(mockSubscriptionFieldsService.fetchFieldsValues(any(), any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(subscriptionFieldValues))
+
+      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
+
+      given(mockSubscriptionFieldsService.saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier]))
+          .willReturn(Future.successful(HttpResponse(200)))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(APIIdentifier(context, version)))(any[HeaderCarrier])
+      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
+      verify(mockSubscriptionFieldsService).saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier])
+    }
+
+    "field definitions with non-empty values will not persist anything" in new Setup {
+
+      given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(definitions))
+
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(length = 8)))
+
+      given(mockSubscriptionFieldsService.fetchFieldsValues(mEq(stdApp1), mEq(definitions), mEq(apiIdentifier))(any[HeaderCarrier]))
+        .willReturn(Future.successful(subscriptionFieldValues))
+
+      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
+
+      val result = await(underTest.subscribeToApi(stdApp1, context, version))
+
+      result shouldBe ApplicationUpdateSuccessResult
+
+      verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
+      verify(mockSubscriptionFieldsService, never).saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier])
     }
   }
 
@@ -536,7 +579,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
       given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
         .willReturn(subscriptionFields)
 
       given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
@@ -556,7 +599,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
       given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
         .willReturn(subscriptionFields)
 
       given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)

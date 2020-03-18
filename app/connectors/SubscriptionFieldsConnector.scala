@@ -26,6 +26,7 @@ import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
+import play.api.Logger
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.{Format, Json}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -49,8 +50,28 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
+  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
+    def getDefinitions() =
+      Future.successful(definitionsCache.getOrElse(apiIdentifier, Seq.empty))
+
+    internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
+  }
+
+  def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
+    def getDefinitions() =
+      fetchFieldDefinitions(context, version)
+
+    internalFetchFieldValues(getDefinitions)(clientId, APIIdentifier(context, version))
+  }
+
+  private def internalFetchFieldValues(getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
+                                      (clientId: String,
+                                       apiIdentifier: APIIdentifier)
+                                      (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
     }
@@ -60,16 +81,23 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
         Future.successful(None)
       }
       else {
-        fetchApplicationApiValues(clientId, apiContextVersion.context, apiContextVersion.version)
+        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
       }
     }
 
-    val definitions: Seq[SubscriptionFieldDefinition] = definitionsCache.getOrElse(apiContextVersion,Seq.empty)
-
     for {
+      definitions: Seq[SubscriptionFieldDefinition] <- getDefinitions()
       subscriptionFields <- ifDefinitionsGetValues(definitions)
       fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
+    }  yield joinFieldValuesToDefinitions(definitions, fieldValues)
+  }
+
+  def fetchFieldDefinitions(apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
+    val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
+    Logger.debug(s"fetchFieldDefinitions() - About to call $url in ${environment.toString}")
+    retry {
+      http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain))
+    } recover recovery(Seq.empty[SubscriptionFieldDefinition])
   }
 
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
@@ -113,6 +141,9 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   private def urlSubscriptionFieldValues(clientId: String, apiContext: String, apiVersion: String) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId)}/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
+  private def urlSubscriptionFieldDefinition(apiContext: String, apiVersion: String) =
+    s"$serviceBaseUrl/definition/context/${urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
+
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value
   }
@@ -131,7 +162,7 @@ object SubscriptionFieldsConnector {
 
   def toDomain(fs: AllApiFieldDefinitions): DefinitionsByApiVersion = {
     fs.apis.map( fd =>
-      ApiContextVersion(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
+      APIIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
     )
     .toMap
   }
