@@ -125,10 +125,10 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                   version: VersionSubscription): Future[VersionSubscription] = {
 
       if (withFields) {
-        val apiContextVersion = APIIdentifier(subscription.context, version.version.version)
+        val apiIdentifier = APIIdentifier(subscription.context, version.version.version)
 
         subscriptionFieldsService
-          .fetchFieldsWithPrefetchedDefinitions(application, apiContextVersion, allDefinitionsByApiVersion)
+          .fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, allDefinitionsByApiVersion)
           .map {
             fields: Seq[SubscriptionFieldValue] =>
               VersionSubscription(
@@ -237,8 +237,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
         .flatMap(values => {
           if (!values.exists(field => field.value != "")) {
-            val x = subscriptionFieldsService.saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions))
-            x.map(_ => HasSucceeded)
+            subscriptionFieldsService.saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions)).map(_ => HasSucceeded)
           }
           else {
             Future.successful(HasSucceeded)
