@@ -73,26 +73,24 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiContextVersion = ApiContextVersion("a-context","1.0")
-    val apiIdentifier: APIIdentifier = APIIdentifier(apiContextVersion.context, apiContextVersion.version)
+    val apiIdentifier = APIIdentifier("a-context","1.0")
 
-    val context = apiContextVersion.context
-    val version = apiContextVersion.version
+    val context = apiIdentifier.context
+    val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = UUID.randomUUID, deployedTo = "SANDBOX"))
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
-    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiContextVersion -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String")))
+    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String")))
 
     def subscriptionFields : Seq[SubscriptionFieldValue]
 
     given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-    given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+    given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
       .willReturn(subscriptionFields)
   }
-
 
   "searchApplications" should {
 
@@ -581,7 +579,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
       given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
         .willReturn(subscriptionFields)
 
       given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
@@ -601,7 +599,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
       given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiContextVersion, prefetchedDefinitions))
+      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
         .willReturn(subscriptionFields)
 
       given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)

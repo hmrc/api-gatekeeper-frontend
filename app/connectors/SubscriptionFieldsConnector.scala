@@ -50,13 +50,13 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiContextVersion: ApiContextVersion, definitionsCache: DefinitionsByApiVersion)
+  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def getDefinitions() =
-      Future.successful(definitionsCache.getOrElse(apiContextVersion, Seq.empty))
+      Future.successful(definitionsCache.getOrElse(apiIdentifier, Seq.empty))
 
-    internalFetchFieldValues(getDefinitions)(clientId, apiContextVersion)
+    internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
   }
 
   def fetchFieldValues(clientId: String, context: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
@@ -64,12 +64,12 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     def getDefinitions() =
       fetchFieldDefinitions(context, version)
 
-    internalFetchFieldValues(getDefinitions)(clientId, ApiContextVersion(context, version))
+    internalFetchFieldValues(getDefinitions)(clientId, APIIdentifier(context, version))
   }
 
   private def internalFetchFieldValues(getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
                                       (clientId: String,
-                                       apiContextVersion: ApiContextVersion)
+                                       apiIdentifier: APIIdentifier)
                                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
@@ -81,7 +81,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
         Future.successful(None)
       }
       else {
-        fetchApplicationApiValues(clientId, apiContextVersion.context, apiContextVersion.version)
+        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
       }
     }
 
@@ -162,7 +162,7 @@ object SubscriptionFieldsConnector {
 
   def toDomain(fs: AllApiFieldDefinitions): DefinitionsByApiVersion = {
     fs.apis.map( fd =>
-      ApiContextVersion(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
+      APIIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
     )
     .toMap
   }

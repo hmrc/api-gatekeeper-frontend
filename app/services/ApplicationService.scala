@@ -125,7 +125,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                   version: VersionSubscription): Future[VersionSubscription] = {
 
       if (withFields) {
-        val apiContextVersion = ApiContextVersion(subscription.context, version.version.version)
+        val apiContextVersion = APIIdentifier(subscription.context, version.version.version)
 
         subscriptionFieldsService
           .fetchFieldsWithPrefetchedDefinitions(application, apiContextVersion, allDefinitionsByApiVersion)
@@ -255,7 +255,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
 
     val subscribeResponse = applicationConnector.subscribeToApi(application.id.toString, apiIdentifier)
-    val fieldDefinitions = subscriptionFieldsService.fetchFieldDefinitions(application.deployedTo, ApiContextVersion(apiIdentifier.context, apiIdentifier.version))
+    val fieldDefinitions = subscriptionFieldsService.fetchFieldDefinitions(application.deployedTo, apiIdentifier)
 
     fieldDefinitions
       .flatMap(ensureSavedValuesForAnyDefinitions)

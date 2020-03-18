@@ -23,7 +23,6 @@ case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
-// TODO: Remove and use APIIdentifier instead
 case class ApiContextVersion(context: String, version: String) {
   def toStringValue: String = s"${context}__$version"
 }

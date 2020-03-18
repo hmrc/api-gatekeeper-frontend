@@ -24,7 +24,7 @@ import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
 import model.Environment.Environment
 import model.SubscriptionFields._
-import model.{ApiContextVersion, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
+import model.{APIIdentifier, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -45,7 +45,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   private val clientId = UUID.randomUUID().toString
   private val apiContext = "i-am-a-test"
   private val apiVersion = "1.0"
-  private val apiContextVersion = ApiContextVersion(apiContext, apiVersion)
+  private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
   private val upstream500Response = Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
@@ -107,7 +107,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     val expectedResults = Seq(subscriptionFieldValue)
 
-    val prefetchedDefinitions = Map(apiContextVersion -> Seq(subscriptionDefinition))
+    val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
 
     val getUrl = s"$urlPrefix/application/$clientId/context/$apiContext/version/$apiVersion"
 
@@ -116,7 +116,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
         .thenReturn(Future.successful(subscriptionFields))
 
-      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
 
       result shouldBe expectedResults
     }
@@ -127,7 +127,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
-        await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+        await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
       }
     }
 
@@ -136,7 +136,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
-      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
       result shouldBe Seq(subscriptionFieldValue.copy(value = ""))
     }
 
@@ -144,7 +144,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       when(mockProxiedHttpClient.GET[ApplicationApiFieldValues](any())(any(), any(), any())).thenReturn(Future.successful(subscriptionFields))
 
-      await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
 
       verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
     }
@@ -158,7 +158,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
           Future.successful(subscriptionFields)
         )
 
-      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiContextVersion, prefetchedDefinitions))
+      private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
 
       result shouldBe Seq(subscriptionFieldValue)
     }
@@ -182,7 +182,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
 
-      val expectedResult = Map(apiContextVersion -> definitions.map(toDomain))
+      val expectedResult = Map(apiIdentifier -> definitions.map(toDomain))
 
       result shouldBe expectedResult
     }
@@ -225,7 +225,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
 
-      val expectedResult = Map(apiContextVersion -> definitions.map(toDomain))
+      val expectedResult = Map(apiIdentifier -> definitions.map(toDomain))
 
       result shouldBe expectedResult
     }

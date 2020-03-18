@@ -29,3 +29,4 @@ dist
 .bloop
 .metals
 .vscode
+.ionide
