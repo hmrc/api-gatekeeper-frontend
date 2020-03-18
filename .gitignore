@@ -5,6 +5,7 @@ bin/
 logs
 project/project
 project/target
+project/metals.sbt
 target
 lib_managed
 tmp
@@ -25,3 +26,6 @@ dist
 .DS_Store
 .ensime
 .ensime_cache
+.bloop
+.metals
+.vscode
