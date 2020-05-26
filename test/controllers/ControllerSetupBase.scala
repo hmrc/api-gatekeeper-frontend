@@ -31,13 +31,13 @@ import services.{ApiDefinitionService, ApplicationService, DeploymentApprovalSer
 import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.ApplicationServiceMock
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSetupBase extends MockitoSugar {
+trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
 
   val mockAuthConnector = mock[AuthConnector]
-  val mockApplicationService = mock[ApplicationService]
   val mockApiDefinitionService = mock[ApiDefinitionService]
   val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]

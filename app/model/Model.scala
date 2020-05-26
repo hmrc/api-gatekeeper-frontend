@@ -58,6 +58,11 @@ object GatekeeperSessionKeys {
   val AuthToken = SessionKeys.authToken
 }
 
+case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory,
+                                                               subscriptionsWithFieldDefinitions: Seq[Subscription])
+
+case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: Seq[Subscription])
+
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 object ApplicationWithHistory {

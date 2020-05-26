@@ -1170,21 +1170,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(any[Application], any(), any())(any[HeaderCarrier])
         verifyAuthConnectorCalledForUser
       }
-
-      "return the application details when the subscription service fails" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
-        givenTheAppWillBeReturned()
-        given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier]))
-          .willReturn(Future.failed(new FetchApplicationSubscriptionsFailed))
-        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier]))
-          .willReturn(developers)
-
-        val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
-
-        status(result) shouldBe OK
-        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(false))(any[HeaderCarrier])
-        verifyAuthConnectorCalledForUser
-      }
     }
 
     "manageTeamMembers" when {
