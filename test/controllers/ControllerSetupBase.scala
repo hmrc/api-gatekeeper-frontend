@@ -20,6 +20,7 @@ import java.util.UUID
 
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
+import mocks.service.ApplicationServiceMock
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -31,7 +32,6 @@ import services.{ApiDefinitionService, ApplicationService, DeploymentApprovalSer
 import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.ApplicationServiceMock
 
 import scala.concurrent.{ExecutionContext, Future}
 

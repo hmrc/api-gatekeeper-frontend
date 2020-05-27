@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package utils
+package mocks.service
 
 import model.{Application, ApplicationWithHistory, Subscription}
-import org.mockito.BDDMockito._
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
+import org.scalatest.mockito.MockitoSugar
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 

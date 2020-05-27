@@ -3,19 +3,20 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy orequest the License at
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS Orequest ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 package utils
 
+import builder.SubscriptionsBuilder
 import controllers.ControllerSetupBase
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
@@ -37,7 +38,7 @@ import scala.concurrent.Future
 
 class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
-  trait Setup extends ControllerSetupBase {
+  trait Setup extends ControllerSetupBase with SubscriptionsBuilder{
 
     implicit val materializer = fakeApplication.materializer
     implicit val appConfig = mock[config.AppConfig]
@@ -51,36 +52,23 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
     val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
 
     val expectedResult = "result text"
-    val version1 = VersionSubscription(APIVersion("version_1.0", APIStatus.STABLE, None), subscribed = true)
-    val version2 = VersionSubscription(APIVersion("version_2.0", APIStatus.STABLE, None), subscribed = false)
+    val version1 = buildVersionWithSubscriptionFields("1.0", true)
+    val version2 = buildVersionWithSubscriptionFields("2.0", false)
 
-    val emptySubscriptionFieldsWrapper = SubscriptionFieldsWrapper(applicationId, "clientId", "context", "apiVersion", fields = Seq.empty)
-    val versionWithoutSubscriptionFields = VersionSubscription(APIVersion("version_3.0", APIStatus.STABLE, None), subscribed = true, fields = Some(emptySubscriptionFieldsWrapper))
+    val emptySubscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId)
+    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields("3.0", true, fields = Some(emptySubscriptionFieldsWrapper))
 
-    val subscriptionFieldDefinition = SubscriptionFieldDefinition("name", "description", "hint", "STRING")
-    val subscriptionFieldValue = SubscriptionFieldValue(subscriptionFieldDefinition, "value")
-    val subscriptionFieldsWrapper = emptySubscriptionFieldsWrapper.copy(fields = Seq(subscriptionFieldValue))
-    val versionWithSubscriptionFields = VersionSubscription(APIVersion("version_4.0", APIStatus.STABLE, None), subscribed = true, fields = Some(subscriptionFieldsWrapper))
+    val subscriptionFieldValue = buildSubscriptionFieldValue("name")
+    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("4.0", true, fields = Some(subscriptionFieldsWrapper))
 
-     val subscription1 = Subscription(name = "Subscription1",
-      serviceName = "service name",
-      context =  "context",
-      versions = Seq.empty[VersionSubscription])
+     val subscription1 = buildSubscription("Subscription1")
 
-    val subscription2 = Subscription(name = "Subscription2",
-      serviceName = "service name2",
-      context =  "context2",
-      versions = Seq(version1, version2))
+    val subscription2 = buildSubscription("Subscription2", Seq(version1, version2))
 
-    val subscription3 = Subscription(name = "Subscription3",
-      serviceName = "service name3",
-      context =  "context3",
-      versions = Seq(version1, version2))
+    val subscription3 = buildSubscription("Subscription3", Seq(version1, version2))
 
-    val subscription4 = Subscription(name = "Subscription4",
-      serviceName = "service name4",
-      context =  "context4",
-      versions = Seq(version1, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
+    val subscription4 = buildSubscription("Subscription4", Seq(version1, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
   }
 
   "withApp" should {
