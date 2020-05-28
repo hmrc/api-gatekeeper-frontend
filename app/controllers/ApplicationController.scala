@@ -146,7 +146,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
 
             def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
-              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+              throw new RuntimeException(s"Failed to save Subscription fields - ${formWithErrors.errors}")
 
             SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
           }
