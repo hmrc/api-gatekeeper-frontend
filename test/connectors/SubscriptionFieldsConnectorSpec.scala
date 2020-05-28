@@ -98,7 +98,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "fetchFieldsValuesWithPrefetchedDefinitions" should {
 
-    val subscriptionDefinition = SubscriptionFieldDefinition("my-name", "my-description", "my-hint", "my-type")
+    val subscriptionDefinition = SubscriptionFieldDefinition("my-name", "my-description", "my-hint", "my-type", "my-shortDescription")
 
     val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, "my-value")
 
@@ -171,8 +171,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     "return all field definitions" in new Setup {
 
       val definitions = List(
-        FieldDefinition("field1", "desc1", "hint1", "some type"),
-        FieldDefinition("field2", "desc2", "hint2", "some other type")
+        FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"),
+        FieldDefinition("field2", "desc2", "hint2", "some other type", "shortDescription")
       )
 
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
@@ -210,8 +210,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     "when retry logic is enabled should retry on failure" in new Setup {
 
       val definitions = List(
-        FieldDefinition("field1", "desc1", "hint1", "some type"),
-        FieldDefinition("field2", "desc2", "hint2", "some other type")
+        FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"),
+        FieldDefinition("field2", "desc2", "hint2", "some other type", "shortDescription")
       )
 
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
@@ -235,10 +235,10 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val url = s"/definition/context/$apiContext/version/$apiVersion"
 
     val definitionsFromRestService = List(
-      FieldDefinition("field1", "desc1", "hint1", "some type")
+      FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
     )
 
-    val expectedDefinitions = List(SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type"))
+    val expectedDefinitions = List(SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"))
 
     val validResponse = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 
@@ -281,13 +281,13 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val valuesUrl = s"/field/application/$clientId/context/$apiContext/version/$apiVersion"
 
     val definitionsFromRestService = List(
-      FieldDefinition("field1", "desc1", "hint1", "some type")
+      FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
     )
 
     val validDefinitionsResponse: ApiFieldDefinitions = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 
     "return field values" in new Setup {
-      val expectedDefinitions = definitionsFromRestService.map(d => SubscriptionFieldDefinition(d.name, d.description, d.hint, d.`type`))
+      val expectedDefinitions = definitionsFromRestService.map(d => SubscriptionFieldDefinition(d.name, d.description, d.hint, d.`type`, d.shortDescription))
       val expectedFieldValues = expectedDefinitions.map(definition => SubscriptionFieldValue(definition, "my-value"))
 
       val fieldsValues: Map[String, String] = fields(expectedFieldValues.map(v => v.definition.name -> v.value): _*)

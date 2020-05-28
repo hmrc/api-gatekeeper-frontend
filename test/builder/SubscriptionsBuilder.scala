@@ -39,6 +39,6 @@ trait SubscriptionsBuilder {
 
 
   def buildSubscriptionFieldValue(name: String) = {
-    SubscriptionFieldValue(SubscriptionFieldDefinition(name, s"description-$name", s"hint-$name", "STRING"), s"value-$name")
+    SubscriptionFieldValue(SubscriptionFieldDefinition(name, s"description-$name", s"hint-$name", "STRING", s"shortDescription-$name"), s"value-$name")
   }
 }

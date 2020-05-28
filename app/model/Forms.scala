@@ -247,6 +247,7 @@ object Forms {
             "description" -> text,
             "hint" -> text,
             "type" -> text,
+            "shortDescription" -> text,
             "value" -> text)(SubscriptionFieldValue.fromFormValues)(SubscriptionFieldValue.toFormValues))
       )(SubscriptionFieldsForm.apply)(SubscriptionFieldsForm.unapply)
     )

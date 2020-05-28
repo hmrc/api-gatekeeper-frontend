@@ -156,7 +156,8 @@ object SubscriptionFieldsConnector {
       name = f.name,
       description = f.description,
       `type` = f.`type`,
-      hint = f.hint
+      hint = f.hint,
+      shortDescription = f.shortDescription
     )
   }
 
@@ -169,7 +170,7 @@ object SubscriptionFieldsConnector {
 
   private[connectors] case class ApplicationApiFieldValues(clientId: String, apiContext: String, apiVersion: String, fieldsId: UUID, fields: Map[String, String])
 
-  private[connectors] case class FieldDefinition(name: String, description: String, hint: String, `type`: String)
+  private[connectors] case class FieldDefinition(name: String, description: String, hint: String, `type`: String, shortDescription: String)
 
   private[connectors] case class ApiFieldDefinitions(apiContext: String, apiVersion: String, fieldDefinitions: List[FieldDefinition])
 

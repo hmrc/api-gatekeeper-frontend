@@ -16,6 +16,7 @@
 
 package controllers
 
+import builder.SubscriptionsBuilder
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
@@ -23,27 +24,31 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{Action, AnyContent, Result}
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.WithCSRFAddToken
+import utils.{TitleChecker, WithCSRFAddToken}
 import play.api.test.Helpers
 import services.{ApplicationService, SubscriptionFieldsService}
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import org.mockito.Matchers.{eq => eqTo, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
+class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
   implicit val materializer = fakeApplication.materializer
 
-  trait Setup extends ControllerSetupBase {
+  trait Setup extends ControllerSetupBase with SubscriptionsBuilder  {
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
     val controller = new SubscriptionConfigurationController(
       mockApplicationService,
       mockAuthConnector
     )(mockConfig, global)
+
+    val subscriptionFieldValue = buildSubscriptionFieldValue("name")
+    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("1.0", true, fields = Some(subscriptionFieldsWrapper))
+    val subscription = buildSubscription("My Subscription", Seq(versionWithSubscriptionFields))
+
   }
 
   "list application's subscriptions configuration" in new Setup {
@@ -51,7 +56,7 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
     givenTheAppWillBeReturned()
     given(mockConfig.title).willReturn("Unit Test Title")
     given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-      .willReturn(Future.successful(Seq.empty))
+      .willReturn(Future.successful(Seq(subscription)))
 
     val appId = "123"
 
@@ -63,16 +68,14 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
 
     val responseBody = Helpers.contentAsString(result)
     responseBody should include("<h1>Subscription configuration</h1>")
+    responseBody should include(subscription.name)
+    responseBody should include(subscription.versions.head.version.version)
+    responseBody should include(subscription.versions.head.version.displayedStatus)
+// TODO:  responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
+    responseBody should include(subscription.versions.head.fields.head.fields.head.value)
 
     verify(mockApplicationService)
       .fetchApplication(eqTo(appId))(any[HeaderCarrier])
   }
 
-  // TODO: Copied from AppSpec -> Move to common trait?
-  def titleOf(result: Result) = {
-    val titleRegEx = """<title[^>]*>(.*)</title>""".r
-    val title = titleRegEx.findFirstMatchIn(bodyOf(result)).map(_.group(1))
-    title.isDefined shouldBe true
-    title.get
-  }
 }

@@ -40,13 +40,13 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.CSRFTokenHelper._
-import utils.WithCSRFAddToken
+import utils.{TitleChecker, WithCSRFAddToken}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
+class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
 
   implicit val materializer = fakeApplication.materializer
 
@@ -608,11 +608,13 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         "fields[0].description" -> "desc1",
         "fields[0].hint" -> "hint1",
         "fields[0].type" -> "STRING",
+        "fields[0].shortDescription" -> "shortDescription",
         "fields[1].name" -> "field2",
         "fields[1].value" -> "value2",
         "fields[1].description" -> "desc0",
         "fields[1].hint" -> "hint0",
-        "fields[1].type" -> "STRING"
+        "fields[1].type" -> "STRING",
+        "fields[1].shortDescription" -> "shortDescription"
       )
 
       "save subscription field values" in new Setup {
@@ -1806,13 +1808,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), any[Retrieval[Any]])(any(), any())
       }
 
-    }
-
-    def titleOf(result: Result) = {
-      val titleRegEx = """<title[^>]*>(.*)</title>""".r
-      val title = titleRegEx.findFirstMatchIn(bodyOf(result)).map(_.group(1))
-      title.isDefined shouldBe true
-      title.get
     }
 
     def assertIncludesOneError(result: Result, message: String) = {
