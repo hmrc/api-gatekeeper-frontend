@@ -15,9 +15,10 @@
  *@
 
 @import model._
+@import model.view.SubscriptionVersion
 @import utils.LoggedInUser
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 @pageTitle = @{"Subscription configuration"}
@@ -42,15 +43,8 @@
 
   <p>Edit the configuration for these APIs the application is subscribed to.</p>
 
-  <ul>
-  @for(sub <- subscriptions; version <- sub.versions){
-    <li>@sub.name - @version.version.version</li>
-  }
-  </ul>
-
-
-  @for(api <- subscriptions; version <- api.versions) {
-    <h2>@{api.name} @{version.version.version} @{version.version.displayedStatus}</h2>
+  @for(subscriptionVersion <- subscriptionVersions) {
+    <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version} @{subscriptionVersion.displayedStatus}</h2>
     <table>
       <thead>
         <tr>
@@ -62,10 +56,9 @@
         </tr>
       </thead>
       <tbody>
-@*        /TODO: naked get!*@
-      @for(field: SubscriptionFields.SubscriptionFieldValue <- version.fields.get.fields) {
+      @for(field <- subscriptionVersion.fields) {
         <tr>
-          <td>@{field.definition.name}</td>
+          <td>@{field.shortDescription}</td>
           <td>@{field.value}</td>
           <td></td>
         </tr>

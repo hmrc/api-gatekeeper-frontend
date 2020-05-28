@@ -19,30 +19,35 @@ package controllers
 import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.Inject
+import model.SubscriptionFields.SubscriptionFieldsWrapper
 import model._
+import model.view.SubscriptionVersion
 import org.joda.time.DateTime
 import play.api.Play.current
-import play.api.mvc.{Action, AnyContent, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
-import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest}
-import views.html.applications.subscriptionConfiguration.list_subscription_configuration
 import play.api.i18n.Messages.Implicits._
+import play.api.mvc.{Action, AnyContent}
+import services.ApplicationService
+import utils.{ActionBuilders, GatekeeperAuthWrapper}
+import views.html.applications.subscriptionConfiguration.list_subscription_configuration
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
                                                     override val authConnector: AuthConnector
-                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
+                                                   )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-//TODO: Write test for when there are APIs
-  def listConfigurations(appId: String) : Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc =>
         withAppAndFieldDefinitions(appId) {
-          app => Future.successful(Ok(list_subscription_configuration(app.application, app.subscriptionsWithFieldDefinitions)))
+          app => {
+            Future.successful(Ok(list_subscription_configuration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
+          }
         }
   }
 }
+
+

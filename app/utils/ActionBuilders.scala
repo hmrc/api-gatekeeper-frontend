@@ -16,12 +16,11 @@
 
 package utils
 
-import model.{ApplicationAndSubscribedFieldDefinitionsWithHistory, ApplicationAndSubscriptionsWithHistory, ApplicationWithHistory, VersionSubscription}
+import model._
 import play.api.mvc.{Request, Result}
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import views.html.applications.manage_subscriptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,51 +31,42 @@ trait ActionBuilders {
     HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
   def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])
-                     (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+             (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
-  //TODO: withSubFields flag better solution?
-  def withAppAndSubscriptions(appId: String, withSubFields: Boolean)(f: ApplicationAndSubscriptionsWithHistory => Future[Result])
+  def withAppAndSubscriptions(appId: String, withSubFields: Boolean)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
 
-    withApp(appId){
+    withApp(appId) {
       appWithHistory => {
-
         val app = appWithHistory.application
-
-        applicationService.fetchApplicationSubscriptions(app, withFields = withSubFields).flatMap{
+        applicationService.fetchApplicationSubscriptions(app, withFields = withSubFields).flatMap {
           allApis => {
-
-            // TODO: This is complex :(
-            val subscriptions = allApis
-              .map(api => api.copy(versions = api.versions.filter(v => v.subscribed)))
-              .filterNot(api => api.versions.isEmpty)
-              .sortWith(_.name.toLowerCase < _.name.toLowerCase)
-
-            f(ApplicationAndSubscriptionsWithHistory(appWithHistory, subscriptions))
+            val subscriptions = filterSubscriptionsVersions(allApis)(v => v.subscribed)
+            action(ApplicationAndSubscriptionsWithHistory(appWithHistory, subscriptions))
           }
         }
       }
     }
   }
 
-  def withAppAndFieldDefinitions(appId: String)(f: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
-                             (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+  def withAppAndFieldDefinitions(appId: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
+                                (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
 
-    withAppAndSubscriptions(appId, true){
+    withAppAndSubscriptions(appId, true) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-
         val app = appWithFieldSubscriptions.application
-
-        // TODO: This is complex :(
-        // Can we make a common version predicate filter.
-        val subscriptionsWithFieldDefinitions = appWithFieldSubscriptions
-          .subscriptions.map(s=>s.copy(versions = s.versions.filter(v=>v.fields.fold(false)(fields => fields.fields.nonEmpty))))
-          .filterNot(s => s.versions.isEmpty)
-
-            f(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
-          }
+        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fold(false)(fields => fields.fields.nonEmpty))
+        action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
+      }
     }
+  }
+
+  private def filterSubscriptionsVersions(subscriptions: Seq[Subscription])(predicate: VersionSubscription => Boolean): Seq[Subscription] = {
+    subscriptions
+      .map(api => api.copy(versions = api.versions.filter(predicate)))
+      .filterNot(api => api.versions.isEmpty)
+      .sortWith(_.name.toLowerCase < _.name.toLowerCase)
   }
 }

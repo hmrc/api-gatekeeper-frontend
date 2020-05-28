@@ -21,17 +21,16 @@ import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
 import org.scalatest.mockito.MockitoSugar
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.Result
+import play.api.test.Helpers
 import play.api.test.Helpers._
+import services.SubscriptionFieldsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.{TitleChecker, WithCSRFAddToken}
-import play.api.test.Helpers
-import services.{ApplicationService, SubscriptionFieldsService}
-import uk.gov.hmrc.http.HeaderCarrier
-import org.mockito.Matchers.{eq => eqTo, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
   implicit val materializer = fakeApplication.materializer
@@ -71,11 +70,10 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
     responseBody should include(subscription.name)
     responseBody should include(subscription.versions.head.version.version)
     responseBody should include(subscription.versions.head.version.displayedStatus)
-// TODO:  responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
+    responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
     responseBody should include(subscription.versions.head.fields.head.fields.head.value)
 
     verify(mockApplicationService)
       .fetchApplication(eqTo(appId))(any[HeaderCarrier])
   }
-
 }
