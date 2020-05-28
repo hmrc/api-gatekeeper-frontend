@@ -57,9 +57,7 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
     given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
       .willReturn(Future.successful(Seq(subscription)))
 
-    val appId = "123"
-
-    val result : Result = await(controller.listConfigurations(appId)(aLoggedInRequest))
+    val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
 
     status(result) shouldBe OK
 
@@ -73,7 +71,28 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
     responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
     responseBody should include(subscription.versions.head.fields.head.fields.head.value)
 
-    verify(mockApplicationService)
-      .fetchApplication(eqTo(appId))(any[HeaderCarrier])
+    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+  }
+
+  "When logged in as super user renders the page correctly" in new Setup {
+    givenTheUserIsAuthorisedAndIsASuperUser()
+    givenTheAppWillBeReturned()
+    given(mockConfig.title).willReturn("Unit Test Title")
+    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+      .willReturn(Future.successful(Seq(subscription)))
+
+    val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
+
+    status(result) shouldBe OK
+
+    verifyAuthConnectorCalledForSuperUser
+  }
+
+  "When logged in as normal user renders forbidden page" in new Setup {
+    givenTheUserHasInsufficientEnrolments()
+
+    val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
+    status(result) shouldBe FORBIDDEN
+    verifyAuthConnectorCalledForSuperUser
   }
 }

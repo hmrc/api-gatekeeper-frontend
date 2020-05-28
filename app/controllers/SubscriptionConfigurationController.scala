@@ -19,7 +19,6 @@ package controllers
 import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.Inject
-import model.SubscriptionFields.SubscriptionFieldsWrapper
 import model._
 import model.view.SubscriptionVersion
 import org.joda.time.DateTime
@@ -39,7 +38,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
         withAppAndFieldDefinitions(appId) {
