@@ -21,10 +21,13 @@ import play.api.mvc.{Request, Result, Results}
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import config.AppConfig
 
 import scala.concurrent.{ExecutionContext, Future}
+import views.html.error_template
+import play.api.i18n.Messages
 
-trait ActionBuilders extends Results{
+trait ActionBuilders extends Results with TemplatedErrorResults { 
   val applicationService: ApplicationService
 
   private implicit def hc(implicit request: Request[_]): HeaderCarrier =
@@ -63,18 +66,20 @@ trait ActionBuilders extends Results{
     }
   }
 
+ 
+
   def withAppAndSubscriptionVersion(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscriptionVersion => Future[Result])
-                                (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+                                (implicit request: LoggedInRequest[_], ec: ExecutionContext, messages: Messages, appConfig: AppConfig): Future[Result] = {
 
     withAppAndSubscriptions(appId, true) {
       
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-        
+
         (for{
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
-          .getOrElse(Future.successful(NotFound(""))) // TODO: Empty string
+          .getOrElse(notFound())
       }
     }
   }

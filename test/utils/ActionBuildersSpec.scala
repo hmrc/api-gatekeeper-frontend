@@ -32,11 +32,14 @@ import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SubscriptionsBuilder{
+import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.i18n.Messages.Implicits.applicationMessages
+import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
+import model.ApplicationWithHistory
+
+class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SubscriptionsBuilder {
 
   trait Setup extends ControllerSetupBase {
     val underTest = new ActionBuilders {
@@ -45,8 +48,12 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
 
     implicit val materializer = fakeApplication.materializer
 
-    implicit val appConfig = mock[config.AppConfig]
+    implicit var playApplication = fakeApplication
 
+    implicit val appConfig = mock[config.AppConfig]
+    
+    implicit val messages: play.api.i18n.Messages = applicationMessages
+    
     val ec = global
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
     val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
@@ -167,7 +174,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
         request.version shouldBe version
         
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, ec))
+      })(aUserLoggedInRequest, ec, messages ,appConfig))
 
       bodyOf(result) shouldBe expectedResult
     }
@@ -183,7 +190,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, invalidContext, version.version.version)(request => {
         throw new RuntimeException("This shouldn't be called")  
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, ec))
+      })(aUserLoggedInRequest, ec, messages ,appConfig))
 
       status(result) shouldBe NOT_FOUND
     }
@@ -198,7 +205,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, invalidVersion)(request => {
         throw new RuntimeException("This shouldn't be called")  
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, ec))
+      })(aUserLoggedInRequest, ec, messages ,appConfig))
 
       status(result) shouldBe NOT_FOUND
     }

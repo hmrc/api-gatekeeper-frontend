@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
 import config.AppConfig
 import play.api.i18n.Messages
 import play.api.mvc.{Request, Result, Results}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{LoggedInUser, LoggedInRequest}
 import views.html.error_template
 import scala.concurrent.Future
 
-import scala.concurrent.ExecutionContext
+trait TemplatedErrorResults extends Results {
+   def notFound()(implicit request: LoggedInRequest[_], messages: Messages, appConfig: AppConfig) : Future[Result] = {
+        implicit val loggedInUser = LoggedInUser(None)
 
-abstract class BaseController(implicit val appConfig: AppConfig) extends FrontendController {
-
-  implicit val ec: ExecutionContext
-
-  def technicalDifficulties(implicit request: Request[_], messages: Messages)  = {
-
-    implicit val loggedInUser = LoggedInUser(None)
-
-    InternalServerError(error_template("Technical difficulties", "Technical difficulties",
-      "Sorry, we’re experiencing technical difficulties"))
+        Future.successful(NotFound(error_template("Not found", "404 - Not found",
+              "Subscription or version not found")))
   }
 }
