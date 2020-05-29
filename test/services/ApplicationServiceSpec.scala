@@ -83,7 +83,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
-    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String")))
+    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String", "shortDescription")))
 
     def subscriptionFields : Seq[SubscriptionFieldValue]
 
@@ -442,7 +442,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "subscribeToApi" should {
 
-    val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type"))
+    val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type", "shortDescription"))
 
 
     "field definitions with empty values will persist empty values" in new Setup {
@@ -593,7 +593,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
     "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
       val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
-      val subscriptionFields = Seq(SubscriptionFieldValue(SubscriptionFieldDefinition("name", "description", "hint", "type"), "value"))
+      val subscriptionFields = Seq(SubscriptionFieldValue(SubscriptionFieldDefinition("name", "description", "hint", "type", "shortDescription"), "value"))
       val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, context, version, subscriptionFields)
       val versions = Seq(VersionSubscription(apiVersion, subscribed = true, Some(subscriptionFieldsWrapper)))
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))

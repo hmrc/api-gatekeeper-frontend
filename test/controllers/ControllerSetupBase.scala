@@ -20,6 +20,7 @@ import java.util.UUID
 
 import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
+import mocks.service.ApplicationServiceMock
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -34,10 +35,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSetupBase extends MockitoSugar {
+trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
 
   val mockAuthConnector = mock[AuthConnector]
-  val mockApplicationService = mock[ApplicationService]
   val mockApiDefinitionService = mock[ApiDefinitionService]
   val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]

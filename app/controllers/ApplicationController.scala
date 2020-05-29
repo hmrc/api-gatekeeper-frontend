@@ -31,7 +31,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
+import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
@@ -39,13 +39,13 @@ import views.html.review.review
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class ApplicationController @Inject()(applicationService: ApplicationService,
+class ApplicationController @Inject()(val applicationService: ApplicationService,
                                       apiDefinitionService: ApiDefinitionService,
                                       developerService: DeveloperService,
                                       subscriptionFieldsService: SubscriptionFieldsService,
                                       override val authConnector: AuthConnector
                                      )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+  extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -66,7 +66,8 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc =>
-        withApp(appId) { app =>
+        withAppAndSubscriptions(appId, false) { applicationWithSubscriptions =>
+          val app = applicationWithSubscriptions.application
 
           def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
             appWithHistory.application.checkInformation.flatMap {
@@ -78,13 +79,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
           }
 
           def subscriptions: Future[Either[String, Seq[Subscription]]] = {
-            applicationService.fetchApplicationSubscriptions(app.application).map(
-              subs => Right(subs.filter(sub => sub.versions.exists(version => version.subscribed)).sortWith(_.name.toLowerCase < _.name.toLowerCase))
-            ).recover {
-              case e: FetchApplicationSubscriptionsFailed =>
-                Logger.warn(s"Failed to load API subscriptions for application $appId", e)
-                Left(Messages("application.subscriptions.loader.error"))
-            }
+            Future.successful(Right(applicationWithSubscriptions.subscriptions))
           }
 
           for {
@@ -151,7 +146,7 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
             }
 
             def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
-              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
+              throw new RuntimeException(s"Failed to save Subscription fields - ${formWithErrors.errors}")
 
             SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
           }
@@ -400,10 +395,6 @@ class ApplicationController @Inject()(applicationService: ApplicationService,
     } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
-  }
-
-  private def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
-    applicationService.fetchApplication(appId).flatMap(f)
   }
 
   private def withRestrictedApp(appId: String)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {

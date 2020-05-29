@@ -32,20 +32,21 @@ object SubscriptionFields {
 
   case class SubscriptionFieldsWrapper(applicationId: String, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
 
-  case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String)
+  case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String, shortDescription: String)
 
   case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: String)
 
   object SubscriptionFieldValue {
-    def fromFormValues(name: String, description: String, hint: String, `type`: String, value: String) = {
-        SubscriptionFieldValue(SubscriptionFieldDefinition(name, description, hint, `type`), value)
+    def fromFormValues(name: String, description: String, hint: String, `type`: String, shortDescription: String, value: String) = {
+        SubscriptionFieldValue(SubscriptionFieldDefinition(name, description, hint, `type`, shortDescription), value)
     }
 
-    def toFormValues(subscriptionFieldValue: SubscriptionFieldValue): Option[(String, String, String, String, String)] = {
+    def toFormValues(subscriptionFieldValue: SubscriptionFieldValue): Option[(String, String, String, String, String, String)] = {
       Some((subscriptionFieldValue.definition.name,
         subscriptionFieldValue.definition.description,
         subscriptionFieldValue.definition.hint,
         subscriptionFieldValue.definition.`type`,
+        subscriptionFieldValue.definition.shortDescription,
         subscriptionFieldValue.value))
     }
   }

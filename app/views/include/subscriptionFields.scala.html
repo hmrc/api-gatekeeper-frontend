@@ -46,6 +46,9 @@
                 @helper.input(field("type"), '_label -> null) { (id, name, value, args) =>
                 <input type="hidden" name="@name" id="@id" value="@value">
                 }
+                @helper.input(field("shortDescription"), '_label -> null) { (id, name, value, args) =>
+                    <input type="hidden" name="@name" id="@id" value="@value">
+                }
                 @helper.input(field("value"), '_label -> null) { (id, name, value, args) =>
                 <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="form-input input--medium" id="@{IdFormatter.identifier(context, version.version)}-@{field("name").value.getOrElse("")}">
                 }
