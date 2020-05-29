@@ -26,20 +26,20 @@ import config.AppConfig
 import scala.concurrent.{ExecutionContext, Future}
 import views.html.error_template
 import play.api.i18n.Messages
+import controllers.BaseController
 
-trait ActionBuilders extends Results with TemplatedErrorResults { 
+trait ActionBuilders { 
+  this: BaseController => 
+
   val applicationService: ApplicationService
 
-  private implicit def hc(implicit request: Request[_]): HeaderCarrier =
-    HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-
   def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])
-             (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+             (implicit request: LoggedInRequest[_]): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
   def withAppAndSubscriptions(appId: String, withSubFields: Boolean)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
-                             (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+                             (implicit request: LoggedInRequest[_]): Future[Result] = {
 
     withApp(appId) {
       appWithHistory => {
@@ -55,7 +55,7 @@ trait ActionBuilders extends Results with TemplatedErrorResults {
   }
 
   def withAppAndFieldDefinitions(appId: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
-                                (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+                                (implicit request: LoggedInRequest[_]) : Future[Result] = {
 
     withAppAndSubscriptions(appId, true) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
@@ -66,10 +66,8 @@ trait ActionBuilders extends Results with TemplatedErrorResults {
     }
   }
 
- 
-
   def withAppAndSubscriptionVersion(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscriptionVersion => Future[Result])
-                                (implicit request: LoggedInRequest[_], ec: ExecutionContext, messages: Messages, appConfig: AppConfig): Future[Result] = {
+                                (implicit request: LoggedInRequest[_], messages: Messages, appConfig: AppConfig): Future[Result] = {
 
     withAppAndSubscriptions(appId, true) {
       
@@ -79,7 +77,7 @@ trait ActionBuilders extends Results with TemplatedErrorResults {
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
-          .getOrElse(notFound())
+          .getOrElse(this.notFound("Subscription or version not found"))
       }
     }
   }
