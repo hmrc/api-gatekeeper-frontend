@@ -51,15 +51,12 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
   def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
-        withAppAndFieldDefinitions(appId) {
+        withAppAndSubscriptionVersion(appId, context, version) {
           app => {
 
-            val subscription = app
-              .subscriptionsWithFieldDefinitions
-              .find(sub => sub.context == context).get // TODO : Naked get! 404
-            
-            val ver = subscription.versions.find(v => v.version.version == version).get // TODO : Naked get! 404
-
+            var subscription = app.subscription
+            var ver = app.version
+        
             val subscriptionFields = SubscriptionField.apply(ver.fields)
             val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, ver.version.version, ver.version.displayedStatus, subscriptionFields)
 

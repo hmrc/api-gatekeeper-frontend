@@ -17,14 +17,14 @@
 package utils
 
 import model._
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{Request, Result, Results}
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ActionBuilders {
+trait ActionBuilders extends Results{
   val applicationService: ApplicationService
 
   private implicit def hc(implicit request: Request[_]): HeaderCarrier =
@@ -63,14 +63,18 @@ trait ActionBuilders {
     }
   }
 
-   def withAppAndFieldDefinition(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
+  def withAppAndSubscriptionVersion(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscriptionVersion => Future[Result])
                                 (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
 
     withAppAndSubscriptions(appId, true) {
+      
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-        val app = appWithFieldSubscriptions.application
-        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fold(false)(fields => fields.fields.nonEmpty))
-        action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
+        
+        (for{
+          subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
+          version <- subscription.versions.find(v => v.version.version == apiVersion)
+        } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
+          .getOrElse(Future.successful(NotFound(""))) // TODO: Empty string
       }
     }
   }
