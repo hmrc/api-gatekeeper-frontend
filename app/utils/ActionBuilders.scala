@@ -63,6 +63,18 @@ trait ActionBuilders {
     }
   }
 
+   def withAppAndFieldDefinition(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
+                                (implicit request: LoggedInRequest[_], ec: ExecutionContext): Future[Result] = {
+
+    withAppAndSubscriptions(appId, true) {
+      appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
+        val app = appWithFieldSubscriptions.application
+        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fold(false)(fields => fields.fields.nonEmpty))
+        action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
+      }
+    }
+  }
+
   private def filterSubscriptionsVersions(subscriptions: Seq[Subscription])(predicate: VersionSubscription => Boolean): Seq[Subscription] = {
     subscriptions
       .map(api => api.copy(versions = api.versions.filter(predicate)))

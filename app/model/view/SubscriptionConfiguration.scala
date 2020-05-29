@@ -19,14 +19,14 @@ package model.view
 import model.{Subscription, SubscriptionFields}
 import model.SubscriptionFields.SubscriptionFieldsWrapper
 
-case class SubscriptionVersion(apiName: String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
+case class SubscriptionVersion(apiName: String, apiContext : String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
 
 object SubscriptionVersion {
   def apply(subscriptionsWithFieldDefinitions: Seq[Subscription]): Seq[SubscriptionVersion] = {
     for {
       sub <- subscriptionsWithFieldDefinitions
       version <- sub.versions
-    } yield SubscriptionVersion(sub.name, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
+    } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
   }
 }
 

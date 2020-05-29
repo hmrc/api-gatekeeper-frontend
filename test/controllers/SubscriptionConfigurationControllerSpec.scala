@@ -43,56 +43,90 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
       mockAuthConnector
     )(mockConfig, global)
 
+    val version = "1.0"
+    val context = "my-context"
     val subscriptionFieldValue = buildSubscriptionFieldValue("name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("1.0", true, fields = Some(subscriptionFieldsWrapper))
-    val subscription = buildSubscription("My Subscription", Seq(versionWithSubscriptionFields))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, fields = Some(subscriptionFieldsWrapper))
+    val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
 
   }
 
-  "list application's subscriptions configuration" in new Setup {
-    givenTheUserIsAuthorisedAndIsANormalUser()
-    givenTheAppWillBeReturned()
-    given(mockConfig.title).willReturn("Unit Test Title")
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-      .willReturn(Future.successful(Seq(subscription)))
+  "list Subscription Configuration" should {
+    "show subscriptions configuration" in new Setup {
+      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheAppWillBeReturned()
+      given(mockConfig.title).willReturn("Unit Test Title")
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+        .willReturn(Future.successful(Seq(subscription)))
 
-    val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
+      val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
 
-    status(result) shouldBe OK
+      status(result) shouldBe OK
 
-    titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
+      titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
 
-    val responseBody = Helpers.contentAsString(result)
-    responseBody should include("<h1>Subscription configuration</h1>")
-    responseBody should include(subscription.name)
-    responseBody should include(subscription.versions.head.version.version)
-    responseBody should include(subscription.versions.head.version.displayedStatus)
-    responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
-    responseBody should include(subscription.versions.head.fields.head.fields.head.value)
+      val responseBody = Helpers.contentAsString(result)
+      responseBody should include("<h1>Subscription configuration</h1>")
+      responseBody should include(subscription.name)
+      responseBody should include(subscription.versions.head.version.version)
+      responseBody should include(subscription.versions.head.version.displayedStatus)
+      responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
+      responseBody should include(subscription.versions.head.fields.head.fields.head.value)
 
-    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+    }
+
+    "When logged in as super user renders the page correctly" in new Setup {
+      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheAppWillBeReturned()
+      given(mockConfig.title).willReturn("Unit Test Title")
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+        .willReturn(Future.successful(Seq(subscription)))
+
+      val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
+
+      status(result) shouldBe OK
+
+      verifyAuthConnectorCalledForSuperUser
+    }
+
+    "When logged in as normal user renders forbidden page" in new Setup {
+      givenTheUserHasInsufficientEnrolments()
+
+      val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
+      status(result) shouldBe FORBIDDEN
+      verifyAuthConnectorCalledForSuperUser
+    } 
   }
 
-  "When logged in as super user renders the page correctly" in new Setup {
-    givenTheUserIsAuthorisedAndIsASuperUser()
-    givenTheAppWillBeReturned()
-    given(mockConfig.title).willReturn("Unit Test Title")
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-      .willReturn(Future.successful(Seq(subscription)))
+  "edit Subscription Configuration" should {
+    "show Subscription Configuration" in new Setup {
+      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheAppWillBeReturned()
+      given(mockConfig.title).willReturn("Unit Test Title")
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+        .willReturn(Future.successful(Seq(subscription)))
 
-    val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
+      val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
 
-    status(result) shouldBe OK
+      status(result) shouldBe OK
 
-    verifyAuthConnectorCalledForSuperUser
-  }
+      titleOf(result) shouldBe s"${mockConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
 
-  "When logged in as normal user renders forbidden page" in new Setup {
-    givenTheUserHasInsufficientEnrolments()
+      val responseBody = Helpers.contentAsString(result)
 
-    val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
-    status(result) shouldBe FORBIDDEN
-    verifyAuthConnectorCalledForSuperUser
+      // TODO: Check edit stuff is displayed.
+
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+    }
+    
+    "bad requst for invalud context or version" in new Setup {
+      
+    }
+
+    "something to do with roles" in new Setup {
+
+    }
   }
 }

@@ -21,10 +21,10 @@ import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
 
 trait SubscriptionsBuilder {
 
-  def buildSubscription(name: String, versions: Seq[VersionSubscription] = Seq.empty) = {
+  def buildSubscription(name: String, context: Option[String] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
     Subscription(name = name,
-      serviceName = s"service-$name" ,
-      context =  s"context-$name",
+      serviceName = s"service-$name",
+      context =  context.getOrElse(s"context-$name"),
       versions = versions)
   }
 

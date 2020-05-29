@@ -20,14 +20,14 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.Inject
 import model._
-import model.view.SubscriptionVersion
+import model.view.{SubscriptionVersion, SubscriptionField}
 import org.joda.time.DateTime
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.ApplicationService
 import utils.{ActionBuilders, GatekeeperAuthWrapper}
-import views.html.applications.subscriptionConfiguration.list_subscription_configuration
+import views.html.applications.subscriptionConfiguration.{list_subscription_configuration, edit_subscription_configuration}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,6 +46,32 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             Future.successful(Ok(list_subscription_configuration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
           }
         }
+  }
+
+  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit request =>
+      implicit hc =>
+        withAppAndFieldDefinitions(appId) {
+          app => {
+
+            val subscription = app
+              .subscriptionsWithFieldDefinitions
+              .find(sub => sub.context == context).get // TODO : Naked get! 404
+            
+            val ver = subscription.versions.find(v => v.version.version == version).get // TODO : Naked get! 404
+
+            val subscriptionFields = SubscriptionField.apply(ver.fields)
+            val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, ver.version.version, ver.version.displayedStatus, subscriptionFields)
+
+            Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel)))
+          }
+        }
+  }
+
+  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+    implicit  request => implicit hc => {
+      Future.successful(Ok(""))
+    }
   }
 }
 

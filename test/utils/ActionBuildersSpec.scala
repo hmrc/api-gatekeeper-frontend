@@ -64,11 +64,11 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
 
      val subscription1 = buildSubscription("Subscription1")
 
-    val subscription2 = buildSubscription("Subscription2", Seq(version1, version2))
+    val subscription2 = buildSubscription("Subscription2", versions = Seq(version1, version2))
 
-    val subscription3 = buildSubscription("Subscription3", Seq(version1, version2))
+    val subscription3 = buildSubscription("Subscription3", versions = Seq(version1, version2))
 
-    val subscription4 = buildSubscription("Subscription4", Seq(version1, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
+    val subscription4 = buildSubscription("Subscription4", versions = Seq(version1, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
   }
 
   "withApp" should {

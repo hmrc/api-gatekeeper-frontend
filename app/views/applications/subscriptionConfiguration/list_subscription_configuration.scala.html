@@ -17,6 +17,7 @@
 @import model._
 @import model.view.SubscriptionVersion
 @import utils.LoggedInUser
+@import views.helper._
 
 @(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
@@ -33,7 +34,6 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@pageTitle</li>
         </ul>
     </nav>
 
@@ -51,7 +51,7 @@
           <th class="col-35">Name</th>
           <th class="col-60">Configuration</th>
           <td>
-@*            <a href="@{routes.ManageSubscriptions.editApiMetadataPage(app.id, api.context, api.version)}" class="numeric" id="@{IdFormatter.identifier(api.context, api.version)}-submit">Edit</a>*@
+            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id.toString, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="numeric" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
           </td>
         </tr>
       </thead>
