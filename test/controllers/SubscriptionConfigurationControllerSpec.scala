@@ -32,7 +32,12 @@ import utils.{TitleChecker, WithCSRFAddToken}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
+class SubscriptionConfigurationControllerSpec 
+    extends UnitSpec 
+    with MockitoSugar 
+    with WithFakeApplication 
+    with WithCSRFAddToken 
+    with TitleChecker {
   implicit val materializer = fakeApplication.materializer
 
   trait Setup extends ControllerSetupBase with SubscriptionsBuilder  {
@@ -108,7 +113,7 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
       given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
         .willReturn(Future.successful(Seq(subscription)))
 
-      val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
+      val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aLoggedInRequest))
 
       status(result) shouldBe OK
 
@@ -116,13 +121,15 @@ class SubscriptionConfigurationControllerSpec extends UnitSpec with MockitoSugar
 
       val responseBody = Helpers.contentAsString(result)
 
-      // TODO: Check edit stuff is displayed.
-
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
-    }
-    
-    "bad requst for invalud context or version" in new Setup {
+      responseBody should include(subscription.name)
+      responseBody should include(subscription.versions.head.version.version)
+      responseBody should include(subscription.versions.head.version.displayedStatus)
       
+      responseBody should include(subscriptionFieldValue.definition.description)      
+      responseBody should include(subscriptionFieldValue.definition.hint)
+      responseBody should include(subscriptionFieldValue.value)
+    
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
     }
 
     "something to do with roles" in new Setup {

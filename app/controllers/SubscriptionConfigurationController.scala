@@ -20,7 +20,7 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.Inject
 import model._
-import model.view.{SubscriptionVersion, SubscriptionField}
+import model.view.{SubscriptionVersion, SubscriptionField, SubscriptionFieldValueForm}
 import org.joda.time.DateTime
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
@@ -30,6 +30,7 @@ import utils.{ActionBuilders, GatekeeperAuthWrapper}
 import views.html.applications.subscriptionConfiguration.{list_subscription_configuration, edit_subscription_configuration}
 
 import scala.concurrent.{ExecutionContext, Future}
+import model.view.EditApiMetadataForm
 
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
                                                     override val authConnector: AuthConnector
@@ -60,7 +61,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             val subscriptionFields = SubscriptionField.apply(ver.fields)
             val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, ver.version.version, ver.version.displayedStatus, subscriptionFields)
 
-            Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel)))
+            val form = EditApiMetadataForm.form
+              .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))
+
+            Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel, form)))
           }
         }
   }

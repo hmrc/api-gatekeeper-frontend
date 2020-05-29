@@ -18,6 +18,8 @@ package model.view
 
 import model.{Subscription, SubscriptionFields}
 import model.SubscriptionFields.SubscriptionFieldsWrapper
+import play.api.data.Form
+import play.api.data.Forms._
 
 case class SubscriptionVersion(apiName: String, apiContext : String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
 
@@ -30,12 +32,31 @@ object SubscriptionVersion {
   }
 }
 
-case class SubscriptionField(shortDescription: String, value: String)
+case class SubscriptionField(name: String, shortDescription: String, description: String, hint: String, value: String)
 
 object SubscriptionField {
   def apply(fields: Option[SubscriptionFieldsWrapper]): Seq[SubscriptionField] = {
     fields.fold(Seq.empty[SubscriptionField])(fields => {
-      fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => SubscriptionField(field.definition.shortDescription, field.value))
+      fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => {
+        SubscriptionField(field.definition.name, field.definition.shortDescription, field.definition.description, field.definition.hint,  field.value)
+      })
     })
   }
+}
+
+case class SubscriptionFieldValueForm(name: String, value: String)
+
+case class EditApiMetadataForm(fields: List[SubscriptionFieldValueForm])
+
+object EditApiMetadataForm {
+  val form: Form[EditApiMetadataForm] = Form(
+    mapping(
+      "fields" -> list(
+        mapping(
+          "name" -> text,
+          "value" -> text
+        )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
+      )
+    )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
+  )
 }
