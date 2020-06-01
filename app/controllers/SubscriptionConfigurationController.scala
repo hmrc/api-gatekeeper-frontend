@@ -61,10 +61,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           app => {
 
             var subscription = app.subscription
-            var ver = app.version
+            var version = app.version
         
-            val subscriptionFields = SubscriptionField.apply(ver.fields)
-            val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, ver.version.version, ver.version.displayedStatus, subscriptionFields)
+            val subscriptionFields = SubscriptionField.apply(version.fields)
+            val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, version.version.version, version.version.displayedStatus, subscriptionFields)
 
             val form = EditApiMetadataForm.form
               .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))

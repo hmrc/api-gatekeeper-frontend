@@ -26,7 +26,7 @@
 
 @main(title = s"${appConfig.title} - $pageTitle") {
 
-<div class="">
+<div class="col-75">
 
     <nav class="breadcrumb-nav">
         <ul>
@@ -41,8 +41,9 @@
     <h1>@pageTitle</h1>
   </header>
 
+  </br>
   <p>Edit the configuration for these APIs the application is subscribed to.</p>
-
+  
   <!-- TODO: Make not full screen width -->
   @for(subscriptionVersion <- subscriptionVersions) {
     <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version} @{subscriptionVersion.displayedStatus}</h2>

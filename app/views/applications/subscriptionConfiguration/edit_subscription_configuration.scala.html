@@ -42,6 +42,7 @@
   <header>
     <h1>@pageTitle</h1>
   </header>
+  </br>
 
   @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id.toString, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
     <div class="form-field-group">
@@ -65,12 +66,10 @@
 
         <div class="form-field form-field--submit">
             <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-submit" class="button submit-button" type="submit">Save changes</button>
+            <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)" class="secondary-button button--link">Cancel</a>
         </div>
 
       }
-
-  <p>Cancel button here.</p>
-
 </div>
 }
 
