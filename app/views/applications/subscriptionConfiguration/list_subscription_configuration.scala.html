@@ -43,6 +43,7 @@
 
   <p>Edit the configuration for these APIs the application is subscribed to.</p>
 
+  <!-- TODO: Make not full screen width -->
   @for(subscriptionVersion <- subscriptionVersions) {
     <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version} @{subscriptionVersion.displayedStatus}</h2>
     <table>

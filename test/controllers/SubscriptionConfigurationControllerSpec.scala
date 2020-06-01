@@ -31,6 +31,10 @@ import utils.{TitleChecker, WithCSRFAddToken}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import model.SubscriptionFields.Fields
+import play.mvc.Http
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.HttpResponse
 
 class SubscriptionConfigurationControllerSpec 
     extends UnitSpec 
@@ -45,6 +49,7 @@ class SubscriptionConfigurationControllerSpec
 
     val controller = new SubscriptionConfigurationController(
       mockApplicationService,
+      mockSubscriptionFieldsService,
       mockAuthConnector
     )(mockConfig, global)
 
@@ -132,7 +137,52 @@ class SubscriptionConfigurationControllerSpec
       verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
     }
 
+    // TODO
     "something to do with roles" in new Setup {
+
+    }
+  }
+
+  "save subscription configuration post" should {
+    "save when valid" in new Setup {
+      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheAppWillBeReturned()
+      
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+         .willReturn(Future.successful(Seq(subscription)))
+
+      val httpResponse = mock[HttpResponse]
+      given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(httpResponse))
+
+      val fieldName = "fieldName"
+      val fieldValue = "new value"
+    
+      val requestWithFormData = aLoggedInRequest.withFormUrlEncodedBody(
+        "fields[0].name" -> fieldName,
+        "fields[0].value" -> fieldValue)
+
+      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(requestWithFormData))
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
+    
+      val expectedFields = Map(fieldName -> fieldValue)
+      verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application.application), eqTo(context), eqTo(version), eqTo(expectedFields))(any[HeaderCarrier])
+    }
+
+    // TODO?
+    "Invalid form? Is this possible?" in new Setup {
+
+    }
+
+    // TODO
+    "Invalid returned from service" in new Setup {
+
+    }
+
+    // TODO
+    "Something to do with roles" in new Setup {
 
     }
   }

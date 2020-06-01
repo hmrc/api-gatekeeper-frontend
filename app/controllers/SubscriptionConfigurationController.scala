@@ -31,8 +31,13 @@ import views.html.applications.subscriptionConfiguration.{list_subscription_conf
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.view.EditApiMetadataForm
+import play.api.data.Form
+import services.SubscriptionFieldsService
+import model.SubscriptionFields.Fields
+import play.i18n.Messages
 
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
+                                                    val subscriptionFieldsService: SubscriptionFieldsService,
                                                     override val authConnector: AuthConnector
                                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
@@ -71,7 +76,30 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => implicit hc => {
-      Future.successful(Ok(""))
+      
+      withAppAndSubscriptionVersion(appId, context, version) {
+        app => {
+          val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
+
+          def errors(errors: Form[EditApiMetadataForm]) = {
+            Future.successful(technicalDifficulties)
+          }
+
+          def doSaveConfigurations(validForm: EditApiMetadataForm) = {
+            // TODO: We need to check the fields names match something (to prevent tampering).
+            // Check - is the above done in the backend?
+            
+            val fields: Fields = EditApiMetadataForm.toFields(validForm)
+            subscriptionFieldsService.saveFieldValues(app.application.application, context, version, fields)
+              .map( _ => {
+                // TODO: Our custom validation
+                Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
+            })
+          }
+
+          requestForm.fold(errors, doSaveConfigurations)
+        }
+      }
     }
   }
 }

@@ -20,6 +20,7 @@ import model.{Subscription, SubscriptionFields}
 import model.SubscriptionFields.SubscriptionFieldsWrapper
 import play.api.data.Form
 import play.api.data.Forms._
+import model.SubscriptionFields.Fields
 
 case class SubscriptionVersion(apiName: String, apiContext : String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
 
@@ -59,4 +60,10 @@ object EditApiMetadataForm {
       )
     )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
   )
+
+  def toFields(form: EditApiMetadataForm) : Fields = {
+    form.fields
+      .map(f => (f.name -> f.value))
+      .toMap
+  }
 }
