@@ -34,11 +34,11 @@ import scala.concurrent.Future
 import model.SubscriptionFields.Fields
 import play.mvc.Http
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.HttpResponse
 import com.gargoylesoftware.htmlunit.javascript.host.fetch.Request
 import utils.LoggedInUser
 import utils.LoggedInRequest
 import play.api.test.FakeRequest
+import mocks.service.SubscriptionFieldsServiceMock
 
 class SubscriptionConfigurationControllerSpec 
     extends UnitSpec 
@@ -48,8 +48,7 @@ class SubscriptionConfigurationControllerSpec
     with TitleChecker {
   implicit val materializer = fakeApplication.materializer
 
-  trait Setup extends ControllerSetupBase with SubscriptionsBuilder  {
-    val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
+  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
 
     given(mockConfig.title).willReturn("Unit Test Title")
 
@@ -65,15 +64,13 @@ class SubscriptionConfigurationControllerSpec
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, fields = Some(subscriptionFieldsWrapper))
     val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
-
   }
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-        .willReturn(Future.successful(Seq(subscription)))
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
 
@@ -95,13 +92,10 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as super user renders the page correctly" in new Setup {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-        .willReturn(Future.successful(Seq(subscription)))
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
-
       status(result) shouldBe OK
-
       verifyAuthConnectorCalledForSuperUser
     }
 
@@ -117,9 +111,8 @@ class SubscriptionConfigurationControllerSpec
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-        .willReturn(Future.successful(Seq(subscription)))
+      givenTheAppWillBeReturned()      
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aLoggedInRequest))
 
@@ -143,9 +136,7 @@ class SubscriptionConfigurationControllerSpec
      "When logged in as super user renders the page correctly" in new Setup {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
-      given(mockConfig.title).willReturn("Unit Test Title")
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-        .willReturn(Future.successful(Seq(subscription)))
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aSuperUserLoggedInRequest))
 
@@ -162,18 +153,6 @@ class SubscriptionConfigurationControllerSpec
       verifyAuthConnectorCalledForSuperUser
     } 
   }
-  
-  trait EditSaveFormData extends Setup{
-
-    val fieldName = "fieldName"
-    val fieldValue = "new value"  
-    
-    def requestWithFormData(request : FakeRequest[_]) = {
-      request.withFormUrlEncodedBody(
-        "fields[0].name" -> fieldName,
-        "fields[0].value" -> fieldValue)
-    }
-  }
 
   "save subscription configuration post" should {
     val httpResponse = mock[HttpResponse]
@@ -182,11 +161,8 @@ class SubscriptionConfigurationControllerSpec
       givenTheUserIsAuthorisedAndIsANormalUser()  
       givenTheAppWillBeReturned()
       
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-         .willReturn(Future.successful(Seq(subscription)))
-
-      given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
-        .willReturn(Future.successful(httpResponse))
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      givenSaveSubscriptionFieldsSuccess
 
       val request = requestWithFormData(aLoggedInRequest)
 
@@ -196,34 +172,22 @@ class SubscriptionConfigurationControllerSpec
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
     
       val expectedFields = Map(fieldName -> fieldValue)
-      verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application.application), eqTo(context), eqTo(version), eqTo(expectedFields))(any[HeaderCarrier])
-    }
 
-    // TODO?
-    "Invalid form? Is this possible?" in new Setup {
-
-    }
-
-    // TODO
-    "Invalid returned from service" in new Setup {
-      // Shows tech difficulties
+      verifySaveSubscriptionFields(application.application, context, version, expectedFields)
     }
 
      "When logged in as super saves the data" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
-      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
-        .willReturn(Future.successful(Seq(subscription)))
-        
-      given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
-        .willReturn(Future.successful(httpResponse))
+
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      givenSaveSubscriptionFieldsSuccess
 
       val request = requestWithFormData(aSuperUserLoggedInRequest)
 
-      val result : Result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
       status(result) shouldBe SEE_OTHER
-
       verifyAuthConnectorCalledForSuperUser
     }
 
@@ -232,9 +196,21 @@ class SubscriptionConfigurationControllerSpec
       
       val request = requestWithFormData(aLoggedInRequest)
 
-      val result : Result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
     } 
+  }
+
+  trait EditSaveFormData extends Setup {
+
+    val fieldName = "fieldName"
+    val fieldValue = "new value"  
+    
+    def requestWithFormData(request : FakeRequest[_]) = {
+      request.withFormUrlEncodedBody(
+        "fields[0].name" -> fieldName,
+        "fields[0].value" -> fieldValue)
+    }
   }
 }
