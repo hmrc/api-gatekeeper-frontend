@@ -46,9 +46,6 @@
   @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id.toString, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
     <div class="form-field-group">
         @helper.CSRF.formField
-        <!-- TODO: Can we use zip / zipWithIndex here? 
-          https://stackoverflow.com/questions/14608334/getting-the-index-of-the-current-loop-in-play-2-scala-template
-        -->
         @helper.repeatWithIndex(form("fields")) { (field, index) =>
         <div class="form-field">
             <label class="label--full-length" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.version}-@{field("description").value.getOrElse("")}">

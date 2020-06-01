@@ -86,13 +86,9 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           }
 
           def doSaveConfigurations(validForm: EditApiMetadataForm) = {
-            // TODO: We need to check the fields names match something (to prevent tampering).
-            // Check - is the above done in the backend?
-            
             val fields: Fields = EditApiMetadataForm.toFields(validForm)
             subscriptionFieldsService.saveFieldValues(app.application.application, context, version, fields)
               .map( _ => {
-                // TODO: Our custom validation
                 Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
             })
           }

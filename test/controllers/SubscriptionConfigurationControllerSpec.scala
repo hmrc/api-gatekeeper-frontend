@@ -35,6 +35,10 @@ import model.SubscriptionFields.Fields
 import play.mvc.Http
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.HttpResponse
+import com.gargoylesoftware.htmlunit.javascript.host.fetch.Request
+import utils.LoggedInUser
+import utils.LoggedInRequest
+import play.api.test.FakeRequest
 
 class SubscriptionConfigurationControllerSpec 
     extends UnitSpec 
@@ -46,6 +50,8 @@ class SubscriptionConfigurationControllerSpec
 
   trait Setup extends ControllerSetupBase with SubscriptionsBuilder  {
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
+
+    given(mockConfig.title).willReturn("Unit Test Title")
 
     val controller = new SubscriptionConfigurationController(
       mockApplicationService,
@@ -66,7 +72,6 @@ class SubscriptionConfigurationControllerSpec
     "show subscriptions configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
-      given(mockConfig.title).willReturn("Unit Test Title")
       given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
         .willReturn(Future.successful(Seq(subscription)))
 
@@ -90,7 +95,6 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as super user renders the page correctly" in new Setup {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
-      given(mockConfig.title).willReturn("Unit Test Title")
       given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
         .willReturn(Future.successful(Seq(subscription)))
 
@@ -114,7 +118,6 @@ class SubscriptionConfigurationControllerSpec
     "show Subscription Configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
-      given(mockConfig.title).willReturn("Unit Test Title")
       given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
         .willReturn(Future.successful(Seq(subscription)))
 
@@ -137,32 +140,57 @@ class SubscriptionConfigurationControllerSpec
       verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
     }
 
-    // TODO
-    "something to do with roles" in new Setup {
+     "When logged in as super user renders the page correctly" in new Setup {
+      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheAppWillBeReturned()
+      given(mockConfig.title).willReturn("Unit Test Title")
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+        .willReturn(Future.successful(Seq(subscription)))
 
+      val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aSuperUserLoggedInRequest))
+
+      status(result) shouldBe OK
+
+      verifyAuthConnectorCalledForSuperUser
+    }
+
+    "When logged in as normal user renders forbidden page" in new Setup {
+      givenTheUserHasInsufficientEnrolments()
+
+      val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
+      status(result) shouldBe FORBIDDEN
+      verifyAuthConnectorCalledForSuperUser
+    } 
+  }
+  
+  trait EditSaveFormData extends Setup{
+
+    val fieldName = "fieldName"
+    val fieldValue = "new value"  
+    
+    def requestWithFormData(request : FakeRequest[_]) = {
+      request.withFormUrlEncodedBody(
+        "fields[0].name" -> fieldName,
+        "fields[0].value" -> fieldValue)
     }
   }
 
   "save subscription configuration post" should {
-    "save when valid" in new Setup {
+    val httpResponse = mock[HttpResponse]
+
+    "save" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsANormalUser()  
       givenTheAppWillBeReturned()
       
       given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
          .willReturn(Future.successful(Seq(subscription)))
 
-      val httpResponse = mock[HttpResponse]
       given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
         .willReturn(Future.successful(httpResponse))
 
-      val fieldName = "fieldName"
-      val fieldValue = "new value"
-    
-      val requestWithFormData = aLoggedInRequest.withFormUrlEncodedBody(
-        "fields[0].name" -> fieldName,
-        "fields[0].value" -> fieldValue)
+      val request = requestWithFormData(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(requestWithFormData))
+      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
@@ -178,12 +206,35 @@ class SubscriptionConfigurationControllerSpec
 
     // TODO
     "Invalid returned from service" in new Setup {
-
+      // Shows tech difficulties
     }
 
-    // TODO
-    "Something to do with roles" in new Setup {
+     "When logged in as super saves the data" in new EditSaveFormData {
+      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheAppWillBeReturned()
+      given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))((any[HeaderCarrier])))
+        .willReturn(Future.successful(Seq(subscription)))
+        
+      given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(httpResponse))
 
+      val request = requestWithFormData(aSuperUserLoggedInRequest)
+
+      val result : Result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+
+      status(result) shouldBe SEE_OTHER
+
+      verifyAuthConnectorCalledForSuperUser
     }
+
+    "When logged in as normal user renders forbidden page" in new EditSaveFormData {
+      givenTheUserHasInsufficientEnrolments()
+      
+      val request = requestWithFormData(aLoggedInRequest)
+
+      val result : Result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      status(result) shouldBe FORBIDDEN
+      verifyAuthConnectorCalledForSuperUser
+    } 
   }
 }
