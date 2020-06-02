@@ -1,72 +1,74 @@
 # microservice specific routes
 
-GET         /review                                                 controllers.ApplicationController.reviewPage(id: String)
+GET         /review                                                           controllers.ApplicationController.reviewPage(id: String)
 
 
-POST        /update-rate-limit-tier                                 controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
+POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
 
-GET         /developers                                             controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
+GET         /developers                                                       controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
-GET         /developer                                              controllers.DevelopersController.developerPage(email: String)
-GET         /developer/delete                                       controllers.DevelopersController.deleteDeveloperPage(email: String)
-POST        /developer/delete                                       controllers.DevelopersController.deleteDeveloperAction(email: String)
-GET         /developer/mfa/remove                                   controllers.DevelopersController.removeMfaPage(email: String)
-POST        /developer/mfa/remove                                   controllers.DevelopersController.removeMfaAction(email: String)
+GET         /developer                                                        controllers.DevelopersController.developerPage(email: String)
+GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(email: String)
+POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(email: String)
+GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(email: String)
+POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(email: String)
 
-GET         /developers2                                            controllers.Developers2Controller.developersPage(emailFilter: Option[String], apiVersionFilter: Option[String], environmentFilter: Option[String], developerStatusFilter: Option[String])
+GET         /developers2                                                      controllers.Developers2Controller.developersPage(emailFilter: Option[String], apiVersionFilter: Option[String], environmentFilter: Option[String], developerStatusFilter: Option[String])
 
-GET         /applications                                           controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
+GET         /applications                                                     controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 
-GET         /applications/:id                                       controllers.ApplicationController.applicationPage(id: String)
+GET         /applications/:id                                                 controllers.ApplicationController.applicationPage(id: String)
 
-POST        /applications/:id/handle-uplift                         controllers.ApplicationController.handleUplift(id: String)
-GET         /applications/:id/resend-verification                   controllers.ApplicationController.resendVerification(id: String)
+POST        /applications/:id/handle-uplift                                   controllers.ApplicationController.handleUplift(id: String)
+GET         /applications/:id/resend-verification                             controllers.ApplicationController.resendVerification(id: String)
 
-GET         /applications/:id/access/scopes                         controllers.ApplicationController.manageScopes(id: String)
-POST        /applications/:id/access/scopes                         controllers.ApplicationController.updateScopes(id: String)
+GET         /applications/:id/access/scopes                                   controllers.ApplicationController.manageScopes(id: String)
+POST        /applications/:id/access/scopes                                   controllers.ApplicationController.updateScopes(id: String)
 
-GET         /applications/:id/ip-whitelist/manage                   controllers.ApplicationController.manageWhitelistedIpPage(id: String)
-POST        /applications/:id/ip-whitelist/manage                   controllers.ApplicationController.manageWhitelistedIpAction(id: String)
+GET         /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpPage(id: String)
+POST        /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpAction(id: String)
 
-GET         /applications/:id/access/overrides                      controllers.ApplicationController.manageAccessOverrides(id: String)
-POST        /applications/:id/access/overrides                      controllers.ApplicationController.updateAccessOverrides(id: String)
+GET         /applications/:id/access/overrides                                controllers.ApplicationController.manageAccessOverrides(id: String)
+POST        /applications/:id/access/overrides                                controllers.ApplicationController.updateAccessOverrides(id: String)
 
-GET         /applications/:id/subscriptions                         controllers.ApplicationController.manageSubscription(id: String)
-POST        /applications/:id/subscriptions/subscribe               controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
-POST        /applications/:id/subscriptions/unsubscribe             controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
-POST        /applications/:id/subscriptions/update-fields           controllers.ApplicationController.updateSubscriptionFields(id: String, context: String, version: String)
+GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: String)
+POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
+POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
+POST        /applications/:id/subscriptions/update-fields                     controllers.ApplicationController.updateSubscriptionFields(id: String, context: String, version: String)
 
-GET         /applications/:id/subscriptions-configuration           controllers.SubscriptionConfigurationController.listConfigurations(id: String)
+GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: String)
+GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: String, context: String, version: String)
+POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: String, context: String, version: String)
 
-GET         /applications/:id/rate-limit                            controllers.ApplicationController.manageRateLimitTier(id: String)
-POST        /applications/:id/rate-limit                            controllers.ApplicationController.updateRateLimitTier(id: String)
-
-GET         /applications/:id/team-members                          controllers.ApplicationController.manageTeamMembers(id: String)
-GET         /applications/:id/team-members/add                      controllers.ApplicationController.addTeamMember(id: String)
-POST        /applications/:id/team-members/add                      controllers.ApplicationController.addTeamMemberAction(id: String)
-POST        /applications/:id/team-members/remove-confirmation      controllers.ApplicationController.removeTeamMember(id: String)
-POST        /applications/:id/team-members/remove                   controllers.ApplicationController.removeTeamMemberAction(id: String)
-
-->          /template                                               template.Routes
-
-GET         /assets/*file                                           controllers.Assets.versioned(path="/public", file: Asset)
-
-GET         /nav-links                                              controllers.NavigationController.navLinks
-
-GET         /applications/:id/delete                                controllers.ApplicationController.deleteApplicationPage(id: String)
-POST        /applications/:id/delete                                controllers.ApplicationController.deleteApplicationAction(id: String)
-
-GET         /applications/:id/block                                 controllers.ApplicationController.blockApplicationPage(id: String)
-POST        /applications/:id/block                                 controllers.ApplicationController.blockApplicationAction(id: String)
-
-GET         /applications/:id/unblock                               controllers.ApplicationController.unblockApplicationPage(id: String)
-POST        /applications/:id/unblock                               controllers.ApplicationController.unblockApplicationAction(id: String)
-
-GET         /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationPage
-POST        /application/add                                        controllers.ApplicationController.createPrivOrROPCApplicationAction
-
-GET         /pending                                                controllers.DeploymentApprovalController.pendingPage
-GET         /pending/:serviceName/review-sandbox                    controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
-GET         /pending/:serviceName/review-production                 controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
-POST        /pending/:serviceName/approve-sandbox                   controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
-POST        /pending/:serviceName/approve-production                controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
+GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: String)
+POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: String)
+          
+GET         /applications/:id/team-members                                    controllers.ApplicationController.manageTeamMembers(id: String)
+GET         /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMember(id: String)
+POST        /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMemberAction(id: String)
+POST        /applications/:id/team-members/remove-confirmation                controllers.ApplicationController.removeTeamMember(id: String)
+POST        /applications/:id/team-members/remove                             controllers.ApplicationController.removeTeamMemberAction(id: String)
+          
+->          /template                                                         template.Routes
+          
+GET         /assets/*file                                                     controllers.Assets.versioned(path="/public", file: Asset)
+          
+GET         /nav-links                                                        controllers.NavigationController.navLinks
+          
+GET         /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationPage(id: String)
+POST        /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationAction(id: String)
+          
+GET         /applications/:id/block                                           controllers.ApplicationController.blockApplicationPage(id: String)
+POST        /applications/:id/block                                           controllers.ApplicationController.blockApplicationAction(id: String)
+          
+GET         /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationPage(id: String)
+POST        /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationAction(id: String)
+          
+GET         /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationPage
+POST        /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationAction
+          
+GET         /pending                                                          controllers.DeploymentApprovalController.pendingPage
+GET         /pending/:serviceName/review-sandbox                              controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
+GET         /pending/:serviceName/review-production                           controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
+POST        /pending/:serviceName/approve-sandbox                             controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
+POST        /pending/:serviceName/approve-production                          controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")

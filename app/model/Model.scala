@@ -61,6 +61,10 @@ object GatekeeperSessionKeys {
 case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory,
                                                                subscriptionsWithFieldDefinitions: Seq[Subscription])
 
+case class ApplicationAndSubscriptionVersion( application: ApplicationWithHistory,
+                                              subscription: Subscription,
+                                              version: VersionSubscription)
+
 case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: Seq[Subscription])
 
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
