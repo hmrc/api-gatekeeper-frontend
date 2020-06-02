@@ -111,10 +111,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if(version.fields.isDefined && version.fields.get.fields.nonEmpty) {
+                                @if(version.fields.fields.nonEmpty) {
                                     <div class="accordion__body__row">
-                                        <div class="conditionallyHide fieldsContainer" id="subscription-fields-@IdFormatter.identifier(version.fields.get.apiContext, version.version.version)">
-                                            @version.fields.map(f => subscriptionFields(application.id.toString, version.version, f.apiContext, SubscriptionFieldsForm.form.fill(SubscriptionFieldsForm.apply(f.fields))))
+                                        <div class="conditionallyHide fieldsContainer" id="subscription-fields-@IdFormatter.identifier(version.fields.apiContext, version.version.version)">
+                                            @subscriptionFields(application.id.toString, version.version, version.fields.apiContext, SubscriptionFieldsForm.form.fill(SubscriptionFieldsForm.apply(version.fields.fields)))
                                         </div>
                                     </div>
                                 }

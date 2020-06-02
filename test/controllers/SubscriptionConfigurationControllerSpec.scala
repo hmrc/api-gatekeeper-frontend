@@ -62,7 +62,7 @@ class SubscriptionConfigurationControllerSpec
     val context = "my-context"
     val subscriptionFieldValue = buildSubscriptionFieldValue("name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, fields = Some(subscriptionFieldsWrapper))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
     val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
   }
 
@@ -83,8 +83,8 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.name)
       responseBody should include(subscription.versions.head.version.version)
       responseBody should include(subscription.versions.head.version.displayedStatus)
-      responseBody should include(subscription.versions.head.fields.head.fields.head.definition.shortDescription)
-      responseBody should include(subscription.versions.head.fields.head.fields.head.value)
+      responseBody should include(subscription.versions.head.fields.fields.head.definition.shortDescription)
+      responseBody should include(subscription.versions.head.fields.fields.head.value)
 
       verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
     }

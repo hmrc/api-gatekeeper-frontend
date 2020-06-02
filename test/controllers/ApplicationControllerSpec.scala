@@ -1128,12 +1128,12 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
           val subscription = Subscription("name", "serviceName", "context", Seq())
           givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
-          given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Seq(subscription))
+          given(mockApplicationService.fetchApplicationSubscriptions(any[Application])(any[HeaderCarrier])).willReturn(Seq(subscription))
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest))
 
           status(result) shouldBe OK
-          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(true))(any[HeaderCarrier])
+          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(any[HeaderCarrier])
           verifyAuthConnectorCalledForSuperUser
         }
       }
@@ -1144,7 +1144,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
           givenTheUserHasInsufficientEnrolments()
 
-          given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(Seq(subscription))
+          given(mockApplicationService.fetchApplicationSubscriptions(any[Application])(any[HeaderCarrier])).willReturn(Seq(subscription))
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
 
@@ -1159,14 +1159,14 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.fetchApplicationSubscriptions(any[Application], any[Boolean])(any[HeaderCarrier])).willReturn(subscriptions)
+        given(mockApplicationService.fetchApplicationSubscriptions(any[Application])(any[HeaderCarrier])).willReturn(subscriptions)
         given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(any[HeaderCarrier]))
           .willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application), eqTo(false))(any[HeaderCarrier])
+        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(any[HeaderCarrier])
 
         verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(anyString)(any[HeaderCarrier])
         verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(any[Application], any(), any())(any[HeaderCarrier])

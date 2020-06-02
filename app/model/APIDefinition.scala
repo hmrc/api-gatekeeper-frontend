@@ -66,14 +66,13 @@ object APIDefinition {
 
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
-                               fields: Option[SubscriptionFieldsWrapper] = None)
+                               fields: SubscriptionFieldsWrapper)
 
 case class APIVersion(version: String, status: APIStatus, access: Option[APIAccess] = None) {
   val displayedStatus = APIStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
 }
-
 
 object APIStatus extends Enumeration {
   type APIStatus = Value

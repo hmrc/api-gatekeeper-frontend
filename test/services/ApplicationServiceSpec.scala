@@ -571,11 +571,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
 
   "fetchApplicationSubscriptions" should {
 
-    "fetch subscriptions without fields" in new SubscriptionFieldsServiceSetup {
-      val versionFields = None
-      val subscriptionFields = Seq()
+    "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
       val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
-      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, versionFields))
+      val subscriptionFields = Seq(SubscriptionFieldValue(SubscriptionFieldDefinition("name", "description", "hint", "type", "shortDescription"), "value"))
+      val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, context, version, subscriptionFields)
+      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, subscriptionFieldsWrapper))
       val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
 
       given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
@@ -585,26 +585,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
 
       val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
-
-      result shouldBe subscriptions
-
-      verify(mockSubscriptionFieldsService,never()).fetchAllFieldDefinitions(any())(any[HeaderCarrier])
-    }
-
-    "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
-      val apiVersion = APIVersion(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
-      val subscriptionFields = Seq(SubscriptionFieldValue(SubscriptionFieldDefinition("name", "description", "hint", "type", "shortDescription"), "value"))
-      val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id.toString, stdApp1.clientId, context, version, subscriptionFields)
-      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, Some(subscriptionFieldsWrapper)))
-      val subscriptions = Seq(Subscription("subscription name", "service name", context, versions))
-
-      given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
-        .willReturn(subscriptionFields)
-
-      given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id.toString)).willReturn(subscriptions)
-
-      val result = await(underTest.fetchApplicationSubscriptions(stdApp1, withFields = true))
 
       result shouldBe subscriptions
     }

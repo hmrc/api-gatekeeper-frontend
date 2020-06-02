@@ -38,13 +38,13 @@ trait ActionBuilders {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
-  def withAppAndSubscriptions(appId: String, withSubFields: Boolean)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
+  def withAppAndSubscriptions(appId: String)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_]): Future[Result] = {
 
     withApp(appId) {
       appWithHistory => {
         val app = appWithHistory.application
-        applicationService.fetchApplicationSubscriptions(app, withFields = withSubFields).flatMap {
+        applicationService.fetchApplicationSubscriptions(app).flatMap {
           allApis => {
             val subscriptions = filterSubscriptionsVersions(allApis)(v => v.subscribed)
             action(ApplicationAndSubscriptionsWithHistory(appWithHistory, subscriptions))
@@ -57,10 +57,10 @@ trait ActionBuilders {
   def withAppAndFieldDefinitions(appId: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
                                 (implicit request: LoggedInRequest[_]) : Future[Result] = {
 
-    withAppAndSubscriptions(appId, true) {
+    withAppAndSubscriptions(appId) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
         val app = appWithFieldSubscriptions.application
-        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fold(false)(fields => fields.fields.nonEmpty))
+        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fields.nonEmpty)
         action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
       }
     }
@@ -69,7 +69,7 @@ trait ActionBuilders {
   def withAppAndSubscriptionVersion(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscriptionVersion => Future[Result])
                                 (implicit request: LoggedInRequest[_], messages: Messages, appConfig: AppConfig): Future[Result] = {
 
-    withAppAndSubscriptions(appId, true) {
+    withAppAndSubscriptions(appId) {
       
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
 

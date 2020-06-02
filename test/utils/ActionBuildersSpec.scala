@@ -62,18 +62,25 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
     val expectedResult = "result text"
   }
 
-  trait SubscriptionsWithMixOfSubscribedVersionsSetup extends Setup {
-    val version1Subscribed = buildVersionWithSubscriptionFields("1.0", true)
-    val version2NotSubscribed = buildVersionWithSubscriptionFields("2.0", false)
+  trait withSubscription extends Setup {
+    def subscription = buildSubscription("mySubscription", versions = Seq(
+      buildVersionWithSubscriptionFields("1.0", true, applicationId),
+      buildVersionWithSubscriptionFields("2.0", true, applicationId)
+    ))
+  }
+  
+  trait SubscriptionsWithMixOfSubscribedVersionsSetup extends withSubscription {
+    val version1Subscribed = buildVersionWithSubscriptionFields("1.0", true, applicationId)
+    val version2NotSubscribed = buildVersionWithSubscriptionFields("2.0", false, applicationId)
 
     val emptySubscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId)
-    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields("3.0", true, fields = Some(emptySubscriptionFieldsWrapper))
+    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields("3.0", true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
     val subscriptionFieldValue = buildSubscriptionFieldValue("name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("4.0", true, fields = Some(subscriptionFieldsWrapper))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("4.0", true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
-     val subscription1 = buildSubscription("Subscription1")
+    val subscription1 = buildSubscription("Subscription1")
 
     val subscription2 = buildSubscription("Subscription2", versions = Seq(version1Subscribed, version2NotSubscribed))
 
@@ -105,7 +112,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
         fetchApplicationReturns(application)
         fetchApplicationSubscriptionsReturns(Seq(subscription1, subscription2))
 
-        val result: Result = await(underTest.withAppAndSubscriptions(applicationId, true)(request => {
+        val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
           request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)))
           Future.successful(Ok(expectedResult))
         })(aUserLoggedInRequest))
@@ -116,16 +123,6 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
         status(result) shouldBe OK
         bodyOf(result) shouldBe expectedResult
       }
-      "withSubFields is false" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-        fetchApplicationReturns(application)
-        fetchApplicationSubscriptionsReturns(Seq(subscription1, subscription2))
-
-        val result: Result = await(underTest.withAppAndSubscriptions(applicationId, false)(request => {
-          Future.successful(Ok(""))
-        })(aUserLoggedInRequest))
-
-        verifyFetchApplicationSubscriptions(basicApplication, false)
-      }
     }
 
     "fetch sorted Subscriptions when withSubFields is true" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
@@ -133,7 +130,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription3, subscription2))
 
-      val result: Result = await(underTest.withAppAndSubscriptions(applicationId, true)(request => {
+      val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
         request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)), subscription3.copy(versions = Seq(version1Subscribed)))
         Future.successful(Ok(expectedResult))
       })(aUserLoggedInRequest))
@@ -158,12 +155,8 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
   }
 
   "withAppAndSubscriptionVersion" should {
-    val subscription = buildSubscription("mySubscription", versions = Seq(
-      buildVersionWithSubscriptionFields("1.0", true),
-      buildVersionWithSubscriptionFields("2.0", true)
-    ))
 
-    "fetch subscription and version" in new Setup {
+    "fetch subscription and version" in new withSubscription {
       val version = subscription.versions.head
       val context = subscription.context
     

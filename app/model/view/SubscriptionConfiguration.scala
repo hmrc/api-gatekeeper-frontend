@@ -36,11 +36,14 @@ object SubscriptionVersion {
 case class SubscriptionField(name: String, shortDescription: String, description: String, hint: String, value: String)
 
 object SubscriptionField {
-  def apply(fields: Option[SubscriptionFieldsWrapper]): Seq[SubscriptionField] = {
-    fields.fold(Seq.empty[SubscriptionField])(fields => {
-      fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => {
-        SubscriptionField(field.definition.name, field.definition.shortDescription, field.definition.description, field.definition.hint,  field.value)
-      })
+  def apply(fields : SubscriptionFieldsWrapper): Seq[SubscriptionField] = {
+    fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => {
+        SubscriptionField(
+          field.definition.name,
+          field.definition.shortDescription,
+          field.definition.description,
+          field.definition.hint,
+          field.value)
     })
   }
 }

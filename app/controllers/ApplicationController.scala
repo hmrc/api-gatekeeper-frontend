@@ -66,7 +66,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc =>
-        withAppAndSubscriptions(appId, false) { applicationWithSubscriptions =>
+        withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
           val app = applicationWithSubscriptions.application
 
           def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
@@ -106,7 +106,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          applicationService.fetchApplicationSubscriptions(app.application, withFields = true).map {
+          applicationService.fetchApplicationSubscriptions(app.application).map {
             subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
           }
         }
