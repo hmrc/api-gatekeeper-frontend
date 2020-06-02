@@ -30,16 +30,16 @@ abstract class BaseController(implicit val appConfig: AppConfig) extends Fronten
 
   implicit val ec: ExecutionContext
 
-  def technicalDifficulties(implicit request: Request[_], messages: Messages)  = {
+  def technicalDifficulties(implicit request: Request[_], messages: Messages) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
     InternalServerError(error_template("Technical difficulties", "Technical difficulties",
       "Sorry, we’re experiencing technical difficulties"))
   }
 
-  def notFound(errors: String)(implicit request: Request[_], messages: Messages) : Future[Result] = {
+  def notFound(errors: String)(implicit request: Request[_], messages: Messages) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
-    Future.successful(NotFound(error_template("Not found", "404 - Not found", errors)))
+    NotFound(error_template("Not found", "404 - Not found", errors))
   }
 }

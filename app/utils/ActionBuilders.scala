@@ -77,7 +77,7 @@ trait ActionBuilders {
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
-          .getOrElse(this.notFound("Subscription or version not found"))
+          .getOrElse(Future.successful(notFound("Subscription or version not found")))
       }
     }
   }
