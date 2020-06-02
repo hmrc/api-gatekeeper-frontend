@@ -34,6 +34,7 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@pageTitle</li>
         </ul>
     </nav>
 
@@ -69,6 +70,7 @@
     </table>
   }
 
+  </br>
   <div class="form-field form-field--submit">
     <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="button--link">Cancel</a>
   </div>
