@@ -111,13 +111,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if(version.fields.fields.nonEmpty) {
-                                    <div class="accordion__body__row">
-                                        <div class="conditionallyHide fieldsContainer" id="subscription-fields-@IdFormatter.identifier(version.fields.apiContext, version.version.version)">
-                                            @subscriptionFields(application.id.toString, version.version, version.fields.apiContext, SubscriptionFieldsForm.form.fill(SubscriptionFieldsForm.apply(version.fields.fields)))
-                                        </div>
-                                    </div>
-                                }
                             </li>
                         }
                     </ul>

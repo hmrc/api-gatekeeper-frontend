@@ -128,31 +128,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
-    requiresAtLeast(GatekeeperRole.SUPERUSER) {
-      implicit request =>
-        implicit hc =>
-          withApp(appId) { app =>
-            def handleValidForm(validForm: SubscriptionFieldsForm) = {
-              if (validForm.fields.nonEmpty) {
-                subscriptionFieldsService.saveFieldValues(
-                  app.application,
-                  apiContext,
-                  apiVersion,
-                  Map(validForm.fields.map(f => f.definition.name -> f.value): _ *))
-              }
-
-              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
-            }
-
-            def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
-              throw new RuntimeException(s"Failed to save Subscription fields - ${formWithErrors.errors}")
-
-            SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-          }
-    }
-  }
-
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>

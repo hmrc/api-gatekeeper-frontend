@@ -598,47 +598,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
-    "updateSubscriptionFields" should {
-      val context = "hello"
-      val version = "1.0"
-
-      val validForm = Seq(
-        "fields[0].name" -> "field1",
-        "fields[0].value" -> "value1",
-        "fields[0].description" -> "desc1",
-        "fields[0].hint" -> "hint1",
-        "fields[0].type" -> "STRING",
-        "fields[0].shortDescription" -> "shortDescription",
-        "fields[1].name" -> "field2",
-        "fields[1].value" -> "value2",
-        "fields[1].description" -> "desc0",
-        "fields[1].hint" -> "hint0",
-        "fields[1].type" -> "STRING",
-        "fields[1].shortDescription" -> "shortDescription"
-      )
-
-      "save subscription field values" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned()
-        given(mockSubscriptionFieldsService.saveFieldValues(any[Application], any[String], any[String], any[Fields])(any[HeaderCarrier]))
-          .willReturn(successful(HttpResponse(OK)))
-
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(validForm: _*)
-
-        val result = await(addToken(underTest.updateSubscriptionFields(applicationId, context, version))(request))
-
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
-
-        verify(mockSubscriptionFieldsService).saveFieldValues(
-          eqTo(application.application),
-          eqTo(context),
-          eqTo(version),
-          eqTo(Map("field1" -> "value1", "field2" -> "value2")))(any[HeaderCarrier])
-        verifyAuthConnectorCalledForSuperUser
-      }
-    }
-
     "manageRateLimitTier" should {
       "fetch the app and return the page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()

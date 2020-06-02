@@ -34,7 +34,6 @@ POST        /applications/:id/access/overrides                                co
 GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: String)
 POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
 POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
-POST        /applications/:id/subscriptions/update-fields                     controllers.ApplicationController.updateSubscriptionFields(id: String, context: String, version: String)
 
 GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: String)
 GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: String, context: String, version: String)
