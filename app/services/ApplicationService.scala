@@ -121,8 +121,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(allDefinitionsByApiVersion: DefinitionsByApiVersion,
-                                  subscription: Subscription,
-                                  version: VersionSubscription): Future[VersionSubscription] = {
+                                  subscription: SubscriptionWithoutFields,
+                                  version: VersionSubscriptionWithoutFields): Future[VersionSubscription] = {
 
     val apiIdentifier = APIIdentifier(subscription.context, version.version.version)
 
@@ -137,14 +137,17 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       }
     }
 
-    def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: Subscription): Future[Subscription] = {
-      val apiSubscriptionStatues = subscription.versions
+    def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: SubscriptionWithoutFields): Future[Subscription] = {
+      val apiSubscriptionStatuses = subscription.versions
           .filterNot(_.version.status == APIStatus.RETIRED)
           .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
           .sortWith(APIDefinition.descendingVersion)
           .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
 
-      Future.sequence(apiSubscriptionStatues).map(vs => subscription.copy(versions = vs))
+      Future.sequence(apiSubscriptionStatuses)
+        .map(versionSubscrioptions => {
+            Subscription(subscription.name, subscription.serviceName, subscription.context, versionSubscrioptions)
+        })
     }
 
     for {
