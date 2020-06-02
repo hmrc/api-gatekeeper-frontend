@@ -60,7 +60,7 @@ trait ActionBuilders {
     withAppAndSubscriptions(appId) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
         val app = appWithFieldSubscriptions.application
-        val subscriptionsWithFieldDefinitions = filterSubscriptionsVersions(appWithFieldSubscriptions.subscriptions)(v => v.fields.fields.nonEmpty)
+        val subscriptionsWithFieldDefinitions = filterHasSubscriptionFields(appWithFieldSubscriptions.subscriptions)
         action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
       }
     }
@@ -87,5 +87,9 @@ trait ActionBuilders {
       .map(api => api.copy(versions = api.versions.filter(predicate)))
       .filterNot(api => api.versions.isEmpty)
       .sortWith(_.name.toLowerCase < _.name.toLowerCase)
+  }
+
+  def filterHasSubscriptionFields(subscriptions : Seq[Subscription]) : Seq[Subscription] = {
+    filterSubscriptionsVersions(subscriptions)(v => v.fields.fields.nonEmpty)
   }
 }

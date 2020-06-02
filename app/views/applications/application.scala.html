@@ -22,7 +22,7 @@
 @import utils.LoggedInUser
 @import views.helper.EmailsFormatter
 
-@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Either[String, Seq[Subscription]], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -117,10 +117,6 @@
             <td></td>
         </tr>
     }
-}
-
-@renderSubscriptionsError(errorMessage: String) = {
-    <tr><td class="faded-text">@errorMessage</tr></td>
 }
 
 @main(title = s"${appConfig.title} - Application Details") {
@@ -309,12 +305,7 @@
             <th><h3>API subscriptions</h3></th>
             <td data-subscriptions>
               <table class="table-plain">
-                @{
-                    subscriptions match {
-                        case Right(subs) => renderSubscriptions(subs)
-                        case Left(errorMessage) => renderSubscriptionsError(errorMessage)
-                    }
-                }
+                @renderSubscriptions(subscriptions)
                 </table>
             </td>
             <td>
@@ -323,6 +314,25 @@
                 }
             </td>
         </tr>
+
+        <tr>
+            <th><h3>Subscription configuration</h3></th>
+            <td data-subscriptions>
+              <table class="table-plain">
+                  @if(subsWithSubscriptionFields.isEmpty){
+                    <span class="faded-text">No subscriptions to configure</span>
+                  } else {
+                    @renderSubscriptions(subsWithSubscriptionFields)
+                  }
+                </table>
+            </td>
+            <td>
+                @if(isAtLeastSuperUser && subsWithSubscriptionFields.nonEmpty) {
+                    <a id="manage-subscriptions" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)}" class="button--link" role="button">Manage</a>
+                }
+            </td>
+        </tr>
+
         <tr>
             <th class="no-border"><h3>Team members</h3></th>
             <td class="no-border">

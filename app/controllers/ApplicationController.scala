@@ -78,14 +78,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
           }
 
-          def subscriptions: Future[Either[String, Seq[Subscription]]] = {
-            Future.successful(Right(applicationWithSubscriptions.subscriptions))
-          }
-
-          for {
-            subs <- subscriptions
-            devs <- developerService.fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
-          } yield Ok(application(devs.toList, app, subs, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+          val subscriptions = applicationWithSubscriptions.subscriptions
+          val subsWithSubscriptionFields = filterHasSubscriptionFields(subscriptions)
+          
+          developerService
+            .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
+            .map(devs => {
+              Ok(application(devs.toList, app, subscriptions, subsWithSubscriptionFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+            })
         }
   }
 
