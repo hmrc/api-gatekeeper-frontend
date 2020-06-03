@@ -62,11 +62,6 @@ object APIDefinition {
     firstUnequalPair.fold(v1.version.length > v2.version.length) { case (a, b) => a > b }
   }
 
-  // TODO: Do we still need this?
-  def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
-    versionSorter(v1.version, v2.version)
-  }
-
   def descendingVersion(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
     versionSorter(v1.version, v2.version)
   }

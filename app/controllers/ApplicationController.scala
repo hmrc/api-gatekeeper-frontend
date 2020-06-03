@@ -79,12 +79,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           val subscriptions = applicationWithSubscriptions.subscriptions
-          val subsWithSubscriptionFields = filterHasSubscriptionFields(subscriptions)
+          val subscriptionsWithFields = filterHasSubscriptionFields(subscriptions)
           
           developerService
             .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
             .map(devs => {
-              Ok(application(devs.toList, app, subscriptions, subsWithSubscriptionFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+              Ok(application(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
             })
         }
   }
