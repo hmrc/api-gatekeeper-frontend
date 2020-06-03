@@ -36,7 +36,7 @@ trait ApplicationServiceMock extends MockitoSugar {
   }
 
   def fetchApplicationSubscriptionsReturns(returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(any(), any())(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplicationSubscriptions(any())(any[HeaderCarrier]))
       .willReturn(Future.successful(returns))
   }
 
@@ -45,11 +45,11 @@ trait ApplicationServiceMock extends MockitoSugar {
   }
 
   def verifyFetchApplicationSubscriptions(application: Application, withFields: Boolean) = {
-    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application), eqTo(withFields))(any[HeaderCarrier])
+    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(any[HeaderCarrier])
   }
 
   def givenTheSubscriptionsWillBeReturned(application: Application, withFields: Boolean, returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application), eqTo(withFields))((any[HeaderCarrier])))
+    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((any[HeaderCarrier])))
       .willReturn(Future.successful(returns))
   }
 }

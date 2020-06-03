@@ -119,48 +119,39 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     } yield addSubscriptionsToApplications(par, subs)
   }
 
-  def fetchApplicationSubscriptions(application: Application, withFields: Boolean = false)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+  def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
     def toApiSubscriptionStatuses(allDefinitionsByApiVersion: DefinitionsByApiVersion,
-                                  subscription: Subscription,
-                                  version: VersionSubscription): Future[VersionSubscription] = {
+                                  subscription: SubscriptionWithoutFields,
+                                  version: VersionSubscriptionWithoutFields): Future[VersionSubscription] = {
 
-      if (withFields) {
-        val apiIdentifier = APIIdentifier(subscription.context, version.version.version)
+    val apiIdentifier = APIIdentifier(subscription.context, version.version.version)
 
-        subscriptionFieldsService
-          .fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, allDefinitionsByApiVersion)
-          .map {
-            fields: Seq[SubscriptionFieldValue] =>
-              VersionSubscription(
-                version.version,
-                version.subscribed,
-                Some(SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields)))
-          }
-      } else {
-        Future.successful(VersionSubscription(version.version, version.subscribed))
+    subscriptionFieldsService
+      .fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, allDefinitionsByApiVersion)
+      .map {
+        fields: Seq[SubscriptionFieldValue] =>
+          VersionSubscription(
+            version.version,
+            version.subscribed,
+            SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields))
       }
     }
 
-    def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: Subscription): Future[Subscription] = {
-      val apiSubscriptionStatues = subscription.versions
+    def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: SubscriptionWithoutFields): Future[Subscription] = {
+      val apiSubscriptionStatuses = subscription.versions
           .filterNot(_.version.status == APIStatus.RETIRED)
           .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
           .sortWith(APIDefinition.descendingVersion)
           .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
 
-      Future.sequence(apiSubscriptionStatues).map(vs => subscription.copy(versions = vs))
-    }
-
-    def getFieldDefinitionsIfNeeded() : Future[DefinitionsByApiVersion] = {
-      if (withFields) {
-        subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
-      } else {
-         Future.successful(DefinitionsByApiVersion.empty)
-      }
+      Future.sequence(apiSubscriptionStatuses)
+        .map(versionSubscrioptions => {
+            Subscription(subscription.name, subscription.serviceName, subscription.context, versionSubscrioptions)
+        })
     }
 
     for {
-      allDefinitionsByApiVersion <- getFieldDefinitionsIfNeeded()
+      allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
       subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
       subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
     } yield subscriptionsWithSubscriptionFields

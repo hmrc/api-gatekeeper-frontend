@@ -236,23 +236,6 @@ object Forms {
       .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
   }
 
-  case class SubscriptionFieldsForm(fields: Seq[SubscriptionFieldValue])
-
-  object SubscriptionFieldsForm {
-    val form = Form(
-      mapping(
-        "fields" -> seq(
-          mapping(
-            "name" -> text,
-            "description" -> text,
-            "hint" -> text,
-            "type" -> text,
-            "shortDescription" -> text,
-            "value" -> text)(SubscriptionFieldValue.fromFormValues)(SubscriptionFieldValue.toFormValues))
-      )(SubscriptionFieldsForm.apply)(SubscriptionFieldsForm.unapply)
-    )
-  }
-
   final case class AddTeamMemberForm(email: String, role: Option[String])
 
   object AddTeamMemberForm {

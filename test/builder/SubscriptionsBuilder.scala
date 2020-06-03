@@ -28,9 +28,10 @@ trait SubscriptionsBuilder {
       versions = versions)
   }
 
-  def buildVersionWithSubscriptionFields(version: String, subscribed: Boolean, fields: Option[SubscriptionFieldsWrapper] = None) =
-    {
-      VersionSubscription(APIVersion(version, APIStatus.STABLE, None), subscribed = subscribed, fields = fields)
+  def buildVersionWithSubscriptionFields(version: String, subscribed: Boolean, applicationId: String, fields: Option[SubscriptionFieldsWrapper] = None) = {
+      val defaults = buildSubscriptionFieldsWrapper(applicationId)
+
+      VersionSubscription(APIVersion(version, APIStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
     }
 
   def buildSubscriptionFieldsWrapper(applicationId: String, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {

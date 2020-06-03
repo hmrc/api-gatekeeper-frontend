@@ -31,6 +31,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
+import model.Subscription._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -134,9 +135,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
-  def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
+  def fetchApplicationSubscriptions(applicationId: String)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionWithoutFields]] = {
     retry{
-      http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/$applicationId/subscription")
+      http.GET[Seq[SubscriptionWithoutFields]](s"$serviceBaseUrl/application/$applicationId/subscription")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
         }

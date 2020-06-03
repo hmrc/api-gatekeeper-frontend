@@ -47,6 +47,9 @@ object APIDefinition {
   implicit val formatAPIIdentifier = Json.format[APIIdentifier]
   implicit val formatApiDefinitions = Json.format[APIDefinition]
 
+  implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
+  implicit val subscriptionWithoutFieldsJsonFormatter = Json.format[SubscriptionWithoutFields]
+
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback = Array(1, 0, 0)
 
@@ -59,21 +62,20 @@ object APIDefinition {
     firstUnequalPair.fold(v1.version.length > v2.version.length) { case (a, b) => a > b }
   }
 
-  def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
+  def descendingVersion(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
     versionSorter(v1.version, v2.version)
   }
 }
 
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
-                               fields: Option[SubscriptionFieldsWrapper] = None)
+                               fields: SubscriptionFieldsWrapper)
 
 case class APIVersion(version: String, status: APIStatus, access: Option[APIAccess] = None) {
   val displayedStatus = APIStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
 }
-
 
 object APIStatus extends Enumeration {
   type APIStatus = Value
@@ -118,6 +120,13 @@ case class Subscription(name: String,
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
+case class SubscriptionWithoutFields(name: String,
+                        serviceName: String,
+                        context: String,
+                        versions: Seq[VersionSubscriptionWithoutFields])
+
+case class VersionSubscriptionWithoutFields(version: APIVersion, subscribed: Boolean)
+
 object Subscription {
   def subscriptionNumberLabel(versions: Seq[VersionSubscription]) = versions.count(_.subscribed) match {
     case 1 => s"1 subscription"
@@ -133,4 +142,7 @@ object Subscription {
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription = Json.format[VersionSubscription]
   implicit val subscriptionJsonFormatter = Json.format[Subscription]
+
+  implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
+  implicit val subscriptionWithoutFieldsJsonFormatter = Json.format[SubscriptionWithoutFields]
 }

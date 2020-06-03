@@ -66,7 +66,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc =>
-        withAppAndSubscriptions(appId, false) { applicationWithSubscriptions =>
+        withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
           val app = applicationWithSubscriptions.application
 
           def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
@@ -78,14 +78,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
           }
 
-          def subscriptions: Future[Either[String, Seq[Subscription]]] = {
-            Future.successful(Right(applicationWithSubscriptions.subscriptions))
-          }
-
-          for {
-            subs <- subscriptions
-            devs <- developerService.fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
-          } yield Ok(application(devs.toList, app, subs, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+          val subscriptions = applicationWithSubscriptions.subscriptions
+          val subscriptionsWithFields = filterHasSubscriptionFields(subscriptions)
+          
+          developerService
+            .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
+            .map(devs => {
+              Ok(application(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+            })
         }
   }
 
@@ -106,7 +106,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          applicationService.fetchApplicationSubscriptions(app.application, withFields = true).map {
+          applicationService.fetchApplicationSubscriptions(app.application).map {
             subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
           }
         }
@@ -126,31 +126,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         withApp(appId) { app =>
           applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
-  }
-
-  def updateSubscriptionFields(appId: String, apiContext: String, apiVersion: String): Action[AnyContent] = {
-    requiresAtLeast(GatekeeperRole.SUPERUSER) {
-      implicit request =>
-        implicit hc =>
-          withApp(appId) { app =>
-            def handleValidForm(validForm: SubscriptionFieldsForm) = {
-              if (validForm.fields.nonEmpty) {
-                subscriptionFieldsService.saveFieldValues(
-                  app.application,
-                  apiContext,
-                  apiVersion,
-                  Map(validForm.fields.map(f => f.definition.name -> f.value): _ *))
-              }
-
-              Future.successful(Redirect(routes.ApplicationController.manageSubscription(appId)))
-            }
-
-            def handleInvalidForm(formWithErrors: Form[SubscriptionFieldsForm]) =
-              throw new RuntimeException(s"Failed to save Subscription fields - ${formWithErrors.errors}")
-
-            SubscriptionFieldsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-          }
-    }
   }
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
