@@ -339,7 +339,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      await(subscriptionFieldsConnector.saveToFieldValues(clientId, apiContext, apiVersion, fieldsValues))
+      await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
 
       verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest)
     }
@@ -350,7 +350,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
-        await(subscriptionFieldsConnector.saveToFieldValues(clientId, apiContext, apiVersion, fieldsValues))
+        await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
       }
     }
 
@@ -360,7 +360,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
-        await(subscriptionFieldsConnector.saveToFieldValues(clientId, apiContext, apiVersion, fieldsValues))
+        await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
       }
     }
   }

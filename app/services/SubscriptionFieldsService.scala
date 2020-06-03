@@ -59,7 +59,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
   def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)
       (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
-    connectorFor(application).saveToFieldValues(application.clientId, apiContext, apiVersion, fields)
+    connectorFor(application).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
   def deleteFieldValues(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
@@ -89,10 +89,7 @@ object SubscriptionFieldsService {
     def fetchFieldDefinitions(apiContext: String, apiVersion: String)
                              (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]]
 
-    // TODO: Delete me.
-    def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[HttpResponse]
-
-    def saveToFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+    def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
 
     def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
   }

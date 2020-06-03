@@ -111,16 +111,10 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   }
 
   def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)
-  (implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields))
-  }
-
-  def saveToFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)
                      (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
 
-    // import CustomResponseHandlers.permissiveBadRequestResponseHandler
+    import CustomResponseHandlers.permissiveBadRequestResponseHandler
 
     http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)).map { response =>
       response.status match {

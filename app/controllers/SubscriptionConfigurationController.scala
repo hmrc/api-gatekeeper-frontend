@@ -32,8 +32,10 @@ import views.html.applications.subscriptionConfiguration.{list_subscription_conf
 import scala.concurrent.{ExecutionContext, Future}
 import model.view.EditApiMetadataForm
 import play.api.data.Form
+import play.api.data
+import play.api.data.Forms._
 import services.SubscriptionFieldsService
-import model.SubscriptionFields.Fields
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SaveSubscriptionFieldsFailureResponse}
 import play.i18n.Messages
 
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
@@ -85,12 +87,42 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             Future.successful(technicalDifficulties)
           }
 
+      //   saveFields(validForm) map {
+      //   case SaveSubscriptionFieldsSuccessResponse => Redirect(successRedirect)
+      //   case SaveSubscriptionFieldsFailureResponse(fieldErrors) =>
+      //     val errors = fieldErrors.map(fe => data.FormError(fe._1, fe._2)).toSeq
+      //     val errorForm = EditApiMetadata.form.fill(validForm).copy(errors = errors)
+      //     val vm = EditApiMetadataViewModel(validForm.apiName, apiContext, apiVersion, validForm.displayedStatus, errorForm)
+
+      //     BadRequest(validationFailureView(vm))
+      // }
+
           def doSaveConfigurations(validForm: EditApiMetadataForm) = {
             val fields: Fields = EditApiMetadataForm.toFields(validForm)
+
             subscriptionFieldsService.saveFieldValues(app.application.application, context, version, fields)
-              .map( _ => {
-                Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
-            })
+            .map({
+                   case SaveSubscriptionFieldsSuccessResponse => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
+                   case SaveSubscriptionFieldsFailureResponse(fieldErrors) =>
+                    // Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel, form)))
+                    val errors = fieldErrors.map(fe => data.FormError(fe._1, fe._2)).toSeq
+
+                    println("**** " + fieldErrors)
+
+                    val errorForm = EditApiMetadataForm.form.fill(validForm).copy(errors = errors)
+                    // val vm = EditApiMetadataViewModel(validForm.apiName, apiContext, apiVersion, validForm.displayedStatus, errorForm)
+
+                    // TODO: Refactor with above
+                    var subscription = app.subscription
+                    var version = app.version
+        
+                    val subscriptionFields = SubscriptionField.apply(version.fields)
+                    val subscriptionViewModel = SubscriptionVersion(subscription.name, subscription.context, version.version.version, version.version.displayedStatus, subscriptionFields)
+
+                    val view = edit_subscription_configuration(app.application, subscriptionViewModel, errorForm)
+
+                    BadRequest(view)
+              })
           }
 
           requestForm.fold(errors, doSaveConfigurations)
