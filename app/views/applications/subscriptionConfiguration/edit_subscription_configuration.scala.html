@@ -59,7 +59,7 @@
             @helper.input(field("name"), '_label -> null) { (id, name, value, args) =>
             <input type="hidden" name="@name" id="@id" value="@value">
             }
-        
+
             <div class="@if(form.errors(formFieldId).nonEmpty) {form-field--error}">
               <fieldset class="inline" class="@if(form.errors(formFieldId).nonEmpty) {error-field}">
                 @fieldError(form.errors, formFieldId)
