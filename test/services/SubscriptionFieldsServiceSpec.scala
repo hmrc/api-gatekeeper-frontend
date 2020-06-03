@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+import model.SubscriptionFields.SaveSubscriptionFieldsSuccessResponse
 
 class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar {
 
@@ -95,17 +96,17 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "saveFieldValues" in new Setup {
 
-      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
-        .thenReturn(successful(mock[HttpResponse]))
+      when(mockProductionSubscriptionFieldsConnector.saveToFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
+        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
 
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier]())
+        .saveToFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier]())
 
-      verify(mockSandboxSubscriptionFieldsConnector, never()).saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]())
+      verify(mockSandboxSubscriptionFieldsConnector, never()).saveToFieldValues(any(),any(),any(),any())(any[HeaderCarrier]())
     }
 
     "deleteFieldValues" in new Setup {
@@ -199,17 +200,17 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "saveFieldValues" in new Setup {
 
-      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
-        .thenReturn(successful(mock[HttpResponse]))
+      when(mockSandboxSubscriptionFieldsConnector.saveToFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
+        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
 
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier]())
+        .saveToFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier]())
 
-      verify(mockProductionSubscriptionFieldsConnector, never()).saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]())
+      verify(mockProductionSubscriptionFieldsConnector, never()).saveToFieldValues(any(),any(),any(),any())(any[HeaderCarrier]())
     }
 
     "deleteFieldValues" in new Setup {

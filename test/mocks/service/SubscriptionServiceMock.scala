@@ -26,16 +26,15 @@ import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
 import services.SubscriptionFieldsService
-import model.SubscriptionFields.Fields
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SaveSubscriptionFieldsResponse}
 
 trait SubscriptionFieldsServiceMock extends MockitoSugar {
 
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-  val httpResponse = mock[HttpResponse]
-
+  
   def givenSaveSubscriptionFieldsSuccess() = {
     given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
-        .willReturn(Future.successful(httpResponse))
+        .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
   }
 
   def verifySaveSubscriptionFields(application: Application, apiContext: String, apiVersion: String, fields: Fields) = {

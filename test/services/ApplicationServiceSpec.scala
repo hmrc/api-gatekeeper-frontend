@@ -461,7 +461,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
 
       given(mockSubscriptionFieldsService.saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier]))
-          .willReturn(Future.successful(HttpResponse(200)))
+          .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
 
