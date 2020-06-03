@@ -329,7 +329,6 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
     }
 
      "show subscriptions that have subscription fields configurartion" in {
-      
       val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id.toString)
       val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id.toString)
 
@@ -345,6 +344,18 @@ class ApplicationViewSpec extends PlaySpec with OneServerPerSuite with MockitoSu
       result.body.contains("My API Name") mustBe true
       result.body.contains(s"${versionWithSubscriptionFields1.version.version} (Stable)") mustBe true
       result.body.contains(s"${versionWithSubscriptionFields2.version.version} (Stable)") mustBe true
+    }
+
+    "hide subscriptions configurartion" in {
+      val subscriptions = Seq.empty
+
+      val result = views.html.applications.application.render(developers, applicationWithHistory,
+        Seq.empty, subscriptions, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, applicationMessages, mockAppConfig)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      result.body.contains("Subscription configuration") mustBe false
     }
   }
 

@@ -315,24 +315,21 @@
             </td>
         </tr>
 
-        <tr>
-            <th><h3>Subscription configuration</h3></th>
-            <td data-subscriptions>
-              <table class="table-plain">
-                  @if(subsWithSubscriptionFields.isEmpty){
-                    <span class="faded-text">No subscriptions to configure</span>
-                  } else {
-                    @renderSubscriptions(subsWithSubscriptionFields)
-                  }
-                </table>
-            </td>
-            <td>
-                @if(isAtLeastSuperUser && subsWithSubscriptionFields.nonEmpty) {
-                    <a id="manage-subscriptions" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)}" class="button--link" role="button">Manage</a>
-                }
-            </td>
-        </tr>
-
+        @if(subsWithSubscriptionFields.nonEmpty){
+            <tr>
+                <th><h3>Subscription configuration</h3></th>
+                <td data-subscriptions>
+                    <table class="table-plain">
+                        @renderSubscriptions(subsWithSubscriptionFields)
+                    </table>
+                </td>
+                <td>
+                    @if(isAtLeastSuperUser) {
+                        <a id="manage-subscriptions" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)}" class="button--link" role="button">Manage</a>
+                    }
+                </td>
+            </tr>
+        }
         <tr>
             <th class="no-border"><h3>Team members</h3></th>
             <td class="no-border">
