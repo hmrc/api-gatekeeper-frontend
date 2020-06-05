@@ -493,6 +493,34 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       verify(mockProductionApplicationConnector).subscribeToApi(mEq(stdApp1.id.toString), mEq(apiIdentifier))(any[HeaderCarrier])
       verify(mockSubscriptionFieldsService, never).saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier])
     }
+
+    "with field definitions but fails to save subscription fields throws error" in new Setup {
+
+      given(mockProductionApplicationConnector.subscribeToApi(anyString, any[APIIdentifier])(any[HeaderCarrier]))
+        .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+
+      given(mockSubscriptionFieldsService.fetchFieldDefinitions(any(), any())(any[HeaderCarrier]))
+          .willReturn(Future.successful(definitions))
+
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
+
+      given(mockSubscriptionFieldsService.fetchFieldsValues(any(), any(), any())(any[HeaderCarrier]))
+        .willReturn(Future.successful(subscriptionFieldValues))
+
+      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
+
+      val errors = Map("fieldName" -> "failure reason")
+
+      given(mockSubscriptionFieldsService.saveFieldValues(mEq(stdApp1), mEq(context), mEq(version), mEq(fields))(any[HeaderCarrier]))
+          .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(errors)))
+
+      private val exception = intercept[RuntimeException](
+          await(underTest.subscribeToApi(stdApp1, context, version))
+      )
+        
+      exception.getMessage should include("failure reason")
+      exception.getMessage should include("Failed to save blank subscription field values") 
+    }
   }
 
   "unsubscribeFromApi" should {

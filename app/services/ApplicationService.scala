@@ -228,7 +228,15 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
         .flatMap(values => {
           if (!values.exists(field => field.value != "")) {
-            subscriptionFieldsService.saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions)).map(_ => HasSucceeded)
+            subscriptionFieldsService
+              .saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions))
+              .map({
+                case SaveSubscriptionFieldsSuccessResponse => HasSucceeded
+                case error => {
+                  val errorMessage = s"Failed to save blank subscription field values: $error"  
+                  throw new RuntimeException(errorMessage)
+                }
+              })
           }
           else {
             Future.successful(HasSucceeded)
