@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import include._
 @import model._
 @import model.view._
 @import model.view.SubscriptionVersion
@@ -48,7 +49,8 @@
     <div class="form-field-group">
         @helper.CSRF.formField
         @helper.repeatWithIndex(form("fields")) { (field, index) =>
-        <div class="form-field">
+          
+          @defining(field("name").value.getOrElse("")) { formFieldId =>
             <label class="label--full-length" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.version}-@{field("description").value.getOrElse("")}">
             <strong class="bold">@{subscriptionViewModel.fields(index).description}</strong>
             <p>@{subscriptionViewModel.fields(index).hint}</p>
@@ -57,11 +59,18 @@
             @helper.input(field("name"), '_label -> null) { (id, name, value, args) =>
             <input type="hidden" name="@name" id="@id" value="@value">
             }
-            
-            @helper.input(field("value"), '_label -> null) { (id, name, value, args) =>
-            <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="form-input input--medium" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
-            }
-        </div>
+
+            <div class="@if(form.errors(formFieldId).nonEmpty) {form-field--error}">
+              <fieldset class="inline" class="@if(form.errors(formFieldId).nonEmpty) {error-field}">
+                @fieldError(form.errors, formFieldId)
+    
+                @helper.input(field("value"), '_label -> null) { (id, name, value, args) =>
+                  <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="form-input input--medium" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
+                }
+              </fieldset>
+            </div>
+          </br>
+          }
         }
 
         <div class="form-field form-field--submit">

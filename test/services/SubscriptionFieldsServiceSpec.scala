@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+import model.SubscriptionFields.SaveSubscriptionFieldsSuccessResponse
 
 class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar {
 
@@ -96,7 +97,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     "saveFieldValues" in new Setup {
 
       when(mockProductionSubscriptionFieldsConnector.saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
-        .thenReturn(successful(mock[HttpResponse]))
+        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
 
@@ -200,7 +201,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     "saveFieldValues" in new Setup {
 
       when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(any(),any(),any(),any())(any[HeaderCarrier]()))
-        .thenReturn(successful(mock[HttpResponse]))
+        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
 

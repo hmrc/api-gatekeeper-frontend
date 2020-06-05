@@ -60,7 +60,7 @@ class SubscriptionConfigurationControllerSpec
 
     val version = "1.0"
     val context = "my-context"
-    val subscriptionFieldValue = buildSubscriptionFieldValue("name")
+    val subscriptionFieldValue = buildSubscriptionFieldValue("field-name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
     val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
@@ -164,16 +164,38 @@ class SubscriptionConfigurationControllerSpec
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
 
-      val request = requestWithFormData(aLoggedInRequest)
+      val newValue = "new value"
+
+      val request = requestWithFormData(subscriptionFieldValue.definition.name, newValue)(aLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
     
-      val expectedFields = Map(fieldName -> fieldValue)
+      val expectedFields = Map(subscriptionFieldValue.definition.name -> newValue)
 
       verifySaveSubscriptionFields(application.application, context, version, expectedFields)
+    }
+
+    "save gives validation errors" in new EditSaveFormData {
+      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheAppWillBeReturned()
+      
+      val validationMessage = "My validation error"
+      val errors = Map(subscriptionFieldValue.definition.name -> validationMessage)
+
+      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      givenSaveSubscriptionFieldsFailure(errors)
+
+      val request = requestWithFormData(subscriptionFieldValue.definition.name , "field value")(aLoggedInRequest)
+
+      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+
+      status(result) shouldBe BAD_REQUEST
+
+      val responseBody = Helpers.contentAsString(result)
+      responseBody should include(validationMessage)
     }
 
      "When logged in as super saves the data" in new EditSaveFormData {
@@ -183,7 +205,7 @@ class SubscriptionConfigurationControllerSpec
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
 
-      val request = requestWithFormData(aSuperUserLoggedInRequest)
+      val request = requestWithFormData("", "")(aSuperUserLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
@@ -194,7 +216,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
       givenTheUserHasInsufficientEnrolments()
       
-      val request = requestWithFormData(aLoggedInRequest)
+      val request = requestWithFormData("","")(aLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
@@ -202,12 +224,8 @@ class SubscriptionConfigurationControllerSpec
     } 
   }
 
-  trait EditSaveFormData extends Setup {
-
-    val fieldName = "fieldName"
-    val fieldValue = "new value"  
-    
-    def requestWithFormData(request : FakeRequest[_]) = {
+  trait EditSaveFormData extends Setup {     
+    def requestWithFormData(fieldName: String, fieldValue: String)(request : FakeRequest[_]) = {
       request.withFormUrlEncodedBody(
         "fields[0].name" -> fieldName,
         "fields[0].value" -> fieldValue)

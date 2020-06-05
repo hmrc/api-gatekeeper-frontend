@@ -21,6 +21,7 @@ import model.SubscriptionFields.SubscriptionFieldsWrapper
 import play.api.data.Form
 import play.api.data.Forms._
 import model.SubscriptionFields.Fields
+import model.VersionSubscription
 
 case class SubscriptionVersion(apiName: String, apiContext : String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
 
@@ -30,6 +31,15 @@ object SubscriptionVersion {
       sub <- subscriptionsWithFieldDefinitions
       version <- sub.versions
     } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
+  }
+
+  def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : Seq[SubscriptionField]) : SubscriptionVersion = {
+    SubscriptionVersion(
+      subscription.name,
+      subscription.context,
+      version.version.version,
+      version.version.displayedStatus, 
+      subscriptionFields)
   }
 }
 

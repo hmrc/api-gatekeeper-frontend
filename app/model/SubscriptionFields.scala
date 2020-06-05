@@ -59,4 +59,10 @@ object SubscriptionFields {
     type SubscriptionRedirectType = Value
     val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value
   }
+
+  sealed trait SaveSubscriptionFieldsResponse
+  case object SaveSubscriptionFieldsSuccessResponse extends SaveSubscriptionFieldsResponse
+  case class SaveSubscriptionFieldsFailureResponse(fieldErrors : Map[String, String]) extends SaveSubscriptionFieldsResponse
 }
+
+

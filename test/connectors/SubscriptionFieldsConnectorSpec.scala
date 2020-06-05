@@ -335,18 +335,17 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val putUrl = s"$urlPrefix/application/$clientId/context/$apiContext/version/$apiVersion"
 
     "save the fields" in new Setup {
-
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any())(any(),any(),any(),any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
 
-      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest)
+      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any())
     }
 
     "fail when api-subscription-fields returns a 500" in new Setup {
 
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -356,7 +355,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns a 404" in new Setup {
 
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](putUrl, subFieldsPutRequest))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
