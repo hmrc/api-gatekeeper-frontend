@@ -45,6 +45,9 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
 
 
   def something()(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]]= {
+
+    // TODO: Flatten public / trial and private for each env.
+
     val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
     val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
     val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
