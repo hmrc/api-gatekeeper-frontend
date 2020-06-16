@@ -33,12 +33,12 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
   def something() = Action.async { implicit request =>
     val definitions = apiDefinitionService.fetchAllApiDefinitions()
 
-    // TODO: Sorting
-    // Environment
-
+    // TODO: Environment
+    
     definitions.map(allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
         .flatMap(d => toViewModel(d))
+        .sortBy(vm => (vm.apiName, vm.apiVersion))
         .map(vm => s"${vm.apiName},${vm.apiVersion},${vm.status}")
       Ok(allDefinitionsAsRows.mkString(System.lineSeparator()))
     })
