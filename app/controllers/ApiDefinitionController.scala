@@ -21,32 +21,33 @@ import javax.inject.Inject
 import play.api.mvc.Action
 import services.ApiDefinitionService
 import model._
+import model.Environment._
 
 import scala.concurrent.ExecutionContext
 
-case class ApiDefinitionView(apiName: String, apiVersion: String, status: String)
+case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, environment: String)
 
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService)
                                        (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController {
 
   def something() = Action.async { implicit request =>
-    val definitions = apiDefinitionService.fetchAllApiDefinitions()
+    val definitions = apiDefinitionService.something()
 
     // TODO: Environment
-    
+
     definitions.map(allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
-        .flatMap(d => toViewModel(d))
+        .flatMap{case(d, env) => toViewModel(d, env)}
         .sortBy(vm => (vm.apiName, vm.apiVersion))
-        .map(vm => s"${vm.apiName},${vm.apiVersion},${vm.status}")
+        .map(vm => s"${vm.apiName},${vm.apiVersion},${vm.status},${vm.access},${vm.environment}")
       Ok(allDefinitionsAsRows.mkString(System.lineSeparator()))
     })
   }
 
-  private def toViewModel(apiDefinition: APIDefinition): Seq[ApiDefinitionView] = {
+  private def toViewModel(apiDefinition: APIDefinition, environment: Environment): Seq[ApiDefinitionView] = {
     apiDefinition.versions.map(v => 
-      ApiDefinitionView(apiDefinition.name, v.version, v.displayedStatus)
+      ApiDefinitionView(apiDefinition.name, v.version, v.displayedStatus, v.accessType.toString, environment.toString)
     )
   }
 }

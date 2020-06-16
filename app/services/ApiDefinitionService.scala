@@ -20,6 +20,7 @@ import javax.inject.Inject
 import connectors.{ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import model.APIDefinition
 import model.Environment._
+import model.Environment
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,4 +42,23 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
       privateApis <- Future.reduce(privateApisFuture)(_ ++ _)
     } yield (publicApis ++ privateApis).distinct
   }
+
+
+  def something()(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]]= {
+    val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
+    val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
+    val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
+    val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
+
+    for {
+      a <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
+      b <- fetch(productionPublicApisFuture, Environment.PRODUCTION)
+      c <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
+      d <- fetch(productionPrivateApisFuture, Environment.PRODUCTION)
+    } yield (a ++ b ++ c ++ d)
+  }
+
+  private def fetch(apisFuture: Future[Seq[APIDefinition]], environment: Environment): Future[Seq[(APIDefinition, Environment)]] = {
+    apisFuture.map(apis => apis.map(api => (api, environment) ))
+       }
 }
