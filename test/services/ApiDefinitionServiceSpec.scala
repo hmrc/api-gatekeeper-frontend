@@ -115,4 +115,26 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
       }
     }
   }
+
+  "apis" when {
+    "get all apis" in new Setup {
+
+      val publicSandbox = publicDefinition.copy(name="sandbox-public")
+      val privateSandbox = privateDefinition.copy(name="sandbox-private")
+
+      given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
+      given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+      given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicSandbox)))
+      given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateSandbox)))
+
+      val allDefinitions: Seq[(APIDefinition, Environment)] = await(definitionService.apis)
+
+      allDefinitions shouldBe Seq(
+        (publicSandbox, Environment.SANDBOX),
+        (publicDefinition, Environment.PRODUCTION),
+        (privateSandbox, Environment.SANDBOX),
+        (privateDefinition, Environment.PRODUCTION)
+      )
+    }
+  }
 }
