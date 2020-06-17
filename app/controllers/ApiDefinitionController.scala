@@ -46,7 +46,7 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
   }
 
   private def toViewModel(apiDefinition: APIDefinition, environment: Environment): Seq[ApiDefinitionView] = {
-    apiDefinition.versions.map(v => 
+    apiDefinition.versions.map(v =>
       ApiDefinitionView(apiDefinition.name, v.version, v.displayedStatus, v.accessType.toString, environment.toString)
     )
   }

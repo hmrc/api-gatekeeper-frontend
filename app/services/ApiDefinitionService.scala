@@ -53,8 +53,12 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
     val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
 
+    val apisFuturesList = List(sandboxPublicApisFuture, productionPublicApisFuture, sandboxPrivateApisFuture, productionPrivateApisFuture)
+
+    apisFuturesList.
+
     for {
-      a <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
+      a <- fetch(sandboxPublicApisFuture, Environment.SANDBOX)
       b <- fetch(productionPublicApisFuture, Environment.PRODUCTION)
       c <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
       d <- fetch(productionPrivateApisFuture, Environment.PRODUCTION)
