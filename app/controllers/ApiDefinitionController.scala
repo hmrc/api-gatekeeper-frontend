@@ -31,14 +31,12 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
                                        (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
   extends BaseController {
 
-  def something() = Action.async { implicit request =>
-    val definitions = apiDefinitionService.something()
-
-    // TODO: Environment
+  def apis() = Action.async { implicit request =>
+    val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
-        .flatMap{case(d, env) => toViewModel(d, env)}
+        .flatMap { case(d, env) => toViewModel(d, env) }
         .sortBy(vm => (vm.apiName, vm.apiVersion))
         .map(vm => s"${vm.apiName},${vm.apiVersion},${vm.status},${vm.access},${vm.environment}")
       Ok(allDefinitionsAsRows.mkString(System.lineSeparator()))

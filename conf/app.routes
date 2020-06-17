@@ -70,6 +70,6 @@ GET         /pending                                                          co
 GET         /pending/:serviceName/review-sandbox                              controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
 GET         /pending/:serviceName/review-production                           controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
 POST        /pending/:serviceName/approve-sandbox                             controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
-POST        /pending/:serviceName/approve-production                          controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
+POST        /pending/:serviceName/approve-productio                           controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
 
-GET         /something                                                        controllers.ApiDefinitionController.something
+GET         /apis                                                             controllers.ApiDefinitionController.apis

@@ -44,26 +44,21 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
   }
 
 
-  def something()(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]]= {
-
-    // TODO: Flatten public / trial and private for each env.
-
+  def apis(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]] = {
     val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
     val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
     val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
     val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
-
-    val apisFuturesList = List(sandboxPublicApisFuture, productionPublicApisFuture, sandboxPrivateApisFuture, productionPrivateApisFuture)
 
     for {
       a <- fetch(sandboxPublicApisFuture, Environment.SANDBOX)
       b <- fetch(productionPublicApisFuture, Environment.PRODUCTION)
       c <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
       d <- fetch(productionPrivateApisFuture, Environment.PRODUCTION)
-    } yield (a ++ b ++ c ++ d)
+    } yield a ++ b ++ c ++ d
   }
 
   private def fetch(apisFuture: Future[Seq[APIDefinition]], environment: Environment): Future[Seq[(APIDefinition, Environment)]] = {
-    apisFuture.map(apis => apis.map(api => (api, environment) ))
-   }
+    apisFuture.map(apis => apis.map(api => (api, environment)))
+  }
 }
