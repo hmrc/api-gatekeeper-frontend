@@ -25,7 +25,7 @@ import model.Environment._
 
 import scala.concurrent.ExecutionContext
 
-case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, environment: String)
+case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService)
                                        (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
@@ -38,14 +38,22 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
       val allDefinitionsAsRows = allDefinitions
         .flatMap { case(d, env) => toViewModel(d, env) }
         .sortBy(vm => (vm.apiName, vm.apiVersion))
-        .map(vm => s"${vm.apiName},${vm.apiVersion},${vm.status},${vm.access},${vm.environment}")
-      Ok(allDefinitionsAsRows.mkString(System.lineSeparator()))
+        .map(vm => Seq(vm.apiName,vm.apiVersion,vm.status,vm.access,vm.isTrial,vm.environment).mkString(","))
+
+      val rowHeader = Seq("name","version","status","access", "isTrial", "environment").mkString(",")
+
+      Ok((rowHeader +: allDefinitionsAsRows).mkString(System.lineSeparator()))
     })
   }
 
   private def toViewModel(apiDefinition: APIDefinition, environment: Environment): Seq[ApiDefinitionView] = {
+
+    def isTrial(apiVersion: APIVersion) : Boolean = {
+      apiVersion.access.fold(false)(access => access.isTrial.getOrElse(false))
+    }
+
     apiDefinition.versions.map(v =>
-      ApiDefinitionView(apiDefinition.name, v.version, v.displayedStatus, v.accessType.toString, environment.toString)
+      ApiDefinitionView(apiDefinition.name, v.version, v.displayedStatus, v.accessType.toString, isTrial(v), environment.toString)
     )
   }
 }

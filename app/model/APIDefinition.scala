@@ -90,7 +90,7 @@ object APIStatus extends Enumeration {
   }
 }
 
-case class APIAccess(`type`: APIAccessType.Value)
+case class APIAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean])
 
 object APIAccessType extends Enumeration {
   type APIAccessType = Value
