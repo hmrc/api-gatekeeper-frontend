@@ -55,8 +55,6 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
 
     val apisFuturesList = List(sandboxPublicApisFuture, productionPublicApisFuture, sandboxPrivateApisFuture, productionPrivateApisFuture)
 
-    apisFuturesList.
-
     for {
       a <- fetch(sandboxPublicApisFuture, Environment.SANDBOX)
       b <- fetch(productionPublicApisFuture, Environment.PRODUCTION)
@@ -67,5 +65,5 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
 
   private def fetch(apisFuture: Future[Seq[APIDefinition]], environment: Environment): Future[Seq[(APIDefinition, Environment)]] = {
     apisFuture.map(apis => apis.map(api => (api, environment) ))
-       }
+   }
 }
