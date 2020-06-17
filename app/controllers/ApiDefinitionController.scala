@@ -24,15 +24,16 @@ import model._
 import model.Environment._
 
 import scala.concurrent.ExecutionContext
+import utils.GatekeeperAuthWrapper
+import connectors.AuthConnector
 
 case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
-class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService)
+class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
+                                        override val authConnector: AuthConnector)
                                        (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController {
-
-    // TODO: Test and stride
-  def apis() = Action.async { implicit request =>
+  extends BaseController with GatekeeperAuthWrapper {
+  def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {
