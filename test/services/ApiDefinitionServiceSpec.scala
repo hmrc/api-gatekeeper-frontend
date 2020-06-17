@@ -35,6 +35,9 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
     val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
 
+    given(mockSandboxApiDefinitionConnector.environment).willReturn(Environment.SANDBOX)
+    given(mockProductionApiDefinitionConnector.environment).willReturn(Environment.PRODUCTION)
+
     val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
     val publicDefinition = APIDefinition(
@@ -113,6 +116,28 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
 
         await(allDefinitions) should have size 2
       }
+    }
+  }
+
+  "apis" when {
+    "get all apis" in new Setup {
+
+      val publicSandbox = publicDefinition.copy(name="sandbox-public")
+      val privateSandbox = privateDefinition.copy(name="sandbox-private")
+
+      given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
+      given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+      given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicSandbox)))
+      given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateSandbox)))
+
+      val allDefinitions: Seq[(APIDefinition, Environment)] = await(definitionService.apis)
+
+      allDefinitions shouldBe Seq(
+        (privateDefinition, Environment.PRODUCTION),
+        (publicDefinition, Environment.PRODUCTION),
+        (privateSandbox, Environment.SANDBOX),
+        (publicSandbox, Environment.SANDBOX)
+      )
     }
   }
 }
