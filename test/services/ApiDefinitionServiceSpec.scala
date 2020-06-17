@@ -35,6 +35,9 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
     val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
     val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
 
+    given(mockSandboxApiDefinitionConnector.environment).willReturn(Environment.SANDBOX)
+    given(mockProductionApiDefinitionConnector.environment).willReturn(Environment.PRODUCTION)
+
     val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
     val publicDefinition = APIDefinition(
@@ -130,10 +133,10 @@ class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar 
       val allDefinitions: Seq[(APIDefinition, Environment)] = await(definitionService.apis)
 
       allDefinitions shouldBe Seq(
-        (publicSandbox, Environment.SANDBOX),
+        (privateDefinition, Environment.PRODUCTION),
         (publicDefinition, Environment.PRODUCTION),
         (privateSandbox, Environment.SANDBOX),
-        (privateDefinition, Environment.PRODUCTION)
+        (publicSandbox, Environment.SANDBOX)
       )
     }
   }

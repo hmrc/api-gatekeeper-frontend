@@ -24,6 +24,7 @@ import model.Environment
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
+import connectors.ApiDefinitionConnector
 
 class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
                                      productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {
@@ -45,20 +46,24 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
 
 
   def apis(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]] = {
-    val sandboxPublicApisFuture = sandboxApiDefinitionConnector.fetchPublic()
-    val productionPublicApisFuture = productionApiDefinitionConnector.fetchPublic()
-    val sandboxPrivateApisFuture = sandboxApiDefinitionConnector.fetchPrivate()
-    val productionPrivateApisFuture = productionApiDefinitionConnector.fetchPrivate()
+    
+    def getApisFromConnector(connector: ApiDefinitionConnector) : Future[Seq[(APIDefinition, Environment)]] = {
+      def addEnvironmentToApis(result: Future[Seq[APIDefinition]]) : Future[Seq[(APIDefinition, Environment)]] =
+        result.map(apis => apis.map(api => (api, connector.environment)))      
+      
+      Future.sequence(
+        Seq(
+          connector.fetchPublic(),
+          connector.fetchPrivate()
+        ).map(addEnvironmentToApis)
+      ).map(_.flatten)
+    }
 
-    for {
-      a <- fetch(sandboxPublicApisFuture, Environment.SANDBOX)
-      b <- fetch(productionPublicApisFuture, Environment.PRODUCTION)
-      c <- fetch(sandboxPrivateApisFuture, Environment.SANDBOX)
-      d <- fetch(productionPrivateApisFuture, Environment.PRODUCTION)
-    } yield a ++ b ++ c ++ d
-  }
+    val connectors = Seq(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
 
-  private def fetch(apisFuture: Future[Seq[APIDefinition]], environment: Environment): Future[Seq[(APIDefinition, Environment)]] = {
-    apisFuture.map(apis => apis.map(api => (api, environment)))
+    Future.sequence(connectors
+      .map(getApisFromConnector))
+      .map(_.flatten)
+      .map(_.sortBy { case (api, env) => (api.name, env) } )
   }
 }
