@@ -17,11 +17,13 @@
 package controllers
 
 import config.AppConfig
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.mvc.Action
 import services.ApiDefinitionService
 import model._
 import model.Environment._
+
+import play.api.mvc.MessagesControllerComponents
 
 import scala.concurrent.ExecutionContext
 import utils.GatekeeperAuthWrapper
@@ -29,10 +31,13 @@ import connectors.AuthConnector
 
 case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
+@Singleton
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
-                                        override val authConnector: AuthConnector)
+                                        override val authConnector: AuthConnector,
+                                        mcc: MessagesControllerComponents)
                                        (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+  extends BaseController(mcc) with GatekeeperAuthWrapper {
+    
   def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
     val definitions = apiDefinitionService.apis
 

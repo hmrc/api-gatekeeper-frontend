@@ -16,13 +16,22 @@
 
 @import config.AppConfig
 @import utils.LoggedInUser
-
-@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(
-         implicit messages: Messages, appConfig: AppConfig, loggedInUser: LoggedInUser)
-
-@import uk.gov.hmrc.play.views.html.layouts
 @import include._
 @import model._
+@import play.twirl.api.HtmlFormat
+@import uk.gov.hmrc.play.views.html.layouts._
+
+@this(layoutsHead: Head,
+      layoutsFooter: Footer,
+      layoutsHeaderNav: HeaderNav,
+      layoutsFooterLinks: FooterLinks,
+      layoutsMainContent: MainContent,
+      layoutsServiceInfo: ServiceInfo,
+      govUkTemplate: GovUkTemplate,
+      applicationConfig: AppConfig)
+
+@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(
+         implicit appConfig: AppConfig, loggedInUser: LoggedInUser)
 
 @userBanner = {
 <div id="user-nav-links" class="header__menu__proposition--sub-header">
@@ -33,7 +42,7 @@
 }
 
 @serviceInfo = {
-  @layouts.serviceInfo(
+  @layoutsServiceInfo(
     betaBanner = HtmlFormat.empty,
     includeGridWrapper = false,
     includeHMRCBranding = false,
@@ -41,7 +50,7 @@
 }
 
 @content = {
-  @layouts.main_content(
+  @layoutsMainContent(
     article = mainContent,
     mainContentHeader = mainContentHeader,
     serviceInfo = serviceInfo,
@@ -54,16 +63,16 @@
 }
 
 @bodyEnd = {
-  @layouts.footer(
-    analyticsToken = None,
-    analyticsHost = "",
-    ssoUrl = None,
-    scriptElem = Option(scriptElem),
-    gaCalls = None)
+  @layoutsFooter(
+      analyticsToken = None,
+      analyticsHost = "",
+      ssoUrl = None,
+      scriptElem = Some(scriptElem),
+      gaCalls = None)
 }
 
 @insideHeader = {
-  @layouts.header_nav(
+  @layoutsHeaderNav(
     navTitle = Option(appConfig.title),
     navTitleLink = None,
     showBetaLink = false,
@@ -73,13 +82,14 @@
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
 }
 
-@views.html.layouts.govuk_template(
-  title = Option(title),
-  bodyClasses = None)(
-  head = layouts.head(linkElem = None, headScripts = None),
-  bodyEnd = bodyEnd,
-  insideHeader = insideHeader,
-  afterHeader = HtmlFormat.empty,
-  footerTop = HtmlFormat.empty,
-  footerLinks = Option(layouts.footer_links()),
-  nav = true)(content)
+@govUkTemplate(
+    title = Some(title),
+    bodyClasses = None)(
+      head = layoutsHead(linkElem = None, headScripts = None),
+      bodyEnd = bodyEnd,
+      insideHeader = insideHeader,
+      afterHeader = HtmlFormat.empty,
+      footerTop = HtmlFormat.empty,
+      footerLinks = Some(layoutsFooterLinks),
+      nav = true
+    )(content)

@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
+import play.api.mvc.MessagesControllerComponents
 
 import scala.concurrent.ExecutionContext
 
@@ -34,9 +35,10 @@ import scala.concurrent.ExecutionContext
 class DevelopersController @Inject()(developerService: DeveloperService,
                                      applicationService: ApplicationService,
                                      apiDefinitionService: ApiDefinitionService,
-                                     override val authConnector: AuthConnector
+                                     override val authConnector: AuthConnector,
+                                      mcc: MessagesControllerComponents
                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+  extends BaseController(mcc) with GatekeeperAuthWrapper {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>

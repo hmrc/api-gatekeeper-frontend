@@ -16,16 +16,19 @@
 
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import config.AppConfig
 import model.StaticNavLinks
 import play.api.libs.json._
 import play.api.mvc.Action
 
+import play.api.mvc.MessagesControllerComponents
+
 import scala.concurrent.{ExecutionContext, Future}
 
-class NavigationController @Inject()(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController {
+@Singleton
+class NavigationController @Inject()(mcc: MessagesControllerComponents)(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
+  extends BaseController(mcc) {
 
   def navLinks() = Action.async { implicit request =>
     Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))

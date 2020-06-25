@@ -18,15 +18,15 @@ package controllers
 
 import config.AppConfig
 import play.api.i18n.Messages
-import play.api.mvc.{Request, Result, Results}
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{LoggedInUser, LoggedInRequest}
+import utils.LoggedInUser
 import views.html.error_template
-import scala.concurrent.Future
+import play.api.mvc.MessagesControllerComponents
 
 import scala.concurrent.ExecutionContext
 
-abstract class BaseController(implicit val appConfig: AppConfig) extends FrontendController {
+abstract class BaseController(mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig) extends FrontendController(mcc) {
 
   implicit val ec: ExecutionContext
 

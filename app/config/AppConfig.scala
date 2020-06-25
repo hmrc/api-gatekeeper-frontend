@@ -16,99 +16,166 @@
 
 package config
 
+import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+import play.api.{ConfigLoader, Configuration}
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
-class AppConfig @Inject()(override val runModeConfiguration: Configuration, environment: Environment ) extends ServicesConfig {
+@ImplementedBy(classOf[AppConfigImpl])
+trait AppConfig {
+  def title: String
 
-  override protected def mode: Mode = environment.mode
+  def appName: String
+  def assetsPrefix: String
 
-  private def loadStringConfig(key: String) = {
-    runModeConfiguration.getString(key)
-      .getOrElse(throw new Exception(s"Missing configuration key: $key"))
-  }
+  def devHubBaseUrl: String
+  def retryCount: Int
+  def retryDelayMilliseconds: Int
 
-  lazy val appName = loadStringConfig("appName")
-  lazy val assetsPrefix = loadStringConfig("assets.url") + loadStringConfig("assets.version")
+  def apiScopeSandboxBaseUrl: String
+  def apiScopeSandboxUseProxy: Boolean
+  def apiScopeSandboxBearerToken: String
+  def apiScopeSandboxApiKey: String
+  def apiScopeProductionBaseUrl: String
+  def apiScopeProductionUseProxy: Boolean
+  def apiScopeProductionBearerToken: String
+  def apiScopeProductionApiKey: String
 
-  lazy val devHubBaseUrl = loadStringConfig("devHubBaseUrl")
-  lazy val retryCount = runModeConfiguration.getInt("retryCount").getOrElse(0)
-  lazy val retryDelayMilliseconds = runModeConfiguration.getInt("retryDelayMilliseconds").getOrElse(500)
+  def applicationSandboxBaseUrl: String
+  def applicationSandboxUseProxy: Boolean
+  def applicationSandboxBearerToken: String
+  def applicationSandboxApiKey: String
+  def applicationProductionBaseUrl: String
+  def applicationProductionUseProxy: Boolean
+  def applicationProductionBearerToken: String
+  def applicationProductionApiKey: String
 
-  lazy val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
-  lazy val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")
-  lazy val apiScopeSandboxBearerToken = bearerToken("api-scope-sandbox")
-  lazy val apiScopeSandboxApiKey = apiKey("api-scope-sandbox")
-  lazy val apiScopeProductionBaseUrl = serviceUrl("api-scope")("api-scope-production")
-  lazy val apiScopeProductionUseProxy = useProxy("api-scope-production")
-  lazy val apiScopeProductionBearerToken = bearerToken("api-scope-production")
-  lazy val apiScopeProductionApiKey = apiKey("api-scope-production")
+  def authBaseUrl: String
+  def strideLoginUrl: String
+  def developerBaseUrl: String
 
-  lazy val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
-  lazy val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
-  lazy val applicationSandboxBearerToken = bearerToken("third-party-application-sandbox")
-  lazy val applicationSandboxApiKey = apiKey("third-party-application-sandbox")
-  lazy val applicationProductionBaseUrl = serviceUrl("third-party-application")("third-party-application-production")
-  lazy val applicationProductionUseProxy = useProxy("third-party-application-production")
-  lazy val applicationProductionBearerToken = bearerToken("third-party-application-production")
-  lazy val applicationProductionApiKey = apiKey("third-party-application-production")
+  def subscriptionFieldsSandboxBaseUrl: String
+  def subscriptionFieldsSandboxUseProxy: Boolean
+  def subscriptionFieldsSandboxBearerToken: String
+  def subscriptionFieldsSandboxApiKey: String
+  def subscriptionFieldsProductionBaseUrl: String
+  def subscriptionFieldsProductionUseProxy: Boolean
+  def subscriptionFieldsProductionBearerToken: String
+  def subscriptionFieldsProductionApiKey: String
 
-  lazy val authBaseUrl = baseUrl("auth")
-  lazy val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
-  lazy val developerBaseUrl = baseUrl("third-party-developer")
+  def apiPublisherSandboxBaseUrl: String
+  def apiPublisherSandboxUseProxy: Boolean
+  def apiPublisherSandboxBearerToken: String
+  def apiPublisherSandboxApiKey: String
+  def apiPublisherProductionBaseUrl: String
+  def apiPublisherProductionUseProxy: Boolean
+  def apiPublisherProductionBearerToken: String
+  def apiPublisherProductionApiKey: String
 
-  lazy val subscriptionFieldsSandboxBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-sandbox")
-  lazy val subscriptionFieldsSandboxUseProxy = useProxy("api-subscription-fields-sandbox")
-  lazy val subscriptionFieldsSandboxBearerToken = bearerToken("api-subscription-fields-sandbox")
-  lazy val subscriptionFieldsSandboxApiKey = apiKey("api-subscription-fields-sandbox")
-  lazy val subscriptionFieldsProductionBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
-  lazy val subscriptionFieldsProductionUseProxy = useProxy("api-subscription-fields-production")
-  lazy val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
-  lazy val subscriptionFieldsProductionApiKey = apiKey("api-subscription-fields-production")
+  def apiDefinitionSandboxBaseUrl: String
+  def apiDefinitionSandboxUseProxy: Boolean
+  def apiDefinitionSandboxBearerToken: String
+  def apiDefinitionSandboxApiKey: String
+  def apiDefinitionProductionBaseUrl: String
+  def apiDefinitionProductionUseProxy: Boolean
+  def apiDefinitionProductionBearerToken: String
+  def apiDefinitionProductionApiKey: String
 
-  lazy val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
-  lazy val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
-  lazy val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
-  lazy val apiPublisherSandboxApiKey = apiKey("api-publisher-sandbox")
-  lazy val apiPublisherProductionBaseUrl = serviceUrl("api-publisher")("api-publisher-production")
-  lazy val apiPublisherProductionUseProxy = useProxy("api-publisher-production")
-  lazy val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
-  lazy val apiPublisherProductionApiKey = apiKey("api-publisher-production")
+  def gatekeeperSuccessUrl: String
 
-  lazy val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
-  lazy val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
-  lazy val apiDefinitionSandboxBearerToken = bearerToken("api-definition-sandbox")
-  lazy val apiDefinitionSandboxApiKey = apiKey("api-definition-sandbox")
-  lazy val apiDefinitionProductionBaseUrl = serviceUrl("api-definition")("api-definition-production")
-  lazy val apiDefinitionProductionUseProxy = useProxy("api-definition-production")
-  lazy val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
-  lazy val apiDefinitionProductionApiKey = apiKey("api-definition-production")
+  def superUserRole: String
+  def userRole: String
+  def adminRole: String
+}
 
-  lazy val gatekeeperSuccessUrl = loadStringConfig("api-gatekeeper-frontend-success-url")
-
-  lazy val superUserRole = loadStringConfig("roles.super-user")
-  lazy val userRole = loadStringConfig("roles.user")
-  lazy val adminRole = loadStringConfig("roles.admin")
+@Singleton
+class AppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
+  extends ServicesConfig(config, runMode)
+  with AppConfig {
 
   def title = "HMRC API Gatekeeper"
+
+  val env = runMode.env
+
+  def getConfigDefaulted[A](key: String, default: A)(implicit loader: ConfigLoader[A]) = config.getOptional[A](key)(loader).getOrElse(default)
+
   def superUsers: Seq[String] = {
-    runModeConfiguration.getStringSeq(s"$env.superUsers")
-      .orElse(runModeConfiguration.getStringSeq("superUsers"))
+    config
+      .getOptional[Seq[String]](s"$env.superUsers")
+      .orElse(config.getOptional[Seq[String]]("superUsers"))
       .getOrElse(Seq.empty)
   }
+
+  private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", defBool = false)
 
   private def serviceUrl(key: String)(serviceName: String): String = {
     if (useProxy(serviceName)) s"${baseUrl(serviceName)}/${getConfString(s"$serviceName.context", key)}"
     else baseUrl(serviceName)
   }
 
-  private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", false)
+  private def apiKey(serviceName: String) = getConfString(s"$serviceName.api-key", "")
 
   private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
 
-  private def apiKey(serviceName: String) = getConfString(s"$serviceName.api-key", "")
+  val appName = getString("appName")
+  val assetsPrefix = getString("assets.url") + getString("assets.version")
 
+  val devHubBaseUrl = getString("devHubBaseUrl")
+  val retryCount = getConfigDefaulted("retryCount", 0)
+  val retryDelayMilliseconds = getConfigDefaulted("retryDelayMilliseconds", 500)
 
+  val apiScopeSandboxBaseUrl = serviceUrl("api-scope")("api-scope-sandbox")
+  val apiScopeSandboxUseProxy = useProxy("api-scope-sandbox")
+  val apiScopeSandboxBearerToken = bearerToken("api-scope-sandbox")
+  val apiScopeSandboxApiKey = apiKey("api-scope-sandbox")
+  val apiScopeProductionBaseUrl = serviceUrl("api-scope")("api-scope-production")
+  val apiScopeProductionUseProxy = useProxy("api-scope-production")
+  val apiScopeProductionBearerToken = bearerToken("api-scope-production")
+  val apiScopeProductionApiKey = apiKey("api-scope-production")
+
+  val applicationSandboxBaseUrl = serviceUrl("third-party-application")("third-party-application-sandbox")
+  val applicationSandboxUseProxy = useProxy("third-party-application-sandbox")
+  val applicationSandboxBearerToken = bearerToken("third-party-application-sandbox")
+  val applicationSandboxApiKey = apiKey("third-party-application-sandbox")
+  val applicationProductionBaseUrl = serviceUrl("third-party-application")("third-party-application-production")
+  val applicationProductionUseProxy = useProxy("third-party-application-production")
+  val applicationProductionBearerToken = bearerToken("third-party-application-production")
+  val applicationProductionApiKey = apiKey("third-party-application-production")
+
+  val authBaseUrl = baseUrl("auth")
+  val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
+  val developerBaseUrl = baseUrl("third-party-developer")
+
+  val subscriptionFieldsSandboxBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-sandbox")
+  val subscriptionFieldsSandboxUseProxy = useProxy("api-subscription-fields-sandbox")
+  val subscriptionFieldsSandboxBearerToken = bearerToken("api-subscription-fields-sandbox")
+  val subscriptionFieldsSandboxApiKey = apiKey("api-subscription-fields-sandbox")
+  val subscriptionFieldsProductionBaseUrl = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
+  val subscriptionFieldsProductionUseProxy = useProxy("api-subscription-fields-production")
+  val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
+  val subscriptionFieldsProductionApiKey = apiKey("api-subscription-fields-production")
+
+  val apiPublisherSandboxBaseUrl = serviceUrl("api-publisher")("api-publisher-sandbox")
+  val apiPublisherSandboxUseProxy = useProxy("api-publisher-sandbox")
+  val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
+  val apiPublisherSandboxApiKey = apiKey("api-publisher-sandbox")
+  val apiPublisherProductionBaseUrl = serviceUrl("api-publisher")("api-publisher-production")
+  val apiPublisherProductionUseProxy = useProxy("api-publisher-production")
+  val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
+  val apiPublisherProductionApiKey = apiKey("api-publisher-production")
+
+  val apiDefinitionSandboxBaseUrl = serviceUrl("api-definition")("api-definition-sandbox")
+  val apiDefinitionSandboxUseProxy = useProxy("api-definition-sandbox")
+  val apiDefinitionSandboxBearerToken = bearerToken("api-definition-sandbox")
+  val apiDefinitionSandboxApiKey = apiKey("api-definition-sandbox")
+  val apiDefinitionProductionBaseUrl = serviceUrl("api-definition")("api-definition-production")
+  val apiDefinitionProductionUseProxy = useProxy("api-definition-production")
+  val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
+  val apiDefinitionProductionApiKey = apiKey("api-definition-production")
+
+  val gatekeeperSuccessUrl = getString("api-gatekeeper-frontend-success-url")
+
+  val superUserRole = getString("roles.super-user")
+  val userRole = getString("roles.user")
+  val adminRole = getString("roles.admin")
 }

@@ -28,13 +28,15 @@ import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.GatekeeperAuthWrapper
 import views.html.deploymentApproval.{deploymentApproval, deploymentReview}
+import play.api.mvc.MessagesControllerComponents
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
-                                             deploymentApprovalService: DeploymentApprovalService
+                                             deploymentApprovalService: DeploymentApprovalService,
+                                             mcc: MessagesControllerComponents
                                             )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+  extends BaseController(mcc) with GatekeeperAuthWrapper {
 
   def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))

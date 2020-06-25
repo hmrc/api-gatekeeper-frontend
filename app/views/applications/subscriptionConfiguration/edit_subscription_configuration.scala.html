@@ -21,7 +21,10 @@
 @import utils.LoggedInUser
 @import views.helper._
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(applicationWithHistory: ApplicationWithHistory, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash,  messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version} ${subscriptionViewModel.displayedStatus}"}

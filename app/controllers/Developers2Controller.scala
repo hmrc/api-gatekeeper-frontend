@@ -26,14 +26,17 @@ import services.{ApiDefinitionService, DeveloperService}
 import utils.{GatekeeperAuthWrapper, LoggedInRequest}
 import views.html.developers._
 
+import play.api.mvc.MessagesControllerComponents
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developerService: DeveloperService,
-                                      val apiDefinitionService: ApiDefinitionService
+                                      val apiDefinitionService: ApiDefinitionService,
+                                      mcc: MessagesControllerComponents
                                      )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+  extends BaseController(mcc) with GatekeeperAuthWrapper {
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,

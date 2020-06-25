@@ -28,8 +28,10 @@ import views.html.error_template
 import play.api.i18n.Messages
 import controllers.BaseController
 
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+
 trait ActionBuilders { 
-  this: BaseController => 
+  this: FrontendController => 
 
   val applicationService: ApplicationService
 

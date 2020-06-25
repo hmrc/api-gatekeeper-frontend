@@ -40,7 +40,7 @@ lazy val microservice =  (project in file("."))
     .settings(publishingSettings: _*)
     .settings(
       targetJvm := "jvm-1.8",
-      scalaVersion := "2.11.12",
+      scalaVersion := "2.12.11",
       name:= appName,
       libraryDependencies ++= appDependencies,
       retrieveManaged := true,
@@ -94,13 +94,12 @@ lazy val appName = "api-gatekeeper-frontend"
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
-lazy val hmrctestVersion = "3.9.0-play-25"
+lazy val hmrctestVersion = "3.9.0-play-26"
 lazy val jsoupVersion = "1.12.1"
 lazy val scalaCheckVersion = "1.14.0"
 
 lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
-  "org.scalatest" %% "scalatest" % "2.2.6" % "acceptance",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % "acceptance",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % "acceptance",
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % jsoupVersion % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
@@ -123,8 +122,7 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
 lazy val testScope = "test,it"
 
 lazy val testDeps: Seq[ModuleID] = Seq(
-  "org.scalatest" %% "scalatest" % "2.2.6" % testScope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % testScope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % testScope,
   "org.pegdown" % "pegdown" % "1.6.0" % testScope,
   "org.jsoup" % "jsoup" % jsoupVersion % testScope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % testScope,
@@ -148,12 +146,12 @@ lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
 
 lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.13.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.55.0-play-25",
-  "uk.gov.hmrc" %% "play-ui" % "7.40.0-play-25",
-  "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.2.0-play-25",
-  "uk.gov.hmrc" %% "json-encryption" % "4.5.0-play-25",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.7.0",
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.8.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.55.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "8.11.0-play-26",
+  "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.2.0-play-26",
+  "uk.gov.hmrc" %% "json-encryption" % "4.8.0-play-26",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
   "uk.gov.hmrc" %% "emailaddress" % "3.4.0",
   "commons-net" % "commons-net" % "3.6",
   "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -161,7 +159,9 @@ lazy val compile = Seq(
   "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
   "org.slf4j" % "jul-to-slf4j" % slf4jVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
-  "ch.qos.logback" % "logback-core" % logbackVersion
+  "ch.qos.logback" % "logback-core" % logbackVersion,
+  "com.typesafe.play" %% "play-json" % "2.7.4",
+  "com.typesafe.play" %% "play-json-joda" % "2.7.4"
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),

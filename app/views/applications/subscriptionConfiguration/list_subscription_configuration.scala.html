@@ -19,12 +19,15 @@
 @import utils.LoggedInUser
 @import views.helper._
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 @pageTitle = @{"Subscription configuration"}
 
-@main(title = s"${appConfig.title} - $pageTitle") {
+@main(title = s"${applicationConfig.title} - $pageTitle") {
 
 <div class="col-75">
 

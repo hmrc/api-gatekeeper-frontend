@@ -22,7 +22,7 @@
 @import utils._
 
 @(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
-implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, appConfig: config.AppConfig)
 
 @pageUrl(extra: (String, String)) = @{
     val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")

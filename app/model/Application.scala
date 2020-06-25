@@ -27,6 +27,10 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.time.DateTimeUtils
 
+// TODO: Is the default format for Joda correct for Gatekeeper?
+import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites._
+
 trait Application {
   val id: UUID
   val name: String
@@ -56,6 +60,7 @@ case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
 
 object CheckInformation {
+
   implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
   implicit val formatApprovalInformation = Json.format[CheckInformation]
 }
@@ -168,6 +173,9 @@ case class ApplicationResponse(id: UUID,
   extends Application
 
 object ApplicationResponse {
+  import play.api.libs.json.JodaReads._
+  import play.api.libs.json.JodaWrites._
+
   implicit val formatTotpIds = Json.format[TotpIds]
 
   private implicit val formatStandard = Json.format[Standard]

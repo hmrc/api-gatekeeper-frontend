@@ -16,36 +16,37 @@
 
 package controllers
 
-import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import model.Forms._
 import model.UpliftAction.{APPROVE, REJECT}
 import model._
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.Play.current
 import play.api.data.Form
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.i18n.MessagesProvider
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
+import config.AppConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
+@Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
                                       apiDefinitionService: ApiDefinitionService,
                                       developerService: DeveloperService,
                                       subscriptionFieldsService: SubscriptionFieldsService,
-                                      override val authConnector: AuthConnector
-                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
+                                      override val authConnector: AuthConnector,
+                                      mcc: MessagesControllerComponents
+                                     )(implicit val appConfig: AppConfig, ec: ExecutionContext)
+  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 

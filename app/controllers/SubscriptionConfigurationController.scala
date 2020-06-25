@@ -18,31 +18,34 @@ package controllers
 
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import model._
-import model.view.{SubscriptionVersion, SubscriptionField, SubscriptionFieldValueForm}
+import model.view.{SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
 import org.joda.time.DateTime
-import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.ApplicationService
 import utils.{ActionBuilders, GatekeeperAuthWrapper}
-import views.html.applications.subscriptionConfiguration.{list_subscription_configuration, edit_subscription_configuration}
+import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.view.EditApiMetadataForm
 import play.api.data.Form
 import play.api.data
-import play.api.data.Forms._
 import services.SubscriptionFieldsService
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SaveSubscriptionFieldsFailureResponse}
-import play.i18n.Messages
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
+@Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
                                                     val subscriptionFieldsService: SubscriptionFieldsService,
-                                                    override val authConnector: AuthConnector
+                                                    val authConnector: AuthConnector,
+                                                    mcc: MessagesControllerComponents,
+                                                    listSubscriptionConfiguration: list_subscription_configuration,
+                                                    editSubscriptionConfiguration: edit_subscription_configuration
                                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
+  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -51,7 +54,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
       implicit hc =>
         withAppAndFieldDefinitions(appId) {
           app => {
-            Future.successful(Ok(list_subscription_configuration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
+            Future.successful(Ok(listSubscriptionConfiguration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
           }
         }
   }
@@ -67,7 +70,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             val form = EditApiMetadataForm.form
               .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))
 
-            Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel, form)))
+            Future.successful(Ok(editSubscriptionConfiguration(app.application, subscriptionViewModel, form)))
           }
         }
   }
@@ -91,7 +94,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             val subscriptionFields = SubscriptionField(app.version.fields)
             val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
 
-            val view = edit_subscription_configuration(app.application, subscriptionViewModel, errorForm)
+            val view = editSubscriptionConfiguration(app.application, subscriptionViewModel, errorForm)
 
             BadRequest(view)
           }
