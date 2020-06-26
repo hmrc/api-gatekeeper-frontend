@@ -17,8 +17,12 @@
 @import model.APIApprovalSummary
 @import model.NavLink
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @main(title = s"${appConfig.title} - API Approval") {
 <div class="content__body">
 

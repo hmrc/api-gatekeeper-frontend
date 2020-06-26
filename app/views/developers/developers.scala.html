@@ -18,15 +18,18 @@
 @import include._
 @import model._
 @import utils.LoggedInUser
+@import config.AppConfig
+
+@this(main: main, applicationConfig: AppConfig)
 
 @(users: Seq[ApplicationDeveloper],
 emails: String,
 apis: Map[String, Seq[VersionSummary]],
 filter: Option[String],
 status: Option[String],
-environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${appConfig.title} - Developers") {
+@main(title = s"${applicationConfig.title} - Developers") {
 
 <article class="content__body full-width">
     <header>

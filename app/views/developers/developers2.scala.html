@@ -18,13 +18,16 @@
 @import include._
 @import model._
 @import utils._
+@import config.AppConfig
+
+@this(main: main, applicationConfig: AppConfig)
 
 @(users: Seq[User],
 emails: String,
 apiVersions : Seq[DropDownValue],
-params: Map[String, String])(implicit loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${appConfig.title} - Developers") {
+@main(title = s"${applicationConfig.title} - Developers") {
 
 <article class="content__body full-width">
 

@@ -19,10 +19,13 @@
 @import org.joda.time.format.DateTimeFormat
 @import utils.GatekeeperAuthWrapper
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(application: ApprovedApplication)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
 
-@main(title = s"${appConfig.title} - Dashboard") {
+@(application: ApprovedApplication)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Dashboard") {
 
     @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
         <div class="content__body">

@@ -21,8 +21,12 @@
 @import org.joda.time.format.DateTimeFormat
 @import utils.LoggedInUser
 @import views.helper.EmailsFormatter
+@import config.AppConfig
 
-@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
@@ -119,7 +123,7 @@
     }
 }
 
-@main(title = s"${appConfig.title} - Application Details") {
+@main(title = s"${applicationConfig.title} - Application Details") {
 
 <div class="">
 

@@ -17,8 +17,11 @@
 @import model._
 @import include._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @scopes(fieldName: String) = {
     <div class="@if(form.errors(fieldName).nonEmpty) {form-field--error}">
@@ -31,7 +34,7 @@
     <input class="multiple-choice" type="checkbox" name=@fieldName id=@fieldName value="true" @if(form.data.get(fieldName) == Some("true")) {checked}>
 }
 
-@main(title = s"${appConfig.title} - Manage access overrides") {
+@main(title = s"${applicationConfig.title} - Manage access overrides") {
 
 <div class="">
 

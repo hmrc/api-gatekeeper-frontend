@@ -21,11 +21,14 @@
 @import model.State._
 @import utils.LoggedInUser
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${appConfig.title} - Delete Application") {
+@main(title = s"${applicationConfig.title} - Delete Application") {
 
 <div class="">
 

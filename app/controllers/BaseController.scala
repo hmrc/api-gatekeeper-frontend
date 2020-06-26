@@ -17,12 +17,12 @@
 package controllers
 
 import config.AppConfig
-import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.LoggedInUser
 import views.html.error_template
 import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.MessagesProvider
 
 import scala.concurrent.ExecutionContext
 
@@ -30,14 +30,14 @@ abstract class BaseController(mcc: MessagesControllerComponents)(implicit val ap
 
   implicit val ec: ExecutionContext
 
-  def technicalDifficulties(implicit request: Request[_], messages: Messages) : Result = {
+  def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
     InternalServerError(error_template("Technical difficulties", "Technical difficulties",
       "Sorry, we’re experiencing technical difficulties"))
   }
 
-  def notFound(errors: String)(implicit request: Request[_], messages: Messages) : Result = {
+  def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
     NotFound(error_template("Not found", "404 - Not found", errors))

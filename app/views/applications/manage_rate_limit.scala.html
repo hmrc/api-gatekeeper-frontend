@@ -17,10 +17,13 @@
 @import model._
 @import include._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
 
-@main(title = s"${appConfig.title} - Manage rate limit tier") {
+@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Manage rate limit tier") {
 
 <div class="">
 

@@ -16,12 +16,16 @@
 
 @import model._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${appConfig.title} - Application Deleted") {
+@main(title = s"${applicationConfig.title} - Application Deleted") {
 
 <div class="">
     <nav class="breadcrumb-nav">

@@ -20,9 +20,12 @@
 @import org.joda.time.format.DateTimeFormat
 @import include.pagination
 @import utils._
+@import config.AppConfig
+
+@this(main: main, applicationConfig: AppConfig)
 
 @(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
-implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, appConfig: config.AppConfig)
+implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @pageUrl(extra: (String, String)) = @{
     val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
@@ -39,7 +42,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, appConf
     }
 }
 
-@main(title = s"${appConfig.title} - Applications") {
+@main(title = s"${applicationConfig.title} - Applications") {
 
     @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
 
@@ -55,7 +58,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, appConf
             </a>
             }
 
-            @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort").map(params.get(_))) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: _ =>
+            @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: _ =>
             <form name="application-filters"
                   action="@routes.ApplicationController.applicationsPage(None).url"
                   method="get">
@@ -197,7 +200,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, appConf
                     </div>
                 </div>
 
-                @if(!paginatedApplications.applications.isEmpty) {
+                @if(paginatedApplications.applications.nonEmpty) {
                     @defining(paginatedApplications.page, paginatedApplications.pageSize, paginatedApplications.matching, paginatedApplications.applications.size, paginatedApplications.total) { case (page, pageSize, matching, numDocs, total) =>
                         @pagination(page, pageSize, matching, total, numDocs, routes.ApplicationController.applicationsPage(None).url, params)
                     }

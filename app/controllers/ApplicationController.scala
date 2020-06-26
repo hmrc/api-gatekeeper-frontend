@@ -33,7 +33,9 @@ import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, Subscripti
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
+import views.html.applications.{application, applications, manage_subscriptions, manage_access_overrides, manage_scopes, manage_whitelisted_ip, manage_rate_limit, delete_application}
 import config.AppConfig
+import play.api.i18n.I18nSupport
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -44,9 +46,17 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       developerService: DeveloperService,
                                       subscriptionFieldsService: SubscriptionFieldsService,
                                       override val authConnector: AuthConnector,
-                                      mcc: MessagesControllerComponents
+                                      mcc: MessagesControllerComponents,
+                                      applicationsView: applications,
+                                      applicationView: application,
+                                      manageSubscriptionsView: manage_subscriptions,
+                                      manageAccessOverridesView: manage_access_overrides,
+                                      manageScopesView: manage_scopes,
+                                      manageWhitelistedIpView: manage_whitelisted_ip,
+                                      manageRateLimitView: manage_rate_limit,
+                                      deleteApplicationView: delete_application
                                      )(implicit val appConfig: AppConfig, ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders {
+  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -61,7 +71,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           par <- applicationService.searchApplications(env, params)
           apis <- apiDefinitionService.fetchAllApiDefinitions(env)
           subApps = SubscriptionEnhancer.combine(par, apis)
-        } yield Ok(applications(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
+        } yield Ok(applicationsView(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -85,7 +95,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           developerService
             .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
             .map(devs => {
-              Ok(application(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+              Ok(applicationView(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
             })
         }
   }
@@ -108,7 +118,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       implicit hc =>
         withApp(appId) { app =>
           applicationService.fetchApplicationSubscriptions(app.application).map {
-            subs => Ok(manage_subscriptions(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
+            subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
           }
         }
   }
@@ -135,7 +145,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         withApp(appId) { app =>
           app.application.access match {
             case access: Standard => {
-              Future.successful(Ok(manage_access_overrides(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
+              Future.successful(Ok(manageAccessOverridesView(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
             }
           }
         }
@@ -157,15 +167,17 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               case UpdateOverridesFailureResult(overrideFlagErrors) =>
                 var form = accessOverridesForm.fill(overrides)
 
-                overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), Messages("invalid.scope")))
+                val y = request.messages("invaid.scope")
 
-                BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser))
+                overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), y))
+
+                BadRequest(manageAccessOverridesView(app.application, form, isAtLeastSuperUser))
               case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
             }
           }
 
           def handleFormError(form: Form[Set[OverrideFlag]]) = {
-            Future.successful(BadRequest(manage_access_overrides(app.application, form, isAtLeastSuperUser)))
+            Future.successful(BadRequest(manageAccessOverridesView(app.application, form, isAtLeastSuperUser)))
           }
 
           accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -179,7 +191,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           app.application.access match {
             case access: AccessWithRestrictedScopes => {
               val form = scopesForm.fill(access.scopes)
-              Future.successful(Ok(manage_scopes(app.application, form, isAtLeastSuperUser)))
+              Future.successful(Ok(manageScopesView(app.application, form, isAtLeastSuperUser)))
             }
             case _ => Future.failed(new RuntimeException("Invalid access type on application"))
           }
@@ -194,14 +206,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             applicationService.updateScopes(app.application, scopes).map {
               case UpdateScopesInvalidScopesResult =>
                 val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
-                BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser))
+                BadRequest(manageScopesView(app.application, form, isAtLeastSuperUser))
 
               case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
             }
           }
 
           def handleFormError(form: Form[Set[String]]) = {
-            Future.successful(BadRequest(manage_scopes(app.application, form, isAtLeastSuperUser)))
+            Future.successful(BadRequest(manageScopesView(app.application, form, isAtLeastSuperUser)))
           }
 
           scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -212,7 +224,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          Future.successful(Ok(manage_whitelisted_ip(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
+          Future.successful(Ok(manageWhitelistedIpView(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
         }
   }
 
@@ -227,7 +239,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           def handleFormError(form: Form[Set[String]]) = {
-            Future.successful(BadRequest(manage_whitelisted_ip(app.application, form)))
+            Future.successful(BadRequest(manageWhitelistedIpView(app.application, form)))
           }
 
           WhitelistedIpForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -239,7 +251,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       implicit hc =>
         withApp(appId) { app =>
           val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
-          Future.successful(Ok(manage_rate_limit(app.application, form)))
+          Future.successful(Ok(manageRateLimitView(app.application, form)))
         }
   }
 
@@ -254,7 +266,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           def handleFormError(form: Form[UpdateRateLimitForm]) = {
-            Future.successful(BadRequest(manage_rate_limit(app.application, form)))
+            Future.successful(BadRequest(manageRateLimitView(app.application, form)))
           }
 
           UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -265,7 +277,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       implicit hc =>
         withApp(appId) { app =>
-          Future.successful(Ok(delete_application(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+          Future.successful(Ok(deleteApplicationView(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
         }
   }
 
@@ -283,12 +295,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             else {
               val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
 
-              Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, formWithErrors)))
+              Future.successful(BadRequest(deleteApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
           }
 
           def handleFormError(form: Form[DeleteApplicationForm]) = {
-            Future.successful(BadRequest(delete_application(app, isAtLeastSuperUser, form)))
+            Future.successful(BadRequest(deleteApplicationView(app, isAtLeastSuperUser, form)))
           }
 
           deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)

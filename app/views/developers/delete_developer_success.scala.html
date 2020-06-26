@@ -19,10 +19,13 @@
 @import model._
 @import utils.ApplicationHelper._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(developerEmailAddress: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
 
-@main(title = s"${appConfig.title} - Delete Developer") {
+@(developerEmailAddress: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Delete Developer") {
 
 <div class=""">
     <nav class="breadcrumb-nav">

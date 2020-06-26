@@ -20,12 +20,16 @@
 @import model.OverrideType.OverrideType
 @import model.State._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[UnblockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
+
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[UnblockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${appConfig.title} - Unblock Application") {
+@main(title = s"${applicationConfig.title} - Unblock Application") {
 
 <div class="">
 

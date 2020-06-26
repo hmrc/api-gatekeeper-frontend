@@ -18,10 +18,13 @@
 @import include._
 @import model._
 @import utils.LoggedInUser
+@import config.AppConfig
 
-@(developer: Developer, isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, appConfig: config.AppConfig)
+@this(main: main, applicationConfig: AppConfig)
 
-@main(title = s"${appConfig.title} - Developer Details") {
+@(developer: Developer, isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Developer Details") {
 
 <article class="content__body full-width">
     <header>
