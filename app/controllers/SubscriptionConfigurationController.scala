@@ -36,6 +36,7 @@ import services.SubscriptionFieldsService
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import views.html.error_template
 
 @Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
@@ -43,9 +44,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     val authConnector: AuthConnector,
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: list_subscription_configuration,
-                                                    editSubscriptionConfiguration: edit_subscription_configuration
+                                                    editSubscriptionConfiguration: edit_subscription_configuration,
+                                                    errorTemplate: error_template
                                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders {
+  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper with ActionBuilders {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
