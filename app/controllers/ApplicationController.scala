@@ -223,7 +223,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(scopes: Set[String]) = {
             applicationService.updateScopes(app.application, scopes).map {
               case UpdateScopesInvalidScopesResult =>
-                val form = scopesForm.fill(scopes).withError("scopes", Messages("invalid.scope"))
+                val form = scopesForm.fill(scopes).withError("scopes", request.messages("invalid.scope"))
                 BadRequest(manageScopesView(app.application, form, isAtLeastSuperUser))
 
               case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
