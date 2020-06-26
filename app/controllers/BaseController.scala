@@ -22,11 +22,12 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.LoggedInUser
 import play.api.mvc.MessagesControllerComponents
 import play.api.i18n.MessagesProvider
-import views.html.error_template
+import views.html.{error_template, forbidden}
 
 import scala.concurrent.ExecutionContext
 
-abstract class BaseController(mcc: MessagesControllerComponents, errorTemplate: error_template)(implicit val appConfig: AppConfig) extends FrontendController(mcc) {
+abstract class BaseController(mcc: MessagesControllerComponents, errorTemplate: error_template, val forbiddenView: forbidden)
+                             (implicit val appConfig: AppConfig) extends FrontendController(mcc) {
 
   implicit val ec: ExecutionContext
 

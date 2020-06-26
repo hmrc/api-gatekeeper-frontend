@@ -58,7 +58,7 @@ trait GatekeeperAuthWrapper {
           Future.successful(toStrideLogin())
         case _: InsufficientEnrolments =>
           implicit val unauthorisedUser = LoggedInUser(None)
-          Future.successful(Forbidden(views.html.forbidden()))
+          Future.successful(Forbidden(forbiddenView))
       }
   }
 

@@ -24,15 +24,11 @@ import model._
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.data.Form
-import play.api.i18n.MessagesProvider
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, SubscriptionFieldsService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
-import views.html.applications._
 import views.html.approvedApplication.approved
-import views.html.review.review
 import views.html.applications._
 import views.html.review.review
 import config.AppConfig
@@ -46,7 +42,6 @@ import scala.util.Try
 class ApplicationController @Inject()(val applicationService: ApplicationService,
                                       apiDefinitionService: ApiDefinitionService,
                                       developerService: DeveloperService,
-                                      subscriptionFieldsService: SubscriptionFieldsService,
                                       override val authConnector: AuthConnector,
                                       mcc: MessagesControllerComponents,
                                       applicationsView: applications,
@@ -67,7 +62,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageTeamMembersView: manage_team_members,
                                       addTeamMemberView: add_team_member,
                                       removeTeamMemberView: remove_team_member
-                                     )(implicit val appConfig: AppConfig, ec: ExecutionContext)
+                                     )(override implicit val appConfig: AppConfig, ec: ExecutionContext)
   extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
