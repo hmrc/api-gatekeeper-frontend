@@ -20,13 +20,11 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
 import services.{ApiDefinitionService, DeveloperService}
 import utils.{GatekeeperAuthWrapper, LoggedInRequest}
-import views.html.developers._
-
 import play.api.mvc.MessagesControllerComponents
+import views.html.developers.developers2
+import views.html.error_template
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,9 +32,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developerService: DeveloperService,
                                       val apiDefinitionService: ApiDefinitionService,
-                                      mcc: MessagesControllerComponents
+                                      mcc: MessagesControllerComponents,
+                                      developersView: developers2,
+                                      errorTemplate: error_template
                                      )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper {
+  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper {
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,
@@ -66,7 +66,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           for {
             users <- filteredUsers
             apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
-          } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
+          } yield Ok(developersView(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
         }
     }
   }

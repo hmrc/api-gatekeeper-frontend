@@ -28,6 +28,7 @@ import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
 import play.api.mvc.MessagesControllerComponents
+import views.html.error_template
 
 import scala.concurrent.ExecutionContext
 
@@ -36,9 +37,16 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      applicationService: ApplicationService,
                                      apiDefinitionService: ApiDefinitionService,
                                      override val authConnector: AuthConnector,
-                                      mcc: MessagesControllerComponents
+                                     mcc: MessagesControllerComponents,
+                                     developersView: developers,
+                                     developerDetailsView: developer_details,
+                                     removeMfaView: remove_mfa,
+                                     removeMfaSuccessView: remove_mfa_success,
+                                     deleteDeveloperView: delete_developer,
+                                     deleteDeveloperSuccessView: delete_developer_success,
+                                     errorTemplate: error_template
                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper {
+  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
@@ -61,23 +69,23 @@ class DevelopersController @Inject()(developerService: DeveloperService,
         filteredUsers = filterOps(devs)
         sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
         emails = sortedUsers.map(_.email).mkString("; ")
-      } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
+      } yield Ok(developersView(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isAtLeastSuperUser)))
+      developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
   def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
+      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
-        Ok(remove_mfa_success(email))
+        Ok(removeMfaSuccessView(email))
       } recover {
         case e: Exception =>
           Logger.error(s"Failed to remove MFA for user: $email", e)
@@ -87,13 +95,13 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
   def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
+      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
   }
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
-        case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))
+        case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
         case _ => technicalDifficulties
       }
   }
