@@ -185,7 +185,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                 overrideFlagErrors.foreach(err =>
                   form = form.withError(
                     formFieldForOverrideFlag(err),
-                    request.messages("invaid.scope")
+                    messagesApi.preferred(request)("invaid.scope")
                   )
                 )
 
@@ -223,7 +223,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(scopes: Set[String]) = {
             applicationService.updateScopes(app.application, scopes).map {
               case UpdateScopesInvalidScopesResult =>
-                val form = scopesForm.fill(scopes).withError("scopes", request.messages("invalid.scope"))
+                val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invaid.scope"))
                 BadRequest(manageScopesView(app.application, form, isAtLeastSuperUser))
 
               case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
@@ -311,7 +311,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               }
             }
             else {
-              val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
+              val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
               Future.successful(BadRequest(deleteApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -345,7 +345,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               }
             }
             else {
-              val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
+              messagesApi.preferred(request)("invaid.scope")
+              val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
               Future.successful(BadRequest(blockApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -379,7 +380,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               }
             }
             else {
-              val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
+              val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
               Future.successful(BadRequest(unblockApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -630,7 +631,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(form: AddTeamMemberForm) = {
             applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
               .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-              case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", request.messages("team.member.error.email.already.exists"))))
+              case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
             }
           }
 
@@ -667,7 +668,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                 _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
               } recover {
                 case _: TeamMemberLastAdmin =>
-                  BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", request.messages("team.member.error.email.last.admin")), form.email))
+                  BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
               }
               case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
             }
