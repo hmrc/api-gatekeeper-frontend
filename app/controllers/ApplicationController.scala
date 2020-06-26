@@ -33,9 +33,10 @@ import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, Subscripti
 import views.html.applications._
 import views.html.approvedApplication.approved
 import views.html.review.review
-import views.html.applications.{application, applications, manage_subscriptions, manage_access_overrides, manage_scopes, manage_whitelisted_ip, manage_rate_limit, delete_application}
+import views.html.applications.{application, applications, delete_application, manage_access_overrides, manage_rate_limit, manage_scopes, manage_subscriptions, manage_whitelisted_ip}
 import config.AppConfig
 import play.api.i18n.I18nSupport
+import views.html.error_template
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -54,9 +55,10 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageScopesView: manage_scopes,
                                       manageWhitelistedIpView: manage_whitelisted_ip,
                                       manageRateLimitView: manage_rate_limit,
-                                      deleteApplicationView: delete_application
+                                      deleteApplicationView: delete_application,
+                                      errorTemplate: error_template
                                      )(implicit val appConfig: AppConfig, ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
