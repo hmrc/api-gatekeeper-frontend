@@ -17,16 +17,20 @@
 package config
 
 import javax.inject.Inject
+import model.LoggedInUser
 import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
-import utils.LoggedInUser
+import views.html.error_template
 
-class ErrorHandler @Inject()(val messagesApi: MessagesApi, val configuration: Configuration)(implicit val appConfig: AppConfig) extends FrontendErrorHandler {
+class ErrorHandler @Inject()(val messagesApi: MessagesApi,
+                             val configuration: Configuration,
+                             errorTemplate: error_template)
+                            (implicit val appConfig: AppConfig) extends FrontendErrorHandler {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
     implicit val loggedInUser = LoggedInUser(None)
-    views.html.error_template(pageTitle, heading, message)
+    errorTemplate(pageTitle, heading, message)
   }
 }

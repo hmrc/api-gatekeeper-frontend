@@ -21,15 +21,14 @@ import config.AppConfig
 import model.StaticNavLinks
 import play.api.libs.json._
 import play.api.mvc.MessagesControllerComponents
-import views.html.error_template
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NavigationController @Inject()(mcc: MessagesControllerComponents,
-                                     errorTemplate: error_template)
-                                    (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc, errorTemplate) {
+class NavigationController @Inject()(mcc: MessagesControllerComponents)
+                                    (implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with BaseController {
 
   def navLinks() = Action.async { implicit request =>
     Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))

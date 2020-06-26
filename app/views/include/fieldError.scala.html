@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(errors: Seq[FormError], fieldName: String, onlyLast: Boolean = true)(implicit messages: Messages)
+@(errors: Seq[FormError], fieldName: String, onlyLast: Boolean = true)(implicit messagesProvider: MessagesProvider)
 @if(errors.exists(_.key == fieldName)) {
     @defining(errors.filter(_.key == fieldName)) { errors =>
         @if(onlyLast && errors.nonEmpty) {

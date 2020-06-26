@@ -17,8 +17,6 @@
 @import controllers._
 @import include._
 @import model._
-@import utils.ApplicationHelper._
-@import utils.LoggedInUser
 @import config.AppConfig
 
 @this(main: main, applicationConfig: AppConfig)
@@ -27,7 +25,7 @@
 
 @main(title = s"${applicationConfig.title} - Delete Developer") {
 
-<div class=""">
+<div class="">
     <nav class="breadcrumb-nav">
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.DevelopersController.developersPage(None, None, None)}">Developers</a></li>

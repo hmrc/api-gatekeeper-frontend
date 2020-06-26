@@ -16,23 +16,20 @@
 
 package utils
 
+import config.AppConfig
 import connectors.AuthConnector
 import controllers.BaseController
-import model.GatekeeperRole
+import model.{GatekeeperRole, LoggedInUser}
 import model.GatekeeperRole.GatekeeperRole
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
+import play.api.mvc.Results._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
-
-case class LoggedInUser(userFullName: Option[String])
 
 trait GatekeeperAuthWrapper {
   self: BaseController =>
@@ -41,7 +38,8 @@ trait GatekeeperAuthWrapper {
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result]): Action[AnyContent] = Action.async {
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result])
+                     (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
@@ -55,14 +53,14 @@ trait GatekeeperAuthWrapper {
       } recoverWith {
         case _: NoActiveSession =>
           request.secure
-          Future.successful(toStrideLogin())
+          Future.successful(toStrideLogin)
         case _: InsufficientEnrolments =>
           implicit val unauthorisedUser = LoggedInUser(None)
           Future.successful(Forbidden(forbiddenView))
       }
   }
 
-  private def toStrideLogin(): Result = {
+  private def toStrideLogin(implicit appConfig: AppConfig): Result = {
     Redirect(
       appConfig.strideLoginUrl,
       Map(
@@ -71,15 +69,15 @@ trait GatekeeperAuthWrapper {
       ))
   }
 
-  def isAtLeastSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
+  def isAtLeastSuperUser(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
     request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
 
-  def isAdmin(implicit request: LoggedInRequest[_]): Boolean = {
+  def isAdmin(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
     request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
 
-  def authPredicate(minimumRoleRequired: GatekeeperRole): Predicate = {
+  def authPredicate(minimumRoleRequired: GatekeeperRole)(implicit appConfig: AppConfig): Predicate = {
 
     val adminEnrolment = Enrolment(appConfig.adminRole)
     val superUserEnrolment = Enrolment(appConfig.superUserRole)
@@ -94,3 +92,4 @@ trait GatekeeperAuthWrapper {
 }
 
 case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
+//case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends MessagesRequest(request)

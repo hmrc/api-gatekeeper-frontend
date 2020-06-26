@@ -41,31 +41,31 @@ POST        /applications/:id/subscriptions-configuration/:context/:version   co
 
 GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: String)
 POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: String)
-          
+
 GET         /applications/:id/team-members                                    controllers.ApplicationController.manageTeamMembers(id: String)
 GET         /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMember(id: String)
 POST        /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMemberAction(id: String)
 POST        /applications/:id/team-members/remove-confirmation                controllers.ApplicationController.removeTeamMember(id: String)
 POST        /applications/:id/team-members/remove                             controllers.ApplicationController.removeTeamMemberAction(id: String)
-          
+
 ->          /template                                                         template.Routes
-          
+
 GET         /assets/*file                                                     controllers.Assets.versioned(path="/public", file: Asset)
-          
+
 GET         /nav-links                                                        controllers.NavigationController.navLinks
-          
+
 GET         /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationPage(id: String)
 POST        /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationAction(id: String)
-          
+
 GET         /applications/:id/block                                           controllers.ApplicationController.blockApplicationPage(id: String)
 POST        /applications/:id/block                                           controllers.ApplicationController.blockApplicationAction(id: String)
-          
+
 GET         /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationPage(id: String)
 POST        /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationAction(id: String)
-          
+
 GET         /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationPage
 POST        /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationAction
-          
+
 GET         /pending                                                          controllers.DeploymentApprovalController.pendingPage
 GET         /pending/:serviceName/review-sandbox                              controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
 GET         /pending/:serviceName/review-production                           controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")

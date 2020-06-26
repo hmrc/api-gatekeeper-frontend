@@ -18,7 +18,6 @@
 @import model.Forms._
 @import views.helper.IdFormatter
 @import include._
-@import utils.LoggedInUser
 @import config.AppConfig
 
 @this(main: main, applicationConfig: AppConfig)
@@ -26,6 +25,7 @@
 @(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
+
 @main(title = s"${applicationConfig.title} - Manage Subscriptions") {
 
 <div class="content__body">

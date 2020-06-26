@@ -17,12 +17,11 @@
 @import model.ApprovedApplication
 @import model.RateLimitTier
 @import org.joda.time.format.DateTimeFormat
-@import utils.GatekeeperAuthWrapper
-@import utils.LoggedInUser
 @import config.AppConfig
 
 @this(main: main, applicationConfig: AppConfig)
 
+@import model.LoggedInUser
 @(application: ApprovedApplication)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Dashboard") {

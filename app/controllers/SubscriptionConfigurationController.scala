@@ -23,7 +23,7 @@ import model._
 import model.view.{SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
 import org.joda.time.DateTime
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
 import services.ApplicationService
 import utils.{ActionBuilders, GatekeeperAuthWrapper}
 import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
@@ -34,9 +34,9 @@ import play.api.data.Form
 import play.api.data
 import services.SubscriptionFieldsService
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
-import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.{I18nSupport, MessagesProvider}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.error_template
+import views.html.{error_template, forbidden}
 
 @Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
@@ -45,9 +45,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: list_subscription_configuration,
                                                     editSubscriptionConfiguration: edit_subscription_configuration,
-                                                    errorTemplate: error_template
-                                                   )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper with ActionBuilders {
+                                                    errorTemplate: error_template,
+                                                    forbidden: forbidden
+                                                   )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -79,13 +80,13 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => implicit hc => {
-      
+
       withAppAndSubscriptionVersion(appId, context, version) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
           def errors(errors: Form[EditApiMetadataForm]) = {
-            Future.successful(technicalDifficulties)
+            Future.successful(technicalDifficulties(errorTemplate))
           }
 
           def validationErrorResult(fieldErrors: Map[String, String], form: EditApiMetadataForm) = {

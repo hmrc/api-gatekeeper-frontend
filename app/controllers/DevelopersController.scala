@@ -21,14 +21,15 @@ import config.AppConfig
 import connectors.AuthConnector
 import model._
 import play.api.Logger
-import play.api.Play.current
+import play.api.i18n.I18nSupport
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import utils.GatekeeperAuthWrapper
 import views.html.developers._
 import play.api.mvc.MessagesControllerComponents
-import views.html.error_template
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import views.html.{error_template, forbidden}
 
 import scala.concurrent.ExecutionContext
 
@@ -44,9 +45,10 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      removeMfaSuccessView: remove_mfa_success,
                                      deleteDeveloperView: delete_developer,
                                      deleteDeveloperSuccessView: delete_developer_success,
-                                     errorTemplate: error_template
-                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper {
+                                     errorTemplate: error_template,
+                                     forbidden: forbidden
+                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request => implicit hc =>
@@ -89,7 +91,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } recover {
         case e: Exception =>
           Logger.error(s"Failed to remove MFA for user: $email", e)
-          technicalDifficulties
+          technicalDifficulties(errorTemplate)
       }
   }
 
@@ -102,7 +104,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
-        case _ => technicalDifficulties
+        case _ => technicalDifficulties(errorTemplate)
       }
   }
 

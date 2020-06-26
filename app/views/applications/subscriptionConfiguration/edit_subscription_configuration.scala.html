@@ -18,8 +18,8 @@
 @import model._
 @import model.view._
 @import model.view.SubscriptionVersion
-@import utils.LoggedInUser
 @import views.helper._
+@import config.AppConfig
 
 @this(main: main, applicationConfig: AppConfig)
 
@@ -29,7 +29,7 @@
 @access = @{application.access}
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version} ${subscriptionViewModel.displayedStatus}"}
 
-@main(title = s"${appConfig.title} - $pageTitle") {
+@main(title = s"${applicationConfig.title} - $pageTitle") {
 
 <div class="">
 
@@ -84,4 +84,3 @@
       }
 </div>
 }
-

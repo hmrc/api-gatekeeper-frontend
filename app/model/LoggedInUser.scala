@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.AppConfig
-@import model.LoggedInUser
+package model
 
-@this(main: main, applicationConfig: AppConfig)
-
-@()(implicit request : Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
-
-@main(title = "Forbidden") {
-  <h1>You do not have permission to access Gatekeeper</h1>
-  <h2>Contact your administrator for access</h2>
-}
+case class LoggedInUser(userFullName: Option[String])

@@ -33,7 +33,8 @@ import views.html.applications._
 import views.html.review.review
 import config.AppConfig
 import play.api.i18n.I18nSupport
-import views.html.error_template
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import views.html.{error_template, forbidden}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -54,18 +55,25 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       deleteApplicationView: delete_application,
                                       deleteApplicationSuccessView: delete_application_success,
                                       errorTemplate: error_template,
+                                      forbidden: forbidden,
                                       blockApplicationView: block_application,
+                                      blockApplicationSuccessView: block_application_success,
                                       unblockApplicationView: unblock_application,
+                                      unblockApplicationSuccessView: unblock_application_success,
                                       reviewView: review,
                                       approvedView: approved,
                                       createApplicationView: create_application,
+                                      createApplicationSuccessView: create_application_success,
                                       manageTeamMembersView: manage_team_members,
                                       addTeamMemberView: add_team_member,
                                       removeTeamMemberView: remove_team_member
-                                     )(override implicit val appConfig: AppConfig, ec: ExecutionContext)
-  extends BaseController(mcc, errorTemplate) with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+                                     )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+
+  // TODO: Remove as we should have ec in scope
+//  implicit val executionContext = ec
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
@@ -98,7 +106,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
           val subscriptions = applicationWithSubscriptions.subscriptions
           val subscriptionsWithFields = filterHasSubscriptionFields(subscriptions)
-          
+
           developerService
             .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
             .map(devs => {
@@ -174,9 +182,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               case UpdateOverridesFailureResult(overrideFlagErrors) =>
                 var form = accessOverridesForm.fill(overrides)
 
-                val y = request.messages("invaid.scope")
-
-                overrideFlagErrors.foreach(err => form = form.withError(formFieldForOverrideFlag(err), y))
+                overrideFlagErrors.foreach(err =>
+                  form = form.withError(
+                    formFieldForOverrideFlag(err),
+                    request.messages("invaid.scope")
+                  )
+                )
 
                 BadRequest(manageAccessOverridesView(app.application, form, isAtLeastSuperUser))
               case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
@@ -296,11 +307,11 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
                 case ApplicationDeleteSuccessResult => Ok(deleteApplicationSuccessView(app))
-                case ApplicationDeleteFailureResult => technicalDifficulties
+                case ApplicationDeleteFailureResult => technicalDifficulties(errorTemplate)
               }
             }
             else {
-              val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+              val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
 
               Future.successful(BadRequest(deleteApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -329,12 +340,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(form: BlockApplicationForm) = {
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
-                case ApplicationBlockSuccessResult => Ok(blockApplicationView(app))
-                case ApplicationBlockFailureResult => technicalDifficulties
+                case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
+                case ApplicationBlockFailureResult => technicalDifficulties(errorTemplate)
               }
             }
             else {
-              val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+              val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
 
               Future.successful(BadRequest(blockApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -363,12 +374,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(form: UnblockApplicationForm) = {
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
-                case ApplicationUnblockSuccessResult => Ok(unblockApplicationView(app))
-                case ApplicationUnblockFailureResult => technicalDifficulties
+                case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
+                case ApplicationUnblockFailureResult => technicalDifficulties(errorTemplate)
               }
             }
             else {
-              val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, Messages("application.confirmation.error"))
+              val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, request.messages("application.confirmation.error"))
 
               Future.successful(BadRequest(unblockApplicationView(app, isAtLeastSuperUser, formWithErrors)))
             }
@@ -397,7 +408,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       app.application.access match {
         case _: Standard => f(app)
         case _ if isAtLeastSuperUser => f(app)
-        case _ => Future.successful(Forbidden(views.html.forbidden()))
+        case _ => Future.successful(Forbidden(forbidden))
       }
     }
   }
@@ -570,7 +581,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
                   applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
                     val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
-                    Ok(createApplicationView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
+                    Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
                   }
                 }
               }
@@ -619,7 +630,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(form: AddTeamMemberForm) = {
             applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
               .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-              case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", Messages("team.member.error.email.already.exists"))))
+              case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", request.messages("team.member.error.email.already.exists"))))
             }
           }
 
@@ -656,7 +667,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                 _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
               } recover {
                 case _: TeamMemberLastAdmin =>
-                  BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", Messages("team.member.error.email.last.admin")), form.email))
+                  BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", request.messages("team.member.error.email.last.admin")), form.email))
               }
               case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
             }

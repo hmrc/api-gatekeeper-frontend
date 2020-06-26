@@ -16,31 +16,24 @@
 
 package controllers
 
-import config.AppConfig
+import model.LoggedInUser
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.LoggedInUser
-import play.api.mvc.MessagesControllerComponents
 import play.api.i18n.MessagesProvider
-import views.html.{error_template, forbidden}
+import views.html.error_template
 
-import scala.concurrent.ExecutionContext
+import play.api.mvc.Results._
 
-abstract class BaseController(mcc: MessagesControllerComponents, errorTemplate: error_template, val forbiddenView: forbidden)
-                             (implicit val appConfig: AppConfig) extends FrontendController(mcc) {
-
-  implicit val ec: ExecutionContext
-
-  def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+trait BaseController {
+  def technicalDifficulties(errorTemplate: error_template)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
     InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",
-      "Sorry, we’re experiencing technical difficulties")(implicitly))
+      "Sorry, we’re experiencing technical difficulties")(implicitly, implicitly, implicitly))
   }
 
-  def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+  def notFound(errorTemplate: error_template, errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
-    NotFound(errorTemplate("Not found", "404 - Not found", errors)(implicitly))
+    NotFound(errorTemplate("Not found", "404 - Not found", errors)(implicitly, implicitly, implicitly))
   }
 }

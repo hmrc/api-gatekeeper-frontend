@@ -22,12 +22,13 @@ import play.api.mvc.Action
 import services.ApiDefinitionService
 import model._
 import model.Environment._
-
 import play.api.mvc.MessagesControllerComponents
 
 import scala.concurrent.ExecutionContext
 import utils.GatekeeperAuthWrapper
 import connectors.AuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import views.html.{error_template, forbidden}
 
 case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
@@ -35,8 +36,8 @@ case class ApiDefinitionView(apiName: String, apiVersion: String, status: String
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
                                         override val authConnector: AuthConnector,
                                         mcc: MessagesControllerComponents)
-                                       (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController(mcc) with GatekeeperAuthWrapper {
+                                       (implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper {
     
   def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
     val definitions = apiDefinitionService.apis

@@ -15,7 +15,6 @@
  *@
 
 @import config.AppConfig
-@import utils.LoggedInUser
 @import include._
 @import model._
 @import play.twirl.api.HtmlFormat
@@ -31,8 +30,7 @@
       govUkTemplate: GovUkTemplate,
       applicationConfig: AppConfig)
 
-@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(
-         implicit appConfig: AppConfig, loggedInUser: LoggedInUser)
+@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @userBanner = {
 <div id="user-nav-links" class="header__menu__proposition--sub-header">
@@ -74,10 +72,10 @@
 
 @insideHeader = {
   @layoutsHeaderNav(
-    navTitle = Option(appConfig.title),
+    navTitle = Option(applicationConfig.title),
     navTitleLink = None,
     showBetaLink = false,
-    navLinks = Option(include.headerNavLinks(StaticNavLinks(appConfig)))
+    navLinks = Option(include.headerNavLinks(StaticNavLinks(applicationConfig)))
   )
 
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
