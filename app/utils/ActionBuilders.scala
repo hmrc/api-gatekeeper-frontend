@@ -23,7 +23,6 @@ import play.api.i18n.Messages
 import play.api.mvc.Result
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.error_template
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -65,8 +64,7 @@ trait ActionBuilders extends BaseController {
 
   def withAppAndSubscriptionVersion(appId: String,
                                     apiContext: String,
-                                    apiVersion: String,
-                                    errorTemplate: error_template)
+                                    apiVersion: String)
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])
                                    (implicit request: LoggedInRequest[_],
                                     messages: Messages,

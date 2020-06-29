@@ -20,13 +20,13 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.i18n.{I18nSupport, MessagesProvider}
-import services.{ApiDefinitionService, DeveloperService}
-import utils.{GatekeeperAuthWrapper, LoggedInRequest}
+import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
+import services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{GatekeeperAuthWrapper, LoggedInRequest}
+import views.html.{ErrorTemplate, Forbidden}
 import views.html.developers.developers2
-import views.html.{error_template, forbidden}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,8 +36,8 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       val apiDefinitionService: ApiDefinitionService,
                                       mcc: MessagesControllerComponents,
                                       developersView: developers2,
-                                      forbiddenView: forbidden,
-                                      override val errorTemplate: error_template,
+                                      forbiddenView: Forbidden,
+                                      override val errorTemplate: ErrorTemplate,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 

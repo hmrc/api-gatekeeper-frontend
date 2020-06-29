@@ -16,25 +16,25 @@
 
 package controllers
 
+import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
+import model._
 import model.Forms._
 import model.UpliftAction.{APPROVE, REJECT}
-import model._
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.data.Form
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
-import views.html.approvedApplication.approved
-import views.html.applications._
-import views.html.review.review
-import config.AppConfig
-import play.api.i18n.{I18nSupport, MessagesProvider}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.{error_template, forbidden}
+import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
+import views.html.{ErrorTemplate, Forbidden}
+import views.html.applications._
+import views.html.approvedApplication.approved
+import views.html.review.Review
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -54,13 +54,13 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageRateLimitView: manage_rate_limit,
                                       deleteApplicationView: delete_application,
                                       deleteApplicationSuccessView: delete_application_success,
-                                      override val errorTemplate: error_template,
-                                      forbiddenView: forbidden,
+                                      override val errorTemplate: ErrorTemplate,
+                                      forbiddenView: Forbidden,
                                       blockApplicationView: block_application,
                                       blockApplicationSuccessView: block_application_success,
                                       unblockApplicationView: unblock_application,
                                       unblockApplicationSuccessView: unblock_application_success,
-                                      reviewView: review,
+                                      reviewView: Review,
                                       approvedView: approved,
                                       createApplicationView: create_application,
                                       createApplicationSuccessView: create_application_success,

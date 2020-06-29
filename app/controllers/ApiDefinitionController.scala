@@ -17,19 +17,17 @@
 package controllers
 
 import config.AppConfig
+import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
-import play.api.mvc.Action
-import services.ApiDefinitionService
 import model._
 import model.Environment._
 import play.api.mvc.MessagesControllerComponents
+import services.ApiDefinitionService
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.GatekeeperAuthWrapper
+import views.html.{ErrorTemplate, Forbidden}
 
 import scala.concurrent.ExecutionContext
-import utils.GatekeeperAuthWrapper
-import connectors.AuthConnector
-import play.api.i18n.MessagesProvider
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.{error_template, forbidden}
 
 case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
@@ -37,8 +35,8 @@ case class ApiDefinitionView(apiName: String, apiVersion: String, status: String
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
                                         override val authConnector: AuthConnector,
                                         mcc: MessagesControllerComponents,
-                                        override val errorTemplate: error_template,
-                                        forbiddenView: forbidden)
+                                        override val errorTemplate: ErrorTemplate,
+                                        forbiddenView: Forbidden)
                                        (implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper {
     

@@ -20,18 +20,15 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.Inject
 import model._
-import play.api.Play.current
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesProvider}
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.GatekeeperAuthWrapper
-import views.html.deploymentApproval.{deploymentApproval, deploymentReview}
-import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.{error_template, forbidden}
+import utils.GatekeeperAuthWrapper
+import views.html.{ErrorTemplate, Forbidden}
+import views.html.deploymentApproval.{deploymentApproval, deploymentReview}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,8 +37,8 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              mcc: MessagesControllerComponents,
                                              deploymentApproval: deploymentApproval,
                                              deploymentReview: deploymentReview,
-                                             override val errorTemplate: error_template,
-                                             forbiddenView: forbidden
+                                             override val errorTemplate: ErrorTemplate,
+                                             forbiddenView: Forbidden
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 

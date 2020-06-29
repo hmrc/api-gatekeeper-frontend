@@ -18,17 +18,15 @@ package utils
 
 import config.AppConfig
 import connectors.AuthConnector
-import controllers.BaseController
 import model.{GatekeeperRole, LoggedInUser}
 import model.GatekeeperRole.GatekeeperRole
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
-import play.api.mvc.Results._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import views.html.forbidden
+import views.html.Forbidden
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,7 +36,7 @@ trait GatekeeperAuthWrapper extends I18nSupport{
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: forbidden)(body: LoggedInRequest[_] => Future[Result])
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: Forbidden)(body: LoggedInRequest[_] => Future[Result])
                      (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
 

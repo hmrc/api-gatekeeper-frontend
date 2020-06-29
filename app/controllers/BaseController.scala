@@ -18,12 +18,12 @@ package controllers
 
 import play.api.mvc.{Request, Result}
 import play.api.i18n.MessagesProvider
-import views.html.error_template
+import views.html.ErrorTemplate
 
 import play.api.mvc.Results._
 
 trait BaseController {
-  val errorTemplate: error_template
+  val errorTemplate: ErrorTemplate
 
   def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",

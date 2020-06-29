@@ -20,23 +20,20 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import model.view.{SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
+import model.view.{EditApiMetadataForm, SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.joda.time.DateTime
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
-import services.ApplicationService
+import play.api.data
+import play.api.data.Form
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{ApplicationService, SubscriptionFieldsService}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, GatekeeperAuthWrapper}
+import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.view.EditApiMetadataForm
-import play.api.data.Form
-import play.api.data
-import services.SubscriptionFieldsService
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
-import play.api.i18n.I18nSupport
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.{error_template, forbidden}
 
 @Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
@@ -45,8 +42,8 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: list_subscription_configuration,
                                                     editSubscriptionConfiguration: edit_subscription_configuration,
-                                                    override val errorTemplate: error_template,
-                                                    forbiddenView: forbidden
+                                                    override val errorTemplate: ErrorTemplate,
+                                                    forbiddenView: Forbidden
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
@@ -63,7 +60,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-        withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
+        withAppAndSubscriptionVersion(appId, context, version) {
           app => {
             val subscriptionFields = SubscriptionField(app.version.fields)
             val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
@@ -79,7 +76,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit  request => {
 
-      withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
+      withAppAndSubscriptionVersion(appId, context, version) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
