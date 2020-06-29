@@ -25,7 +25,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.developers._
 
@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class DevelopersController @Inject()(developerService: DeveloperService,
-                                     applicationService: ApplicationService,
+                                     val applicationService: ApplicationService,
                                      apiDefinitionService: ApiDefinitionService,
                                      override val authConnector: AuthConnector,
                                      mcc: MessagesControllerComponents,
@@ -46,7 +46,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      override val errorTemplate: ErrorTemplate,
                                      forbiddenView: Forbidden
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>

@@ -18,7 +18,7 @@ package utils
 
 import config.AppConfig
 import connectors.AuthConnector
-import model.{GatekeeperRole, LoggedInUser}
+import model.{GatekeeperRole, LoggedInUser, LoggedInRequest}
 import model.GatekeeperRole.GatekeeperRole
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
@@ -65,14 +65,6 @@ trait GatekeeperAuthWrapper extends I18nSupport{
       ))
   }
 
-  def isAtLeastSuperUser(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
-  }
-
-  def isAdmin(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
-  }
-
   def authPredicate(minimumRoleRequired: GatekeeperRole)(implicit appConfig: AppConfig): Predicate = {
 
     val adminEnrolment = Enrolment(appConfig.adminRole)
@@ -87,4 +79,3 @@ trait GatekeeperAuthWrapper extends I18nSupport{
   }
 }
 
-case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)

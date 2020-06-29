@@ -24,7 +24,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper, LoggedInRequest}
+import utils.{ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.developers.developers2
 
