@@ -19,7 +19,7 @@
 
 @this(main: main, applicationConfig: AppConfig)
 
-@()(implicit request : Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@()(implicit request : Request[_], messagesProvider: MessagesProvider)
 
 @main(title = "Forbidden") {
   <h1>You do not have permission to access Gatekeeper</h1>

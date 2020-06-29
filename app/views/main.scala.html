@@ -30,7 +30,7 @@
       govUkTemplate: GovUkTemplate,
       applicationConfig: AppConfig)
 
-@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser = LoggedInUser(None), messagesProvider: MessagesProvider)
 
 @userBanner = {
 <div id="user-nav-links" class="header__menu__proposition--sub-header">

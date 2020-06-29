@@ -54,7 +54,7 @@ trait GatekeeperAuthWrapper extends I18nSupport{
           request.secure
           Future.successful(toStrideLogin)
         case _: InsufficientEnrolments =>
-          implicit val unauthorisedUser = LoggedInUser(None)
+//          implicit val unauthorisedUser = LoggedInUser(None)
           Future.successful(Forbidden(forbiddenView()))
       }
   }

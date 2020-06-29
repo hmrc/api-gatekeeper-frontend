@@ -28,12 +28,12 @@ trait BaseController {
     implicit val loggedInUser = LoggedInUser(None)
 
     InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",
-      "Sorry, we’re experiencing technical difficulties")(implicitly, implicitly, implicitly))
+      "Sorry, we’re experiencing technical difficulties"))
   }
 
   def notFound(errorTemplate: error_template, errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     implicit val loggedInUser = LoggedInUser(None)
 
-    NotFound(errorTemplate("Not found", "404 - Not found", errors)(implicitly, implicitly, implicitly))
+    NotFound(errorTemplate("Not found", "404 - Not found", errors))
   }
 }
