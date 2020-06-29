@@ -16,7 +16,6 @@
 
 package controllers
 
-import model.LoggedInUser
 import play.api.mvc.{Request, Result}
 import play.api.i18n.MessagesProvider
 import views.html.error_template
@@ -24,15 +23,14 @@ import views.html.error_template
 import play.api.mvc.Results._
 
 trait BaseController {
-  //TODO: maybe create a val for errorTemplate so don't have to pass into each method
-  def technicalDifficulties(errorTemplate: error_template)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+  val errorTemplate: error_template
 
+  def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",
       "Sorry, we’re experiencing technical difficulties"))
   }
 
-  def notFound(errorTemplate: error_template, errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
-
+  def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     NotFound(errorTemplate("Not found", "404 - Not found", errors))
   }
 }

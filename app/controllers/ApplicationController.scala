@@ -54,7 +54,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageRateLimitView: manage_rate_limit,
                                       deleteApplicationView: delete_application,
                                       deleteApplicationSuccessView: delete_application_success,
-                                      errorTemplate: error_template,
+                                      override val errorTemplate: error_template,
                                       forbiddenView: forbidden,
                                       blockApplicationView: block_application,
                                       blockApplicationSuccessView: block_application_success,
@@ -288,7 +288,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
                 case ApplicationDeleteSuccessResult => Ok(deleteApplicationSuccessView(app))
-                case ApplicationDeleteFailureResult => technicalDifficulties(errorTemplate)
+                case ApplicationDeleteFailureResult => technicalDifficulties
               }
             }
             else {
@@ -320,7 +320,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
                 case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
-                case ApplicationBlockFailureResult => technicalDifficulties(errorTemplate)
+                case ApplicationBlockFailureResult => technicalDifficulties
               }
             }
             else {
@@ -353,7 +353,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             if (app.application.name == form.applicationNameConfirmation) {
               applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
                 case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
-                case ApplicationUnblockFailureResult => technicalDifficulties(errorTemplate)
+                case ApplicationUnblockFailureResult => technicalDifficulties
               }
             }
             else {

@@ -40,7 +40,7 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              mcc: MessagesControllerComponents,
                                              deploymentApproval: deploymentApproval,
                                              deploymentReview: deploymentReview,
-                                             errorTemplate: error_template,
+                                             override val errorTemplate: error_template,
                                              forbiddenView: forbidden
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {

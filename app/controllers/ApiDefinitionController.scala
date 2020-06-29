@@ -37,6 +37,7 @@ case class ApiDefinitionView(apiName: String, apiVersion: String, status: String
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
                                         override val authConnector: AuthConnector,
                                         mcc: MessagesControllerComponents,
+                                        override val errorTemplate: error_template,
                                         forbiddenView: forbidden)
                                        (implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper {

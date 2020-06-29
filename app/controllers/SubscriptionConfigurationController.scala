@@ -45,7 +45,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: list_subscription_configuration,
                                                     editSubscriptionConfiguration: edit_subscription_configuration,
-                                                    errorTemplate: error_template,
+                                                    override val errorTemplate: error_template,
                                                     forbiddenView: forbidden
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
@@ -84,7 +84,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
           def errors(errors: Form[EditApiMetadataForm]) = {
-            Future.successful(technicalDifficulties(errorTemplate))
+            Future.successful(technicalDifficulties)
           }
 
           def validationErrorResult(fieldErrors: Map[String, String], form: EditApiMetadataForm) = {

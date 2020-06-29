@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class NavigationController @Inject()(mcc: MessagesControllerComponents)
                                     (implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with BaseController {
+  extends FrontendController(mcc) {
 
   def navLinks() = Action.async { implicit request =>
     Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))

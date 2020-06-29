@@ -45,7 +45,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      removeMfaSuccessView: remove_mfa_success,
                                      deleteDeveloperView: delete_developer,
                                      deleteDeveloperSuccessView: delete_developer_success,
-                                     errorTemplate: error_template,
+                                     override val errorTemplate: error_template,
                                      forbiddenView: forbidden
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
@@ -91,7 +91,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } recover {
         case e: Exception =>
           Logger.error(s"Failed to remove MFA for user: $email", e)
-          technicalDifficulties(errorTemplate)
+          technicalDifficulties
       }
   }
 
@@ -104,7 +104,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
     implicit request =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
-        case _ => technicalDifficulties(errorTemplate)
+        case _ => technicalDifficulties
       }
   }
 

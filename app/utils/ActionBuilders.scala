@@ -81,7 +81,7 @@ trait ActionBuilders extends BaseController {
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
-          .getOrElse(Future.successful(notFound(errorTemplate, "Subscription or version not found")))
+          .getOrElse(Future.successful(notFound("Subscription or version not found")))
       }
     }
   }

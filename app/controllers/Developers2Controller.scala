@@ -37,7 +37,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       mcc: MessagesControllerComponents,
                                       developersView: developers2,
                                       forbiddenView: forbidden,
-                                      errorTemplate: error_template,
+                                      override val errorTemplate: error_template,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
