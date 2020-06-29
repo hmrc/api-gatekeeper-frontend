@@ -409,7 +409,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       app.application.access match {
         case _: Standard => f(app)
         case _ if isAtLeastSuperUser => f(app)
-        case _ => Future.successful(Forbidden(forbidden))
+        case _ => Future.successful(Forbidden(forbidden()))
       }
     }
   }
