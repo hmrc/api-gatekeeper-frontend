@@ -72,9 +72,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  // TODO: Remove as we should have ec in scope
-//  implicit val executionContext = ec
-
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       implicit hc =>

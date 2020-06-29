@@ -65,7 +65,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
   def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       implicit hc =>
-        withAppAndSubscriptionVersion(appId, context, version) {
+        withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
           app => {
             val subscriptionFields = SubscriptionField(app.version.fields)
             val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
@@ -81,7 +81,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => implicit hc => {
 
-      withAppAndSubscriptionVersion(appId, context, version) {
+      withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 

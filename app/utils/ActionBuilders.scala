@@ -23,6 +23,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Result
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.error_template
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -64,7 +65,8 @@ trait ActionBuilders extends BaseController {
 
   def withAppAndSubscriptionVersion(appId: String,
                                     apiContext: String,
-                                    apiVersion: String)
+                                    apiVersion: String,
+                                    errorTemplate: error_template)
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])
                                    (implicit request: LoggedInRequest[_],
                                     messages: Messages,
@@ -79,7 +81,7 @@ trait ActionBuilders extends BaseController {
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
-          .getOrElse(Future.successful(notFound("Subscription or version not found")))
+          .getOrElse(Future.successful(notFound(errorTemplate, "Subscription or version not found")))
       }
     }
   }

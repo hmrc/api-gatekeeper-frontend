@@ -32,8 +32,6 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GatekeeperAuthWrapper {
-  self: BaseController =>
-
   def authConnector: AuthConnector
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
@@ -92,4 +90,3 @@ trait GatekeeperAuthWrapper {
 }
 
 case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
-//case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends MessagesRequest(request)
