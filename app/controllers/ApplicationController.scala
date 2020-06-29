@@ -30,7 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, LoggedInRequest, SubscriptionEnhancer}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications._
 import views.html.approvedApplication.approved
@@ -68,7 +68,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       addTeamMemberView: add_team_member,
                                       removeTeamMemberView: remove_team_member
                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 

@@ -19,7 +19,6 @@ package utils
 import java.util.UUID
 
 import connectors.AuthConnector
-import controllers.BaseController
 import model.{GatekeeperRole, GatekeeperSessionKeys}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
@@ -29,7 +28,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -42,7 +41,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     implicit val appConfig = mock[config.AppConfig]
 
-    val underTest = new BaseController with GatekeeperAuthWrapper {
+    val underTest = new ErrorHelper with GatekeeperAuthWrapper {
       val authConnector = mock[AuthConnector]
       val ec = global
     }

@@ -17,7 +17,6 @@
 package utils
 
 import config.AppConfig
-import controllers.BaseController
 import model._
 import play.api.i18n.Messages
 import play.api.mvc.Result
@@ -26,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ActionBuilders extends BaseController {
+trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
 
   def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])

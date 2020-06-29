@@ -18,7 +18,7 @@ package utils
 
 import builder.SubscriptionsBuilder
 import controllers.ControllerSetupBase
-import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldsWrapper, SubscriptionFieldValue}
 import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
@@ -27,18 +27,17 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContentAsEmpty, Request, Result, Results}
 import play.api.test.FakeRequest
-import play.api.http.Status.{OK, NOT_FOUND}
+import play.api.http.Status.{NOT_FOUND, OK}
 import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import scala.concurrent.Future
 
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.i18n.Messages.Implicits.applicationMessages
 import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
 import model.ApplicationWithHistory
-import controllers.BaseController
 import connectors.AuthConnector
 
 class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SubscriptionsBuilder {
@@ -49,7 +48,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
     implicit val appConfig = mock[config.AppConfig]
     implicit val messages: play.api.i18n.Messages = applicationMessages
     
-    val underTest = new BaseController with ActionBuilders {
+    val underTest = new ErrorHelper with ActionBuilders {
       val authConnector = mock[AuthConnector]
       val ec = global
       override val applicationService: ApplicationService = mockApplicationService

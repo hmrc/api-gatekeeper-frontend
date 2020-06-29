@@ -24,7 +24,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{GatekeeperAuthWrapper, LoggedInRequest}
+import utils.{ErrorHelper, GatekeeperAuthWrapper, LoggedInRequest}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.developers.developers2
 
@@ -39,7 +39,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       forbiddenView: Forbidden,
                                       override val errorTemplate: ErrorTemplate,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,

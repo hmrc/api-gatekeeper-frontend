@@ -29,7 +29,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, GatekeeperAuthWrapper}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
 
@@ -45,7 +45,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     override val errorTemplate: ErrorTemplate,
                                                     forbiddenView: Forbidden
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 

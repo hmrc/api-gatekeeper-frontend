@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
-import play.api.mvc.{Request, Result}
 import play.api.i18n.MessagesProvider
+import play.api.mvc.{Request, Result}
+import play.api.mvc.Results.{InternalServerError, NotFound}
 import views.html.ErrorTemplate
 
-import play.api.mvc.Results._
-
-trait BaseController {
+trait ErrorHelper {
   val errorTemplate: ErrorTemplate
 
   def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
