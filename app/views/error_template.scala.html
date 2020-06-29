@@ -19,7 +19,7 @@
 
 @this(main: main, applicationConfig: AppConfig)
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messagesProvider: MessagesProvider, loggedInUser: LoggedInUser)
+@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messagesProvider: MessagesProvider)
 
 @main(title = pageTitle) {
   <h1>@heading</h1>

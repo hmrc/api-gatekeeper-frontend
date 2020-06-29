@@ -24,15 +24,14 @@ import views.html.error_template
 import play.api.mvc.Results._
 
 trait BaseController {
+  //TODO: maybe create a val for errorTemplate so don't have to pass into each method
   def technicalDifficulties(errorTemplate: error_template)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
-    implicit val loggedInUser = LoggedInUser(None)
 
     InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",
       "Sorry, we’re experiencing technical difficulties"))
   }
 
   def notFound(errorTemplate: error_template, errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
-    implicit val loggedInUser = LoggedInUser(None)
 
     NotFound(errorTemplate("Not found", "404 - Not found", errors))
   }
