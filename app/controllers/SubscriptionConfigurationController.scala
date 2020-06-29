@@ -34,7 +34,7 @@ import play.api.data.Form
 import play.api.data
 import services.SubscriptionFieldsService
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
-import play.api.i18n.{I18nSupport, MessagesProvider}
+import play.api.i18n.I18nSupport
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.{error_template, forbidden}
 
@@ -46,13 +46,13 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     listSubscriptionConfiguration: list_subscription_configuration,
                                                     editSubscriptionConfiguration: edit_subscription_configuration,
                                                     errorTemplate: error_template,
-                                                    forbidden: forbidden
+                                                    forbiddenView: forbidden
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
       implicit hc =>
         withAppAndFieldDefinitions(appId) {
@@ -62,7 +62,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
       implicit hc =>
         withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
@@ -78,7 +78,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit  request => implicit hc => {
 
       withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {

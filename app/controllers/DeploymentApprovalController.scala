@@ -22,7 +22,7 @@ import javax.inject.Inject
 import model._
 import play.api.Play.current
 import play.api.data.Form
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, MessagesProvider}
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.DeploymentApprovalService
@@ -41,19 +41,19 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              deploymentApproval: deploymentApproval,
                                              deploymentReview: deploymentReview,
                                              errorTemplate: error_template,
-                                             forbidden: forbidden
+                                             forbiddenView: forbidden
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
-  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
+  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request => implicit hc =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
-  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>implicit hc =>
       fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>implicit hc =>
+  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>implicit hc =>
       val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =

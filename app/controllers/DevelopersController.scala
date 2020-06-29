@@ -21,7 +21,7 @@ import config.AppConfig
 import connectors.AuthConnector
 import model._
 import play.api.Logger
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, MessagesProvider}
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
@@ -46,11 +46,11 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      deleteDeveloperView: delete_developer,
                                      deleteDeveloperSuccessView: delete_developer_success,
                                      errorTemplate: error_template,
-                                     forbidden: forbidden
+                                     forbiddenView: forbidden
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
-  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
+  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request => implicit hc =>
 
       val apiFilter = ApiFilter(filter)
@@ -74,17 +74,17 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } yield Ok(developersView(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
-  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request => implicit hc =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
         Ok(removeMfaSuccessView(email))
@@ -95,12 +95,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request => implicit hc =>
       developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request => implicit hc =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))

@@ -20,7 +20,7 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, MessagesProvider}
 import services.{ApiDefinitionService, DeveloperService}
 import utils.{GatekeeperAuthWrapper, LoggedInRequest}
 import play.api.mvc.MessagesControllerComponents
@@ -36,7 +36,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       val apiDefinitionService: ApiDefinitionService,
                                       mcc: MessagesControllerComponents,
                                       developersView: developers2,
-                                      forbidden: forbidden,
+                                      forbiddenView: forbidden,
                                       errorTemplate: error_template,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
@@ -46,7 +46,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                      maybeEnvironmentFilter: Option[String] = None,
                      maybeDeveloperStatusFilter: Option[String] = None) = {
 
-    requiresAtLeast(GatekeeperRole.USER) {
+    requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
 
       implicit request =>
         implicit hc => {

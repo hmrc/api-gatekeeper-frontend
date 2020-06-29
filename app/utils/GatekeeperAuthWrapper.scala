@@ -21,6 +21,7 @@ import connectors.AuthConnector
 import controllers.BaseController
 import model.{GatekeeperRole, LoggedInUser}
 import model.GatekeeperRole.GatekeeperRole
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result, _}
 import play.api.mvc.Results._
 import uk.gov.hmrc.auth.core._
@@ -28,15 +29,16 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import views.html.forbidden
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait GatekeeperAuthWrapper {
+trait GatekeeperAuthWrapper extends I18nSupport{
   def authConnector: AuthConnector
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result])
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: forbidden)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result])
                      (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
       implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
@@ -54,7 +56,7 @@ trait GatekeeperAuthWrapper {
           Future.successful(toStrideLogin)
         case _: InsufficientEnrolments =>
           implicit val unauthorisedUser = LoggedInUser(None)
-          Future.successful(Forbidden(forbiddenView))
+          Future.successful(Forbidden(forbiddenView()))
       }
   }
 
