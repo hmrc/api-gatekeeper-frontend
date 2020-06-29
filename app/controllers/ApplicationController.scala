@@ -372,7 +372,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
-
     val versions = for {
       api <- apis
       version <- api.versions
@@ -392,11 +391,11 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-      withApp(appId) { app =>
-        redirectIfIsSandboxApp(app) {
-          fetchApplicationReviewDetails(appId) map (details => Ok(reviewView(HandleUpliftForm.form, details)))
-        }
+    withApp(appId) { app =>
+      redirectIfIsSandboxApp(app) {
+        fetchApplicationReviewDetails(appId) map (details => Ok(reviewView(HandleUpliftForm.form, details)))
       }
+    }
   }
 
   private def fetchApplicationReviewDetails(appId: String)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
@@ -407,36 +406,36 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-      withApp(appId) { app =>
+    withApp(appId) { app =>
 
-        def lastApproval(app: ApplicationWithHistory): StateHistory = {
-          app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
-            .sortWith(StateHistory.ascendingDateForAppId)
-            .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
-        }
-
-        def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
-          val emails: Set[String] = app.application.admins.map(_.emailAddress)
-          developerService.fetchDevelopersByEmails(emails.toSeq)
-        }
-
-        def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
-          val verified = app.state.name == State.PRODUCTION
-          val details = applicationReviewDetails(app, submissionDetails)(request)
-
-          ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
-        }
-
-        redirectIfIsSandboxApp(app) {
-
-          for {
-            submission <- lastSubmission(app)
-            admins <- administrators(app)
-            approval = lastApproval(app)
-            approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
-          } yield Ok(approvedView(approvedApp))
-        }
+      def lastApproval(app: ApplicationWithHistory): StateHistory = {
+        app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+          .sortWith(StateHistory.ascendingDateForAppId)
+          .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
+
+      def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+        val emails: Set[String] = app.application.admins.map(_.emailAddress)
+        developerService.fetchDevelopersByEmails(emails.toSeq)
+      }
+
+      def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+        val verified = app.state.name == State.PRODUCTION
+        val details = applicationReviewDetails(app, submissionDetails)(request)
+
+        ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
+      }
+
+      redirectIfIsSandboxApp(app) {
+
+        for {
+          submission <- lastSubmission(app)
+          admins <- administrators(app)
+          approval = lastApproval(app)
+          approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
+        } yield Ok(approvedView(approvedApp))
+      }
+    }
   }
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
@@ -449,7 +448,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
-
     val currentRateLimitTierToDisplay = if (isAtLeastSuperUser) Some(app.rateLimitTier) else None
 
     val contactDetails = for {
@@ -478,50 +476,50 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withApp(appId) { app =>
-          redirectIfIsSandboxApp(app) {
-            val requestForm = HandleUpliftForm.form.bindFromRequest
+      withApp(appId) { app =>
+        redirectIfIsSandboxApp(app) {
+          val requestForm = HandleUpliftForm.form.bindFromRequest
 
-            def errors(errors: Form[HandleUpliftForm]) =
-              fetchApplicationReviewDetails(appId) map (details => BadRequest(reviewView(errors, details)))
+          def errors(errors: Form[HandleUpliftForm]) =
+            fetchApplicationReviewDetails(appId) map (details => BadRequest(reviewView(errors, details)))
 
-            def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
-              case e: PreconditionFailed => {
-                Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
-                Redirect(routes.ApplicationController.applicationsPage(None))
-              }
+          def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
+            case e: PreconditionFailed => {
+              Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
+              Redirect(routes.ApplicationController.applicationsPage(None))
             }
-
-            def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
-              UpliftAction.from(validForm.action) match {
-                case Some(APPROVE) =>
-                  applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
-                    ApproveUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-                case Some(REJECT) =>
-                  applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
-                    RejectUpliftSuccessful => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-              }
-            }
-
-            requestForm.fold(errors, addApplicationWithValidForm)
           }
+
+          def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
+            UpliftAction.from(validForm.action) match {
+              case Some(APPROVE) =>
+                applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
+                  _ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+              case Some(REJECT) =>
+                applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
+                  _ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+            }
+          }
+
+          requestForm.fold(errors, addApplicationWithValidForm)
         }
+      }
   }
 
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
     requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-        withApp(appId) { app =>
-          val result = Redirect(routes.ApplicationController.applicationPage(appId))
-          if (isAtLeastSuperUser) {
-            val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-            applicationService.updateRateLimitTier(app.application, newTier) map {
-              case ApplicationUpdateSuccessResult =>
-                result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
-            }
-          } else {
-            Future.successful(result)
+      withApp(appId) { app =>
+        val result = Redirect(routes.ApplicationController.applicationPage(appId))
+        if (isAtLeastSuperUser) {
+          val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
+          applicationService.updateRateLimitTier(app.application, newTier) map {
+            case ApplicationUpdateSuccessResult =>
+              result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
           }
+        } else {
+          Future.successful(result)
         }
+      }
     }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
@@ -531,119 +529,117 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
       implicit request => {
-          Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
-        }
+        Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
+      }
     }
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
       implicit request => {
+        def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
+          Future.successful(BadRequest(createApplicationView(form)))
+        }
 
-          def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
-            Future.successful(BadRequest(createApplicationView(form)))
-          }
+        def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
+          def handleFormWithValidName: Future[Result] =
+            form.accessType.flatMap(AccessType.from) match {
+              case Some(accessType) => {
+                val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
-          def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-
-            def handleFormWithValidName: Future[Result] =
-              form.accessType.flatMap(AccessType.from) match {
-                case Some(accessType) => {
-                  val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
-
-                  applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
-                    val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
-                    Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
-                  }
+                applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
+                  val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
+                  Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
                 }
               }
-
-            def handleFormWithInvalidName: Future[Result] = {
-              val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
-              Future.successful(BadRequest(createApplicationView(formWithErrors)))
             }
 
-            def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
-              case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
-              case _ => true
-            }
-
-            for {
-              appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
-              result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
-            } yield result
+          def handleFormWithInvalidName: Future[Result] = {
+            val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
+            Future.successful(BadRequest(createApplicationView(formWithErrors)))
           }
 
-          createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+          def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
+            case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
+            case _ => true
+          }
+
+          for {
+            appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
+            result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
+          } yield result
         }
+
+        createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
     }
   }
 
   def manageTeamMembers(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withRestrictedApp(appId) { app =>
-          Future.successful(Ok(manageTeamMembersView(app.application)))
-        }
+      withRestrictedApp(appId) { app =>
+        Future.successful(Ok(manageTeamMembersView(app.application)))
+      }
   }
 
   def addTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withRestrictedApp(appId) { app =>
-          Future.successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
-        }
+      withRestrictedApp(appId) { app =>
+        Future.successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
+      }
   }
 
   def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withRestrictedApp(appId) { app =>
-          def handleValidForm(form: AddTeamMemberForm) = {
-            applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
-              .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-              case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
-            }
+      withRestrictedApp(appId) { app =>
+        def handleValidForm(form: AddTeamMemberForm) = {
+          applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
+            .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
+            case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
           }
-
-          def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
-            Future.successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
-
-          AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
         }
+
+        def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
+          Future.successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
+
+        AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
   }
 
   def removeTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withRestrictedApp(appId) { app =>
-          def handleValidForm(form: RemoveTeamMemberForm) =
-            Future.successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
+      withRestrictedApp(appId) { app =>
+        def handleValidForm(form: RemoveTeamMemberForm) =
+          Future.successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
 
-          def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
-            val email = formWithErrors("email").value.getOrElse("")
-            Future.successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
-          }
-
-          RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
+          val email = formWithErrors("email").value.getOrElse("")
+          Future.successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
         }
+
+        RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
   }
 
   def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-        withRestrictedApp(appId) { app =>
-          def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-            form.confirm match {
-              case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
-                _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
-              } recover {
-                case _: TeamMemberLastAdmin =>
-                  BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
-              }
-              case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
+      withRestrictedApp(appId) { app =>
+        def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
+          form.confirm match {
+            case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
+              _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
+            } recover {
+              case _: TeamMemberLastAdmin =>
+                BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
             }
+            case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
           }
-
-          def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
-            Future.successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
-
-          RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
         }
+
+        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
+          Future.successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
+
+        RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      }
   }
 }
