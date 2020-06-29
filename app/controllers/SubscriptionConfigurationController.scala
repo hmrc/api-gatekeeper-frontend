@@ -54,7 +54,6 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withAppAndFieldDefinitions(appId) {
           app => {
             Future.successful(Ok(listSubscriptionConfiguration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
@@ -64,7 +63,6 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
           app => {
             val subscriptionFields = SubscriptionField(app.version.fields)
@@ -79,7 +77,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
   }
 
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-    implicit  request => implicit hc => {
+    implicit  request => {
 
       withAppAndSubscriptionVersion(appId, context, version, errorTemplate) {
         app => {

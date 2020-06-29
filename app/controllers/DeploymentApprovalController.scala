@@ -45,15 +45,15 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
-  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request => implicit hc =>
+  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
-  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>implicit hc =>
+  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
       fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>implicit hc =>
+  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
       val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =

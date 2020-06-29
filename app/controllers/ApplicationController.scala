@@ -74,7 +74,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
         val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
         val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
@@ -88,7 +87,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
           val app = applicationWithSubscriptions.application
 
@@ -114,7 +112,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           for {
             _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
@@ -127,7 +124,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           applicationService.fetchApplicationSubscriptions(app.application).map {
             subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
@@ -137,7 +133,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           applicationService.subscribeToApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
@@ -145,7 +140,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
@@ -153,7 +147,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           app.application.access match {
             case access: Standard => {
@@ -165,7 +158,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def updateAccessOverrides(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
             case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
@@ -201,7 +193,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageScopes(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           app.application.access match {
             case access: AccessWithRestrictedScopes => {
@@ -215,7 +206,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def updateScopes(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(scopes: Set[String]) = {
             applicationService.updateScopes(app.application, scopes).map {
@@ -237,7 +227,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           Future.successful(Ok(manageWhitelistedIpView(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
         }
@@ -245,7 +234,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(whitelistedIps: Set[String]) = {
             applicationService.manageWhitelistedIp(app.application, whitelistedIps).map { _ =>
@@ -263,7 +251,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
           Future.successful(Ok(manageRateLimitView(app.application, form)))
@@ -272,7 +259,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def updateRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: UpdateRateLimitForm) = {
             applicationService.updateRateLimitTier(app.application, RateLimitTier.withName(form.tier)).map { _ =>
@@ -290,7 +276,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def deleteApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           Future.successful(Ok(deleteApplicationView(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
         }
@@ -298,7 +283,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def deleteApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: DeleteApplicationForm) = {
             if (app.application.name == form.applicationNameConfirmation) {
@@ -324,7 +308,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def blockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           Future.successful(Ok(blockApplicationView(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
         }
@@ -332,7 +315,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def blockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: BlockApplicationForm) = {
             if (app.application.name == form.applicationNameConfirmation) {
@@ -359,7 +341,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def unblockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           Future.successful(Ok(unblockApplicationView(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
         }
@@ -367,7 +348,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def unblockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           def handleValidForm(form: UnblockApplicationForm) = {
             if (app.application.name == form.applicationNameConfirmation) {
@@ -412,7 +392,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-    implicit hc =>
       withApp(appId) { app =>
         redirectIfIsSandboxApp(app) {
           fetchApplicationReviewDetails(appId) map (details => Ok(reviewView(HandleUpliftForm.form, details)))
@@ -428,7 +407,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-    implicit hc =>
       withApp(appId) { app =>
 
         def lastApproval(app: ApplicationWithHistory): StateHistory = {
@@ -500,7 +478,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           redirectIfIsSandboxApp(app) {
             val requestForm = HandleUpliftForm.form.bindFromRequest
@@ -533,7 +510,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
     requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
-      implicit hc =>
         withApp(appId) { app =>
           val result = Redirect(routes.ApplicationController.applicationPage(appId))
           if (isAtLeastSuperUser) {
@@ -554,8 +530,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-      implicit request =>
-        implicit hc => {
+      implicit request => {
           Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
         }
     }
@@ -563,8 +538,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-      implicit request =>
-        implicit hc => {
+      implicit request => {
 
           def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
             Future.successful(BadRequest(createApplicationView(form)))
@@ -607,7 +581,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageTeamMembers(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withRestrictedApp(appId) { app =>
           Future.successful(Ok(manageTeamMembersView(app.application)))
         }
@@ -615,7 +588,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def addTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withRestrictedApp(appId) { app =>
           Future.successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
         }
@@ -623,7 +595,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withRestrictedApp(appId) { app =>
           def handleValidForm(form: AddTeamMemberForm) = {
             applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
@@ -641,7 +612,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def removeTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withRestrictedApp(appId) { app =>
           def handleValidForm(form: RemoveTeamMemberForm) =
             Future.successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
@@ -657,7 +627,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
     implicit request =>
-      implicit hc =>
         withRestrictedApp(appId) { app =>
           def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
             form.confirm match {

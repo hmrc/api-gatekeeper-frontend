@@ -27,28 +27,27 @@ import play.api.mvc.Results._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import views.html.forbidden
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GatekeeperAuthWrapper extends I18nSupport{
+  self: FrontendBaseController =>
   def authConnector: AuthConnector
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: forbidden)(body: LoggedInRequest[_] => HeaderCarrier => Future[Result])
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: forbidden)(body: LoggedInRequest[_] => Future[Result])
                      (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
-      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
       val predicate = authPredicate(minimumRoleRequired)
       val retrieval: Retrieval[Name ~ Enrolments] = Retrievals.name and Retrievals.authorisedEnrolments
 
       authConnector.authorise(predicate, retrieval) flatMap {
         case name ~ authorisedEnrolments => {
-          body(LoggedInRequest(name.name, authorisedEnrolments, request))(hc)
+          body(LoggedInRequest(name.name, authorisedEnrolments, request))
         }
       } recoverWith {
         case _: NoActiveSession =>

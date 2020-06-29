@@ -41,7 +41,7 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
                                        (implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper {
     
-  def apis() = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request => implicit hc =>
+  def apis() = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {

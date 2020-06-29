@@ -48,8 +48,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
     requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
 
-      implicit request =>
-        implicit hc => {
+      implicit request => {
 
           val queryParameters = getQueryParametersAsKeyValues(request)
 

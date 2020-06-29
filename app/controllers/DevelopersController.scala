@@ -51,7 +51,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
   extends FrontendController(mcc) with BaseController with GatekeeperAuthWrapper with I18nSupport {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
 
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
@@ -75,17 +75,17 @@ class DevelopersController @Inject()(developerService: DeveloperService,
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
   def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
         Ok(removeMfaSuccessView(email))
       } recover {
@@ -96,12 +96,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
   }
 
   def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
   }
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
         case _ => technicalDifficulties(errorTemplate)
