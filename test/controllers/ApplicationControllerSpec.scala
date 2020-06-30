@@ -37,12 +37,13 @@ import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.CSRFTokenHelper._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications._
 import views.html.approvedApplication.Approved
 import views.html.review.Review
+
+import utils.FakeRequestCSRFSupport._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

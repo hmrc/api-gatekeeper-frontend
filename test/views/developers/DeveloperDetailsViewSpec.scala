@@ -18,18 +18,17 @@ package views.developers
 
 import java.util.UUID
 
-import config.AppConfig
-import model._
+import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.Messages.Implicits.applicationMessages
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
-import utils.LoggedInUser
 import utils.ViewHelpers._
+import views.html.developers.DeveloperDetails
 
-
-class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class DeveloperDetailsViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
   sealed case class TestApplication(id: UUID,
                                     name: String,
@@ -38,100 +37,14 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
                                     clientId: String = "a-client-id",
                                     deployedTo: String = "PRODUCTION") extends Application
 
-  "developer details view" must {
+  trait Setup {
     implicit val request = FakeRequest()
-    val mockAppConfig = mock[AppConfig]
 
-    "show unregistered developer details when logged in as superuser" in {
-
-      val unregisteredDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
-      testDeveloperDetails(unregisteredDeveloper)
-    }
-
-    "show unverified developer details when logged in as superuser" in {
-
-      val unverifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(false), Seq())
-
-      testDeveloperDetails(unverifiedDeveloper)
-    }
-
-    "show verified developer details when logged in as superuser" in {
-
-      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq())
-
-      testDeveloperDetails(verifiedDeveloper)
-    }
-
-    "show developer with organisation when logged in as superuser" in {
-
-      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
-
-      testDeveloperDetails(verifiedDeveloper)
-    }
-
-    "show developer with no applications when logged in as superuser" in {
-
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
-      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
-
-      val document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-
-      elementExistsByText(document, "h2", "Associated applications") mustBe true
-      document.getElementById("applications").text mustBe "None"
-    }
-
-    "show developer with applications when logged in as superuser" in {
-
-      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
-      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
-
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
-
-      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
-
-      val document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-
-      elementExistsByText(document, "h2", "Associated applications") mustBe true
-      elementExistsByText(document, "a", "appName1") mustBe true
-      elementExistsByText(document, "td", "Admin") mustBe true
-      elementExistsByText(document, "a", "appName2") mustBe true
-      elementExistsByText(document, "td", "Developer") mustBe true
-    }
-
-    "show developer details with delete button when logged in as superuser" in {
-
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
-      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
-
-      val document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-
-      elementExistsByText(document, "a", "Delete developer") mustBe true
-    }
-
-    "show developer details without delete button when logged in as non-superuser" in {
-
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
-      val result = views.html.developers.developer_details.render(developer, false, request, LoggedInUser(None), applicationMessages, mockAppConfig)
-
-      val document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-
-      elementExistsByText(document, "a", "Delete developer") mustBe false
-    }
+    val developerDetails = app.injector.instanceOf[DeveloperDetails]
+    val messagesProvider = app.injector.instanceOf[MessagesProvider]
 
     def testDeveloperDetails(developer: Developer) = {
-      val result = views.html.developers.developer_details.render(developer, true, request, LoggedInUser(None), applicationMessages, mockAppConfig)
+      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -149,6 +62,84 @@ class DeveloperDetailsViewSpec extends PlaySpec with OneServerPerSuite with Mock
         case VerifiedStatus => "verified"
         case _ => "unregistered"
       })
+    }
+  }
+
+  "developer details view" must {
+    "show unregistered developer details when logged in as superuser" in new Setup {
+      val unregisteredDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
+      testDeveloperDetails(unregisteredDeveloper)
+    }
+
+    "show unverified developer details when logged in as superuser" in new Setup {
+      val unverifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(false), Seq())
+      testDeveloperDetails(unverifiedDeveloper)
+    }
+
+    "show verified developer details when logged in as superuser" in new Setup {
+      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq())
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show developer with organisation when logged in as superuser" in new Setup {
+      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show developer with no applications when logged in as superuser" in new Setup {
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
+
+      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "h2", "Associated applications") mustBe true
+      document.getElementById("applications").text mustBe "None"
+    }
+
+    "show developer with applications when logged in as superuser" in new Setup {
+      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
+      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
+
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
+
+      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "h2", "Associated applications") mustBe true
+      elementExistsByText(document, "a", "appName1") mustBe true
+      elementExistsByText(document, "td", "Admin") mustBe true
+      elementExistsByText(document, "a", "appName2") mustBe true
+      elementExistsByText(document, "td", "Developer") mustBe true
+    }
+
+    "show developer details with delete button when logged in as superuser" in new Setup {
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
+
+      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "a", "Delete developer") mustBe true
+    }
+
+    "show developer details without delete button when logged in as non-superuser" in new Setup {
+      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
+
+      val result = developerDetails.render(developer, false, request, LoggedInUser(None), messagesProvider)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+
+      elementExistsByText(document, "a", "Delete developer") mustBe false
     }
   }
 }

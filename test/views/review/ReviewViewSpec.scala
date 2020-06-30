@@ -18,25 +18,28 @@ package views.review
 
 import java.util.UUID
 
-import config.AppConfig
 import controllers.HandleUpliftForm
-import model._
+import mocks.config.AppConfigMock
+import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.Messages.Implicits._
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import uk.gov.hmrc.time.DateTimeUtils
-import utils.CSRFTokenHelper._
-import utils.LoggedInUser
+import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
+import views.html.review.Review
 
-class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class ReviewViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  val mockAppConfig = mock[AppConfig]
-
-  "review view" must {
+  trait Setup extends AppConfigMock {
     implicit val request = FakeRequest().withCSRFToken
+
+    implicit val messagesProvider =  app.injector.instanceOf[MessagesProvider]
+
+    val reviewView = app.injector.instanceOf[Review]
 
     val applicationReviewDetails =
       ApplicationReviewDetails(
@@ -51,10 +54,11 @@ class ReviewViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
         None,
         None
       )
+  }
 
-    "show review information with pass and fail options" in {
-
-      val result = views.html.review.review.render(HandleUpliftForm.form, applicationReviewDetails,request, LoggedInUser(None), applicationMessages, mockAppConfig)
+  "review view" must {
+    "show review information with pass and fail options" in new Setup {
+      val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails,request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

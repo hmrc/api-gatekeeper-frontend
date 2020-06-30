@@ -21,17 +21,17 @@ import java.util.UUID
 import config.AppConfig
 import model._
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Messages.Implicits.applicationMessages
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.CSRFTokenHelper._
-import utils.LoggedInUser
+import utils.FakeRequestCSRFSupport._
+import model.LoggedInUser
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import utils.ViewHelpers._
-import views.html.developers.delete_developer
+import views.html.developers.DeleteDeveloper
 
-class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   sealed case class TestApplication(name: String,
                                     collaborators: Set[Collaborator],
@@ -45,14 +45,16 @@ class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with Mocki
   "delete developer view" should {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages = applicationMessages
     implicit val appConfig = mock[AppConfig]
+    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
+
+    val deleteDeveloper = app.injector.instanceOf[DeleteDeveloper]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
-      val document = Jsoup.parse(delete_developer(developer).body)
+      val document = Jsoup.parse(deleteDeveloper(developer).body)
       elementExistsById(document, "submit") shouldBe true
       elementExistsById(document, "cancel") shouldBe true
       elementExistsById(document, "finish") shouldBe false
@@ -62,7 +64,7 @@ class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with Mocki
       val app = TestApplication("appName1", Set(admin("email@example.com")))
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
-      val document = Jsoup.parse(delete_developer(developer).body)
+      val document = Jsoup.parse(deleteDeveloper(developer).body)
       elementExistsById(document, "submit") shouldBe false
       elementExistsById(document, "cancel") shouldBe false
       elementExistsById(document, "finish") shouldBe true

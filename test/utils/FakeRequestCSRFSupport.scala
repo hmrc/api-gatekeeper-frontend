@@ -16,15 +16,10 @@
 
 package utils
 
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import play.filters.csrf.CSRF.Token
+import play.api.test.{CSRFTokenHelper, FakeRequest}
 
-object CSRFTokenHelper {
-  implicit class CSRFRequestHeader(request: FakeRequest[AnyContentAsEmpty.type]) {
-    def withCSRFToken: FakeRequest[AnyContentAsEmpty.type] = request.copyFakeRequest(tags = request.tags ++ Map(
-      Token.NameRequestTag -> "test",
-      Token.RequestTag -> "test"
-    ))
+object FakeRequestCSRFSupport {
+  implicit class CSRFFakeRequest[A](request: FakeRequest[A]) {
+    def withCSRFToken: FakeRequest[A] = new FakeRequest(CSRFTokenHelper.addCSRFToken(request))
   }
 }
