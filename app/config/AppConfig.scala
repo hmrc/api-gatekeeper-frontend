@@ -86,6 +86,7 @@ trait AppConfig {
   def superUserRole: String
   def userRole: String
   def adminRole: String
+  def superUsers: Seq[String]
 }
 
 @Singleton

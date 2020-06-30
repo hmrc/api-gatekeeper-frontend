@@ -17,46 +17,46 @@
 package controllers
 
 import builder.SubscriptionsBuilder
+import mocks.config.AppConfigMock
+import mocks.service.SubscriptionFieldsServiceMock
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers
+import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
-import services.SubscriptionFieldsService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.{TitleChecker, WithCSRFAddToken}
+import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
+import views.html.{ErrorTemplate, Forbidden}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import model.SubscriptionFields.Fields
-import play.mvc.Http
-import uk.gov.hmrc.http.HttpResponse
-import com.gargoylesoftware.htmlunit.javascript.host.fetch.Request
-import utils.LoggedInUser
-import utils.LoggedInRequest
-import play.api.test.FakeRequest
-import mocks.service.SubscriptionFieldsServiceMock
 
 class SubscriptionConfigurationControllerSpec 
-    extends UnitSpec 
-    with MockitoSugar 
-    with WithFakeApplication 
-    with WithCSRFAddToken 
+    extends ControllerBaseSpec
+    with WithCSRFAddToken
     with TitleChecker {
-  implicit val materializer = fakeApplication.materializer
 
-  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
+  implicit val materializer = fakeApplication.materializer
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[list_subscription_configuration]
+  private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[edit_subscription_configuration]
+
+  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock with AppConfigMock {
 
     given(mockConfig.title).willReturn("Unit Test Title")
 
     val controller = new SubscriptionConfigurationController(
       mockApplicationService,
       mockSubscriptionFieldsService,
-      mockAuthConnector
-    )(mockConfig, global)
+      mockAuthConnector,
+      mcc,
+      listSubscriptionConfigurationView,
+      editSubscriptionConfigurationView,
+      errorTemplateView,
+      forbiddenView
+    )
 
     val version = "1.0"
     val context = "my-context"

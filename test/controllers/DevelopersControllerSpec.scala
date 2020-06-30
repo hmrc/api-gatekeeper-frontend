@@ -18,6 +18,7 @@ package controllers
 
 import java.util.UUID
 
+import mocks.config.AppConfigMock
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -32,14 +33,24 @@ import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
+import views.html.developers.{DeleteDeveloper, DeleteDeveloperSuccess, DeveloperDetails, Developers, RemoveMfa, RemoveMfaSuccess}
+import views.html.{ErrorTemplate, Forbidden}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
-class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
+class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
   implicit val materializer = fakeApplication.materializer
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val developersView = app.injector.instanceOf[Developers]
+  private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetails]
+  private lazy val removeMfaView = app.injector.instanceOf[RemoveMfa]
+  private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccess]
+  private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloper]
+  private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccess]
 
   Helpers.running(fakeApplication) {
 
@@ -48,23 +59,30 @@ class DevelopersControllerSpec extends UnitSpec with MockitoSugar with WithFakeA
         UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     }
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with AppConfigMock {
 
-      implicit val appConfig = mockConfig
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
-      given(appConfig.superUsers).willReturn(Seq(loggedInSuperUser))
-      given(appConfig.strideLoginUrl).willReturn("https://loginUri")
-      given(appConfig.appName).willReturn("Gatekeeper app name")
-      given(appConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
 
       val mockDeveloperService = mock[DeveloperService]
 
-      val developersController = new DevelopersController(mockDeveloperService, mockApplicationService, mockApiDefinitionService, mockAuthConnector) {
-        override val appConfig = mockConfig
-      }
+      val developersController = new DevelopersController(
+        mockDeveloperService,
+        mockApplicationService,
+        mockApiDefinitionService,
+        mockAuthConnector,
+        mcc,
+        developersView,
+        developerDetailsView,
+        removeMfaView,
+        removeMfaSuccessView,
+        deleteDeveloperView,
+        deleteDeveloperSuccessView,
+        errorTemplateView,
+        forbiddenView
+      )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
         givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)

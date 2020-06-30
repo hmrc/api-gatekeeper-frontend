@@ -19,38 +19,64 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import model._
+import mocks.config.AppConfigMock
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
+import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
+import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.{TitleChecker, WithCSRFAddToken}
 import utils.CSRFTokenHelper._
+import utils.{TitleChecker, WithCSRFAddToken}
+import views.html.{ErrorTemplate, Forbidden}
+import views.html.applications._
+import views.html.approvedApplication.Approved
+import views.html.review.Review
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
+class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
   implicit val materializer = fakeApplication.materializer
 
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val applicationsView = app.injector.instanceOf[applications]
+  private lazy val applicationView = app.injector.instanceOf[application]
+  private lazy val manageSubscriptionsView = app.injector.instanceOf[manage_subscriptions]
+  private lazy val manageAccessOverridesView = app.injector.instanceOf[manage_access_overrides]
+  private lazy val manageScopesView = app.injector.instanceOf[manage_scopes]
+  private lazy val manageWhitelistedIpView = app.injector.instanceOf[manage_whitelisted_ip]
+  private lazy val manageRateLimitView = app.injector.instanceOf[manage_rate_limit]
+  private lazy val deleteApplicationView = app.injector.instanceOf[delete_application]
+  private lazy val deleteApplicationSuccessView = app.injector.instanceOf[delete_application_success]
+  private lazy val blockApplicationView = app.injector.instanceOf[block_application]
+  private lazy val blockApplicationSuccessView = app.injector.instanceOf[block_application_success]
+  private lazy val unblockApplicationView = app.injector.instanceOf[unblock_application]
+  private lazy val unblockApplicationSuccessView = app.injector.instanceOf[unblock_application_success]
+  private lazy val reviewView = app.injector.instanceOf[Review]
+  private lazy val approvedView = app.injector.instanceOf[Approved]
+  private lazy val createApplicationView = app.injector.instanceOf[create_application]
+  private lazy val createApplicationSuccessView = app.injector.instanceOf[create_application_success]
+  private lazy val manageTeamMembersView = app.injector.instanceOf[manage_team_members]
+  private lazy val addTeamMemberView = app.injector.instanceOf[add_team_member]
+  private lazy val removeTeamMemberView = app.injector.instanceOf[remove_team_member]
+
   running(fakeApplication) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with AppConfigMock {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -77,28 +103,36 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         mockApplicationService,
         mockApiDefinitionService,
         mockDeveloperService,
-        mockSubscriptionFieldsService,
-        mockAuthConnector
+        mockAuthConnector,
+        mcc,
+        applicationsView,
+        applicationView,
+        manageSubscriptionsView,
+        manageAccessOverridesView,
+        manageScopesView,
+        manageWhitelistedIpView,
+        manageRateLimitView,
+        deleteApplicationView,
+        deleteApplicationSuccessView,
+        errorTemplateView,
+        forbiddenView,
+        blockApplicationView,
+        blockApplicationSuccessView,
+        unblockApplicationView,
+        unblockApplicationSuccessView,
+        reviewView,
+        approvedView,
+        createApplicationView,
+        createApplicationSuccessView,
+        manageTeamMembersView,
+        addTeamMemberView,
+        removeTeamMemberView
       )(mockConfig, global)
-
-      given(mockConfig.superUsers).willReturn(Seq("superUserName"))
-
-      given(mockConfig.superUserRole).willReturn(superUserRole)
-      given(mockConfig.adminRole).willReturn(adminRole)
-      given(mockConfig.userRole).willReturn(userRole)
-
-      given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
-
-      given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
-      given(mockConfig.appName).willReturn("Gatekeeper app name")
-
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
-
       }
     }
 

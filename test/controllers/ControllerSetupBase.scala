@@ -18,7 +18,6 @@ package controllers
 
 import java.util.UUID
 
-import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import mocks.service.ApplicationServiceMock
 import model._
@@ -39,7 +38,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockApiDefinitionService = mock[ApiDefinitionService]
-  val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]
   val mockDeveloperConnector = mock[DeveloperConnector]
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
@@ -75,10 +73,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
   val adminRole = "adminRole" + UUID.randomUUID
   val superUserRole = "superUserRole" + UUID.randomUUID
   val userRole = "userRole" + UUID.randomUUID
-
-  given(mockConfig.userRole).willReturn(userRole)
-  given(mockConfig.adminRole).willReturn(adminRole)
-  given(mockConfig.superUserRole).willReturn(superUserRole)
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))

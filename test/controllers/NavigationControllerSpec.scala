@@ -16,23 +16,20 @@
 
 package controllers
 
-import org.scalatestplus.mockito.MockitoSugar
+import mocks.config.AppConfigMock
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class NavigationControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = fakeApplication.materializer
 
   running(fakeApplication) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with AppConfigMock {
 
-      implicit val appConfig = mockConfig
-
-      val underTest = new NavigationController
+      val underTest = new NavigationController(mcc)
     }
 
     "navigationController" should {
