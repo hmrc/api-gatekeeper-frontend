@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications._
-import views.html.approvedApplication.approved
+import views.html.approvedApplication.Approved
 import views.html.review.Review
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,7 +61,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       unblockApplicationView: unblock_application,
                                       unblockApplicationSuccessView: unblock_application_success,
                                       reviewView: Review,
-                                      approvedView: approved,
+                                      approvedView: Approved,
                                       createApplicationView: create_application,
                                       createApplicationSuccessView: create_application_success,
                                       manageTeamMembersView: manage_team_members,
