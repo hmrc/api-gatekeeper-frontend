@@ -16,54 +16,57 @@
 
 package utils
 
-import java.util.UUID
-
 import connectors.AuthConnector
-import model.{GatekeeperRole, GatekeeperSessionKeys}
+import mocks.config.AppConfigMock
+import model.{GatekeeperRole, GatekeeperSessionKeys, LoggedInRequest}
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.test.UnitSpec
+import views.html.{ErrorTemplate, Forbidden}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
-  trait Setup {
+  trait Setup extends AppConfigMock{
 
-    implicit val appConfig = mock[config.AppConfig]
+    val ec = global
+    lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
+    val authConnectorMock = app.injector.instanceOf[AuthConnector]
+    lazy val errorTemplate = app.injector.instanceOf[ErrorTemplate]
+    lazy val forbiddenView = app.injector.instanceOf[Forbidden]
 
-    val underTest = new ErrorHelper with GatekeeperAuthWrapper {
-      val authConnector = mock[AuthConnector]
-      val ec = global
+    val underTest = new FrontendBaseController with GatekeeperAuthWrapper {
+      override protected def controllerComponents: MessagesControllerComponents = mcc
+      override val authConnector = authConnectorMock
     }
-    val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
+    val actionReturns200Body: Request[_] => Future[Result] = _ => Future.successful(Results.Ok)
 
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
-    val superUserRole = "SuperUserRole" + UUID.randomUUID()
-    val adminRole = "AdminRole" + UUID.randomUUID()
-    val userRole = "UserRole" + UUID.randomUUID()
 
     val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
     val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("superUserName"), Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
     val anAdminLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("adminName"), Enrolments(Set(Enrolment(adminRole))), FakeRequest())
 
-    given(underTest.appConfig.superUsers).willReturn(Seq("superUserName"))
-    given(appConfig.adminRole).willReturn(adminRole)
-    given(appConfig.superUserRole).willReturn(superUserRole)
-    given(appConfig.userRole).willReturn(userRole)
-    given(appConfig.strideLoginUrl).willReturn("https://aUrl")
-    given(appConfig.appName).willReturn("appName123")
-    given(appConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
+    given(mockConfig.superUsers).willReturn(Seq("superUserName"))
+    given(mockConfig.adminRole).willReturn(adminRole)
+    given(mockConfig.superUserRole).willReturn(superUserRole)
+    given(mockConfig.userRole).willReturn(userRole)
+    given(mockConfig.strideLoginUrl).willReturn("https://aUrl")
+    given(mockConfig.appName).willReturn("appName123")
+    given(mockConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
 
   }
 
@@ -76,7 +79,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(response)
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.USER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -86,7 +89,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -96,7 +99,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe FORBIDDEN
       verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), any[Retrieval[Any]])(any(), any())
@@ -107,19 +110,19 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     "return `true` if the current logged-in user is an admin" in new Setup {
 
-      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(anAdminLoggedInRequest)
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(anAdminLoggedInRequest, implicitly)
       isAtLeastSuperUser shouldBe true
     }
 
     "return `true` if the current logged-in user is a super user" in new Setup {
 
-      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aSuperUserLoggedInRequest)
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aSuperUserLoggedInRequest, implicitly)
       isAtLeastSuperUser shouldBe true
     }
 
     "return `false` if the current logged-in user is a non super-user" in new Setup {
 
-      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aUserLoggedInRequest)
+      val isAtLeastSuperUser = underTest.isAtLeastSuperUser(aUserLoggedInRequest, implicitly)
       isAtLeastSuperUser shouldBe false
     }
   }
@@ -128,19 +131,19 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with WithFake
 
     "return `true` if the current logged-in user is an admin" in new Setup {
 
-      val isAdmin = underTest.isAdmin(anAdminLoggedInRequest)
+      val isAdmin = underTest.isAdmin(anAdminLoggedInRequest, implicitly)
       isAdmin shouldBe true
     }
 
     "return `false` if the current logged-in user is a super user" in new Setup {
 
-      val isAdmin = underTest.isAdmin(aSuperUserLoggedInRequest)
+      val isAdmin = underTest.isAdmin(aSuperUserLoggedInRequest, implicitly)
       isAdmin shouldBe false
     }
 
     "return `false` if the current logged-in user is a user" in new Setup {
 
-      val isAdmin = underTest.isAdmin(aUserLoggedInRequest)
+      val isAdmin = underTest.isAdmin(aUserLoggedInRequest, implicitly)
       isAdmin shouldBe false
     }
   }

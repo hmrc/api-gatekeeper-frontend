@@ -77,5 +77,14 @@ trait GatekeeperAuthWrapper extends I18nSupport{
       case GatekeeperRole.USER => adminEnrolment or superUserEnrolment or userEnrolment
     }
   }
+
+  def isAtLeastSuperUser(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
+    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
+  }
+
+  def isAdmin(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
+    request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
+  }
+
 }
 

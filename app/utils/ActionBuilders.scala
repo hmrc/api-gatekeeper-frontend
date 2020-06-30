@@ -93,13 +93,4 @@ trait ActionBuilders extends ErrorHelper {
   def filterHasSubscriptionFields(subscriptions : Seq[Subscription]) : Seq[Subscription] = {
     filterSubscriptionsVersions(subscriptions)(v => v.fields.fields.nonEmpty)
   }
-
-  def isAtLeastSuperUser(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(appConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
-  }
-
-  def isAdmin(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
-  }
-
 }
