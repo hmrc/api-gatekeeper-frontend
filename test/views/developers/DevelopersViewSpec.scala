@@ -16,18 +16,21 @@
 
 package views.developers
 
-import config.AppConfig
-import model._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.Messages.Implicits._
+import model.{LoggedInUser, _}
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
-import utils.LoggedInUser
+import views.html.developers.Developers
 
-class DevelopersViewSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class DevelopersViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  private val mockAppConfig = mock[AppConfig]
-
+  trait Setup {
+    implicit val fakeRequest = FakeRequest
+    val developersView = app.injector.instanceOf[Developers]
+    val messagesProvider = app.injector.instanceOf[MessagesProvider]
+  }
   val users = Seq(
     User("sample@example.com", "Sample", "Email", Some(false)),
     User("another@example.com", "Sample2", "Email", Some(true)),
@@ -36,9 +39,9 @@ class DevelopersViewSpec extends PlaySpec with OneServerPerSuite with MockitoSug
 
   "Developers view" must {
 
-    "list all developers" in {
-      implicit val fakeRequest = FakeRequest
-      val result = views.html.developers.developers.render(devs, "", Map.empty, None, None, None, FakeRequest(), LoggedInUser(None), applicationMessages, mockAppConfig)
+    "list all developers" in new Setup {
+
+      val result = developersView.render(devs, "", Map.empty, None, None, None, FakeRequest(), LoggedInUser(None), messagesProvider)
       result.contentType must include( "text/html" )
       users.foreach(user => result.body must include(user.email))
     }

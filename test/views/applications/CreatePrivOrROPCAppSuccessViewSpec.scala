@@ -16,21 +16,22 @@
 
 package views.applications
 
-import config.AppConfig
-import model.{AccessType, TotpSecrets}
+import model.{AccessType, LoggedInUser, TotpSecrets}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Messages.Implicits._
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.LoggedInUser
 import utils.ViewHelpers._
-import views.html
+import views.html.applications.create_application_success
 
-class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  private val mockAppConfig = mock[AppConfig]
+  trait Setup {
+    val createApplicationSuccessView = app.injector.instanceOf[create_application_success]
+    val messagesProvider = app.injector.instanceOf[MessagesProvider]
+  }
 
   "CreatePrivOrROPCAppSuccess page" when {
     implicit val userFullName = "firstname lastname"
@@ -42,7 +43,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
     val totpSecret = "DSKL595KJDHK540K09421"
 
     "a privileged application is created" should {
-      "render" in {
+      "render" in new Setup {
 
         val accessType = Some(AccessType.PRIVILEGED)
         val totp = Some(TotpSecrets(totpSecret))
@@ -50,7 +51,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
         implicit val loggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, totp, clientId)(loggedInUser, applicationMessages, mockAppConfig)
+          () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider)
 
         page().contentType should include("text/html")
 
@@ -70,13 +71,13 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
     }
 
     "an ROPC application is created" should {
-      "render" in {
+      "render" in new Setup {
 
         val accessType = Some(AccessType.ROPC)
         val totp = None
 
         val page: () => HtmlFormat.Appendable =
-          () => html.applications.create_application_success(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), applicationMessages, mockAppConfig)
+          () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), messagesProvider)
 
         page().contentType should include("text/html")
 
@@ -95,5 +96,4 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with OneServerPerSuite
       }
     }
   }
-
 }

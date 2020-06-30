@@ -19,72 +19,72 @@ package views.applications
 import config.AppConfig
 import model.Forms._
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Messages.Implicits.applicationMessages
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.CSRFTokenHelper._
-import utils.LoggedInUser
+import utils.FakeRequestCSRFSupport._
+import model.LoggedInUser
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import utils.ViewHelpers._
-import views.html
+import views.html.applications.create_application
 
-class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with OneServerPerSuite {
+class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
+  trait Setup {
+
+    val createApplicationView = app.injector.instanceOf[create_application]
+    implicit val messagesProvider = app.injector.instanceOf[MessagesProvider]
+    implicit val request = FakeRequest().withCSRFToken
+
+    implicit val userFullName = LoggedInUser(Some("firstName lastName"))
+    val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm)
+  }
 
   "CreatePrivOrROPCApp page" should {
-
-
-    implicit val mockConfig: AppConfig = mock[AppConfig]
-      implicit val userFullName = LoggedInUser(Some("firstName lastName"))
-      implicit val request = FakeRequest().withCSRFToken
-
     "with no fields filled" should {
-
-      val page: () => HtmlFormat.Appendable = () => html.applications.create_application(createPrivOrROPCAppForm)
-
-      "have the correct content type" in {
+      "have the correct content type" in new Setup {
         page().contentType should include("text/html")
       }
 
-      "render the correct heading" in {
+      "render the correct heading" in new Setup {
         val document = Jsoup.parse(page().body)
         elementExistsByText(document, "h1", "Add privileged or ROPC application") shouldBe true
       }
 
-      "render unchecked accesstype buttons" in {
+      "render unchecked accesstype buttons" in new Setup {
         val document = Jsoup.parse(page().body)
         document.getElementById("accessTypePrivileged").hasAttr("checked") shouldBe false
         document.getElementById("accessTypeROPC").hasAttr("checked") shouldBe false
       }
 
-      "render an empty application name" in {
+      "render an empty application name" in new Setup {
         val document = Jsoup.parse(page().body)
         elementExistsByText(document, "label", "Application name") shouldBe true
         document.getElementById("applicationName").attr("value") shouldBe ""
       }
 
-      "render an empty description" in {
+      "render an empty description" in new Setup {
         val document = Jsoup.parse(page().body)
         elementExistsByText(document, "label", "Application description") shouldBe true
         document.getElementById("applicationDescription").text shouldBe ""
       }
 
-      "render an empty email address" in {
+      "render an empty email address" in new Setup {
         val document = Jsoup.parse(page().body)
         elementExistsByText(document, "label", "Administrator email address") shouldBe true
         document.getElementById("adminEmail").attr("value") shouldBe ""
       }
 
-      "renders with no errors" in {
+      "renders with no errors" in new Setup {
         val document = Jsoup.parse(page().body)
         elementExistsByAttr(document, "class", "form-field--error") shouldBe false
       }
     }
 
-    "render errors for fields when given errors in form" in {
+    "render errors for fields when given errors in form" in  new Setup {
 
-      val page: () => HtmlFormat.Appendable = () => html.applications.create_application(createPrivOrROPCAppForm
+      override val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm
         .withError("accessType", "This is an error about access type")
         .withError("applicationName", "This is an error about application name")
         .withError("applicationDescription", "This is an error about application description")
