@@ -24,7 +24,7 @@ import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider

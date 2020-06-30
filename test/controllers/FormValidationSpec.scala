@@ -20,7 +20,6 @@ import org.scalatest.Matchers
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
 
-
 class FormValidationSpec extends UnitSpec with Matchers {
   "HandleUpliftForm" should {
     val validHandleUpliftWithAcceptForm = Map("action" -> "APPROVE", "reason" -> "")

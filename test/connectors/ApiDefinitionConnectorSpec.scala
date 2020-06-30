@@ -25,7 +25,7 @@ import model._
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Matchers}
 import play.api.http.Status._
 import uk.gov.hmrc.http._

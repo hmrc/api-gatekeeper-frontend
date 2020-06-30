@@ -16,21 +16,18 @@
 
 package controllers
 
-import org.scalatest.WordSpec
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.play.test.WithFakeApplication
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.BDDMockito._
-import org.mockito.Matchers._
 import model._
 import model.Environment.PRODUCTION
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.mvc.Result
+import org.mockito.BDDMockito._
+import org.mockito.Matchers._
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiDefinitionControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
-
   implicit val materializer = fakeApplication.materializer
 
   trait Setup extends ControllerSetupBase {
@@ -39,7 +36,6 @@ class ApiDefinitionControllerSpec extends UnitSpec with WithFakeApplication with
   
   "apis" should {
     "return a csv" in new Setup {
-
       givenTheUserIsAuthorisedAndIsANormalUser()
 
       val apiVersions = List(APIVersion("1.0", APIStatus.ALPHA), APIVersion("2.0", APIStatus.STABLE))
@@ -56,7 +52,6 @@ class ApiDefinitionControllerSpec extends UnitSpec with WithFakeApplication with
     }
 
     "Forbidden if not stride auth" in new Setup {
-
       givenTheUserHasInsufficientEnrolments()
       
       val result = await(controller.apis()(aLoggedOutRequest))

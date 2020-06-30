@@ -20,7 +20,7 @@ import builder.SubscriptionsBuilder
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers
 import play.api.test.Helpers._

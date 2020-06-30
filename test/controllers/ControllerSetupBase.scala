@@ -26,11 +26,11 @@ import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import services.{ApiDefinitionService, ApplicationService, DeploymentApprovalService}
-import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
+import services.{ApiDefinitionService, DeploymentApprovalService}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
+import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}

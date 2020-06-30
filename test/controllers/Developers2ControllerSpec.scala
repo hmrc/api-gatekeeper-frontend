@@ -21,7 +21,7 @@ import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider

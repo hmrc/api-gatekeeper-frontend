@@ -19,32 +19,30 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
+import model._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
-import model.SubscriptionFields.Fields
-import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
+import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.CSRFTokenHelper._
 import utils.{TitleChecker, WithCSRFAddToken}
+import utils.CSRFTokenHelper._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
 
 class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
 
