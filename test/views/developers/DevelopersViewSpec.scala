@@ -25,11 +25,11 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{DefaultMessagesApi, Lang, MessagesImpl, MessagesProvider}
 import play.api.test.FakeRequest
 import views.html.developers.DevelopersView
-import views.{CommonViewSetup, CommonViewSpec}
+import views.CommonViewSpec
 
 class DevelopersViewSpec extends CommonViewSpec {
 
-  trait Setup extends CommonViewSetup {
+  trait Setup {
     implicit val fakeRequest = FakeRequest
 
     val developersView = app.injector.instanceOf[DevelopersView]

@@ -18,28 +18,24 @@ package views.applications
 
 import java.util.UUID
 
-import model.{LoggedInUser, _}
 import model.Forms._
+import model.{LoggedInUser, _}
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.html.applications.DeleteApplicationView
+import views.CommonViewSpec
 
-class DeleteApplicationViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+class DeleteApplicationViewSpec extends CommonViewSpec {
 
   trait Setup {
     val request = FakeRequest().withCSRFToken
     val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
-    val messageProvider = app.injector.instanceOf[MessagesProvider]
-    val adminMissingMessages = messageProvider.messages("application.administrator.missing")
-    val confirmationErrorMessages = messageProvider.messages("application.confirmation.error")
+    val adminMissingMessages = messagesProvider.messages("application.administrator.missing")
+    val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
 
     val application =
       ApplicationResponse(
@@ -65,49 +61,50 @@ class DeleteApplicationViewSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
       val result = deleteApplicationView.apply(
         applicationWithHistory, isSuperUser = true, deleteApplicationForm.fill(DeleteApplicationForm("", None))
-      )(request, LoggedInUser(None), Flash.emptyCookie, messageProvider)
+      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType should include("text/html")
-      elementExistsByText(document, "button", "Delete application") shouldBe true
+      result.contentType must include("text/html")
+      elementExistsByText(document, "button", "Delete application") mustBe true
       elementExistsByText(document, "td", "PRODUCTION")
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
       val result = deleteApplicationView.apply(
         applicationWithHistory, isSuperUser = false, deleteApplicationForm.fill(DeleteApplicationForm("", None))
-      )(request, LoggedInUser(None), Flash.emptyCookie, messageProvider)
+      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType should include("text/html")
-      elementExistsByText(document, "a", "Delete application") shouldBe false
+      result.contentType must include("text/html")
+      elementExistsByText(document, "a", "Delete application") mustBe false
     }
 
     "show error message when no collaborator is chosen" in new Setup {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", adminMissingMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messageProvider)
+        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType should include("text/html")
-      elementExistsByText(document, "p", "Choose an administrator") shouldBe true
+      result.contentType must include("text/html")
+      elementExistsByText(document, "p", "Choose an administrator") mustBe true
     }
 
     "show error message when the application name doesn't match" in new Setup {
+      println(s"****** $confirmationErrorMessages")
       val form = deleteApplicationForm.fill(
         DeleteApplicationForm("", None)).withError("applicationNameConfirmation", confirmationErrorMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messageProvider)
+        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType should include("text/html")
-      elementExistsByText(document, "p", "The application name doesn't match") shouldBe true
+      result.contentType must include("text/html")
+      elementExistsByText(document, "p", "The application name doesn't match") mustBe true
     }
   }
 }

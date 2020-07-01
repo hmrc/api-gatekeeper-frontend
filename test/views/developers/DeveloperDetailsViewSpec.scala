@@ -27,7 +27,7 @@ import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
-import views.{CommonViewSetup, CommonViewSpec}
+import views.CommonViewSpec
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
@@ -38,7 +38,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
                                     clientId: String = "a-client-id",
                                     deployedTo: String = "PRODUCTION") extends Application
 
-  trait Setup extends CommonViewSetup {
+  trait Setup {
     implicit val request = FakeRequest()
 
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
