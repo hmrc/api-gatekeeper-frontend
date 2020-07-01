@@ -25,7 +25,7 @@ import connectors.SubscriptionFieldsConnector._
 import model.Environment.Environment
 import model.SubscriptionFields._
 import model.{APIIdentifier, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
@@ -114,7 +114,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "return subscription fields for an API" in new Setup {
       when(mockHttpClient
-        .GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
+        .GET[ApplicationApiFieldValues](eqTo(getUrl))(any(), any(), any()))
         .thenReturn(Future.successful(subscriptionFields))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
@@ -124,7 +124,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns a 500" in new Setup {
 
-      when(mockHttpClient.GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApplicationApiFieldValues](eqTo(getUrl))(any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -134,7 +134,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "return empty when api-subscription-fields returns a 404" in new Setup {
 
-      when(mockHttpClient.GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApplicationApiFieldValues](eqTo(getUrl))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
@@ -147,13 +147,13 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
 
-      verify(mockProxiedHttpClient).withHeaders(any(), meq(apiKey))
+      verify(mockProxiedHttpClient).withHeaders(any(), eqTo(apiKey))
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[ApplicationApiFieldValues](meq(getUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApplicationApiFieldValues](eqTo(getUrl))(any(), any(), any()))
         .thenReturn(
           Future.failed(squidProxyRelatedBadRequest),
           Future.successful(subscriptionFields)
@@ -178,7 +178,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
 
-      when(mockHttpClient.GET[AllApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[AllApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(validResponse))
 
       private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
@@ -190,7 +190,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns a 500" in new Setup {
 
-      when(mockHttpClient.GET[AllApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[AllApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -200,7 +200,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns unexpected response" in new Setup {
 
-      when(mockHttpClient.GET[AllApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[AllApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
@@ -218,7 +218,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[AllApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[AllApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(
           Future.failed(new BadRequestException("")),
           Future.successful(validResponse)
@@ -244,7 +244,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val validResponse = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 
     "return definitions" in new Setup {
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(validResponse))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
@@ -254,7 +254,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns a 500" in new Setup {
 
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -265,7 +265,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     "when retry logic is enabled should retry on failure" in new Setup {
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(url))(any(), any(), any()))
         .thenReturn(
           Future.failed(new BadRequestException("")),
           Future.successful(validResponse)
@@ -295,10 +295,10 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       val validValuesResponse: ApplicationApiFieldValues = ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fieldsValues)
 
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(definitionsUrl))(any(), any(), any()))
         .thenReturn(Future.successful(validDefinitionsResponse))
 
-      when(mockHttpClient.GET[ApplicationApiFieldValues](meq(valuesUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApplicationApiFieldValues](eqTo(valuesUrl))(any(), any(), any()))
         .thenReturn(Future.successful(validValuesResponse))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
@@ -307,7 +307,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     }
 
     "fail when fetching field definitions returns a 500" in new Setup {
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(definitionsUrl))(any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -316,10 +316,10 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     }
 
     "fail when fetching field definition values returns a 500" in new Setup {
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(definitionsUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(definitionsUrl))(any(), any(), any()))
         .thenReturn(Future.successful(validDefinitionsResponse))
 
-      when(mockHttpClient.GET[ApiFieldDefinitions](meq(valuesUrl))(any(), any(), any()))
+      when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(valuesUrl))(any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -336,17 +336,17 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val putUrl = s"$urlPrefix/application/$clientId/context/$apiContext/version/$apiVersion"
 
     "save the fields" in new Setup {
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any())(any(),any(),any(),any()))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
 
-      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any())
+      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any())
     }
 
     "fail when api-subscription-fields returns a 500" in new Setup {
 
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any()))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.failed(upstream500Response))
 
       intercept[Upstream5xxResponse] {
@@ -356,7 +356,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "fail when api-subscription-fields returns a 404" in new Setup {
 
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](meq(putUrl), meq(subFieldsPutRequest))(any(),any(),any(),any()))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(),any(),any(),any()))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
