@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package controllers
+package mocks
 
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.test.UnitSpec
+import java.util.UUID
 
-trait ControllerBaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
-
-  lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
-
-  override def fakeApplication(): Application =
-    GuiceApplicationBuilder()
-      .configure(("metrics.jvm", false))
-      .build()
+trait TestRoles {
+  val adminRole = "adminRole" + UUID.randomUUID
+  val superUserRole = "superUserRole" + UUID.randomUUID
+  val userRole = "userRole" + UUID.randomUUID
 }

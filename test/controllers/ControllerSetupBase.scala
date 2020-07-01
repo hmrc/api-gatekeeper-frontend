@@ -20,6 +20,7 @@ import java.util.UUID
 
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import mocks.service.ApplicationServiceMock
+import mocks.TestRoles
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -34,7 +35,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
+trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with TestRoles {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockApiDefinitionService = mock[ApiDefinitionService]
@@ -69,10 +70,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
   val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)
   val aLoggedOutRequest = FakeRequest().withSession()
   val noDevs = Seq.empty[ApplicationDeveloper]
-
-  val adminRole = "adminRole" + UUID.randomUUID
-  val superUserRole = "superUserRole" + UUID.randomUUID
-  val userRole = "userRole" + UUID.randomUUID
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))

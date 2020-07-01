@@ -16,21 +16,14 @@
 
 package mocks.config
 
-import java.util.UUID
-
 import config.AppConfig
+import mocks.TestRoles
 import org.mockito.BDDMockito.`given`
-import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 
-trait AppConfigMock extends MockitoSugar {
+trait AppConfigMock extends MockitoSugar with TestRoles {
   implicit val mockConfig = mock[AppConfig]
 
-  val adminRole = "adminRole" + UUID.randomUUID
-  val superUserRole = "superUserRole" + UUID.randomUUID
-  val userRole = "userRole" + UUID.randomUUID
-
-  //TODO: pick a consistent style when vs given
   given(mockConfig.title).willReturn("Unit Test Title")
 
   given(mockConfig.userRole).willReturn(userRole)
