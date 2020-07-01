@@ -18,19 +18,15 @@ package views.applications
 
 import model.{AccessType, LoggedInUser, TotpSecrets}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.ViewHelpers._
+import views.{CommonViewSetup, CommonViewSpec}
 import views.html.applications.CreateApplicationSuccessView
 
-class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends CommonViewSetup {
     val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
-    val messagesProvider = app.injector.instanceOf[MessagesProvider]
   }
 
   "CreatePrivOrROPCAppSuccess page" when {
@@ -42,7 +38,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSui
     val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
     val totpSecret = "DSKL595KJDHK540K09421"
 
-    "a privileged application is created" should {
+    "a privileged application is created" must {
       "render" in new Setup {
 
         val accessType = Some(AccessType.PRIVILEGED)
@@ -53,24 +49,24 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSui
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider)
 
-        page().contentType should include("text/html")
+        page().contentType must include("text/html")
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName) shouldBe true
-        elementExistsByText(document, "h1", "Application added") shouldBe true
-        document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
-        elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "tr", s"Environment $env") shouldBe true
-        elementExistsByText(document, "tr", "Access type Privileged") shouldBe true
-        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe true
-        elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
+        elementExistsByText(document, "h1", appName) mustBe true
+        elementExistsByText(document, "h1", "Application added") mustBe true
+        document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") mustBe true
+        elementExistsByText(document, "tr", s"Application ID $appId") mustBe true
+        elementExistsByText(document, "tr", s"Application name $appName") mustBe true
+        elementExistsByText(document, "tr", s"Environment $env") mustBe true
+        elementExistsByText(document, "tr", "Access type Privileged") mustBe true
+        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") mustBe true
+        elementExistsByText(document, "tr", s"Client ID $clientId") mustBe true
 
       }
     }
 
-    "an ROPC application is created" should {
+    "an ROPC application is created" must {
       "render" in new Setup {
 
         val accessType = Some(AccessType.ROPC)
@@ -79,19 +75,19 @@ class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSui
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), messagesProvider)
 
-        page().contentType should include("text/html")
+        page().contentType must include("text/html")
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName) shouldBe true
-        elementExistsByText(document, "h1", "Application added") shouldBe true
-        document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "tr", s"Application ID $appId") shouldBe true
-        elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "tr", s"Environment $env") shouldBe true
-        elementExistsByText(document, "tr", "Access type ROPC") shouldBe true
-        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe false
-        elementExistsByText(document, "tr", s"Client ID $clientId") shouldBe true
+        elementExistsByText(document, "h1", appName) mustBe true
+        elementExistsByText(document, "h1", "Application added") mustBe true
+        document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") mustBe true
+        elementExistsByText(document, "tr", s"Application ID $appId") mustBe true
+        elementExistsByText(document, "tr", s"Application name $appName") mustBe true
+        elementExistsByText(document, "tr", s"Environment $env") mustBe true
+        elementExistsByText(document, "tr", "Access type ROPC") mustBe true
+        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") mustBe false
+        elementExistsByText(document, "tr", s"Client ID $clientId") mustBe true
 
       }
     }
