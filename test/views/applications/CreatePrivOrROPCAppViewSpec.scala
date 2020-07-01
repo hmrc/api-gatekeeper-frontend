@@ -19,21 +19,16 @@ package views.applications
 import model.Forms._
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
+import views.{CommonViewSetup, CommonViewSpec}
 import views.html.applications.CreateApplicationView
 
-class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
-  trait Setup {
-
+class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
+  trait Setup extends CommonViewSetup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
-    implicit val messagesProvider = app.injector.instanceOf[MessagesProvider]
     implicit val request = FakeRequest().withCSRFToken
 
     implicit val userFullName = LoggedInUser(Some("firstName lastName"))
@@ -43,41 +38,41 @@ class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with GuiceO
   "CreatePrivOrROPCApp page" should {
     "with no fields filled" should {
       "have the correct content type" in new Setup {
-        page().contentType should include("text/html")
+        page().contentType must include("text/html")
       }
 
       "render the correct heading" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "h1", "Add privileged or ROPC application") shouldBe true
+        elementExistsByText(document, "h1", "Add privileged or ROPC application") mustBe true
       }
 
       "render unchecked accesstype buttons" in new Setup {
         val document = Jsoup.parse(page().body)
-        document.getElementById("accessTypePrivileged").hasAttr("checked") shouldBe false
-        document.getElementById("accessTypeROPC").hasAttr("checked") shouldBe false
+        document.getElementById("accessTypePrivileged").hasAttr("checked") mustBe false
+        document.getElementById("accessTypeROPC").hasAttr("checked") mustBe false
       }
 
       "render an empty application name" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Application name") shouldBe true
-        document.getElementById("applicationName").attr("value") shouldBe ""
+        elementExistsByText(document, "label", "Application name") mustBe true
+        document.getElementById("applicationName").attr("value") mustBe ""
       }
 
       "render an empty description" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Application description") shouldBe true
-        document.getElementById("applicationDescription").text shouldBe ""
+        elementExistsByText(document, "label", "Application description") mustBe true
+        document.getElementById("applicationDescription").text mustBe ""
       }
 
       "render an empty email address" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Administrator email address") shouldBe true
-        document.getElementById("adminEmail").attr("value") shouldBe ""
+        elementExistsByText(document, "label", "Administrator email address") mustBe true
+        document.getElementById("adminEmail").attr("value") mustBe ""
       }
 
       "renders with no errors" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByAttr(document, "class", "form-field--error") shouldBe false
+        elementExistsByAttr(document, "class", "form-field--error") mustBe false
       }
     }
 
@@ -91,10 +86,10 @@ class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with GuiceO
       )
 
       val document = Jsoup.parse(page().body)
-      document.body.toString.contains("This is an error about access type") shouldBe true
-      document.body.toString.contains("This is an error about application name") shouldBe true
-      document.body.toString.contains("This is an error about application description") shouldBe true
-      document.body.toString.contains("This is an error about admin email") shouldBe true
+      document.body.toString.contains("This is an error about access type") mustBe true
+      document.body.toString.contains("This is an error about application name") mustBe true
+      document.body.toString.contains("This is an error about application description") mustBe true
+      document.body.toString.contains("This is an error about admin email") mustBe true
     }
   }
 }
