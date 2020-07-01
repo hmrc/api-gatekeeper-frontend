@@ -21,14 +21,14 @@
 @import model.State._
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[UnblockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[BlockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${applicationConfig.title} - Unblock Application") {
+@main(title = s"${applicationConfig.title} - Block Application") {
 
 <div class="">
 
@@ -68,10 +68,10 @@
 
     <div>
     @if(isSuperUser) {
-        @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id.toString), 'class -> "form") {
+        @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id.toString), 'class -> "form") {
             <div>
                 <p class="h2-heading">Application name</p>
-                <p>Enter the application name to confirm unblocking</p>
+                <p>Enter the application name to confirm blocking</p>
                 <div class="@if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
                     @fieldError(form.errors, "applicationNameConfirmation")
                     <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="@if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
@@ -81,7 +81,7 @@
             @helper.CSRF.formField
 
             <div class="form-field form-field--submit">
-                <button id="unblock-application" class="button--alert text--center flush--right" type="submit">Unblock application</button>
+                <button id="block-application" class="button--alert text--center flush--right" type="submit">Block application</button>
                 <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="secondary-button button--link">Cancel</a>
             </div>
 

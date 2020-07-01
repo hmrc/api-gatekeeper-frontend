@@ -18,11 +18,11 @@
 @import include._
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[Set[String]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Manage rate limit tier") {
+@main(title = s"${applicationConfig.title} - Manage scopes") {
 
 <div class="">
 
@@ -32,37 +32,31 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage rate limit tier</li>
+            <li class="breadcrumb-nav__item">Manage scopes</li>
         </ul>
     </nav>
-    <h1>Manage rate limit tier</h1>
 
-    <div class="notice">
-        <i class="icon icon-important">
-            <span class="visually-hidden">Warning</span>
-        </i>
-        <strong class="bold-small">
-            Tell the application's administrators that any deprecated APIs are not re-subscribed when we change the rate limit.
-        </strong>
-    </div>
-    <br>
+    <h1>Manage scopes</h1>
 
-    @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id.toString), 'class -> "form") {
+    @helper.form(action = routes.ApplicationController.updateScopes(application.id.toString), 'class -> "form") {
         <div>
             @helper.CSRF.formField
 
-            @for(t <- RateLimitTier.values) {
-                <fieldset class="inline">
-                <label class="block-label" style="width: 100%;">
-                    <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>
-                    @RateLimitTier.displayedTier(t)
-                </label>
-                </fieldset>
-            }
+            <table>
+                <tr>
+                    <th>Scopes</th>
+                    <td>
+                        <div class="@if(form.errors("scopes").nonEmpty) {form-field--error}">
+                            @fieldError(form.errors, "scopes")
+                            <textarea name="scopes" id="scopes" cols="50" rows="5" class="@if(form.errors("scopes").nonEmpty) {error-field}">@form.data.get("scopes")</textarea>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="form-field form-field--submit">
             <button id="submit" class="button" type="submit">Save and return</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button button--link">Cancel</a>
+            <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="button--link">Cancel</a>
         </div>
     }
 </div>

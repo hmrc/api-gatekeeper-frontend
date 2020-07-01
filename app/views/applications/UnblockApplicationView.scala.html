@@ -21,14 +21,14 @@
 @import model.State._
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[UnblockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${applicationConfig.title} - Delete Application") {
+@main(title = s"${applicationConfig.title} - Unblock Application") {
 
 <div class="">
 
@@ -67,45 +67,21 @@
     </table>
 
     <div>
-        <p>You must check with all administrators before deleting this application.</p>
-    </div>
-
-    <div>
     @if(isSuperUser) {
-        @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id.toString), 'class -> "form") {
+        @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id.toString), 'class -> "form") {
             <div>
-                <p class="h2-heading">Which administrator requested the deletion of this application?</p>
-
-                <div class="@if(form.errors("collaboratorEmail").nonEmpty) {form-field--error}">
-                    <fieldset class="inline" class="@if(form.errors("collaboratorEmail").nonEmpty) {error-field}">
-                        @fieldError(form.errors, "collaboratorEmail")
-                        @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
-                            <label class="block-label" style="width: 100%;">
-                                <div>
-                                    {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress) {
-                                        <input name="collaboratorEmail" type="radio" value={c.emailAddress} checked="">{c.emailAddress}</input>
-                                    }
-                                    else {
-                                        <input name="collaboratorEmail" type="radio" value={c.emailAddress}>{c.emailAddress}</input>
-                                    }}
-                                </div>
-                            </label>
-                        )}
-                    </fieldset>
-                </div>
                 <p class="h2-heading">Application name</p>
-                <p>Enter the application name to confirm deletion</p>
+                <p>Enter the application name to confirm unblocking</p>
                 <div class="@if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
                     @fieldError(form.errors, "applicationNameConfirmation")
                     <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="@if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
                 </div>
             </div>
 
-
             @helper.CSRF.formField
 
             <div class="form-field form-field--submit">
-                <button id="delete-application" class="button--alert text--center flush--right" type="submit">Delete application</button>
+                <button id="unblock-application" class="button--alert text--center flush--right" type="submit">Unblock application</button>
                 <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="secondary-button button--link">Cancel</a>
             </div>
 

@@ -17,14 +17,14 @@
 @import model._
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
 @access = @{application.access}
 
-@main(title = s"${applicationConfig.title} - Application Deleted") {
+@main(title = s"${applicationConfig.title} - Application Blocked") {
 
 <div class="">
     <nav class="breadcrumb-nav">
@@ -44,9 +44,8 @@
         <h1 class="flush--top">@application.name</h1>
     </header>
     <div class="transaction-banner--complete">
-        <h1 class="transaction-banner--heading">Application deleted</h1>
+        <h1 class="transaction-banner--heading">Application blocked</h1>
     </div>
-    <p>We've sent an email to all team members to let them know.</p>
     <div>
         @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
             @helper.CSRF.formField

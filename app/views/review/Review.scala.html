@@ -19,7 +19,7 @@
 @import config.AppConfig
 @import model.LoggedInUser
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 

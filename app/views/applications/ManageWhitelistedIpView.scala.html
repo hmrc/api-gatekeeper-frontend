@@ -19,7 +19,7 @@
 @import model.Forms.WhitelistedIpForm
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 

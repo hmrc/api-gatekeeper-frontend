@@ -31,7 +31,7 @@ import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
-import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
+import views.html.applications.subscriptionConfiguration._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,8 +40,8 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     val subscriptionFieldsService: SubscriptionFieldsService,
                                                     val authConnector: AuthConnector,
                                                     mcc: MessagesControllerComponents,
-                                                    listSubscriptionConfiguration: list_subscription_configuration,
-                                                    editSubscriptionConfiguration: edit_subscription_configuration,
+                                                    listSubscriptionConfiguration: ListSubscriptionConfirmationView,
+                                                    editSubscriptionConfiguration: EditSubscriptionConfirmationView,
                                                     override val errorTemplate: ErrorTemplate,
                                                     forbiddenView: Forbidden
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)

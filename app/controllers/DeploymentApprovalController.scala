@@ -28,15 +28,15 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
-import views.html.deploymentApproval.{DeploymentApproval, DeploymentReview}
+import views.html.deploymentApproval._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              deploymentApprovalService: DeploymentApprovalService,
                                              mcc: MessagesControllerComponents,
-                                             deploymentApproval: DeploymentApproval,
-                                             deploymentReview: DeploymentReview,
+                                             deploymentApproval: DeploymentApprovalView,
+                                             deploymentReview: DeploymentReviewView,
                                              override val errorTemplate: ErrorTemplate,
                                              forbiddenView: Forbidden
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)

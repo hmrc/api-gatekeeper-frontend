@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, SubscriptionEnhancer}
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications._
-import views.html.approvedApplication.Approved
+import views.html.approvedApplication.ApprovedView
 import views.html.review.Review
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,28 +45,28 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       developerService: DeveloperService,
                                       override val authConnector: AuthConnector,
                                       mcc: MessagesControllerComponents,
-                                      applicationsView: applications,
-                                      applicationView: application,
-                                      manageSubscriptionsView: manage_subscriptions,
-                                      manageAccessOverridesView: manage_access_overrides,
-                                      manageScopesView: manage_scopes,
-                                      manageWhitelistedIpView: manage_whitelisted_ip,
-                                      manageRateLimitView: manage_rate_limit,
-                                      deleteApplicationView: delete_application,
-                                      deleteApplicationSuccessView: delete_application_success,
+                                      applicationsView: ApplicationsView,
+                                      applicationView: ApplicationView,
+                                      manageSubscriptionsView: ManageSubscriptionsView,
+                                      manageAccessOverridesView: ManageAccessOverridesView,
+                                      manageScopesView: ManageScopesView,
+                                      manageWhitelistedIpView: ManageWhitelistedIpView,
+                                      manageRateLimitView: ManageRateLimitView,
+                                      deleteApplicationView: DeleteApplicationView,
+                                      deleteApplicationSuccessView: DeleteApplicationSuccessView,
                                       override val errorTemplate: ErrorTemplate,
                                       forbiddenView: Forbidden,
-                                      blockApplicationView: block_application,
-                                      blockApplicationSuccessView: block_application_success,
-                                      unblockApplicationView: unblock_application,
-                                      unblockApplicationSuccessView: unblock_application_success,
+                                      blockApplicationView: BlockApplicationView,
+                                      blockApplicationSuccessView: BlockApplicationSuccessView,
+                                      unblockApplicationView: UnblockApplicationView,
+                                      unblockApplicationSuccessView: UnblockApplicationSuccessView,
                                       reviewView: Review,
-                                      approvedView: Approved,
-                                      createApplicationView: create_application,
-                                      createApplicationSuccessView: create_application_success,
-                                      manageTeamMembersView: manage_team_members,
-                                      addTeamMemberView: add_team_member,
-                                      removeTeamMemberView: remove_team_member
+                                      approvedView: ApprovedView,
+                                      createApplicationView: CreateApplicationView,
+                                      createApplicationSuccessView: CreateApplicationSuccessView,
+                                      manageTeamMembersView: ManageTeamMembersView,
+                                      addTeamMemberView: AddTeamMemberView,
+                                      removeTeamMemberView: RemoveTeamMemberView
                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 

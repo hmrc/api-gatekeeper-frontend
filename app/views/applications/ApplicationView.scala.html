@@ -22,7 +22,7 @@
 @import views.helper.EmailsFormatter
 @import config.AppConfig
 
-@this(main: main, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 

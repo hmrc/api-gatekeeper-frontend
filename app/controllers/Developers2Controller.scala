@@ -26,7 +26,7 @@ import services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, Forbidden}
-import views.html.developers.Developers2
+import views.html.developers.Developers2View
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +35,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developerService: DeveloperService,
                                       val apiDefinitionService: ApiDefinitionService,
                                       mcc: MessagesControllerComponents,
-                                      developersView: Developers2,
+                                      developersView: Developers2View,
                                       forbiddenView: Forbidden,
                                       override val errorTemplate: ErrorTemplate,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
