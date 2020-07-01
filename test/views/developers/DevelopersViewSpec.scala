@@ -16,21 +16,25 @@
 
 package views.developers
 
+import java.util.Locale
+
 import model.{LoggedInUser, _}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
+import play.api.i18n.{DefaultMessagesApi, Lang, MessagesImpl, MessagesProvider}
 import play.api.test.FakeRequest
 import views.html.developers.DevelopersView
+import views.{CommonViewSetup, CommonViewSpec}
 
-class DevelopersViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
+class DevelopersViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends CommonViewSetup {
     implicit val fakeRequest = FakeRequest
+
     val developersView = app.injector.instanceOf[DevelopersView]
-    val messagesProvider = app.injector.instanceOf[MessagesProvider]
   }
+
   val users = Seq(
     User("sample@example.com", "Sample", "Email", Some(false)),
     User("another@example.com", "Sample2", "Email", Some(true)),

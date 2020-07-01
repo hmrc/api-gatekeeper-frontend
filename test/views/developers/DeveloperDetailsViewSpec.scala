@@ -27,8 +27,9 @@ import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
+import views.{CommonViewSetup, CommonViewSpec}
 
-class DeveloperDetailsViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
+class DeveloperDetailsViewSpec extends CommonViewSpec {
 
   sealed case class TestApplication(id: UUID,
                                     name: String,
@@ -37,11 +38,10 @@ class DeveloperDetailsViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mo
                                     clientId: String = "a-client-id",
                                     deployedTo: String = "PRODUCTION") extends Application
 
-  trait Setup {
+  trait Setup extends CommonViewSetup {
     implicit val request = FakeRequest()
 
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
-    val messagesProvider = app.injector.instanceOf[MessagesProvider]
 
     def testDeveloperDetails(developer: Developer) = {
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)

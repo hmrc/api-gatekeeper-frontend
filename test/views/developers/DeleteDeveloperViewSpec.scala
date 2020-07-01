@@ -18,19 +18,16 @@ package views.developers
 
 import java.util.UUID
 
-import config.AppConfig
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.html.developers.DeleteDeveloperView
+import views.CommonViewSpec
 
-class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+class DeleteDeveloperViewSpec extends CommonViewSpec {
 
   sealed case class TestApplication(name: String,
                                     collaborators: Set[Collaborator],
@@ -44,7 +41,6 @@ class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with Moc
   "delete developer view" should {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val appConfig = mock[AppConfig]
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
@@ -54,9 +50,9 @@ class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with Moc
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
-      elementExistsById(document, "submit") shouldBe true
-      elementExistsById(document, "cancel") shouldBe true
-      elementExistsById(document, "finish") shouldBe false
+      elementExistsById(document, "submit") mustBe true
+      elementExistsById(document, "cancel") mustBe true
+      elementExistsById(document, "finish") mustBe false
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
@@ -64,9 +60,9 @@ class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with Moc
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
-      elementExistsById(document, "submit") shouldBe false
-      elementExistsById(document, "cancel") shouldBe false
-      elementExistsById(document, "finish") shouldBe true
+      elementExistsById(document, "submit") mustBe false
+      elementExistsById(document, "cancel") mustBe false
+      elementExistsById(document, "finish") mustBe true
     }
   }
 }
