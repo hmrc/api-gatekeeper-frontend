@@ -18,9 +18,9 @@ package config
 
 import akka.pattern.FutureTimeoutSupport
 import com.google.inject.name.Names
-import connectors.{DeveloperConnector, DummyDeveloperConnector, HttpDeveloperConnector, ProductionSubscriptionFieldsConnector, SandboxSubscriptionFieldsConnector, SubscriptionFieldsConnector}
-import play.api.inject.Module
+import connectors._
 import play.api.{Configuration, Environment}
+import play.api.inject.Module
 import services.SubscriptionFieldsService.SubscriptionFieldsConnector
 import utils.FutureTimeoutSupportImpl
 

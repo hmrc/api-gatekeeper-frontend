@@ -47,8 +47,7 @@ lazy val microservice =  (project in file("."))
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
       routesGenerator := InjectedRoutesGenerator,
       shellPrompt := (_ => "> "),
-      majorVersion := 0,
-      logLevel := Level.Error
+      majorVersion := 0
     )
     .configs(IntegrationTest)
     .settings(
