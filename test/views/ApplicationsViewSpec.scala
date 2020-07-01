@@ -36,22 +36,21 @@ import java.util.UUID
 
 import config.AppConfig
 import model.APIStatus._
-import model._
+import model.{LoggedInUser, _}
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.scalatest.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import model.LoggedInUser
-import play.api.i18n.MessagesProvider
-import views.html.applications.applications
+import views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends UnitSpec with Matchers with MockitoSugar with GuiceOneAppPerSuite {
 
   trait Setup {
-    val applicationsView = app.injector.instanceOf[applications]
+    val applicationsView = app.injector.instanceOf[ApplicationsView]
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
     implicit val loggedInUser = LoggedInUser(Some("Bob Dole"))

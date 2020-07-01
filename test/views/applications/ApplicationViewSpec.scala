@@ -30,13 +30,13 @@ import play.api.i18n.MessagesProvider
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
-import views.html.applications.application
+import views.html.applications.ApplicationView
 
 class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with SubscriptionsBuilder {
 
   trait Setup {
     implicit val request = FakeRequest()
-    val applicationView = app.injector.instanceOf[application]
+    val applicationView = app.injector.instanceOf[ApplicationView]
     val messagesProvider = app.injector.instanceOf[MessagesProvider]
 
 

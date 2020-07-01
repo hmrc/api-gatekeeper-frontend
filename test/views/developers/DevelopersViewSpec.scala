@@ -22,13 +22,13 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
-import views.html.developers.Developers
+import views.html.developers.DevelopersView
 
 class DevelopersViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
   trait Setup {
     implicit val fakeRequest = FakeRequest
-    val developersView = app.injector.instanceOf[Developers]
+    val developersView = app.injector.instanceOf[DevelopersView]
     val messagesProvider = app.injector.instanceOf[MessagesProvider]
   }
   val users = Seq(

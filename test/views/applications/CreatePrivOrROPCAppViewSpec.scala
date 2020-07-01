@@ -16,24 +16,23 @@
 
 package views.applications
 
-import config.AppConfig
 import model.Forms._
+import model.LoggedInUser
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
-import model.LoggedInUser
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import utils.ViewHelpers._
-import views.html.applications.create_application
+import views.html.applications.CreateApplicationView
 
 class CreatePrivOrROPCAppViewSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
   trait Setup {
 
-    val createApplicationView = app.injector.instanceOf[create_application]
+    val createApplicationView = app.injector.instanceOf[CreateApplicationView]
     implicit val messagesProvider = app.injector.instanceOf[MessagesProvider]
     implicit val request = FakeRequest().withCSRFToken
 

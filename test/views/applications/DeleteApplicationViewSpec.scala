@@ -18,8 +18,8 @@ package views.applications
 
 import java.util.UUID
 
-import model.Forms._
 import model.{LoggedInUser, _}
+import model.Forms._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,13 +30,13 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.html.applications.delete_application
+import views.html.applications.DeleteApplicationView
 
 class DeleteApplicationViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   trait Setup {
     val request = FakeRequest().withCSRFToken
-    val deleteApplicationView = app.injector.instanceOf[delete_application]
+    val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
     val messageProvider = app.injector.instanceOf[MessagesProvider]
     val adminMissingMessages = messageProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messageProvider.messages("application.confirmation.error")

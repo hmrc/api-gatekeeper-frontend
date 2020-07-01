@@ -24,12 +24,12 @@ import play.api.i18n.MessagesProvider
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ViewHelpers._
-import views.html.applications.create_application_success
+import views.html.applications.CreateApplicationSuccessView
 
 class CreatePrivOrROPCAppSuccessViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   trait Setup {
-    val createApplicationSuccessView = app.injector.instanceOf[create_application_success]
+    val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
     val messagesProvider = app.injector.instanceOf[MessagesProvider]
   }
 

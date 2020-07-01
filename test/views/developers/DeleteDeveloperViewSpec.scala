@@ -19,17 +19,16 @@ package views.developers
 import java.util.UUID
 
 import config.AppConfig
-import model._
+import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.FakeRequestCSRFSupport._
-import model.LoggedInUser
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.mvc.MessagesControllerComponents
 import utils.ViewHelpers._
-import views.html.developers.DeleteDeveloper
+import views.html.developers.DeleteDeveloperView
 
 class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -48,7 +47,7 @@ class DeleteDeveloperViewSpec extends UnitSpec with GuiceOneAppPerSuite with Moc
     implicit val appConfig = mock[AppConfig]
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
-    val deleteDeveloper = app.injector.instanceOf[DeleteDeveloper]
+    val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))

@@ -20,30 +20,29 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import mocks.config.AppConfigMock
+import model._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
-import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
-import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
+import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
+import utils.FakeRequestCSRFSupport._
 import views.html.{ErrorTemplate, Forbidden}
 import views.html.applications._
-import views.html.approvedApplication.Approved
+import views.html.approvedApplication.ApprovedView
 import views.html.review.Review
-
-import utils.FakeRequestCSRFSupport._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,26 +53,26 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
-  private lazy val applicationsView = app.injector.instanceOf[applications]
-  private lazy val applicationView = app.injector.instanceOf[application]
-  private lazy val manageSubscriptionsView = app.injector.instanceOf[manage_subscriptions]
-  private lazy val manageAccessOverridesView = app.injector.instanceOf[manage_access_overrides]
-  private lazy val manageScopesView = app.injector.instanceOf[manage_scopes]
-  private lazy val manageWhitelistedIpView = app.injector.instanceOf[manage_whitelisted_ip]
-  private lazy val manageRateLimitView = app.injector.instanceOf[manage_rate_limit]
-  private lazy val deleteApplicationView = app.injector.instanceOf[delete_application]
-  private lazy val deleteApplicationSuccessView = app.injector.instanceOf[delete_application_success]
-  private lazy val blockApplicationView = app.injector.instanceOf[block_application]
-  private lazy val blockApplicationSuccessView = app.injector.instanceOf[block_application_success]
-  private lazy val unblockApplicationView = app.injector.instanceOf[unblock_application]
-  private lazy val unblockApplicationSuccessView = app.injector.instanceOf[unblock_application_success]
+  private lazy val applicationsView = app.injector.instanceOf[ApplicationsView]
+  private lazy val applicationView = app.injector.instanceOf[ApplicationView]
+  private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
+  private lazy val manageAccessOverridesView = app.injector.instanceOf[ManageAccessOverridesView]
+  private lazy val manageScopesView = app.injector.instanceOf[ManageScopesView]
+  private lazy val manageWhitelistedIpView = app.injector.instanceOf[ManageWhitelistedIpView]
+  private lazy val manageRateLimitView = app.injector.instanceOf[ManageRateLimitView]
+  private lazy val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
+  private lazy val deleteApplicationSuccessView = app.injector.instanceOf[DeleteApplicationSuccessView]
+  private lazy val blockApplicationView = app.injector.instanceOf[BlockApplicationView]
+  private lazy val blockApplicationSuccessView = app.injector.instanceOf[BlockApplicationSuccessView]
+  private lazy val unblockApplicationView = app.injector.instanceOf[UnblockApplicationView]
+  private lazy val unblockApplicationSuccessView = app.injector.instanceOf[UnblockApplicationSuccessView]
   private lazy val reviewView = app.injector.instanceOf[Review]
-  private lazy val approvedView = app.injector.instanceOf[Approved]
-  private lazy val createApplicationView = app.injector.instanceOf[create_application]
-  private lazy val createApplicationSuccessView = app.injector.instanceOf[create_application_success]
-  private lazy val manageTeamMembersView = app.injector.instanceOf[manage_team_members]
-  private lazy val addTeamMemberView = app.injector.instanceOf[add_team_member]
-  private lazy val removeTeamMemberView = app.injector.instanceOf[remove_team_member]
+  private lazy val approvedView = app.injector.instanceOf[ApprovedView]
+  private lazy val createApplicationView = app.injector.instanceOf[CreateApplicationView]
+  private lazy val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
+  private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
+  private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
+  private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
 
   running(fakeApplication) {
 

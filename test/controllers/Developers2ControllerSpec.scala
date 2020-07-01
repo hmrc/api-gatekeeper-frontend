@@ -17,21 +17,19 @@
 package controllers
 
 import mocks.config.AppConfigMock
-import model.DeveloperStatusFilter.VerifiedStatus
 import model._
+import model.DeveloperStatusFilter.VerifiedStatus
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
-import views.html.developers.Developers2
 import views.html.{ErrorTemplate, Forbidden}
+import views.html.developers.Developers2View
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -42,7 +40,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
-  private lazy val developersView = app.injector.instanceOf[Developers2]
+  private lazy val developersView = app.injector.instanceOf[Developers2View]
 
   Helpers.running(fakeApplication) {
 

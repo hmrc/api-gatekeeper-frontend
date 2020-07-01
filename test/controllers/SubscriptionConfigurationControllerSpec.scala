@@ -27,8 +27,8 @@ import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.{TitleChecker, WithCSRFAddToken}
-import views.html.applications.subscriptionConfiguration.{edit_subscription_configuration, list_subscription_configuration}
 import views.html.{ErrorTemplate, Forbidden}
+import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfirmationView, ListSubscriptionConfirmationView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -40,8 +40,8 @@ class SubscriptionConfigurationControllerSpec
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
-  private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[list_subscription_configuration]
-  private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[edit_subscription_configuration]
+  private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfirmationView]
+  private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfirmationView]
 
   trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock with AppConfigMock {
 

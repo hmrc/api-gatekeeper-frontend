@@ -24,17 +24,15 @@ import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
+import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
-import views.html.developers.{DeleteDeveloper, DeleteDeveloperSuccess, DeveloperDetails, Developers, RemoveMfa, RemoveMfaSuccess}
 import views.html.{ErrorTemplate, Forbidden}
+import views.html.developers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -45,12 +43,12 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
-  private lazy val developersView = app.injector.instanceOf[Developers]
-  private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetails]
-  private lazy val removeMfaView = app.injector.instanceOf[RemoveMfa]
-  private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccess]
-  private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloper]
-  private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccess]
+  private lazy val developersView = app.injector.instanceOf[DevelopersView]
+  private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetailsView]
+  private lazy val removeMfaView = app.injector.instanceOf[RemoveMfaView]
+  private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccessView]
+  private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloperView]
+  private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccessView]
 
   Helpers.running(fakeApplication) {
 

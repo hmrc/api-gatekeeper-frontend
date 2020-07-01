@@ -20,19 +20,18 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import mocks.config.AppConfigMock
-import model.Environment._
 import model._
+import model.Environment._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
-import views.html.deploymentApproval.{DeploymentApproval, DeploymentReview}
 import views.html.{ErrorTemplate, Forbidden}
+import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -42,8 +41,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
-  private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApproval]
-  private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReview]
+  private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
+  private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase with AppConfigMock {
 

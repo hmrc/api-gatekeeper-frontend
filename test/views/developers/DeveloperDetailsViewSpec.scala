@@ -26,7 +26,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
-import views.html.developers.DeveloperDetails
+import views.html.developers.DeveloperDetailsView
 
 class DeveloperDetailsViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -40,7 +40,7 @@ class DeveloperDetailsViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mo
   trait Setup {
     implicit val request = FakeRequest()
 
-    val developerDetails = app.injector.instanceOf[DeveloperDetails]
+    val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
     val messagesProvider = app.injector.instanceOf[MessagesProvider]
 
     def testDeveloperDetails(developer: Developer) = {
