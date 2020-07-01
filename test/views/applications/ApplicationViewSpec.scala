@@ -23,22 +23,16 @@ import model.{LoggedInUser, _}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.html.applications.ApplicationView
+import views.CommonViewSpec
 
-class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with SubscriptionsBuilder {
-
+class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
   trait Setup {
     implicit val request = FakeRequest()
     val applicationView = app.injector.instanceOf[ApplicationView]
-    val messagesProvider = app.injector.instanceOf[MessagesProvider]
-
 
     val developers = List[User] {
       new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -64,7 +58,6 @@ class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mockito
     val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
 
     "show application with no check information" in new Setup {
-
       val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
         isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
@@ -76,7 +69,6 @@ class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mockito
     }
 
     "show application with check information but no terms of use agreed" in new Setup {
-
       val checkInformation = CheckInformation()
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
         UUID.randomUUID(),
@@ -105,14 +97,12 @@ class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mockito
     }
 
     "show application with check information and terms of use agreed" in new Setup {
-
       val termsOfUseVersion = "1.0"
       val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
       val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
 
 
       val applicationWithTermsOfUse = ApplicationResponse(
-
         UUID.randomUUID(),
         "clientid",
         "gatewayId",
@@ -126,6 +116,7 @@ class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mockito
         ApplicationState(),
         checkInformation = Option(checkInformation)
       )
+
       val result = applicationView.render(
         developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, Seq.empty,
         isAtLeastSuperUser = false, isAdmin = false, Some(termsOfUseAgreement), request, LoggedInUser(None),
@@ -142,7 +133,6 @@ class ApplicationViewSpec extends PlaySpec with GuiceOneAppPerSuite with Mockito
     }
 
     "show application with check information and multiple terms of use agreed" in new Setup {
-
       val oldVersion = "1.0"
       val oldTOUAgreement = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
       val newVersion = "1.1"
