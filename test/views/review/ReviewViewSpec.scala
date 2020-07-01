@@ -22,22 +22,17 @@ import controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import uk.gov.hmrc.time.DateTimeUtils
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
+import views.{CommonViewSetup, CommonViewSpec}
 import views.html.review.Review
 
-class ReviewViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
+class ReviewViewSpec extends CommonViewSpec {
 
-  trait Setup extends AppConfigMock {
+  trait Setup extends CommonViewSetup with AppConfigMock {
     implicit val request = FakeRequest().withCSRFToken
-
-    implicit val messagesProvider =  app.injector.instanceOf[MessagesProvider]
 
     val reviewView = app.injector.instanceOf[Review]
 
