@@ -49,7 +49,7 @@ import views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
-  trait Setup extends CommonViewSetup {
+  trait Setup {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
     implicit val mockConfig: AppConfig = mock[AppConfig]

@@ -23,11 +23,11 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.{CommonViewSetup, CommonViewSpec}
+import views.CommonViewSpec
 import views.html.applications.CreateApplicationView
 
 class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
-  trait Setup extends CommonViewSetup {
+  trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
     implicit val request = FakeRequest().withCSRFToken
 

@@ -26,12 +26,12 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.time.DateTimeUtils
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.{CommonViewSetup, CommonViewSpec}
+import views.CommonViewSpec
 import views.html.review.Review
 
 class ReviewViewSpec extends CommonViewSpec {
 
-  trait Setup extends CommonViewSetup with AppConfigMock {
+  trait Setup extends AppConfigMock {
     implicit val request = FakeRequest().withCSRFToken
 
     val reviewView = app.injector.instanceOf[Review]

@@ -20,12 +20,12 @@ import model.{AccessType, LoggedInUser, TotpSecrets}
 import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 import utils.ViewHelpers._
-import views.{CommonViewSetup, CommonViewSpec}
+import views.CommonViewSpec
 import views.html.applications.CreateApplicationSuccessView
 
 class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
-  trait Setup extends CommonViewSetup {
+  trait Setup {
     val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
   }
 
