@@ -17,6 +17,7 @@
 package controllers
 
 import builder.SubscriptionsBuilder
+import config.AppConfig
 import mocks.config.AppConfigMock
 import mocks.service.SubscriptionFieldsServiceMock
 import org.mockito.BDDMockito.`given`
@@ -43,11 +44,9 @@ class SubscriptionConfigurationControllerSpec
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfirmationView]
   private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfirmationView]
 
-  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock with AppConfigMock {
+  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
 
-    given(mockConfig.title).willReturn("Unit Test Title")
-
-    val controller = new SubscriptionConfigurationController(
+    lazy val controller = new SubscriptionConfigurationController (
       mockApplicationService,
       mockSubscriptionFieldsService,
       mockAuthConnector,
@@ -68,12 +67,13 @@ class SubscriptionConfigurationControllerSpec
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new Setup {
+
       givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
-
+      println(s"****** RESULT: $result")
       status(result) shouldBe OK
 
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
@@ -118,7 +118,7 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${mockConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
 
       val responseBody = Helpers.contentAsString(result)
 
