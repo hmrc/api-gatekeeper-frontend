@@ -18,8 +18,8 @@ package views.applications
 
 import java.util.UUID
 
-import model.Forms._
 import model.{LoggedInUser, _}
+import model.Forms._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
@@ -56,9 +56,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
   }
 
   "delete application view" should {
-
     "show application information, including superuser only actions, when logged in as superuser" in new Setup {
-
       val result = deleteApplicationView.apply(
         applicationWithHistory, isSuperUser = true, deleteApplicationForm.fill(DeleteApplicationForm("", None))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
@@ -94,7 +92,6 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     }
 
     "show error message when the application name doesn't match" in new Setup {
-      println(s"****** $confirmationErrorMessages")
       val form = deleteApplicationForm.fill(
         DeleteApplicationForm("", None)).withError("applicationNameConfirmation", confirmationErrorMessages)
 
