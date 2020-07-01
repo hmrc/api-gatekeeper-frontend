@@ -53,6 +53,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
     }
     val actionReturns200Body: Request[_] => Future[Result] = _ => Future.successful(Results.Ok)
 
+
     val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
     val userToken = GatekeeperSessionKeys.LoggedInUser -> "userName"
 

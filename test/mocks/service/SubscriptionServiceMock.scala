@@ -16,17 +16,16 @@
 
 package mocks.service
 
-import model.{Application, ApplicationWithHistory, Subscription}
+import model.Application
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
+import services.SubscriptionFieldsService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
-import services.SubscriptionFieldsService
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsFailureResponse}
 
 trait SubscriptionFieldsServiceMock extends MockitoSugar {
 
