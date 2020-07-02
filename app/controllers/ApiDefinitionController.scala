@@ -25,7 +25,7 @@ import play.api.mvc.MessagesControllerComponents
 import services.ApiDefinitionService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +36,7 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
                                         override val authConnector: AuthConnector,
                                         mcc: MessagesControllerComponents,
                                         override val errorTemplate: ErrorTemplate,
-                                        forbiddenView: Forbidden)
+                                        forbiddenView: ForbiddenView)
                                        (implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper {
     

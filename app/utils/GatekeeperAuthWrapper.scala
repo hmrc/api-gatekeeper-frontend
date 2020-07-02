@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import views.html.Forbidden
+import views.html.ForbiddenView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,7 +36,7 @@ trait GatekeeperAuthWrapper extends I18nSupport{
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: Forbidden)(body: LoggedInRequest[_] => Future[Result])
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: ForbiddenView)(body: LoggedInRequest[_] => Future[Result])
                      (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
 

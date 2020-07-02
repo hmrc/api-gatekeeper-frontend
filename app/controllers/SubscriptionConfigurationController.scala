@@ -30,7 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{ApplicationService, SubscriptionFieldsService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications.subscriptionConfiguration._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +43,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     listSubscriptionConfiguration: ListSubscriptionConfirmationView,
                                                     editSubscriptionConfiguration: EditSubscriptionConfirmationView,
                                                     override val errorTemplate: ErrorTemplate,
-                                                    forbiddenView: Forbidden
+                                                    forbiddenView: ForbiddenView
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 

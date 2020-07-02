@@ -27,7 +27,7 @@ import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.deploymentApproval._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +38,7 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              deploymentApproval: DeploymentApprovalView,
                                              deploymentReview: DeploymentReviewView,
                                              override val errorTemplate: ErrorTemplate,
-                                             forbiddenView: Forbidden
+                                             forbiddenView: ForbiddenView
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 

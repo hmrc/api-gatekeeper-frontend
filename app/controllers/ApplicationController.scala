@@ -31,10 +31,10 @@ import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, SubscriptionEnhancer}
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
 import views.html.approvedApplication.ApprovedView
-import views.html.review.Review
+import views.html.review.ReviewView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -55,12 +55,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       deleteApplicationView: DeleteApplicationView,
                                       deleteApplicationSuccessView: DeleteApplicationSuccessView,
                                       override val errorTemplate: ErrorTemplate,
-                                      forbiddenView: Forbidden,
+                                      forbiddenView: ForbiddenView,
                                       blockApplicationView: BlockApplicationView,
                                       blockApplicationSuccessView: BlockApplicationSuccessView,
                                       unblockApplicationView: UnblockApplicationView,
                                       unblockApplicationSuccessView: UnblockApplicationSuccessView,
-                                      reviewView: Review,
+                                      reviewView: ReviewView,
                                       approvedView: ApprovedView,
                                       createApplicationView: CreateApplicationView,
                                       createApplicationSuccessView: CreateApplicationSuccessView,
