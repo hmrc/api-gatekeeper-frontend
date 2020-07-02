@@ -29,6 +29,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
+import play.api.libs.typedmap.TypedMap
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
@@ -78,7 +79,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
@@ -184,8 +185,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
-        val aLoggedInRequestWithParams = aLoggedInRequest.copyFakeRequest(
-          uri = "/applications?search=abc&apiSubscription=ANY&status=CREATED&termsOfUse=ACCEPTED&accessType=STANDARD")
+        val aLoggedInRequestWithParams = FakeRequest(GET, "/applications?search=abc&apiSubscription=ANY&status=CREATED&termsOfUse=ACCEPTED&accessType=STANDARD")
+          .withSession(csrfToken, authToken, userToken).withCSRFToken
         val expectedParams = Map(
           "page" -> "1",
           "pageSize" -> "100",
@@ -211,7 +212,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         redirectLocation(result) shouldBe
           Some(
             s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-              s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}")
+              s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
       }
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {

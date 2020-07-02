@@ -35,6 +35,4 @@ class FakeAppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
   override val userRole = TestRoles.userRole
   override val adminRole = TestRoles.adminRole
   override val superUserRole = TestRoles.superUserRole
-
-  override val appName = "Gatekeeper app name"
 }
