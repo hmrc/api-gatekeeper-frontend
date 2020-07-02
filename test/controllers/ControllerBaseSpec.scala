@@ -27,11 +27,10 @@ import uk.gov.hmrc.play.test.UnitSpec
 import play.api.inject.bind
 
 trait ControllerBaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+  override lazy val app: Application = fakeApplication()
 
-  override lazy val app = fakeApplication()
-
-  lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val appConfig = app.injector.instanceOf[AppConfig]
+  implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()

@@ -38,7 +38,7 @@ class SubscriptionConfigurationControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer = fakeApplication().materializer
+  implicit val materializer = app.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfirmationView]
@@ -108,7 +108,7 @@ class SubscriptionConfigurationControllerSpec
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()      
+      givenTheAppWillBeReturned()
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aLoggedInRequest))
@@ -123,7 +123,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.versions.head.version.version)
       responseBody should include(subscription.versions.head.version.displayedStatus)
       
-      responseBody should include(subscriptionFieldValue.definition.description)      
+      responseBody should include(subscriptionFieldValue.definition.description)
       responseBody should include(subscriptionFieldValue.definition.hint)
       responseBody should include(subscriptionFieldValue.value)
     
@@ -148,14 +148,12 @@ class SubscriptionConfigurationControllerSpec
       val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
   "save subscription configuration post" should {
-    val httpResponse = mock[HttpResponse]
-
     "save" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
@@ -176,7 +174,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "save gives validation errors" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       
       val validationMessage = "My validation error"
@@ -195,7 +193,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(validationMessage)
     }
 
-     "When logged in as super saves the data" in new EditSaveFormData {
+    "When logged in as super saves the data" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
 
@@ -218,10 +216,10 @@ class SubscriptionConfigurationControllerSpec
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
-  trait EditSaveFormData extends Setup {     
+  trait EditSaveFormData extends Setup {
     def requestWithFormData(fieldName: String, fieldValue: String)(request : FakeRequest[_]) = {
       request.withFormUrlEncodedBody(
         "fields[0].name" -> fieldName,

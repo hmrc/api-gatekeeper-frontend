@@ -19,7 +19,9 @@ package mocks
 import java.util.UUID
 
 trait TestRoles {
+  val userRole = "userRole" + UUID.randomUUID
   val adminRole = "adminRole" + UUID.randomUUID
   val superUserRole = "superUserRole" + UUID.randomUUID
-  val userRole = "userRole" + UUID.randomUUID
 }
+
+object TestRoles extends TestRoles

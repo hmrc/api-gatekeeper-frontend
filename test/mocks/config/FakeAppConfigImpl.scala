@@ -19,6 +19,7 @@ package mocks.config
 import com.google.inject.Singleton
 import config.AppConfigImpl
 import javax.inject.Inject
+import mocks.TestRoles
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.RunMode
 
@@ -27,4 +28,8 @@ class FakeAppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
   extends AppConfigImpl(config, runMode) {
 
   override def title = "Unit Test Title"
+
+  override val userRole = TestRoles.userRole
+  override val adminRole = TestRoles.adminRole
+  override val superUserRole = TestRoles.superUserRole
 }

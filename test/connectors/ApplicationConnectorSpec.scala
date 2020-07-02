@@ -317,7 +317,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val overridesRequest = UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](eqTo(url), eqTo(overridesRequest))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](eqTo(url), eqTo(overridesRequest), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.updateOverrides(applicationId, overridesRequest))
@@ -326,7 +326,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](eqTo(url), eqTo(overridesRequest))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateOverridesRequest, HttpResponse](eqTo(url), eqTo(overridesRequest), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -341,7 +341,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val scopesRequest = UpdateScopesRequest(Set("hello", "read:individual-benefits"))
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](eqTo(url), eqTo(scopesRequest))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](eqTo(url), eqTo(scopesRequest), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.updateScopes(applicationId, scopesRequest))
@@ -350,7 +350,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](eqTo(url), eqTo(scopesRequest))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateScopesRequest, HttpResponse](eqTo(url), eqTo(scopesRequest), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -365,17 +365,17 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val newIpWhitelist = Set("192.168.1.0/24", "192.168.2.0/24")
 
     "make a PUT request and return a successful result if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.manageIpWhitelist(applicationId, newIpWhitelist))
 
       result shouldBe UpdateIpWhitelistSuccessResult
-      verify(mockHttpClient).PUT(eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any())
+      verify(mockHttpClient).PUT(eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), any[Seq[(String, String)]])(any(), any(), any(), any())
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)))(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), any[Seq[(String, String)]])(any(), any(), any(), any()))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -413,7 +413,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     val url = s"$baseUrl/application/$applicationId/subscription?context=hello&version=1.0"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](eqTo(url), any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(CREATED)))
 
       val result = await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
@@ -422,7 +422,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](eqTo(url), any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -521,16 +521,16 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       s"$baseUrl/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
 
     "send a DELETE request to the service with the correct params" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](any[String])(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](any[String], any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
 
-      verify(mockHttpClient).DELETE[HttpResponse](any())(any(), any(), any())
+      verify(mockHttpClient).DELETE[HttpResponse](any(), any[Seq[(String, String)]])(any(), any(), any())
     }
 
     "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](any())(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](any(), any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = await(connector.removeCollaborator(appId, emailAddress, gatekeeperUserId, adminsToEmail))
@@ -539,7 +539,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw TeamMemberLastAdmin when the service responds with 403" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](any())(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](any(), any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.failed(Upstream4xxResponse("Forbidden", FORBIDDEN, FORBIDDEN)))
 
       intercept[TeamMemberLastAdmin] {
@@ -548,7 +548,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
     }
 
     "throw the error when the service returns any other error" in new Setup {
-      when(mockHttpClient.DELETE[HttpResponse](any())(any(), any(), any()))
+      when(mockHttpClient.DELETE[HttpResponse](any(), any[Seq[(String, String)]])(any(), any(), any()))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
