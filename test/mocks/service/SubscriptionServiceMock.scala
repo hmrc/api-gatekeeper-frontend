@@ -28,7 +28,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 trait SubscriptionFieldsServiceMock extends MockitoSugar {
-
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
   
   def givenSaveSubscriptionFieldsSuccess() = {

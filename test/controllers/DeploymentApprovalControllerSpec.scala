@@ -44,7 +44,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
-  trait Setup extends ControllerSetupBase with AppConfigMock {
+  trait Setup extends ControllerSetupBase {
 
     val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
 
@@ -63,7 +63,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       deploymentReviewView,
       errorTemplateView,
       forbiddenView)
-      (mockConfig, global)
+      (appConfig, global)
   }
 
   "pendingPage" should {

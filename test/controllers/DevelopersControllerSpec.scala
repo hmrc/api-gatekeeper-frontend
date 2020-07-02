@@ -57,7 +57,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     }
 
-    trait Setup extends ControllerSetupBase with AppConfigMock {
+    trait Setup extends ControllerSetupBase {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"

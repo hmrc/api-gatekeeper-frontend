@@ -33,19 +33,18 @@ import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfir
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SubscriptionConfigurationControllerSpec 
+class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = fakeApplication().materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfirmationView]
   private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfirmationView]
 
   trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
-
     lazy val controller = new SubscriptionConfigurationController (
       mockApplicationService,
       mockSubscriptionFieldsService,
@@ -67,13 +66,11 @@ class SubscriptionConfigurationControllerSpec
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new Setup {
-
       givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
-      println(s"****** RESULT: $result")
       status(result) shouldBe OK
 
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
@@ -105,7 +102,7 @@ class SubscriptionConfigurationControllerSpec
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
   "edit Subscription Configuration" should {

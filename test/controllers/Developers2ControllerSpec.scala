@@ -46,7 +46,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
     def aUser(email: String) = User(email, "first", "last", verified = Some(false))
 
-    trait Setup extends ControllerSetupBase with AppConfigMock {
+    trait Setup extends ControllerSetupBase {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)

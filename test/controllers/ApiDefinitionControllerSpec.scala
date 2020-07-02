@@ -39,7 +39,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
-  trait Setup extends ControllerSetupBase with AppConfigMock {
+  trait Setup extends ControllerSetupBase {
     val controller = new ApiDefinitionController(mockApiDefinitionService, mockAuthConnector, mcc, errorTemplateView, forbiddenView)
   }
   

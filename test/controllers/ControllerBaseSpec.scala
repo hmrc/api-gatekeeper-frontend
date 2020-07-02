@@ -28,8 +28,10 @@ import play.api.inject.bind
 
 trait ControllerBaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
+  override lazy val app = fakeApplication()
+
   lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val appConfig = fakeApplication().injector.instanceOf[AppConfig]
+  implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()

@@ -26,14 +26,11 @@ class NavigationControllerSpec extends ControllerBaseSpec {
   implicit val materializer = fakeApplication.materializer
 
   running(fakeApplication) {
-
-    trait Setup extends ControllerSetupBase with AppConfigMock {
-
+    trait Setup extends ControllerSetupBase {
       val underTest = new NavigationController(mcc)
     }
 
     "navigationController" should {
-
       "render all nav links for standard site" in new Setup {
         val result = await(underTest.navLinks()(aLoggedInRequest))
         status(result) shouldBe OK
