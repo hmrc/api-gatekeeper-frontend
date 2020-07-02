@@ -144,7 +144,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
-        titleOf(eventualResult) shouldBe "Unit Test Title"
+        titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1>Applications</h1>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
