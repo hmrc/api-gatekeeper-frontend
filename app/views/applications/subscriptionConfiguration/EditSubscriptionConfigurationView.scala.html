@@ -66,7 +66,7 @@
             <div class="@if(form.errors(formFieldId).nonEmpty) {form-field--error}">
               <fieldset class="inline" class="@if(form.errors(formFieldId).nonEmpty) {error-field}">
                 @fieldError(form.errors, formFieldId)
-    
+
                 @helper.input(field("value"), '_label -> null) { (id, name, value, args) =>
                   <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="form-input input--medium" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
                 }

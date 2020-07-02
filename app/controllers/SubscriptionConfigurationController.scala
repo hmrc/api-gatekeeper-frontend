@@ -40,8 +40,8 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     val subscriptionFieldsService: SubscriptionFieldsService,
                                                     val authConnector: AuthConnector,
                                                     mcc: MessagesControllerComponents,
-                                                    listSubscriptionConfiguration: ListSubscriptionConfirmationView,
-                                                    editSubscriptionConfiguration: EditSubscriptionConfirmationView,
+                                                    listSubscriptionConfiguration: ListSubscriptionConfigurationView,
+                                                    editSubscriptionConfiguration: EditSubscriptionConfigurationView,
                                                     override val errorTemplate: ErrorTemplate,
                                                     forbiddenView: ForbiddenView
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
