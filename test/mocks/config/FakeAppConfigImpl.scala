@@ -29,6 +29,9 @@ class FakeAppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
 
   override def title = "Unit Test Title"
 
+  override val strideLoginUrl = "https://loginUri"
+  override val gatekeeperSuccessUrl = "http://mock-gatekeeper-frontend/api-gatekeeper/applications"
+
   override val userRole = TestRoles.userRole
   override val adminRole = TestRoles.adminRole
   override val superUserRole = TestRoles.superUserRole

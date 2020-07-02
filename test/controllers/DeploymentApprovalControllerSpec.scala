@@ -37,23 +37,22 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
+  implicit val materializer = app.materializer
 
-  implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase {
-
-    val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+    val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val redirectLoginUrl = s"https://loginUri" +
+    val redirectLoginUrl = "https://loginUri" +
       s"?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-      s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
+      s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
 
     val underTest = new DeploymentApprovalController(
       mockAuthConnector,
@@ -63,7 +62,6 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       deploymentReviewView,
       errorTemplateView,
       forbiddenView)
-      (appConfig, global)
   }
 
   "pendingPage" should {
