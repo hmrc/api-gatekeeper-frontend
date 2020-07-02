@@ -23,9 +23,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class NavigationControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
 
-  running(fakeApplication) {
+  running(app) {
     trait Setup extends ControllerSetupBase {
       val underTest = new NavigationController(mcc)
     }

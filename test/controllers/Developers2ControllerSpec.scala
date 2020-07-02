@@ -16,7 +16,6 @@
 
 package controllers
 
-import mocks.config.AppConfigMock
 import model._
 import model.DeveloperStatusFilter.VerifiedStatus
 import org.mockito.BDDMockito._
@@ -37,18 +36,18 @@ import scala.concurrent.Future.successful
 
 class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView = app.injector.instanceOf[Developers2View]
 
-  Helpers.running(fakeApplication) {
+  Helpers.running(app) {
 
     def aUser(email: String) = User(email, "first", "last", verified = Some(false))
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
 

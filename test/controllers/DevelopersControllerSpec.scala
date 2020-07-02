@@ -18,7 +18,6 @@ package controllers
 
 import java.util.UUID
 
-import mocks.config.AppConfigMock
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
@@ -40,7 +39,7 @@ import scala.concurrent.Future.{failed, successful}
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView = app.injector.instanceOf[DevelopersView]
@@ -59,7 +58,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
