@@ -17,43 +17,36 @@
 package utils
 
 import builder.SubscriptionsBuilder
-import controllers.ControllerSetupBase
+import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.config.AppConfigMock
-import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldsWrapper, SubscriptionFieldValue}
-import model.{APIStatus, APIVersion, ApplicationWithHistory, LoggedInRequest, Subscription, VersionSubscription}
-import org.mockito.BDDMockito.`given`
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
-import play.api.mvc.Results.Ok
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result, Results}
-import play.api.test.FakeRequest
+import mocks.TestRoles
+import model.LoggedInRequest
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.mvc._
+import play.api.mvc.Results.Ok
+import play.api.test.FakeRequest
 import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatestplus.mockito.MockitoSugar
 import views.html.ErrorTemplate
 
-class ActionBuildersSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with SubscriptionsBuilder {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-  trait Setup extends ControllerSetupBase with AppConfigMock {
-    implicit val materializer = fakeApplication.materializer
+class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
+  trait Setup extends ControllerSetupBase {
+    implicit val materializer = app.materializer
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    lazy val errorTemplate = app.injector.instanceOf[ErrorTemplate]
-    lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
-    
-    val underTest = new ErrorHelper with ActionBuilders {
-      override val applicationService: ApplicationService = mockApplicationService
-      override val errorTemplate: ErrorTemplate = errorTemplate
+    val underTest = new ActionBuilders {
+      val applicationService: ApplicationService = mockApplicationService
+      val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
     }
     
-    implicit val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
+    implicit val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(TestRoles.userRole))), FakeRequest())
     implicit val messages = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)

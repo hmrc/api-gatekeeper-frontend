@@ -71,13 +71,11 @@ trait ActionBuilders extends ErrorHelper {
                                     ec: ExecutionContext,
                                     hc: HeaderCarrier): Future[Result] = {
     withAppAndSubscriptions(appId) {
-      
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-
         (for{
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
-        } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
+        } yield action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version)))
           .getOrElse(Future.successful(notFound("Subscription or version not found")))
       }
     }
