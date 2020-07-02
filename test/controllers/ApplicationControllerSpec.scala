@@ -49,7 +49,7 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
@@ -74,7 +74,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
   private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
 
-  running(fakeApplication) {
+  running(app) {
 
     trait Setup extends ControllerSetupBase {
 
