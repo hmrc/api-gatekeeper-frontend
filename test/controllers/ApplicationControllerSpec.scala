@@ -19,7 +19,7 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import mocks.config.AppConfigMock
+import mocks.TestRoles._
 import model._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
@@ -76,7 +76,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   running(fakeApplication) {
 
-    trait Setup extends ControllerSetupBase with AppConfigMock {
+    trait Setup extends ControllerSetupBase {
 
       val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -127,7 +127,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         manageTeamMembersView,
         addTeamMemberView,
         removeTeamMemberView
-      )(mockConfig, global)
+      )
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
@@ -219,7 +219,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -236,7 +235,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
         status(result) shouldBe OK
