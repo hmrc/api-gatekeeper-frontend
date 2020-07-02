@@ -30,7 +30,7 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,7 +40,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 

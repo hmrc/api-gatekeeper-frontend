@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.play.test.UnitSpec
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
     lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
     val authConnectorMock = app.injector.instanceOf[AuthConnector]
     lazy val errorTemplate = app.injector.instanceOf[ErrorTemplate]
-    lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+    lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
     val underTest = new FrontendBaseController with GatekeeperAuthWrapper {
       override protected def controllerComponents: MessagesControllerComponents = mcc

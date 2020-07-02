@@ -39,10 +39,10 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
 import utils.FakeRequestCSRFSupport._
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
 import views.html.approvedApplication.ApprovedView
-import views.html.review.Review
+import views.html.review.ReviewView
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -52,7 +52,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   implicit val materializer = fakeApplication.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val applicationsView = app.injector.instanceOf[ApplicationsView]
   private lazy val applicationView = app.injector.instanceOf[ApplicationView]
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
@@ -66,7 +66,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   private lazy val blockApplicationSuccessView = app.injector.instanceOf[BlockApplicationSuccessView]
   private lazy val unblockApplicationView = app.injector.instanceOf[UnblockApplicationView]
   private lazy val unblockApplicationSuccessView = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val reviewView = app.injector.instanceOf[Review]
+  private lazy val reviewView = app.injector.instanceOf[ReviewView]
   private lazy val approvedView = app.injector.instanceOf[ApprovedView]
   private lazy val createApplicationView = app.injector.instanceOf[CreateApplicationView]
   private lazy val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]

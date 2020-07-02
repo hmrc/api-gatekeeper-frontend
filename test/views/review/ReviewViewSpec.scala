@@ -27,14 +27,14 @@ import uk.gov.hmrc.time.DateTimeUtils
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.review.Review
+import views.html.review.ReviewView
 
 class ReviewViewSpec extends CommonViewSpec {
 
   trait Setup extends AppConfigMock {
     implicit val request = FakeRequest().withCSRFToken
 
-    val reviewView = app.injector.instanceOf[Review]
+    val reviewView = app.injector.instanceOf[ReviewView]
 
     val applicationReviewDetails =
       ApplicationReviewDetails(

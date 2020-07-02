@@ -18,15 +18,15 @@ package controllers
 
 import akka.stream.Materializer
 import mocks.config._
-import model.Environment.PRODUCTION
 import model._
+import model.Environment.PRODUCTION
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import play.api.http.Status._
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,7 +37,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   implicit val hc = HeaderCarrier()
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase with AppConfigMock {
     val controller = new ApiDefinitionController(mockApiDefinitionService, mockAuthConnector, mcc, errorTemplateView, forbiddenView)

@@ -31,7 +31,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
-import views.html.{ErrorTemplate, Forbidden}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,7 +42,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
   implicit val materializer = fakeApplication.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[Forbidden]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView = app.injector.instanceOf[DevelopersView]
   private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetailsView]
   private lazy val removeMfaView = app.injector.instanceOf[RemoveMfaView]
