@@ -38,14 +38,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  trait Setup extends AppConfigMock{
-
+  trait Setup extends AppConfigMock {
     val ec = global
     lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
-    val authConnectorMock = app.injector.instanceOf[AuthConnector]
     lazy val errorTemplate = app.injector.instanceOf[ErrorTemplate]
     lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+    val authConnectorMock = mock[AuthConnector]
 
     val underTest = new FrontendBaseController with GatekeeperAuthWrapper {
       override protected def controllerComponents: MessagesControllerComponents = mcc
@@ -72,9 +70,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
   }
 
   "requiresRole" should {
-
     "execute body if user is logged in" in new Setup {
-
       val response = Future.successful(new ~(Name(Some("Full Name"), None), Enrolments(Set(Enrolment(userRole)))))
 
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
@@ -86,7 +82,6 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
     }
 
     "redirect to login page if user is not logged in" in new Setup {
-
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
@@ -96,7 +91,6 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
     }
 
     "return 401 FORBIDDEN if user is logged in and has insufficient enrolments" in new Setup {
-
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
