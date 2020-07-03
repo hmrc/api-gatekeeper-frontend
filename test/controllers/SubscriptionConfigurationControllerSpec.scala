@@ -17,19 +17,17 @@
 package controllers
 
 import builder.SubscriptionsBuilder
-import config.AppConfig
-import mocks.config.AppConfigMock
 import mocks.service.SubscriptionFieldsServiceMock
-import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
 import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import views.html.{ErrorTemplate, ForbiddenView}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubscriptionConfigurationControllerSpec
