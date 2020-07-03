@@ -498,17 +498,6 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       .willReturn(aResponse().withBody(developersJson).withStatus(OK)))
   }
 
-  private def assertNumberOfDevelopersPerPage(expected: Int) = {
-    import scala.collection.JavaConversions._
-    val elements: Seq[WebElement] = webDriver.findElements(By.cssSelector("tbody > tr"))
-
-    elements.count(we => we.isDisplayed) shouldBe expected
-  }
-
-  private def assertLinkIsDisabled(link: String) = {
-    assertResult(find(linkText(link)).isDefined)(false)
-  }
-
   private def assertCopyToClipboardButtonIsDisabled(button:String) = {
     assertResult(find(cssSelector(button)).isDefined)(false)
   }
@@ -517,34 +506,10 @@ class APIGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     webDriver.findElement(By.cssSelector(button)).isDisplayed shouldBe true
   }
 
-  private def assertTextPresent(attributeName: String, expected: String) = {
-    webDriver.findElement(By.cssSelector(attributeName)).getText shouldBe expected
-  }
-
-  private def generateUsersList(users : List[User]) = {
-    users.map(user => s"${user.firstName} ${user.lastName}${user.email}")
-  }
-
   case class TestUser(firstName: String, lastName:String, emailAddress:String)
 
-  private def generateUsersTuple(users : List[User]): List[TestUser] = {
-    users.map(user => TestUser(user.firstName, user.lastName, user.email))
-  }
-
-  private def verifyUsersEmailAddress(button : String, attributeName : String, expected : String) {
-    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
-  }
-
-  private def verifyUsersEmail(button : String) {
-    val emailAddresses = webDriver.findElement(By.cssSelector(button)).getAttribute("value")
-  }
-
-  private def assertDevelopersRandomList(devList: List[(TestUser, Int)]) = {
-    for((dev, index) <- devList) {
-      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev.firstName
-      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev.lastName
-      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev.emailAddress
-    }
+  private def verifyUsersEmailAddress(button: String, attributeName: String, expected: String) {
+    webDriver.findElement(By.cssSelector(button)).getAttribute(attributeName) shouldBe expected
   }
 
   private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {

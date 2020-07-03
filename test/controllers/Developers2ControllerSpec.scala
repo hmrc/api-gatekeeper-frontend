@@ -16,49 +16,52 @@
 
 package controllers
 
-import model.DeveloperStatusFilter.VerifiedStatus
 import model._
+import model.DeveloperStatusFilter.VerifiedStatus
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
+import views.html.{ErrorTemplate, ForbiddenView}
+import views.html.developers.Developers2View
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
+class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
+  private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val developersView = app.injector.instanceOf[Developers2View]
 
-  Helpers.running(fakeApplication) {
+  Helpers.running(app) {
 
     def aUser(email: String) = User(email, "first", "last", verified = Some(false))
 
     trait Setup extends ControllerSetupBase {
 
-      implicit val appConfig = mockConfig
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
-      val loggedInSuperUser = "superUserName"
+      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
-      given(appConfig.superUsers).willReturn(Seq(loggedInSuperUser))
-      given(appConfig.strideLoginUrl).willReturn("https://loginUri")
-      given(appConfig.appName).willReturn("Gatekeeper app name")
-      given(appConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
 
       val mockDeveloperService = mock[DeveloperService]
 
-      val developersController = new Developers2Controller(mockAuthConnector, mockDeveloperService, mockApiDefinitionService) {
-        override val appConfig = mockConfig
-      }
+      val developersController = new Developers2Controller(
+        mockAuthConnector,
+        forbiddenView,
+        mockDeveloperService,
+        mockApiDefinitionService,
+        mcc,
+        developersView,
+        errorTemplateView
+      )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
         givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
@@ -130,7 +133,7 @@ class Developers2ControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
         given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List())
 
-        val result: Result = await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
+        await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
 
         val expectedEmptyFilter = Developers2Filter()
         verify(mockDeveloperService).searchDevelopers(meq(expectedEmptyFilter))(any[HeaderCarrier])

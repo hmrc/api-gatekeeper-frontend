@@ -1,0 +1,73 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import include._
+@import model._
+@import config.AppConfig
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Manage whitelisted IPs") {
+
+<div class="ip-whitelist">
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Manage whitelisted IPs</li>
+        </ul>
+    </nav>
+
+    <h1 class="heading-xlarge">Manage whitelisted IPs</h1>
+
+    @helper.form(action = controllers.routes.ApplicationController.manageWhitelistedIpAction(application.id.toString)) {
+
+        <p>Whitelisted IP addresses control where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
+        <p>The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
+        <p style ="margin-left: 40px">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
+
+        <p>The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
+        <p>The netmask identifies how large the network is.<p>
+        <p>This notation can be used to give access to a single IP address (by using a 32bit netmask) or a larger network by varying the IP address.</p>
+        <p><strong class="bold">Third parties should be as specific as possible about the IP address range that requires whitelisting. Keep IP address ranges as small as possible.</strong></p>
+
+        @helper.CSRF.formField
+        <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
+            <label for="whitelistedIps" id="whitelistedIps-label">Enter each CIDR block on a separate line:</label>
+            @fieldError(form.errors, "whitelistedIps", false)
+            <textarea
+            inputtype="text"
+            id="whitelistedIps"
+            name="whitelistedIps"
+            cols="20"
+            rows="5"
+            class="form-control @if(form.errors("whitelistedIps").nonEmpty) {form-control-error}"
+            aria-labelledby="whitelistedIps-label"
+            aria-describedby="whitelistedIps-note">@form.data.getOrElse("whitelistedIps", "")</textarea>
+        </div>
+
+        <div class="form-field">
+            <button id="submit" class="button button--padded" type="submit">Save</button>
+            <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button">Cancel</a>
+        </div>
+    }
+</div>
+
+}

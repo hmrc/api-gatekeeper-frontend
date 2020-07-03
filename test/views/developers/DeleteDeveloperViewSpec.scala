@@ -18,20 +18,16 @@ package views.developers
 
 import java.util.UUID
 
-import config.AppConfig
-import model._
+import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Messages.Implicits.applicationMessages
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.CSRFTokenHelper._
-import utils.LoggedInUser
+import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.html.developers.delete_developer
+import views.html.developers.DeleteDeveloperView
+import views.CommonViewSpec
 
-class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class DeleteDeveloperViewSpec extends CommonViewSpec {
 
   sealed case class TestApplication(name: String,
                                     collaborators: Set[Collaborator],
@@ -45,27 +41,28 @@ class DeleteDeveloperViewSpec extends UnitSpec with OneServerPerSuite with Mocki
   "delete developer view" should {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages = applicationMessages
-    implicit val appConfig = mock[AppConfig]
+    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
+
+    val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
-      val document = Jsoup.parse(delete_developer(developer).body)
-      elementExistsById(document, "submit") shouldBe true
-      elementExistsById(document, "cancel") shouldBe true
-      elementExistsById(document, "finish") shouldBe false
+      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      elementExistsById(document, "submit") mustBe true
+      elementExistsById(document, "cancel") mustBe true
+      elementExistsById(document, "finish") mustBe false
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app = TestApplication("appName1", Set(admin("email@example.com")))
       val developer = Developer("email@example.com", "firstname", "lastName", None, Seq(app))
 
-      val document = Jsoup.parse(delete_developer(developer).body)
-      elementExistsById(document, "submit") shouldBe false
-      elementExistsById(document, "cancel") shouldBe false
-      elementExistsById(document, "finish") shouldBe true
+      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      elementExistsById(document, "submit") mustBe false
+      elementExistsById(document, "cancel") mustBe false
+      elementExistsById(document, "finish") mustBe true
     }
   }
 }

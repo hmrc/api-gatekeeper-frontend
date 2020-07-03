@@ -16,10 +16,11 @@
 
 package utils
 
-import play.api.Application
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.filters.csrf.CSRFAddToken
 
 trait WithCSRFAddToken  {
-  val fakeApplication: Application
-  val addToken = fakeApplication.injector.instanceOf[CSRFAddToken]
+  self: GuiceOneAppPerSuite =>
+
+  val addToken = app.injector.instanceOf[CSRFAddToken]
 }

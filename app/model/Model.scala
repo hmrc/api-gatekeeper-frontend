@@ -30,6 +30,9 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
+import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites._
+
 case class Role(scope: String, name: String)
 
 object Role {
@@ -185,7 +188,7 @@ case class ApplicationReviewDetails(id: String,
                                     privacyPolicyUrl: Option[String] = None)
 
 object ApplicationReviewDetails {
-  implicit val format1 = Json.format[SubmissionDetails]
+  import SubmissionDetails.format
   implicit val format2 = Json.format[ApplicationReviewDetails]
 }
 

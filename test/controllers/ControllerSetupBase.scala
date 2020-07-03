@@ -18,19 +18,19 @@ package controllers
 
 import java.util.UUID
 
-import config.AppConfig
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import mocks.service.ApplicationServiceMock
+import mocks.TestRoles._
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import services.{ApiDefinitionService, ApplicationService, DeploymentApprovalService}
-import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
+import services.{ApiDefinitionService, DeploymentApprovalService}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
+import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +39,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockApiDefinitionService = mock[ApiDefinitionService]
-  val mockConfig = mock[AppConfig]
   val mockApplicationConnector = mock[ApplicationConnector]
   val mockDeveloperConnector = mock[DeveloperConnector]
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
@@ -72,21 +71,12 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
   val aLoggedOutRequest = FakeRequest().withSession()
   val noDevs = Seq.empty[ApplicationDeveloper]
 
-  val adminRole = "adminRole" + UUID.randomUUID
-  val superUserRole = "superUserRole" + UUID.randomUUID
-  val userRole = "userRole" + UUID.randomUUID
-
-  given(mockConfig.userRole).willReturn(userRole)
-  given(mockConfig.adminRole).willReturn(adminRole)
-  given(mockConfig.superUserRole).willReturn(superUserRole)
-
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
       .willReturn(Future.failed(new InvalidBearerToken))
   }
 
   def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
-
     val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
 
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
@@ -99,7 +89,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
   }
 
   def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
-
     val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
 
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))
@@ -107,7 +96,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock {
   }
 
   def givenTheUserIsAuthorisedAndIsAnAdmin(): Unit = {
-
     val response = Future.successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))
 
     given(mockAuthConnector.authorise(any(), any[Retrieval[Any]])(any[HeaderCarrier], any[ExecutionContext]))

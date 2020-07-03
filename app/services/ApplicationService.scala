@@ -233,7 +233,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
               .map({
                 case SaveSubscriptionFieldsSuccessResponse => HasSucceeded
                 case error => {
-                  val errorMessage = s"Failed to save blank subscription field values: $error"  
+                  val errorMessage = s"Failed to save blank subscription field values: $error"
                   throw new RuntimeException(errorMessage)
                 }
               })

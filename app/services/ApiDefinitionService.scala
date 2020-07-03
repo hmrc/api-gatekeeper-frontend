@@ -16,15 +16,13 @@
 
 package services
 
+import connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import javax.inject.Inject
-import connectors.{ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import model.APIDefinition
 import model.Environment._
-import model.Environment
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HeaderCarrier
-import connectors.ApiDefinitionConnector
 
 class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
                                      productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {
@@ -49,8 +47,8 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     
     def getApisFromConnector(connector: ApiDefinitionConnector) : Future[Seq[(APIDefinition, Environment)]] = {
       def addEnvironmentToApis(result: Future[Seq[APIDefinition]]) : Future[Seq[(APIDefinition, Environment)]] =
-        result.map(apis => apis.map(api => (api, connector.environment)))      
-      
+        result.map(apis => apis.map(api => (api, connector.environment)))
+
       Future.sequence(
         Seq(
           connector.fetchPublic(),

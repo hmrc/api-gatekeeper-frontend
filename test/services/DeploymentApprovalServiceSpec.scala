@@ -25,7 +25,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 

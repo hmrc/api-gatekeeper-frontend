@@ -16,30 +16,40 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
 import config.AppConfig
 import connectors.AuthConnector
+import javax.inject.{Inject, Singleton}
 import model._
 import play.api.Logger
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
-import utils.GatekeeperAuthWrapper
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers._
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class DevelopersController @Inject()(developerService: DeveloperService,
-                                     applicationService: ApplicationService,
+                                     val applicationService: ApplicationService,
+                                     val forbiddenView: ForbiddenView,
                                      apiDefinitionService: ApiDefinitionService,
-                                     override val authConnector: AuthConnector
-                                    )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+                                     override val authConnector: AuthConnector,
+                                     mcc: MessagesControllerComponents,
+                                     developersView: DevelopersView,
+                                     developerDetailsView: DeveloperDetailsView,
+                                     removeMfaView: RemoveMfaView,
+                                     removeMfaSuccessView: RemoveMfaSuccessView,
+                                     deleteDeveloperView: DeleteDeveloperView,
+                                     deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
+                                     override val errorTemplate: ErrorTemplate
+                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc =>
+    implicit request =>
 
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
@@ -59,23 +69,23 @@ class DevelopersController @Inject()(developerService: DeveloperService,
         filteredUsers = filterOps(devs)
         sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
         emails = sortedUsers.map(_.email).mkString("; ")
-      } yield Ok(developers(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
+      } yield Ok(developersView(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developer_details(developer.toDeveloper, isAtLeastSuperUser)))
+    implicit request =>
+      developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
   def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(remove_mfa(developer.toDeveloper)))
+    implicit request =>
+      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
-        Ok(remove_mfa_success(email))
+        Ok(removeMfaSuccessView(email))
       } recover {
         case e: Exception =>
           Logger.error(s"Failed to remove MFA for user: $email", e)
@@ -84,20 +94,19 @@ class DevelopersController @Inject()(developerService: DeveloperService,
   }
 
   def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc =>
-      developerService.fetchDeveloper(email).map(developer => Ok(delete_developer(developer.toDeveloper)))
+    implicit request =>
+      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
   }
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request => implicit hc =>
+    implicit request =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
-        case DeveloperDeleteSuccessResult => Ok(delete_developer_success(email))
+        case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
         case _ => technicalDifficulties
       }
   }
 
   private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
-
     val versions = for {
       api <- apis
       version <- api.versions

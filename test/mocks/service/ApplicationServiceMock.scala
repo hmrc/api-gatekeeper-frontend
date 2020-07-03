@@ -20,14 +20,13 @@ import model.{Application, ApplicationWithHistory, Subscription}
 import org.mockito.BDDMockito.`given`
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 trait ApplicationServiceMock extends MockitoSugar {
-
   val mockApplicationService = mock[ApplicationService]
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {

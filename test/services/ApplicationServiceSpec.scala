@@ -21,20 +21,20 @@ import java.util.UUID
 import connectors._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
-import model._
 import model.SubscriptionFields._
+import model._
 import org.joda.time.DateTime
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito.{never, spy, verify}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Random
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
@@ -182,7 +182,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockProductionApplicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
         .willReturn(Future.successful(ResendVerificationSuccessful))
 
-      val result = await(underTest.resendVerification(stdApp1, userName))
+      await(underTest.resendVerification(stdApp1, userName))
 
       appIdCaptor.getValue shouldBe stdApp1.id.toString
       gatekeeperIdCaptor.getValue shouldBe userName
@@ -313,7 +313,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
       given(mockSandboxApplicationConnector.fetchApplication(anyString)(any[HeaderCarrier]))
         .willReturn(Future.successful(applicationWithHistory))
 
-      val result = await(underTest.fetchApplication(stdApp1.id.toString))
+      await(underTest.fetchApplication(stdApp1.id.toString))
 
       verify(mockProductionApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
       verify(mockSandboxApplicationConnector).fetchApplication(mEq(stdApp1.id.toString))(any[HeaderCarrier])
@@ -822,7 +822,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "propagate TeamMemberLastAdmin error from application connector" in new Setup {
-      val lastAdmin = User(memberToRemove, "firstName", "lastName", verified = Some(true))
 
       given(mockDeveloperConnector.fetchByEmails(any())(any()))
         .willReturn(Future.successful(Seq.empty))

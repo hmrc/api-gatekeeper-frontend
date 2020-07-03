@@ -22,6 +22,8 @@ import org.joda.time.DateTime
 import play.api.libs.json.Json
 import model.State.State
 import uk.gov.hmrc.time.DateTimeUtils
+import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites._
 
 case class Actor(id: String)
 
@@ -32,6 +34,7 @@ case class StateHistory(applicationId: UUID,
                         changedAt: DateTime = DateTimeUtils.now)
 
 object StateHistory {
+
   def ascendingDateForAppId(s1:StateHistory, s2:StateHistory): Boolean = {
     s1.applicationId match {
       case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)

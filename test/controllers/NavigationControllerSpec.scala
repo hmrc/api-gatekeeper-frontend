@@ -16,28 +16,20 @@
 
 package controllers
 
-import org.mockito.BDDMockito._
-import org.scalatest.mockito.MockitoSugar
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavigationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class NavigationControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
 
-  running(fakeApplication) {
-
+  running(app) {
     trait Setup extends ControllerSetupBase {
-
-      implicit val appConfig = mockConfig
-
-      val underTest = new NavigationController
+      val underTest = new NavigationController(mcc)
     }
 
     "navigationController" should {
-
       "render all nav links for standard site" in new Setup {
         val result = await(underTest.navLinks()(aLoggedInRequest))
         status(result) shouldBe OK

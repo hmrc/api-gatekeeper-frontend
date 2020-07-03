@@ -1,0 +1,78 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import model.Forms.RemoveTeamMemberConfirmationForm
+@import include._
+@import config.AppConfig
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(application: Application, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Remove Team Member") {
+
+<div class="content-body">
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}">Manage team members</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Remove team member</li>
+        </ul>
+    </nav>
+
+    @errorSummary(form)
+
+    <h1 class="heading-large">Remove Team Member</h1>
+
+    <h2 class="heading-medium">Team member</h2>
+    <div id="email" class="form-group @if(form.errors("email").nonEmpty) {form-field--error}">
+        <span>@email</span>
+    </div>
+
+    @helper.form(action = controllers.routes.ApplicationController.removeTeamMemberAction(application.id.toString)) {
+        @helper.CSRF.formField
+        <input type="hidden" name="email" value="@email">
+        <div class="form-group @if(form.errors("confirm").nonEmpty) {form-field--error}">
+            <h2 class="heading-medium">Are you sure you want to remove this team member from this application?</h2>
+
+            @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
+            <fieldset id="confirm" class="inline">
+                <div class="multiple-choice">
+                    <input id="yes" type="radio" name="confirm" value="Yes">
+                    <label for="yes"><strong class="bold">Yes</strong></label>
+                </div>
+                <div class="multiple-choice">
+                    <input id="no" type="radio" name="confirm" value="No">
+                    <label for="no"><strong class="bold">No</strong></label>
+                </div>
+            </fieldset>
+            <br>
+        </div>
+
+        <div class="form-field">
+            <button id="submit" class="button button--padded" type="submit">Submit</button>
+            <a href="@routes.ApplicationController.manageTeamMembers(application.id.toString)" class="secondary-button">Cancel</a>
+        </div>
+    }
+
+</div>
+
+}

@@ -24,37 +24,43 @@ import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.WithCSRFAddToken
+import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken {
+class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
+  implicit val materializer = app.materializer
 
-  implicit val materializer = fakeApplication.materializer
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
+  private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase {
-
-    val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+    val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val redirectLoginUrl = s"https://loginUri" +
+    val redirectLoginUrl = "https://loginUri" +
       s"?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-      s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}"
+      s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
 
-    given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
-    given(mockConfig.appName).willReturn("Gatekeeper app name")
-    given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
-
-    val underTest = new DeploymentApprovalController(mockAuthConnector, mockDeploymentApprovalService)(mockConfig, global)
+    val underTest = new DeploymentApprovalController(
+      mockAuthConnector,
+      forbiddenView,
+      mockDeploymentApprovalService,
+      mcc,
+      deploymentApprovalView,
+      deploymentReviewView,
+      errorTemplateView)
   }
 
   "pendingPage" should {
@@ -183,7 +189,6 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
     "return bad request if approval is not confirmed" in new Setup {
       val environment = PRODUCTION
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
 
@@ -201,7 +206,7 @@ class DeploymentApprovalControllerSpec extends UnitSpec with MockitoSugar with W
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 
-      var result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
+      val result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
 
       status(result) shouldBe BAD_REQUEST
     }

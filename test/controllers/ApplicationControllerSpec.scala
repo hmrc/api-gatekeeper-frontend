@@ -19,9 +19,9 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
+import mocks.TestRoles._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
-import model.SubscriptionFields.Fields
 import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -29,7 +29,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
-import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -37,24 +36,49 @@ import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.CSRFTokenHelper._
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
+import views.html.applications._
+import views.html.approvedApplication.ApprovedView
+import views.html.review.ReviewView
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
 
-class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with WithCSRFAddToken with TitleChecker {
+class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer = app.materializer
 
-  running(fakeApplication) {
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val applicationsView = app.injector.instanceOf[ApplicationsView]
+  private lazy val applicationView = app.injector.instanceOf[ApplicationView]
+  private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
+  private lazy val manageAccessOverridesView = app.injector.instanceOf[ManageAccessOverridesView]
+  private lazy val manageScopesView = app.injector.instanceOf[ManageScopesView]
+  private lazy val manageWhitelistedIpView = app.injector.instanceOf[ManageWhitelistedIpView]
+  private lazy val manageRateLimitView = app.injector.instanceOf[ManageRateLimitView]
+  private lazy val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
+  private lazy val deleteApplicationSuccessView = app.injector.instanceOf[DeleteApplicationSuccessView]
+  private lazy val blockApplicationView = app.injector.instanceOf[BlockApplicationView]
+  private lazy val blockApplicationSuccessView = app.injector.instanceOf[BlockApplicationSuccessView]
+  private lazy val unblockApplicationView = app.injector.instanceOf[UnblockApplicationView]
+  private lazy val unblockApplicationSuccessView = app.injector.instanceOf[UnblockApplicationSuccessView]
+  private lazy val reviewView = app.injector.instanceOf[ReviewView]
+  private lazy val approvedView = app.injector.instanceOf[ApprovedView]
+  private lazy val createApplicationView = app.injector.instanceOf[CreateApplicationView]
+  private lazy val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
+  private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
+  private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
+  private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
+
+  running(app) {
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> fakeApplication.injector.instanceOf[TokenProvider].generateToken
+      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
@@ -77,35 +101,42 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
 
       val underTest = new ApplicationController(
         mockApplicationService,
+        forbiddenView,
         mockApiDefinitionService,
         mockDeveloperService,
-        mockSubscriptionFieldsService,
-        mockAuthConnector
-      )(mockConfig, global)
-
-      given(mockConfig.superUsers).willReturn(Seq("superUserName"))
-
-      given(mockConfig.superUserRole).willReturn(superUserRole)
-      given(mockConfig.adminRole).willReturn(adminRole)
-      given(mockConfig.userRole).willReturn(userRole)
-
-      given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
-
-      given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
-      given(mockConfig.appName).willReturn("Gatekeeper app name")
-
+        mockAuthConnector,
+        mcc,
+        applicationsView,
+        applicationView,
+        manageSubscriptionsView,
+        manageAccessOverridesView,
+        manageScopesView,
+        manageWhitelistedIpView,
+        manageRateLimitView,
+        deleteApplicationView,
+        deleteApplicationSuccessView,
+        errorTemplateView,
+        blockApplicationView,
+        blockApplicationSuccessView,
+        unblockApplicationView,
+        unblockApplicationSuccessView,
+        reviewView,
+        approvedView,
+        createApplicationView,
+        createApplicationSuccessView,
+        manageTeamMembersView,
+        addTeamMemberView,
+        removeTeamMemberView
+      )
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
-
       }
     }
 
     "applicationsPage" should {
-
       "on request with no specified environment all sandbox applications supplied" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
@@ -153,8 +184,8 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
 
-        val aLoggedInRequestWithParams = aLoggedInRequest.copyFakeRequest(
-          uri = "/applications?search=abc&apiSubscription=ANY&status=CREATED&termsOfUse=ACCEPTED&accessType=STANDARD")
+        val aLoggedInRequestWithParams = FakeRequest(GET, "/applications?search=abc&apiSubscription=ANY&status=CREATED&termsOfUse=ACCEPTED&accessType=STANDARD")
+          .withSession(csrfToken, authToken, userToken).withCSRFToken
         val expectedParams = Map(
           "page" -> "1",
           "pageSize" -> "100",
@@ -180,7 +211,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         redirectLocation(result) shouldBe
           Some(
             s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-              s"&origin=${URLEncoder.encode("Gatekeeper app name", "UTF-8")}")
+              s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
       }
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {
@@ -188,7 +219,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -205,7 +235,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
-        given(mockConfig.title).willReturn("Unit Test Title")
 
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
         status(result) shouldBe OK
@@ -228,7 +257,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         given(mockApplicationService.resendVerification(appCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
           .willReturn(Future.successful(ResendVerificationSuccessful))
 
-        val result = await(underTest.resendVerification(applicationId)(aLoggedInRequest))
+        await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -692,7 +721,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
         given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
           .willReturn(Future.successful(ApproveUpliftSuccessful))
-        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
+        await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
 
@@ -747,7 +776,6 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
-      val clientSecret = "THISISACLIENTSECRET"
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
@@ -1307,7 +1335,7 @@ class ApplicationControllerSpec extends UnitSpec with MockitoSugar with WithFake
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService)
               .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])

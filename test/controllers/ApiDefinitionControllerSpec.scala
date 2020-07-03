@@ -16,30 +16,34 @@
 
 package controllers
 
-import org.scalatest.WordSpec
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.play.test.WithFakeApplication
-import org.scalatest.mockito.MockitoSugar
+import akka.stream.Materializer
+import model.Environment.PRODUCTION
+import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
-import model._
-import model.Environment.PRODUCTION
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.mvc.Result
 import play.api.http.Status._
+import play.api.mvc.{AnyContent, Request}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.http.HeaderCarrier
+import views.html.{ErrorTemplate, ForbiddenView}
 
-class ApiDefinitionControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  implicit val materializer = fakeApplication.materializer
+class ApiDefinitionControllerSpec extends ControllerBaseSpec {
+
+  implicit lazy val request: Request[AnyContent] = FakeRequest()
+  implicit lazy val materializer: Materializer = app.materializer
+  implicit val hc = HeaderCarrier()
+
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase {
-    val controller = new ApiDefinitionController(mockApiDefinitionService, mockAuthConnector)(mockConfig, implicitly)
+    val controller = new ApiDefinitionController(mockApiDefinitionService, mockAuthConnector, forbiddenView, mcc, errorTemplateView)
   }
   
   "apis" should {
     "return a csv" in new Setup {
-
       givenTheUserIsAuthorisedAndIsANormalUser()
 
       val apiVersions = List(APIVersion("1.0", APIStatus.ALPHA), APIVersion("2.0", APIStatus.STABLE))
@@ -56,7 +60,6 @@ class ApiDefinitionControllerSpec extends UnitSpec with WithFakeApplication with
     }
 
     "Forbidden if not stride auth" in new Setup {
-
       givenTheUserHasInsufficientEnrolments()
       
       val result = await(controller.apis()(aLoggedOutRequest))

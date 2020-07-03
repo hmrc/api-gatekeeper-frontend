@@ -20,20 +20,26 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
+import play.api.i18n.I18nSupport
+import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
-import utils.{GatekeeperAuthWrapper, LoggedInRequest}
-import views.html.developers._
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import views.html.{ErrorTemplate, ForbiddenView}
+import views.html.developers.Developers2View
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
+                                      val forbiddenView: ForbiddenView,
                                       developerService: DeveloperService,
-                                      val apiDefinitionService: ApiDefinitionService
-                                     )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
+                                      val apiDefinitionService: ApiDefinitionService,
+                                      mcc: MessagesControllerComponents,
+                                      developersView: Developers2View,
+                                      override val errorTemplate: ErrorTemplate,
+                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,
@@ -42,8 +48,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
     requiresAtLeast(GatekeeperRole.USER) {
 
-      implicit request =>
-        implicit hc => {
+      implicit request => {
 
           val queryParameters = getQueryParametersAsKeyValues(request)
 
@@ -63,7 +68,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           for {
             users <- filteredUsers
             apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
-          } yield Ok(developers2(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
+          } yield Ok(developersView(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), queryParameters))
         }
     }
   }

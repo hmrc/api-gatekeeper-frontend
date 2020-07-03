@@ -16,30 +16,25 @@
 
 package utils
 
+import config.AppConfig
 import model._
-import play.api.mvc.{Request, Result, Results}
+import play.api.i18n.Messages
+import play.api.mvc.Result
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
-import config.AppConfig
 
 import scala.concurrent.{ExecutionContext, Future}
-import views.html.error_template
-import play.api.i18n.Messages
-import controllers.BaseController
 
-trait ActionBuilders { 
-  this: BaseController => 
-
+trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
 
   def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])
-             (implicit request: LoggedInRequest[_]): Future[Result] = {
+             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
   def withAppAndSubscriptions(appId: String)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
-                             (implicit request: LoggedInRequest[_]): Future[Result] = {
+                             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
 
     withApp(appId) {
       appWithHistory => {
@@ -55,7 +50,7 @@ trait ActionBuilders {
   }
 
   def withAppAndFieldDefinitions(appId: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
-                                (implicit request: LoggedInRequest[_]) : Future[Result] = {
+                                (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) : Future[Result] = {
 
     withAppAndSubscriptions(appId) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
@@ -66,17 +61,20 @@ trait ActionBuilders {
     }
   }
 
-  def withAppAndSubscriptionVersion(appId: String, apiContext: String, apiVersion: String)(action: ApplicationAndSubscriptionVersion => Future[Result])
-                                (implicit request: LoggedInRequest[_], messages: Messages, appConfig: AppConfig): Future[Result] = {
-
+  def withAppAndSubscriptionVersion(appId: String,
+                                    apiContext: String,
+                                    apiVersion: String)
+                                   (action: ApplicationAndSubscriptionVersion => Future[Result])
+                                   (implicit request: LoggedInRequest[_],
+                                    messages: Messages,
+                                    ec: ExecutionContext,
+                                    hc: HeaderCarrier): Future[Result] = {
     withAppAndSubscriptions(appId) {
-      
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-
         (for{
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
-        } yield(action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version))))
+        } yield action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version)))
           .getOrElse(Future.successful(notFound("Subscription or version not found")))
       }
     }

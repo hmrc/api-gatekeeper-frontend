@@ -17,23 +17,30 @@
 package controllers
 
 import config.AppConfig
-import javax.inject.Inject
-import play.api.mvc.Action
-import services.ApiDefinitionService
+import connectors.AuthConnector
+import javax.inject.{Inject, Singleton}
 import model._
 import model.Environment._
+import play.api.mvc.MessagesControllerComponents
+import services.ApiDefinitionService
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext
-import utils.GatekeeperAuthWrapper
-import connectors.AuthConnector
 
 case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
 
+@Singleton
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
-                                        override val authConnector: AuthConnector)
-                                       (implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper {
-  def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request => implicit hc =>
+                                        override val authConnector: AuthConnector,
+                                        val forbiddenView: ForbiddenView,
+                                        mcc: MessagesControllerComponents,
+                                        override val errorTemplate: ErrorTemplate)
+                                       (implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper {
+    
+  def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {
@@ -49,7 +56,6 @@ class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionServi
   }
 
   private def toViewModel(apiDefinition: APIDefinition, environment: Environment): Seq[ApiDefinitionView] = {
-
     def isTrial(apiVersion: APIVersion) : Boolean = {
       apiVersion.access.fold(false)(access => access.isTrial.getOrElse(false))
     }

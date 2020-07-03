@@ -18,47 +18,48 @@ package controllers
 
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import model._
-import model.view.{SubscriptionVersion, SubscriptionField, SubscriptionFieldValueForm}
+import model.view.{EditApiMetadataForm, SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.joda.time.DateTime
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent}
-import services.ApplicationService
-import utils.{ActionBuilders, GatekeeperAuthWrapper}
-import views.html.applications.subscriptionConfiguration.{list_subscription_configuration, edit_subscription_configuration}
+import play.api.data
+import play.api.data.Form
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{ApplicationService, SubscriptionFieldsService}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import views.html.{ErrorTemplate, ForbiddenView}
+import views.html.applications.subscriptionConfiguration._
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.view.EditApiMetadataForm
-import play.api.data.Form
-import play.api.data
-import play.api.data.Forms._
-import services.SubscriptionFieldsService
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SaveSubscriptionFieldsFailureResponse}
-import play.i18n.Messages
 
+@Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
                                                     val subscriptionFieldsService: SubscriptionFieldsService,
-                                                    override val authConnector: AuthConnector
-                                                   )(implicit override val appConfig: AppConfig, val ec: ExecutionContext)
-  extends BaseController with GatekeeperAuthWrapper with ActionBuilders {
+                                                    val authConnector: AuthConnector,
+                                                    val forbiddenView: ForbiddenView,
+                                                    mcc: MessagesControllerComponents,
+                                                    listSubscriptionConfiguration: ListSubscriptionConfigurationView,
+                                                    editSubscriptionConfiguration: EditSubscriptionConfigurationView,
+                                                    override val errorTemplate: ErrorTemplate
+                                                   )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      implicit hc =>
         withAppAndFieldDefinitions(appId) {
           app => {
-            Future.successful(Ok(list_subscription_configuration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
+            Future.successful(Ok(listSubscriptionConfiguration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
           }
         }
   }
 
   def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      implicit hc =>
         withAppAndSubscriptionVersion(appId, context, version) {
           app => {
             val subscriptionFields = SubscriptionField(app.version.fields)
@@ -67,14 +68,14 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             val form = EditApiMetadataForm.form
               .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))
 
-            Future.successful(Ok(edit_subscription_configuration(app.application, subscriptionViewModel, form)))
+            Future.successful(Ok(editSubscriptionConfiguration(app.application, subscriptionViewModel, form)))
           }
         }
   }
 
   def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit  request => implicit hc => {
-      
+    implicit  request => {
+
       withAppAndSubscriptionVersion(appId, context, version) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
@@ -91,7 +92,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
             val subscriptionFields = SubscriptionField(app.version.fields)
             val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
 
-            val view = edit_subscription_configuration(app.application, subscriptionViewModel, errorForm)
+            val view = editSubscriptionConfiguration(app.application, subscriptionViewModel, errorForm)
 
             BadRequest(view)
           }

@@ -16,14 +16,13 @@
 
 package model
 
-import model.SubscriptionFields._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
 import org.apache.commons.net.util.SubnetUtils
 import play.api.data.Forms._
 import play.api.data.format.Formatter
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError, ValidationResult}
+import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue

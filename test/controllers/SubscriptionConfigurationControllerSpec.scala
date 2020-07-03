@@ -17,46 +17,41 @@
 package controllers
 
 import builder.SubscriptionsBuilder
-import org.mockito.BDDMockito.`given`
+import mocks.service.SubscriptionFieldsServiceMock
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Result
-import play.api.test.Helpers
 import play.api.test.Helpers._
-import services.SubscriptionFieldsService
+import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.{TitleChecker, WithCSRFAddToken}
+import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import model.SubscriptionFields.Fields
-import play.mvc.Http
-import uk.gov.hmrc.http.HttpResponse
-import com.gargoylesoftware.htmlunit.javascript.host.fetch.Request
-import utils.LoggedInUser
-import utils.LoggedInRequest
-import play.api.test.FakeRequest
-import mocks.service.SubscriptionFieldsServiceMock
 
-class SubscriptionConfigurationControllerSpec 
-    extends UnitSpec 
-    with MockitoSugar 
-    with WithFakeApplication 
-    with WithCSRFAddToken 
+class SubscriptionConfigurationControllerSpec
+    extends ControllerBaseSpec
+    with WithCSRFAddToken
     with TitleChecker {
-  implicit val materializer = fakeApplication.materializer
+
+  implicit val materializer = app.materializer
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]
+  private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfigurationView]
 
   trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
-
-    given(mockConfig.title).willReturn("Unit Test Title")
-
-    val controller = new SubscriptionConfigurationController(
+    lazy val controller = new SubscriptionConfigurationController (
       mockApplicationService,
       mockSubscriptionFieldsService,
-      mockAuthConnector
-    )(mockConfig, global)
+      mockAuthConnector,
+      forbiddenView,
+      mcc,
+      listSubscriptionConfigurationView,
+      editSubscriptionConfigurationView,
+      errorTemplateView
+    )
 
     val version = "1.0"
     val context = "my-context"
@@ -73,7 +68,6 @@ class SubscriptionConfigurationControllerSpec
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
-
       status(result) shouldBe OK
 
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
@@ -105,20 +99,20 @@ class SubscriptionConfigurationControllerSpec
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()      
+      givenTheAppWillBeReturned()
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
 
       val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aLoggedInRequest))
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${mockConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
 
       val responseBody = Helpers.contentAsString(result)
 
@@ -126,7 +120,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.versions.head.version.version)
       responseBody should include(subscription.versions.head.version.displayedStatus)
       
-      responseBody should include(subscriptionFieldValue.definition.description)      
+      responseBody should include(subscriptionFieldValue.definition.description)
       responseBody should include(subscriptionFieldValue.definition.hint)
       responseBody should include(subscriptionFieldValue.value)
     
@@ -151,14 +145,12 @@ class SubscriptionConfigurationControllerSpec
       val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
   "save subscription configuration post" should {
-    val httpResponse = mock[HttpResponse]
-
     "save" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
@@ -179,7 +171,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "save gives validation errors" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()  
+      givenTheUserIsAuthorisedAndIsANormalUser()
       givenTheAppWillBeReturned()
       
       val validationMessage = "My validation error"
@@ -198,7 +190,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(validationMessage)
     }
 
-     "When logged in as super saves the data" in new EditSaveFormData {
+    "When logged in as super saves the data" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsASuperUser()
       givenTheAppWillBeReturned()
 
@@ -221,10 +213,10 @@ class SubscriptionConfigurationControllerSpec
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    } 
+    }
   }
 
-  trait EditSaveFormData extends Setup {     
+  trait EditSaveFormData extends Setup {
     def requestWithFormData(fieldName: String, fieldValue: String)(request : FakeRequest[_]) = {
       request.withFormUrlEncodedBody(
         "fields[0].name" -> fieldName,

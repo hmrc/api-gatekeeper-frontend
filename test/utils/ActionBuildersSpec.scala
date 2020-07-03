@@ -17,47 +17,35 @@
 package utils
 
 import builder.SubscriptionsBuilder
-import controllers.ControllerSetupBase
-import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
-import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
-import org.mockito.BDDMockito.`given`
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
-import org.scalatest.mockito.MockitoSugar
+import controllers.{ControllerBaseSpec, ControllerSetupBase}
+import mocks.TestRoles
+import model.LoggedInRequest
+import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.mvc.Results.Ok
-import play.api.mvc.{AnyContentAsEmpty, Request, Result, Results}
+import play.api.mvc._
 import play.api.test.FakeRequest
-import play.api.http.Status.{OK, NOT_FOUND}
 import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import scala.concurrent.Future
+import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.i18n.Messages.Implicits.applicationMessages
-import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
-import model.ApplicationWithHistory
-import controllers.BaseController
-import connectors.AuthConnector
+import scala.concurrent.Future
 
-class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SubscriptionsBuilder {
-
+class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   trait Setup extends ControllerSetupBase {
-    implicit val materializer = fakeApplication.materializer
-    implicit var playApplication = fakeApplication
-    implicit val appConfig = mock[config.AppConfig]
-    implicit val messages: play.api.i18n.Messages = applicationMessages
-    
-    val underTest = new BaseController with ActionBuilders {
-      val authConnector = mock[AuthConnector]
-      val ec = global
-      override val applicationService: ApplicationService = mockApplicationService
+    implicit val materializer = app.materializer
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+
+    val underTest = new ActionBuilders {
+      val applicationService: ApplicationService = mockApplicationService
+      val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
     }
     
-    val ec = global
+    implicit val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(TestRoles.userRole))), FakeRequest())
+    implicit val messages = mcc.messagesApi.preferred(aUserLoggedInRequest)
+
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
-    val aUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(userRole))), FakeRequest())
 
     val expectedResult = "result text"
   }
@@ -91,12 +79,11 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
 
   "withApp" should {
     "fetch application" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-
       fetchApplicationReturns(application)
 
-      val result: Result = await(underTest.withApp(applicationId)(request => {
+      val result: Result = await(underTest.withApp(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest))
+      }))
 
       verifyFetchApplication(applicationId)
 
@@ -108,14 +95,13 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
   "withAppAndSubscriptions" should {
     "fetch Subscriptions" when {
       "withSubFields is true" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-
         fetchApplicationReturns(application)
         fetchApplicationSubscriptionsReturns(Seq(subscription1, subscription2))
 
         val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
           request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)))
           Future.successful(Ok(expectedResult))
-        })(aUserLoggedInRequest))
+        }))
 
         verifyFetchApplication(applicationId)
         verifyFetchApplicationSubscriptions(basicApplication, true)
@@ -126,14 +112,13 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
     }
 
     "fetch sorted Subscriptions when withSubFields is true" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription3, subscription2))
 
       val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
         request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)), subscription3.copy(versions = Seq(version1Subscribed)))
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest))
+      }))
 
       bodyOf(result) shouldBe expectedResult
     }
@@ -141,21 +126,19 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
 
   "withAppAndFieldDefinitions" should {
     "fetch Subscriptions with Subscription Fields" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription4))
 
       val result: Result = await(underTest.withAppAndFieldDefinitions(applicationId)(request => {
         request.subscriptionsWithFieldDefinitions shouldBe Seq(subscription4.copy(versions = Seq(versionWithSubscriptionFields)))
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest))
+      }))
 
       bodyOf(result) shouldBe expectedResult
     }
   }
 
   "withAppAndSubscriptionVersion" should {
-
     "fetch subscription and version" in new withSubscription {
       val version = subscription.versions.head
       val context = subscription.context
@@ -168,7 +151,7 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
         request.version shouldBe version
         
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, messages ,appConfig))
+      }))
 
       bodyOf(result) shouldBe expectedResult
     }
@@ -181,10 +164,10 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
 
       val invalidContext = "not-a-context"
 
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, invalidContext, version.version.version)(request => {
-        throw new RuntimeException("This shouldn't be called")  
+      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, invalidContext, version.version.version)(_ => {
+        throw new RuntimeException("This shouldn't be called")
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, messages ,appConfig))
+      }))
 
       status(result) shouldBe NOT_FOUND
     }
@@ -196,10 +179,10 @@ class ActionBuildersSpec extends UnitSpec with MockitoSugar with WithFakeApplica
       val context = subscription.context
       val invalidVersion = "not-a-version"
 
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, invalidVersion)(request => {
-        throw new RuntimeException("This shouldn't be called")  
+      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, invalidVersion)(_ => {
+        throw new RuntimeException("This shouldn't be called")
         Future.successful(Ok(expectedResult))
-      })(aUserLoggedInRequest, messages ,appConfig))
+      }))
 
       status(result) shouldBe NOT_FOUND
     }

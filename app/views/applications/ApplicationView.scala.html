@@ -1,0 +1,495 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model.OverrideType.OverrideType
+@import model._
+@import model.State._
+@import views.helper.application._
+@import org.joda.time.format.DateTimeFormat
+@import views.helper.EmailsFormatter
+@import config.AppConfig
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+
+@application = @{applicationWithHistory.application}
+@access = @{application.access}
+
+@renderScopes(scopes: Set[String]) = {
+    <th>
+        <h3>Scopes</h3>
+    </th>
+    <td>
+        @if(scopes.isEmpty) {
+            <span class="faded-text">No scopes assigned to this application</span>
+        } else {
+            <table class="table-plain">
+                @for(scope <- scopes.toIterator) {
+                    <tr><td>@scope</td></tr>
+                }
+            </table>
+        }
+    </td>
+    <td>
+        @if(isAtLeastSuperUser) {
+        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
+        }
+    </td>
+}
+
+@buildOverrideRow(overrideType: OverrideType, scopes: Set[String] = Set.empty) = {
+    <tr>
+        <td>
+            @OverrideType.displayedType(overrideType)
+        </td>
+        <td>
+            <table class="table-plain">
+                @if(scopes.isEmpty) {
+                    <tr><td></td></tr>
+                } else {
+                    @for(scope <- scopes.toIterator) {
+                        <tr><td>@scope</td></tr>
+                    }
+                }
+            </table>
+        </td>
+    </tr>
+}
+
+@renderOverrides(overrides: Set[OverrideFlag]) = {
+    <th><h3>Access overrides</h3></th>
+    <td>
+        @if(overrides.isEmpty) {
+            <span class="faded-text">No access overrides assigned to this application</span>
+        } else {
+            <table>
+                <thead><tr><th>Override</th><th>Scopes</th></tr></thead>
+                @overrides.toList.map(or => or match {
+                    case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+                    case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+                    case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+                    case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
+                    case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+                })
+            </table>
+        }
+    </td>
+    <td>
+        @if(isAtLeastSuperUser) {
+            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
+        }
+    </td>
+}
+
+
+@renderExternalUrl(url: Option[String]) = {
+    @if(url.isDefined) {
+        <a href="@url" target="_blank">@url</a> (opens in a new window)
+    }
+}
+
+@renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
+    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+}
+
+@renderSubscriptions(subs: Seq[Subscription]) = {
+    @for(subscription <- subs.toIterator) {
+        <tr>
+            <td>
+                @subscription.name
+                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
+                    @for((version, index) <- subscribedVersions.zipWithIndex) {
+                        @version.version (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+    }
+}
+
+@main(title = s"${applicationConfig.title} - Application Details") {
+
+<div class="">
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">@application.name</li>
+        </ul>
+    </nav>
+
+    <header>
+        @if(flash.get("success").isDefined) {
+        <div class="alert alert--success" role="alert">
+            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
+        </div>
+        }
+        <h1 class="flush--top">@application.name</h1>
+    </header>
+    @if(application.blocked){
+    <div id="termsOfUseWarning" class="notice">
+        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
+        <strong class="bold-small">This application has been blocked.</strong>
+    </div>}
+    <table>
+        <tr>
+            <th><h3>Environment</h3></th>
+            <td data-environment>@application.deployedTo.toLowerCase.capitalize</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Application ID</h3></th>
+            <td data-app-id>@application.id</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Client ID</h3></th>
+            <td data-client-id>@application.clientId</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Gateway ID</h3></th>
+            <td data-gateway-id>@application.gatewayId</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Status</h3></th>
+            <td>
+                <div data-status>@State.displayedState(application.state.name)</div>
+                <div data-status-info><span class="faded-text">@State.additionalInformation(application.state.name)</span></div>
+            </td>
+            <td>
+                @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
+                    <a href={routes.ApplicationController.reviewPage(application.id.toString).url} class="button--link" role="button" id="review">Check application</a>
+                   } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
+                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id.toString).url}>Resend verify email</a>)</span>
+                   }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th><h3>Created on</h3></th>
+            <td data-created-on>@ApplicationFormatter.getCreatedOn(application)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Last API call</h3></th>
+            <td data-last-access>@ApplicationFormatter.getLastAccess(application)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Rate limit tier</h3></th>
+            <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
+            <td>@if(isAdmin) {
+                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button--link" role="button">Manage</a>
+                }</td>
+        </tr>
+        <tr>
+            <th><h3>Terms of Use</h3></th>
+            <td>
+                <div data-terms>
+                    @{
+                        maybeLatestTOUAgreement match{
+                            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
+                            case _ =>  <p>Not agreed</p>
+                        }
+                    }
+                </div>
+
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <th><h3>Description (private)</h3></th>
+            <td>
+            @if(application.description.nonEmpty) {
+                <p data-description-private class="flush--top">@application.description</p>
+            } else {
+                <p data-description-private class="faded-text">No description added</p>
+            }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Description (public)</h3></th>
+            <td>
+                @{
+                    ApplicationPublicDescription(application) match {
+                        case Some(description) => <p data-description-public="" class="flush--top">{description}</p>
+                        case None => <p data-description-public="" class="faded-text">No description added</p>
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Privacy policy URL</h3></th>
+            <td data-privacy-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => renderExternalUrl(standardAccess.privacyPolicyUrl)
+                        case _ => {}
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Terms and conditions URL</h3></th>
+            <td data-terms-url="">
+                @{
+                    access match {
+                        case standardAccess : Standard => renderExternalUrl(standardAccess.termsAndConditionsUrl)
+                        case _ => {}
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <th><h3>Access type</h3></th>
+            <td data-access-type>@AccessType.displayedType(application.access.accessType)</td>
+            <td></td>
+        </tr>
+        <tr>
+            @{
+                access match {
+                    case standardAccess : Standard => {
+                        renderOverrides(standardAccess.overrides)
+                    }
+                    case privilegedAccess : Privileged => {
+                        renderScopes(privilegedAccess.scopes)
+                    }
+                    case ropcAccess : Ropc => {
+                        renderScopes(ropcAccess.scopes)
+                    }
+                }
+            }
+        </tr>
+        <tr>
+            <th>
+                <h3>Whitelisted IPs</h3>
+            </th>
+            <td>
+            @if(application.ipWhitelist.isEmpty) {
+                <span class="faded-text">No whitelisted IPs</span>
+            } else {
+                <table class="table-plain">
+                @for(ipRange <-application.ipWhitelist.toSeq.sorted) {
+                    <tr><td>@ipRange</td></tr>
+                }
+                </table>
+            }
+            </td>
+            <td>
+            @if(isAtLeastSuperUser) {
+                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id.toString)}" class="button--link" role="button">Manage</a>
+            }
+            </td>
+        </tr>
+        <tr>
+            <th><h3>API subscriptions</h3></th>
+            <td data-subscriptions>
+              <table class="table-plain">
+                @renderSubscriptions(subscriptions)
+                </table>
+            </td>
+            <td>
+                @if(isAtLeastSuperUser) {
+                    <a id="manage-subscriptions" href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button--link" role="button">Manage</a>
+                }
+            </td>
+        </tr>
+
+        @if(subsWithSubscriptionFields.nonEmpty){
+            <tr>
+                <th><h3>Subscription configuration</h3></th>
+                <td data-subscriptions>
+                    <table class="table-plain">
+                        @renderSubscriptions(subsWithSubscriptionFields)
+                    </table>
+                </td>
+                <td>
+                    @if(isAtLeastSuperUser) {
+                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)}" class="button--link" role="button">Manage</a>
+                    }
+                </td>
+            </tr>
+        }
+        <tr>
+            <th class="no-border"><h3>Team members</h3></th>
+            <td class="no-border">
+                <table class="table-plain">
+                    <thead>
+                    <tr>
+                        <th>Email address</th>
+                        <th>Role</th>
+                        <th>2SV Enabled</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for(collaborator <- application.collaborators) {
+                    <tr>
+                        <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(collaborator.emailAddress)}">@collaborator.emailAddress</a></td>
+                        <td data-collaborator-role>
+                            @{
+                                if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
+                                    "Admin"
+                                } else if (collaborator.role == CollaboratorRole.DEVELOPER) {
+                                    "Developer"
+                                } else {
+                                    ""
+                                }
+                            }
+                        </td>
+                        <td data-collaborator-mfaEnabled>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
+                            case true => "Yes"
+                            case false => "No"
+                            })</td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </td>
+            <td class="no-border">
+                @if(isAtLeastSuperUser || application.access.accessType == AccessType.STANDARD) {
+                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
+                }
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td>
+                @if(application.collaborators.nonEmpty) {
+
+                <div class="form-group">
+                    <p>
+                        <a id="copy-all-to-clip" class="button copy-to-clip float--right" href="#"
+                           title="Copies all team member email addresses into the system clipboard."
+                           data-clip-text="@EmailsFormatter.format(application.collaborators)">
+                            Copy all team member email addresses
+                        </a>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <p>
+                        <a id="copy-admins-to-clip" class="button copy-to-clip float--right" href="#"
+                           title="Copies admin email addresses into the system clipboard."
+                           data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
+                            Copy admin email addresses
+                        </a>
+                    </p>
+                </div>
+                }
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Submitted on</h3>
+            </td>
+            @{ ApplicationSubmission.getSubmittedOn(applicationWithHistory) match {
+                case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
+                case None => <td data-submitted-on="" class="faded-text">N/A</td>
+               }
+            }
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Submitted by</h3>
+            </td>
+            @{ApplicationSubmission.getSubmittedBy(applicationWithHistory) match {
+                    case Some(email) =>
+                            <td>
+                                <p data-submitted-by-email="">
+                                    <a href={routes.DevelopersController.developerPage(email).url}>{email}</a>
+                                </p>
+                            </td>
+                    case None => <td class="faded-text">N/A</td>
+                }
+            }
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Submission contact</h3>
+            </td>
+            <td>
+                @{ApplicationReview.getReviewContactName(application) match {
+                    case Some(name) => <p data-submission-contact-name="">{name}</p>
+                    case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
+                    }
+                }
+                @{ApplicationReview.getReviewContactEmail(application) match {
+                        case Some(email) => <p data-submission-contact-email="">{email}</p>
+                        case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
+                    }
+                }
+                @{ApplicationReview.getReviewContactTelephone(application) match {
+                        case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
+                        case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
+                    }
+                }
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Checked on</h3>
+            </td>
+            @{ApplicationReview.getApprovedOn(applicationWithHistory) match {
+                  case Some(approvedOn) => <td data-checked-on="">{approvedOn}</td>
+                  case None => <td data-checked-on="" class="faded-text">N/A</td>
+                }
+            }
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <h3 class="heading--font-reset">Checked by</h3>
+            </td>
+            @{ApplicationReview.getApprovedBy(applicationWithHistory) match {
+                    case Some(approvedBy) => <td data-checked-by="">{approvedBy}</td>
+                    case None => <td data-checked-by="" class="faded-text">N/A</td>
+                }
+            }
+            <td></td>
+        </tr>
+    </table>
+    <br>
+    @if(isAtLeastSuperUser) {
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
+    }
+    @if(isAdmin) {
+        @if(application.state.name == PRODUCTION && !application.blocked) {
+            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
+        }
+        @if(application.state.name == PRODUCTION && application.blocked) {
+        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(application.id.toString)}" class="button--alert text--center">Unblock application</a>
+        }
+    }
+</div>
+}
+

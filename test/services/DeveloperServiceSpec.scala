@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyString, eq => eqTo}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -497,7 +497,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val sandboxUser = aUser("sandbox")
 
       private val email1 = productionUser.email
-      private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(productionUser.email))
@@ -520,7 +519,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val productionUser = aUser("production")
       val sandboxUser = aUser("sandbox")
 
-      private val email1 = productionUser.email
       private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))

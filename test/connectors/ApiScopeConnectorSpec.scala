@@ -25,7 +25,7 @@ import model.{ApiScope, FetchApiDefinitionsFailed}
 import org.mockito.Matchers.{any, eq => mEq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.Matchers
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
