@@ -101,6 +101,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       val underTest = new ApplicationController(
         mockApplicationService,
+        forbiddenView,
         mockApiDefinitionService,
         mockDeveloperService,
         mockAuthConnector,
@@ -115,7 +116,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         deleteApplicationView,
         deleteApplicationSuccessView,
         errorTemplateView,
-        forbiddenView,
         blockApplicationView,
         blockApplicationSuccessView,
         unblockApplicationView,

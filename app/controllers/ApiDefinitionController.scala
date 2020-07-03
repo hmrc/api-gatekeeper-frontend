@@ -34,13 +34,13 @@ case class ApiDefinitionView(apiName: String, apiVersion: String, status: String
 @Singleton
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
                                         override val authConnector: AuthConnector,
+                                        val forbiddenView: ForbiddenView,
                                         mcc: MessagesControllerComponents,
-                                        override val errorTemplate: ErrorTemplate,
-                                        forbiddenView: ForbiddenView)
+                                        override val errorTemplate: ErrorTemplate)
                                        (implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper {
     
-  def apis() = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {

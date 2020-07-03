@@ -33,24 +33,24 @@ import views.html.deploymentApproval._
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
+                                             val forbiddenView: ForbiddenView,
                                              deploymentApprovalService: DeploymentApprovalService,
                                              mcc: MessagesControllerComponents,
                                              deploymentApproval: DeploymentApprovalView,
                                              deploymentReview: DeploymentReviewView,
-                                             override val errorTemplate: ErrorTemplate,
-                                             forbiddenView: ForbiddenView
+                                             override val errorTemplate: ErrorTemplate
                                             )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 
-  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
       deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
-  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
       fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
       val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
       def errors(errors: Form[HandleApprovalForm]) =
@@ -58,11 +58,10 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
 
       def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
         validForm.approval_confirmation match {
-          case "Yes" => {
+          case "Yes" =>
             deploymentApprovalService.approveService(serviceName, Environment.withName(environment)) map {
               _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
             }
-          }
           case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
         }
       }

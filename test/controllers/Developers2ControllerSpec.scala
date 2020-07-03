@@ -55,11 +55,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       val developersController = new Developers2Controller(
         mockAuthConnector,
+        forbiddenView,
         mockDeveloperService,
         mockApiDefinitionService,
         mcc,
         developersView,
-        forbiddenView,
         errorTemplateView
       )
 

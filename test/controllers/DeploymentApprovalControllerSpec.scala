@@ -55,12 +55,12 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
     val underTest = new DeploymentApprovalController(
       mockAuthConnector,
+      forbiddenView,
       mockDeploymentApprovalService,
       mcc,
       deploymentApprovalView,
       deploymentReviewView,
-      errorTemplateView,
-      forbiddenView)
+      errorTemplateView)
   }
 
   "pendingPage" should {

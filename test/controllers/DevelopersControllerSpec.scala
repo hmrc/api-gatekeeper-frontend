@@ -68,6 +68,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       val developersController = new DevelopersController(
         mockDeveloperService,
         mockApplicationService,
+        forbiddenView,
         mockApiDefinitionService,
         mockAuthConnector,
         mcc,
@@ -77,8 +78,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         removeMfaSuccessView,
         deleteDeveloperView,
         deleteDeveloperSuccessView,
-        errorTemplateView,
-        forbiddenView
+        errorTemplateView
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

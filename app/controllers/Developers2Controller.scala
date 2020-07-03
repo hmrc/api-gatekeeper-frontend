@@ -32,11 +32,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
+                                      val forbiddenView: ForbiddenView,
                                       developerService: DeveloperService,
                                       val apiDefinitionService: ApiDefinitionService,
                                       mcc: MessagesControllerComponents,
                                       developersView: Developers2View,
-                                      forbiddenView: ForbiddenView,
                                       override val errorTemplate: ErrorTemplate,
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
@@ -46,7 +46,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                      maybeEnvironmentFilter: Option[String] = None,
                      maybeDeveloperStatusFilter: Option[String] = None) = {
 
-    requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+    requiresAtLeast(GatekeeperRole.USER) {
 
       implicit request => {
 

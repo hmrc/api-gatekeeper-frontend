@@ -42,12 +42,12 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
     val ec = global
     lazy val mcc = app.injector.instanceOf[MessagesControllerComponents]
     lazy val errorTemplate = app.injector.instanceOf[ErrorTemplate]
-    lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
     val authConnectorMock = mock[AuthConnector]
 
     val underTest = new FrontendBaseController with GatekeeperAuthWrapper {
       override protected def controllerComponents: MessagesControllerComponents = mcc
       override val authConnector = authConnectorMock
+      override val forbiddenView = app.injector.instanceOf[ForbiddenView]
     }
     val actionReturns200Body: Request[_] => Future[Result] = _ => Future.successful(Results.Ok)
 
@@ -76,7 +76,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(response)
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.USER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -85,7 +85,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -94,7 +94,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with GuiceOne
       given(underTest.authConnector.authorise(any(), any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
-      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView)(actionReturns200Body).apply(aUserLoggedInRequest)
+      val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
       status(result) shouldBe FORBIDDEN
       verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), any[Retrieval[Any]])(any(), any())

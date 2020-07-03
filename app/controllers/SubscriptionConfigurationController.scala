@@ -39,17 +39,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,
                                                     val subscriptionFieldsService: SubscriptionFieldsService,
                                                     val authConnector: AuthConnector,
+                                                    val forbiddenView: ForbiddenView,
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: ListSubscriptionConfigurationView,
                                                     editSubscriptionConfiguration: EditSubscriptionConfigurationView,
-                                                    override val errorTemplate: ErrorTemplate,
-                                                    forbiddenView: ForbiddenView
+                                                    override val errorTemplate: ErrorTemplate
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withAppAndFieldDefinitions(appId) {
           app => {
@@ -58,7 +58,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withAppAndSubscriptionVersion(appId, context, version) {
           app => {
@@ -73,7 +73,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => {
 
       withAppAndSubscriptionVersion(appId, context, version) {

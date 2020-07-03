@@ -46,11 +46,11 @@ class SubscriptionConfigurationControllerSpec
       mockApplicationService,
       mockSubscriptionFieldsService,
       mockAuthConnector,
+      forbiddenView,
       mcc,
       listSubscriptionConfigurationView,
       editSubscriptionConfigurationView,
-      errorTemplateView,
-      forbiddenView
+      errorTemplateView
     )
 
     val version = "1.0"

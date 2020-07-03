@@ -18,7 +18,7 @@ package utils
 
 import config.AppConfig
 import connectors.AuthConnector
-import model.{GatekeeperRole, LoggedInUser, LoggedInRequest}
+import model.{GatekeeperRole, LoggedInRequest, LoggedInUser}
 import model.GatekeeperRole.GatekeeperRole
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result}
@@ -33,10 +33,11 @@ import scala.concurrent.{ExecutionContext, Future}
 trait GatekeeperAuthWrapper extends I18nSupport{
   self: FrontendBaseController =>
   def authConnector: AuthConnector
+  val forbiddenView: ForbiddenView
 
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  def requiresAtLeast(minimumRoleRequired: GatekeeperRole, forbiddenView: ForbiddenView)(body: LoggedInRequest[_] => Future[Result])
+  def requiresAtLeast(minimumRoleRequired: GatekeeperRole)(body: LoggedInRequest[_] => Future[Result])
                      (implicit ec: ExecutionContext, appConfig: AppConfig): Action[AnyContent] = Action.async {
     implicit request: Request[AnyContent] =>
 
@@ -44,9 +45,8 @@ trait GatekeeperAuthWrapper extends I18nSupport{
       val retrieval: Retrieval[Name ~ Enrolments] = Retrievals.name and Retrievals.authorisedEnrolments
 
       authConnector.authorise(predicate, retrieval) flatMap {
-        case name ~ authorisedEnrolments => {
+        case name ~ authorisedEnrolments =>
           body(LoggedInRequest(name.name, authorisedEnrolments, request))
-        }
       } recoverWith {
         case _: NoActiveSession =>
           request.secure

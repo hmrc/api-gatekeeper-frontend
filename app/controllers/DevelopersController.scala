@@ -34,6 +34,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class DevelopersController @Inject()(developerService: DeveloperService,
                                      val applicationService: ApplicationService,
+                                     val forbiddenView: ForbiddenView,
                                      apiDefinitionService: ApiDefinitionService,
                                      override val authConnector: AuthConnector,
                                      mcc: MessagesControllerComponents,
@@ -43,12 +44,11 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      removeMfaSuccessView: RemoveMfaSuccessView,
                                      deleteDeveloperView: DeleteDeveloperView,
                                      deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
-                                     override val errorTemplate: ErrorTemplate,
-                                     forbiddenView: ForbiddenView
+                                     override val errorTemplate: ErrorTemplate
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
-  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
 
       val apiFilter = ApiFilter(filter)
@@ -72,17 +72,17 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } yield Ok(developersView(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
-  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
         Ok(removeMfaSuccessView(email))
@@ -93,12 +93,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
       developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
         case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))

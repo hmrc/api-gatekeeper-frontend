@@ -41,6 +41,7 @@ import scala.util.Try
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
+                                      val forbiddenView: ForbiddenView,
                                       apiDefinitionService: ApiDefinitionService,
                                       developerService: DeveloperService,
                                       override val authConnector: AuthConnector,
@@ -55,7 +56,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       deleteApplicationView: DeleteApplicationView,
                                       deleteApplicationSuccessView: DeleteApplicationSuccessView,
                                       override val errorTemplate: ErrorTemplate,
-                                      forbiddenView: ForbiddenView,
                                       blockApplicationView: BlockApplicationView,
                                       blockApplicationSuccessView: BlockApplicationSuccessView,
                                       unblockApplicationView: UnblockApplicationView,
@@ -72,7 +72,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
         val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
         val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
@@ -85,7 +85,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         } yield Ok(applicationsView(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
-  def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def applicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
         withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
           val app = applicationWithSubscriptions.application
@@ -110,7 +110,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def resendVerification(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
         withApp(appId) { app =>
           for {
@@ -122,7 +122,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def manageSubscription(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           applicationService.fetchApplicationSubscriptions(app.application).map {
@@ -131,21 +131,21 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def subscribeToApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           applicationService.subscribeToApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
   }
 
-  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def unsubscribeFromApi(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           applicationService.unsubscribeFromApi(app.application, context, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
   }
 
-  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def manageAccessOverrides(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           app.application.access match {
@@ -156,7 +156,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def updateAccessOverrides(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def updateAccessOverrides(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
@@ -191,7 +191,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageScopes(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def manageScopes(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           app.application.access match {
@@ -204,7 +204,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def updateScopes(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def updateScopes(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(scopes: Set[String]) = {
@@ -225,14 +225,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def manageWhitelistedIpPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           Future.successful(Ok(manageWhitelistedIpView(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
         }
   }
 
-  def manageWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def manageWhitelistedIpAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(whitelistedIps: Set[String]) = {
@@ -249,7 +249,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def manageRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
@@ -257,7 +257,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def updateRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def updateRateLimitTier(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(form: UpdateRateLimitForm) = {
@@ -274,14 +274,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def deleteApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def deleteApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           Future.successful(Ok(deleteApplicationView(app, isAtLeastSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
         }
   }
 
-  def deleteApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+  def deleteApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(form: DeleteApplicationForm) = {
@@ -306,14 +306,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def blockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def blockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           Future.successful(Ok(blockApplicationView(app, isAtLeastSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
         }
   }
 
-  def blockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def blockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(form: BlockApplicationForm) = {
@@ -339,14 +339,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def unblockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def unblockApplicationPage(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           Future.successful(Ok(unblockApplicationView(app, isAtLeastSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
         }
   }
 
-  def unblockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN, forbiddenView) {
+  def unblockApplicationAction(appId: String) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
         withApp(appId) { app =>
           def handleValidForm(form: UnblockApplicationForm) = {
@@ -390,7 +390,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     }
   }
 
-  def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def reviewPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
     withApp(appId) { app =>
       redirectIfIsSandboxApp(app) {
         fetchApplicationReviewDetails(appId) map (details => Ok(reviewView(HandleUpliftForm.form, details)))
@@ -405,7 +405,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     } yield applicationReviewDetails(app.application, submission)
   }
 
-  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+  def approvedApplicationPage(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
     withApp(appId) { app =>
 
       def lastApproval(app: ApplicationWithHistory): StateHistory = {
@@ -474,7 +474,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       app.privacyPolicyUrl)
   }
 
-  def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def handleUplift(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withApp(appId) { app =>
         redirectIfIsSandboxApp(app) {
@@ -507,7 +507,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def handleUpdateRateLimitTier(appId: String): Action[AnyContent] =
-    requiresAtLeast(GatekeeperRole.USER, forbiddenView) { implicit request =>
+    requiresAtLeast(GatekeeperRole.USER) { implicit request =>
       withApp(appId) { app =>
         val result = Redirect(routes.ApplicationController.applicationPage(appId))
         if (isAtLeastSuperUser) {
@@ -527,7 +527,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = {
-    requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+    requiresAtLeast(GatekeeperRole.SUPERUSER) {
       implicit request => {
         Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
       }
@@ -535,7 +535,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
-    requiresAtLeast(GatekeeperRole.SUPERUSER, forbiddenView) {
+    requiresAtLeast(GatekeeperRole.SUPERUSER) {
       implicit request => {
         def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
           Future.successful(BadRequest(createApplicationView(form)))
@@ -575,21 +575,21 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     }
   }
 
-  def manageTeamMembers(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def manageTeamMembers(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withRestrictedApp(appId) { app =>
         Future.successful(Ok(manageTeamMembersView(app.application)))
       }
   }
 
-  def addTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def addTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withRestrictedApp(appId) { app =>
         Future.successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
       }
   }
 
-  def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def addTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withRestrictedApp(appId) { app =>
         def handleValidForm(form: AddTeamMemberForm) = {
@@ -606,7 +606,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       }
   }
 
-  def removeTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def removeTeamMember(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withRestrictedApp(appId) { app =>
         def handleValidForm(form: RemoveTeamMemberForm) =
@@ -621,7 +621,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       }
   }
 
-  def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER, forbiddenView) {
+  def removeTeamMemberAction(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       withRestrictedApp(appId) { app =>
         def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
