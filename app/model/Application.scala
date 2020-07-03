@@ -27,7 +27,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.time.DateTimeUtils
 
-// TODO: Is the default format for Joda correct for Gatekeeper?
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 

@@ -30,7 +30,6 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
-// TODO: Is the default format for Joda correct for Gatekeeper?
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
