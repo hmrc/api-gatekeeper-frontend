@@ -16,7 +16,6 @@
 
 package model
 
-import play.api.data.Form
 import play.api.libs.json.{Format, Json}
 
 object SubscriptionFields {

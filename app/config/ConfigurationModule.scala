@@ -28,7 +28,7 @@ class ConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
 
-    val developerConnectorBinding = if (configuration.getBoolean("isExternalTestEnvironment").getOrElse(false)) {
+    val developerConnectorBinding = if (configuration.getOptional[Boolean]("isExternalTestEnvironment").getOrElse(false)) {
       bind[DeveloperConnector].to[DummyDeveloperConnector]
     } else {
       bind[DeveloperConnector].to[HttpDeveloperConnector]

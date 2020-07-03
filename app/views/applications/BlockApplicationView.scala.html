@@ -23,7 +23,6 @@
 @(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[BlockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
-@access = @{application.access}
 
 @main(title = s"${applicationConfig.title} - Block Application") {
 

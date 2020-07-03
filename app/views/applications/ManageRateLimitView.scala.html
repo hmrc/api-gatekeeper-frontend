@@ -15,12 +15,11 @@
  *@
 
 @import model._
-@import include._
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Manage rate limit tier") {
 

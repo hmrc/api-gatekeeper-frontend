@@ -16,9 +16,6 @@
 
 @import include._
 @import model._
-@import model.AccessType.AccessType
-@import model.OverrideType.OverrideType
-@import model.State._
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
@@ -26,7 +23,6 @@
 @(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[UnblockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
-@access = @{application.access}
 
 @main(title = s"${applicationConfig.title} - Unblock Application") {
 

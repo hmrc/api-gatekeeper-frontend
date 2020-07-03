@@ -23,10 +23,9 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash,  messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
-@access = @{application.access}
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version} ${subscriptionViewModel.displayedStatus}"}
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {

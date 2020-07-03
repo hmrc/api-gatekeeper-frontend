@@ -21,7 +21,7 @@ import connectors.AuthConnector
 import model.{GatekeeperRole, LoggedInUser, LoggedInRequest}
 import model.GatekeeperRole.GatekeeperRole
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, Request, Result, _}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{~, _}

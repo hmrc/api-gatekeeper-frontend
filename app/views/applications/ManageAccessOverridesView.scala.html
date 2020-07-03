@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @scopes(fieldName: String) = {
     <div class="@if(form.errors(fieldName).nonEmpty) {form-field--error}">

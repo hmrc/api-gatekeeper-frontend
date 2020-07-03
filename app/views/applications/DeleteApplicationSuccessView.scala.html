@@ -22,7 +22,6 @@
 @(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
-@access = @{application.access}
 
 @main(title = s"${applicationConfig.title} - Application Deleted") {
 

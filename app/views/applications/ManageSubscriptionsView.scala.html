@@ -15,14 +15,12 @@
  *@
 
 @import model._
-@import model.Forms._
 @import views.helper.IdFormatter
-@import include._
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
 

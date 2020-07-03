@@ -21,10 +21,9 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @application = @{applicationWithHistory.application}
-@access = @{application.access}
 @pageTitle = @{"Subscription configuration"}
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {
