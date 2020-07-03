@@ -75,7 +75,7 @@
     navTitle = Option(applicationConfig.title),
     navTitleLink = None,
     showBetaLink = false,
-    navLinks = Option(include.headerNavLinks(StaticNavLinks(applicationConfig)))
+    navLinks = Option(include.headerNavLinks(StaticNavLinks()))
   )
 
   <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>

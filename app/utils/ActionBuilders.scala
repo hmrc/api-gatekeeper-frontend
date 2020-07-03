@@ -67,7 +67,6 @@ trait ActionBuilders extends ErrorHelper {
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])
                                    (implicit request: LoggedInRequest[_],
                                     messages: Messages,
-                                    appConfig: AppConfig,
                                     ec: ExecutionContext,
                                     hc: HeaderCarrier): Future[Result] = {
     withAppAndSubscriptions(appId) {

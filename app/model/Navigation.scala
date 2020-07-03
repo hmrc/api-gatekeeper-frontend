@@ -28,7 +28,7 @@ object NavLink {
 
 case object StaticNavLinks {
 
-  def apply(implicit appConfig: AppConfig): Seq[NavLink] = {
+  def apply(): Seq[NavLink] = {
     Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage(None).url)),
       NavLink("Developers", Some(routes.Developers2Controller.developersPage(None, None, None, None).url)),

@@ -17,7 +17,6 @@
 package config
 
 import javax.inject.Inject
-import model.LoggedInUser
 import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
@@ -30,7 +29,6 @@ class ErrorHandler @Inject()(val messagesApi: MessagesApi,
                             (implicit val appConfig: AppConfig) extends FrontendErrorHandler {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
-    implicit val loggedInUser = LoggedInUser(None)
     errorTemplate(pageTitle, heading, message)
   }
 }

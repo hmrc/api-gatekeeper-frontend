@@ -31,6 +31,6 @@ class NavigationController @Inject()(mcc: MessagesControllerComponents)
   extends FrontendController(mcc) {
 
   def navLinks() = Action.async { implicit request =>
-    Future.successful(Ok(Json.toJson(StaticNavLinks(appConfig))))
+    Future.successful(Ok(Json.toJson(StaticNavLinks())))
   }
 }
