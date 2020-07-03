@@ -37,7 +37,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       val apiDefinitionService: ApiDefinitionService,
                                       mcc: MessagesControllerComponents,
                                       developersView: Developers2View,
-                                      override val errorTemplate: ErrorTemplate,
+                                      override val errorTemplate: ErrorTemplate
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 
