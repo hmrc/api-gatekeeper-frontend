@@ -445,7 +445,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
       val createPrivOrROPCAppRequest = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
-      val createPrivOrROPCAppRequestJson = Json.toJson(createPrivOrROPCAppRequest).toString()
       val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", "client ID", totpSecrets, appAccess)
 
       when(mockHttpClient
@@ -511,14 +510,11 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar 
   }
 
   "removeCollaborator" should {
-    def encode(str: String): String = URLEncoder.encode(str, "UTF-8")
 
     val appId = "APP_ID"
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
     val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")
-    val url =
-      s"$baseUrl/application/$appId/collaborator/${encode(emailAddress)}?admin=${encode(gatekeeperUserId)}&adminsToEmail=${encode(adminsToEmail.mkString(","))}"
 
     "send a DELETE request to the service with the correct params" in new Setup {
       when(mockHttpClient.DELETE[HttpResponse](any[String], any[Seq[(String, String)]])(any(), any(), any()))

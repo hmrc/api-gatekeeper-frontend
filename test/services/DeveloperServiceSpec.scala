@@ -497,7 +497,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val sandboxUser = aUser("sandbox")
 
       private val email1 = productionUser.email
-      private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Seq(productionUser.email))
@@ -520,7 +519,6 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar {
       val productionUser = aUser("production")
       val sandboxUser = aUser("sandbox")
 
-      private val email1 = productionUser.email
       private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(any(), any(), any())(any[HeaderCarrier]))

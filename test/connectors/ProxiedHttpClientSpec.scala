@@ -19,7 +19,6 @@ package connectors
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar

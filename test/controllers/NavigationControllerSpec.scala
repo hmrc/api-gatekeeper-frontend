@@ -16,7 +16,6 @@
 
 package controllers
 
-import mocks.config.AppConfigMock
 import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global

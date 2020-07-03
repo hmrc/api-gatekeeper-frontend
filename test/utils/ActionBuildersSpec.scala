@@ -18,19 +18,15 @@ package utils
 
 import builder.SubscriptionsBuilder
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
-import mocks.config.AppConfigMock
 import mocks.TestRoles
 import model.LoggedInRequest
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{NOT_FOUND, OK}
-import play.api.mvc._
 import play.api.mvc.Results.Ok
+import play.api.mvc._
 import play.api.test.FakeRequest
 import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global

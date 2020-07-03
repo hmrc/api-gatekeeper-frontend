@@ -331,9 +331,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   "saveFieldValues" should {
 
     val fieldsValues = fields("field001" -> "value001", "field002" -> "value002")
-    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)
-
-    val putUrl = s"$urlPrefix/application/$clientId/context/$apiContext/version/$apiVersion"
 
     "save the fields" in new Setup {
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any()))

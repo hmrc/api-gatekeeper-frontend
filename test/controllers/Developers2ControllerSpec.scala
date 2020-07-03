@@ -133,7 +133,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         given(mockDeveloperService.searchDevelopers(any())(any[HeaderCarrier])).willReturn(List())
 
-        val result: Result = await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
+        await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
 
         val expectedEmptyFilter = Developers2Filter()
         verify(mockDeveloperService).searchDevelopers(meq(expectedEmptyFilter))(any[HeaderCarrier])

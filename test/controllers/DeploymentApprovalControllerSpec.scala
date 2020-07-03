@@ -19,9 +19,8 @@ package controllers
 import java.net.URLEncoder
 import java.util.UUID
 
-import mocks.config.AppConfigMock
-import model._
 import model.Environment._
+import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.verify
@@ -30,8 +29,8 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -190,7 +189,6 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
     "return bad request if approval is not confirmed" in new Setup {
       val environment = PRODUCTION
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
 
@@ -208,7 +206,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 
-      var result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
+      val result = await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
 
       status(result) shouldBe BAD_REQUEST
     }

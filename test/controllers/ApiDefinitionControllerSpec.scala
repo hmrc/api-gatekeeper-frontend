@@ -17,9 +17,8 @@
 package controllers
 
 import akka.stream.Materializer
-import mocks.config._
-import model._
 import model.Environment.PRODUCTION
+import model._
 import org.mockito.BDDMockito._
 import org.mockito.Matchers._
 import play.api.http.Status._

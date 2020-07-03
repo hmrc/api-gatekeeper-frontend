@@ -20,30 +20,29 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import mocks.TestRoles._
-import model._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
+import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito.{never, times, verify}
-import play.api.libs.typedmap.TypedMap
 import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.{DeveloperService, SubscriptionFieldsService}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{TitleChecker, WithCSRFAddToken}
 import utils.FakeRequestCSRFSupport._
-import views.html.{ErrorTemplate, ForbiddenView}
+import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications._
 import views.html.approvedApplication.ApprovedView
 import views.html.review.ReviewView
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -258,7 +257,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         given(mockApplicationService.resendVerification(appCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
           .willReturn(Future.successful(ResendVerificationSuccessful))
 
-        val result = await(underTest.resendVerification(applicationId)(aLoggedInRequest))
+        await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -722,7 +721,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
         given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(any[HeaderCarrier]))
           .willReturn(Future.successful(ApproveUpliftSuccessful))
-        val result = await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
+        await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
 
@@ -777,7 +776,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
       val clientId = "This-isac-lient-ID"
-      val clientSecret = "THISISACLIENTSECRET"
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
@@ -1337,7 +1335,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService)
               .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(any[HeaderCarrier])
