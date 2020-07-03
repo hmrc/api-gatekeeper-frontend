@@ -331,14 +331,17 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   "saveFieldValues" should {
 
     val fieldsValues = fields("field001" -> "value001", "field002" -> "value002")
+    val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)
+
+    val putUrl = s"$urlPrefix/application/$clientId/context/$apiContext/version/$apiVersion"
 
     "save the fields" in new Setup {
-      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any()))
+      when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](eqTo(putUrl), eqTo(subFieldsPutRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
 
-      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](any(), any(), any())(any(), any(), any(), any())
+      verify(mockHttpClient).PUT[SubscriptionFieldsPutRequest, HttpResponse](eqTo(putUrl), eqTo(subFieldsPutRequest), any())(any(), any(), any(), any())
     }
 
     "fail when api-subscription-fields returns a 500" in new Setup {
