@@ -247,10 +247,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    for {
-      unsubscribeResult <- applicationConnectorFor(application).unsubscribeFromApi(application.id.toString, context, version)
-      _ <- subscriptionFieldsService.deleteFieldValues(application, context, version)
-    } yield unsubscribeResult
+      applicationConnectorFor(application).unsubscribeFromApi(application.id.toString, context, version)
   }
 
   def updateRateLimitTier(application: Application, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
