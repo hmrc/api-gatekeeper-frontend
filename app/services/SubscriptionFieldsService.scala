@@ -17,7 +17,7 @@
 package services
 
 import javax.inject.{Inject, Named, Singleton}
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
 import model.{APIIdentifier, Application, FieldsDeleteResult}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -59,6 +59,29 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
   def saveFieldValues(application: Application, apiContext: String, apiVersion: String, fields: Fields)
       (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     connectorFor(application).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
+  }
+
+  def saveBlankFieldValues( application: Application,
+                            apiContext: String,
+                            apiVersion: String,
+                            values : Seq[SubscriptionFieldValue])
+                          (implicit hc: HeaderCarrier) : Future[SaveSubscriptionFieldsResponse] = {
+
+    def createEmptyFieldValues(fieldDefinitions: Seq[SubscriptionFieldDefinition]) = {
+      fieldDefinitions
+        .map(d => d.name -> "")
+        .toMap
+    }
+
+    if(values.forall(_.value.isEmpty)){
+      val connector = connectorFor(application)
+
+      val emptyFieldValues = createEmptyFieldValues(values.map(_.definition))
+
+      connector.saveFieldValues(application.clientId, apiContext, apiVersion, emptyFieldValues)
+    } else {
+      Future.successful(SaveSubscriptionFieldsSuccessResponse)
+    }
   }
 
   def deleteFieldValues(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
