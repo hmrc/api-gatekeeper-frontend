@@ -218,30 +218,16 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     trait HasSucceeded
     object HasSucceeded extends HasSucceeded
 
-    def createEmptyFieldValues(fieldDefinitions: Seq[SubscriptionFieldDefinition]) = {
-      fieldDefinitions
-        .map(d => (d.name, ""))
-        .toMap
-    }
-
     def ensureEmptyValuesWhenNoneExists(fieldDefinitions: Seq[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
-      subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
-        .flatMap(values => {
-          if (!values.exists(field => field.value != "")) {
-            subscriptionFieldsService
-              .saveFieldValues(application, context, version, createEmptyFieldValues(fieldDefinitions))
-              .map({
-                case SaveSubscriptionFieldsSuccessResponse => HasSucceeded
-                case error => {
-                  val errorMessage = s"Failed to save blank subscription field values: $error"
-                  throw new RuntimeException(errorMessage)
-                }
-              })
-          }
-          else {
-            Future.successful(HasSucceeded)
-          }
-        })
+      for {
+        oldValues <- subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
+        saveResponse <- subscriptionFieldsService.saveBlankFieldValues(application, context, version, oldValues)
+      } yield saveResponse match {
+        case SaveSubscriptionFieldsSuccessResponse => HasSucceeded
+        case error =>
+          val errorMessage = s"Failed to save blank subscription field values: $error"
+          throw new RuntimeException(errorMessage)
+      }
     }
 
     def ensureSavedValuesForAnyDefinitions(defns: Seq[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
