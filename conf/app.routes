@@ -73,3 +73,6 @@ POST        /pending/:serviceName/approve-sandbox                             co
 POST        /pending/:serviceName/approve-productio                           controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
 
 GET         /apis                                                             controllers.ApiDefinitionController.apis
+
+GET         /emails                                                           controllers.EmailsController.landing()
+POST        /emails                                                           controllers.EmailsController.chooseEmailOption()

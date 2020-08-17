@@ -19,6 +19,7 @@ package model
 import java.util.UUID
 
 import model.AccessType.AccessType
+import model.EmailOptionChoice.EmailOptionChoice
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
 import model.Environment._
@@ -29,7 +30,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
-
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
@@ -366,3 +366,5 @@ object ApproveServiceRequest {
 }
 
 class UpdateApiDefinitionsFailed extends Throwable
+
+case class SendEmailChoiceForm(sendEmailChoice: EmailOptionChoice)
