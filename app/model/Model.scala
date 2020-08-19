@@ -367,4 +367,4 @@ object ApproveServiceRequest {
 
 class UpdateApiDefinitionsFailed extends Throwable
 
-case class SendEmailChoiceForm(sendEmailChoice: EmailOptionChoice)
+case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)

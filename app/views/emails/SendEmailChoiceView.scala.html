@@ -21,14 +21,18 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(form: Form[SendEmailChoiceForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
-@buildOptionRow(optionChoice: EmailOptionChoice) = {
+@()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@disabledFlag(enabled: Boolean) = @{if(!enabled){" disabled"} else {""}}
+@checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
+
+@buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean = false, checked: Boolean = false) = {
     <div class="multiple-choice">
-            <input id="@optionChoice.toString" name="sendEmailChoice" type="radio" value="@optionChoice.toString">
-            <label class="form-label-bold" for="@optionChoice.toString" >@EmailOptionChoice.optionLegend(optionChoice)
-                <span>
-                    <p>@EmailOptionChoice.optionHint(optionChoice)</p>
-                </span>
+
+            <input id="@optionChoice.toString" name="sendEmailChoice" aria-label="@EmailOptionChoice.optionHint(optionChoice)" type="radio" value="@optionChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
+
+            <label class="form-label-bold" for="@optionChoice.toString" >@EmailOptionChoice.optionLabel(optionChoice)
+                <span><p>@EmailOptionChoice.optionHint(optionChoice)</p></span>
             </label>
     </div>
 }
@@ -38,20 +42,17 @@
         <div class="content__body full-width">
 
         @helper.form(action = routes.EmailsController.chooseEmailOption()) {
-            @errorSummary(form)
             @helper.CSRF.formField
             <div class="form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="form-label-bold">
-                        <h1 class="govuk-fieldset__heading">
-                            Send emails to users based on
-                        </h1>
+                        <h1>Send emails to users based on</h1>
                     </legend>
                     <div class="govuk-radios">
                         @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES)
                         @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION)
                         <div class="multiple-choice">Or</div>
-                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS)
+                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true, checked = true)
                     </div>
                 </fieldset>
                 <div class="form-field">

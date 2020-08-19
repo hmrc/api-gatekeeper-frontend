@@ -21,7 +21,7 @@ object EmailOptionChoice extends Enumeration {
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
   implicit val emailOptionsFormat = EnumJson.enumFormat(EmailOptionChoice)
 
-  val optionLegend: EmailOptionChoice => String = {
+  val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email Preferences"
     case API_SUBSCRIPTION => "Api subscription"
     case EMAIL_ALL_USERS => "Email all users"

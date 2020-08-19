@@ -17,9 +17,13 @@
 package views.emails
 
 import mocks.config.AppConfigMock
+import model.EmailOptionChoice._
 import model.LoggedInUser
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
@@ -28,20 +32,32 @@ import views.html.emails.SendEmailChoiceView
 class EmailLandingViewSpec extends CommonViewSpec {
 
   trait Setup extends AppConfigMock {
-    implicit val request = FakeRequest().withCSRFToken
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailLandingView = app.injector.instanceOf[SendEmailChoiceView]
-
+    val emailLandingView: SendEmailChoiceView = app.injector.instanceOf[SendEmailChoiceView]
   }
 
   "email landing view" must {
-    "show correct title" in new Setup {
-      val result = emailLandingView.render(LoggedInUser(None), messagesProvider)
+    "show correct title and options" in new Setup {
+      val result: Html = emailLandingView.render(request, LoggedInUser(None), messagesProvider)
 
-      val document = Jsoup.parse(result.body)
+      val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
+      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
       elementExistsByText(document, "h1", "Send emails to users based on") mustBe true
+
+      verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = true)
+      verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = true)
+      verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
+      elementExistsByIdWithAttr(document, EMAIL_ALL_USERS.toString, "checked") mustBe true
     }
+  }
+
+  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean): Unit ={
+    elementExistsById(document, option.toString) mustBe true
+    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
+    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
+    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
   }
 }

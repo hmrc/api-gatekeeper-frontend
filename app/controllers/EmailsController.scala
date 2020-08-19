@@ -19,57 +19,80 @@ package controllers
 import config.AppConfig
 import model.Forms._
 import connectors.AuthConnector
+import controllers.Assets.Ok
 import javax.inject.{Inject, Singleton}
-import model.{EmailOptionChoice, GatekeeperRole, SendEmailChoiceForm}
+import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
+import model.{EmailOptionChoice, GatekeeperRole, SendEmailChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApplicationService, DeveloperService}
+import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.SendEmailChoiceView
+import views.html.emails.{EmailAllUsersView, EmailInformationView, SendEmailChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailsController  @Inject()(developerService: DeveloperService,
-                                  emailsLandingView: SendEmailChoiceView,
+                                  sendEmailChoiceView: SendEmailChoiceView,
+                                  emailInformationView: EmailInformationView,
+                                  emailsAllUsersView: EmailAllUsersView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
                                   mcc: MessagesControllerComponents,
-
                                   override val errorTemplate: ErrorTemplate
                                  )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
   def landing(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      Future.successful(Ok(emailsLandingView(sendEmailChoiceForm.bindFromRequest)))
+      Future.successful(Ok(sendEmailChoiceView()))
   }
 
   def chooseEmailOption(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
-        def handleValidForm(form: SendEmailChoiceForm): Future[Result] = {
+        def handleValidForm(form: SendEmailChoice): Future[Result] = {
             form.sendEmailChoice match {
-              case EmailOptionChoice.EMAIL_PREFERENCES => Future.successful(Ok("1"))
-              case EmailOptionChoice.API_SUBSCRIPTION => Future.successful(Ok("2"))
-              case EmailOptionChoice.EMAIL_ALL_USERS => Future.successful(Ok("3"))
+              case EMAIL_PREFERENCES => Future.successful(Ok("1"))
+              case API_SUBSCRIPTION => Future.successful(Ok("2"))
+              case EMAIL_ALL_USERS => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
             }
         }
-
-        def handleInvalidForm(formWithErrors: Form[SendEmailChoiceForm]) =
-          Future.successful(BadRequest(emailsLandingView(formWithErrors)))
-
-
-
-        sendEmailChoiceForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+        def handleInvalidForm(formWithErrors: Form[SendEmailChoice]) =
+          Future.successful(BadRequest(sendEmailChoiceView()))
+          SendEmailChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
 
       }
     }
 
   }
+
+  def showEmailInformation(emailChoice: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      emailChoice match {
+        case "all-users" => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))
+        case _ => Future.failed(new NotFoundException("Page Not Found"))
+      }
+  }
+
+
+  def emailAllUsersPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      developerService.fetchUsers
+        .map((users :Seq[User]) => {val filteredUsers = users.filter((u:User) => u.verified.contains(true))
+          Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))
+        })
+
+  }
+
+  def usersToEmailCopyText(users: Seq[User]): String = {
+    users.map(_.email).mkString("; ")
+  }
+
 
 }

@@ -270,13 +270,13 @@ object Forms {
     )
   }
 
-
-  val sendEmailChoiceForm = Form(
+object SendEmailChoiceForm {
+  val form: Form[SendEmailChoice] = Form(
     mapping(
       sendEmailChoice -> of[EmailOptionChoice]
 
-    )(SendEmailChoiceForm.apply)(SendEmailChoiceForm.unapply))
-
+    )(SendEmailChoice.apply)(SendEmailChoice.unapply))
+}
 
   implicit def emailOptionChoiceFormat: Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
     override def bind(key: String, data: Map[String, String]) =

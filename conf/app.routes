@@ -76,3 +76,7 @@ GET         /apis                                                             co
 
 GET         /emails                                                           controllers.EmailsController.landing()
 POST        /emails                                                           controllers.EmailsController.chooseEmailOption()
+
+GET        /emails/:emailChoice/information                                    controllers.EmailsController.showEmailInformation(emailChoice: String)
+
+GET       /emails/all-users                                                   controllers.EmailsController.emailAllUsersPage()
