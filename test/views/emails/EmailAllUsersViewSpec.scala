@@ -39,16 +39,50 @@ class EmailAllUsersViewSpec extends CommonViewSpec {
 
   "email all user view" must {
     "show correct title and content for 2 verified users" in new Setup {
-      val users = Seq(User("user1@hmrc.com", "user", "1", Some(true)))
-      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, "user1.hmrc.com; user2@hmrc.com", request, LoggedInUser(None), messagesProvider)
-
+      val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
+      val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
+      val users = Seq(user1, user2)
+      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
+      val tableIsVisible = true
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Check you can email all users") mustBe true
+      elementExistsByText(document, "h1", "Email all users") mustBe true
+      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+      elementExistsByAttr(document, "a", "data-clip-text") mustBe true
+      verifyTableHeader(document, tableIsVisible)
+      verifyUserRow(document, user1)
+      verifyUserRow(document, user2)
 
     }
+
+    "show correct title and content for empty / no users" in new Setup {
+      val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, s"", request, LoggedInUser(None), messagesProvider)
+      val tableIsVisible = true
+      val document: Document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByText(document, "h1", "Email all users") mustBe true
+      elementExistsContainsText(document, "div", "0 results") mustBe true
+      verifyTableHeader(document)
+    }
+
+    def verifyUserRow(document: Document, user: User): Unit ={
+      elementExistsByText(document, "td", user.email) mustBe true
+      elementExistsByText(document, "td", user.firstName) mustBe true
+      elementExistsByText(document, "td", user.lastName) mustBe true
+    }
+
+    def verifyTableHeader(document: Document, tableIsVisible: Boolean = false): Unit ={
+      elementExistsByText(document, "th", "Email") mustBe tableIsVisible
+      elementExistsByText(document, "th", "First name") mustBe tableIsVisible
+      elementExistsByText(document, "th", "Last name") mustBe tableIsVisible
+    }
   }
+
+  // No users
+  // some users -> check table
+
 
 
 }
