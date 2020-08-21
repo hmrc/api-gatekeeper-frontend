@@ -1,0 +1,59 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import config.AppConfig
+@import model.EmailOptionChoice.EmailOptionChoice
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(emailOptionChoice: EmailOptionChoice)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@drawEmailAllUsersDisclaimer() = @{
+        <div>
+            <h1 class="heading-large">Check you can email all users</h1>
+        </div>
+        <div><p>You can only email all users if your message is about:</p></div>
+        <div><br/></div>
+        <div>
+            <ul class="list list-bullet">
+                <li>important notices and service updates</li>
+                <li>changes to any application they have</li>
+                <li>making their application accessible</li>
+            </ul>
+        </div>
+}
+
+
+@main(title = s"${applicationConfig.title} - Check you can email all users") {
+
+    <div class="content__body full-width">
+     <div>
+        <a data-back-link href="@routes.EmailsController.chooseEmailOption()">Back</a>
+     </div>
+
+
+        @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
+
+                @helper.CSRF.formField
+                @drawEmailAllUsersDisclaimer()
+                <div class="form-field">
+                    <a href="@routes.EmailsController.emailAllUsersPage()" class="button button-Link">Continue</a>
+                </div>
+        }
+    </div>
+
+
+}

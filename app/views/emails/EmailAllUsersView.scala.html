@@ -1,0 +1,70 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import config.AppConfig
+@import model.EmailOptionChoice.EmailOptionChoice
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(users: Seq[User], emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Emails all users") {
+
+    <div class="content__body full-width">
+        <div>
+            <a data-back-link href="@routes.EmailsController.showEmailInformation("all-users")">Back</a>
+        </div>
+        <div><h1>Email all users</h1></div>
+        @if(users.nonEmpty) {
+            <div class="form-group>">
+                <p>
+                    <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
+                    title="Copies all @{
+                        users.length
+                    } email addresses into the system clipboard." data-clip-text="@emails">Copy
+                        emails to clipboard</a>
+                </p>
+            </div>
+            <div>@users.size results</div>
+
+            <table id="developer-table"
+            class="no-footer developer-list"
+            width="100%">
+                <thead>
+                    <tr role="row">
+                        <th tabindex="0" class="sorting_left-aligned">Email</th>
+                        <th tabindex="0" class="sorting_left-aligned">First name</th>
+                        <th tabindex="0" class="sorting_left-aligned">Last name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for((user, index) <- users.zipWithIndex) {
+                    <tr role="row">
+                        <td id="dev-email-@index" width="45%">@user.email</td>
+                        <td id="dev-fn-@index">@user.firstName</td>
+                        <td id="dev-sn-@index">@user.lastName</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }else{
+            <div>0 results</div>
+        }
+    </div>
+
+
+}

@@ -16,6 +16,7 @@
 
 package model
 
+import model.EmailOptionChoice._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
@@ -32,6 +33,7 @@ import scala.util.{Failure, Try}
 object Forms {
 
   private val scopesRegex = """^[a-z:\-\,\s][^\r\n]+$""".r
+
   private def validScopes = text.verifying("override.scopes.incorrect", s => scopesRegex.findFirstIn(s).isDefined)
 
   object FormFields {
@@ -51,6 +53,7 @@ object Forms {
     val applicationDescription = "applicationDescription"
     val adminEmail = "adminEmail"
     val environment = "environment"
+    val sendEmailChoice = "sendEmailChoice"
   }
 
   val accessOverridesForm = Form (
@@ -265,6 +268,23 @@ object Forms {
         "confirm" -> optional(text).verifying("team.member.error.confirmation.no.choice.field", _.isDefined)
       )(RemoveTeamMemberConfirmationForm.apply)(RemoveTeamMemberConfirmationForm.unapply)
     )
+  }
+
+object SendEmailChoiceForm {
+  val form: Form[SendEmailChoice] = Form(
+    mapping(
+      sendEmailChoice -> of[EmailOptionChoice]
+
+    )(SendEmailChoice.apply)(SendEmailChoice.unapply))
+}
+
+  implicit def emailOptionChoiceFormat: Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
+    override def bind(key: String, data: Map[String, String]) =
+      data.get(key)
+        .flatMap(name => Try(EmailOptionChoice.withName(name)).toOption)
+        .toRight(Seq(FormError(key, "application.emailOption.required", Nil)))
+
+    override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
   }
 }
 

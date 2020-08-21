@@ -22,10 +22,17 @@ import scala.collection.JavaConverters._
 object ViewHelpers {
 
   def elementExistsByText(doc: Document, elementType: String, elementText: String): Boolean = {
-    doc.select(elementType).asScala.exists(node => node.text.trim == elementText)
+   doc.select(elementType).asScala.exists(node => node.text.trim == elementText)
+  }
+
+  def elementExistsContainsText(doc: Document, elementType: String, elementText: String): Boolean = {
+    doc.select(elementType).asScala.exists(node => node.text.trim.contains(elementText))
   }
 
   def elementExistsById(doc: Document, id: String): Boolean = doc.select(s"#$id").asScala.nonEmpty
+
+  def elementExistsByIdWithAttr(doc: Document, id: String, attr: String): Boolean =
+    doc.select(s"#$id").asScala.filter(_.hasAttr(attr)).nonEmpty
 
   def elementExistsByAttr(doc: Document, elementType: String, attr: String): Boolean = {
     doc.select(s"$elementType[$attr]").asScala.nonEmpty
