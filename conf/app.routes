@@ -80,3 +80,4 @@ POST        /emails                                                           co
 GET        /emails/:emailChoice/information                                    controllers.EmailsController.showEmailInformation(emailChoice: String)
 
 GET       /emails/all-users                                                   controllers.EmailsController.emailAllUsersPage()
+GET       /emails/api-subscribers                                              controllers.EmailsController.emailApiSubscribersPage(apiVersionFilter: Option[String])

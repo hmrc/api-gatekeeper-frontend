@@ -29,6 +29,11 @@ object ViewHelpers {
     doc.select(elementType).asScala.exists(node => node.text.trim.contains(elementText))
   }
 
+  def getSelectedOptionValue(doc: Document)= {
+    doc.select("select option[selected]").asScala.headOption.map(_.attr("value"))
+  }
+
+
   def elementExistsById(doc: Document, id: String): Boolean = doc.select(s"#$id").asScala.nonEmpty
 
   def elementExistsByIdWithAttr(doc: Document, id: String, attr: String): Boolean =

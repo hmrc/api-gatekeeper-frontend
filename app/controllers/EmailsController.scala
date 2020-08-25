@@ -21,25 +21,28 @@ import model.Forms._
 import connectors.AuthConnector
 import controllers.Assets.Ok
 import javax.inject.{Inject, Singleton}
+import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
-import model.{EmailOptionChoice, GatekeeperRole, SendEmailChoice, User}
+import model.{APIDefinition, APIStatus, APIVersion, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailInformationView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailsController  @Inject()(developerService: DeveloperService,
+                                  apiDefinitionService: ApiDefinitionService,
                                   sendEmailChoiceView: SendEmailChoiceView,
                                   emailInformationView: EmailInformationView,
                                   emailsAllUsersView: EmailAllUsersView,
+                                 emailApiSubscriptionsView: EmailApiSubscriptionsView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -59,7 +62,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
         def handleValidForm(form: SendEmailChoice): Future[Result] = {
             form.sendEmailChoice match {
               case EMAIL_PREFERENCES => Future.successful(Ok("1"))
-              case API_SUBSCRIPTION => Future.successful(Ok("2"))
+              case API_SUBSCRIPTION => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
               case EMAIL_ALL_USERS => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
             }
         }
@@ -76,6 +79,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
     implicit request =>
       emailChoice match {
         case "all-users" => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))
+        case "api-subscription" => Future.successful(Ok(emailInformationView(EmailOptionChoice.API_SUBSCRIPTION)))
         case _ => Future.failed(new NotFoundException("Page Not Found"))
       }
   }
@@ -90,9 +94,49 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
   }
 
-  def usersToEmailCopyText(users: Seq[User]): String = {
+
+  def emailApiSubscribersPage(maybeApiVersionFilter: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      val queryParams = request.queryString.map { case (k, v) => k -> v.mkString }
+     val apiDropDowns: Future[Seq[DropDownValue]] =  for {
+        apiVersions  <- apiDefinitionService.fetchAllApiDefinitions()
+        apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
+      } yield apiDropDowns
+
+      val filter = Developers2Filter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
+      val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(Seq.empty[User]))(_=>developerService.searchDevelopers(filter))
+          for{
+            userList <- fetchedUsers
+            apis     <- apiDropDowns
+          } yield Ok(emailApiSubscriptionsView(apis, userList ,"", queryParams))
+  }
+
+ private  def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
+    filter match {
+      case None | Some("")  => None
+      case _ => filter
+    }
+  }
+
+ private def usersToEmailCopyText(users: Seq[User]): String = {
     users.map(_.email).mkString("; ")
   }
 
+  private def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
+    def toKeyValue(api: APIDefinition, version: APIVersion) = {
+      val value: String = ApiContextVersion(api.context, version.version).toStringValue.trim
+      val displayedStatus: String = APIStatus.displayedStatus(version.status).trim
+      val description: String = s"${api.name} (${version.version}) ($displayedStatus)"
+
+      DropDownValue(value, description)
+    }
+
+    (for {
+      api <- apiDefinitions
+      version <- api.versions
+    } yield toKeyValue(api, version))
+      .distinct
+      .sortBy(keyValue => keyValue.description)
+  }
 
 }

@@ -50,9 +50,9 @@
                     </legend>
                     <div class="govuk-radios">
                         @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES)
-                        @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION)
+                        @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled =true, checked = true)
                         <div class="multiple-choice">Or</div>
-                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true, checked = true)
+                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
                     </div>
                 </fieldset>
                 <div class="form-field">

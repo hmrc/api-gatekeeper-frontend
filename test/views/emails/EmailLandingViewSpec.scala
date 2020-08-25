@@ -48,9 +48,9 @@ class EmailLandingViewSpec extends CommonViewSpec {
       elementExistsByText(document, "h1", "Send emails to users based on") mustBe true
 
       verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = true)
-      verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = true)
+      verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = false)
       verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
-      elementExistsByIdWithAttr(document, EMAIL_ALL_USERS.toString, "checked") mustBe true
+      elementExistsByIdWithAttr(document, API_SUBSCRIPTION.toString, "checked") mustBe true
     }
   }
 

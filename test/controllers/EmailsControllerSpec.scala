@@ -28,7 +28,7 @@ import services.DeveloperService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
-import views.html.emails.{EmailAllUsersView, EmailInformationView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,6 +43,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val sendEmailChoiceView = app.injector.instanceOf[SendEmailChoiceView]
   private lazy val emailInformationView = app.injector.instanceOf[EmailInformationView]
   private lazy val emailAllUsersView = app.injector.instanceOf[EmailAllUsersView]
+  private lazy val emailApiSubscriptionsView = app.injector.instanceOf[EmailApiSubscriptionsView]
 
 
   running(app) {
@@ -77,9 +78,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       val underTest = new EmailsController(
         mockDeveloperService,
+        mockApiDefinitionService,
         sendEmailChoiceView,
         emailInformationView,
         emailAllUsersView,
+        emailApiSubscriptionsView,
         mockApplicationService,
         forbiddenView,
         mockAuthConnector,
@@ -103,11 +106,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         responseBody should include(raw"""<input id="EMAIL_PREFERENCES" name="sendEmailChoice" aria-label="Email users based on their preferences" type="radio" value="EMAIL_PREFERENCES" disabled>""".stripMargin)
 
-        responseBody should include(raw"""<input id="API_SUBSCRIPTION" name="sendEmailChoice" aria-label="Email users mandatory information about APIs they subscribe to" type="radio" value="API_SUBSCRIPTION" disabled>""".stripMargin)
+        responseBody should include(raw"""<input id="API_SUBSCRIPTION" name="sendEmailChoice" aria-label="Email users mandatory information about APIs they subscribe to" type="radio" value="API_SUBSCRIPTION" checked>""".stripMargin)
 
         responseBody should include(raw"""<div class="multiple-choice">Or</div>""")
 
-        responseBody should include(raw"""<input id="EMAIL_ALL_USERS" name="sendEmailChoice" aria-label="Email all users with a Developer Hub account" type="radio" value="EMAIL_ALL_USERS" checked>""".stripMargin)
+        responseBody should include(raw"""<input id="EMAIL_ALL_USERS" name="sendEmailChoice" aria-label="Email all users with a Developer Hub account" type="radio" value="EMAIL_ALL_USERS">""".stripMargin)
 
         verifyAuthConnectorCalledForUser
 
@@ -120,9 +123,24 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val eventualResult: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
-        titleOf(eventualResult) shouldBe "Unit Test Title - Check you can email all users"
+        titleOf(eventualResult) shouldBe "Unit Test Title - Check you can send your email"
         val responseBody: String = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"heading-large\">Check you can email all users</h1>")
+        responseBody should include("<li>important notices and service updates</li>")
+        responseBody should include("<li>changes to any application they have</li>")
+        responseBody should include("<li>making their application accessible</li>")
+        verifyAuthConnectorCalledForUser
+
+      }
+
+      "on request with 'api-subscription' in uri path should render correctly" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        val eventualResult: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+        titleOf(eventualResult) shouldBe "Unit Test Title - Check you can send your email"
+        val responseBody: String = Helpers.contentAsString(eventualResult)
+        responseBody should include("<h1 class=\"heading-large\">Check you can send your email</h1>")
         responseBody should include("<li>important notices and service updates</li>")
         responseBody should include("<li>changes to any application they have</li>")
         responseBody should include("<li>making their application accessible</li>")

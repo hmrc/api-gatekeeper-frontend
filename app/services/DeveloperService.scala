@@ -51,7 +51,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   private def getCollaboratorsByApplicationEnvironments(environmentFilter : ApiSubscriptionInEnvironmentFilter,
                                                         maybeEmailFilter: Option[String],
                                                         apiFilter: ApiContextVersion)
-                                                       (implicit hc: HeaderCarrier) = {
+                                                       (implicit hc: HeaderCarrier): Future[Set[String]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
         case ProductionEnvironment => Seq(productionApplicationConnector)
