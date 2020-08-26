@@ -104,7 +104,7 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
       Then("the cookie banner is displayed at the ")
       val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
-      cookieBanner shouldBe "(0, 0)"
+      cookieBanner should include("(0, ")
     }
   }
 
