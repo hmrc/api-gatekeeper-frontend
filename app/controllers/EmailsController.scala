@@ -17,13 +17,12 @@
 package controllers
 
 import config.AppConfig
-import model.Forms._
 import connectors.AuthConnector
-import controllers.Assets.Ok
 import javax.inject.{Inject, Singleton}
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
-import model.{APIDefinition, APIStatus, APIVersion, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, User}
+import model.Forms._
+import model.{EmailOptionChoice => _, _}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -31,8 +30,8 @@ import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +41,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   sendEmailChoiceView: SendEmailChoiceView,
                                   emailInformationView: EmailInformationView,
                                   emailsAllUsersView: EmailAllUsersView,
-                                 emailApiSubscriptionsView: EmailApiSubscriptionsView,
+                                  emailApiSubscriptionsView: EmailApiSubscriptionsView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
