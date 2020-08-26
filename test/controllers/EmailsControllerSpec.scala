@@ -17,7 +17,9 @@
 package controllers
 
 import akka.stream.Materializer
-import model.User
+import model.Environment.Environment
+import model.{APIDefinition, APIStatus, APIVersion, Developers2Filter, User}
+import org.mockito.Matchers
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import play.api.mvc.{AnyContentAsEmpty, Result}
@@ -25,7 +27,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
@@ -33,6 +35,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Success
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -71,9 +74,21 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
+      def given3VerifiedDevelopers1UnverifiedSearchDevelopers(): Unit = {
+        val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
+        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+      }
+
       def givenNoVerifiedDevelopers(): Unit = {
         val users = Seq(unVerifiedUser1)
         when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
+      }
+
+      def givenApiDefinition2Apis()={
+        val api1 = APIDefinition("service1","/","serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)),None)
+        val api2 = APIDefinition("service2","/","service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)),None)
+        when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Seq(api1, api2)))
       }
 
       val underTest = new EmailsController(
@@ -117,6 +132,14 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
     }
 
+    "choose email option" should {
+      "redirect to the all users information page when EMAIL_ALL_USERS option chosen"  in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        val eventualResult: Future[Result] = underTest.chooseEmailOption()(aLoggedInRequest)
+      }
+
+    }
+
     "email information page" should {
       "on request with 'all-users' in uri path should render correctly" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
@@ -144,6 +167,17 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include("<li>important notices and service updates</li>")
         responseBody should include("<li>changes to any application they have</li>")
         responseBody should include("<li>making their application accessible</li>")
+        verifyAuthConnectorCalledForUser
+
+      }
+
+      "on request with invalid or empty path will return NOT FOUND" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        val result = intercept[NotFoundException] {
+          await(underTest.showEmailInformation("")(aLoggedInRequest))
+        }
+
+        result.message shouldBe "Page Not Found"
         verifyAuthConnectorCalledForUser
 
       }
@@ -227,6 +261,63 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         verifyAuthConnectorCalledForUser
 
       }
+    }
+
+    "email subscribers page" should {
+
+      "render correctly (not display user table) when no filter provided"  in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition2Apis
+        val eventualResult: Future[Result] = underTest.emailApiSubscribersPage()(aLoggedInRequest)
+        status(eventualResult) shouldBe OK
+        titleOf(eventualResult) shouldBe "Unit Test Title - Email all users subscribed to an API"
+
+        val responseBody: String = Helpers.contentAsString(eventualResult)
+        responseBody should include(" <div><h1>Email all users subscribed to an API</h1></div>")
+        responseBody should include(raw"""<form name="developers-filters" action="/api-gatekeeper/emails/api-subscribers" method="get">""")
+        responseBody should include(raw"""<option value="">Select API</option>""")
+        responseBody should include(raw"""<option  value="service1__1">serviceName (1) (Beta) </option>""")
+        responseBody should include(raw"""<option  value="service2__3">service2Name (3) (Stable) </option>""")
+        responseBody should include(raw"""<input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>""")
+        responseBody should not include raw"""<table id="developer-table" class="no-footer developer-list" width="100%">"""
+      }
+
+      "render correctly and display users when api filter provided"  in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition2Apis
+        given3VerifiedDevelopers1UnverifiedSearchDevelopers()
+        val eventualResult: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(aLoggedInRequest)
+        status(eventualResult) shouldBe OK
+        titleOf(eventualResult) shouldBe "Unit Test Title - Email all users subscribed to an API"
+
+        val responseBody: String = Helpers.contentAsString(eventualResult)
+        responseBody should include(" <div><h1>Email all users subscribed to an API</h1></div>")
+        responseBody should include(raw"""<form name="developers-filters" action="/api-gatekeeper/emails/api-subscribers" method="get">""")
+        responseBody should include(raw"""<option value="">Select API</option>""")
+        responseBody should include(raw"""<option  value="service1__1">serviceName (1) (Beta) </option>""")
+        responseBody should include(raw"""<option  value="service2__3">service2Name (3) (Stable) </option>""")
+        responseBody should include(raw"""<input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>""")
+        responseBody should include(raw"""<table id="developer-table" class="no-footer developer-list" width="100%">""")
+
+        responseBody should include("<div>3 results</div>")
+
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
+
+        responseBody should include(raw"""<td id="dev-email-0" width="45%">${verifiedUser1.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-0">${verifiedUser1.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-0">${verifiedUser1.lastName}</td>""")
+
+        responseBody should include(raw"""<td id="dev-email-1" width="45%">${verifiedUser2.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-1">${verifiedUser2.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-1">${verifiedUser2.lastName}</td>""")
+
+        responseBody should include(raw"""<td id="dev-email-2" width="45%">${verifiedUser3.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-2">${verifiedUser3.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-2">${verifiedUser3.lastName}</td>""")
+      }
+
     }
 
 

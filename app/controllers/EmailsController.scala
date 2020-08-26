@@ -30,7 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
 
@@ -49,7 +49,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   mcc: MessagesControllerComponents,
                                   override val errorTemplate: ErrorTemplate
                                  )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with UserFunctionsWrapper with ActionBuilders with I18nSupport {
 
   def landing(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
@@ -84,20 +84,17 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       }
   }
 
-
   def emailAllUsersPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.fetchUsers
         .map((users :Seq[User]) => {val filteredUsers = users.filter((u:User) => u.verified.contains(true))
           Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))
         })
-
   }
-
 
   def emailApiSubscribersPage(maybeApiVersionFilter: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      val queryParams = request.queryString.map { case (k, v) => k -> v.mkString }
+      val queryParams = getQueryParametersAsKeyValues(request)
      val apiDropDowns: Future[Seq[DropDownValue]] =  for {
         apiVersions  <- apiDefinitionService.fetchAllApiDefinitions()
         apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
@@ -109,34 +106,6 @@ class EmailsController  @Inject()(developerService: DeveloperService,
             userList <- fetchedUsers
             apis     <- apiDropDowns
           } yield Ok(emailApiSubscriptionsView(apis, userList ,"", queryParams))
-  }
-
- private  def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
-    filter match {
-      case None | Some("")  => None
-      case _ => filter
-    }
-  }
-
- private def usersToEmailCopyText(users: Seq[User]): String = {
-    users.map(_.email).mkString("; ")
-  }
-
-  private def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
-    def toKeyValue(api: APIDefinition, version: APIVersion) = {
-      val value: String = ApiContextVersion(api.context, version.version).toStringValue.trim
-      val displayedStatus: String = APIStatus.displayedStatus(version.status).trim
-      val description: String = s"${api.name} (${version.version}) ($displayedStatus)"
-
-      DropDownValue(value, description)
-    }
-
-    (for {
-      api <- apiDefinitions
-      version <- api.versions
-    } yield toKeyValue(api, version))
-      .distinct
-      .sortBy(keyValue => keyValue.description)
   }
 
 }

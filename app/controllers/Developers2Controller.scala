@@ -24,7 +24,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import utils.{ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 
@@ -39,7 +39,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developersView: Developers2View,
                                       override val errorTemplate: ErrorTemplate
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with UserFunctionsWrapper with I18nSupport {
 
   def developersPage(maybeEmailFilter: Option[String] = None,
                      maybeApiVersionFilter: Option[String] = None,
@@ -73,36 +73,5 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
-    filter match {
-      case None | Some("")  => None
-      case _ => filter
-    }
-  }
-
-  private def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
-    request.queryString.map { case (k, v) => k -> v.mkString }
-  }
-
-  def usersToEmailCopyText(users: Seq[User]): String = {
-    users.map(_.email).mkString("; ")
-  }
-
-  def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
-    def toKeyValue(api: APIDefinition, version: APIVersion) = {
-      val value = ApiContextVersion(api.context, version.version).toStringValue
-      val displayedStatus = APIStatus.displayedStatus(version.status)
-      val description = s"${api.name} (${version.version}) ($displayedStatus)"
-
-      DropDownValue(value, description)
-    }
-
-    (for {
-      api <- apiDefinitions
-      version <- api.versions
-    } yield toKeyValue(api, version))
-      .distinct
-      .sortBy(keyValue => keyValue.description)
-  }
 }
 

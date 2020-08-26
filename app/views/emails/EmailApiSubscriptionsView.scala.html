@@ -25,7 +25,7 @@
         emails: String,
         params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Emails all users") {
+@main(title = s"${applicationConfig.title} - Email all users subscribed to an API") {
 
     <div class="content__body full-width">
         <div>
@@ -36,9 +36,7 @@
 
 
         @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
-        <form name="developers-filters"
-        action="@routes.EmailsController.emailApiSubscribersPage(None).url"
-        method="get">
+        <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
             <div class="grid-layout__column--2-3">
 
                 <label class="form-label" for="apiVersionFilter">Select an API from the list
@@ -48,23 +46,20 @@
                     value="@apiVersionFilter">
                         <option value="">Select API</option>
                         @for(apiVersion <- apiVersions) {
-                         <option
-                            @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
+                         <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
                         }
                     </select>
                 </label>
             </div>
             @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
                 <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter Again" name="main-submit"
-                    class="button--link text--center float--left flush--left"/>
+                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
                 </div>
                 <div><br/><hr/></div>
             } else {
 
             <div class="form-group grid-layout grid-layout--stacked push--sides">
-                <input id="filter" type="submit" value="Filter" name="main-submit"
-                class="button text--center float--left flush--left"/>
+                <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
             </div>
                <div><br/><hr/></div>
             }
@@ -82,9 +77,7 @@
             </div>
             <div>@users.size results</div>
 
-            <table id="developer-table"
-            class="no-footer developer-list"
-            width="100%">
+            <table id="developer-table" class="no-footer developer-list" width="100%">
                 <thead>
                     <tr role="row">
                         <th tabindex="0" class="sorting_left-aligned">Email</th>
