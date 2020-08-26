@@ -105,7 +105,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
           for{
             userList <- fetchedUsers
             apis     <- apiDropDowns
-          } yield Ok(emailApiSubscriptionsView(apis, userList ,"", queryParams))
+          } yield Ok(emailApiSubscriptionsView(apis, userList, usersToEmailCopyText(userList), queryParams))
   }
 
 }
