@@ -33,3 +33,23 @@ object EmailOptionChoice extends Enumeration {
     case EMAIL_ALL_USERS => "Email all users with a Developer Hub account"
   }
 }
+
+object EmailPreferencesChoice extends Enumeration {
+  type EmailPreferencesChoice = Value
+
+  val TOPIC, TAX_REGIME, SPECIFIC_API = Value
+
+  implicit val emailPreferencesChoiceFormat = EnumJson.enumFormat(EmailPreferencesChoice)
+
+  val optionLabel: EmailPreferencesChoice => String = {
+    case SPECIFIC_API => "Users interested in a specific API or APIs"
+    case TAX_REGIME => "Users interested in a tax regime"
+    case TOPIC => "Users interested in a topic"
+  }
+
+   val optionHint: EmailPreferencesChoice => String = {
+     case SPECIFIC_API => "For Example, VAT MTD"
+     case TAX_REGIME => "For Example, Income Tax"
+     case TOPIC => "For Example, event invites" 
+   }
+}

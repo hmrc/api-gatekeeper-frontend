@@ -30,7 +30,7 @@ import services.DeveloperService
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailPreferencesChoiceView, EmailInformationView, SendEmailChoiceView}
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,7 +47,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailInformationView = app.injector.instanceOf[EmailInformationView]
   private lazy val emailAllUsersView = app.injector.instanceOf[EmailAllUsersView]
   private lazy val emailApiSubscriptionsView = app.injector.instanceOf[EmailApiSubscriptionsView]
-
+  private lazy val emailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
 
   running(app) {
 
@@ -98,6 +98,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailInformationView,
         emailAllUsersView,
         emailApiSubscriptionsView,
+        emailPreferencesChoiceView,
         mockApplicationService,
         forbiddenView,
         mockAuthConnector,
@@ -119,9 +120,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
 
-        responseBody should include(raw"""<input id="EMAIL_PREFERENCES" name="sendEmailChoice" aria-label="Email users based on their preferences" type="radio" value="EMAIL_PREFERENCES" disabled>""".stripMargin)
+        responseBody should include(raw"""<input id="EMAIL_PREFERENCES" name="sendEmailChoice" aria-label="Email users based on their preferences" type="radio" value="EMAIL_PREFERENCES" checked>""".stripMargin)
 
-        responseBody should include(raw"""<input id="API_SUBSCRIPTION" name="sendEmailChoice" aria-label="Email users mandatory information about APIs they subscribe to" type="radio" value="API_SUBSCRIPTION" checked>""".stripMargin)
+        responseBody should include(raw"""<input id="API_SUBSCRIPTION" name="sendEmailChoice" aria-label="Email users mandatory information about APIs they subscribe to" type="radio" value="API_SUBSCRIPTION">""".stripMargin)
 
         responseBody should include(raw"""<div class="multiple-choice">Or</div>""")
 
@@ -133,11 +134,43 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
     "choose email option" should {
-      "redirect to the all users information page when EMAIL_ALL_USERS option chosen"  in new Setup {
+      "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        val eventualResult: Future[Result] = underTest.chooseEmailOption()(aLoggedInRequest)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "EMAIL_ALL_USERS")
+        val result: Result = await(underTest.chooseEmailOption()(request))
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/all-users/information")
       }
 
+      "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "API_SUBSCRIPTION")
+        val result: Result = await(underTest.chooseEmailOption()(request))
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/api-subscription/information")
+      }
+
+      "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "EMAIL_PREFERENCES")
+        val result: Result = await(underTest.chooseEmailOption()(request))
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences")
+      }
+    }
+
+    "choose email preferences" should {
+      "redirect to Topic page when TOPIC option chosen" in new Setup {
+
+      }
+
+      "redirect to API page when SPECIFIC_API option chosen" in new Setup {
+
+      }
+
+      "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
+
+      }
     }
 
     "email information page" should {

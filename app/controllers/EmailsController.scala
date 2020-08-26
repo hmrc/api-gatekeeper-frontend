@@ -22,7 +22,8 @@ import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
-import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, User}
+import model.EmailPreferencesChoice.{TOPIC, SPECIFIC_API, TAX_REGIME}
+import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, User, SendEmailPreferencesChoice}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -31,7 +32,7 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView, EmailPreferencesChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +42,8 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   sendEmailChoiceView: SendEmailChoiceView,
                                   emailInformationView: EmailInformationView,
                                   emailsAllUsersView: EmailAllUsersView,
-                                 emailApiSubscriptionsView: EmailApiSubscriptionsView,
+                                  emailApiSubscriptionsView: EmailApiSubscriptionsView,
+                                  emailPreferencesChoiceView: EmailPreferencesChoiceView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -60,7 +62,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       implicit request => {
         def handleValidForm(form: SendEmailChoice): Future[Result] = {
             form.sendEmailChoice match {
-              case EMAIL_PREFERENCES => Future.successful(Ok("1"))
+              case EMAIL_PREFERENCES => Future.successful(Redirect(routes.EmailsController.emailPreferencesChoice()))
               case API_SUBSCRIPTION => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
               case EMAIL_ALL_USERS => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
             }
@@ -68,6 +70,30 @@ class EmailsController  @Inject()(developerService: DeveloperService,
         def handleInvalidForm(formWithErrors: Form[SendEmailChoice]) =
           Future.successful(BadRequest(sendEmailChoiceView()))
           SendEmailChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+
+      }
+    }
+
+  }
+
+  def emailPreferencesChoice(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      Future.successful(Ok(emailPreferencesChoiceView()))
+  }
+
+  def chooseEmailPreferences(): Action[AnyContent] = {
+    requiresAtLeast(GatekeeperRole.USER) {
+      implicit request => {
+        def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
+            form.sendEmailPreferences match {
+              case SPECIFIC_API => Future.successful(Ok("1"))
+              case TAX_REGIME =>  Future.successful(Ok("2"))
+              case TOPIC =>  Future.successful(Ok("3"))
+            }
+        }
+        def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
+          Future.successful(BadRequest(emailPreferencesChoiceView()))
+          SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
 
       }
     }

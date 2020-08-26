@@ -17,7 +17,7 @@
 @import include._
 @import model._
 @import config.AppConfig
-@import model.EmailOptionChoice.EmailOptionChoice
+@import model.EmailPreferencesChoice.EmailPreferencesChoice
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -26,33 +26,32 @@
 @disabledFlag(enabled: Boolean) = @{if(!enabled){" disabled"} else {""}}
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
-@buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean = false, checked: Boolean = false) = {
+@buildOptionRow(preferencesChoice: EmailPreferencesChoice, enabled: Boolean = false, checked: Boolean = false) = {
     <div class="multiple-choice">
 
-            <input id="@optionChoice.toString" name="sendEmailChoice" aria-label="@EmailOptionChoice.optionHint(optionChoice)" type="radio" value="@optionChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
+            <input id="@preferencesChoice.toString" name="sendEmailPreferences" aria-label="@EmailPreferencesChoice.optionHint(preferencesChoice)" type="radio" value="@preferencesChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
 
-            <label class="form-label-bold" for="@optionChoice.toString" >@EmailOptionChoice.optionLabel(optionChoice)
-                <span><p>@EmailOptionChoice.optionHint(optionChoice)</p></span>
+            <label class="form-label-bold" for="@preferencesChoice.toString" >@EmailPreferencesChoice.optionLabel(preferencesChoice)
+                <span><p>@EmailPreferencesChoice.optionHint(preferencesChoice)</p></span>
             </label>
     </div>
 }
 
-@main(title = s"${applicationConfig.title} - Send emails to users based on") {
+@main(title = s"${applicationConfig.title} - Who do you want to email?") {
 
         <div class="content__body full-width">
 
-        @helper.form(action = routes.EmailsController.chooseEmailOption()) {
+        @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
             @helper.CSRF.formField
             <div class="form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="form-label-bold">
-                        <h1>Send emails to users based on</h1>
+                        <h1>Who do you want to email?</h1>
                     </legend>
                     <div class="govuk-radios">
-                        @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES, enabled = true, checked = true)
-                        @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled = true)
-                        <div class="multiple-choice">Or</div>
-                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
+                        @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API)
+                        @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
+                        @buildOptionRow(EmailPreferencesChoice.TOPIC, enabled = true)
                     </div>
                 </fieldset>
                 <div class="form-field">
