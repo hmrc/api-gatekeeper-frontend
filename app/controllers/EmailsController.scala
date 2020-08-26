@@ -22,8 +22,8 @@ import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
-import model.EmailPreferencesChoice.{TOPIC, SPECIFIC_API, TAX_REGIME}
-import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, User, SendEmailPreferencesChoice}
+import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
+import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, SendEmailChoiceView, EmailPreferencesChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesChoiceView, EmailPreferencesTopicView, SendEmailChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,6 +44,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   emailsAllUsersView: EmailAllUsersView,
                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
+                                  emailPreferencesTopicView: EmailPreferencesTopicView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -88,7 +89,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
             form.sendEmailPreferences match {
               case SPECIFIC_API => Future.successful(Ok("1"))
               case TAX_REGIME =>  Future.successful(Ok("2"))
-              case TOPIC =>  Future.successful(Ok("3"))
+              case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic()))
             }
         }
         def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
@@ -98,6 +99,15 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       }
     }
 
+  }
+
+  def emailPreferencesTopic(): Action[AnyContent] = {
+    requiresAtLeast(GatekeeperRole.USER) {
+      implicit request => {
+        val queryParams = getQueryParametersAsKeyValues(request)
+        Future.successful(Ok(emailPreferencesTopicView(Seq.empty, "", queryParams)))
+      }
+    }
   }
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -120,7 +130,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
   def emailApiSubscribersPage(maybeApiVersionFilter: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       val queryParams = getQueryParametersAsKeyValues(request)
-     val apiDropDowns: Future[Seq[DropDownValue]] =  for {
+      val apiDropDowns: Future[Seq[DropDownValue]] =  for {
         apiVersions  <- apiDefinitionService.fetchAllApiDefinitions()
         apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
       } yield apiDropDowns

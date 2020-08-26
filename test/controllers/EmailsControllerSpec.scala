@@ -17,12 +17,13 @@
 package controllers
 
 import akka.stream.Materializer
+import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
+import model.EmailPreferencesChoice.{EmailPreferencesChoice, TOPIC}
 import model.Environment.Environment
-import model.{APIDefinition, APIStatus, APIVersion, Developers2Filter, User}
-import org.mockito.Matchers
+import model._
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -30,12 +31,11 @@ import services.DeveloperService
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailPreferencesChoiceView, EmailInformationView, SendEmailChoiceView}
+import views.html.emails._
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Success
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -48,15 +48,29 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailAllUsersView = app.injector.instanceOf[EmailAllUsersView]
   private lazy val emailApiSubscriptionsView = app.injector.instanceOf[EmailApiSubscriptionsView]
   private lazy val emailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
-
+  private lazy val emailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   running(app) {
 
     trait Setup extends ControllerSetupBase {
 
       val csrfToken: (String, String) = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
-      override val aSuperUserLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
+      override val aSuperUserLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
+
+      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+        FakeRequest()
+          .withSession(csrfToken, authToken, userToken)
+          .withCSRFToken.withMethod("POST")
+          .withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
+
+      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+        FakeRequest()
+          .withSession(csrfToken, authToken, userToken)
+          .withCSRFToken.withMethod("POST")
+          .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
+
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
       val verifiedUser1: User = User("user1@hmrc.com", "verifiedUserA", "1", Some(true))
       val verifiedUser2: User = User("user2@hmrc.com", "verifiedUserB", "2", Some(true))
@@ -99,6 +113,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailAllUsersView,
         emailApiSubscriptionsView,
         emailPreferencesChoiceView,
+        emailPreferencesTopicView,
         mockApplicationService,
         forbiddenView,
         mockAuthConnector,
@@ -134,26 +149,30 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
     "choose email option" should {
+
       "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "EMAIL_ALL_USERS")
-        val result: Result = await(underTest.chooseEmailOption()(request))
+
+        val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_ALL_USERS)))
+
         status(result) shouldBe SEE_OTHER
         result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/all-users/information")
       }
 
       "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "API_SUBSCRIPTION")
-        val result: Result = await(underTest.chooseEmailOption()(request))
+
+        val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(API_SUBSCRIPTION)))
+
         status(result) shouldBe SEE_OTHER
         result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/api-subscription/information")
       }
 
       "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> "EMAIL_PREFERENCES")
-        val result: Result = await(underTest.chooseEmailOption()(request))
+
+        val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_PREFERENCES)))
+
         status(result) shouldBe SEE_OTHER
         result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences")
       }
@@ -161,7 +180,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
 
+        val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TOPIC)))
+
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/topic")
       }
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
