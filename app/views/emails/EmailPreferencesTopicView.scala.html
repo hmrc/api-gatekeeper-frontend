@@ -15,52 +15,52 @@
  *@
 
 @import model._
+@import model.TopicOptionChoice.TopicOptionChoice
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[User], emails: String, params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Email users based on topic") {
+@(users: Seq[User], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+    @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
+
+    @buildTopicOptionRow(topic: TopicOptionChoice) = {
+        <div class="multiple-choice">
+
+            <input id="@topic.toString" name="topicOptionChoice" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.map(_.equals(topic)).getOrElse(false))>
+
+            <label class="form-label-bold" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
+                <span><p>@TopicOptionChoice.optionHint(topic)</p></span>
+            </label>
+        </div>
+    }
+
+
+@main(title = s"${applicationConfig.title} - Email users interested in a topic") {
 
     <div class="content__body full-width">
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
-        <div><h1>Email users based on topic</h1></div>
+        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesTopic(None).url" method="get">
+        <div class="form-group">
+            <fieldset class=" govuk-fieldset">
+                <legend class="form-label-bold">
+                    <h1>Email users interested in a topic</h1>
+                </legend>
+                <div class="govuk-radios">
+                    @buildTopicOptionRow(TopicOptionChoice.BUSINESS_AND_POLICY)
+                    @buildTopicOptionRow(TopicOptionChoice.TECHNICAL)
+                    @buildTopicOptionRow(TopicOptionChoice.RELEASE_SCHEDULES)
+                    @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES)
+                </div>
+            </fieldset>
+            <div class="form-field">
+                <button id="submit" class="button button--padded" type="submit">Filter</button>
+            </div>
+        </div>
+        </form>
 
-
-
-@*        @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>*@
-@*        <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">*@
-@*            <div class="grid-layout__column--2-3">*@
-
-@*                <label class="form-label" for="apiVersionFilter">Select an API from the list*@
-@*                    <select class="form-control input-select--large"*@
-@*                    id="apiVersionFilter"*@
-@*                    name="apiVersionFilter"*@
-@*                    value="@apiVersionFilter">*@
-@*                        <option value="">Select API</option>*@
-@*                        @for(apiVersion <- apiVersions) {*@
-@*                         <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>*@
-@*                        }*@
-@*                    </select>*@
-@*                </label>*@
-@*            </div>*@
-@*            @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {*@
-@*                <div class="form-group grid-layout grid-layout--stacked push--sides">*@
-@*                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>*@
-@*                </div>*@
-@*                <div><br/><hr/></div>*@
-@*            } else {*@
-
-@*            <div class="form-group grid-layout grid-layout--stacked push--sides">*@
-@*                <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>*@
-@*            </div>*@
-@*               <div><br/><hr/></div>*@
-@*            }*@
-@*        </form>*@
-@*        }*@
 
         @if(users.nonEmpty) {
             <div class="form-group>">

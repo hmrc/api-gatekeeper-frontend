@@ -23,7 +23,8 @@ import javax.inject.{Inject, Singleton}
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
-import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, User}
+import model.TopicOptionChoice.TopicOptionChoice
+import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -89,7 +90,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
             form.sendEmailPreferences match {
               case SPECIFIC_API => Future.successful(Ok("1"))
               case TAX_REGIME =>  Future.successful(Ok("2"))
-              case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic()))
+              case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
             }
         }
         def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
@@ -101,11 +102,12 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
   }
 
-  def emailPreferencesTopic(): Action[AnyContent] = {
+  def emailPreferencesTopic(maybeTopicFilter: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
-        val queryParams = getQueryParametersAsKeyValues(request)
-        Future.successful(Ok(emailPreferencesTopicView(Seq.empty, "", queryParams)))
+        //withName could throw an exception here
+        val maybeTopic = maybeTopicFilter.map(TopicOptionChoice.withName(_))
+        Future.successful(Ok(emailPreferencesTopicView(Seq.empty, "", maybeTopic)))
       }
     }
   }

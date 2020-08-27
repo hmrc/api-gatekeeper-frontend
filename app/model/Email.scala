@@ -47,9 +47,31 @@ object EmailPreferencesChoice extends Enumeration {
     case TOPIC => "Users interested in a topic"
   }
 
-   val optionHint: EmailPreferencesChoice => String = {
-     case SPECIFIC_API => "For Example, VAT MTD"
-     case TAX_REGIME => "For Example, Income Tax"
-     case TOPIC => "For Example, event invites" 
-   }
+  val optionHint: EmailPreferencesChoice => String = {
+    case SPECIFIC_API => "For Example, VAT MTD"
+    case TAX_REGIME => "For Example, Income Tax"
+    case TOPIC => "For Example, event invites"
+  }
+}
+
+object TopicOptionChoice extends Enumeration {
+  type TopicOptionChoice = Value
+
+  val BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES = Value
+
+  implicit val emailPreferencesChoiceFormat = EnumJson.enumFormat(TopicOptionChoice)
+
+  val optionLabel: TopicOptionChoice => String = {
+    case BUSINESS_AND_POLICY => "Business and policy"
+    case TECHNICAL => "Technical"
+    case RELEASE_SCHEDULES => "Release schedules"
+    case EVENT_INVITES => "Event Invites"
+  }
+
+  val optionHint: TopicOptionChoice => String = {
+    case BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support"
+    case TECHNICAL => "Specifications, service guides, bux fixes and known errors"
+    case RELEASE_SCHEDULES => "Notifications about planned releases and outages"
+    case EVENT_INVITES => "Get invites to knowledge share events and user research opportunities"
+  }
 }
