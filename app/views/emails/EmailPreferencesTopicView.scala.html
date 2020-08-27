@@ -55,14 +55,22 @@
                     @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES)
                 </div>
             </fieldset>
-            <div class="form-field">
-                <button id="submit" class="button button--padded" type="submit">Filter</button>
+            @if(maybeTopicFilter.isDefined) {
+                <div class="form-group grid-layout grid-layout--stacked push--sides">
+                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
+                </div>
+            } else {
+
+            <div class="form-group grid-layout grid-layout--stacked push--sides">
+                <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
             </div>
+            }
         </div>
         </form>
 
 
         @if(users.nonEmpty) {
+            <div><br/><hr/></div>
             <div class="form-group>">
                 <p>
                     <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
@@ -92,8 +100,6 @@
                 }
                 </tbody>
             </table>
-        } else {
-            <div>0 results</div>
         }
     </div>
 

@@ -20,6 +20,7 @@ import config.AppConfig
 import connectors._
 import javax.inject.Inject
 import model._
+import model.TopicOptionChoice._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -137,6 +138,10 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     developerConnector.fetchByEmails(emails)
+  }
+
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    developerConnector.fetchByEmailPreferences(topic)
   }
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {

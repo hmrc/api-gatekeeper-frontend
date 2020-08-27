@@ -107,7 +107,8 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       implicit request => {
         //withName could throw an exception here
         val maybeTopic = maybeTopicFilter.map(TopicOptionChoice.withName(_))
-        Future.successful(Ok(emailPreferencesTopicView(Seq.empty, "", maybeTopic)))
+        maybeTopic.map(developerService.fetchDevelopersByEmailPreferences).getOrElse(Future.successful(Seq.empty))
+        .map(users => Ok(emailPreferencesTopicView(users, usersToEmailCopyText(users) , maybeTopic)))
       }
     }
   }

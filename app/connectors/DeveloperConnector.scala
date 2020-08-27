@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import config.AppConfig
 import model.DeveloperStatusFilter.DeveloperStatusFilter
 import model._
+import model.TopicOptionChoice.TopicOptionChoice
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
@@ -37,6 +38,8 @@ trait DeveloperConnector {
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[User]]
+
+  def fetchByEmailPreferences(topic: TopicOptionChoice)(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
@@ -56,6 +59,11 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     http.POST[JsValue, Seq[User]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", Json.toJson(emails), postHeaders)
+  }
+
+  def fetchByEmailPreferences(topic: TopicOptionChoice)(implicit hc: HeaderCarrier): Future[Seq[User]]  ={
+      val queryParams = Seq("topic" -> topic.toString())
+     http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
   def fetchAll()(implicit hc: HeaderCarrier) = {
@@ -86,6 +94,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
 
     http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", queryParams)
   }
+
 }
 
 @Singleton
@@ -95,6 +104,8 @@ class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends D
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
+
+  def fetchByEmailPreferences(topic: TopicOptionChoice)(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
