@@ -40,6 +40,9 @@
 @main(title = s"${applicationConfig.title} - Who do you want to email?") {
 
         <div class="content__body full-width">
+           <div>
+              <a data-back-link href="@routes.EmailsController.chooseEmailOption()">Back</a>
+          </div>
 
         @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
             @helper.CSRF.formField

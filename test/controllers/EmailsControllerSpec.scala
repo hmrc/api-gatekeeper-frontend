@@ -18,6 +18,7 @@ package controllers
 
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
+import model.TopicOptionChoice._
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, TOPIC}
 import model.Environment.Environment
 import model._
@@ -71,6 +72,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
+      def createGetRequest(path: String)= {
+           FakeRequest("GET", path)
+          .withSession(csrfToken, authToken, userToken)
+          .withCSRFToken
+      }    
+
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
       val verifiedUser1: User = User("user1@hmrc.com", "verifiedUserA", "1", Some(true))
       val verifiedUser2: User = User("user2@hmrc.com", "verifiedUserB", "2", Some(true))
@@ -90,7 +97,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def given3VerifiedDevelopers1UnverifiedSearchDevelopers(): Unit = {
         val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
-        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+       when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+      } 
+
+      def given3VerifiedDevelopersDevelopers(){
+      val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
+        when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice])(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
       def givenNoVerifiedDevelopers(): Unit = {
@@ -343,7 +355,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
-        val eventualResult: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Email all users subscribed to an API"
 
@@ -352,8 +364,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include(raw"""<form name="developers-filters" action="/api-gatekeeper/emails/api-subscribers" method="get">""")
         responseBody should include(raw"""<option value="">Select API</option>""")
         responseBody should include(raw"""<option  value="service1__1">serviceName (1) (Beta) </option>""")
-        responseBody should include(raw"""<option  value="service2__3">service2Name (3) (Stable) </option>""")
-        responseBody should include(raw"""<input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>""")
+        responseBody should include(raw"""<option selected value="service2__3">service2Name (3) (Stable) </option>""")
+        responseBody should include(raw"""<input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>""")
         responseBody should include(raw"""<table id="developer-table" class="no-footer developer-list" width="100%">""")
 
         responseBody should include("<div>3 results</div>")
@@ -378,5 +390,38 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
 
+ "email preferences topic page" should {
+      "render the view correctly" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        given3VerifiedDevelopersDevelopers()
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
+        status(eventualResult) shouldBe OK
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+
+        responseBody should include("<div>3 results</div>")
+
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
+        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
+
+        responseBody should include(raw"""<td id="dev-email-0" width="45%">${verifiedUser1.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-0">${verifiedUser1.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-0">${verifiedUser1.lastName}</td>""")
+
+        responseBody should include(raw"""<td id="dev-email-1" width="45%">${verifiedUser2.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-1">${verifiedUser2.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-1">${verifiedUser2.lastName}</td>""")
+
+        responseBody should include(raw"""<td id="dev-email-2" width="45%">${verifiedUser3.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-2">${verifiedUser3.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-2">${verifiedUser3.lastName}</td>""")
+      }
+   }
+
   }
+
+  
 }

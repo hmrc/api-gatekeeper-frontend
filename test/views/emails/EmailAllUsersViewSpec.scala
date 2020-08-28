@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.{EmailAllUsersView, EmailInformationView}
 
-class EmailAllUsersViewSpec extends CommonViewSpec {
+class EmailAllUsersViewSpec extends CommonViewSpec with UserTableHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -67,22 +67,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec {
       verifyTableHeader(document)
     }
 
-    def verifyUserRow(document: Document, user: User): Unit ={
-      elementExistsByText(document, "td", user.email) mustBe true
-      elementExistsByText(document, "td", user.firstName) mustBe true
-      elementExistsByText(document, "td", user.lastName) mustBe true
-    }
-
-    def verifyTableHeader(document: Document, tableIsVisible: Boolean = false): Unit ={
-      elementExistsByText(document, "th", "Email") mustBe tableIsVisible
-      elementExistsByText(document, "th", "First name") mustBe tableIsVisible
-      elementExistsByText(document, "th", "Last name") mustBe tableIsVisible
-    }
   }
-
-  // No users
-  // some users -> check table
-
 
 
 }

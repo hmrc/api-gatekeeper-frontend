@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
 
-class EmailPreferencesTopicViewSpec extends CommonViewSpec {
+class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -90,7 +90,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec {
 
       result.contentType must include("text/html")
       elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
-      elementExistsContainsText(document, "div", "0 results") mustBe false
+      elementExistsContainsText(document, "div", "0 results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
 
       isElementChecked(document, TopicOptionChoice.RELEASE_SCHEDULES.toString)
@@ -118,18 +118,6 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec {
         }
         ()
       })
-    }
-
-    def verifyUserRow(document: Document, user: User): Unit ={
-      elementExistsByText(document, "td", user.email) mustBe true
-      elementExistsByText(document, "td", user.firstName) mustBe true
-      elementExistsByText(document, "td", user.lastName) mustBe true
-    }
-
-    def verifyTableHeader(document: Document, tableIsVisible: Boolean = false): Unit ={
-      elementExistsByText(document, "th", "Email") mustBe tableIsVisible
-      elementExistsByText(document, "th", "First name") mustBe tableIsVisible
-      elementExistsByText(document, "th", "Last name") mustBe tableIsVisible
     }
   }
 

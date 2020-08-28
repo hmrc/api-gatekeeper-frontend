@@ -64,7 +64,7 @@
             @drawEmailAllUsersInformation()
 
             <div class="form-field">
-                <a href="@routes.EmailsController.emailAllUsersPage()" class="button button-Link">Continue</a>
+                <a id="continue-link" href="@routes.EmailsController.emailAllUsersPage()" class="button button-Link">Continue</a>
             </div>
         }
         @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
@@ -73,7 +73,7 @@
             @drawEmailApiSubscribersInformation()
 
             <div class="form-field">
-                <a href="@routes.EmailsController.emailApiSubscribersPage(None)" class="button button-Link">Continue</a>
+                <a id="continue-link" href="@routes.EmailsController.emailApiSubscribersPage(None)" class="button button-Link">Continue</a>
             </div>
         }
     </div>

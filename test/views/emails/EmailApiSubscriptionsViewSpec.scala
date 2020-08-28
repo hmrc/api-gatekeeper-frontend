@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView}
 
-class EmailApiSubscriptionsViewSpec extends CommonViewSpec {
+class EmailApiSubscriptionsViewSpec extends CommonViewSpec with UserTableHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -66,7 +66,7 @@ class EmailApiSubscriptionsViewSpec extends CommonViewSpec {
 
     "show correct title and select correct option when filter present but no Users returned" in new Setup {
       val queryParams = Map("apiVersionFilter"-> dropdownview2.value)
-      val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(apis, Seq.empty, "",queryParams, request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(apis, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
       val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
@@ -82,32 +82,21 @@ class EmailApiSubscriptionsViewSpec extends CommonViewSpec {
     }
 
     "show correct title and select no options when no filter present and no Users returned" in new Setup {
-      val queryParams = Map("apiVersionFilter"-> "")
-      val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(apis, Seq.empty, "",queryParams, request, LoggedInUser(None), messagesProvider)
+     // val queryParams = Map("apiVersionFilter"-> "")
+       val queryParams: Map[String, String] = Map.empty
+      val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(apis, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
       val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
-      elementExistsContainsText(document, "div", s"0 results") mustBe true
+      elementExistsContainsText(document, "div", s"0 results") mustBe false
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
       getSelectedOptionValue(document) mustBe None
 
       elementExistsByText(document, "option", dropdownview1.description) mustBe true
       elementExistsByText(document, "option", dropdownview2.description) mustBe true
       verifyTableHeader(document, tableIsVisible)
-    }
-
-    def verifyUserRow(document: Document, user: User): Unit ={
-      elementExistsByText(document, "td", user.email) mustBe true
-      elementExistsByText(document, "td", user.firstName) mustBe true
-      elementExistsByText(document, "td", user.lastName) mustBe true
-    }
-
-    def verifyTableHeader(document: Document, tableIsVisible: Boolean = false): Unit ={
-      elementExistsByText(document, "th", "Email") mustBe tableIsVisible
-      elementExistsByText(document, "th", "First name") mustBe tableIsVisible
-      elementExistsByText(document, "th", "Last name") mustBe tableIsVisible
     }
   }
 
