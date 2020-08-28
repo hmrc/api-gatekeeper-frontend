@@ -149,7 +149,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         responseBody should include(raw"""<input id="API_SUBSCRIPTION" name="sendEmailChoice" aria-label="Email users mandatory information about APIs they subscribe to" type="radio" value="API_SUBSCRIPTION">""".stripMargin)
 
-        responseBody should include(raw"""<div class="multiple-choice">Or</div>""")
+        responseBody should include(raw"""<div class="float-left-block">Or</div>""")
 
         responseBody should include(raw"""<input id="EMAIL_ALL_USERS" name="sendEmailChoice" aria-label="Email all users with a Developer Hub account" type="radio" value="EMAIL_ALL_USERS">""".stripMargin)
 

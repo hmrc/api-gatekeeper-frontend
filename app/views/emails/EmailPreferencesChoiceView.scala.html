@@ -32,7 +32,7 @@
             <input id="@preferencesChoice.toString" name="sendEmailPreferences" aria-label="@EmailPreferencesChoice.optionHint(preferencesChoice)" type="radio" value="@preferencesChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
 
             <label class="form-label-bold" for="@preferencesChoice.toString" >@EmailPreferencesChoice.optionLabel(preferencesChoice)
-                <span><p>@EmailPreferencesChoice.optionHint(preferencesChoice)</p></span>
+                <span><div class="font-small text-secondary">@EmailPreferencesChoice.optionHint(preferencesChoice)</div></span>
             </label>
     </div>
 }
@@ -57,6 +57,7 @@
                         @buildOptionRow(EmailPreferencesChoice.TOPIC, enabled = true)
                     </div>
                 </fieldset>
+                <div><br/></div>
                 <div class="form-field">
                     <button id="submit" class="button button--padded" type="submit">Continue</button>
                 </div>

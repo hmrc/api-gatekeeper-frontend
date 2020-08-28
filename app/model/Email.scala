@@ -23,7 +23,7 @@ object EmailOptionChoice extends Enumeration {
 
   val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email Preferences"
-    case API_SUBSCRIPTION => "Api subscription"
+    case API_SUBSCRIPTION => "API subscription"
     case EMAIL_ALL_USERS => "Email all users"
   }
 

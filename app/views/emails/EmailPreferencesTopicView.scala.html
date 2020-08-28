@@ -29,7 +29,7 @@
             <input id="@topic.toString" name="topicOptionChoice" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
 
             <label class="form-label-bold" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
-                <span><p>@TopicOptionChoice.optionHint(topic)</p></span>
+                <span><div class="font-small text-secondary">@TopicOptionChoice.optionHint(topic)</div></span>
             </label>
         </div>
     }
@@ -64,7 +64,8 @@
             }
         </div>
         </form>
-    @if(maybeTopicFilter.isDefined) {      
+    @if(maybeTopicFilter.isDefined) { 
+      <div><hr/></div>     
       @userTable(users, emails)
     }
     </div>

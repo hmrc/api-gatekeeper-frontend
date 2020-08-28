@@ -55,16 +55,15 @@
                 <div class="form-group grid-layout grid-layout--stacked push--sides">
                     <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
                 </div>
-                <div><br/><hr/></div>
             } else {
 
             <div class="form-group grid-layout grid-layout--stacked push--sides">
                 <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
             </div>
-               <div><br/><hr/></div>
             }
         </form>
          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
+            <div><hr/></div>
             @userTable(users, emails)
           }
         }

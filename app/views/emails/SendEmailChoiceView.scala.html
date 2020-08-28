@@ -32,7 +32,7 @@
             <input id="@optionChoice.toString" name="sendEmailChoice" aria-label="@EmailOptionChoice.optionHint(optionChoice)" type="radio" value="@optionChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
 
             <label class="form-label-bold" for="@optionChoice.toString" >@EmailOptionChoice.optionLabel(optionChoice)
-                <span><p>@EmailOptionChoice.optionHint(optionChoice)</p></span>
+                <span><div class="font-small text-secondary">@EmailOptionChoice.optionHint(optionChoice)</div></span>
             </label>
     </div>
 }
@@ -51,10 +51,11 @@
                     <div class="govuk-radios">
                         @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES, enabled = true, checked = true)
                         @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled = true)
-                        <div class="multiple-choice">Or</div>
+                        <div class="float-left-block">Or</div>
                         @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
                     </div>
                 </fieldset>
+                <div><br/></div>
                 <div class="form-field">
                     <button id="submit" class="button button--padded" type="submit">Continue</button>
                 </div>
