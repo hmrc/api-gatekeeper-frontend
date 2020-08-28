@@ -72,21 +72,21 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
-      def createGetRequest(path: String)= {
-           FakeRequest("GET", path)
+      def createGetRequest(path: String) = {
+        FakeRequest("GET", path)
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken
-      }    
+      }
 
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
       val verifiedUser1: User = User("user1@hmrc.com", "verifiedUserA", "1", Some(true))
       val verifiedUser2: User = User("user2@hmrc.com", "verifiedUserB", "2", Some(true))
       val verifiedUser3: User = User("user3@hmrc.com", "verifiedUserC", "3", Some(true))
       val unVerifiedUser1: User = User("user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
-
+      val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
 
       def givenVerifiedDeveloper(): Unit = {
-        val users = Seq(verifiedUser1, verifiedUser2 )
+        val users = Seq(verifiedUser1, verifiedUser2)
         when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
@@ -96,12 +96,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def given3VerifiedDevelopers1UnverifiedSearchDevelopers(): Unit = {
-        val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
-       when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
-      } 
+        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+      }
 
-      def given3VerifiedDevelopersDevelopers(){
-      val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
+      def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
         when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice])(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
@@ -110,9 +108,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
-      def givenApiDefinition2Apis()={
-        val api1 = APIDefinition("service1","/","serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)),None)
-        val api2 = APIDefinition("service2","/","service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)),None)
+      def givenApiDefinition2Apis() = {
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None)
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None)
         when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(any[HeaderCarrier]))
           .thenReturn(Future.successful(Seq(api1, api2)))
       }
@@ -263,23 +261,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody: String = Helpers.contentAsString(eventualResult)
 
         responseBody should include("<div><h1>Email all users</h1></div>")
-        responseBody should include("<div>3 results</div>")
-
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
-
-        responseBody should include(raw"""<td id="dev-email-0" width="45%">${verifiedUser1.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-0">${verifiedUser1.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-0">${verifiedUser1.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-1" width="45%">${verifiedUser2.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-1">${verifiedUser2.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-1">${verifiedUser2.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-2" width="45%">${verifiedUser3.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-2">${verifiedUser3.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-2">${verifiedUser3.lastName}</td>""")
+        verifyUserTable(responseBody, users)
         verifyAuthConnectorCalledForUser
 
       }
@@ -334,7 +316,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email subscribers page" should {
 
-      "render correctly (not display user table) when no filter provided"  in new Setup {
+      "render correctly (not display user table) when no filter provided" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis
         val eventualResult: Future[Result] = underTest.emailApiSubscribersPage()(aLoggedInRequest)
@@ -351,7 +333,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should not include raw"""<table id="developer-table" class="no-footer developer-list" width="100%">"""
       }
 
-      "render correctly and display users when api filter provided"  in new Setup {
+      "render correctly and display users when api filter provided" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
@@ -368,60 +350,76 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include(raw"""<input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>""")
         responseBody should include(raw"""<table id="developer-table" class="no-footer developer-list" width="100%">""")
 
-        responseBody should include("<div>3 results</div>")
-
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
-
-        responseBody should include(raw"""<td id="dev-email-0" width="45%">${verifiedUser1.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-0">${verifiedUser1.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-0">${verifiedUser1.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-1" width="45%">${verifiedUser2.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-1">${verifiedUser2.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-1">${verifiedUser2.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-2" width="45%">${verifiedUser3.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-2">${verifiedUser3.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-2">${verifiedUser3.lastName}</td>""")
+        verifyUserTable(responseBody, users)
       }
 
     }
 
 
- "email preferences topic page" should {
-      "render the view correctly" in new Setup {
+    "email preferences topic page" should {
+      "render the view correctly when no filter selected and no users returned" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
 
-        given3VerifiedDevelopersDevelopers()
+        givenfetchDevelopersByEmailPreferences(Seq.empty)
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
         val eventualResult: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
         status(eventualResult) shouldBe OK
 
         val responseBody = Helpers.contentAsString(eventualResult)
 
-        responseBody should include("<div>3 results</div>")
+        verifyUserTable(responseBody, Seq.empty)
 
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
-        responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
-
-        responseBody should include(raw"""<td id="dev-email-0" width="45%">${verifiedUser1.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-0">${verifiedUser1.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-0">${verifiedUser1.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-1" width="45%">${verifiedUser2.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-1">${verifiedUser2.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-1">${verifiedUser2.lastName}</td>""")
-
-        responseBody should include(raw"""<td id="dev-email-2" width="45%">${verifiedUser3.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-2">${verifiedUser3.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-2">${verifiedUser3.lastName}</td>""")
       }
-   }
+
+      "render the view correctly when filter selected and no users returned" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        givenfetchDevelopersByEmailPreferences(Seq.empty)
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
+        status(eventualResult) shouldBe OK
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+
+        verifyUserTable(responseBody, Seq.empty)
+
+      }
+
+      "render the view correctly when filter selected and users returned" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        givenfetchDevelopersByEmailPreferences(users)
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
+        status(eventualResult) shouldBe OK
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+
+        verifyUserTable(responseBody, users)
+
+      }
+
+
+    }
 
   }
 
-  
+  def verifyUserTable(responseBody: String, users: Seq[User]) {
+    if (!users.isEmpty) {
+      responseBody should include(s"<div>${users.size} results</div>")
+
+      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
+      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
+      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
+
+      for ((user, index) <- users.zipWithIndex) {
+        responseBody should include(raw"""<td id="dev-email-${index}" width="45%">${user.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-${index}">${user.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-${index}">${user.lastName}</td>""")
+      }
+    } else {
+      responseBody should include("<div>0 results</div>")
+    }
+  }
+
 }
