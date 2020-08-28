@@ -42,6 +42,25 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec {
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)
 
+    "show correct title and options when no filter provided and empty list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesTopicView.render(Seq.empty, "", None, request, LoggedInUser(None), messagesProvider)
+      val tableIsVisible = false
+      val document: Document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+      elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+
+      noInputChecked(document)
+
+      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
+
+      verifyTableHeader(document, tableIsVisible)
+
+    }
+
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesTopicView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
@@ -52,15 +71,53 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec {
       elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
       elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe true
-      elementExistsById(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString) mustBe true
-      elementExistsById(document, TopicOptionChoice.TECHNICAL.toString) mustBe true
-      elementExistsById(document, TopicOptionChoice.RELEASE_SCHEDULES.toString) mustBe true
-      elementExistsById(document, TopicOptionChoice.EVENT_INVITES.toString) mustBe true
 
+      isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
+
+      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
   
       verifyTableHeader(document, tableIsVisible)
       verifyUserRow(document, user1)
       verifyUserRow(document, user2)
+    }
+
+    "show correct title and select correct option when filter exists but no users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+      val tableIsVisible = false
+      val document: Document = Jsoup.parse(result.body)
+
+      result.contentType must include("text/html")
+      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+      elementExistsContainsText(document, "div", "0 results") mustBe false
+      elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+
+      isElementChecked(document, TopicOptionChoice.RELEASE_SCHEDULES.toString)
+
+      verifyTableHeader(document, tableIsVisible)
+
+    }
+
+    def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit ={
+      val checkedRadio = getElementBySelector(document, "input[checked]")
+      checkedRadio.isDefined mustBe true
+      checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) mustBe shouldBeChecked
+    }
+
+    def noInputChecked(document: Document): Unit ={
+      val checkedRadio = getElementBySelector(document, "input[checked]")
+      checkedRadio.isDefined mustBe false
+    }
+
+
+    def checkElementsExistById(document: Document, ids: Seq[String]): Unit ={
+      ids.foreach(id => {
+        withClue(s"$id element exists?:") {
+          elementExistsById(document, id) mustBe true
+        }
+        ()
+      })
     }
 
     def verifyUserRow(document: Document, user: User): Unit ={
