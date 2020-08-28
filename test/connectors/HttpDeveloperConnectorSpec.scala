@@ -183,5 +183,23 @@ class HttpDeveloperConnectorSpec
       result shouldBe List(aUserResponse(developerEmail))
 
     }
+
+    "Search by Email Preferences" should {
+
+      "make a call with topic passed into the service and return users from response" in new Setup {
+
+        val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}"
+        stubFor(get(urlEqualTo(url)).willReturn(
+          aResponse().withStatus(OK).withBody(
+            Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+        )
+        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY))
+
+        verify(getRequestedFor(urlPathEqualTo(url)))
+
+        result shouldBe List(aUserResponse(developerEmail))
+
+      }
+    }
   }
 }

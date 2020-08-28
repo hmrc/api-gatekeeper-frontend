@@ -55,49 +55,19 @@
                 <div class="form-group grid-layout grid-layout--stacked push--sides">
                     <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
                 </div>
-                <div><br/><hr/></div>
             } else {
 
             <div class="form-group grid-layout grid-layout--stacked push--sides">
                 <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
             </div>
-               <div><br/><hr/></div>
             }
         </form>
+         @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
+            <div><hr/></div>
+            @userTable(users, emails)
+          }
         }
-        @if(users.nonEmpty) {
-            <div class="form-group>">
-                <p>
-                    <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
-                    title="Copies all @{
-                        users.length
-                    } email addresses into the system clipboard." data-clip-text="@emails">Copy
-                        emails to clipboard</a>
-                </p>
-            </div>
-            <div>@users.size results</div>
 
-            <table id="developer-table" class="no-footer developer-list" width="100%">
-                <thead>
-                    <tr role="row">
-                        <th tabindex="0" class="sorting_left-aligned">Email</th>
-                        <th tabindex="0" class="sorting_left-aligned">First name</th>
-                        <th tabindex="0" class="sorting_left-aligned">Last name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @for((user, index) <- users.zipWithIndex) {
-                    <tr role="row">
-                        <td id="dev-email-@index" width="45%">@user.email</td>
-                        <td id="dev-fn-@index">@user.firstName</td>
-                        <td id="dev-sn-@index">@user.lastName</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        } else {
-            <div>0 results</div>
-        }
     </div>
 
 

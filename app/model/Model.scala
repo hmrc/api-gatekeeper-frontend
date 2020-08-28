@@ -20,6 +20,7 @@ import java.util.UUID
 
 import model.AccessType.AccessType
 import model.EmailOptionChoice.EmailOptionChoice
+import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
 import model.Environment._
@@ -368,3 +369,4 @@ object ApproveServiceRequest {
 class UpdateApiDefinitionsFailed extends Throwable
 
 case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)
+case class SendEmailPreferencesChoice(sendEmailPreferences: EmailPreferencesChoice)

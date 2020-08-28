@@ -21,63 +21,62 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(emailOptionChoice: EmailOptionChoice)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
-    @drawEmailAllUsersInformation() = @{
-            <div>
-                <h1 class="heading-large">Check you can email all users</h1>
-            </div>
-            <div><p>You can only email all users if your message is about:</p></div>
-            <div><br/></div>
-            <div>
-                <ul class="list list-bullet">
-                    <li>important notices and service updates</li>
-                    <li>changes to any application they have</li>
-                    <li>making their application accessible</li>
-                </ul>
-            </div>
-    }
+@drawEmailAllUsersInformation() = @{
+        <div>
+            <h1 class="heading-large">Check you can email all users</h1>
+        </div>
+        <div><p>You can only email all users if your message is about:</p></div>
+        <div>
+            <ul class="list list-bullet">
+                <li>important notices and service updates</li>
+                <li>changes to any application they have</li>
+                <li>making their application accessible</li>
+            </ul>
+        </div>
+}
 
-    @drawEmailApiSubscribersInformation() = @{
-            <div>
-                <h1 class="heading-large">Check you can send your email</h1>
-            </div>
-            <div><p>You can only email all users based on their API subscription if your message is about:</p></div>
-            <div>
-                <ul class="list list-bullet">
-                    <li>important notices and service updates</li>
-                    <li>changes to any application they have</li>
-                    <li>making their application accessible</li>
-                </ul>
-            </div>
-    }
-
-
-    @main(title = s"${applicationConfig.title} - Check you can send your email") {
-
-        <div class="content__body full-width">
-            <div>
-                <a data-back-link href="@routes.EmailsController.chooseEmailOption()">Back</a>
-            </div>
+@drawEmailApiSubscribersInformation() = @{
+        <div>
+            <h1 class="heading-large">Check you can send your email</h1>
+        </div>
+        <div><p>You can only email all users based on their API subscription if your message is about:</p></div>
+        <div>
+            <ul class="list list-bullet">
+                <li>important notices and service updates</li>
+                <li>changes to any application they have</li>
+                <li>making their application accessible</li>
+            </ul>
+        </div>
+}
 
 
-            @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
+@main(title = s"${applicationConfig.title} - Check you can send your email") {
 
-                @helper.CSRF.formField
-                @drawEmailAllUsersInformation()
-                <div><br/></div>
-                <div class="form-field">
-                    <a href="@routes.EmailsController.emailAllUsersPage()" class="button button-Link">Continue</a>
-                </div>
-            }
-            @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
-
-                @helper.CSRF.formField
-                @drawEmailApiSubscribersInformation()
-                <div><br/></div>
-                <div class="form-field">
-                    <a href="@routes.EmailsController.emailApiSubscribersPage(None)" class="button button-Link">Continue</a>
-                </div>
-            }
+    <div class="content__body full-width">
+        <div>
+            <a data-back-link href="@routes.EmailsController.chooseEmailOption()">Back</a>
         </div>
 
 
-    }
+        @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
+
+            @helper.CSRF.formField
+            @drawEmailAllUsersInformation()
+
+            <div class="form-field">
+                <a id="continue-link" href="@routes.EmailsController.emailAllUsersPage()" class="button button-Link">Continue</a>
+            </div>
+        }
+        @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
+
+            @helper.CSRF.formField
+            @drawEmailApiSubscribersInformation()
+
+            <div class="form-field">
+                <a id="continue-link" href="@routes.EmailsController.emailApiSubscribersPage(None)" class="button button-Link">Continue</a>
+            </div>
+        }
+    </div>
+
+
+}

@@ -17,7 +17,8 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.EmailOptionChoice._
+import model.EmailPreferencesChoice._
+import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.LoggedInUser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -27,34 +28,34 @@ import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.emails.SendEmailChoiceView
+import views.html.emails.{EmailPreferencesChoiceView, SendEmailChoiceView}
 
-class EmailLandingViewSpec extends CommonViewSpec {
+class EmailPreferencesChoiceViewSpec extends CommonViewSpec {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailLandingView: SendEmailChoiceView = app.injector.instanceOf[SendEmailChoiceView]
+    val preferencesChoiceView: EmailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
   }
 
-  "email landing view" must {
+  "email preferences choice view" must {
     "show correct title and options" in new Setup {
-      val result: Html = emailLandingView.render(request, LoggedInUser(None), messagesProvider)
+      val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-      elementExistsByText(document, "h1", "Send emails to users based on") mustBe true
+      elementExistsByText(document, "h1", "Who do you want to email?") mustBe true
 
-      verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = false)
-      verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = false)
-      verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
-      elementExistsByIdWithAttr(document, EMAIL_PREFERENCES.toString, "checked") mustBe true
+      verifyEmailOptions(SPECIFIC_API, document, isDisabled = true)
+      verifyEmailOptions(TAX_REGIME, document, isDisabled = true)
+      verifyEmailOptions(TOPIC, document, isDisabled = false)
+
     }
   }
 
-  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean): Unit ={
+  def verifyEmailOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean): Unit ={
     elementExistsById(document, option.toString) mustBe true
     elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
     elementExistsContainsText(document, "label",  optionHint(option)) mustBe true

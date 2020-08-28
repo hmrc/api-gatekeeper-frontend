@@ -17,6 +17,7 @@
 package model
 
 import model.EmailOptionChoice._
+import model.EmailPreferencesChoice._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
@@ -54,6 +55,7 @@ object Forms {
     val adminEmail = "adminEmail"
     val environment = "environment"
     val sendEmailChoice = "sendEmailChoice"
+    val sendEmailPreferences = "sendEmailPreferences"
   }
 
   val accessOverridesForm = Form (
@@ -274,7 +276,6 @@ object SendEmailChoiceForm {
   val form: Form[SendEmailChoice] = Form(
     mapping(
       sendEmailChoice -> of[EmailOptionChoice]
-
     )(SendEmailChoice.apply)(SendEmailChoice.unapply))
 }
 
@@ -286,6 +287,22 @@ object SendEmailChoiceForm {
 
     override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
   }
+
+
+object SendEmailPrefencesChoiceForm {
+  val form: Form[SendEmailPreferencesChoice] = Form(
+    mapping(
+      sendEmailPreferences -> of[EmailPreferencesChoice]
+    )(SendEmailPreferencesChoice.apply)(SendEmailPreferencesChoice.unapply))
 }
 
+  implicit def emailPreferencesChoiceFormat: Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
+    override def bind(key: String, data: Map[String, String]) =
+      data.get(key)
+        .flatMap(name => Try(EmailPreferencesChoice.withName(name)).toOption)
+        .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
+
+    override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
+  }
+}
 

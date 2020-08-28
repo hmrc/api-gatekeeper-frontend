@@ -44,6 +44,12 @@ class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutur
     }
   }
 
+  "fetchByEMailPreferences" should {
+    "return an empty sequence" in {
+      await(underTest.fetchByEmailPreferences(TopicOptionChoice.TECHNICAL)) shouldBe Seq.empty
+    }
+  }
+
   "fetchAll" should {
     "return an empty sequence" in {
       await(underTest.fetchAll()) shouldBe Seq.empty
