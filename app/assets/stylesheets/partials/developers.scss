@@ -15,6 +15,14 @@
     width: 100%;
 }
 
+.float-left-block {
+    clear: left;
+    display: block;
+    float: left;
+    position: relative;
+    padding: 0 0 10px 8px;
+}
+
 form[name$=-filters] {
     margin-bottom: 1.5em;
 
