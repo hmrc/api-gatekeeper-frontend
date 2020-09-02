@@ -145,6 +145,35 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     }
   }
 
+  "fetchAPICategories" should {
+    val url = s"$baseUrl/api-definition/api-categories"
+    "respond with 200 and convert body" in new Setup {
+      val response = Seq(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
+
+      when(mockHttpClient.GET[Seq[APICategory]](meq(url))(any(), any(), any())).thenReturn(Future.successful(response))
+
+      await(connector.fetchAPICategories()) shouldBe response
+    }
+
+    "when retry logic is enabled should retry on failure" in new Setup {
+      val response = Seq(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
+
+      when(mockAppConfig.retryCount).thenReturn(1)
+      when(mockHttpClient.GET[Seq[APICategory]](meq(url))(any(), any(), any())).thenReturn(Future.failed(new BadRequestException("")),
+        Future.successful(response))
+
+      await(connector.fetchAPICategories()) shouldBe response
+    }
+
+    "propagate FetchApiCategoriesFailed exception" in new Setup {
+      when(mockHttpClient.GET[Seq[APICategory]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
+    }
+
+  }
+
   "http" when {
     "configured not to use the proxy" should {
       "use the HttpClient" in new Setup(proxyEnabled = false) {

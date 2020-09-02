@@ -67,6 +67,11 @@ object APIDefinition {
   }
 }
 
+case class APICategory(category: String, name: String)
+object APICategory{
+  implicit val formatApiCategory = Json.format[APICategory]
+}
+
 case class VersionSubscription(version: APIVersion,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
@@ -103,6 +108,7 @@ object APIIdentifier {
 }
 
 class FetchApiDefinitionsFailed extends Throwable
+class FetchApiCategoriesFailed extends Throwable
 
 case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
 
