@@ -26,30 +26,39 @@ import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.emails.EmailPreferencesTopicView
+import views.html.emails.EmailPreferencesAPICategoryView
+import model.APICategory
 
-class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailPreferencesTopicView: EmailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
+    val emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView = app.injector.instanceOf[EmailPreferencesAPICategoryView]
   }
 
-  "email preferences topic view" must {
+  val expectedTitle = "Email users interested in a tax regime"
+
+  "email preferences category view" must {
 
     val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)
 
+    val category1 = APICategory("VAT", "Vat")
+    val category2 = APICategory("AGENT", "Agents")
+    val category3 = APICategory("RELIEF_AT_SOURCE", "Relief at source")
+
+    val categories = List(category1, category2, category3)
+
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, "", request, LoggedInUser(None), messagesProvider)
       val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+      validatePageHeader(document, expectedTitle)
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
 
       noInputChecked(document)
@@ -63,12 +72,12 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper 
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY),  categories, "", request, LoggedInUser(None), messagesProvider)
       val tableIsVisible = true
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+      validatePageHeader(document, expectedTitle)
       elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe true
 
@@ -84,12 +93,12 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper 
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES),  categories, "", request, LoggedInUser(None), messagesProvider)
       val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+      validatePageHeader(document, expectedTitle)
       elementExistsContainsText(document, "div", "0 results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
 

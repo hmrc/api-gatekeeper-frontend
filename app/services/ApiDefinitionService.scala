@@ -65,11 +65,11 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
       .map(_.sortBy { case (api, env) => (api.name, env) } )
   }
 
-  def apiCategories(implicit hc: HeaderCarrier) : Future[Set[APICategory]] = {
+  def apiCategories()(implicit hc: HeaderCarrier) : Future[List[APICategory]] = {
     for{
       sandboxCategories <- sandboxApiDefinitionConnector.fetchAPICategories()
       productionCategories <- productionApiDefinitionConnector.fetchAPICategories()
-    } yield( sandboxCategories ++ productionCategories).toSet
+    } yield( sandboxCategories ++ productionCategories).distinct
   }
 
 
