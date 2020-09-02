@@ -138,4 +138,18 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
       )
     }
   }
+
+  "apiCategories" when {
+    "get all apiCategories" in new Setup {
+      val prodCategories = Seq(APICategory("Business", "Business"), APICategory("VAT", "Vat"), APICategory("EXAMPLE", "Example"))
+      val sandboxCategories = Seq(APICategory("VAT", "Vat"), APICategory("EXAMPLE", "Example"), APICategory("AGENTS", "Agents"))
+      val allCategories = (prodCategories ++ sandboxCategories).toSet
+      
+      given(mockProductionApiDefinitionConnector.fetchAPICategories()).willReturn(Future(prodCategories))
+      given(mockSandboxApiDefinitionConnector.fetchAPICategories()).willReturn(Future(sandboxCategories))
+
+      val response: Set[APICategory] = await(definitionService.apiCategories)
+      response shouldBe allCategories
+    }
+  }
 }
