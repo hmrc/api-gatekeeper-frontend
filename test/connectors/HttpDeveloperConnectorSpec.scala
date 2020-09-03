@@ -208,7 +208,7 @@ class HttpDeveloperConnectorSpec
           aResponse().withStatus(OK).withBody(
             Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
         )
-        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApiCategory = Some(APICategory("VAT", "Vat"))))
+        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApiCategory = Some("VAT")))
 
         verify(getRequestedFor(urlPathEqualTo(url)))
 

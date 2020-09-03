@@ -39,6 +39,21 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
 
   val expectedTitle = "Email users interested in a tax regime"
 
+  def validateCategoryDropDown(document: Document, categories: List[APICategory])={
+    for(category <- categories){
+      withClue(s"Category: option `${category.category}` not in select list: ") { 
+        elementExistsByText(document, "option", category.name) mustBe true 
+      }
+    }
+  }
+
+  def validatePermanentElements(document: Document, categories: List[APICategory])={
+      validatePageHeader(document, expectedTitle)
+      validateCategoryDropDown(document, categories)
+      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
+  }
+
   "email preferences category view" must {
 
     val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
@@ -58,14 +73,13 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      validatePageHeader(document, expectedTitle)
+      validatePermanentElements(document, categories)
+
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
 
+      
       noInputChecked(document)
-
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
-
+  
       verifyTableHeader(document, tableIsVisible)
 
     }
@@ -77,15 +91,12 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      validatePageHeader(document, expectedTitle)
+       validatePermanentElements(document, categories)
       elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe true
 
       isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
 
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
-  
       verifyTableHeader(document, tableIsVisible)
       verifyUserRow(document, user1)
       verifyUserRow(document, user2)
@@ -98,7 +109,8 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      validatePageHeader(document, expectedTitle)
+      validatePermanentElements(document, categories)
+      
       elementExistsContainsText(document, "div", "0 results") mustBe true
       elementExistsByAttr(document, "a", "data-clip-text") mustBe false
 

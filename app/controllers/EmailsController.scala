@@ -118,13 +118,21 @@ class EmailsController  @Inject()(developerService: DeveloperService,
   def emailPreferencesAPICategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
-        val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
-
+        val topicAndCategory: Option[(TopicOptionChoice, String)] =
+        for{
+          topic <- selectedTopic.map(TopicOptionChoice.withName)
+          category <- selectedCategory.filter(!_.isEmpty)
+        } yield (topic, category)
+       
+        
         //TODO - add category filter to getting users
        for{
          categories <- apiDefinitionService.apiCategories
-         users <-  maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(Seq.empty))
-       } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), maybeTopic, categories, selectedCategory.getOrElse("")))
+         users <-  topicAndCategory.map(tup=>
+           developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2))
+           .getOrElse(Future.successful(Seq.empty))
+         
+       } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))
       }
     }
   }

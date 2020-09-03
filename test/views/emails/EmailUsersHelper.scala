@@ -23,7 +23,8 @@ import org.scalatest.MustMatchers
 
 trait EmailUsersHelper extends MustMatchers{
     def validatePageHeader(document: Document, expectedTitle: String)= {
-      elementExistsByText(document, "h1", expectedTitle) mustBe true
+      val maybeTitleText = getElementBySelector(document, "#pageTitle")
+      maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
     }
 
 

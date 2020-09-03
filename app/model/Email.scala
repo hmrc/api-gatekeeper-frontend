@@ -48,9 +48,9 @@ object EmailPreferencesChoice extends Enumeration {
   }
 
   val optionHint: EmailPreferencesChoice => String = {
-    case SPECIFIC_API => "For Example, VAT MTD"
-    case TAX_REGIME => "For Example, Income Tax"
-    case TOPIC => "For Example, event invites"
+    case SPECIFIC_API => "For example, VAT MTD"
+    case TAX_REGIME => "For example, Income Tax"
+    case TOPIC => "For example, event invites"
   }
 }
 

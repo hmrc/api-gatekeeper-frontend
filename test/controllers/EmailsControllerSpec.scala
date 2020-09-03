@@ -101,7 +101,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
-        when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice], any[Option[APICategory]])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice], any[Option[String]])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[String])(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
       def givenNoVerifiedDevelopers(): Unit = {
