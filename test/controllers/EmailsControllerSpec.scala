@@ -19,7 +19,7 @@ package controllers
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.TopicOptionChoice._
-import model.EmailPreferencesChoice.{EmailPreferencesChoice, TOPIC}
+import model.EmailPreferencesChoice.{EmailPreferencesChoice, TAX_REGIME, TOPIC}
 import model.Environment.Environment
 import model._
 import org.mockito.Matchers.any
@@ -203,7 +203,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TOPIC)))
 
         status(result) shouldBe SEE_OTHER
-        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/topic")
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-topic")
       }
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
@@ -211,7 +211,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
 
+        val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TAX_REGIME)))
+
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")
       }
     }
 

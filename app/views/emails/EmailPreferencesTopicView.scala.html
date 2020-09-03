@@ -26,7 +26,7 @@
     @buildTopicOptionRow(topic: TopicOptionChoice) = {
         <div class="multiple-choice">
 
-            <input id="@topic.toString" name="topicOptionChoice" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
+            <input id="@topic.toString" name="selectedTopic" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
 
             <label class="form-label-bold" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
                 <span><div class="font-small text-secondary">@TopicOptionChoice.optionHint(topic)</div></span>

@@ -104,21 +104,21 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
   }
 
-  def emailPreferencesTopic(maybeTopicFilter: Option[String] = None): Action[AnyContent] = {
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
         //withName could throw an exception here
-        val maybeTopic = maybeTopicFilter.map(TopicOptionChoice.withName(_))
+        val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
         maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(Seq.empty))
         .map(users => Ok(emailPreferencesTopicView(users, usersToEmailCopyText(users) , maybeTopic)))
       }
     }
   }
 
-  def emailPreferencesAPICategory(maybeTopicFilter: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = {
+  def emailPreferencesAPICategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
-        val maybeTopic = maybeTopicFilter.map(TopicOptionChoice.withName(_))
+        val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
 
         //TODO - add category filter to getting users
        for{
