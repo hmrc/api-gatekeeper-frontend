@@ -86,6 +86,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val unVerifiedUser1: User = User("user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
 
+      val category1 = APICategory("EXAMPLE", "Example") 
+      val category2 = APICategory("VAT", "Vat") 
+      val category3 = APICategory("AGENTS", "Agents")
+
       def givenVerifiedDeveloper(): Unit = {
         val users = Seq(verifiedUser1, verifiedUser2)
         when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
@@ -102,7 +106,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
         when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice], any[Option[String]])(any[HeaderCarrier])).thenReturn(Future.successful(users))
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[String])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+      }
+
+      def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[User]) = {
+         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[String])(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
       def givenNoVerifiedDevelopers(): Unit = {
@@ -120,7 +127,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
      def givenApiDefinition3Categories() = {
 
         when(mockApiDefinitionService.apiCategories()(any[HeaderCarrier]))
-          .thenReturn(Future.successful(List(APICategory("EXAMPLE", "Example"), APICategory("VAT", "Vat"), APICategory("AGENTS", "Agents"))))
+          .thenReturn(Future.successful(List(category1, category2, category3)))
       }
 
       val underTest = new EmailsController(
@@ -150,7 +157,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Send emails to users based on"
         val responseBody: String = Helpers.contentAsString(eventualResult)
-        responseBody should include("<h1>Send emails to users based on</h1>")
+        responseBody should include("<h1 id=\"pageTitle\">Send emails to users based on</h1>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
         responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
 
@@ -229,7 +236,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Check you can send your email"
         val responseBody: String = Helpers.contentAsString(eventualResult)
-        responseBody should include("<h1 class=\"heading-large\">Check you can email all users</h1>")
+        responseBody should include("<h1 id=\"pageTitle\" class=\"heading-large\">Check you can email all users</h1>")
         responseBody should include("<li>important notices and service updates</li>")
         responseBody should include("<li>changes to any application they have</li>")
         responseBody should include("<li>making their application accessible</li>")
@@ -244,7 +251,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Check you can send your email"
         val responseBody: String = Helpers.contentAsString(eventualResult)
-        responseBody should include("<h1 class=\"heading-large\">Check you can send your email</h1>")
+        responseBody should include("<h1 id=\"pageTitle\" class=\"heading-large\">Check you can send your email</h1>")
         responseBody should include("<li>important notices and service updates</li>")
         responseBody should include("<li>changes to any application they have</li>")
         responseBody should include("<li>making their application accessible</li>")
@@ -274,7 +281,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         titleOf(eventualResult) shouldBe "Unit Test Title - Emails all users"
         val responseBody: String = Helpers.contentAsString(eventualResult)
 
-        responseBody should include("<div><h1>Email all users</h1></div>")
+        responseBody should include("<div><h1 id=\"pageTitle\">Email all users</h1></div>")
         verifyUserTable(responseBody, users)
         verifyAuthConnectorCalledForUser
 
@@ -289,7 +296,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         titleOf(eventualResult) shouldBe "Unit Test Title - Emails all users"
         val responseBody: String = Helpers.contentAsString(eventualResult)
 
-        responseBody should include("<div><h1>Email all users</h1></div>")
+        responseBody should include("<div><h1 id=\"pageTitle\">Email all users</h1></div>")
         responseBody should include("<div>2 results</div>")
 
         responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
@@ -316,7 +323,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         titleOf(eventualResult) shouldBe "Unit Test Title - Emails all users"
         val responseBody: String = Helpers.contentAsString(eventualResult)
 
-        responseBody should include("<div><h1>Email all users</h1></div>")
+        responseBody should include("<div><h1 id=\"pageTitle\">Email all users</h1></div>")
         responseBody should include("<div>0 results</div>")
 
         responseBody should not include "<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>"
@@ -338,7 +345,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         titleOf(eventualResult) shouldBe "Unit Test Title - Email all users subscribed to an API"
 
         val responseBody: String = Helpers.contentAsString(eventualResult)
-        responseBody should include(" <div><h1>Email all users subscribed to an API</h1></div>")
+        responseBody should include(" <div><h1 id=\"pageTitle\">Email all users subscribed to an API</h1></div>")
         responseBody should include(raw"""<form name="developers-filters" action="/api-gatekeeper/emails/api-subscribers" method="get">""")
         responseBody should include(raw"""<option value="">Select API</option>""")
         responseBody should include(raw"""<option  value="service1__1">serviceName (1) (Beta) </option>""")
@@ -356,7 +363,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         titleOf(eventualResult) shouldBe "Unit Test Title - Email all users subscribed to an API"
 
         val responseBody: String = Helpers.contentAsString(eventualResult)
-        responseBody should include(" <div><h1>Email all users subscribed to an API</h1></div>")
+        responseBody should include(" <div><h1 id=\"pageTitle\">Email all users subscribed to an API</h1></div>")
         responseBody should include(raw"""<form name="developers-filters" action="/api-gatekeeper/emails/api-subscribers" method="get">""")
         responseBody should include(raw"""<option value="">Select API</option>""")
         responseBody should include(raw"""<option  value="service1__1">serviceName (1) (Beta) </option>""")
@@ -386,7 +393,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         givenfetchDevelopersByEmailPreferences(Seq.empty)
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
-        val eventualResult: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
+        val eventualResult: Result = await(underTest.emailPreferencesTopic(Some("TECHNICAL"))(request))
         status(eventualResult) shouldBe OK
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -416,9 +423,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           "render the view correctly when no filters selected" in new Setup {
               givenTheUserIsAuthorisedAndIsANormalUser()
               givenApiDefinition3Categories()
-              givenfetchDevelopersByEmailPreferences(Seq.empty)
+              givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
 
-              val request = createGetRequest("/emails/api-subscribers/email-preferences/api-category")
+              val request = createGetRequest("/emails/email-preferences/by-api-category")
               val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory()(request)
               status(eventualResult) shouldBe OK
 
@@ -429,9 +436,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
               givenTheUserIsAuthorisedAndIsANormalUser()
               givenApiDefinition3Categories()
-              givenfetchDevelopersByEmailPreferences(Seq.empty)
-              val request = createGetRequest("/emails/api-subscribers/email-preferences/api-category?topicOptionChoice=TECHNICAL")
-              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"))(request)
+              givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
+              val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
+              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
               status(eventualResult) shouldBe OK
 
               val responseBody = Helpers.contentAsString(eventualResult)
@@ -442,9 +449,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
            "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
               givenTheUserIsAuthorisedAndIsANormalUser()
               givenApiDefinition3Categories()
-              givenfetchDevelopersByEmailPreferences(users)
-              val request = createGetRequest("/emails/api-subscribers/email-preferences/api-category?topicOptionChoice=TECHNICAL")
-              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"))(request)
+              givenfetchDevelopersByAPICategoryEmailPreferences(users)
+              val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
+              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
               status(eventualResult) shouldBe OK
 
               val responseBody = Helpers.contentAsString(eventualResult)
@@ -458,7 +465,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   }
 
-  def verifyUserTable(responseBody: String, users: Seq[User]) {
+  def verifyUserTable(responseBody: String, users: Seq[User], showZeroUsers: Boolean = false) {
     if (!users.isEmpty) {
       responseBody should include(s"<div>${users.size} results</div>")
 
@@ -472,7 +479,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include(raw"""<td id="dev-sn-${index}">${user.lastName}</td>""")
       }
     } else {
-      responseBody should include("<div>0 results</div>")
+      if(showZeroUsers){
+        responseBody should include("<div>0 results</div>")
+      }
     }
   }
 

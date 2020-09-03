@@ -48,4 +48,11 @@ trait EmailUsersHelper extends MustMatchers{
         ()
       })
     }
+
+    def validateCopyToClipboardLink(document: Document, isVisible: Boolean = true){
+       withClue(s"Copy to cliboard link validation failed") {
+         elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
+       }
+
+    }
 }
