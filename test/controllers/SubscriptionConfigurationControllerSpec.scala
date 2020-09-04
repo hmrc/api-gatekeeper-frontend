@@ -18,8 +18,6 @@ package controllers
 
 import builder.SubscriptionsBuilder
 import mocks.service.SubscriptionFieldsServiceMock
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -163,7 +161,7 @@ class SubscriptionConfigurationControllerSpec
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
     
       val expectedFields = Map(subscriptionFieldValue.definition.name -> newValue)
 

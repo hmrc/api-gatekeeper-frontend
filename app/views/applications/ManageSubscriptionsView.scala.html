@@ -32,7 +32,7 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Manage subscriptions</li>
         </ul>
@@ -71,7 +71,7 @@
                                     <div class="accordion__body__row__right">
                                         <div class="float--right">
                                             <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
-                                                @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
+                                                @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id, subscription.context, version.version.version), 'class -> "form") {
                                                     @helper.CSRF.formField
                                                     <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
                                                                 subscription.name
@@ -91,7 +91,7 @@
                                                 }
                                             </div>
                                             <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
-                                                @helper.form(action = routes.ApplicationController.subscribeToApi(application.id.toString, subscription.context, version.version.version), 'class -> "form") {
+                                                @helper.form(action = routes.ApplicationController.subscribeToApi(application.id, subscription.context, version.version.version), 'class -> "form") {
                                                     @helper.CSRF.formField
                                                     <button type="submit" class="toggle__button"
                                                        data-toggle-subscribe="on" aria-label="Subscribed to @{
@@ -122,7 +122,7 @@
     </ul>
 
     <div>
-        <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button button--link">Cancel</a>
+        <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
     </div>
 </div>
 

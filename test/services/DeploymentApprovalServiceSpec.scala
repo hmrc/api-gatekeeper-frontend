@@ -22,17 +22,15 @@ import connectors._
 import model.APIApprovalSummary
 import model.Environment._
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, spy, verify}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar {
+class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
   trait Setup {
     val serviceName = "ServiceName" + UUID.randomUUID
     val mockSandboxApiPublisherConnector = mock[SandboxApiPublisherConnector]
@@ -66,28 +64,28 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX))
 
-      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(any())(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
+      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, SANDBOX))
 
       result shouldBe expectedSummary
 
       verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(any[HeaderCarrier])
-      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(any())(any())
+      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*)(*)
     }
 
     "fetch the Api definition summary for production" in new Setup {
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
 
-      given(mockProductionApiPublisherConnector.fetchApprovalSummary(any())(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
+      given(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, PRODUCTION))
 
       result shouldBe expectedSummary
 
       verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(any[HeaderCarrier])
-      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(any())(any())
+      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*)(*)
     }
 
   }
@@ -95,22 +93,22 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
   "approveService" should {
     "approve the service in sandbox" in new Setup {
 
-      given(mockSandboxApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockSandboxApiPublisherConnector.approveService(*)(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, SANDBOX))
 
       verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
-      verify(mockProductionApiPublisherConnector, never).approveService(any())(any())
+      verify(mockProductionApiPublisherConnector, never).approveService(*)(*)
     }
 
     "approve the service in production" in new Setup {
 
-      given(mockProductionApiPublisherConnector.approveService(any())(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockProductionApiPublisherConnector.approveService(*)(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, PRODUCTION))
 
       verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
-      verify(mockSandboxApiPublisherConnector, never).approveService(any())(any())
+      verify(mockSandboxApiPublisherConnector, never).approveService(*)(*)
     }
   }
 

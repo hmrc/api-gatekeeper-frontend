@@ -31,7 +31,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
 
   sealed case class TestApplication(name: String,
                                     collaborators: Set[Collaborator],
-                                    id: UUID = UUID.randomUUID(),
+                                    id: ApplicationId = ApplicationId(UUID.randomUUID().toString()),
                                     state: ApplicationState = ApplicationState(State.PRODUCTION),
                                     clientId: String = "a-client-id",
                                     deployedTo: String = "PRODUCTION") extends Application

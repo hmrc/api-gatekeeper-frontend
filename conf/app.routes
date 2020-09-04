@@ -1,9 +1,9 @@
 # microservice specific routes
 
-GET         /review                                                           controllers.ApplicationController.reviewPage(id: String)
+GET         /review                                                           controllers.ApplicationController.reviewPage(id: model.ApplicationId)
 
 
-POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: String)
+POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: model.ApplicationId)
 
 GET         /developers                                                       controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
@@ -17,36 +17,36 @@ GET         /developers2                                                      co
 
 GET         /applications                                                     controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 
-GET         /applications/:id                                                 controllers.ApplicationController.applicationPage(id: String)
+GET         /applications/:id                                                 controllers.ApplicationController.applicationPage(id: model.ApplicationId)
 
-POST        /applications/:id/handle-uplift                                   controllers.ApplicationController.handleUplift(id: String)
-GET         /applications/:id/resend-verification                             controllers.ApplicationController.resendVerification(id: String)
+POST        /applications/:id/handle-uplift                                   controllers.ApplicationController.handleUplift(id: model.ApplicationId)
+GET         /applications/:id/resend-verification                             controllers.ApplicationController.resendVerification(id: model.ApplicationId)
 
-GET         /applications/:id/access/scopes                                   controllers.ApplicationController.manageScopes(id: String)
-POST        /applications/:id/access/scopes                                   controllers.ApplicationController.updateScopes(id: String)
+GET         /applications/:id/access/scopes                                   controllers.ApplicationController.manageScopes(id: model.ApplicationId)
+POST        /applications/:id/access/scopes                                   controllers.ApplicationController.updateScopes(id: model.ApplicationId)
 
-GET         /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpPage(id: String)
-POST        /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpAction(id: String)
+GET         /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpPage(id: model.ApplicationId)
+POST        /applications/:id/ip-whitelist/manage                             controllers.ApplicationController.manageWhitelistedIpAction(id: model.ApplicationId)
 
-GET         /applications/:id/access/overrides                                controllers.ApplicationController.manageAccessOverrides(id: String)
-POST        /applications/:id/access/overrides                                controllers.ApplicationController.updateAccessOverrides(id: String)
+GET         /applications/:id/access/overrides                                controllers.ApplicationController.manageAccessOverrides(id: model.ApplicationId)
+POST        /applications/:id/access/overrides                                controllers.ApplicationController.updateAccessOverrides(id: model.ApplicationId)
 
-GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: String)
-POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: String, context: String, version: String)
-POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: String, context: String, version: String)
+GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: model.ApplicationId)
+POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: model.ApplicationId, context: String, version: String)
+POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: model.ApplicationId, context: String, version: String)
 
-GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: String)
-GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: String, context: String, version: String)
-POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: String, context: String, version: String)
+GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: model.ApplicationId)
+GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: model.ApplicationId, context: String, version: String)
+POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: model.ApplicationId, context: String, version: String)
 
-GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: String)
-POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: String)
+GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: model.ApplicationId)
+POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: model.ApplicationId)
 
-GET         /applications/:id/team-members                                    controllers.ApplicationController.manageTeamMembers(id: String)
-GET         /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMember(id: String)
-POST        /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMemberAction(id: String)
-POST        /applications/:id/team-members/remove-confirmation                controllers.ApplicationController.removeTeamMember(id: String)
-POST        /applications/:id/team-members/remove                             controllers.ApplicationController.removeTeamMemberAction(id: String)
+GET         /applications/:id/team-members                                    controllers.ApplicationController.manageTeamMembers(id: model.ApplicationId)
+GET         /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMember(id: model.ApplicationId)
+POST        /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMemberAction(id: model.ApplicationId)
+POST        /applications/:id/team-members/remove-confirmation                controllers.ApplicationController.removeTeamMember(id: model.ApplicationId)
+POST        /applications/:id/team-members/remove                             controllers.ApplicationController.removeTeamMemberAction(id: model.ApplicationId)
 
 ->          /template                                                         template.Routes
 
@@ -54,14 +54,14 @@ GET         /assets/*file                                                     co
 
 GET         /nav-links                                                        controllers.NavigationController.navLinks
 
-GET         /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationPage(id: String)
-POST        /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationAction(id: String)
+GET         /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationPage(id: model.ApplicationId)
+POST        /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationAction(id: model.ApplicationId)
 
-GET         /applications/:id/block                                           controllers.ApplicationController.blockApplicationPage(id: String)
-POST        /applications/:id/block                                           controllers.ApplicationController.blockApplicationAction(id: String)
+GET         /applications/:id/block                                           controllers.ApplicationController.blockApplicationPage(id: model.ApplicationId)
+POST        /applications/:id/block                                           controllers.ApplicationController.blockApplicationAction(id: model.ApplicationId)
 
-GET         /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationPage(id: String)
-POST        /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationAction(id: String)
+GET         /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationPage(id: model.ApplicationId)
+POST        /applications/:id/unblock                                         controllers.ApplicationController.unblockApplicationAction(id: model.ApplicationId)
 
 GET         /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationPage
 POST        /application/add                                                  controllers.ApplicationController.createPrivOrROPCApplicationAction

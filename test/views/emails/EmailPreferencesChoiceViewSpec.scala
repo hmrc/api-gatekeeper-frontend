@@ -28,7 +28,7 @@ import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.emails.{EmailPreferencesChoiceView, SendEmailChoiceView}
+import views.html.emails.EmailPreferencesChoiceView
 
 class EmailPreferencesChoiceViewSpec extends CommonViewSpec {
 

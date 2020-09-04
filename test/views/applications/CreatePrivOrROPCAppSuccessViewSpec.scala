@@ -22,6 +22,7 @@ import play.twirl.api.HtmlFormat
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.CreateApplicationSuccessView
+import model.ApplicationId
 
 class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
@@ -32,7 +33,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
   "CreatePrivOrROPCAppSuccess page" when {
     implicit val userFullName = "firstname lastname"
 
-    val appId = "245dfgs-2dfgd578-968sdg5-23f456-dgf324"
+    val appId = ApplicationId("245dfgs-2dfgd578-968sdg5-23f456-dgf324")
     val appName = "This is my app name"
     val env = "Production"
     val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
@@ -56,7 +57,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "h1", appName) mustBe true
         elementExistsByText(document, "h1", "Application added") mustBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") mustBe true
-        elementExistsByText(document, "tr", s"Application ID $appId") mustBe true
+        elementExistsByText(document, "tr", s"Application ID ${appId.value}") mustBe true
         elementExistsByText(document, "tr", s"Application name $appName") mustBe true
         elementExistsByText(document, "tr", s"Environment $env") mustBe true
         elementExistsByText(document, "tr", "Access type Privileged") mustBe true
@@ -82,7 +83,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "h1", appName) mustBe true
         elementExistsByText(document, "h1", "Application added") mustBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") mustBe true
-        elementExistsByText(document, "tr", s"Application ID $appId") mustBe true
+        elementExistsByText(document, "tr", s"Application ID ${appId.value}") mustBe true
         elementExistsByText(document, "tr", s"Application name $appName") mustBe true
         elementExistsByText(document, "tr", s"Environment $env") mustBe true
         elementExistsByText(document, "tr", "Access type ROPC") mustBe true

@@ -39,12 +39,7 @@ import model.APIStatus._
 import model.{LoggedInUser, _}
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-import org.scalatest.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.play.test.UnitSpec
 import views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec {
@@ -62,10 +57,10 @@ class ApplicationsViewSpec extends CommonViewSpec {
       displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
     )
     val applications = Seq[DetailedSubscribedApplicationResponse](
-      DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(UUID.randomUUID(), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
+      DetailedSubscribedApplicationResponse(ApplicationId(UUID.randomUUID().toString()), "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      DetailedSubscribedApplicationResponse(ApplicationId(UUID.randomUUID().toString()), "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      DetailedSubscribedApplicationResponse(ApplicationId(UUID.randomUUID().toString()), "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      DetailedSubscribedApplicationResponse(ApplicationId(UUID.randomUUID().toString()), "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
     )
     val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
     val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)

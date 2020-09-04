@@ -42,7 +42,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
   "application view" must {
     val application =
       ApplicationResponse(
-        UUID.randomUUID(),
+        ApplicationId(UUID.randomUUID().toString()),
         "clientid",
         "gatewayId",
         "application1",
@@ -71,7 +71,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     "show application with check information but no terms of use agreed" in new Setup {
       val checkInformation = CheckInformation()
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
-        UUID.randomUUID(),
+        ApplicationId(UUID.randomUUID().toString()),
         "clientid",
         "gatewayId",
         "name",
@@ -103,7 +103,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
 
       val applicationWithTermsOfUse = ApplicationResponse(
-        UUID.randomUUID(),
+        ApplicationId(UUID.randomUUID().toString()),
         "clientid",
         "gatewayId",
         "name",
@@ -141,7 +141,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
       val applicationWithTermsOfUse = ApplicationResponse(
 
-        UUID.randomUUID(),
+        ApplicationId(UUID.randomUUID().toString()),
         "clientid",
         "gatewayId",
         "name",
@@ -304,15 +304,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show API subscriptions" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id.toString)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id.toString)
+      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id)
+      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id)
 
       val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
 
       val result = applicationView.render(developers, applicationWithHistory,
         subscriptions, Seq.empty, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
-
-      val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       result.body.contains("API subscriptions") mustBe true
@@ -322,15 +320,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
      "show subscriptions that have subscription fields configurartion" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id.toString)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id.toString)
+      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id)
+      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id)
 
       val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
 
       val result = applicationView.render(developers, applicationWithHistory,
         Seq.empty, subscriptions, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
-
-      val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe true
@@ -344,8 +340,6 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
       val result = applicationView.render(developers, applicationWithHistory,
         Seq.empty, subscriptions, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
-
-      val document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe false

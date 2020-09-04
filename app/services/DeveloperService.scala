@@ -168,7 +168,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
       for {
         adminsToEmail <- fetchAdminsToEmail(app)
-        result <- connector.removeCollaborator(app.id.toString, email, gatekeeperUserId, adminsToEmail)
+        result <- connector.removeCollaborator(app.id, email, gatekeeperUserId, adminsToEmail)
       } yield result
     }
 

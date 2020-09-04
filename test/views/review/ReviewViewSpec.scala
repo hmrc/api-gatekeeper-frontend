@@ -38,7 +38,7 @@ class ReviewViewSpec extends CommonViewSpec {
 
     val applicationReviewDetails =
       ApplicationReviewDetails(
-        UUID.randomUUID().toString,
+        ApplicationId(UUID.randomUUID().toString()),
         "Test Application",
         "Test Application",
         None,

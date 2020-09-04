@@ -20,10 +20,6 @@ import java.util.UUID
 
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesProvider
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
@@ -31,7 +27,7 @@ import views.CommonViewSpec
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
-  sealed case class TestApplication(id: UUID,
+  sealed case class TestApplication(id: ApplicationId,
                                     name: String,
                                     state: ApplicationState,
                                     collaborators: Set[Collaborator],
@@ -100,8 +96,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
-      val testApplication1: TestApplication = TestApplication(UUID.randomUUID(), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
-      val testApplication2: TestApplication = TestApplication(UUID.randomUUID(), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
+      val testApplication1: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
+      val testApplication2: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
 
       val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
 

@@ -22,8 +22,6 @@ import java.util.UUID
 import model.Environment._
 import model._
 import org.mockito.BDDMockito._
-import org.mockito.Matchers.{eq => eqTo, _}
-import org.mockito.Mockito.verify
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
@@ -102,7 +100,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
 
@@ -122,7 +120,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
 
@@ -152,8 +150,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(*, *)(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -172,8 +170,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(*, *)(any[HeaderCarrier])).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -202,7 +200,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(any(), any())(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 

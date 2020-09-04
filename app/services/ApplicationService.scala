@@ -36,7 +36,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def resendVerification(application: Application, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    applicationConnectorFor(application).resendVerification(application.id.toString, gatekeeperUserId)
+    applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
@@ -88,7 +88,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplication(appId: String)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
+  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
       case _: NotFoundException => sandboxApplicationConnector.fetchApplication(appId)
     }
@@ -133,7 +133,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           VersionSubscription(
             version.version,
             version.subscribed,
-            SubscriptionFieldsWrapper(application.id.toString, application.clientId, subscription.context, version.version.version, fields))
+            SubscriptionFieldsWrapper(application.id, application.clientId, subscription.context, version.version.version, fields))
       }
     }
 
@@ -152,7 +152,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
     for {
       allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
-      subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id.toString)
+      subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id)
       subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
     } yield subscriptionsWithSubscriptionFields
   }
@@ -182,7 +182,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           if(overrideTypes.nonEmpty) {
             Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
-            applicationConnectorFor(application).updateOverrides(application.id.toString, UpdateOverridesRequest(overrides))
+            applicationConnectorFor(application).updateOverrides(application.id, UpdateOverridesRequest(overrides))
           }
         )
       }
@@ -200,14 +200,14 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           } yield hasInvalidScopes
         ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
-          else applicationConnectorFor(application).updateScopes(application.id.toString, UpdateScopesRequest(scopes))
+          else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
     }
   }
 
   def manageWhitelistedIp(application: ApplicationResponse, whitelistedIp: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    applicationConnectorFor(application).manageIpWhitelist(application.id.toString, whitelistedIp)
+    applicationConnectorFor(application).manageIpWhitelist(application.id, whitelistedIp)
   }
 
   def subscribeToApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
@@ -238,7 +238,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       }
     }
 
-    val subscribeResponse = applicationConnector.subscribeToApi(application.id.toString, apiIdentifier)
+    val subscribeResponse = applicationConnector.subscribeToApi(application.id, apiIdentifier)
     val fieldDefinitions = subscriptionFieldsService.fetchFieldDefinitions(application.deployedTo, apiIdentifier)
 
     fieldDefinitions
@@ -247,32 +247,32 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-      applicationConnectorFor(application).unsubscribeFromApi(application.id.toString, context, version)
+      applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 
   def updateRateLimitTier(application: Application, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnectorFor(application).updateRateLimitTier(application.id.toString, tier)
+    applicationConnectorFor(application).updateRateLimitTier(application.id, tier)
   }
 
   def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    applicationConnectorFor(application).deleteApplication(application.id.toString, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
+    applicationConnectorFor(application).deleteApplication(application.id, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
   }
 
   def blockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    applicationConnectorFor(application).blockApplication(application.id.toString, BlockApplicationRequest(gatekeeperUserId))
+    applicationConnectorFor(application).blockApplication(application.id, BlockApplicationRequest(gatekeeperUserId))
   }
 
   def unblockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    applicationConnectorFor(application).unblockApplication(application.id.toString, UnblockApplicationRequest(gatekeeperUserId))
+    applicationConnectorFor(application).unblockApplication(application.id, UnblockApplicationRequest(gatekeeperUserId))
   }
 
   def approveUplift(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    applicationConnectorFor(application).approveUplift(application.id.toString, gatekeeperUserId)
+    applicationConnectorFor(application).approveUplift(application.id, gatekeeperUserId)
   }
 
   def rejectUplift(application: Application, gatekeeperUserId: String, rejectionReason: String)
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    applicationConnectorFor(application).rejectUplift(application.id.toString, gatekeeperUserId, rejectionReason)
+    applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
   }
 
   def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
@@ -289,7 +289,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(requestingEmail))
       developer <- developerConnector.fetchByEmail(teamMember.emailAddress)
-      response <- applicationConnector.addCollaborator(app.id.toString, AddTeamMemberRequest(requestingEmail, teamMember, developer.verified.isDefined, adminsToEmail.toSet))
+      response <- applicationConnector.addCollaborator(app.id, AddTeamMemberRequest(requestingEmail, teamMember, developer.verified.isDefined, adminsToEmail.toSet))
     } yield response
 
   }
@@ -298,7 +298,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     val applicationConnector = applicationConnectorFor(app)
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
-      response <- applicationConnector.removeCollaborator(app.id.toString, teamMemberToRemove, requestingEmail, adminsToEmail)
+      response <- applicationConnector.removeCollaborator(app.id, teamMemberToRemove, requestingEmail, adminsToEmail)
     } yield response
   }
 

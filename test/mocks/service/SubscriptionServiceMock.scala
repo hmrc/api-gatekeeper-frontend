@@ -19,24 +19,22 @@ package mocks.service
 import model.Application
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.mockito.BDDMockito.`given`
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait SubscriptionFieldsServiceMock extends MockitoSugar {
+trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
   
   def givenSaveSubscriptionFieldsSuccess() = {
-    given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
+    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(any[HeaderCarrier]))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
   }
 
   def givenSaveSubscriptionFieldsFailure(fieldErrors : Map[String, String]) = {
-    given(mockSubscriptionFieldsService.saveFieldValues(any(), any(), any(), any())(any[HeaderCarrier]))
+    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(any[HeaderCarrier]))
         .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
   }
 

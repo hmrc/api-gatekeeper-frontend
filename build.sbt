@@ -47,7 +47,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "com.github.tomakehurst" % "wiremock" % "1.58" % testScope,
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % testScope,
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % testScope,
-  "org.mockito" % "mockito-all" % "1.10.19" % testScope,
+  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % testScope,
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % testScope
 )
 
@@ -60,7 +60,7 @@ lazy val acceptanceTestDependencies: Seq[ModuleID] = Seq(
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
-  "org.mockito" % "mockito-all" % "1.10.19" % "acceptance",
+  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % "acceptance",
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "acceptance"
 )
 
@@ -96,7 +96,8 @@ lazy val microservice =  (project in file("."))
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
-    majorVersion := 0
+    majorVersion := 0,
+    routesImport += "controllers.binders._"
   )
   .configs(IntegrationTest)
   .settings(

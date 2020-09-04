@@ -34,7 +34,7 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">@pageTitle</li>
         </ul>
@@ -56,7 +56,7 @@
           <th class="col-35">Name</th>
           <th class="col-60">Configuration</th>
           <td>
-            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id.toString, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="numeric" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
+            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="numeric" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
           </td>
         </tr>
       </thead>
@@ -74,7 +74,7 @@
 
   </br>
   <div class="form-field form-field--submit">
-    <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="button--link">Cancel</a>
+    <a href="@routes.ApplicationController.applicationPage(application.id)" class="button--link">Cancel</a>
   </div>
 
 </div>

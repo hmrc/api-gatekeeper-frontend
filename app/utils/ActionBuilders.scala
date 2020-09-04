@@ -16,7 +16,6 @@
 
 package utils
 
-import config.AppConfig
 import model._
 import play.api.i18n.Messages
 import play.api.mvc.Result
@@ -28,12 +27,12 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
 
-  def withApp(appId: String)(f: ApplicationWithHistory => Future[Result])
+  def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])
              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
 
-  def withAppAndSubscriptions(appId: String)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
+  def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
 
     withApp(appId) {
@@ -49,7 +48,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  def withAppAndFieldDefinitions(appId: String)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
+  def withAppAndFieldDefinitions(appId: ApplicationId)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
                                 (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) : Future[Result] = {
 
     withAppAndSubscriptions(appId) {
@@ -61,7 +60,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  def withAppAndSubscriptionVersion(appId: String,
+  def withAppAndSubscriptionVersion(appId: ApplicationId,
                                     apiContext: String,
                                     apiVersion: String)
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])

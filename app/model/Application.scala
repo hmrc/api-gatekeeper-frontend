@@ -30,8 +30,15 @@ import uk.gov.hmrc.time.DateTimeUtils
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
+case class ApplicationId(value: String) extends AnyVal
+
+object ApplicationId {
+  import play.api.libs.json.Json
+  implicit val applicationIdFormat = Json.valueFormat[ApplicationId]
+}
+
 trait Application {
-  val id: UUID
+  val id: ApplicationId
   val name: String
   val state: ApplicationState
   val collaborators: Set[Collaborator]
@@ -152,7 +159,7 @@ object OverrideType extends Enumeration {
   implicit val format = EnumJson.enumFormat(OverrideType)
 }
 
-case class ApplicationResponse(id: UUID,
+case class ApplicationResponse(id: ApplicationId,
                                clientId: String,
                                gatewayId: String,
                                name: String,
@@ -195,7 +202,7 @@ object ApplicationResponse {
   implicit val format5 = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
-    (JsPath \ "id").read[UUID] and
+    (JsPath \ "id").read[ApplicationId] and
       (JsPath \ "clientId").read[String] and
       (JsPath \ "gatewayId").read[String] and
       (JsPath \ "name").read[String] and
@@ -247,7 +254,7 @@ case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
-case class SubscribedApplicationResponse(id: UUID,
+case class SubscribedApplicationResponse(id: ApplicationId,
                                          name: String,
                                          description: Option[String] = None,
                                          collaborators: Set[Collaborator],
@@ -296,7 +303,7 @@ object PaginatedSubscribedApplicationResponse {
   implicit val format = Json.format[PaginatedSubscribedApplicationResponse]
 }
 
-case class DetailedSubscribedApplicationResponse(id: UUID,
+case class DetailedSubscribedApplicationResponse(id: ApplicationId,
                                                  name: String,
                                                  description: Option[String] = None,
                                                  collaborators: Set[Collaborator],

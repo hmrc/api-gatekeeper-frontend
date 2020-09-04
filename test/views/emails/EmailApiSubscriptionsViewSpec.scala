@@ -26,7 +26,7 @@ import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView}
+import views.html.emails.EmailApiSubscriptionsView
 
 class EmailApiSubscriptionsViewSpec extends CommonViewSpec with UserTableHelper{
 

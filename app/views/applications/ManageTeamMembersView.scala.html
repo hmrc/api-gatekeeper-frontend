@@ -28,7 +28,7 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Manage team members</li>
         </ul>
@@ -54,7 +54,7 @@
                     <td class="table--large">@teamMember.emailAddress</td>
                     <td class="table--large text--left hard--left">@CollaboratorRole.displayedRole(teamMember.role)</td>
                     <td class="text--right hard--right">
-                        @helper.form(action = controllers.routes.ApplicationController.removeTeamMember(application.id.toString), 'class -> "form inline-controls") {
+                        @helper.form(action = controllers.routes.ApplicationController.removeTeamMember(application.id), 'class -> "form inline-controls") {
                             @helper.CSRF.formField
                             <input id="email" name="email" class="form-control" hidden aria-hidden="true" type="text" value="@{teamMember.emailAddress}">
                             <input id="remove" class="button secondary-button button--link" type="submit" value="Remove">
@@ -65,8 +65,8 @@
             </tbody>
         </table>
         <br>
-        <a href="@routes.ApplicationController.addTeamMember(application.id.toString)" class="button">Add a team member</a>
-        <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button">Cancel</a>
+        <a href="@routes.ApplicationController.addTeamMember(application.id)" class="button">Add a team member</a>
+        <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button">Cancel</a>
     </section>
 </div>
 }

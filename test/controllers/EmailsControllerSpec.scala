@@ -22,8 +22,6 @@ import model.TopicOptionChoice._
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, TOPIC}
 import model.Environment.Environment
 import model._
-import org.mockito.Matchers.any
-import org.mockito.Mockito.when
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
