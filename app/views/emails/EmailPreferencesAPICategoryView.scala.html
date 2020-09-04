@@ -21,68 +21,86 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[User], emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategory], selectedCategory: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
-    @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
+@checkedFlag(checked: Boolean) = @{
+    if(checked) {
+        " checked"
+    } else {
+        ""
+    }
+}
 
-    @buildTopicOptionRow(topic: TopicOptionChoice, cssClass: String) = {
-        <div class="@cssClass">
+@buildTopicOptionRow(topic: TopicOptionChoice) = {
+    <div class="govuk-grid-column-one-half">
+        <div class="govuk-radios__item">
+            <input id="@topic.toString" name="selectedTopic" class="govuk-radios__input aria-label="@TopicOptionChoice.optionHint(topic)
+            " type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
 
-            <input id="@topic.toString" name="selectedTopic" class="radio-button" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
-
-            <label class="form-label-bold" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
-                <span><div class="font-small text-secondary">@TopicOptionChoice.optionHint(topic)</div></span>
+            <label class="govuk-label govuk-radios__label" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
+                <div class="govuk-hint">@TopicOptionChoice.optionHint(topic)</div>
             </label>
         </div>
-    }
+    </div>
+}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
 
-    <div class="content__body full-width">
+    <div class="govuk-template__body">
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
         <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
-        <div class="form-group">
-            <fieldset class=" govuk-fieldset">
-                <legend class="form-label-bold">
-                    <h1 id="pageTitle">Email users interested in a tax regime</h1>
-                </legend>
-                <div>
-                    <label class="form-label" for="selectedCategory">Select a tax regime from the list
-                        <select class="form-control input-select--large"
+
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading" id="pageTitle">Email users interested in a tax regime</h1>
+                    </legend>
+                    <div class="govuk-form-group">
+                        <label class="govuk-label" for="selectedCategory">Select a tax regime from the list </label>
+                        <select class="govuk-select govuk-select-width-full"
                         id=selectedCategory"
                         name="selectedCategory"
                         value="@selectedCategory">
                             <option value="">Select tax regime</option>
                             @for(category <- categories.sortBy(_.name)) {
-                             <option @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
+                                <option
+                                @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
                             }
                         </select>
-                    </label>
-                </div>
-                <div class="grid-layout">
-                    @buildTopicOptionRow(TopicOptionChoice.BUSINESS_AND_POLICY, "grid-layout__column--1-2")
-                    @buildTopicOptionRow(TopicOptionChoice.RELEASE_SCHEDULES, "grid-layout__column--2-2")
-                </div>
-                <div class="grid-layout">
-                    @buildTopicOptionRow(TopicOptionChoice.TECHNICAL, "grid-layout__column--1-2")
-                    @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES, "grid-layout__column--1-2")
-                </div>
-            </fieldset>
-            @if(maybeTopicFilter.isDefined) {
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
-                </div>
-            } else {
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
-                </div>
-            }
-        </div>
+
+                    </div>
+                    <div class="govuk-form-group">
+                        <div class="govuk-radios govuk-radios--small">
+                            <div class="grid-layout">
+                                <div class="govuk-grid-row">
+
+                                    @buildTopicOptionRow(TopicOptionChoice.BUSINESS_AND_POLICY)
+                                    @buildTopicOptionRow(TopicOptionChoice.RELEASE_SCHEDULES)
+                                </div>
+
+                                <div class="govuk-grid-row">
+                                    @buildTopicOptionRow(TopicOptionChoice.TECHNICAL)
+                                    @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                @if(maybeTopicFilter.isDefined) {
+                    <div class="form-group grid-layout grid-layout--stacked push--sides">
+                        <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
+                    </div>
+                } else {
+                    <div class="form-group grid-layout grid-layout--stacked push--sides">
+                        <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
+                    </div>
+                }
+            </div>
         </form>
-    @if(maybeTopicFilter.isDefined) { 
-      <div><hr/></div>     
-      @userTable(users, emails)
-    }
+        @if(maybeTopicFilter.isDefined) {
+            <div><hr/></div>
+            @userTable(users, emails)
+        }
     </div>
 
 }
