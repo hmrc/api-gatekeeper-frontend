@@ -29,7 +29,7 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {
-    given(mockApplicationService.fetchApplication(*)(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplication(*[ApplicationId])(any[HeaderCarrier]))
       .willReturn(Future.successful(returns))
   }
 
