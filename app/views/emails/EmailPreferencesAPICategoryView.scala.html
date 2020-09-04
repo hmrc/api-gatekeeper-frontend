@@ -21,26 +21,6 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[User], emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategory], selectedCategory: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
-@checkedFlag(checked: Boolean) = @{
-    if(checked) {
-        " checked"
-    } else {
-        ""
-    }
-}
-
-@buildTopicOptionRow(topic: TopicOptionChoice) = {
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-radios__item">
-            <input id="@topic.toString" name="selectedTopic" class="govuk-radios__input aria-label="@TopicOptionChoice.optionHint(topic)
-            " type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
-
-            <label class="govuk-label govuk-radios__label" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
-                <div class="govuk-hint">@TopicOptionChoice.optionHint(topic)</div>
-            </label>
-        </div>
-    </div>
-}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
 
@@ -70,20 +50,7 @@
 
                     </div>
                     <div class="govuk-form-group">
-                        <div class="govuk-radios govuk-radios--small">
-                            <div class="grid-layout">
-                                <div class="govuk-grid-row">
-
-                                    @buildTopicOptionRow(TopicOptionChoice.BUSINESS_AND_POLICY)
-                                    @buildTopicOptionRow(TopicOptionChoice.RELEASE_SCHEDULES)
-                                </div>
-
-                                <div class="govuk-grid-row">
-                                    @buildTopicOptionRow(TopicOptionChoice.TECHNICAL)
-                                    @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES)
-                                </div>
-                            </div>
-                        </div>
+                        @topicRadioGrid(maybeTopicFilter)
                     </div>
                 </fieldset>
                 @if(maybeTopicFilter.isDefined) {

@@ -45,34 +45,3 @@
         padding-right: 0;
     }
 }
-
-.radio-button{
-    display: inline;
-    border: 2px solid;
-    background: transparent;
-    width: 34px;
-    height: 34px;
-    top: 0;
-    left: 0;
-    border-radius: 50%;
-}
-
-.govuk-radios--small .govuk-radios__label::before {
-    top: 8px;
-    width: 24px;
-    height: 24px;
-}
-
-.govuk-radios__label::before {
-    content: "";
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    background: transparent;
-}
