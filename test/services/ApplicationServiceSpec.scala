@@ -24,7 +24,7 @@ import model.RateLimitTier.RateLimitTier
 import model.SubscriptionFields._
 import model._
 import org.joda.time.DateTime
-import org.mockito.ArgumentCaptor
+import org.mockito.captor.{ArgCaptor, Captor, ValCaptor}
 import org.mockito.BDDMockito._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
@@ -174,16 +174,16 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "call applicationConnector with appropriate parameters" in new Setup {
       val userName = "userName"
-      val appIdCaptor = ArgumentCaptor.forClass(classOf[ApplicationId])
-      val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
 
-      given(mockProductionApplicationConnector.resendVerification(appIdCaptor.capture(), gatekeeperIdCaptor.capture())(*[HeaderCarrier]))
+      val gatekeeperIdCaptor = ArgCaptor[String]
+      val appIdCaptor = ArgCaptor[ApplicationId]
+
+      given(mockProductionApplicationConnector.resendVerification(appIdCaptor, gatekeeperIdCaptor)(*[HeaderCarrier]))
         .willReturn(Future.successful(ResendVerificationSuccessful))
 
       await(underTest.resendVerification(stdApp1, userName))
-
-      appIdCaptor.getValue shouldBe stdApp1.id.toString
-      gatekeeperIdCaptor.getValue shouldBe userName
+      gatekeeperIdCaptor.value shouldBe userName
+      appIdCaptor.value shouldBe stdApp1.id
     }
   }
 
@@ -341,7 +341,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       result shouldBe UpdateOverridesFailureResult(Set(SuppressIvForAgents(Set("test.key", "invalid.key"))))
 
-      verify(mockProductionApplicationConnector, never).updateOverrides(*, *)(*)
+      verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *[UpdateOverridesRequest])(*[HeaderCarrier])
     }
 
     "fail when called for an app with Privileged access" in new Setup {
@@ -948,7 +948,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       verify(underTest).applicationConnectorFor(application)
       verify(mockSandboxApplicationConnector).blockApplication(eqTo(application.id), eqTo(blockApplicationRequest))(*[HeaderCarrier])
-      verify(mockProductionApplicationConnector, never).blockApplication(*, *)(*)
+      verify(mockProductionApplicationConnector, never).blockApplication(*[ApplicationId], *[BlockApplicationRequest])(*[HeaderCarrier])
     }
   }
 
@@ -966,7 +966,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       verify(underTest).applicationConnectorFor(application)
       verify(mockProductionApplicationConnector).unblockApplication(eqTo(application.id), eqTo(unblockApplicationRequest))(*[HeaderCarrier])
-      verify(mockSandboxApplicationConnector, never).unblockApplication(*, *)(*)
+      verify(mockSandboxApplicationConnector, times(0)).unblockApplication(*[ApplicationId], *[UnblockApplicationRequest])(*[HeaderCarrier])
     }
 
     "propagate ApplicationUnblockFailureResult from connector" in new Setup {
