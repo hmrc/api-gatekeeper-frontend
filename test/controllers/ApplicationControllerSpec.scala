@@ -317,7 +317,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.updateScopes(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService)
           .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*[HeaderCarrier])
@@ -409,7 +409,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
         verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*[HeaderCarrier])
       }
 
@@ -423,7 +423,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
         verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*[HeaderCarrier])
       }
 
@@ -522,7 +522,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
@@ -579,7 +579,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
         verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
@@ -608,7 +608,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
         verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*[HeaderCarrier])
         verifyAuthConnectorCalledForSuperUser
@@ -674,7 +674,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*[HeaderCarrier])
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
