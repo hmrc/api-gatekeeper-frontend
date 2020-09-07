@@ -16,16 +16,14 @@
 
 package views.developers
 
-import java.util.UUID
-
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.html.developers.DeleteDeveloperView
 import views.CommonViewSpec
+import views.html.developers.DeleteDeveloperView
 
 class DeleteDeveloperViewSpec extends CommonViewSpec {
 

@@ -22,9 +22,9 @@ import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment._
 import model._
-import org.scalatest.concurrent.ScalaFutures
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -33,7 +33,6 @@ import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.mockito.ArgumentMatchersSugar
 
 class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
@@ -150,7 +149,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     "respond with 200 and convert body" in new Setup {
       val response = List(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
 
-      when(mockHttpClient.GET[List[APICategory]](meq(url))(any(), any(), any())).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchAPICategories()) shouldBe response
     }
@@ -159,14 +158,14 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = List(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[List[APICategory]](meq(url))(any(), any(), any())).thenReturn(Future.failed(new BadRequestException("")),
+      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *)).thenReturn(Future.failed(new BadRequestException("")),
         Future.successful(response))
 
       await(connector.fetchAPICategories()) shouldBe response
     }
 
     "propagate FetchApiCategoriesFailed exception" in new Setup {
-      when(mockHttpClient.GET[List[APICategory]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))

@@ -18,12 +18,10 @@ package controllers
 
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
-import model.TopicOptionChoice._
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, TAX_REGIME, TOPIC}
 import model.Environment.Environment
+import model.TopicOptionChoice._
 import model._
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{verifyZeroInteractions, when}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}

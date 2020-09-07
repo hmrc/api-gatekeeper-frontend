@@ -16,10 +16,9 @@
 
 package views.emails
 
-import utils.ViewHelpers._
 import org.jsoup.nodes.Document
-import model.User
 import org.scalatest.MustMatchers
+import utils.ViewHelpers._
 
 trait EmailUsersHelper extends MustMatchers{
     def validatePageHeader(document: Document, expectedTitle: String)= {

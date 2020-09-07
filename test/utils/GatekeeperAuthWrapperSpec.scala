@@ -20,7 +20,6 @@ import connectors.AuthConnector
 import mocks.config.AppConfigMock
 import model.{GatekeeperRole, GatekeeperSessionKeys, LoggedInRequest}
 import org.mockito.BDDMockito._
-import org.mockito.Mockito.verify
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
@@ -28,7 +27,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.{ErrorTemplate, ForbiddenView}

@@ -210,7 +210,7 @@ class HttpDeveloperConnectorSpec
         )
         val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApiCategory = Some("VAT")))
 
-        verify(getRequestedFor(urlPathEqualTo(url)))
+         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
         result shouldBe List(aUserResponse(developerEmail))
 
