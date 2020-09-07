@@ -52,7 +52,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
     def anApplication(collaborators: Set[Collaborator]) = {
       ApplicationResponse(
-        ApplicationId(UUID.randomUUID().toString()), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+        ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     }
 
     trait Setup extends ControllerSetupBase {
@@ -164,7 +164,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val collaborators = Set(
           Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(
-          ApplicationId(UUID.randomUUID().toString()), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+          ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, devs)
@@ -177,7 +177,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(
-          ApplicationId(UUID.randomUUID().toString()), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+          ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, noDevs)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))

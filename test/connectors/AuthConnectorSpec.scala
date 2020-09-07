@@ -17,7 +17,6 @@
 package connectors
 
 import config.AppConfig
-import org.mockito.Mockito.when
 import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterEach

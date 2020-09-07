@@ -71,7 +71,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
   "updateRateLimitTier" should {
 
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/rate-limit-tier"
 
     "send Authorisation and return OK if the rate limit tier update was successful on the backend" in new Setup {
@@ -116,7 +116,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "approveUplift" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/approve-uplift"
     val gatekeeperId = "loggedin.gatekeeper"
     val body = ApproveUpliftRequest("loggedin.gatekeeper")
@@ -141,7 +141,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "rejectUplift" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/reject-uplift"
     val gatekeeperId = "loggedin.gatekeeper"
     val rejectionReason = "A similar name is already taken by another application"
@@ -167,7 +167,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "resend verification email" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/resend-verification"
     val gatekeeperId = "loggedin.gatekeeper"
     val body = ResendVerificationRequest(gatekeeperId)
@@ -235,7 +235,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
     val applications = Seq(ApplicationResponse(
-      ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+      ApplicationId.random, "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
 
     "retrieve all applications" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *))
@@ -266,7 +266,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "fetchApplication" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/gatekeeper/application/${applicationId.value}"
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
@@ -309,7 +309,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "updateOverrides" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/access/overrides"
     val overridesRequest = UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
 
@@ -333,7 +333,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "updateScopes" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/access/scopes"
     val scopesRequest = UpdateScopesRequest(Set("hello", "read:individual-benefits"))
 
@@ -357,7 +357,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "updateIpWhitelist" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/ipWhitelist"
     val newIpWhitelist = Set("192.168.1.0/24", "192.168.2.0/24")
 
@@ -382,7 +382,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "subscribeToApi" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/subscription"
     val apiIdentifier = APIIdentifier("hello", "1.0")
 
@@ -406,7 +406,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "unsubscribeFromApi" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/subscription?context=hello&version=1.0"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
@@ -433,7 +433,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
     "successfully create an application" in new Setup {
 
-      val applicationId = ApplicationId(UUID.randomUUID().toString())
+      val applicationId = ApplicationId.random
       val appName = "My new app"
       val appDescription = "An application description"
       val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
@@ -455,7 +455,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "addCollaborator" should {
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/collaborator"
     val teamMember = Collaborator("newUser@example.com", role = CollaboratorRole.DEVELOPER)
     val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", teamMember, isRegistered = true, Set.empty)
@@ -508,7 +508,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
   "removeCollaborator" should {
 
-    val applicationId = ApplicationId(UUID.randomUUID().toString())
+    val applicationId = ApplicationId.random
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
     val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")

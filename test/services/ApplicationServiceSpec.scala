@@ -62,13 +62,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
 
     val stdApp1 = ApplicationResponse(
-      ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+      ApplicationId.random, "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val stdApp2 = ApplicationResponse(
-      ApplicationId(UUID.randomUUID().toString()), "clientid2", "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+      ApplicationId.random, "clientid2", "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val privilegedApp = ApplicationResponse(
-      ApplicationId(UUID.randomUUID().toString()), "clientid3", "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
+      ApplicationId.random, "clientid3", "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
     val ropcApp = ApplicationResponse(
-      ApplicationId(UUID.randomUUID().toString()), "clientid4", "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
+      ApplicationId.random, "clientid4", "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
@@ -78,7 +78,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId(UUID.randomUUID().toString()), deployedTo = "SANDBOX"))
+    val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
@@ -554,7 +554,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
     val name = "New app"
-    val appId = ApplicationId(UUID.randomUUID().toString())
+    val appId = ApplicationId.random
     val clientId = "client ID"
     val description = "App description"
 

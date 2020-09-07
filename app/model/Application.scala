@@ -35,6 +35,8 @@ case class ApplicationId(value: String) extends AnyVal
 object ApplicationId {
   import play.api.libs.json.Json
   implicit val applicationIdFormat = Json.valueFormat[ApplicationId]
+
+  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
 }
 
 trait Application {

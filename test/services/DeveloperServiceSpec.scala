@@ -39,7 +39,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     Developer(s"$name@example.com", name, s"${name}son", Some(verified), apps)
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
-    ApplicationResponse(ApplicationId(UUID.randomUUID().toString()), "clientId", "gatewayId", name, deployedTo, None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+    ApplicationResponse(ApplicationId.random, "clientId", "gatewayId", name, deployedTo, None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
   }
 
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")

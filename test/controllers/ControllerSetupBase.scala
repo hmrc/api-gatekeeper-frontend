@@ -42,7 +42,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
   val basicApplication = ApplicationResponse(
-    ApplicationId(UUID.randomUUID().toString()),
+    ApplicationId.random,
     "clientId1",
     "gatewayId1",
     "application1",

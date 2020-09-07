@@ -20,7 +20,6 @@ import akka.stream.Materializer
 import model.Environment.PRODUCTION
 import model._
 import org.mockito.BDDMockito._
-import org.mockito.Matchers._
 import play.api.http.Status._
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest

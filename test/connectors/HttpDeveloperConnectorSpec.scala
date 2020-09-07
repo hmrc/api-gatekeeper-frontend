@@ -24,7 +24,6 @@ import config.AppConfig
 import model._
 import org.scalatest.concurrent.ScalaFutures
 import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
-import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}

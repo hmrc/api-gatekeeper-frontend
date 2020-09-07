@@ -42,7 +42,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
   "application view" must {
     val application =
       ApplicationResponse(
-        ApplicationId(UUID.randomUUID().toString()),
+        ApplicationId.random,
         "clientid",
         "gatewayId",
         "application1",
@@ -71,7 +71,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     "show application with check information but no terms of use agreed" in new Setup {
       val checkInformation = CheckInformation()
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
-        ApplicationId(UUID.randomUUID().toString()),
+        ApplicationId.random,
         "clientid",
         "gatewayId",
         "name",
@@ -103,7 +103,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
 
       val applicationWithTermsOfUse = ApplicationResponse(
-        ApplicationId(UUID.randomUUID().toString()),
+        ApplicationId.random,
         "clientid",
         "gatewayId",
         "name",
@@ -141,7 +141,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
       val applicationWithTermsOfUse = ApplicationResponse(
 
-        ApplicationId(UUID.randomUUID().toString()),
+        ApplicationId.random,
         "clientid",
         "gatewayId",
         "name",
