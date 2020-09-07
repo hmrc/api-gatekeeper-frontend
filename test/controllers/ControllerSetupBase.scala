@@ -70,52 +70,52 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val noDevs = Seq.empty[ApplicationDeveloper]
 
   def givenAUnsuccessfulLogin(): Unit = {
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext]))
+    given(mockAuthConnector.authorise(*, *)(*, *))
       .willReturn(Future.failed(new InvalidBearerToken))
   }
 
   def givenTheUserIsAuthorisedAndIsANormalUser(): Unit = {
     val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
 
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext]))
+    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
       .willReturn(response)
   }
 
   def givenTheUserHasInsufficientEnrolments(): Unit = {
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext]))
+    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
       .willReturn(Future.failed(new InsufficientEnrolments))
   }
 
   def givenTheUserIsAuthorisedAndIsASuperUser(): Unit = {
     val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
 
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext]))
+    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
       .willReturn(response)
   }
 
   def givenTheUserIsAuthorisedAndIsAnAdmin(): Unit = {
     val response = Future.successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))
 
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext]))
+    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
       .willReturn(response)
   }
 
   def givenTheAppWillBeReturned(application: ApplicationWithHistory = application) = {
-    given(mockApplicationService.fetchApplication(ApplicationId(*[String]))(*[HeaderCarrier])).willReturn(Future.successful(application))
+    given(mockApplicationService.fetchApplication(*[ApplicationId])(*)).willReturn(Future.successful(application))
   }
 
   def verifyAuthConnectorCalledForUser = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole)), *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext])
+      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole)), *[Retrieval[Any]])(*, *)
   }
 
   def verifyAuthConnectorCalledForSuperUser = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext])
+      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), *[Retrieval[Any]])(*, *)
   }
 
   def verifyAuthConnectorCalledForAdmin = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*[HeaderCarrier], *[ExecutionContext])
+      .authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
   }
 }

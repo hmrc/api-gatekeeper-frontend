@@ -24,7 +24,6 @@ import model.Developer.createUnregisteredDeveloper
 import model.{DeveloperStatusFilter, _}
 import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
@@ -66,11 +65,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     implicit val hc = HeaderCarrier()
 
     def fetchDeveloperWillReturn(developer: User, productionApps: Seq[ApplicationResponse], sandboxApps: Seq[ApplicationResponse] = Seq.empty) = {
-      when(mockDeveloperConnector.fetchByEmail(*[String])(any[HeaderCarrier]))
+      when(mockDeveloperConnector.fetchByEmail(*)(any[HeaderCarrier]))
         .thenReturn(Future.successful(developer))
-      when(mockProductionApplicationConnector.fetchApplicationsByEmail(*[String])(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
         .thenReturn(Future.successful(productionApps))
-      when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*[String])(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*)(*))
         .thenReturn(Future.successful(sandboxApps))
     }
 
@@ -82,11 +81,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     def deleteDeveloperWillSucceed = {
-      when(mockDeveloperConnector.deleteDeveloper(any[DeleteDeveloperRequest])(any[HeaderCarrier]))
+      when(mockDeveloperConnector.deleteDeveloper(*[DeleteDeveloperRequest])(*))
         .thenReturn(Future.successful(DeveloperDeleteSuccessResult))
-      when(mockProductionApplicationConnector.removeCollaborator(ApplicationId(any[String]), *[String], *[String], *)(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
         .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
-      when(mockSandboxApplicationConnector.removeCollaborator(ApplicationId(any[String]), *[String], *[String], *)(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
         .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
 
@@ -106,7 +105,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     def removeMfaReturnWillReturn(user: User) = {
-      when(mockDeveloperConnector.removeMfa(*[String], *[String])(any[HeaderCarrier])).thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(Future.successful(user))
     }
   }
 
@@ -313,9 +312,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(any[DeleteDeveloperRequest])(any[HeaderCarrier])
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *[String], *[String], *)(any[HeaderCarrier])
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *[String], *[String], *)(any[HeaderCarrier])
+      verify(mockDeveloperConnector, never).deleteDeveloper(*[DeleteDeveloperRequest])(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
@@ -331,9 +330,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(any[DeleteDeveloperRequest])(any[HeaderCarrier])
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *[String], *[String], *)(any[HeaderCarrier])
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *[String], *[String], *)(any[HeaderCarrier])
+      verify(mockDeveloperConnector, never).deleteDeveloper(*[DeleteDeveloperRequest])(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*[HeaderCarrier])
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*[HeaderCarrier])
     }
   }
 
@@ -360,9 +359,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email1 = user1.email
       private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(user1.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(user2.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
@@ -380,9 +379,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(user.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(user.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
@@ -407,11 +406,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq(email1, email2, email3))
 
       when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
@@ -453,11 +452,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq(email1, email2, email3, email4))
 
       when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(any[HeaderCarrier]))
+        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(Seq(user1, user2, user3))
@@ -495,9 +494,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email1 = productionUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
@@ -518,9 +517,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email2 = sandboxUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(any[HeaderCarrier]))
+      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
