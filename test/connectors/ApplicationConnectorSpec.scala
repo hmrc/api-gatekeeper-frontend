@@ -25,7 +25,7 @@ import model._
 import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, Matchers}
+import org.scalatest.BeforeAndAfterEach
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -35,7 +35,7 @@ import utils.FutureTimeoutSupportImpl
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApplicationConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with BeforeAndAfterEach {
+class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"

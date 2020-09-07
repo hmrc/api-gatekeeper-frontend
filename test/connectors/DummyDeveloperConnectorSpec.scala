@@ -18,13 +18,14 @@ package connectors
 
 import model._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, Matchers}
+import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
+import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DummyDeveloperConnectorSpec extends UnitSpec with Matchers with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication with MockitoSugar with ArgumentMatchersSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val email: String = "user@example.com"
