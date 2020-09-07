@@ -39,11 +39,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
   }
 
+  val clientId = ClientId("clientid")
+
   "application view" must {
     val application =
       ApplicationResponse(
         ApplicationId.random,
-        "clientid",
+        clientId,
         "gatewayId",
         "application1",
         "PRODUCTION",
@@ -72,7 +74,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       val checkInformation = CheckInformation()
       val applicationWithCheckInformationButNoTerms = ApplicationResponse(
         ApplicationId.random,
-        "clientid",
+        clientId,
         "gatewayId",
         "name",
         "PRODUCTION",
@@ -104,7 +106,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
 
       val applicationWithTermsOfUse = ApplicationResponse(
         ApplicationId.random,
-        "clientid",
+        clientId,
         "gatewayId",
         "name",
         "PRODUCTION",
@@ -142,7 +144,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       val applicationWithTermsOfUse = ApplicationResponse(
 
         ApplicationId.random,
-        "clientid",
+        clientId,
         "gatewayId",
         "name",
         "PRODUCTION",

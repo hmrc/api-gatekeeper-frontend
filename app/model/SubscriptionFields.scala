@@ -28,7 +28,7 @@ object SubscriptionFields {
 
   def fields(tpl: (String, String)*): Map[String, String] = Map[String, String](tpl: _*)
 
-  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: String, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
+  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: String, apiVersion: String, fields: Seq[SubscriptionFieldValue])
 
   case class SubscriptionFieldDefinition(name: String, description: String, hint: String, `type`: String, shortDescription: String)
 
@@ -49,7 +49,7 @@ object SubscriptionFields {
     }
   }
 
-  case class SubscriptionFieldsPutRequest(clientId: String, apiContext: String, apiVersion: String, fields: Map[String, String])
+  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: String, apiVersion: String, fields: Map[String, String])
   object SubscriptionFieldsPutRequest {
     implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }

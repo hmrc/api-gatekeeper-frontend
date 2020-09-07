@@ -59,13 +59,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
 
     val stdApp1 = ApplicationResponse(
-      ApplicationId.random, "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+      ApplicationId.random, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val stdApp2 = ApplicationResponse(
-      ApplicationId.random, "clientid2", "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+      ApplicationId.random, ClientId("clientid2"), "gatewayId2", "application2", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val privilegedApp = ApplicationResponse(
-      ApplicationId.random, "clientid3", "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
+      ApplicationId.random, ClientId("clientid3"), "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
     val ropcApp = ApplicationResponse(
-      ApplicationId.random, "clientid4", "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
+      ApplicationId.random, ClientId("clientid4"), "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
@@ -550,7 +550,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     val name = "New app"
     val appId = ApplicationId.random
-    val clientId = "client ID"
+    val clientId = ClientId("client ID")
     val description = "App description"
 
     "call the production connector to create a new app in production" in new Setup {

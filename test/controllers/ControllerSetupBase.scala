@@ -16,7 +16,6 @@
 
 package controllers
 
-import java.util.UUID
 
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
 import mocks.service.ApplicationServiceMock
@@ -29,9 +28,8 @@ import play.api.test.FakeRequest
 import services.{ApiDefinitionService, DeploymentApprovalService}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with ArgumentMatchersSugar {
 
@@ -43,7 +41,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,
-    "clientId1",
+    ClientId.random,
     "gatewayId1",
     "application1",
     "PRODUCTION",

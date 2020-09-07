@@ -20,10 +20,11 @@
 @import model.TotpSecrets
 @import model.LoggedInUser
 @import model.ApplicationId
+@import model.ClientId
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: String
+@(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
@@ -75,7 +76,7 @@
     }
     <tr>
         <th>Client ID</th>
-        <td>@clientId</td>
+        <td>@clientId.value</td>
     </tr>
     </tbody>
 </table>

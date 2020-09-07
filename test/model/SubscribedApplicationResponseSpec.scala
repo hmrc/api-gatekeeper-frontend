@@ -30,7 +30,7 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
 
   "SubscribedApplicationResponse" should {
     val id = ApplicationId.random
-    val clientId = randomText
+    val clientId = ClientId.random
     val gatewayId = randomText
     val name = randomText
     val deployedTo = "PRODUCTION"

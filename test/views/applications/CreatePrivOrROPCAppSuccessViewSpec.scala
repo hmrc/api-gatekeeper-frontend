@@ -23,6 +23,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.CreateApplicationSuccessView
 import model.ApplicationId
+import model.ClientId
 
 class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
@@ -36,7 +37,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
     val appId = ApplicationId("245dfgs-2dfgd578-968sdg5-23f456-dgf324")
     val appName = "This is my app name"
     val env = "Production"
-    val clientId = "ask249850sokfjslkfalki4u954p2qejwwmeds"
+    val clientId = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
 
     "a privileged application is created" must {
@@ -62,7 +63,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "tr", s"Environment $env") mustBe true
         elementExistsByText(document, "tr", "Access type Privileged") mustBe true
         elementExistsByText(document, "tr", s"TOTP secret $totpSecret") mustBe true
-        elementExistsByText(document, "tr", s"Client ID $clientId") mustBe true
+        elementExistsByText(document, "tr", s"Client ID ${clientId.value}") mustBe true
 
       }
     }
@@ -88,7 +89,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "tr", s"Environment $env") mustBe true
         elementExistsByText(document, "tr", "Access type ROPC") mustBe true
         elementExistsByText(document, "tr", s"TOTP secret $totpSecret") mustBe false
-        elementExistsByText(document, "tr", s"Client ID $clientId") mustBe true
+        elementExistsByText(document, "tr", s"Client ID ${clientId.value}") mustBe true
 
       }
     }

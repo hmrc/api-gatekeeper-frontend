@@ -23,6 +23,7 @@ import services.SubscriptionFieldsService.{DefinitionsByApiVersion, Subscription
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import model.ClientId
 
 @Singleton
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
@@ -100,10 +101,10 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
 object SubscriptionFieldsService {
   trait SubscriptionFieldsConnector {
-    def fetchFieldValues(clientId: String, context: String, version: String)
+    def fetchFieldValues(clientId: ClientId, context: String, version: String)
                         (implicit hc: HeaderCarrier) : Future[Seq[SubscriptionFieldValue]]
 
-    def fetchFieldsValuesWithPrefetchedDefinitions(clientId: String, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
+    def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
                                                   (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]]
 
     def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion]
@@ -111,9 +112,9 @@ object SubscriptionFieldsService {
     def fetchFieldDefinitions(apiContext: String, apiVersion: String)
                              (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]]
 
-    def saveFieldValues(clientId: String, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+    def saveFieldValues(clientId: ClientId, apiContext: String, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
 
-    def deleteFieldValues(clientId: String, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
+    def deleteFieldValues(clientId: ClientId, apiContext: String, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
   }
 
   type DefinitionsByApiVersion = Map[APIIdentifier, Seq[SubscriptionFieldDefinition]]

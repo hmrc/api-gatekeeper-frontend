@@ -24,7 +24,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.{Configuration, Environment, Mode}
-import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.bootstrap.config.RunMode
@@ -32,7 +31,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class ProxiedHttpClientSpec extends UnitSpec with ScalaFutures with MockitoSugar {
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier()
   private val actorSystem = ActorSystem("test-actor-system")
 
   trait Setup {

@@ -31,7 +31,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
                                     name: String,
                                     state: ApplicationState,
                                     collaborators: Set[Collaborator],
-                                    clientId: String = "a-client-id",
+                                    clientId: ClientId = ClientId("a-client-id"),
                                     deployedTo: String = "PRODUCTION") extends Application
 
   trait Setup {
