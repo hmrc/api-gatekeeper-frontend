@@ -48,14 +48,14 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
       val expectedProductionSummaries = Seq(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
       val expectedSandboxSummaries = Seq(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
 
-      given(mockProductionApiPublisherConnector.fetchUnapproved()(any[HeaderCarrier])).willReturn(Future.successful(expectedProductionSummaries))
-      given(mockSandboxApiPublisherConnector.fetchUnapproved()(any[HeaderCarrier])).willReturn(Future.successful(expectedSandboxSummaries))
+      given(mockProductionApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedProductionSummaries))
+      given(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedSandboxSummaries))
 
       val result = await(underTest.fetchUnapprovedServices())
 
       result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
 
-      verify(mockProductionApiPublisherConnector).fetchUnapproved()(any[HeaderCarrier])
+      verify(mockProductionApiPublisherConnector).fetchUnapproved()(*)
     }
   }
 
@@ -64,13 +64,13 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX))
 
-      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
+      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, SANDBOX))
 
       result shouldBe expectedSummary
 
-      verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
       verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*)(*)
     }
 
@@ -78,13 +78,13 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
 
-      given(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(any[HeaderCarrier])).willReturn(Future.successful(expectedSummary))
+      given(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, PRODUCTION))
 
       result shouldBe expectedSummary
 
-      verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
       verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*)(*)
     }
 
@@ -93,21 +93,21 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
   "approveService" should {
     "approve the service in sandbox" in new Setup {
 
-      given(mockSandboxApiPublisherConnector.approveService(*)(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockSandboxApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, SANDBOX))
 
-      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(*)
       verify(mockProductionApiPublisherConnector, never).approveService(*)(*)
     }
 
     "approve the service in production" in new Setup {
 
-      given(mockProductionApiPublisherConnector.approveService(*)(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockProductionApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, PRODUCTION))
 
-      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(any[HeaderCarrier])
+      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(*)
       verify(mockSandboxApiPublisherConnector, never).approveService(*)(*)
     }
   }

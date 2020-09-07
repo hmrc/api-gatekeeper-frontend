@@ -49,13 +49,13 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "fetchAllFieldDefinitions" in new Setup {
 
-      when(mockProductionSubscriptionFieldsConnector.fetchAllFieldDefinitions()(any[HeaderCarrier]))
+      when(mockProductionSubscriptionFieldsConnector.fetchAllFieldDefinitions()(*))
         .thenReturn(successful(mock[DefinitionsByApiVersion]))
 
       await (service.fetchAllFieldDefinitions(application.deployedTo))
 
-      verify(mockProductionSubscriptionFieldsConnector).fetchAllFieldDefinitions()(any[HeaderCarrier])
-      verify(mockSandboxSubscriptionFieldsConnector, never).fetchAllFieldDefinitions()(any[HeaderCarrier])
+      verify(mockProductionSubscriptionFieldsConnector).fetchAllFieldDefinitions()(*)
+      verify(mockSandboxSubscriptionFieldsConnector, never).fetchAllFieldDefinitions()(*)
     }
 
     "fetchFieldDefinitions" in new Setup {
@@ -67,33 +67,33 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
       val apiIdentifier = APIIdentifier("testContext", "v1")
 
-      when(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(*, *)(any[HeaderCarrier]))
+      when(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(*, *)(*))
         .thenReturn(subscriptionFieldDefinitions)
 
       await(service.fetchFieldDefinitions(application.deployedTo, apiIdentifier))
 
-      verify(mockSandboxSubscriptionFieldsConnector, never).fetchFieldDefinitions(*, *)(any[HeaderCarrier])
-      verify(mockProductionSubscriptionFieldsConnector).fetchFieldDefinitions(*, *)(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector, never).fetchFieldDefinitions(*, *)(*)
+      verify(mockProductionSubscriptionFieldsConnector).fetchFieldDefinitions(*, *)(*)
     }
 
     "fetchFieldsWithPrefetchedDefinitions" in new Setup {
 
       private val prefetchedDefinitions = mock[DefinitionsByApiVersion]
 
-      when(mockProductionSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*, *, *)(any[HeaderCarrier]))
+      when(mockProductionSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*, *, *)(*))
         .thenReturn(successful(Seq.empty[SubscriptionFieldValue]))
 
       await (service.fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, prefetchedDefinitions))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .fetchFieldsValuesWithPrefetchedDefinitions(eqTo(application.clientId), eqTo(apiIdentifier), eqTo(prefetchedDefinitions))(any[HeaderCarrier])
+        .fetchFieldsValuesWithPrefetchedDefinitions(eqTo(application.clientId), eqTo(apiIdentifier), eqTo(prefetchedDefinitions))(*)
 
-      verify(mockSandboxSubscriptionFieldsConnector, never).fetchFieldsValuesWithPrefetchedDefinitions(*,*, *)(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector, never).fetchFieldsValuesWithPrefetchedDefinitions(*,*, *)(*)
     }
 
     "saveFieldValues" in new Setup {
 
-      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*,*,*,*)(any[HeaderCarrier]))
+      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*,*,*,*)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
@@ -101,22 +101,22 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier])
+        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
-      verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*,*,*,*)(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*,*,*,*)(*)
     }
 
     "deleteFieldValues" in new Setup {
 
-      when(mockProductionSubscriptionFieldsConnector.deleteFieldValues(*,*,*)(any[HeaderCarrier]))
+      when(mockProductionSubscriptionFieldsConnector.deleteFieldValues(*,*,*)(*))
         .thenReturn(successful(mock[FieldsDeleteResult]))
 
       await (service.deleteFieldValues(application, apiIdentifier.context, apiIdentifier.version))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .deleteFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier])
+        .deleteFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
 
-      verify(mockSandboxSubscriptionFieldsConnector, never).deleteFieldValues(*,*,*)(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector, never).deleteFieldValues(*,*,*)(*)
     }
 
     "When fetchFieldValues is called" should {
@@ -124,25 +124,25 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       "return return no field values when given no field definitions" in new Setup {
         private val definitions = Seq.empty
 
-        when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier]))
+        when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
         await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockProductionSubscriptionFieldsConnector, never)
-          .fetchFieldValues(*,*, *)(any[HeaderCarrier])
+          .fetchFieldValues(*,*, *)(*)
       }
 
       "return somme field values when given some field definitions" in new Setup {
         private val definitions = Seq(SubscriptionFieldDefinition("field1","description", "hint", "type", "shortDescription"))
 
-        when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier]))
+        when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
         await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockProductionSubscriptionFieldsConnector)
-          .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier])
+          .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
       }
     }
   }
@@ -153,13 +153,13 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     when(application.deployedTo).thenReturn("SANDBOX")
 
     "fetchAllFieldDefinitions" in new Setup {
-      when(mockSandboxSubscriptionFieldsConnector.fetchAllFieldDefinitions()(any[HeaderCarrier]))
+      when(mockSandboxSubscriptionFieldsConnector.fetchAllFieldDefinitions()(*))
         .thenReturn(successful(mock[DefinitionsByApiVersion]))
 
       await(service.fetchAllFieldDefinitions(application.deployedTo))
 
-      verify(mockSandboxSubscriptionFieldsConnector).fetchAllFieldDefinitions()(any[HeaderCarrier])
-      verify(mockProductionSubscriptionFieldsConnector, never).fetchAllFieldDefinitions()(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector).fetchAllFieldDefinitions()(*)
+      verify(mockProductionSubscriptionFieldsConnector, never).fetchAllFieldDefinitions()(*)
     }
 
     "fetchFieldDefinitions" in new Setup {
@@ -171,33 +171,33 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
       val apiIdentifier = APIIdentifier("testContext", "v1")
 
-      when(mockSandboxSubscriptionFieldsConnector.fetchFieldDefinitions(*, *)(any[HeaderCarrier]))
+      when(mockSandboxSubscriptionFieldsConnector.fetchFieldDefinitions(*, *)(*))
         .thenReturn(subscriptionFieldDefinitions)
 
       await(service.fetchFieldDefinitions(application.deployedTo, apiIdentifier))
 
-      verify(mockSandboxSubscriptionFieldsConnector).fetchFieldDefinitions(*, *)(any[HeaderCarrier])
-      verify(mockProductionSubscriptionFieldsConnector, never).fetchFieldDefinitions(*, *)(any[HeaderCarrier])
+      verify(mockSandboxSubscriptionFieldsConnector).fetchFieldDefinitions(*, *)(*)
+      verify(mockProductionSubscriptionFieldsConnector, never).fetchFieldDefinitions(*, *)(*)
     }
 
     "fetchFieldsWithPrefetchedDefinitions" in new Setup {
 
       private val prefetchedDefinitions = mock[DefinitionsByApiVersion]
 
-      when(mockSandboxSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*, *, *)(any[HeaderCarrier]))
+      when(mockSandboxSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*, *, *)(*))
         .thenReturn(successful(Seq.empty[SubscriptionFieldValue]))
 
       await (service.fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, prefetchedDefinitions))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .fetchFieldsValuesWithPrefetchedDefinitions(eqTo(application.clientId), eqTo(apiIdentifier), eqTo(prefetchedDefinitions))(any[HeaderCarrier])
+        .fetchFieldsValuesWithPrefetchedDefinitions(eqTo(application.clientId), eqTo(apiIdentifier), eqTo(prefetchedDefinitions))(*)
 
-      verify(mockProductionSubscriptionFieldsConnector, never).fetchFieldsValuesWithPrefetchedDefinitions(*,*, *)(any[HeaderCarrier])
+      verify(mockProductionSubscriptionFieldsConnector, never).fetchFieldsValuesWithPrefetchedDefinitions(*,*, *)(*)
     }
 
     "saveFieldValues" in new Setup {
 
-      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*,*,*,*)(any[HeaderCarrier]))
+      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*,*,*,*)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields = mock[Fields]
@@ -205,22 +205,22 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(any[HeaderCarrier])
+        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
-      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*,*,*,*)(any[HeaderCarrier])
+      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*,*,*,*)(*)
     }
 
     "deleteFieldValues" in new Setup {
 
-      when(mockSandboxSubscriptionFieldsConnector.deleteFieldValues(*,*,*)(any[HeaderCarrier]))
+      when(mockSandboxSubscriptionFieldsConnector.deleteFieldValues(*,*,*)(*))
         .thenReturn(successful(mock[FieldsDeleteResult]))
 
       await (service.deleteFieldValues(application, apiIdentifier.context, apiIdentifier.version))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .deleteFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier])
+        .deleteFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
 
-      verify(mockProductionSubscriptionFieldsConnector, never).deleteFieldValues(*,*,*)(any[HeaderCarrier])
+      verify(mockProductionSubscriptionFieldsConnector, never).deleteFieldValues(*,*,*)(*)
     }
 
     "When fetchFieldValues is called" should {
@@ -228,25 +228,25 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       "return return no field values when given no field definitions" in new Setup {
         private val definitions = Seq.empty
 
-        when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier]))
+        when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
         await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockSandboxSubscriptionFieldsConnector, never)
-          .fetchFieldValues(*,*, *)(any[HeaderCarrier])
+          .fetchFieldValues(*,*, *)(*)
       }
 
       "return somme field values when given some field definitions" in new Setup {
         private val definitions = Seq(SubscriptionFieldDefinition("field1","description", "hint", "type", "shortDescription"))
 
-        when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier]))
+        when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
         await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockSandboxSubscriptionFieldsConnector)
-          .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(any[HeaderCarrier])
+          .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
       }
     }
   }

@@ -70,24 +70,24 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
-        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(any[HeaderCarrier])).willReturn(developers)
-        given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))
+        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(*)).willReturn(developers)
+        given(mockDeveloperService.fetchUsers(*)).willReturn(successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
-        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(any[HeaderCarrier])).willReturn(successful(developer))
+        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).willReturn(successful(developer))
       }
 
       def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        given(mockDeveloperService.deleteDeveloper(any[String], any[String])(any[HeaderCarrier])).willReturn(successful(result))
+        given(mockDeveloperService.deleteDeveloper(*, *)(*)).willReturn(successful(result))
       }
 
       def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
-        given(mockDeveloperService.removeMfa(any[String], any[String])(any[HeaderCarrier])).willReturn(user)
+        given(mockDeveloperService.removeMfa(*, *)(*)).willReturn(user)
       }
     }
 
@@ -112,14 +112,14 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List(user))
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List(user))
 
         val result: Result = await(developersController.developersPage(Some(partialEmailAddress))(aLoggedInRequest))
 
         bodyOf(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(Some(partialEmailAddress))
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(any[HeaderCarrier])
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
       "search by empty filters values doesn't filter by them" in new Setup {
@@ -129,12 +129,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val emailFilter = ""
         private val apiVersionFilter = ""
 
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List())
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List())
 
         await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
 
         val expectedEmptyFilter = Developers2Filter()
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedEmptyFilter))(any[HeaderCarrier])
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedEmptyFilter))(*)
       }
 
       "remember the search filter text on submit" in new Setup {
@@ -143,7 +143,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         private val searchFilter = "aFilter"
 
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List.empty)
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List.empty)
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
 
@@ -160,7 +160,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val email2 = "b@example.com"
         val users = List(aUser(email1), aUser(email2))
 
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(users)
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(users)
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
@@ -175,7 +175,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(APIVersion("1.0", APIStatus.ALPHA), APIVersion("2.0", APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(any[HeaderCarrier])).willReturn(List(apiDefinition))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
@@ -191,7 +191,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(APIVersion("1.0", APIStatus.STABLE), APIVersion("2.0", APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "", "", context = "my-api-context", apiVersions, None)
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(any[HeaderCarrier])).willReturn(List(apiDefinition))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
@@ -210,7 +210,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val apiDefinitionValueFromDropDown = "api-definition__1.0"
 
         // Note: Developers is both users and collaborators
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List(user))
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List(user))
 
         val result: Result = await(developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest))
 
@@ -218,7 +218,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val filter = ApiContextVersion("api-definition", "1.0")
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(any[HeaderCarrier])
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
       "show an api version filter dropdown without duplicates" in new Setup {
@@ -244,7 +244,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val users = List(aUser(email1), aUser(email2))
 
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(users)
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(users)
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
@@ -262,14 +262,14 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List(user))
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List(user))
 
         val result: Result = await(developersController.developersPage(maybeDeveloperStatusFilter = Some(statusFilter))(aLoggedInRequest))
 
         bodyOf(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(developerStatusFilter = VerifiedStatus)
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(any[HeaderCarrier])
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
       "allow searching by environmentFilter" in new Setup {
@@ -281,14 +281,14 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val environmentFilter = "PRODUCTION"
 
         // Note: Developers is both users and collaborators
-        given(mockDeveloperService.searchDevelopers(*)(any[HeaderCarrier])).willReturn(List(user))
+        given(mockDeveloperService.searchDevelopers(*)(*)).willReturn(List(user))
 
         val result: Result = await(developersController.developersPage(maybeEnvironmentFilter = Some(environmentFilter))(aLoggedInRequest))
 
         bodyOf(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(environmentFilter = ProductionEnvironment)
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(any[HeaderCarrier])
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
     }
   }

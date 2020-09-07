@@ -25,7 +25,6 @@ import org.mockito.BDDMockito._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import views.html.{ErrorTemplate, ForbiddenView}
@@ -68,7 +67,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchUnapprovedServices()(any[HeaderCarrier])).willReturn(Future.successful(approvalSummaries))
+      given(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).willReturn(Future.successful(approvalSummaries))
 
       val result = await(underTest.pendingPage()(aLoggedInRequest))
 
@@ -78,7 +77,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       bodyOf(result) should include("Production")
       bodyOf(result) should include("Sandbox")
 
-      verify(mockDeploymentApprovalService).fetchUnapprovedServices()(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).fetchUnapprovedServices()(*)
 
       verifyAuthConnectorCalledForUser
     }
@@ -100,7 +99,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
 
@@ -110,7 +109,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       bodyOf(result) should include(serviceName)
       bodyOf(result) should include("Sandbox")
 
-      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(*)
 
       verifyAuthConnectorCalledForUser
     }
@@ -120,7 +119,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
 
@@ -130,7 +129,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       bodyOf(result) should include(serviceName)
       bodyOf(result) should include("Production")
 
-      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).fetchApprovalSummary(eqTo(serviceName), eqTo(environment))(*)
 
       verifyAuthConnectorCalledForUser
     }
@@ -150,8 +149,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(*, *)(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(*, *)(*)).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -161,7 +160,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
     }
 
@@ -170,8 +169,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
-      given(mockDeploymentApprovalService.approveService(*, *)(any[HeaderCarrier])).willReturn(Future.successful(()))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.approveService(*, *)(*)).willReturn(Future.successful(()))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -181,7 +180,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(any[HeaderCarrier])
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
     }
 
@@ -200,7 +199,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheUserIsAuthorisedAndIsANormalUser()
-      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(any[HeaderCarrier])).willReturn(Future.successful(approvalSummary))
+      given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 
