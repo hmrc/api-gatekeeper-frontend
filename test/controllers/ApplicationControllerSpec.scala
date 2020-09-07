@@ -573,7 +573,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.subscribeToApi(*[Application], *[String], *[String])(*[HeaderCarrier]))
+        given(mockApplicationService.subscribeToApi(*[Application], *, *)(*[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -593,7 +593,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *[String], *[String])(*[HeaderCarrier])
+        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *, *)(*[HeaderCarrier])
       }
     }
 
@@ -602,7 +602,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unsubscribeFromApi(*[Application], *[String], *[String])(*[HeaderCarrier]))
+        given(mockApplicationService.unsubscribeFromApi(*[Application], *, *)(*[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -622,7 +622,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*[Application], *[String], *[String])(*[HeaderCarrier])
+        verify(mockApplicationService, never).unsubscribeFromApi(*[Application], *, *)(*[HeaderCarrier])
       }
     }
 
@@ -858,7 +858,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -883,7 +883,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -908,7 +908,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -996,7 +996,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1025,7 +1025,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1053,7 +1053,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1079,7 +1079,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *[String], *[String], *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1152,7 +1152,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         status(result) shouldBe OK
         verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*[HeaderCarrier])
 
-        verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*[String])(*[HeaderCarrier])
+        verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*[HeaderCarrier])
         verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*[Application], *, *)(*[HeaderCarrier])
         verifyAuthConnectorCalledForUser
       }
@@ -1328,7 +1328,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *[String])(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1343,7 +1343,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *[String])(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1358,7 +1358,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *[String])(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
               .willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1433,7 +1433,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *[String])(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
@@ -1548,7 +1548,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *[String], *[String])(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1564,7 +1564,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *[String], *[String])(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
                 .willReturn(Future.failed(new TeamMemberLastAdmin))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1577,7 +1577,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *[String], *[String])(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1632,7 +1632,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show 303 OK" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
-            given(mockApplicationService.removeTeamMember(*[Application], *[String], *[String])(*[HeaderCarrier]))
+            given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
@@ -1675,7 +1675,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.blockApplication(*[Application], *[String])(*[HeaderCarrier]))
+        given(mockApplicationService.blockApplication(*[Application], *)(*[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationBlockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1750,7 +1750,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unblockApplication(*[Application], *[String])(*[HeaderCarrier]))
+        given(mockApplicationService.unblockApplication(*[Application], *)(*[HeaderCarrier]))
           .willReturn(Future.successful(ApplicationUnblockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)

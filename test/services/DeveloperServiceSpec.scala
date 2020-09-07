@@ -254,8 +254,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       result shouldBe DeveloperDeleteSuccessResult
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, developer.email)))(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
