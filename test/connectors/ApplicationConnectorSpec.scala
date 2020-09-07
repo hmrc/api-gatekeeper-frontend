@@ -235,7 +235,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
     val applications = Seq(ApplicationResponse(
-      ApplicationId.random, "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+      ApplicationId.random, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
 
     "retrieve all applications" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *))
@@ -273,7 +273,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
     val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
     val application = ApplicationResponse(
-      applicationId, "clientid1", "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val response = ApplicationWithHistory(application, Seq(applicationState))
 
 
@@ -442,7 +442,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
       val createPrivOrROPCAppRequest = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
-      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", "client ID", totpSecrets, appAccess)
+      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", ClientId("client ID"), totpSecrets, appAccess)
 
       when(mockHttpClient
         .POST[CreatePrivOrROPCAppRequest, CreatePrivOrROPCAppSuccessResult](eqTo(url), eqTo(createPrivOrROPCAppRequest), *)(*, *, *, *))

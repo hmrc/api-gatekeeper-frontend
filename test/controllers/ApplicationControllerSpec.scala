@@ -17,7 +17,6 @@
 package controllers
 
 import java.net.URLEncoder
-import java.util.UUID
 
 import mocks.TestRoles._
 import model.Environment._
@@ -771,7 +770,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val ropcAccessType = AccessType.ROPC
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
-      val clientId = "This-isac-lient-ID"
+      val clientId = ClientId("This-isac-lient-ID")
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
@@ -830,7 +829,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
           val existingApp = ApplicationResponse(
-            ApplicationId.random, "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
@@ -852,7 +851,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
           val existingApp = ApplicationResponse(
-            ApplicationId.random, "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
@@ -877,7 +876,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
           val existingApp = ApplicationResponse(
-            ApplicationId.random, "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
@@ -902,7 +901,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR))
           val existingApp = ApplicationResponse(
-            ApplicationId.random, "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
@@ -1015,7 +1014,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             bodyOf(result) should include("Production")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientId)
+            bodyOf(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
 
           }
@@ -1044,7 +1043,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             bodyOf(result) should include("Sandbox")
             bodyOf(result) should include("Privileged")
             bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientId)
+            bodyOf(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
           }
 
@@ -1070,7 +1069,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             bodyOf(result) should include(applicationId.value)
             bodyOf(result) should include("Production")
             bodyOf(result) should include("ROPC")
-            bodyOf(result) should include(clientId)
+            bodyOf(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
           }
 
@@ -1096,7 +1095,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             bodyOf(result) should include(applicationId.value)
             bodyOf(result) should include("Sandbox")
             bodyOf(result) should include("ROPC")
-            bodyOf(result) should include(clientId)
+            bodyOf(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
 
           }

@@ -40,7 +40,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val application =
       ApplicationResponse(
         ApplicationId.random,
-        "clientid",
+        ClientId("clientid"),
         "gatewayId",
         "application1",
         "PRODUCTION",

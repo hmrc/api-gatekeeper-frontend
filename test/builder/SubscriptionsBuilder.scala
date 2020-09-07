@@ -19,6 +19,7 @@ package builder
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
 import model.ApplicationId
+import model.ClientId
 
 trait SubscriptionsBuilder {
 
@@ -36,7 +37,7 @@ trait SubscriptionsBuilder {
     }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {
-    SubscriptionFieldsWrapper(applicationId, s"clientId-$applicationId", s"context-$applicationId", s"apiVersion-$applicationId", fields = fields)
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$applicationId"), s"context-$applicationId", s"apiVersion-$applicationId", fields = fields)
   }
 
 

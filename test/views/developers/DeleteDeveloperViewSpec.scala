@@ -16,8 +16,6 @@
 
 package views.developers
 
-import java.util.UUID
-
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
@@ -33,7 +31,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
                                     collaborators: Set[Collaborator],
                                     id: ApplicationId = ApplicationId.random,
                                     state: ApplicationState = ApplicationState(State.PRODUCTION),
-                                    clientId: String = "a-client-id",
+                                    clientId: ClientId = ClientId("a-client-id"),
                                     deployedTo: String = "PRODUCTION") extends Application
 
   def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR)

@@ -39,12 +39,22 @@ object ApplicationId {
   def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
 }
 
+case class ClientId(value: String) extends AnyVal
+
+object ClientId {
+  import play.api.libs.json.Json
+  implicit val clientIdFormat = Json.valueFormat[ClientId]
+
+  def empty: ClientId = ClientId("")
+  def random: ClientId = ClientId(UUID.randomUUID().toString())
+}
+
 trait Application {
   val id: ApplicationId
   val name: String
   val state: ApplicationState
   val collaborators: Set[Collaborator]
-  val clientId: String
+  val clientId: ClientId
   val deployedTo: String
 
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
@@ -162,7 +172,7 @@ object OverrideType extends Enumeration {
 }
 
 case class ApplicationResponse(id: ApplicationId,
-                               clientId: String,
+                               clientId: ClientId,
                                gatewayId: String,
                                name: String,
                                deployedTo: String,
@@ -205,7 +215,7 @@ object ApplicationResponse {
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
     (JsPath \ "id").read[ApplicationId] and
-      (JsPath \ "clientId").read[String] and
+      (JsPath \ "clientId").read[ClientId] and
       (JsPath \ "gatewayId").read[String] and
       (JsPath \ "name").read[String] and
       (JsPath \ "deployedTo").read[String] and
@@ -266,7 +276,7 @@ case class SubscribedApplicationResponse(id: ApplicationId,
                                          subscriptions: Seq[SubscriptionNameAndVersion],
                                          termsOfUseAgreed: Boolean,
                                          deployedTo: String,
-                                         clientId: String = "") extends Application
+                                         clientId: ClientId = ClientId.empty) extends Application
 
 
 object SubscribedApplicationResponse {
@@ -315,7 +325,7 @@ case class DetailedSubscribedApplicationResponse(id: ApplicationId,
                                                  subscriptions: Seq[SubscriptionDetails],
                                                  termsOfUseAgreed: Boolean,
                                                  deployedTo: String,
-                                                 clientId: String = "") extends Application
+                                                 clientId: ClientId = ClientId.empty) extends Application
 
 case class PaginatedDetailedSubscribedApplicationResponse(applications: Seq[DetailedSubscribedApplicationResponse],
                                                           page: Int,
