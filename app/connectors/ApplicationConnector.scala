@@ -46,16 +46,18 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value}"
+
   def updateRateLimitTier(applicationId: ApplicationId, tier: RateLimitTier)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-      http.POST[UpdateRateLimitTierRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/rate-limit-tier",
+      http.POST[UpdateRateLimitTierRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/rate-limit-tier",
         UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
         .map(_ => ApplicationUpdateSuccessResult)
   }
 
   def approveUplift(applicationId: ApplicationId, gatekeeperUserId: String)
                    (implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    http.POST[ApproveUpliftRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/approve-uplift",
+    http.POST[ApproveUpliftRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/approve-uplift",
       ApproveUpliftRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ApproveUpliftSuccessful)
       .recover {
@@ -65,7 +67,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
 
   def rejectUplift(applicationId: ApplicationId, gatekeeperUserId: String, rejectionReason: String)
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    http.POST[RejectUpliftRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/reject-uplift",
+    http.POST[RejectUpliftRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/reject-uplift",
       RejectUpliftRequest(gatekeeperUserId, rejectionReason), Seq(CONTENT_TYPE -> JSON))
       .map(_ => RejectUpliftSuccessful)
       .recover {
@@ -75,7 +77,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
 
   def resendVerification(applicationId: ApplicationId, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    http.POST[ResendVerificationRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/resend-verification",
+    http.POST[ResendVerificationRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/resend-verification",
       ResendVerificationRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
       .map(_ => ResendVerificationSuccessful)
       .recover {
@@ -137,7 +139,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
 
   def fetchApplicationSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionWithoutFields]] = {
     retry{
-      http.GET[Seq[SubscriptionWithoutFields]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
+      http.GET[Seq[SubscriptionWithoutFields]](s"${baseApplicationUrl(applicationId)}/subscription")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
         }
@@ -145,7 +147,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def updateOverrides(applicationId: ApplicationId, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.PUT[UpdateOverridesRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/access/overrides", updateOverridesRequest)
+    http.PUT[UpdateOverridesRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/access/overrides", updateOverridesRequest)
       .map(_ => UpdateOverridesSuccessResult)
       .recover {
         case e: Upstream4xxResponse => UpdateOverridesFailureResult()
@@ -153,29 +155,29 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def updateScopes(applicationId: ApplicationId, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
-    http.PUT[UpdateScopesRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/access/scopes", updateScopesRequest)
+    http.PUT[UpdateScopesRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/access/scopes", updateScopesRequest)
       .map(_ => UpdateScopesSuccessResult)
   }
 
   def manageIpWhitelist(applicationId: ApplicationId, ipWhitelist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    http.PUT[UpdateIpWhitelistRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/ipWhitelist", UpdateIpWhitelistRequest(ipWhitelist))
+    http.PUT[UpdateIpWhitelistRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/ipWhitelist", UpdateIpWhitelistRequest(ipWhitelist))
       .map(_ => UpdateIpWhitelistSuccessResult)
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[APIIdentifier, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+    http.POST[APIIdentifier, HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
 
   def unsubscribeFromApi(applicationId: ApplicationId, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/subscription?context=$context&version=$version") map { _ =>
+    http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription?context=$context&version=$version") map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
 
   def deleteApplication(applicationId: ApplicationId, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST[DeleteApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[DeleteApplicationRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/delete", deleteApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case NO_CONTENT => ApplicationDeleteSuccessResult
         case _ => ApplicationDeleteFailureResult
@@ -186,7 +188,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def blockApplication(applicationId: ApplicationId, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    http.POST[BlockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[BlockApplicationRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/block", blockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationBlockSuccessResult
         case _ => ApplicationBlockFailureResult
@@ -197,7 +199,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def unblockApplication(applicationId: ApplicationId, unblockApplicationRequest: UnblockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    http.POST[UnblockApplicationRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[UnblockApplicationRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/unblock", unblockApplicationRequest, Seq(CONTENT_TYPE -> JSON))
       .map(response => response.status match {
         case OK => ApplicationUnblockSuccessResult
         case _ => ApplicationUnblockFailureResult
@@ -208,7 +210,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def addCollaborator(applicationId: ApplicationId, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[AddTeamMemberRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
+    http.POST[AddTeamMemberRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
       _ => ApplicationUpdateSuccessResult
     } recover {
       case e: Upstream4xxResponse if e.upstreamResponseCode == CONFLICT => throw new TeamMemberAlreadyExists
@@ -217,7 +219,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def removeCollaborator(applicationId: ApplicationId, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
+    http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
     } recover {
       case e: Upstream4xxResponse if e.upstreamResponseCode == FORBIDDEN => throw new TeamMemberLastAdmin
