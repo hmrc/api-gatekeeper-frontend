@@ -130,8 +130,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
       }
     }
 
@@ -151,8 +151,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         verifyAuthConnectorCalledForUser
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *[Map[String, String]])(*[HeaderCarrier])
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*[HeaderCarrier])
+        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*)
       }
 
       "on request for production all production applications supplied" in new Setup {
@@ -163,8 +163,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(PRODUCTION)), *[Map[String, String]])(*[HeaderCarrier])
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(PRODUCTION)))(*[HeaderCarrier])
+        verify(mockApplicationService).searchApplications(eqTo(Some(PRODUCTION)), *)(*)
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(PRODUCTION)))(*)
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
@@ -175,8 +175,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *[Map[String, String]])(*[HeaderCarrier])
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*[HeaderCarrier])
+        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
+        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*)
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
@@ -198,7 +198,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), eqTo(expectedParams))(*[HeaderCarrier])
+        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), eqTo(expectedParams))(*)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
@@ -216,8 +216,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "show button to add Privileged or ROPC app to superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
 
         val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -232,8 +232,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*[HeaderCarrier])).willReturn(Future.successful(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
 
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
         status(result) shouldBe OK
@@ -253,7 +253,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(mockApplicationService.resendVerification(appCaptor.capture(), gatekeeperIdCaptor.capture())(*[HeaderCarrier]))
+        given(mockApplicationService.resendVerification(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
           .willReturn(Future.successful(ResendVerificationSuccessful))
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
@@ -310,7 +310,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateScopes(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier]))
+        given(mockApplicationService.updateScopes(*, *)(*))
           .willReturn(Future.successful(UpdateScopesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
@@ -320,7 +320,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService)
-          .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*[HeaderCarrier])
+          .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*)
 
         verifyAuthConnectorCalledForSuperUser
       }
@@ -334,7 +334,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateScopes(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateScopes(*, *)(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -342,7 +342,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateScopes(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier]))
+        given(mockApplicationService.updateScopes(*, *)(*))
           .willReturn(Future.successful(UpdateScopesInvalidScopesResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
@@ -360,7 +360,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateScopes(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateScopes(*, *)(*)
       }
     }
 
@@ -402,7 +402,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "manage whitelisted IP using the app service for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageWhitelistedIp(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier]))
+        given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
 
@@ -410,13 +410,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
-        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*[HeaderCarrier])
+        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
       }
 
       "manage whitelisted IP using the app service for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageWhitelistedIp(*[ApplicationResponse], *[Set[String]])(*[HeaderCarrier]))
+        given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
 
@@ -424,7 +424,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
-        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*[HeaderCarrier])
+        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -449,7 +449,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*[HeaderCarrier])
+          verify(mockApplicationService, times(0)).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
         }
       }
 
@@ -509,7 +509,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateOverrides(*[ApplicationResponse], *[Set[OverrideFlag]])(*[HeaderCarrier]))
+        given(mockApplicationService.updateOverrides(*, *)(*))
           .willReturn(Future.successful(UpdateOverridesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -532,7 +532,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             SuppressIvForAgents(Set("openid", "email")),
             SuppressIvForOrganisations(Set("address", "openid:mdtp")),
             SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
-          )))(*[HeaderCarrier])
+          )))(*)
 
         verifyAuthConnectorCalledForSuperUser
       }
@@ -549,7 +549,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateOverrides(*[ApplicationResponse], *[Set[OverrideFlag]])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateOverrides(*, *)(*)
 
         verifyAuthConnectorCalledForSuperUser
       }
@@ -564,7 +564,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateOverrides(*[ApplicationResponse], *[Set[OverrideFlag]])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateOverrides(*, *)(*)
       }
     }
 
@@ -573,7 +573,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.subscribeToApi(*[Application], *, *)(*[HeaderCarrier]))
+        given(mockApplicationService.subscribeToApi(*, *, *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -581,7 +581,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*[HeaderCarrier])
+        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -593,7 +593,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *, *)(*[HeaderCarrier])
+        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *, *)(*)
       }
     }
 
@@ -602,7 +602,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unsubscribeFromApi(*[Application], *, *)(*[HeaderCarrier]))
+        given(mockApplicationService.unsubscribeFromApi(*, *, *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
@@ -610,7 +610,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*[HeaderCarrier])
+        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -622,7 +622,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*[Application], *, *)(*[HeaderCarrier])
+        verify(mockApplicationService, never).unsubscribeFromApi(*, *, *)(*)
       }
     }
 
@@ -634,7 +634,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
         verifyAuthConnectorCalledForAdmin
       }
@@ -646,7 +646,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
 
@@ -657,7 +657,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
@@ -666,7 +666,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateRateLimitTier(*[Application], *[RateLimitTier])(*[HeaderCarrier]))
+        given(mockApplicationService.updateRateLimitTier(*, *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
@@ -676,8 +676,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -691,7 +691,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateRateLimitTier(*[Application], *[RateLimitTier])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -705,8 +705,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateRateLimitTier(*[Application], *[RateLimitTier])(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
@@ -718,7 +718,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*[HeaderCarrier]))
+        given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
           .willReturn(Future.successful(ApproveUpliftSuccessful))
         await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
@@ -760,7 +760,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, never).updateRateLimitTier(*[Application], *[RateLimitTier])(*[HeaderCarrier])
+        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
 
         verifyAuthConnectorCalledForUser
       }
@@ -834,7 +834,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -856,9 +856,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -881,9 +881,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -906,9 +906,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             ApplicationId(UUID.randomUUID().toString()), "clientid1", "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
           givenTheUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
-            .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+            .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -994,9 +994,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1023,9 +1023,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           "show the success page for a priv app in sandbox" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1051,9 +1051,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           "show the success page for an ROPC app in production" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1077,9 +1077,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           "show the success page for an ROPC app in sandbox" in new Setup {
             givenTheUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*[HeaderCarrier])).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
-              .createPrivOrROPCApp(*[Environment], *, *, *[Seq[Collaborator]], *[AppAccess])(*[HeaderCarrier]))
+              .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1112,12 +1112,12 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           val subscription = Subscription("name", "serviceName", "context", Seq())
           givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
-          given(mockApplicationService.fetchApplicationSubscriptions(*[Application])(*[HeaderCarrier])).willReturn(Seq(subscription))
+          given(mockApplicationService.fetchApplicationSubscriptions(*)(*)).willReturn(Seq(subscription))
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest))
 
           status(result) shouldBe OK
-          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*[HeaderCarrier])
+          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*)
           verifyAuthConnectorCalledForSuperUser
         }
       }
@@ -1128,7 +1128,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenTheUserHasInsufficientEnrolments()
 
-          given(mockApplicationService.fetchApplicationSubscriptions(*[Application])(*[HeaderCarrier])).willReturn(Seq(subscription))
+          given(mockApplicationService.fetchApplicationSubscriptions(*)(*)).willReturn(Seq(subscription))
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
 
@@ -1143,17 +1143,17 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.fetchApplicationSubscriptions(*[Application])(*[HeaderCarrier])).willReturn(subscriptions)
-        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(*[HeaderCarrier]))
+        given(mockApplicationService.fetchApplicationSubscriptions(*)(*)).willReturn(subscriptions)
+        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(*))
           .willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*[HeaderCarrier])
+        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*)
 
-        verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*[HeaderCarrier])
-        verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*[Application], *, *)(*[HeaderCarrier])
+        verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*)
+        verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*, *, *)(*)
         verifyAuthConnectorCalledForUser
       }
     }
@@ -1328,14 +1328,14 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*, *, *)(*))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService)
-              .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(*[HeaderCarrier])
+              .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(*)
             verifyAuthConnectorCalledForUser
           }
 
@@ -1343,7 +1343,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*, *, *)(*))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1358,7 +1358,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*, *, *)(*))
               .willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1433,7 +1433,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*[Application], *[Collaborator], *)(*[HeaderCarrier]))
+            given(mockApplicationService.addTeamMember(*, *, *)(*))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
@@ -1548,7 +1548,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*, *, *)(*))
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1556,7 +1556,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
               status(result) shouldBe SEE_OTHER
 
-              verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(email), eqTo("superUserName"))(*[HeaderCarrier])
+              verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(email), eqTo("superUserName"))(*)
               verifyAuthConnectorCalledForUser
             }
 
@@ -1564,7 +1564,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*, *, *)(*))
                 .willReturn(Future.failed(new TeamMemberLastAdmin))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1577,7 +1577,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
+              given(mockApplicationService.removeTeamMember(*, *, *)(*))
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", confirm))
@@ -1632,7 +1632,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show 303 OK" in new Setup {
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
-            given(mockApplicationService.removeTeamMember(*[Application], *, *)(*[HeaderCarrier]))
+            given(mockApplicationService.removeTeamMember(*, *, *)(*))
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email), ("confirm", "Yes"))
@@ -1653,7 +1653,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1665,7 +1665,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
     }
@@ -1675,7 +1675,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.blockApplication(*[Application], *)(*[HeaderCarrier]))
+        given(mockApplicationService.blockApplication(*, *)(*))
           .willReturn(Future.successful(ApplicationBlockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1684,8 +1684,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1699,7 +1699,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*[HeaderCarrier])
+        verify(mockApplicationService, never).blockApplication(*, *)(*)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1713,8 +1713,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService, never).blockApplication(*, *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
     }
@@ -1728,7 +1728,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1740,7 +1740,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
     }
@@ -1750,7 +1750,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unblockApplication(*[Application], *)(*[HeaderCarrier]))
+        given(mockApplicationService.unblockApplication(*, *)(*))
           .willReturn(Future.successful(ApplicationUnblockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1759,8 +1759,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1774,7 +1774,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*[HeaderCarrier])
+        verify(mockApplicationService, never).unblockApplication(*, *)(*)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1788,8 +1788,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*[HeaderCarrier])
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+        verify(mockApplicationService, never).unblockApplication(*, *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
     }
