@@ -56,7 +56,7 @@
                 administrator for them:</p>
 
                 @for(application <- applications) {
-                    <p><a id="app-@{application.id.toString}" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></p>
+                    <p><a id="app-@{application.id.value}" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></p>
                 }
             </div>
             <a id="finish" href="@routes.DevelopersController.developerPage(developer.email)" class="button">Finish</a>
