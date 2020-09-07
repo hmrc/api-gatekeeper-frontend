@@ -81,7 +81,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     def deleteDeveloperWillSucceed = {
-      when(mockDeveloperConnector.deleteDeveloper(*[DeleteDeveloperRequest])(*))
+      when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(Future.successful(DeveloperDeleteSuccessResult))
       when(mockProductionApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
         .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
@@ -312,7 +312,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(*[DeleteDeveloperRequest])(*)
+      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
       verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
       verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
     }
@@ -330,7 +330,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(*[DeleteDeveloperRequest])(*)
+      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
       verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
       verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
     }

@@ -454,7 +454,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
       
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*[Application], *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
@@ -478,7 +478,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
         .willReturn(Future.successful(subscriptionFieldValues))
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*[Application], *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
@@ -508,7 +508,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       val errors = Map("fieldName" -> "failure reason")
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*[Application], *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
           .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(errors)))
 
       private val exception = intercept[RuntimeException](
