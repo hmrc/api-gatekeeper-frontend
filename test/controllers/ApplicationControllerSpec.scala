@@ -770,7 +770,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val ropcAccessType = AccessType.ROPC
       val description = "An application description"
       val adminEmail = "emailAddress@example.com"
-      val clientId = ClientId("This-isac-lient-ID")
+      val clientId = ClientId.random
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
