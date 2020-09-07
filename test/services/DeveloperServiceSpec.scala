@@ -65,7 +65,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     implicit val hc = HeaderCarrier()
 
     def fetchDeveloperWillReturn(developer: User, productionApps: Seq[ApplicationResponse], sandboxApps: Seq[ApplicationResponse] = Seq.empty) = {
-      when(mockDeveloperConnector.fetchByEmail(*)(any[HeaderCarrier]))
+      when(mockDeveloperConnector.fetchByEmail(*)(*))
         .thenReturn(Future.successful(developer))
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
         .thenReturn(Future.successful(productionApps))
@@ -97,10 +97,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       environment match {
         case "PRODUCTION" =>
           verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove),
-            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
         case "SANDBOX" =>
           verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove),
-            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(any[HeaderCarrier])
+            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
       }
     }
 
@@ -225,8 +225,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       val result = await(underTest.fetchDeveloper(developer.email))
       result.toDeveloper shouldBe developer.toDeveloper(apps)
-      verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(any[HeaderCarrier])
-      verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(any[HeaderCarrier])
+      verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(*)
+      verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
     }
 
     "remove MFA" in new Setup {
@@ -253,9 +253,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, developer.email)))(any[HeaderCarrier])
-      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(any[HeaderCarrier])
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(any[HeaderCarrier])
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, developer.email)))(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *[String], *[String], *)(*)
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
@@ -276,7 +276,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       verifyTeamMemberRemovedFromApp(app2, user.email, gatekeeperUserId, Seq.empty)
       verifyTeamMemberRemovedFromApp(app3, user.email, gatekeeperUserId, Seq(verifiedAdminTeamMember.emailAddress))
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(any[HeaderCarrier])
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
 
     "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
@@ -296,7 +296,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       verifyTeamMemberRemovedFromApp(app2, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
       verifyTeamMemberRemovedFromApp(app3, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(any[HeaderCarrier])
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
 
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {

@@ -85,31 +85,31 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenVerifiedDeveloper(): Unit = {
         val users = Seq(verifiedUser1, verifiedUser2)
-        when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
       def given3VerifiedDevelopers1Unverified(): Unit = {
         val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
-        when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
       def given3VerifiedDevelopers1UnverifiedSearchDevelopers(): Unit = {
-        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(*)).thenReturn(Future.successful(users))
       }
 
       def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
-        when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByEmailPreferences(any[TopicOptionChoice])(*)).thenReturn(Future.successful(users))
       }
 
       def givenNoVerifiedDevelopers(): Unit = {
         val users = Seq(unVerifiedUser1)
-        when(mockDeveloperService.fetchUsers(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
       def givenApiDefinition2Apis() = {
         val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None)
         val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None)
-        when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(any[HeaderCarrier]))
+        when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
           .thenReturn(Future.successful(Seq(api1, api2)))
       }
 

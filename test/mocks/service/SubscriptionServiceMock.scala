@@ -29,16 +29,16 @@ trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSu
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
   
   def givenSaveSubscriptionFieldsSuccess() = {
-    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(any[HeaderCarrier]))
+    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
   }
 
   def givenSaveSubscriptionFieldsFailure(fieldErrors : Map[String, String]) = {
-    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(any[HeaderCarrier]))
+    given(mockSubscriptionFieldsService.saveFieldValues(*, *, *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
   }
 
   def verifySaveSubscriptionFields(application: Application, apiContext: String, apiVersion: String, fields: Fields) = {
-    verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(any[HeaderCarrier])
+    verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
   }
 }

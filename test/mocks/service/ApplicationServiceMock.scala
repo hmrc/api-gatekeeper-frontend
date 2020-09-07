@@ -29,25 +29,25 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {
-    given(mockApplicationService.fetchApplication(*[ApplicationId])(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplication(*[ApplicationId])(*))
       .willReturn(Future.successful(returns))
   }
 
   def fetchApplicationSubscriptionsReturns(returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(*)(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplicationSubscriptions(*)(*))
       .willReturn(Future.successful(returns))
   }
 
   def verifyFetchApplication(applicationId: ApplicationId) = {
-    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
   }
 
   def verifyFetchApplicationSubscriptions(application: Application, withFields: Boolean) = {
-    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(any[HeaderCarrier])
+    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(*)
   }
 
   def givenTheSubscriptionsWillBeReturned(application: Application, withFields: Boolean, returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((any[HeaderCarrier])))
+    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((*)))
       .willReturn(Future.successful(returns))
   }
 }

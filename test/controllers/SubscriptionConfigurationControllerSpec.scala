@@ -78,7 +78,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.versions.head.fields.fields.head.definition.shortDescription)
       responseBody should include(subscription.versions.head.fields.fields.head.value)
 
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
 
     "When logged in as super user renders the page correctly" in new Setup {
@@ -122,7 +122,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscriptionFieldValue.definition.hint)
       responseBody should include(subscriptionFieldValue.value)
     
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
 
      "When logged in as super user renders the page correctly" in new Setup {

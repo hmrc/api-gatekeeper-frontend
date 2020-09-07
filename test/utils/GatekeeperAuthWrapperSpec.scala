@@ -72,7 +72,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with Argument
     "execute body if user is logged in" in new Setup {
       val response = Future.successful(new ~(Name(Some("Full Name"), None), Enrolments(Set(Enrolment(userRole)))))
 
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
+      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
         .willReturn(response)
 
       val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
@@ -81,7 +81,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with Argument
     }
 
     "redirect to login page if user is not logged in" in new Setup {
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
+      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
         .willReturn(Future.failed(new SessionRecordNotFound))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
@@ -90,7 +90,7 @@ class GatekeeperAuthWrapperSpec extends UnitSpec with MockitoSugar with Argument
     }
 
     "return 401 FORBIDDEN if user is logged in and has insufficient enrolments" in new Setup {
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(any[HeaderCarrier], any[ExecutionContext]))
+      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
         .willReturn(Future.failed(new InsufficientEnrolments))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
