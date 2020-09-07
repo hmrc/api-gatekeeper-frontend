@@ -16,13 +16,7 @@
 
 package views.developers
 
-import java.util.Locale
-
 import model.{LoggedInUser, _}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{DefaultMessagesApi, Lang, MessagesImpl, MessagesProvider}
 import play.api.test.FakeRequest
 import views.html.developers.DevelopersView
 import views.CommonViewSpec

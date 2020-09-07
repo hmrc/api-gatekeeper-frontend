@@ -176,7 +176,7 @@ object SubmissionDetails {
   implicit val format = Json.format[SubmissionDetails]
 }
 
-case class ApplicationReviewDetails(id: String,
+case class ApplicationReviewDetails(id: ApplicationId,
                                     name: String,
                                     description: String,
                                     rateLimitTier: Option[RateLimitTier],
@@ -260,7 +260,7 @@ case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
 sealed trait CreatePrivOrROPCAppResult
 
-case class CreatePrivOrROPCAppSuccessResult(id: String, name: String, deployedTo: String, clientId: String, totp: Option[TotpSecrets], access: AppAccess) extends CreatePrivOrROPCAppResult
+case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: String, clientId: String, totp: Option[TotpSecrets], access: AppAccess) extends CreatePrivOrROPCAppResult
 object CreatePrivOrROPCAppSuccessResult {
   implicit val rds1 = Json.reads[TotpSecrets]
   implicit val rds2 = EnumJson.enumReads(AccessType)

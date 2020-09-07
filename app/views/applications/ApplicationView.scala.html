@@ -46,7 +46,7 @@
     </td>
     <td>
         @if(isAtLeastSuperUser) {
-        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(application.id.toString)}" class="button--link" role="button">Manage</a>
+        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(application.id)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -90,7 +90,7 @@
     </td>
     <td>
         @if(isAtLeastSuperUser) {
-            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(application.id.toString)}" class="button--link" role="button">Manage</a>
+            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(application.id)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -155,7 +155,7 @@
         </tr>
         <tr>
             <th><h3>Application ID</h3></th>
-            <td data-app-id>@application.id</td>
+            <td data-app-id>@application.id.value</td>
             <td></td>
         </tr>
         <tr>
@@ -176,9 +176,9 @@
             </td>
             <td>
                 @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
-                    <a href={routes.ApplicationController.reviewPage(application.id.toString).url} class="button--link" role="button" id="review">Check application</a>
+                    <a href={routes.ApplicationController.reviewPage(application.id).url} class="button--link" role="button" id="review">Check application</a>
                    } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
-                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id.toString).url}>Resend verify email</a>)</span>
+                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id).url}>Resend verify email</a>)</span>
                    }
                 }
             </td>
@@ -197,7 +197,7 @@
             <th><h3>Rate limit tier</h3></th>
             <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
             <td>@if(isAdmin) {
-                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(application.id.toString)}" class="button--link" role="button">Manage</a>
+                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(application.id)}" class="button--link" role="button">Manage</a>
                 }</td>
         </tr>
         <tr>
@@ -300,7 +300,7 @@
             </td>
             <td>
             @if(isAtLeastSuperUser) {
-                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id.toString)}" class="button--link" role="button">Manage</a>
+                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id)}" class="button--link" role="button">Manage</a>
             }
             </td>
         </tr>
@@ -313,7 +313,7 @@
             </td>
             <td>
                 @if(isAtLeastSuperUser) {
-                    <a id="manage-subscriptions" href="@{routes.ApplicationController.manageSubscription(application.id.toString)}" class="button--link" role="button">Manage</a>
+                    <a id="manage-subscriptions" href="@{routes.ApplicationController.manageSubscription(application.id)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
@@ -328,7 +328,7 @@
                 </td>
                 <td>
                     @if(isAtLeastSuperUser) {
-                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id.toString)}" class="button--link" role="button">Manage</a>
+                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}" class="button--link" role="button">Manage</a>
                     }
                 </td>
             </tr>
@@ -370,7 +370,7 @@
             </td>
             <td class="no-border">
                 @if(isAtLeastSuperUser || application.access.accessType == AccessType.STANDARD) {
-                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}" class="button--link" role="button">Manage</a>
+                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(application.id)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
@@ -480,14 +480,14 @@
     </table>
     <br>
     @if(isAtLeastSuperUser) {
-        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id.toString)}" class="button--alert text--center">Delete application</a>
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id)}" class="button--alert text--center">Delete application</a>
     }
     @if(isAdmin) {
         @if(application.state.name == PRODUCTION && !application.blocked) {
-            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id.toString)}" class="button--alert text--center">Block application</a>
+            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id)}" class="button--alert text--center">Block application</a>
         }
         @if(application.state.name == PRODUCTION && application.blocked) {
-        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(application.id.toString)}" class="button--alert text--center">Unblock application</a>
+        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(application.id)}" class="button--alert text--center">Unblock application</a>
         }
     }
 </div>

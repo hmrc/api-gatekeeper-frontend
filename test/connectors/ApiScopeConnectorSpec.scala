@@ -22,10 +22,8 @@ import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment.Environment
 import model.{ApiScope, FetchApiDefinitionsFailed}
-import org.mockito.Matchers.{any, eq => mEq}
-import org.mockito.Mockito.{verify, when}
 import org.scalatest.Matchers
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -35,7 +33,7 @@ import utils.FutureTimeoutSupportImpl
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
+class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with Matchers {
   private val baseUrl = "https://example.com"
   private val bearer = "TestBearerToken"
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
@@ -50,7 +48,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
     val mockEnvironment = mock[Environment]
     val mockAppConfig: AppConfig = mock[AppConfig]
 
-    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiScopeConnector() {
       val httpClient = mockHttpClient
@@ -73,7 +71,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
 
     "fetch a sequence of API scopes" in new Setup {
 
-      when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any())).thenReturn(Future.successful(scopes))
+      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *)).thenReturn(Future.successful(scopes))
 
       val result = await(underTest.fetchAll())
 
@@ -83,7 +81,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
     "when retry logic is enabled should retry on failure" in new Setup {
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any())).thenReturn(
+      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(scopes))
 
@@ -92,7 +90,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with Matchers {
 
     "fail to fetch a sequence of API scopes" in new Setup {
 
-      when(mockHttpClient.GET[Seq[ApiScope]](mEq(s"$baseUrl/scope"))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(underTest.fetchAll()))

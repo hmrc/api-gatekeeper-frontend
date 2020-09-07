@@ -31,7 +31,7 @@ object ApplicationGenerator {
   }
 
   def anApplicationResponse(createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now): ApplicationResponse = {
-    ApplicationResponse(randomUUID(), "clientid", "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
+    ApplicationResponse(ApplicationId(randomUUID().toString()), "clientid", "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
       lastAccess, Privileged(), ApplicationState(), RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
 

@@ -20,16 +20,14 @@ import connectors._
 import model.Environment._
 import model._
 import org.mockito.BDDMockito._
-import org.mockito.Mockito.{never, verify}
-import org.scalatest.Matchers
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiDefinitionServiceSpec extends UnitSpec with Matchers with MockitoSugar {
+class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar {
   trait Setup {
     implicit val hc: HeaderCarrier = new HeaderCarrier
     val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]

@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{EmailOptionChoice, LoggedInUser, User}
+import model.{LoggedInUser, User}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
@@ -26,7 +26,7 @@ import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.html.emails.{EmailAllUsersView, EmailInformationView}
+import views.html.emails.EmailAllUsersView
 
 class EmailAllUsersViewSpec extends CommonViewSpec with UserTableHelper{
 

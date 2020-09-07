@@ -17,15 +17,14 @@
 package connectors
 
 import config.AppConfig
-import org.mockito.Mockito.when
+import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, Matchers}
+import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class AuthConnectorSpec extends UnitSpec with Matchers with MockitoSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class AuthConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     implicit val hc = HeaderCarrier()

@@ -30,9 +30,9 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.manageTeamMembers(application.id.toString)}">Manage team members</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.manageTeamMembers(application.id)}">Manage team members</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Add team member</li>
         </ul>
@@ -44,7 +44,7 @@
 
     <h2 class="heading-medium">Team member</h2>
 
-    @helper.form(action = controllers.routes.ApplicationController.addTeamMemberAction(application.id.toString)) {
+    @helper.form(action = controllers.routes.ApplicationController.addTeamMemberAction(application.id)) {
         @helper.CSRF.formField
 
         <div class="form-group @if(form.errors("email").nonEmpty) {form-field--error}">
@@ -91,7 +91,7 @@
 
         <div class="form-field">
             <button id="submit" class="button button--padded" type="submit">Add</button>
-            <a href="@routes.ApplicationController.manageTeamMembers(application.id.toString)" class="secondary-button">Cancel</a>
+            <a href="@routes.ApplicationController.manageTeamMembers(application.id)" class="secondary-button">Cancel</a>
         </div>
     }
 </div>

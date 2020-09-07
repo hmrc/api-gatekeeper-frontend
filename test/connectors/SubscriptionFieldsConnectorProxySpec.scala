@@ -21,10 +21,8 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment._
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -33,7 +31,7 @@ import utils.FutureTimeoutSupportImpl
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
+class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with BeforeAndAfterEach with WithFakeApplication {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
@@ -53,7 +51,7 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
     val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
 
     val connector: AbstractSubscriptionFieldsConnector = new AbstractSubscriptionFieldsConnector {
       val httpClient = mockHttpClient

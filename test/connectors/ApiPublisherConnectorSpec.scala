@@ -22,10 +22,8 @@ import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment._
 import model._
-import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -35,7 +33,7 @@ import utils.FutureTimeoutSupportImpl
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
+class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
@@ -52,7 +50,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
 
     val underTest = new ApiPublisherConnector {
       val httpClient = mockHttpClient
@@ -76,14 +74,14 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     "return unapproved API approval summaries" in new Setup {
       val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
 
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(response))
 
       await(underTest.fetchUnapproved()) shouldBe response
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -95,7 +93,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
         .thenReturn(
           Future.failed(new BadRequestException("")),
           Future.successful(response)
@@ -111,14 +109,14 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     "return subscription fields definition for an API" in new Setup {
       val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment))
 
-      when(mockHttpClient.GET[APIApprovalSummary](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[APIApprovalSummary](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(validResponse))
 
       await(underTest.fetchApprovalSummary(serviceName)) shouldBe validResponse
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -130,7 +128,7 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
       val validResponse = (APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[APIApprovalSummary](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[APIApprovalSummary](eqTo(url))(*, *, *))
         .thenReturn(
           Future.failed(new BadRequestException("")),
           Future.successful(validResponse)
@@ -146,14 +144,14 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val approveServiceRequest = ApproveServiceRequest(serviceName)
 
     "save the fields" in new Setup {
-      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](meq(url), meq(approveServiceRequest), any())(any(), any(), any(), any()))
+      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](eqTo(url), eqTo(approveServiceRequest), *)(*, *, *, *))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(underTest.approveService(serviceName)) shouldBe ((): Unit)
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](meq(url), meq(approveServiceRequest), any())(any(), any(), any(), any()))
+      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](eqTo(url), eqTo(approveServiceRequest), *)(*, *, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[UpdateApiDefinitionsFailed] {

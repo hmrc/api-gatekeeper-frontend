@@ -68,7 +68,7 @@
 
     <div>
     @if(isSuperUser) {
-        @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id.toString), 'class -> "form") {
+        @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), 'class -> "form") {
             <div>
                 <p class="h2-heading">Which administrator requested the deletion of this application?</p>
 
@@ -102,7 +102,7 @@
 
             <div class="form-field form-field--submit">
                 <button id="delete-application" class="button--alert text--center flush--right" type="submit">Delete application</button>
-                <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="secondary-button button--link">Cancel</a>
+                <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="secondary-button button--link">Cancel</a>
             </div>
 
         }

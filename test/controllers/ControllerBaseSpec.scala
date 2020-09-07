@@ -18,7 +18,7 @@ package controllers
 
 import config.AppConfig
 import mocks.config.FakeAppConfigImpl
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -26,7 +26,7 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.inject.bind
 
-trait ControllerBaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+trait ControllerBaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with ArgumentMatchersSugar {
   override lazy val app: Application = fakeApplication()
 
   implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]

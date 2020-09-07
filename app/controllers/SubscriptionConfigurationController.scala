@@ -49,7 +49,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def listConfigurations(appId: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def listConfigurations(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withAppAndFieldDefinitions(appId) {
           app => {
@@ -58,7 +58,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def editConfigurations(appId: ApplicationId, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withAppAndSubscriptionVersion(appId, context, version) {
           app => {
@@ -73,7 +73,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def saveConfigurations(appId: String, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def saveConfigurations(appId: ApplicationId, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => {
 
       withAppAndSubscriptionVersion(appId, context, version) {

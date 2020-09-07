@@ -64,7 +64,7 @@
 
     <div>
     @if(isSuperUser) {
-        @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id.toString), 'class -> "form") {
+        @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
             <div>
                 <p class="h2-heading">Application name</p>
                 <p>Enter the application name to confirm blocking</p>
@@ -78,7 +78,7 @@
 
             <div class="form-field form-field--submit">
                 <button id="block-application" class="button--alert text--center flush--right" type="submit">Block application</button>
-                <a href="@{routes.ApplicationController.applicationPage(application.id.toString)}" class="secondary-button button--link">Cancel</a>
+                <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="secondary-button button--link">Cancel</a>
             </div>
 
         }

@@ -18,8 +18,6 @@ package controllers
 
 import builder.SubscriptionsBuilder
 import mocks.service.SubscriptionFieldsServiceMock
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -80,7 +78,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.versions.head.fields.fields.head.definition.shortDescription)
       responseBody should include(subscription.versions.head.fields.fields.head.value)
 
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
 
     "When logged in as super user renders the page correctly" in new Setup {
@@ -124,7 +122,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscriptionFieldValue.definition.hint)
       responseBody should include(subscriptionFieldValue.value)
     
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
 
      "When logged in as super user renders the page correctly" in new Setup {
@@ -163,7 +161,7 @@ class SubscriptionConfigurationControllerSpec
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId/subscriptions-configuration")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
     
       val expectedFields = Map(subscriptionFieldValue.definition.name -> newValue)
 

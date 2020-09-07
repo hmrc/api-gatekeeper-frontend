@@ -22,11 +22,9 @@ import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment._
 import model._
-import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, Matchers}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -35,8 +33,9 @@ import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import org.mockito.ArgumentMatchersSugar
 
-class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matchers with ScalaFutures with BeforeAndAfterEach {
+class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with BeforeAndAfterEach {
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
@@ -54,7 +53,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
     val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(any(), any())).thenReturn(mockProxiedHttpClient)
+    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
 
     val connector = new ApiDefinitionConnector {
       val httpClient = mockHttpClient
@@ -80,7 +79,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchPublic()) shouldBe response
     }
@@ -93,7 +92,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response)
       )
@@ -102,7 +101,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
@@ -118,7 +117,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
         "dummyAPI", "dummy api.", "dummy-api",
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any())).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchPrivate()) shouldBe response
     }
@@ -130,7 +129,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))( any(), any(), any())).thenReturn(
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response)
       )
@@ -139,7 +138,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Matcher
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[APIDefinition]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))

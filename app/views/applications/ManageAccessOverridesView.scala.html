@@ -41,7 +41,7 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id.toString)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Manage access overrides</li>
         </ul>
@@ -49,7 +49,7 @@
 
     <h1>Manage access overrides</h1>
 
-    @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id.toString), 'class -> "form") {
+    @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id), 'class -> "form") {
         <div>
             @helper.CSRF.formField
 
@@ -90,7 +90,7 @@
         </div>
         <div class="form-field form-field--submit">
             <button id="submit" class="button" type="submit">Save and return</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id.toString)" class="secondary-button button--link">Cancel</a>
+            <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
         </div>
     }
 </div>

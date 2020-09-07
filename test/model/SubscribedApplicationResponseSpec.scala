@@ -29,7 +29,7 @@ class SubscribedApplicationResponseSpec extends UnitSpec with Matchers {
   def randomText = UUID.randomUUID().toString
 
   "SubscribedApplicationResponse" should {
-    val id = UUID.randomUUID()
+    val id = ApplicationId.random
     val clientId = randomText
     val gatewayId = randomText
     val name = randomText

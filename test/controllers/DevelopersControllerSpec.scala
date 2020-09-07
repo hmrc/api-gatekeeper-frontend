@@ -21,7 +21,6 @@ import java.util.UUID
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
-import org.mockito.Matchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.verify
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
@@ -53,7 +52,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
     def anApplication(collaborators: Set[Collaborator]) = {
       ApplicationResponse(
-        UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+        ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     }
 
     trait Setup extends ControllerSetupBase {
@@ -90,24 +89,24 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(meq(apiFilter), meq(environmentFilter))(any[HeaderCarrier])).willReturn(successful(apps))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(any())(any[HeaderCarrier])).willReturn(Seq.empty[APIDefinition])
+        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
-        given(mockDeveloperService.getDevelopersWithApps(meq(apps), meq(users))(any[HeaderCarrier])).willReturn(developers)
-        given(mockDeveloperService.fetchUsers(any[HeaderCarrier])).willReturn(successful(users))
+        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(*)).willReturn(developers)
+        given(mockDeveloperService.fetchUsers(*)).willReturn(successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
-        given(mockDeveloperService.fetchDeveloper(meq(developer.email))(any[HeaderCarrier])).willReturn(successful(developer))
+        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).willReturn(successful(developer))
       }
 
       def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        given(mockDeveloperService.deleteDeveloper(anyString, anyString)(any[HeaderCarrier])).willReturn(successful(result))
+        given(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).willReturn(successful(result))
       }
 
       def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
-        given(mockDeveloperService.removeMfa(anyString, anyString)(any[HeaderCarrier])).willReturn(user)
+        given(mockDeveloperService.removeMfa(any[String], any[String])(*)).willReturn(user)
       }
     }
 
@@ -165,7 +164,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val collaborators = Set(
           Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(
-          UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+          ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer.createFromUser(_, applications))
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, devs)
@@ -178,7 +177,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
         val applications = Seq(ApplicationResponse(
-          UUID.randomUUID(), "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
+          ApplicationId.random, "clientid", "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, noDevs)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
@@ -207,7 +206,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(meq(emailAddress))(any[HeaderCarrier])
+        verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(*)
         verifyAuthConnectorCalledForSuperUser
       }
     }
@@ -228,7 +227,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(meq(emailAddress), meq(loggedInSuperUser))(any[HeaderCarrier])
+        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInSuperUser))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -259,7 +258,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenFetchDeveloperReturns(developer)
         val result = await(addToken(developersController.deleteDeveloperPage(emailAddress))(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(meq(emailAddress))(any[HeaderCarrier])
+        verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(*)
         verifyAuthConnectorCalledForSuperUser
       }
     }
@@ -278,7 +277,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenDeleteDeveloperReturns(DeveloperDeleteSuccessResult)
         val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(meq(emailAddress), meq(superUserName))(any[HeaderCarrier])
+        verify(mockDeveloperService).deleteDeveloper(eqTo(emailAddress), eqTo(superUserName))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 

@@ -18,37 +18,36 @@ package mocks.service
 
 import model.{Application, ApplicationWithHistory, Subscription}
 import org.mockito.BDDMockito.`given`
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.verify
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import model.ApplicationId
 
-trait ApplicationServiceMock extends MockitoSugar {
+trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {
-    given(mockApplicationService.fetchApplication(any())(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplication(*[ApplicationId])(*))
       .willReturn(Future.successful(returns))
   }
 
   def fetchApplicationSubscriptionsReturns(returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(any())(any[HeaderCarrier]))
+    given(mockApplicationService.fetchApplicationSubscriptions(*)(*))
       .willReturn(Future.successful(returns))
   }
 
-  def verifyFetchApplication(applicationId: String) = {
-    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(any[HeaderCarrier])
+  def verifyFetchApplication(applicationId: ApplicationId) = {
+    verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
   }
 
   def verifyFetchApplicationSubscriptions(application: Application, withFields: Boolean) = {
-    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(any[HeaderCarrier])
+    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(*)
   }
 
   def givenTheSubscriptionsWillBeReturned(application: Application, withFields: Boolean, returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((any[HeaderCarrier])))
+    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((*)))
       .willReturn(Future.successful(returns))
   }
 }

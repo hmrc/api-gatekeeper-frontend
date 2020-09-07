@@ -76,7 +76,7 @@
             </colgroup>
             @for(app <- developer.apps) {
             <tr>
-                <td><a href="@{routes.ApplicationController.applicationPage(app.id.toString)}">@app.name</a></td>
+                <td><a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a></td>
                 <td>@app.deployedTo.toString.toLowerCase.capitalize</td>
                 <td>@app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
                     case CollaboratorRole.ADMINISTRATOR => "Admin"

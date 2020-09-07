@@ -19,12 +19,12 @@ package connectors
 import java.net.URLEncoder
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify}
 import config.AppConfig
 import model._
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, Matchers}
+import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
+import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,8 +35,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class HttpDeveloperConnectorSpec
   extends UnitSpec
-    with Matchers
     with MockitoSugar
+    with ArgumentMatchersSugar
     with ScalaFutures
     with WiremockSugar
     with BeforeAndAfterEach
@@ -148,7 +148,7 @@ class HttpDeveloperConnectorSpec
       )
       val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.AllStatus))
 
-      verify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
       result shouldBe List(aUserResponse(developerEmail))
 
@@ -163,7 +163,7 @@ class HttpDeveloperConnectorSpec
       )
       val result = await(connector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus))
 
-      verify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
       result shouldBe List(aUserResponse(developerEmail))
 
@@ -178,7 +178,7 @@ class HttpDeveloperConnectorSpec
       )
       val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.VerifiedStatus))
 
-      verify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
       result shouldBe List(aUserResponse(developerEmail))
 
@@ -195,7 +195,7 @@ class HttpDeveloperConnectorSpec
         )
         val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY))
 
-        verify(getRequestedFor(urlPathEqualTo(url)))
+        wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
         result shouldBe List(aUserResponse(developerEmail))
 

@@ -167,7 +167,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                            <td id="app-name-@index">
                                <div class="constrain_width">
                                    <a href="@{
-                                        routes.ApplicationController.applicationPage(application.id.toString)
+                                        routes.ApplicationController.applicationPage(application.id)
                                     }">@application.name</a>
                                </div>
                            </td>
