@@ -16,8 +16,6 @@
 
 package model
 
-import java.util.UUID
-
 import model.AccessType._
 import org.joda.time.DateTime
 import org.scalatest.Matchers

@@ -16,8 +16,6 @@
 
 package services
 
-import java.util.UUID
-
 import config.AppConfig
 import connectors._
 import model.Developer.createUnregisteredDeveloper

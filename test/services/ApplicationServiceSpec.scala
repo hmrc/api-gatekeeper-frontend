@@ -16,15 +16,12 @@
 
 package services
 
-import java.util.UUID
-
 import connectors._
 import model.Environment._
-import model.RateLimitTier.RateLimitTier
 import model.SubscriptionFields._
 import model._
 import org.joda.time.DateTime
-import org.mockito.captor.{ArgCaptor, Captor, ValCaptor}
+import org.mockito.captor.ArgCaptor
 import org.mockito.BDDMockito._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
@@ -503,8 +500,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
-
-      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
 
       val errors = Map("fieldName" -> "failure reason")
 

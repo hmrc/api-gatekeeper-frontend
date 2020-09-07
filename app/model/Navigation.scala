@@ -16,7 +16,6 @@
 
 package model
 
-import config.AppConfig
 import controllers.routes
 import play.api.libs.json.Json
 
