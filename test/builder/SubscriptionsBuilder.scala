@@ -37,7 +37,7 @@ trait SubscriptionsBuilder {
     }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {
-    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$applicationId"), s"context-$applicationId", s"apiVersion-$applicationId", fields = fields)
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), s"context-${applicationId.value}", s"apiVersion-${applicationId.value}", fields = fields)
   }
 
 
