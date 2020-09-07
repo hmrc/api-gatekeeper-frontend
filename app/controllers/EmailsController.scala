@@ -33,9 +33,10 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesChoiceView, EmailPreferencesTopicView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesChoiceView, EmailPreferencesTopicView, EmailPreferencesAPICategoryView, SendEmailChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
+import model.APICategory
 
 @Singleton
 class EmailsController  @Inject()(developerService: DeveloperService,
@@ -46,6 +47,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
                                   emailPreferencesTopicView: EmailPreferencesTopicView,
+                                  emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -89,7 +91,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
         def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
             form.sendEmailPreferences match {
               case SPECIFIC_API => Future.successful(Ok("1"))
-              case TAX_REGIME =>  Future.successful(Ok("2"))
+              case TAX_REGIME =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesAPICategory(None, None)))
               case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
             }
         }
@@ -102,16 +104,40 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
   }
 
-  def emailPreferencesTopic(maybeTopicFilter: Option[String] = None): Action[AnyContent] = {
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
       implicit request => {
         //withName could throw an exception here
-        val maybeTopic = maybeTopicFilter.map(TopicOptionChoice.withName(_))
-        maybeTopic.map(developerService.fetchDevelopersByEmailPreferences).getOrElse(Future.successful(Seq.empty))
+        val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
+        maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(Seq.empty))
         .map(users => Ok(emailPreferencesTopicView(users, usersToEmailCopyText(users) , maybeTopic)))
       }
     }
   }
+
+  def emailPreferencesAPICategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = {
+    requiresAtLeast(GatekeeperRole.USER) {
+      implicit request => {
+        val topicAndCategory: Option[(TopicOptionChoice, String)] =
+        for{
+          topic <- selectedTopic.map(TopicOptionChoice.withName)
+          category <- selectedCategory.filter(!_.isEmpty)
+        } yield (topic, category)
+       
+        
+        //TODO - add category filter to getting users
+       for{
+         categories <- apiDefinitionService.apiCategories
+         users <-  topicAndCategory.map(tup=>
+           developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2))
+           .getOrElse(Future.successful(Seq.empty))
+         
+       } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))
+      }
+    }
+  }
+
+
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>

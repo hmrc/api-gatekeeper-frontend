@@ -16,8 +16,6 @@
 
 package views.review
 
-import java.util.UUID
-
 import controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, _}

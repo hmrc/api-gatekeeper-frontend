@@ -23,17 +23,6 @@
 @(users: Seq[User], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
-    @buildTopicOptionRow(topic: TopicOptionChoice) = {
-        <div class="multiple-choice">
-
-            <input id="@topic.toString" name="topicOptionChoice" aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
-
-            <label class="form-label-bold" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
-                <span><div class="font-small text-secondary">@TopicOptionChoice.optionHint(topic)</div></span>
-            </label>
-        </div>
-    }
-
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {
 
     <div class="content__body full-width">
@@ -44,13 +33,13 @@
         <div class="form-group">
             <fieldset class=" govuk-fieldset">
                 <legend class="form-label-bold">
-                    <h1>Email users interested in a topic</h1>
+                    <h1 id="pageTitle">Email users interested in a topic</h1>
                 </legend>
-                <div class="govuk-radios">
-                    @buildTopicOptionRow(TopicOptionChoice.BUSINESS_AND_POLICY)
-                    @buildTopicOptionRow(TopicOptionChoice.TECHNICAL)
-                    @buildTopicOptionRow(TopicOptionChoice.RELEASE_SCHEDULES)
-                    @buildTopicOptionRow(TopicOptionChoice.EVENT_INVITES)
+                <div class="govuk-radios govuk-radios--small">
+                    @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
+                    @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
+                    @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
+                    @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
                 </div>
             </fieldset>
             @if(maybeTopicFilter.isDefined) {

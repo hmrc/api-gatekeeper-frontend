@@ -17,7 +17,6 @@
 package utils
 
 import org.jsoup.nodes.{Document, Element}
-import org.jsoup.select.Elements
 
 import scala.collection.JavaConverters._
 

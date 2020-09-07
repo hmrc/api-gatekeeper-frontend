@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
 
-class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper{
+class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -99,26 +99,6 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper{
 
     }
 
-    def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit ={
-      val checkedRadio = getElementBySelector(document, "input[checked]")
-      checkedRadio.isDefined mustBe true
-      checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) mustBe shouldBeChecked
-    }
-
-    def noInputChecked(document: Document): Unit ={
-      val checkedRadio = getElementBySelector(document, "input[checked]")
-      checkedRadio.isDefined mustBe false
-    }
-
-
-    def checkElementsExistById(document: Document, ids: Seq[String]): Unit ={
-      ids.foreach(id => {
-        withClue(s"$id element exists?:") {
-          elementExistsById(document, id) mustBe true
-        }
-        ()
-      })
-    }
   }
 
 }

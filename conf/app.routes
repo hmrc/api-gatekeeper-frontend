@@ -84,4 +84,6 @@ GET         /emails/api-subscribers                                             
 
 GET         /emails/email-preferences                                           controllers.EmailsController.emailPreferencesChoice()
 POST        /emails/email-preferences                                           controllers.EmailsController.chooseEmailPreferences()
-GET         /emails/email-preferences/topic                                     controllers.EmailsController.emailPreferencesTopic(topicOptionChoice: Option[String])
+GET         /emails/email-preferences/by-topic                                  controllers.EmailsController.emailPreferencesTopic(selectedTopic: Option[String])
+GET         /emails/email-preferences/by-api-category                           controllers.EmailsController.emailPreferencesAPICategory(selectedTopic: Option[String], selectedCategory:Option[String])
+

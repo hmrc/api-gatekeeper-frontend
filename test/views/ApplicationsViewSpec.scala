@@ -32,8 +32,6 @@
 
 package views
 
-import java.util.UUID
-
 import config.AppConfig
 import model.APIStatus._
 import model.{LoggedInUser, _}

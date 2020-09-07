@@ -49,13 +49,13 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec {
       elementExistsByText(document, "h1", "Who do you want to email?") mustBe true
 
       verifyEmailOptions(SPECIFIC_API, document, isDisabled = true)
-      verifyEmailOptions(TAX_REGIME, document, isDisabled = true)
-      verifyEmailOptions(TOPIC, document, isDisabled = false)
+      verifyEmailOptions(TAX_REGIME, document)
+      verifyEmailOptions(TOPIC, document)
 
     }
   }
 
-  def verifyEmailOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean): Unit ={
+  def verifyEmailOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit ={
     elementExistsById(document, option.toString) mustBe true
     elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
     elementExistsContainsText(document, "label",  optionHint(option)) mustBe true

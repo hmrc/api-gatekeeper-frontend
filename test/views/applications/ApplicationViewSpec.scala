@@ -16,8 +16,6 @@
 
 package views.applications
 
-import java.util.UUID
-
 import builder.SubscriptionsBuilder
 import model.{LoggedInUser, _}
 import org.joda.time.DateTime
@@ -26,8 +24,8 @@ import org.jsoup.Jsoup
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
-import views.html.applications.ApplicationView
 import views.CommonViewSpec
+import views.html.applications.ApplicationView
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
   trait Setup {

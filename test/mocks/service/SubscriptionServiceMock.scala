@@ -21,7 +21,6 @@ import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, 
 import org.mockito.BDDMockito.`given`
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 

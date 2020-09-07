@@ -57,6 +57,17 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) extends Ret
     }
   }
 
+  def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[APICategory]] = {
+    retry {
+      http.GET[List[APICategory]](s"$serviceBaseUrl/api-categories")
+        .recover {
+          case _: Upstream5xxResponse => throw new FetchApiCategoriesFailed
+        }
+    }
+  }
+
+
+
 }
 
 @Singleton
