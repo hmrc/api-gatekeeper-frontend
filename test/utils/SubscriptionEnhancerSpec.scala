@@ -34,8 +34,8 @@ class SubscriptionEnhancerSpec extends UnitSpec {
         createApplicationResponse("Unkown Subscription App", Seq(SubscriptionNameAndVersion("unknown","1.0")))
       )
 
-      val apiDefinitions = Seq(createDefinition("Hello World", "hello"),
-        createDefinition("Employers PAYE", "employers-paye"))
+      val apiDefinitions = Seq(createDefinition("Hello World", ApiContext("hello")),
+        createDefinition("Employers PAYE", ApiContext("employers-paye")))
 
       val result: PaginatedDetailedSubscribedApplicationResponse = subscriptionEnhancer.combine(PaginatedSubscribedApplicationResponse(appResponses, 1, 3, 3, 3), apiDefinitions)
 
@@ -49,13 +49,13 @@ class SubscriptionEnhancerSpec extends UnitSpec {
       }
 
       "Retain the context information" in {
-        result.applications.head.subscriptions.exists(_.context == "hello") should be(true)
-        result.applications.tail.head.subscriptions.exists(_.context == "employers-paye") should be(true)
+        result.applications.head.subscriptions.exists(_.apiContext.value == "hello") should be(true)
+        result.applications.tail.head.subscriptions.exists(_.apiContext.value == "employers-paye") should be(true)
       }
 
       "Make no changes to the subscription details if no definition can be found" in {
         result.applications.tail.tail.head.subscriptions.head.name should be("unknown")
-        result.applications.tail.tail.head.subscriptions.head.context should be("unknown")
+        result.applications.tail.tail.head.subscriptions.head.apiContext.value should be("unknown")
       }
 
       "Handle combining no application responses gracefully" in {
@@ -69,8 +69,8 @@ class SubscriptionEnhancerSpec extends UnitSpec {
     SubscribedApplicationResponse(ApplicationId(java.util.UUID.randomUUID().toString()), name, Some("Description"),
       Set.empty, DateTime.now(), ApplicationState(), Standard(), subs, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
 
-  def createDefinition(name: String, context:String) = {
-    APIDefinition("TestService", "localhost", name, "Test Description", context,
+  def createDefinition(name: String, apiContext: ApiContext) = {
+    APIDefinition("TestService", "localhost", name, "Test Description", apiContext,
       Seq(APIVersion("1.0", APIStatus.STABLE, None)), None)
   }
 }

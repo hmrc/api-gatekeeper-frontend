@@ -69,13 +69,19 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiIdentifier = APIIdentifier("a-context","1.0")
+    val apiIdentifier = APIIdentifier(ApiContext.random,"1.0")
 
-    val context = apiIdentifier.context
+    val context = apiIdentifier.apiContext
     val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
+    val testContext = ApiContext("test-context")
+    val unknownContext = ApiContext("unknown-context")
+    val superContext = ApiContext("super-context")
+    val sandboxTestContext = ApiContext("sandbox-test-context")
+    val sandboxUnknownContext = ApiContext("sandbox-unknown-context")
+    val sandboxSuperContext = ApiContext("sandbox-super-context")
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
@@ -95,9 +101,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allProductionApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("test-context", "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("super-context", "1.0"), allProductionApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(testContext, "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(unknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(superContext, "1.0"), allProductionApplications.map(_.id.toString)))
 
       given(mockProductionApplicationConnector.fetchAllSubscriptions()(*))
         .willReturn(Future.successful(subscriptions))
@@ -120,9 +126,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
 
 
       given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))
@@ -146,9 +152,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
 
 
       given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))

@@ -23,6 +23,7 @@ import services.ApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import model.ApiContext
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
@@ -61,7 +62,7 @@ trait ActionBuilders extends ErrorHelper {
   }
 
   def withAppAndSubscriptionVersion(appId: ApplicationId,
-                                    apiContext: String,
+                                    apiContext: ApiContext,
                                     apiVersion: String)
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])
                                    (implicit request: LoggedInRequest[_],
@@ -71,7 +72,7 @@ trait ActionBuilders extends ErrorHelper {
     withAppAndSubscriptions(appId) {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
         (for{
-          subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
+          subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.apiContext == apiContext)
           version <- subscription.versions.find(v => v.version.version == apiVersion)
         } yield action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version)))
           .getOrElse(Future.successful(notFound("Subscription or version not found")))

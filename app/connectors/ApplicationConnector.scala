@@ -32,6 +32,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
 import model.Subscription._
+import model.ApiContext
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -170,8 +171,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
-  def unsubscribeFromApi(applicationId: ApplicationId, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription?context=$context&version=$version") map { _ =>
+  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=$version") map { _ =>
       ApplicationUpdateSuccessResult
     }
   }
@@ -243,9 +244,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     encode(str, encoding)
   }
 
-  def searchCollaborators(apiContext: String, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: String, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     val queryParameters = List(
-      "context" -> apiContext,
+      "context" -> apiContext.value,
       "version" -> apiVersion
     )
 

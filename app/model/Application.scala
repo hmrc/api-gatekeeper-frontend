@@ -338,7 +338,8 @@ object PaginatedDetailedSubscribedApplicationResponse {
     new PaginatedDetailedSubscribedApplicationResponse(applications, psar.page, psar.pageSize, psar.total, psar.matching)
 }
 
-case class SubscriptionDetails(name: String, context: String, version: String)
+// TODO: Try to refactor this as name and apiContext seem to be the same thing!!ApplicationsViewSpec
+case class SubscriptionDetails(name: String, apiContext: ApiContext, version: String)
 
 
 object DetailedSubscribedApplicationResponse {

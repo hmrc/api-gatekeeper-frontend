@@ -17,14 +17,15 @@
 package model
 
 import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
+import model.ApiContext
 
 case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              maybeApiFilter: Option[ApiContextVersion] = None,
                              environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
-case class ApiContextVersion(context: String, version: String) {
-  def toStringValue: String = s"${context}__$version"
+case class ApiContextVersion(apiContext: ApiContext, version: String) {
+  def toStringValue: String = s"${apiContext}__$version"
 }
 
 object ApiContextVersion {
@@ -33,7 +34,7 @@ object ApiContextVersion {
   def apply(value: Option[String]): Option[ApiContextVersion] = {
     value match {
       case None => None
-      case Some(ApiIdPattern(context, version)) => Some(ApiContextVersion(context, version))
+      case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), version))
       case _ => throw new Exception("Invalid API context or version")
     }
   }

@@ -70,8 +70,8 @@
                                     </div>
                                     <div class="accordion__body__row__right">
                                         <div class="float--right">
-                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
-                                                @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id, subscription.context, version.version.version), 'class -> "form") {
+                                            <div id="toggle-@IdFormatter.identifier(subscription.apiContext, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.ApplicationController.unsubscribeFromApi(application.id, subscription.apiContext, version.version.version), 'class -> "form") {
                                                     @helper.CSRF.formField
                                                     <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
                                                                 subscription.name
@@ -80,7 +80,7 @@
                                                             } @{
                                                                 version.version.displayedStatus
                                                             }">On</span>
-                                                    <button type="submit" data-api-unsubscribe="@IdFormatter.identifier(subscription.context, version.version.version)"
+                                                    <button type="submit" data-api-unsubscribe="@IdFormatter.identifier(subscription.apiContext, version.version.version)"
                                                            class="toggle__button" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
                                                                 subscription.name
                                                             } version @{
@@ -90,8 +90,8 @@
                                                             }">Off</button>
                                                 }
                                             </div>
-                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
-                                                @helper.form(action = routes.ApplicationController.subscribeToApi(application.id, subscription.context, version.version.version), 'class -> "form") {
+                                            <div id="toggle-@IdFormatter.identifier(subscription.apiContext, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.ApplicationController.subscribeToApi(application.id, subscription.apiContext, version.version.version), 'class -> "form") {
                                                     @helper.CSRF.formField
                                                     <button type="submit" class="toggle__button"
                                                        data-toggle-subscribe="on" aria-label="Subscribed to @{

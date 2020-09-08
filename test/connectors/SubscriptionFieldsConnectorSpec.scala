@@ -35,13 +35,14 @@ import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ClientId
+import model.ApiContext
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val clientId = ClientId.random
-  private val apiContext = "i-am-a-test"
+  private val apiContext = ApiContext.random
   private val apiVersion = "1.0"
   private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()

@@ -49,10 +49,10 @@ class ApplicationsViewSpec extends CommonViewSpec {
     implicit val loggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, APIIdentifier("dummy-api", "1.0"))),
-      displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier("beta-api", "1.0"))),
-      displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier("ret-api", "1.0"))),
-      displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier("dep-api", "1.0")))
+      displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, APIIdentifier(ApiContext("dummy-api"), "1.0"))),
+      displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier(ApiContext("beta-api"), "1.0"))),
+      displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier(ApiContext("ret-api"), "1.0"))),
+      displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier(ApiContext("dep-api"), "1.0")))
     )
     val applications = Seq[DetailedSubscribedApplicationResponse](
       DetailedSubscribedApplicationResponse(ApplicationId.random, "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),

@@ -99,7 +99,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
       val apps = par.applications.map(ar => {
         val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
-          .map(sub => SubscriptionNameAndVersion(sub.apiIdentifier.context, sub.apiIdentifier.version)).sortBy(sub => sub.name)
+        .map(sub => SubscriptionNameAndVersion(sub.apiIdentifier.apiContext.value, sub.apiIdentifier.version)).sortBy(sub => sub.name)
         SubscribedApplicationResponse.createFrom(ar, filteredSubs)
       }).distinct
 
@@ -124,7 +124,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                   subscription: SubscriptionWithoutFields,
                                   version: VersionSubscriptionWithoutFields): Future[VersionSubscription] = {
 
-    val apiIdentifier = APIIdentifier(subscription.context, version.version.version)
+    val apiIdentifier = APIIdentifier(subscription.apiContext, version.version.version)
 
     subscriptionFieldsService
       .fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, allDefinitionsByApiVersion)
@@ -133,7 +133,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           VersionSubscription(
             version.version,
             version.subscribed,
-            SubscriptionFieldsWrapper(application.id, application.clientId, subscription.context, version.version.version, fields))
+            SubscriptionFieldsWrapper(application.id, application.clientId, subscription.apiContext, version.version.version, fields))
       }
     }
 
@@ -146,7 +146,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
       Future.sequence(apiSubscriptionStatuses)
         .map(versionSubscrioptions => {
-            Subscription(subscription.name, subscription.serviceName, subscription.context, versionSubscrioptions)
+            Subscription(subscription.name, subscription.serviceName, subscription.apiContext, versionSubscrioptions)
         })
     }
 
@@ -210,7 +210,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).manageIpWhitelist(application.id, whitelistedIp)
   }
 
-  def subscribeToApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def subscribeToApi(application: Application, context: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     val applicationConnector: ApplicationConnector = applicationConnectorFor(application)
 
     val apiIdentifier = APIIdentifier(context, version)
@@ -246,7 +246,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       .flatMap(_ => subscribeResponse)
   }
 
-  def unsubscribeFromApi(application: Application, context: String, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def unsubscribeFromApi(application: Application, context: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
       applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 

@@ -61,7 +61,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       }
 
     val allCollaboratorEmailsFutures: Seq[Future[Seq[String]]] = environmentApplicationConnectors
-      .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter))
+      .map(_.searchCollaborators(apiFilter.apiContext, apiFilter.version, maybeEmailFilter))
 
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }

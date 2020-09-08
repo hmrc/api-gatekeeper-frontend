@@ -59,6 +59,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     val developerUser = aUser("developer1")
     val developerTeamMember = Collaborator(developerUser.email, CollaboratorRole.DEVELOPER)
     val commonUsers = Seq(verifiedAdminUser, unverifiedAdminUser, developerUser)
+    val apiContext = ApiContext("api")
+    val apiVersion = "1.0"
 
     implicit val hc = HeaderCarrier()
 
@@ -364,14 +366,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
 
-      val filter = Developers2Filter(environmentFilter = AnyEnvironment, maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+      val filter = Developers2Filter(environmentFilter = AnyEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(user1, user2)
 
-      verify(mockProductionApplicationConnector).searchCollaborators("api", "1.0", None)
-      verify(mockSandboxApplicationConnector).searchCollaborators("api", "1.0", None)
+      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
+      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
 
     "find by api context and version where same email in production and sandbox" in new Setup {
@@ -384,7 +386,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
 
-      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+      val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -404,16 +406,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
+        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq(email1, email2, email3))
 
       when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
+        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
 
-      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+      val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -450,17 +452,17 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val emailFilter = "emailFilter"
 
       when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
+        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq(email1, email2, email3, email4))
 
       when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo("api"), eqTo("1.0"), eqTo(Some(emailFilter)))(*))
+        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(Seq.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(Seq(user1, user2, user3))
 
       val filter = Developers2Filter(maybeEmailFilter =
-        Some(emailFilter), maybeApiFilter = Some(ApiContextVersion("api", "1.0")), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
+        Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -499,13 +501,13 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
 
-      val filter = Developers2Filter(environmentFilter = ProductionEnvironment, maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+      val filter = Developers2Filter(environmentFilter = ProductionEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(productionUser)
 
-      verify(mockProductionApplicationConnector).searchCollaborators("api", "1.0", None)
+      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
       verify(mockSandboxApplicationConnector, never).searchCollaborators(*, *, *)(*)
     }
 
@@ -522,14 +524,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
 
-      val filter = Developers2Filter(environmentFilter = SandboxEnvironment, maybeApiFilter = Some(ApiContextVersion("api", "1.0")))
+      val filter = Developers2Filter(environmentFilter = SandboxEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(sandboxUser)
 
       verify(mockProductionApplicationConnector, never).searchCollaborators(*, *, *)(*)
-      verify(mockSandboxApplicationConnector).searchCollaborators("api", "1.0", None)
+      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }
    "developerService fetchDevelopersByEmailPreferences" should {
