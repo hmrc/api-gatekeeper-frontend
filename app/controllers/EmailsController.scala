@@ -101,21 +101,19 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
       }
     }
-
   }
 
-  def emailPreferencesSpecificApis(apiFilter: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def emailPreferencesSpecificApis(selectedAPIs: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      for{
+      for {
         apis <- apiDefinitionService.fetchAllApiDefinitions()
-        selectedApis <- Future.successful(filterSelectedApis(apiFilter, apis))
-      }yield Ok(emailPreferencesSpecificApiView(selectedApis))
+        selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
+      } yield Ok(emailPreferencesSpecificApiView(selectedApis))
 
   }
 
-  def filterSelectedApis(maybeFilter: Option[Seq[String]], apiList: Seq[APIDefinition])={
-      maybeFilter.fold(Seq.empty[APIDefinition]){apiFilter => apiList.filter(api=> apiFilter.contains(api.serviceName))}
-  }
+  private def filterSelectedApis(maybeSelectedAPIs: Option[Seq[String]], apiList: Seq[APIDefinition])=
+      maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api=> selectedAPIs.contains(api.serviceName)))
 
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {
