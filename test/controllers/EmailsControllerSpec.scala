@@ -53,6 +53,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   val apiVersion1 = ApiVersion("1")
   val apiVersion3 = ApiVersion("3")
 
+  private lazy val emailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
   running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -88,8 +89,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val unVerifiedUser1: User = User("user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
 
-      val category1 = APICategory("EXAMPLE", "Example") 
-      val category2 = APICategory("VAT", "Vat") 
+      val category1 = APICategory("EXAMPLE", "Example")
+      val category2 = APICategory("VAT", "Vat")
       val category3 = APICategory("AGENTS", "Agents")
 
       def givenVerifiedDeveloper(): Unit = {
@@ -111,7 +112,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[User]) = {
-         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[String])(any[HeaderCarrier])).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[String])(any[HeaderCarrier])).thenReturn(Future.successful(users))
       }
 
       def givenNoVerifiedDevelopers(): Unit = {
@@ -126,7 +127,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .thenReturn(Future.successful(Seq(api1, api2)))
       }
 
-     def givenApiDefinition3Categories() = {
+      def givenApiDefinition3Categories() = {
 
         when(mockApiDefinitionService.apiCategories()(any[HeaderCarrier]))
           .thenReturn(Future.successful(List(category1, category2, category3)))
@@ -142,6 +143,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailPreferencesChoiceView,
         emailPreferencesTopicView,
         emailPreferencesAPICategoryView,
+        emailPreferencesSpecificApiView,
         mockApplicationService,
         forbiddenView,
         mockAuthConnector,
@@ -378,12 +380,23 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     }
 
+    "email preferences specific api page" should {
+      "render the view correctly when no filter selected" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/by-specific-api")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
+        status(eventualResult) shouldBe OK
+
+        verifyZeroInteractions(mockDeveloperService)
+      }
+    }
 
     "email preferences topic page" should {
       "render the view correctly when no filter selected" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
 
-        val request = createGetRequest("/emails/api-subscribers/email-preferences/topic")
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/by-topic")
         val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
         status(eventualResult) shouldBe OK
 
@@ -421,49 +434,49 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     }
 
-     "Email preferences API Category page" should {
-          "render the view correctly when no filters selected" in new Setup {
-              givenTheUserIsAuthorisedAndIsANormalUser()
-              givenApiDefinition3Categories()
-              givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
+    "Email preferences API Category page" should {
+      "render the view correctly when no filters selected" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition3Categories()
+       // givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
 
-              val request = createGetRequest("/emails/email-preferences/by-api-category")
-              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory()(request)
-              status(eventualResult) shouldBe OK
+        val request = createGetRequest("/emails/email-preferences/by-api-category")
+        val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory()(request)
+        status(eventualResult) shouldBe OK
 
-              verifyZeroInteractions(mockDeveloperService)
-          }
-
-
-          "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
-              givenTheUserIsAuthorisedAndIsANormalUser()
-              givenApiDefinition3Categories()
-              givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
-              val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
-              status(eventualResult) shouldBe OK
-
-              val responseBody = Helpers.contentAsString(eventualResult)
-
-              verifyUserTable(responseBody, Seq.empty)
-          }
-
-           "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
-              givenTheUserIsAuthorisedAndIsANormalUser()
-              givenApiDefinition3Categories()
-              givenfetchDevelopersByAPICategoryEmailPreferences(users)
-              val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-              val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
-              status(eventualResult) shouldBe OK
-
-              val responseBody = Helpers.contentAsString(eventualResult)
-
-              verifyUserTable(responseBody, users)
+        verifyZeroInteractions(mockDeveloperService)
+      }
 
 
-            }
+      "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition3Categories()
+        givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
+        val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
+        val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
+        status(eventualResult) shouldBe OK
 
-        }
+        val responseBody = Helpers.contentAsString(eventualResult)
+
+        verifyUserTable(responseBody, Seq.empty)
+      }
+
+      "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition3Categories()
+        givenfetchDevelopersByAPICategoryEmailPreferences(users)
+        val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
+        val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
+        status(eventualResult) shouldBe OK
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+
+        verifyUserTable(responseBody, users)
+
+
+      }
+
+    }
 
   }
 
@@ -481,7 +494,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         responseBody should include(raw"""<td id="dev-sn-${index}">${user.lastName}</td>""")
       }
     } else {
-      if(showZeroUsers){
+      if (showZeroUsers) {
         responseBody should include("<div>0 results</div>")
       }
     }

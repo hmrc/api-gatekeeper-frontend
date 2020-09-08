@@ -24,7 +24,7 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
+import model.{APICategory, APIDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -33,10 +33,9 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesChoiceView, EmailPreferencesTopicView, EmailPreferencesAPICategoryView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, SendEmailChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.APICategory
 
 @Singleton
 class EmailsController  @Inject()(developerService: DeveloperService,
@@ -48,6 +47,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
                                   emailPreferencesTopicView: EmailPreferencesTopicView,
                                   emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView,
+                                  emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -90,7 +90,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       implicit request => {
         def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
             form.sendEmailPreferences match {
-              case SPECIFIC_API => Future.successful(Ok("1"))
+              case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.emailPreferencesSpecificApis(None)))
               case TAX_REGIME =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesAPICategory(None, None)))
               case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
             }
@@ -102,6 +102,19 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       }
     }
 
+  }
+
+  def emailPreferencesSpecificApis(apiFilter: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      for{
+        apis <- apiDefinitionService.fetchAllApiDefinitions()
+        selectedApis <- Future.successful(filterSelectedApis(apiFilter, apis))
+      }yield Ok(emailPreferencesSpecificApiView(selectedApis))
+
+  }
+
+  def filterSelectedApis(maybeFilter: Option[Seq[String]], apiList: Seq[APIDefinition])={
+      maybeFilter.fold(Seq.empty[APIDefinition]){apiFilter => apiList.filter(api=> apiFilter.contains(api.serviceName))}
   }
 
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
@@ -123,9 +136,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
           topic <- selectedTopic.map(TopicOptionChoice.withName)
           category <- selectedCategory.filter(!_.isEmpty)
         } yield (topic, category)
-       
-        
-        //TODO - add category filter to getting users
+
        for{
          categories <- apiDefinitionService.apiCategories
          users <-  topicAndCategory.map(tup=>

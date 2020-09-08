@@ -16,6 +16,7 @@
 
 package model
 
+
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
