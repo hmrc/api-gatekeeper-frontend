@@ -112,7 +112,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
 
-    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/$apiContext/version/$apiVersion"
+    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.value}/version/$apiVersion"
 
     "return subscription fields for an API" in new Setup {
       when(mockHttpClient

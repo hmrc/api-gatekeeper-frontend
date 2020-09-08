@@ -17,7 +17,6 @@
 package model
 
 import model.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
-import model.ApiContext
 
 case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              maybeApiFilter: Option[ApiContextVersion] = None,
@@ -25,7 +24,7 @@ case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
 case class ApiContextVersion(apiContext: ApiContext, version: String) {
-  def toStringValue: String = s"${apiContext}__$version"
+  def toStringValue: String = s"${apiContext.value}__$version"
 }
 
 object ApiContextVersion {

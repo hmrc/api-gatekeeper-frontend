@@ -359,9 +359,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email1 = user1.email
       private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(user1.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(user2.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
@@ -379,9 +379,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(user.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(user.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
@@ -494,9 +494,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email1 = productionUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
@@ -508,7 +508,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       result shouldBe List(productionUser)
 
       verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *, *)(*)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -517,9 +517,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email2 = sandboxUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*, *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
@@ -530,7 +530,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*, *, *)(*)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *, *)(*)
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }

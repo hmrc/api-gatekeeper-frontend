@@ -410,7 +410,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   "unsubscribeFromApi" should {
     val apiContext = ApiContext.random
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value}/subscription?context=hello&version=1.0"
+    val url = s"$baseUrl/application/${applicationId.value}/subscription?context=${apiContext.value}&version=1.0"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       when(mockHttpClient.DELETE[HttpResponse](eqTo(url), *)(*, *, *))
@@ -601,7 +601,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     val apiContext = ApiContext.random
 
     "return emails" in new Setup {
-      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+      val expectedQueryParams = Seq("context" -> apiContext.value, "version" -> "1.0")
       private val email = "user@example.com"
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *))
         .thenReturn(Future.successful(Seq(email)))
@@ -617,7 +617,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       private val email = "user@example.com"
 
       val expectedQueryParams = Seq(
-        "context" -> "api-context", "version" -> "1.0",
+        "context" -> apiContext.value, "version" -> "1.0",
         "partialEmailMatch" -> email)
 
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *))
@@ -631,7 +631,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
-      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+      val expectedQueryParams = Seq("context" -> apiContext.value, "version" -> "1.0")
       private val email = "user@example.com"
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)).thenReturn(

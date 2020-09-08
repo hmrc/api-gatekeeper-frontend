@@ -116,8 +116,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def givenApiDefinition2Apis() = {
-        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None)
-        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None)
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(APIVersion("1", APIStatus.BETA)), None)
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(APIVersion("3", APIStatus.STABLE)), None)
         when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
           .thenReturn(Future.successful(Seq(api1, api2)))
       }

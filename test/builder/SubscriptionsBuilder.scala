@@ -24,10 +24,10 @@ import model.ApiContext
 
 trait SubscriptionsBuilder {
 
-  def buildSubscription(name: String, context: Option[String] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
+  def buildSubscription(name: String, context: Option[ApiContext] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
     Subscription(name = name,
       serviceName = s"service-$name",
-      apiContext = ApiContext(context.getOrElse(s"context-$name")),
+      apiContext = context.getOrElse(ApiContext(s"context-$name")),
       versions = versions)
   }
 
