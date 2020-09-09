@@ -38,6 +38,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
   trait Setup {
     implicit val hc = HeaderCarrier()
     val connector = app.injector.instanceOf[ProductionApiDefinitionConnector]
+    val apiContext = ApiContext("dummy-api")
   }
 
   "API status mapping" should {
@@ -79,7 +80,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", ApiContext("dummy-api"),
+        "dummyAPI", "dummy api.", apiContext,
         Seq(APIVersion("1.0", APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
 
@@ -121,7 +122,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", ApiContext("dummy-api"),
+        "dummyAPI", "dummy api.", apiContext,
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
   }
