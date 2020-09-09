@@ -24,7 +24,9 @@ import scala.util.Try
 import scala.util.Random
 import java.net.URLEncoder.encode
 
-case class ApiContext(value: String) extends AnyVal
+case class ApiContext(value: String) extends AnyVal {
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
+}
 
 object ApiContext {
 
@@ -35,8 +37,6 @@ object ApiContext {
   }
 
   def random = ApiContext(Random.nextString(10))
-
-  def urlEncode(apiContext: ApiContext, encoding: String = "UTF-8") = encode(apiContext.value, encoding)
 }
 
 case class APIDefinition(serviceName: String,

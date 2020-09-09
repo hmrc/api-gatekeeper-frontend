@@ -40,7 +40,9 @@ object ApplicationId {
   def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
 }
 
-case class ClientId(value: String) extends AnyVal
+case class ClientId(value: String) extends AnyVal {
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
+}
 
 object ClientId {
   import play.api.libs.json.Json
@@ -48,7 +50,6 @@ object ClientId {
 
   def empty: ClientId = ClientId("")
   def random: ClientId = ClientId(UUID.randomUUID().toString())
-  def urlEncode(clientId: ClientId, encoding: String = "UTF-8") = encode(clientId.value, encoding)
 }
 
 trait Application {
