@@ -17,6 +17,7 @@
 package model
 
 import java.util.UUID
+import java.net.URLEncoder.encode
 
 import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
@@ -47,6 +48,7 @@ object ClientId {
 
   def empty: ClientId = ClientId("")
   def random: ClientId = ClientId(UUID.randomUUID().toString())
+  def urlEncode(clientId: ClientId, encoding: String = "UTF-8") = encode(clientId.value, encoding)
 }
 
 trait Application {

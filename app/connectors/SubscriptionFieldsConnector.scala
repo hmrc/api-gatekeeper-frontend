@@ -152,10 +152,10 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: String) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiContext.value)}/version/${urlEncode(apiVersion)}"
+    s"$serviceBaseUrl/field/application/${ClientId.urlEncode(clientId)}/context/${ApiContext.urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: String) =
-    s"$serviceBaseUrl/definition/context/${urlEncode(apiContext.value)}/version/${urlEncode(apiVersion)}"
+    s"$serviceBaseUrl/definition/context/${ApiContext.urlEncode(apiContext)}/version/${urlEncode(apiVersion)}"
 
   private def recovery[T](value: T): PartialFunction[Throwable, T] = {
     case _: NotFoundException => value
