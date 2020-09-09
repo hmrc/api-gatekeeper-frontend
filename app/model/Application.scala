@@ -17,6 +17,7 @@
 package model
 
 import java.util.UUID
+import java.net.URLEncoder.encode
 
 import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
@@ -39,7 +40,9 @@ object ApplicationId {
   def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
 }
 
-case class ClientId(value: String) extends AnyVal
+case class ClientId(value: String) extends AnyVal {
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
+}
 
 object ClientId {
   import play.api.libs.json.Json

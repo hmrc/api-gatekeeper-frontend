@@ -38,20 +38,20 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
   trait Setup {
     implicit val hc = HeaderCarrier()
     val connector = app.injector.instanceOf[ProductionApiDefinitionConnector]
-    val apiContext = ApiContext("dummy-api")
+    val apiContext = ApiContext.random
   }
 
   "API status mapping" should {
     "map API status of PROTOTYPED to BETA" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-        """
+        s"""
           |[
           | {
           |   "serviceName": "dummyAPI",
           |   "serviceBaseUrl": "http://localhost/",
           |   "name": "dummyAPI",
           |   "description": "dummy api.",
-          |   "context": "dummy-api",
+          |   "context": "${apiContext.value}",
           |   "versions": [
           |     {
           |       "version": "1.0",
@@ -86,14 +86,14 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
 
     "map API status of PUBLISHED to STABLE" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
-        """
+        s"""
           |[
           | {
           |   "serviceName": "dummyAPI",
           |   "serviceBaseUrl": "http://localhost/",
           |   "name": "dummyAPI",
           |   "description": "dummy api.",
-          |   "context": "dummy-api",
+          |   "context": "${apiContext.value}",
           |   "versions": [
           |     {
           |       "version": "1.0",
