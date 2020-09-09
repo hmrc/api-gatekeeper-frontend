@@ -25,7 +25,7 @@ trait SubscriptionEnhancer {
               definitions: Seq[APIDefinition]): PaginatedDetailedSubscribedApplicationResponse = {
     val apps = appResponse.applications.map { ar =>
       val details = ar.subscriptions.map(sub =>
-        SubscriptionDetails(definitions.find(_.apiContext.value == sub.name) match {
+        SubscriptionDetails(definitions.find(_.context.value == sub.name) match {
           case Some(x) => x.name
           case _ => {
             Logger.warn(s"Could not map subscription ${sub.name} to an existing context")

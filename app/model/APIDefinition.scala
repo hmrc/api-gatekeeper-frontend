@@ -36,13 +36,13 @@ object ApiContext {
   def random = ApiContext(Random.nextString(10))
 }
 
-case class APIDefinition( serviceName: String,
-                          serviceBaseUrl: String,
-                          name: String,
-                          description: String,
-                          apiContext: ApiContext,
-                          versions: Seq[APIVersion],
-                          requiresTrust: Option[Boolean]) {
+case class APIDefinition(serviceName: String,
+                         serviceBaseUrl: String,
+                         name: String,
+                         description: String,
+                         context: ApiContext,
+                         versions: Seq[APIVersion],
+                         requiresTrust: Option[Boolean]) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.toDouble > v2.version.version.toDouble

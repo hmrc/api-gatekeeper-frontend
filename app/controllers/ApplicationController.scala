@@ -375,7 +375,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     val versions = for {
       api <- apis
       version <- api.versions
-    } yield VersionSummary(api.name, version.status, APIIdentifier(api.apiContext, version.version))
+    } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
 
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }
