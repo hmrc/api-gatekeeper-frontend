@@ -18,7 +18,7 @@ package controllers
 
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
-import model.EmailPreferencesChoice.{EmailPreferencesChoice, TAX_REGIME, TOPIC}
+import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.Environment.Environment
 import model.TopicOptionChoice._
 import model._
@@ -221,7 +221,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
 
+        val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API)))
+
+        status(result) shouldBe SEE_OTHER
+        result.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api")
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
