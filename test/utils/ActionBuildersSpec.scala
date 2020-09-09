@@ -142,7 +142,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   "withAppAndSubscriptionVersion" should {
     "fetch subscription and version" in new withSubscription {
       val version = subscription.versions.head
-      val context = subscription.apiContext
+      val context = subscription.context
     
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
@@ -177,7 +177,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
 
-      val apiContext = subscription.apiContext
+      val apiContext = subscription.context
       val invalidVersion = "not-a-version"
 
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, apiContext, invalidVersion)(_ => {

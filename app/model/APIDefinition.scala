@@ -116,7 +116,7 @@ object APIAccessType extends Enumeration {
   val PRIVATE, PUBLIC = Value
 }
 
-case class APIIdentifier(apiContext: ApiContext, version: String)
+case class APIIdentifier(context: ApiContext, version: String)
 object APIIdentifier {
   implicit val format = Json.format[APIIdentifier]
 }
@@ -135,15 +135,15 @@ object SubscriptionResponse {
 
 case class Subscription(name: String,
                         serviceName: String,
-                        apiContext: ApiContext,
+                        context: ApiContext,
                         versions: Seq[VersionSubscription]) {
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
 case class SubscriptionWithoutFields(name: String,
-                        serviceName: String,
-                        apiContext: ApiContext,
-                        versions: Seq[VersionSubscriptionWithoutFields])
+                                     serviceName: String,
+                                     context: ApiContext,
+                                     versions: Seq[VersionSubscriptionWithoutFields])
 
 case class VersionSubscriptionWithoutFields(version: APIVersion, subscribed: Boolean)
 

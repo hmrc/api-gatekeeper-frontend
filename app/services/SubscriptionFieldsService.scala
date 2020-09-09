@@ -36,7 +36,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     if (fieldDefinitions.isEmpty) {
       Future.successful(Seq.empty[SubscriptionFieldValue])
     } else {
-      connector.fetchFieldValues(application.clientId, apiIdentifier.apiContext, apiIdentifier.version)
+      connector.fetchFieldValues(application.clientId, apiIdentifier.context, apiIdentifier.version)
     }
   }
 
@@ -47,7 +47,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
   def fetchFieldDefinitions(deployedTo: String, apiIdentifier: APIIdentifier)
                            (implicit hc: HeaderCarrier) : Future[Seq[SubscriptionFieldDefinition]] = {
     connectorFor(deployedTo)
-      .fetchFieldDefinitions(apiIdentifier.apiContext, apiIdentifier.version)
+      .fetchFieldDefinitions(apiIdentifier.context, apiIdentifier.version)
   }
 
   def fetchFieldsWithPrefetchedDefinitions(application: Application,

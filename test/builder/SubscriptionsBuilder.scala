@@ -27,7 +27,7 @@ trait SubscriptionsBuilder {
   def buildSubscription(name: String, context: Option[ApiContext] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
     Subscription(name = name,
       serviceName = s"service-$name",
-      apiContext = context.getOrElse(ApiContext(s"context-$name")),
+      context = context.getOrElse(ApiContext(s"context-$name")),
       versions = versions)
   }
 

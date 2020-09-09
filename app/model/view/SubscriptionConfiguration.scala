@@ -30,13 +30,13 @@ object SubscriptionVersion {
     for {
       sub <- subscriptionsWithFieldDefinitions
       version <- sub.versions
-    } yield SubscriptionVersion(sub.name, sub.apiContext, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
+    } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
   }
 
   def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : Seq[SubscriptionField]) : SubscriptionVersion = {
     SubscriptionVersion(
       subscription.name,
-      subscription.apiContext,
+      subscription.context,
       version.version.version,
       version.version.displayedStatus, 
       subscriptionFields)

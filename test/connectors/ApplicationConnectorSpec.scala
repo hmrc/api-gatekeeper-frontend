@@ -112,7 +112,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
       val result: Seq[SubscriptionResponse] = await(connector.fetchAllSubscriptions())
 
-      result.head.apiIdentifier.apiContext shouldBe apiContext
+      result.head.apiIdentifier.context shouldBe apiContext
     }
   }
 

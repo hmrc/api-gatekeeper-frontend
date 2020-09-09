@@ -81,7 +81,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
         Future.successful(None)
       }
       else {
-        fetchApplicationApiValues(clientId, apiIdentifier.apiContext, apiIdentifier.version)
+        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
       }
     }
 

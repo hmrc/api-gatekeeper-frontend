@@ -71,7 +71,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     val apiIdentifier = APIIdentifier(ApiContext.random,"1.0")
 
-    val context = apiIdentifier.apiContext
+    val context = apiIdentifier.context
     val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
