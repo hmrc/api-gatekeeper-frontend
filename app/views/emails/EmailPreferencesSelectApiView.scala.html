@@ -41,7 +41,7 @@ name="selectedAPIs">
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
-        <form name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty).url" method="get">
+        <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty).url" method="get">
         <div class="form-group">
             <fieldset class=" govuk-fieldset">
                 <legend class="form-label-bold">

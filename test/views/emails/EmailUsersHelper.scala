@@ -86,6 +86,24 @@ trait EmailUsersHelper extends MustMatchers {
       val formSelector = s"#$formId"
       val maybeForm = getElementBySelector(document, formSelector)
 
+      withClue(s"Form with id $formId was not found") {
+        maybeForm.isDefined mustBe true
+      }
       maybeForm.get.attr("action") mustBe expectedDestination
+    }
+
+    def validateButtonText(document:Document, buttonId: String, expectedButtonText: String)={
+        val maybeButtonElement = getElementBySelector(document, s"#$buttonId")
+          withClue(s"button with id `$buttonId` was not found") {
+            maybeButtonElement.isDefined mustBe true
+          }
+          maybeButtonElement.head.text mustBe expectedButtonText
+    }
+
+    def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition]){
+
+      val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
+      elements.size mustBe selectedAPIs.size
+      elements.map(_.attr("value")) must contain allElementsOf selectedAPIs.map(_.serviceName)
     }
 }

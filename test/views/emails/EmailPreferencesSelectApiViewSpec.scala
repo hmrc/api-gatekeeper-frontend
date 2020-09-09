@@ -42,28 +42,33 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
      val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3")
      val dropDownApis = Seq(api1, api2, api3)
 
+
+    def validateStaticPageElements(document: Document){
+      validatePageHeader(document, "Email users interested in a specific API")
+      validateNonSelectedApiDropDown(document, dropDownApis, "Select an API")
+
+      validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+      validateButtonText(document, "submit", "Select API")
+    }
+
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      validatePageHeader(document, "Email users interested in a specific API")
-      validateNonSelectedApiDropDown(document, dropDownApis, "Select an API")
-  
-      //validate form destination?
-      validateFormDestination(document, "api-filters", "https://foo")
-      //validate button is rendered and text is correct
-
-  
-
-
-
-
+      validateStaticPageElements(document)
     }
     "show correct title and options when selectedAPis are provided" in new Setup {
+      val selectedApis = Seq(api2)
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectApiView.render(dropDownApis, selectedApis, request, LoggedInUser(None), messagesProvider)
+      val document: Document = Jsoup.parse(result.body)
+      validateStaticPageElements(document)
         // As above, check hidden fields
+      validateHiddenSelectedApiValues(document, selectedApis)  
+
     }
+
+
   }
 
   def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
