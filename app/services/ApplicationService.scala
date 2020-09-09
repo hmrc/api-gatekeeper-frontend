@@ -108,15 +108,19 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
     val connector = applicationConnectorFor(env)
 
-    val appsFuture = connector.searchApplications(params)
+    connector.searchApplications(params).map(af => 
+      addSubscriptionsToApplications(af, Seq.empty)
+    )
+
+    
 
     //connector.fetchAllSubscriptions()
-    val subsFuture = Future.successful(Seq.empty)
+    // val subsFuture = Future.successful(Seq.empty)
 
-    for {
-      par: PaginatedApplicationResponse <- appsFuture
-      subs: Seq[SubscriptionResponse] <- subsFuture
-    } yield addSubscriptionsToApplications(par, subs)
+    // for {
+      
+    //   subs: Seq[SubscriptionResponse] <- subsFuture
+    // } yield 
   }
 
   def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
