@@ -94,33 +94,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedSubscribedApplicationResponse] = {
-    def addSubscriptionsToApplications(par: PaginatedApplicationResponse, subscriptions: Seq[SubscriptionResponse]) = {
-
-      val apps = par.applications.map(ar => {
-        val filteredSubs = subscriptions.filter(_.applications.exists(_ == ar.id.toString))
-        .map(sub => SubscriptionNameAndVersion(sub.apiIdentifier.context.value, sub.apiIdentifier.version)).sortBy(sub => sub.name)
-        SubscribedApplicationResponse.createFrom(ar, filteredSubs)
-      }).distinct
-
-      PaginatedSubscribedApplicationResponse(par, apps)
-    }
-
-    val connector = applicationConnectorFor(env)
-
-    connector.searchApplications(params).map(af => 
-      addSubscriptionsToApplications(af, Seq.empty)
-    )
-
-    
-
-    //connector.fetchAllSubscriptions()
-    // val subsFuture = Future.successful(Seq.empty)
-
-    // for {
-      
-    //   subs: Seq[SubscriptionResponse] <- subsFuture
-    // } yield 
+  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
+    applicationConnectorFor(env).searchApplications(params)
   }
 
   def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {

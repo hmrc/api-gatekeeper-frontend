@@ -54,15 +54,15 @@ class ApplicationsViewSpec extends CommonViewSpec {
       displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier(ApiContext("ret-api"), "1.0"))),
       displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier(ApiContext("dep-api"), "1.0")))
     )
-    val applications = Seq[SubscribedApplicationResponse](
-      SubscribedApplicationResponse(ApplicationId.random, "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      SubscribedApplicationResponse(ApplicationId.random, "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      SubscribedApplicationResponse(ApplicationId.random, "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      SubscribedApplicationResponse(ApplicationId.random, "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
+    val applications = Seq[ApplicationResponse](
+      ApplicationResponse(ApplicationId.random, "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      ApplicationResponse(ApplicationId.random, "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      ApplicationResponse(ApplicationId.random, "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
+      ApplicationResponse(ApplicationId.random, "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
     )
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
-    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
-    val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedSubscribedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
+    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
+    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
+    val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
     val applicationViewWithApplicationDocument = Jsoup.parse(applicationViewWithApplication().body)
   }
 
