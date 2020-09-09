@@ -27,7 +27,7 @@ class ApiContextVersionSpec extends UnitSpec with Matchers {
       val apiContextVersion = ApiContextVersion(Some("my-api-context__1.0"))
 
       apiContextVersion.nonEmpty shouldBe true
-      apiContextVersion.get.apiContext.value shouldBe "my-api-context"
+      apiContextVersion.get.context.value shouldBe "my-api-context"
       apiContextVersion.get.version shouldBe "1.0"
     }
 

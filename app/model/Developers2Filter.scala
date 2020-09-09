@@ -23,8 +23,8 @@ case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
-case class ApiContextVersion(apiContext: ApiContext, version: String) {
-  def toStringValue: String = s"${apiContext.value}__$version"
+case class ApiContextVersion(context: ApiContext, version: String) {
+  def toStringValue: String = s"${context.value}__$version"
 }
 
 object ApiContextVersion {
