@@ -89,7 +89,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvid
                         value="@apiVersionFilter">
                     <option value=""></option>
                     @for(apiVersion <- apiVersions){
-                    <option @if(apiVersionFilter== Some(apiVersion.value)) {selected} value="@apiVersion.value">
+                    <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">
                         @apiVersion.description
                     </option>
                     }

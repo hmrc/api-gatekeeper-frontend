@@ -17,7 +17,7 @@
 package controllers
 
 import play.api.mvc.PathBindable
-import model.ApplicationId
+import model.{ApiContext, ApplicationId}
 import play.api.mvc.QueryStringBindable
 
 package object binders {
@@ -46,6 +46,32 @@ package object binders {
 
     override def unbind(key: String, context: ApplicationId): String = {
       textBinder.unbind(key, context.value)
+    }
+  }
+
+  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
+    override def bind(key: String, value: String): Either[String, ApiContext] = {
+      textBinder.bind(key, value).map(ApiContext(_))
+    }
+
+    override def unbind(key: String, apiContext: ApiContext): String = {
+      apiContext.value
+    }
+  }
+
+  implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiContext] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiContext]] = {
+      for {
+        context <- textBinder.bind("context", params)
+      } yield {
+        context match {
+          case Right(context) => Right(ApiContext(context))
+          case _              => Left("Unable to bind an api context")
+        }
+      }
+    }
+    override def unbind(key: String, context: ApiContext): String = {
+      textBinder.unbind("context", context.value)
     }
   }
 }

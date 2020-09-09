@@ -32,12 +32,12 @@ GET         /applications/:id/access/overrides                                co
 POST        /applications/:id/access/overrides                                controllers.ApplicationController.updateAccessOverrides(id: model.ApplicationId)
 
 GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: model.ApplicationId)
-POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: model.ApplicationId, context: String, version: String)
-POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: model.ApplicationId, context: String, version: String)
+POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: model.ApplicationId, context: model.ApiContext, version: String)
+POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: model.ApplicationId, context: model.ApiContext, version: String)
 
 GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: model.ApplicationId)
-GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: model.ApplicationId, context: String, version: String)
-POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: model.ApplicationId, context: String, version: String)
+GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: model.ApplicationId, context: model.ApiContext, version: String)
+POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: model.ApplicationId, context: model.ApiContext, version: String)
 
 GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: model.ApplicationId)
 POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: model.ApplicationId)

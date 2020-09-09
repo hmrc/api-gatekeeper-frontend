@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import views.html.{ErrorTemplate, ForbiddenView}
+import model.ApiContext
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -52,7 +53,7 @@ class SubscriptionConfigurationControllerSpec
     )
 
     val version = "1.0"
-    val context = "my-context"
+    val context = ApiContext.random
     val subscriptionFieldValue = buildSubscriptionFieldValue("field-name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))

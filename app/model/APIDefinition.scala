@@ -21,14 +21,28 @@ import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldV
 import play.api.libs.json.Json
 
 import scala.util.Try
+import scala.util.Random
 
-case class APIDefinition( serviceName: String,
-                          serviceBaseUrl: String,
-                          name: String,
-                          description: String,
-                          context: String,
-                          versions: Seq[APIVersion],
-                          requiresTrust: Option[Boolean]) {
+case class ApiContext(value: String) extends AnyVal
+
+object ApiContext {
+
+  implicit val formatApiContext = Json.valueFormat[ApiContext]
+
+  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
+    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
+  }
+
+  def random = ApiContext(Random.nextString(10))
+}
+
+case class APIDefinition(serviceName: String,
+                         serviceBaseUrl: String,
+                         name: String,
+                         description: String,
+                         context: ApiContext,
+                         versions: Seq[APIVersion],
+                         requiresTrust: Option[Boolean]) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.toDouble > v2.version.version.toDouble
@@ -102,7 +116,7 @@ object APIAccessType extends Enumeration {
   val PRIVATE, PUBLIC = Value
 }
 
-case class APIIdentifier(context: String, version: String)
+case class APIIdentifier(context: ApiContext, version: String)
 object APIIdentifier {
   implicit val format = Json.format[APIIdentifier]
 }
@@ -121,15 +135,15 @@ object SubscriptionResponse {
 
 case class Subscription(name: String,
                         serviceName: String,
-                        context: String,
+                        context: ApiContext,
                         versions: Seq[VersionSubscription]) {
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
 case class SubscriptionWithoutFields(name: String,
-                        serviceName: String,
-                        context: String,
-                        versions: Seq[VersionSubscriptionWithoutFields])
+                                     serviceName: String,
+                                     context: ApiContext,
+                                     versions: Seq[VersionSubscriptionWithoutFields])
 
 case class VersionSubscriptionWithoutFields(version: APIVersion, subscribed: Boolean)
 

@@ -21,9 +21,9 @@ import model.SubscriptionFields.SubscriptionFieldsWrapper
 import play.api.data.Form
 import play.api.data.Forms._
 import model.SubscriptionFields.Fields
-import model.VersionSubscription
+import model.{VersionSubscription, ApiContext}
 
-case class SubscriptionVersion(apiName: String, apiContext : String, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
+case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: String, displayedStatus: String, fields: Seq[SubscriptionField])
 
 object SubscriptionVersion {
   def apply(subscriptionsWithFieldDefinitions: Seq[Subscription]): Seq[SubscriptionVersion] = {

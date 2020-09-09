@@ -58,9 +58,9 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: ApplicationId, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-        withAppAndSubscriptionVersion(appId, context, version) {
+        withAppAndSubscriptionVersion(appId, apiContext, version) {
           app => {
             val subscriptionFields = SubscriptionField(app.version.fields)
             val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
@@ -73,10 +73,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def saveConfigurations(appId: ApplicationId, context: String, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => {
 
-      withAppAndSubscriptionVersion(appId, context, version) {
+      withAppAndSubscriptionVersion(appId, apiContext, version) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
@@ -100,7 +100,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           def doSaveConfigurations(form: EditApiMetadataForm) = {
             val fields: Fields = EditApiMetadataForm.toFields(form)
 
-            subscriptionFieldsService.saveFieldValues(app.application.application, context, version, fields)
+            subscriptionFieldsService.saveFieldValues(app.application.application, apiContext, version, fields)
             .map({
               case SaveSubscriptionFieldsSuccessResponse => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
               case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)

@@ -20,13 +20,14 @@ import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldV
 import model.{APIStatus, APIVersion, Subscription, VersionSubscription}
 import model.ApplicationId
 import model.ClientId
+import model.ApiContext
 
 trait SubscriptionsBuilder {
 
-  def buildSubscription(name: String, context: Option[String] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
+  def buildSubscription(name: String, context: Option[ApiContext] = None, versions: Seq[VersionSubscription] = Seq.empty) = {
     Subscription(name = name,
       serviceName = s"service-$name",
-      context =  context.getOrElse(s"context-$name"),
+      context = context.getOrElse(ApiContext(s"context-$name")),
       versions = versions)
   }
 
@@ -37,7 +38,7 @@ trait SubscriptionsBuilder {
     }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {
-    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), s"context-${applicationId.value}", s"apiVersion-${applicationId.value}", fields = fields)
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), ApiContext(s"context-${applicationId.value}"), s"apiVersion-${applicationId.value}", fields = fields)
   }
 
 

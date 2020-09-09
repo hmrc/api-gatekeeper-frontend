@@ -71,8 +71,8 @@ environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedI
                         @for((status, versions) <- apis) {
                         <optgroup label="@status">
                             @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                            <option @if(apiFilter == Value(version.apiIdentifier.context, version.apiIdentifier.version)) {selected}
-                                    value="@{version.apiIdentifier.context}__@{version.apiIdentifier.version}">@version.name (@version.apiIdentifier.version)</option>
+                            <option @if(apiFilter == Value(version.apiIdentifier.context.value, version.apiIdentifier.version)) {selected}
+                                    value="@{version.apiIdentifier.context.value}__@{version.apiIdentifier.version}">@version.name (@version.apiIdentifier.version)</option>
                             }
                         </optgroup>
                         }

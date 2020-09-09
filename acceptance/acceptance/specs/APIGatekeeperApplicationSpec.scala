@@ -43,6 +43,11 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
+
+      /*
+        When we have moved to Scala 2.13, consider using `using` to auto close this Source.fromURL call.
+        https://www.scala-lang.org/files/archive/api/2.13.x/scala/util/Using$.html
+       */
       val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
@@ -61,6 +66,10 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
+      /*
+        When we have moved to Scala 2.13, consider using `using` to auto close this Source.fromURL call.
+        https://www.scala-lang.org/files/archive/api/2.13.x/scala/util/Using$.html
+       */
       val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
@@ -116,6 +125,10 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
+      /*
+        When we have moved to Scala 2.13, consider using `using` to auto close this Source.fromURL call.
+        https://www.scala-lang.org/files/archive/api/2.13.x/scala/util/Using$.html
+       */
       val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
 
       stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))

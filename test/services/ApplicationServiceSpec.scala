@@ -69,13 +69,19 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiIdentifier = APIIdentifier("a-context","1.0")
+    val apiIdentifier = APIIdentifier(ApiContext.random,"1.0")
 
     val context = apiIdentifier.context
     val version = apiIdentifier.version
 
     val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
+    val testContext = ApiContext("test-context")
+    val unknownContext = ApiContext("unknown-context")
+    val superContext = ApiContext("super-context")
+    val sandboxTestContext = ApiContext("sandbox-test-context")
+    val sandboxUnknownContext = ApiContext("sandbox-unknown-context")
+    val sandboxSuperContext = ApiContext("sandbox-super-context")
   }
 
   trait SubscriptionFieldsServiceSetup  extends Setup {
@@ -95,9 +101,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allProductionApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("test-context", "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("super-context", "1.0"), allProductionApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(testContext, "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(unknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(superContext, "1.0"), allProductionApplications.map(_.id.toString)))
 
       given(mockProductionApplicationConnector.fetchAllSubscriptions()(*))
         .willReturn(Future.successful(subscriptions))
@@ -120,9 +126,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
 
 
       given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))
@@ -146,9 +152,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
       val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier("sandbox-test-context", "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier("sandbox-unknown-context", "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier("sandbox-super-context", "1.0"), allSandboxApplications.map(_.id.toString)))
+        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
+          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
+          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
 
 
       given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))
@@ -451,7 +457,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
       
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
@@ -475,7 +481,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
         .willReturn(Future.successful(subscriptionFieldValues))
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
@@ -503,7 +509,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       val errors = Map("fieldName" -> "failure reason")
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *, *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
           .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(errors)))
 
       private val exception = intercept[RuntimeException](
@@ -518,7 +524,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   "unsubscribeFromApi" should {
     "call the service to unsubscribe from the API and delete the field values" in new Setup {
 
-      given(mockProductionApplicationConnector.unsubscribeFromApi(*[ApplicationId], *, *)(*))
+      given(mockProductionApplicationConnector.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *)(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))

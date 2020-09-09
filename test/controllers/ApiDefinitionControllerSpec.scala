@@ -46,7 +46,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       givenTheUserIsAuthorisedAndIsANormalUser()
 
       val apiVersions = List(APIVersion("1.0", APIStatus.ALPHA), APIVersion("2.0", APIStatus.STABLE))
-      val apiDefinition = APIDefinition("", "", name = "MyApi", "", "", apiVersions, None)
+      val apiDefinition = APIDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None)
       
       given(mockApiDefinitionService.apis(*))
         .willReturn(Seq((apiDefinition, PRODUCTION) ))

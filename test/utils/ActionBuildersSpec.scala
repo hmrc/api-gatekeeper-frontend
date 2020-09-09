@@ -28,6 +28,7 @@ import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ErrorTemplate
+import model.ApiContext
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -162,7 +163,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
 
-      val invalidContext = "not-a-context"
+      val invalidContext = ApiContext("not-a-context")
 
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, invalidContext, version.version.version)(_ => {
         throw new RuntimeException("This shouldn't be called")
@@ -176,10 +177,10 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
 
-      val context = subscription.context
+      val apiContext = subscription.context
       val invalidVersion = "not-a-version"
 
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, invalidVersion)(_ => {
+      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, apiContext, invalidVersion)(_ => {
         throw new RuntimeException("This shouldn't be called")
         Future.successful(Ok(expectedResult))
       }))

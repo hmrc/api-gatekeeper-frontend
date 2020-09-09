@@ -567,19 +567,21 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
     }
 
     "subscribeToApi" should {
+      val apiContext = ApiContext.random
+
       "call the service to subscribe to the API when submitted for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.subscribeToApi(*, *, *)(*))
+        given(mockApplicationService.subscribeToApi(*, *[ApiContext], *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
+        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*)
+        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(apiContext), eqTo("1.0"))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -587,28 +589,30 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
+        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, "1.0"))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *, *)(*)
+        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *[ApiContext], *)(*)
       }
     }
 
     "unsubscribeFromApi" should {
+      val apiContext = ApiContext.random
+
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unsubscribeFromApi(*, *, *)(*))
+        given(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aSuperUserLoggedInRequest))
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, "1.0"))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo("hello"), eqTo("1.0"))(*)
+        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo("1.0"))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -616,11 +620,11 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, "hello", "1.0"))(aLoggedInRequest))
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, "1.0"))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*, *, *)(*)
+        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *)(*)
       }
     }
 
@@ -1104,10 +1108,12 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
     }
 
     "manageSubscription" when {
+      val apiContext = ApiContext.random
+
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup {
 
-          val subscription = Subscription("name", "serviceName", "context", Seq())
+          val subscription = Subscription("name", "serviceName", apiContext, Seq())
           givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
           given(mockApplicationService.fetchApplicationSubscriptions(*)(*)).willReturn(Seq(subscription))
@@ -1122,7 +1128,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       "the user is not a superuser" should {
         "show 403 forbidden" in new Setup {
-          val subscription = Subscription("name", "serviceName", "context", Seq())
+          val subscription = Subscription("name", "serviceName", apiContext, Seq())
 
           givenTheUserHasInsufficientEnrolments()
 
@@ -1136,8 +1142,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
     }
 
     "applicationPage" should {
+      val apiContext = ApiContext.random
+
       "return the application details without subscription fields" in new Setup {
-        val subscriptions = Seq(Subscription("name", "serviceName", "context", Seq()))
+        val subscriptions = Seq(Subscription("name", "serviceName", apiContext, Seq()))
 
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()

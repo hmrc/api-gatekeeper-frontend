@@ -17,6 +17,7 @@
 package connectors
 
 import java.util.UUID
+import java.net.URLEncoder.encode
 
 import akka.actor.ActorSystem
 import akka.pattern.FutureTimeoutSupport
@@ -35,13 +36,14 @@ import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ClientId
+import model.ApiContext
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val clientId = ClientId.random
-  private val apiContext = "i-am-a-test"
+  private val apiContext = ApiContext.random
   private val apiVersion = "1.0"
   private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
@@ -51,6 +53,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   private val actorSystem = ActorSystem("test-actor-system")
 
   def subscriptionFieldsBaseUrl(clientId: ClientId) = s"$urlPrefix/application/${clientId.value}"
+
+  def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
   trait Setup {
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
@@ -66,6 +70,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val subscriptionFieldsConnector = new SubscriptionFieldsTestConnector(
       useProxy = false, bearerToken = "", apiKey = "", mockHttpClient, mockProxiedHttpClient, mockAppConfig, actorSystem, futureTimeoutSupport
     )
+
   }
 
   trait ProxiedSetup extends Setup {
@@ -111,7 +116,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
 
-    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/$apiContext/version/$apiVersion"
+    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${urlEncode(apiContext.value)}/version/$apiVersion"
 
     "return subscription fields for an API" in new Setup {
       when(mockHttpClient
@@ -234,7 +239,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldDefinitions" should {
-    val url = s"/definition/context/$apiContext/version/$apiVersion"
+    val url = s"/definition/context/${urlEncode(apiContext.value)}/version/$apiVersion"
 
     val definitionsFromRestService = List(
       FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
@@ -279,8 +284,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldValues" should {
-    val definitionsUrl = s"/definition/context/$apiContext/version/$apiVersion"
-    val valuesUrl = s"/field/application/${clientId.value}/context/$apiContext/version/$apiVersion"
+    val definitionsUrl = s"/definition/context/${urlEncode(apiContext.value)}/version/$apiVersion"
+    val valuesUrl = s"/field/application/${clientId.value}/context/${urlEncode(apiContext.value)}/version/$apiVersion"
 
     val definitionsFromRestService = List(
       FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
@@ -334,7 +339,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val fieldsValues = fields("field001" -> "value001", "field002" -> "value002")
     val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)
 
-    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/$apiContext/version/$apiVersion"
+    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${urlEncode(apiContext.value)}/version/$apiVersion"
 
     "save the fields" in new Setup {
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](eqTo(putUrl), eqTo(subFieldsPutRequest), *)(*, *, *, *))
@@ -368,7 +373,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "deleteFieldValues" should {
 
-    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/$apiContext/version/$apiVersion"
+    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/${urlEncode(apiContext.value)}/version/$apiVersion"
 
     "return success after delete call has returned 204 NO CONTENT" in new Setup {
 

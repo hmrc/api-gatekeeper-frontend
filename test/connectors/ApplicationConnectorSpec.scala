@@ -101,9 +101,10 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     val url = s"$baseUrl/application/subscriptions"
 
     "retrieve all applications" in new Setup {
+      val apiContext = ApiContext.random
       val response = Seq(
         SubscriptionResponse(
-          APIIdentifier("individual-benefits", "1.0"),
+          APIIdentifier(apiContext, "1.0"),
           Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
 
       when(mockHttpClient.GET[Seq[SubscriptionResponse]](eqTo(url))(*, *, *))
@@ -111,7 +112,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
       val result: Seq[SubscriptionResponse] = await(connector.fetchAllSubscriptions())
 
-      result.head.apiIdentifier.context shouldBe "individual-benefits"
+      result.head.apiIdentifier.context shouldBe apiContext
     }
   }
 
@@ -382,9 +383,10 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   }
 
   "subscribeToApi" should {
+    val apiContext = ApiContext.random
     val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/subscription"
-    val apiIdentifier = APIIdentifier("hello", "1.0")
+    val apiIdentifier = APIIdentifier(apiContext, "1.0")
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       when(mockHttpClient.POST[APIIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
@@ -400,20 +402,21 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
+        await(connector.subscribeToApi(applicationId, APIIdentifier(apiContext, "1.0")))
       }
     }
   }
 
   "unsubscribeFromApi" should {
+    val apiContext = ApiContext.random
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value}/subscription?context=hello&version=1.0"
+    val url = s"$baseUrl/application/${applicationId.value}/subscription?context=${apiContext.value}&version=1.0"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       when(mockHttpClient.DELETE[HttpResponse](eqTo(url), *)(*, *, *))
         .thenReturn(Future.successful(HttpResponse(CREATED)))
 
-      val result = await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
+      val result = await(connector.unsubscribeFromApi(applicationId, apiContext, "1.0"))
 
       result shouldBe ApplicationUpdateSuccessResult
     }
@@ -423,7 +426,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
+        await(connector.unsubscribeFromApi(applicationId, apiContext, "1.0"))
       }
     }
   }
@@ -595,14 +598,15 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
   "search collaborators" should {
     val url = s"$baseUrl/collaborators"
-    "return emails" in new Setup {
+    val apiContext = ApiContext.random
 
-      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+    "return emails" in new Setup {
+      val expectedQueryParams = Seq("context" -> apiContext.value, "version" -> "1.0")
       private val email = "user@example.com"
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *))
         .thenReturn(Future.successful(Seq(email)))
 
-      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", None))
+      val result: Seq[String] = await(connector.searchCollaborators(apiContext, "1.0", None))
 
       verify(mockHttpClient).GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)
 
@@ -613,13 +617,13 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       private val email = "user@example.com"
 
       val expectedQueryParams = Seq(
-        "context" -> "api-context", "version" -> "1.0",
+        "context" -> apiContext.value, "version" -> "1.0",
         "partialEmailMatch" -> email)
 
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *))
         .thenReturn(Future.successful(Seq(email)))
 
-      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", Some(email)))
+      val result: Seq[String] = await(connector.searchCollaborators(apiContext, "1.0", Some(email)))
 
       verify(mockHttpClient).GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)
 
@@ -627,14 +631,14 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
-      val expectedQueryParams = Seq("context" -> "api-context", "version" -> "1.0")
+      val expectedQueryParams = Seq("context" -> apiContext.value, "version" -> "1.0")
       private val email = "user@example.com"
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(Seq(email))
       )
-      val result: Seq[String] = await(connector.searchCollaborators("api-context", "1.0", None))
+      val result: Seq[String] = await(connector.searchCollaborators(apiContext, "1.0", None))
       result shouldBe Seq(email)
     }
   }

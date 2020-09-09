@@ -23,6 +23,7 @@ import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import model.ApiContext
 
 class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceOneAppPerSuite with WiremockSugarIt {
   val config = Configuration(
@@ -37,6 +38,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
   trait Setup {
     implicit val hc = HeaderCarrier()
     val connector = app.injector.instanceOf[ProductionApiDefinitionConnector]
+    val apiContext = ApiContext("dummy-api")
   }
 
   "API status mapping" should {
@@ -78,7 +80,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", "dummy-api",
+        "dummyAPI", "dummy api.", apiContext,
         Seq(APIVersion("1.0", APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
 
@@ -120,7 +122,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", "dummy-api",
+        "dummyAPI", "dummy api.", apiContext,
         Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
   }
