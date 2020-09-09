@@ -30,7 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, SubscriptionEnhancer}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
 import views.html.approvedApplication.ApprovedView
@@ -81,8 +81,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         for {
           par <- applicationService.searchApplications(env, params)
           apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-          subApps = SubscriptionEnhancer.combine(par, apis)
-        } yield Ok(applicationsView(subApps, groupApisByStatus(apis), isAtLeastSuperUser, params))
+          // subApps = SubscriptionEnhancer.combine(par, apis)
+        } yield Ok(applicationsView(par, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {

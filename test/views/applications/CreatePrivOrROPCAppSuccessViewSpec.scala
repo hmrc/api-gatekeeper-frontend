@@ -32,7 +32,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
   }
 
   "CreatePrivOrROPCAppSuccess page" when {
-    implicit val userFullName = "firstname lastname"
 
     val appId = ApplicationId("245dfgs-2dfgd578-968sdg5-23f456-dgf324")
     val appName = "This is my app name"

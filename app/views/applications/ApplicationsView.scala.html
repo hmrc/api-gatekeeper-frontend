@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
+@(paginatedApplications: PaginatedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
 implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @pageUrl(extra: (String, String)) = @{
@@ -185,7 +185,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                                 case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                                 case _ => ("status", "Created")
                             }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
-                            </td>
+                            </td>F
                         </tr>
                     }
                     </tbody>
