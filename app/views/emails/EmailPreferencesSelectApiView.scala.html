@@ -50,7 +50,7 @@ name="selectedAPIs">
 
                 <div class="govuk-form-group">
                     <label class="govuk-label" for="selectedApi">Select an API from the list</label>
-                    @if(!filteredApis.isEmpty) {
+                    @if(filteredApis.nonEmpty) {
                         @for(filteredApi <- filteredApis){
                             <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
                         }

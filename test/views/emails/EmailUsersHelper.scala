@@ -21,7 +21,7 @@ import org.scalatest.MustMatchers
 import utils.ViewHelpers._
 import model.APIDefinition
 
-trait EmailUsersHelper extends MustMatchers{
+trait EmailUsersHelper extends MustMatchers {
     def validatePageHeader(document: Document, expectedTitle: String)= {
       val maybeTitleText = getElementBySelector(document, "#pageTitle")
       maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
@@ -57,7 +57,7 @@ trait EmailUsersHelper extends MustMatchers{
     }
 
      def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String){
-      val combinedTuples =  Seq(("" ,defaultOption)) ++ apis.map(x=> Seq((x.serviceName, x.name))).flatten
+      val combinedTuples =  Seq(("" ,defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
       validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
      
     }
@@ -66,7 +66,7 @@ trait EmailUsersHelper extends MustMatchers{
        withClue(s"Expected Default Select Option: `$defaultOption` is not rendered") {
           elementExistsByText(document, "option", defaultOption) mustBe true
        }
-     elementExistsById(document, "selectedAPIs")
+      elementExistsById(document, "selectedAPIs")
        val selectElement: Option[Element]  = getElementBySelector(document, jsoupSelector)
         withClue(s"Expected select with id: `$jsoupSelector` is not present") {
           
@@ -78,9 +78,14 @@ trait EmailUsersHelper extends MustMatchers{
         for((dropdownItem, index) <- dropdownsWithIndex){
           val optionItem: Element = selectElement.head.child(index)
           optionItem.text mustBe dropdownItem._2
-          optionItem.attr("value") mustBe dropdownItem._1 
-
+          optionItem.attr("value") mustBe dropdownItem._1
         }
-     
+    }
+
+    def validateFormDestination(document: Document, formId: String, expectedDestination: String) = {
+      val formSelector = s"#$formId"
+      val maybeForm = getElementBySelector(document, formSelector)
+
+      maybeForm.get.attr("action") mustBe expectedDestination
     }
 }

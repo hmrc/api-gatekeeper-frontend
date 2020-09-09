@@ -17,17 +17,15 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{LoggedInUser, TopicOptionChoice}
+import model.{APIDefinition, LoggedInUser}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesSelectApiView
-import model.APIDefinition
 
 class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
 
@@ -42,7 +40,7 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
      val api1 = simpleAPIDefinition(serviceName="serviceName1", name="api1")
      val api2 = simpleAPIDefinition(serviceName="serviceName2", name="api2")
      val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3")
-     val dropDownApis = Seq(api1, api2, api3) 
+     val dropDownApis = Seq(api1, api2, api3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
@@ -54,6 +52,7 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
       validateNonSelectedApiDropDown(document, dropDownApis, "Select an API")
   
       //validate form destination?
+      validateFormDestination(document, "api-filters", "https://foo")
       //validate button is rendered and text is correct
 
   
