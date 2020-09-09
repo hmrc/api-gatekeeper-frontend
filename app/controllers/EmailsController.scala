@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, SendEmailChoiceView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, SendEmailChoiceView, EmailPreferencesSelectApiView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,6 +48,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
                                   emailPreferencesTopicView: EmailPreferencesTopicView,
                                   emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView,
                                   emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+                                  emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
                                   val applicationService: ApplicationService,
                                   val forbiddenView: ForbiddenView,
                                   override val authConnector: AuthConnector,
@@ -90,7 +91,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       implicit request => {
         def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
             form.sendEmailPreferences match {
-              case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.emailPreferencesSpecificApis(None)))
+              case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
               case TAX_REGIME =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesAPICategory(None, None)))
               case TOPIC =>  Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
             }
@@ -103,17 +104,31 @@ class EmailsController  @Inject()(developerService: DeveloperService,
     }
   }
 
-  def emailPreferencesSpecificApis(selectedAPIs: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def selectSpecficApi(selectedAPIs: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       for {
         apis <- apiDefinitionService.fetchAllApiDefinitions()
         selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
-      } yield Ok(emailPreferencesSpecificApiView(selectedApis))
-
+      } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.name), selectedApis.sortBy(_.name)))
   }
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[Seq[String]], apiList: Seq[APIDefinition])=
       maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api=> selectedAPIs.contains(api.serviceName)))
+
+
+  def emailPreferencesSpecificApis(selectedAPIs: Seq[String]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+   
+      if(selectedAPIs.filterNot(_.isEmpty).isEmpty){
+         Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
+      }else{
+        for {
+          apis <- apiDefinitionService.fetchAllApiDefinitions()
+          filteredApis <- Future.successful(filterSelectedApis(Some(selectedAPIs), apis))
+        } yield Ok(emailPreferencesSpecificApiView(filteredApis.sortBy(_.name)))
+      }
+  }
+      
 
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.USER) {

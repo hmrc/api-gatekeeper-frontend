@@ -20,8 +20,18 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(apis: Seq[APIDefinition], filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
+@drawAPIDropDown() = {
+<select class="govuk-select govuk-select-width-full"
+id="selectedAPIs"
+name="selectedAPIs">
+    <option value="">Select an API</option>
+    @for(api <- apis) {
+        <option value="@api.serviceName"> @api.name </option>
+    }
+</select>
+}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
 
@@ -31,7 +41,7 @@
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
-        <form name="api-filters" action="@routes.EmailsController.selectSpecficApi(None).url" method="get">
+        <form name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty).url" method="get">
         <div class="form-group">
             <fieldset class=" govuk-fieldset">
                 <legend class="form-label-bold">
@@ -39,22 +49,19 @@
                 </legend>
 
                 <div class="govuk-form-group">
-                    <label class="govuk-label" for="selectedApi">Selected API(s)</label>
-                     @for(filteredApi <- filteredApis){
-                        @filteredApi.name 
-                        <a href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)).url"> REMOVED</a>
-                        <br/>
-                         <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
-                     }
-
-                </div>
-                <div class="govuk-form-group">
-                @topicRadioGrid(None)
+                    <label class="govuk-label" for="selectedApi">Select an API from the list</label>
+                    @if(!filteredApis.isEmpty) {
+                        @for(filteredApi <- filteredApis){
+                            <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
+                        }
+                    
+                    }
+                     @drawAPIDropDown
                 </div>
             </fieldset>
         </div>
             <div class="form-field">
-                <button id="submit" class="button button--padded" type="submit">Continue</button>
+                <button id="submit" class="button button--padded" type="submit">Select API</button>
             </div>
         </form>
     </div>

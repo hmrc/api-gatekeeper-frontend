@@ -16,9 +16,10 @@
 
 package views.emails
 
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
+import model.APIDefinition
 
 trait EmailUsersHelper extends MustMatchers{
     def validatePageHeader(document: Document, expectedTitle: String)= {
@@ -53,5 +54,33 @@ trait EmailUsersHelper extends MustMatchers{
          elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
        }
 
+    }
+
+     def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String){
+      val combinedTuples =  Seq(("" ,defaultOption)) ++ apis.map(x=> Seq((x.serviceName, x.name))).flatten
+      validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
+     
+    }
+    def validateNonSelectedDropDown(document: Document, jsoupSelector: String, dropdownItems: Seq[(String, String)], defaultOption: String){
+     
+       withClue(s"Expected Default Select Option: `$defaultOption` is not rendered") {
+          elementExistsByText(document, "option", defaultOption) mustBe true
+       }
+     elementExistsById(document, "selectedAPIs")
+       val selectElement: Option[Element]  = getElementBySelector(document, jsoupSelector)
+        withClue(s"Expected select with id: `$jsoupSelector` is not present") {
+          
+          selectElement.isDefined mustBe true
+        }
+    
+       val dropdownsWithIndex: Seq[((String,String), Int)] = dropdownItems.zipWithIndex
+
+        for((dropdownItem, index) <- dropdownsWithIndex){
+          val optionItem: Element = selectElement.head.child(index)
+          optionItem.text mustBe dropdownItem._2
+          optionItem.attr("value") mustBe dropdownItem._1 
+
+        }
+     
     }
 }

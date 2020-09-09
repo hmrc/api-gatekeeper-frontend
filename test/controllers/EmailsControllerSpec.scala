@@ -54,6 +54,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   val apiVersion3 = ApiVersion("3")
 
   private lazy val emailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
+  private lazy val emailPreferencesSelectApiView = app.injector.instanceOf[EmailPreferencesSelectApiView]
   running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -144,6 +145,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailPreferencesTopicView,
         emailPreferencesAPICategoryView,
         emailPreferencesSpecificApiView,
+        emailPreferencesSelectApiView,
         mockApplicationService,
         forbiddenView,
         mockAuthConnector,
