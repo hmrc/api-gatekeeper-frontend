@@ -22,6 +22,7 @@ import play.api.libs.json.Json
 
 import scala.util.Try
 import scala.util.Random
+import java.net.URLEncoder.encode
 
 case class ApiContext(value: String) extends AnyVal
 
@@ -34,6 +35,8 @@ object ApiContext {
   }
 
   def random = ApiContext(Random.nextString(10))
+
+  def urlEncode(apiContext: ApiContext, encoding: String = "UTF-8") = encode(apiContext.value, encoding)
 }
 
 case class APIDefinition(serviceName: String,
