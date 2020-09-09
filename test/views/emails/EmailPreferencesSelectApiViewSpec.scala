@@ -44,24 +44,26 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
      val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3")
      val dropDownApis = Seq(api1, api2, api3) 
 
-    "show correct title and options when no filter provided" in new Setup {
+    "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
 
-      println(document)
       result.contentType must include("text/html")
       validatePageHeader(document, "Email users interested in a specific API")
       validateNonSelectedApiDropDown(document, dropDownApis, "Select an API")
-      //TODO Validate dropdown exist and contains all options
+  
       //validate form destination?
-      //validate button 
+      //validate button is rendered and text is correct
 
   
 
 
 
 
+    }
+    "show correct title and options when selectedAPis are provided" in new Setup {
+        // As above, check hidden fields
     }
   }
 
