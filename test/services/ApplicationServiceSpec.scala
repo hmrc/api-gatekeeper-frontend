@@ -100,77 +100,45 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockProductionApplicationConnector.searchApplications(*)(*))
         .willReturn(Future.successful(aPaginatedApplicationResponse(allProductionApplications)))
 
-      val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier(testContext, "1.0"), Seq(allProductionApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier(unknownContext, "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier(superContext, "1.0"), allProductionApplications.map(_.id.toString)))
-
-      given(mockProductionApplicationConnector.fetchAllSubscriptions()(*))
-        .willReturn(Future.successful(subscriptions))
-
-      val result: PaginatedSubscribedApplicationResponse = await(underTest.searchApplications(Some(PRODUCTION), Map.empty))
+      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(PRODUCTION), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 0
-
-      app2.subscriptions should have size 0
-
-      app3.subscriptions should have size 0
+      app1 shouldBe stdApp1
+      app2 shouldBe stdApp2
+      app3 shouldBe privilegedApp
     }
 
     "list all subscribed applications from sandbox when SANDBOX environment is specified" in new Setup {
       given(mockSandboxApplicationConnector.searchApplications(*)(*))
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
-      val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
-
-
-      given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))
-        .willReturn(Future.successful(subscriptions))
-
-      val result: PaginatedSubscribedApplicationResponse = await(underTest.searchApplications(Some(SANDBOX), Map.empty))
+      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(SANDBOX), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 0
-
-      app2.subscriptions should have size 0
-
-      app3.subscriptions should have size 0
+      app1.deployedTo shouldBe "SANDBOX"
+      app2.deployedTo shouldBe "SANDBOX"
+      app3.deployedTo shouldBe "SANDBOX"
     }
 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
       given(mockSandboxApplicationConnector.searchApplications(*)(*))
         .willReturn(Future.successful(aPaginatedApplicationResponse(allSandboxApplications)))
 
-      val subscriptions =
-        Seq(SubscriptionResponse(APIIdentifier(sandboxTestContext, "1.0"), Seq(allSandboxApplications.tail.head.id.toString)),
-          SubscriptionResponse(APIIdentifier(sandboxUnknownContext, "1.0"), Seq()),
-          SubscriptionResponse(APIIdentifier(sandboxSuperContext, "1.0"), allSandboxApplications.map(_.id.toString)))
-
-
-      given(mockSandboxApplicationConnector.fetchAllSubscriptions()(*))
-        .willReturn(Future.successful(subscriptions))
-
-      val result: PaginatedSubscribedApplicationResponse = await(underTest.searchApplications(None, Map.empty))
+      val result: PaginatedApplicationResponse = await(underTest.searchApplications(None, Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
       val app2 = result.applications.find(sa => sa.name == "application2").get
       val app3 = result.applications.find(sa => sa.name == "application3").get
 
-      app1.subscriptions should have size 0
-
-      app2.subscriptions should have size 0
-
-      app3.subscriptions should have size 0
+      app1.deployedTo shouldBe "SANDBOX"
+      app2.deployedTo shouldBe "SANDBOX"
+      app3.deployedTo shouldBe "SANDBOX"
     }
   }
 
