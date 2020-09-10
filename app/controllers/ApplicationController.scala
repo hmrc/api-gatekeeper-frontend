@@ -81,7 +81,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         for {
           par <- applicationService.searchApplications(env, params)
           apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-          // subApps = SubscriptionEnhancer.combine(par, apis)
         } yield Ok(applicationsView(par, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
