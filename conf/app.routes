@@ -87,6 +87,6 @@ POST        /emails/email-preferences                                           
 GET         /emails/email-preferences/by-topic                                  controllers.EmailsController.emailPreferencesTopic(selectedTopic: Option[String])
 GET         /emails/email-preferences/by-api-category                           controllers.EmailsController.emailPreferencesAPICategory(selectedTopic: Option[String], selectedCategory:Option[String])
 GET         /emails/email-preferences/select-api                                controllers.EmailsController.selectSpecficApi(selectedAPIs: Option[Seq[String]])
-GET         /emails/email-preferences/by-specific-api                           controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: Seq[String])
+GET         /emails/email-preferences/by-specific-api                           controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: Seq[String], selectedTopic: Option[String])
 
 

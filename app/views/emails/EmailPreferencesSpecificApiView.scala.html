@@ -31,32 +31,55 @@
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
-        <form name="api-filters" action="@routes.EmailsController.selectSpecficApi(None).url" method="get">
+        <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecficApi(None).url" method="get">
         <div class="form-group">
-            <fieldset class=" govuk-fieldset">
+            <fieldset class="govuk-fieldset">
                 <legend class="form-label-bold">
                     <h1 id="pageTitle">Email users interested in a specific API</h1>
                 </legend>
-
                 <div class="govuk-form-group">
-                    <label class="govuk-label" for="selectedApi">Selected API(s)</label>
+                    <label class="govuk-label--bold" for="selectedApi">Selected API(s)</label>
+                    <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
                      @for(filteredApi <- filteredApis){
-                        @filteredApi.name 
-                        <a href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)).url"> REMOVED</a>
-                        <br/>
-                         <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
+                        <li class="hmrc-add-to-a-list__contents">
+                            <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+                                @filteredApi.name
+                            </span> 
+                            <span class="hmrc-add-to-a-list__remove">
+                                <a class="govuk-link" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None).url">
+                                    <span aria-hidden="true">Remove</span>
+                                    <span class="govuk-visually-hidden">Remove @filteredApi.name from the list</span>
+                                </a>
+                            </span>
+                       <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
                      }
-
+                    </ul>
                 </div>
-                <div class="govuk-form-group">
-                @topicRadioGrid(None)
+                <div class="form-field">
+                    <a href="#" onclick='document.getElementById("api-filters").submit();'>Add Another Api</a>
                 </div>
             </fieldset>
         </div>
-            <div class="form-field">
-                <button id="submit" class="button button--padded" type="submit">Continue</button>
-            </div>
         </form>
-    </div>
+        <form name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.map(_.serviceName), None).url" method="get">
+        <div class="form-group">
+            
+    <fieldset class=" govuk-fieldset">
+        
+                    @for(filteredApi <- filteredApis){
+                     <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+                    }
+                <div class="govuk-form-group">
+                @topicRadioGrid(None)
+                </div>
+                <div class="form-field">
+                    <button id="submit" class="button button--padded" type="submit">Continue</button>
+                </div>
+        </div>
+   
+    </fieldset>
+</div>
+    </form>
+    
 
 }

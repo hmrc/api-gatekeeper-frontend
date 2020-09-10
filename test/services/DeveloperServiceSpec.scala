@@ -547,16 +547,5 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
         verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), any[Option[Seq[String]]], any[Option[String]])(any[HeaderCarrier])
      }
 
-      "call the connector correctly when passed a topic and an API Category" in new Setup {
-       val topic = TopicOptionChoice.BUSINESS_AND_POLICY
-       val apiCategory = APICategory("AGENTS", "Agents")
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), any[Option[Seq[String]]], eqTo(Some(apiCategory.category)))(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
-        val result = await(underTest.fetchDevelopersByEmailPreferences(topic, Some(apiCategory.category)))
-        
-        result shouldBe List(sandboxUser)
-        
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), any[Option[Seq[String]]], eqTo(Some(apiCategory.category)))(any[HeaderCarrier])
-     }
-
    }
 }

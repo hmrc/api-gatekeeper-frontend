@@ -116,7 +116,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api=> selectedAPIs.contains(api.serviceName)))
 
 
-  def emailPreferencesSpecificApis(selectedAPIs: Seq[String]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def emailPreferencesSpecificApis(selectedAPIs: Seq[String], selectedTopic: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
    
       if(selectedAPIs.filterNot(_.isEmpty).isEmpty){

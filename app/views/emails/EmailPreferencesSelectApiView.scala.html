@@ -41,7 +41,7 @@ name="selectedAPIs">
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
-        <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty).url" method="get">
+        <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty, None).url" method="get">
         <div class="form-group">
             <fieldset class=" govuk-fieldset">
                 <legend class="form-label-bold">
@@ -53,8 +53,7 @@ name="selectedAPIs">
                     @if(filteredApis.nonEmpty) {
                         @for(filteredApi <- filteredApis){
                             <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
-                        }
-                    
+                        }                  
                     }
                      @drawAPIDropDown
                 </div>
