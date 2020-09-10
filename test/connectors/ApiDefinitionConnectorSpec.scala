@@ -76,7 +76,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
 
@@ -88,7 +88,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
@@ -114,7 +114,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
+        Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
 
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
@@ -125,7 +125,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(APIVersion("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
+        Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
