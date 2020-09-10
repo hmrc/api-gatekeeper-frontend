@@ -36,18 +36,27 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
     val emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
   }
 
+    def validateStaticPageElements(document: Document){
+      validatePageHeader(document, "Email users interested in a specific API")
+       validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
+       validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+       validateButtonText(document, "filter", "Filter")
+    }
+
   "email preferences specific api view" must {
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
+      validateStaticPageElements(document)
+    }
 
-      result.contentType must include("text/html")
-
-
-      validatePageHeader(document, "Email users interested in a specific API")
-      validateCopyToClipboardLink(document, isVisible = false)
+    "show correct title and options when specifc api filters provided and empty list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
+      val document: Document = Jsoup.parse(result.body)
+        validateStaticPageElements(document)
     }
   }
 

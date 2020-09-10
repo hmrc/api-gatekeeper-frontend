@@ -20,6 +20,9 @@ import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
 import model.APIDefinition
+import model.TopicOptionChoice
+import model.TopicOptionChoice.TopicOptionChoice
+import org.jsoup.select.NodeFilter
 
 trait EmailUsersHelper extends MustMatchers {
     def validatePageHeader(document: Document, expectedTitle: String)= {
@@ -97,7 +100,11 @@ trait EmailUsersHelper extends MustMatchers {
           withClue(s"button with id `$buttonId` was not found") {
             maybeButtonElement.isDefined mustBe true
           }
-          maybeButtonElement.head.text mustBe expectedButtonText
+          maybeButtonElement.head.tag().getName match {
+            case "input" =>  maybeButtonElement.head.attr("value") mustBe expectedButtonText
+            case "button" =>  maybeButtonElement.head.text mustBe expectedButtonText
+          }
+         
     }
 
     def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition]){
@@ -106,4 +113,22 @@ trait EmailUsersHelper extends MustMatchers {
       elements.size mustBe selectedAPIs.size
       elements.map(_.attr("value")) must contain allElementsOf selectedAPIs.map(_.serviceName)
     }
+
+    def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
+   APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
+
+
+   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {
+     val selectedInput = getElementBySelector(document, "input[selected]")
+     selectedTopic.fold(selectedInput mustBe None)(topic => {
+       selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe (topic.toString()))
+      })
+     getElementBySelector(document, s"#${TopicOptionChoice.BUSINESS_AND_POLICY}")
+     getElementBySelector(document, s"#${TopicOptionChoice.EVENT_INVITES}")
+     getElementBySelector(document, s"#${TopicOptionChoice.RELEASE_SCHEDULES}")
+     getElementBySelector(document, s"#${TopicOptionChoice.TECHNICAL}")
+
+    
+
+   }
 }

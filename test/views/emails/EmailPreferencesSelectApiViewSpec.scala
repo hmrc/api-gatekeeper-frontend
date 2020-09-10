@@ -71,7 +71,6 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
 
   }
 
-  def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
-   APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
+
   
 }
