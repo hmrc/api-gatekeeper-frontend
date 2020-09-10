@@ -535,17 +535,43 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
   }
    "developerService fetchDevelopersByEmailPreferences" should {
+     val topic = TopicOptionChoice.BUSINESS_AND_POLICY
       val sandboxUser = aUser("sandbox")
-      
+      val category1 = "category1"
+      val category2 = "category2"
+      val categories = Seq(category1, category2)
+      val apiName1 = "apiName1"
+      val apiName2 = "apiName2"
+      val apiName3 = "apiName3"
+      val apis = Seq(apiName1, apiName2, apiName3)
+
      "call the connector correctly when only passed a topic" in new Setup {
-       val topic = TopicOptionChoice.BUSINESS_AND_POLICY
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), any[Option[Seq[String]]], any[Option[String]])(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
         val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
         
         result shouldBe List(sandboxUser)
         
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), any[Option[Seq[String]]], any[Option[String]])(any[HeaderCarrier])
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])
      }
+
+      "call the connector correctly when only passed a topic and a category" in new Setup {
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Seq(category1))))(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
+        
+        result shouldBe List(sandboxUser)
+        
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Seq(category1))))(any[HeaderCarrier])
+     }
+
+     "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
+        
+        result shouldBe List(sandboxUser)
+        
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])
+     }
+
 
    }
 }

@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[User], emails: String, filteredApis: Seq[APIDefinition], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
@@ -70,7 +70,7 @@
                      <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
                     }
                 <div class="govuk-form-group">
-                @topicRadioGrid(None)
+                @topicRadioGrid(maybeTopicFilter)
                 </div>
                 <div class="form-field">
                     <button id="submit" class="button button--padded" type="submit">Continue</button>
@@ -78,8 +78,11 @@
         </div>
    
     </fieldset>
-</div>
-    </form>
-    
 
+    </form>
+    @if(maybeTopicFilter.isDefined) { 
+        <div><hr/></div>     
+        @userTable(users, emails)
+      }
+    </div>
 }

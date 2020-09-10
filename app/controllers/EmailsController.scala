@@ -116,16 +116,26 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api=> selectedAPIs.contains(api.serviceName)))
 
 
-  def emailPreferencesSpecificApis(selectedAPIs: Seq[String], selectedTopic: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def emailPreferencesSpecificApis(selectedAPIs: Seq[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-   
+    val selectedTopic = selectedTopicStr.map(TopicOptionChoice.withName(_))
       if(selectedAPIs.filterNot(_.isEmpty).isEmpty){
          Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
       }else{
-        for {
+       for {
           apis <- apiDefinitionService.fetchAllApiDefinitions()
-          filteredApis <- Future.successful(filterSelectedApis(Some(selectedAPIs), apis))
-        } yield Ok(emailPreferencesSpecificApiView(filteredApis.sortBy(_.name)))
+          filteredApis = filterSelectedApis(Some(selectedAPIs), apis)
+          apiNames = filteredApis.map(_.serviceName)
+          categories = filteredApis.flatMap(_.categories.getOrElse(Seq.empty))
+          users <-  selectedTopic.fold(Future.successful(Seq.empty[User]))(topic => {
+            developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames)
+          })
+        } yield  Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis.sortBy(_.name), selectedTopic))
+
+  
+
+
+ 
       }
   }
       
