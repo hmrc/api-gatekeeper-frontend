@@ -38,9 +38,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView = app.injector.instanceOf[Developers2View]
 
+
   Helpers.running(app) {
 
     def aUser(email: String) = User(email, "first", "last", verified = Some(false))
+    val apiVersion1 = ApiVersion("1.0")
+    val apiVersion2 = ApiVersion("2.0")
 
     trait Setup extends ControllerSetupBase {
 
@@ -172,14 +175,14 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(ApiVersionDefinition("1.0", APIStatus.ALPHA), ApiVersionDefinition("2.0", APIStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.ALPHA), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
-        bodyOf(result) should include("MyApi (1.0) (Alpha)")
-        bodyOf(result) should include("MyApi (2.0) (Stable)")
+        bodyOf(result) should include(s"MyApi (${apiVersion1.value}) (Alpha)")
+        bodyOf(result) should include(s"MyApi (${apiVersion2.value}) (Stable)")
 
         verifyAuthConnectorCalledForUser
       }
@@ -190,14 +193,14 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiContext = ApiContext.random
 
-        val apiVersions = List(ApiVersionDefinition("1.0", APIStatus.STABLE), ApiVersionDefinition("2.0", APIStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.STABLE), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
         val apiDefinition = APIDefinition("", "", name = "", "", apiContext, apiVersions, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
 
-        bodyOf(result) should include(s"${apiContext.value}__1.0")
-        bodyOf(result) should include(s"${apiContext.value}__2.0")
+        bodyOf(result) should include(s"${apiContext.value}__${apiVersion1.value}")
+        bodyOf(result) should include(s"${apiContext.value}__${apiVersion2.value}")
 
         verifyAuthConnectorCalledForUser
       }
@@ -217,7 +220,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         bodyOf(result) should include(emailAddress)
 
-        val filter = ApiContextVersion(ApiContext("api-definition"), "1.0")
+        val filter = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
@@ -225,7 +228,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersion = ApiVersionDefinition("1.0", APIStatus.ALPHA)
+        val apiVersion = ApiVersionDefinition(apiVersion1, APIStatus.ALPHA)
 
         val apiVersions = List(apiVersion, apiVersion)
         val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", apiContext, apiVersions, None))
@@ -234,7 +237,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
 
         result.size shouldBe 1
-        result.head.value shouldBe s"${apiContext.value}__1.0"
+        result.head.value shouldBe s"${apiContext.value}__${apiVersion1.value}"
       }
 
       "show number of entries" in new Setup {

@@ -49,6 +49,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
   private lazy val emailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   private lazy val emailPreferencesAPICategoryView = app.injector.instanceOf[EmailPreferencesAPICategoryView]
+
+  val apiVersion1 = ApiVersion("1")
+  val apiVersion3 = ApiVersion("3")
+
   running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -116,8 +120,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def givenApiDefinition2Apis() = {
-        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(ApiVersionDefinition("1", APIStatus.BETA)), None)
-        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition("3", APIStatus.STABLE)), None)
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(ApiVersionDefinition(apiVersion1, APIStatus.BETA)), None)
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition(apiVersion3, APIStatus.STABLE)), None)
         when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
           .thenReturn(Future.successful(Seq(api1, api2)))
       }

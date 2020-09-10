@@ -24,7 +24,7 @@ import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
 import model.Environment.Environment
 import model.SubscriptionFields._
-import model.{APIIdentifier, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
+import model.{APIIdentifier, ApiContext, ApiVersion, ClientId, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
@@ -34,8 +34,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.ClientId
-import model.ApiContext
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
@@ -43,7 +41,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   private val clientId = ClientId.random
   private val apiContext = ApiContext.random
-  private val apiVersion = "1.0"
+  private val apiVersion = ApiVersion.random
   private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"

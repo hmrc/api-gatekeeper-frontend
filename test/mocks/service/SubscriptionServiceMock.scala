@@ -16,14 +16,13 @@
 
 package mocks.service
 
-import model.Application
+import model.{ApiContext, ApiVersion, Application}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.mockito.BDDMockito.`given`
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
 
 import scala.concurrent.Future
-import model.ApiContext
 
 trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -38,7 +37,7 @@ trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSu
         .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
   }
 
-  def verifySaveSubscriptionFields(application: Application, apiContext: ApiContext, apiVersion: String, fields: Fields) = {
+  def verifySaveSubscriptionFields(application: Application, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields) = {
     verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
   }
 }

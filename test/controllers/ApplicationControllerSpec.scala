@@ -572,12 +572,12 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         given(mockApplicationService.subscribeToApi(*, *[ApiContext], *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, "1.0"))(aSuperUserLoggedInRequest))
+        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(apiContext), eqTo("1.0"))(*)
+        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -585,11 +585,11 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, "1.0"))(aLoggedInRequest))
+        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *[ApiContext], *)(*)
+        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *[ApiContext], *[ApiVersion])(*)
       }
     }
 
@@ -603,12 +603,12 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         given(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *)(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, "1.0"))(aSuperUserLoggedInRequest))
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo("1.0"))(*)
+        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
@@ -616,7 +616,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, "1.0"))(aLoggedInRequest))
+        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
 
