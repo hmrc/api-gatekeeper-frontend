@@ -54,15 +54,20 @@ class ApplicationsViewSpec extends CommonViewSpec {
       displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier(ApiContext("ret-api"), "1.0"))),
       displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier(ApiContext("dep-api"), "1.0")))
     )
-    val applications = Seq[DetailedSubscribedApplicationResponse](
-      DetailedSubscribedApplicationResponse(ApplicationId.random, "Testing App", Some("Testing App"), Set.empty, DateTime.now(), ApplicationState(State.TESTING), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(ApplicationId.random, "Pending Gatekeeper Approval App", Some("Pending Gatekeeper Approval App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_GATEKEEPER_APPROVAL), Ropc(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(ApplicationId.random, "Pending Requester Verification App", Some("Pending Requester Verification App"), Set.empty, DateTime.now(), ApplicationState(State.PENDING_REQUESTER_VERIFICATION), Privileged(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION"),
-      DetailedSubscribedApplicationResponse(ApplicationId.random, "Production App", Some("Production App"), Set.empty, DateTime.now(), ApplicationState(State.PRODUCTION), Standard(), Seq.empty, termsOfUseAgreed = true, deployedTo = "PRODUCTION")
+
+    val collaborators = Set(
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+
+    val applications = Seq[ApplicationResponse](
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Requester Verification App", "PRODUCTION", Some("Pending Requester Verification App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Production App", "PRODUCTION", Some("Production App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     )
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
-    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
-    val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
+    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
+    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
+    val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
     val applicationViewWithApplicationDocument = Jsoup.parse(applicationViewWithApplication().body)
   }
 
@@ -150,7 +155,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a superuser" should {
 
       "Display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, true, Map.empty)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, true, Map.empty)
         applicationView().body must include("""Add privileged or ROPC application""")
       }
     }
@@ -158,7 +163,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a non-superuser" should {
 
       "Not display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedDetailedSubscribedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
         applicationView().body mustNot include("""Add privileged or ROPC application""")
       }
     }

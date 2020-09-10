@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedDetailedSubscribedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
+@(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
 implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @pageUrl(extra: (String, String)) = @{
@@ -156,7 +156,6 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         <tr role="row">
                             <th tabindex="0" class="sorting_left-aligned sorting @sortClass(sort, "NAME")"><a href="@pageUrl("sort" -> (if (sort == Some("NAME_ASC")) "NAME_DESC" else "NAME_ASC"))">Name</a></th>
                             <th tabindex="0" class="sorting_left-aligned sorting @sortClass(sort, "SUBMITTED")"><a href="@pageUrl("sort" -> (if (sort == Some("SUBMITTED_ASC")) "SUBMITTED_DESC" else "SUBMITTED_ASC"))">Submitted</a></th>
-                            <th tabindex="0" class="sorting_left-aligned">API Subscription</th>
                             <th tabindex="0">Environment</th>
                             <th class="text--right hard--right" tabindex="0">Status</th>
                         </tr>
@@ -174,7 +173,6 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                             <td id="app-created-@index">@{
                                 dateFormatter.print(application.createdOn)
                             }</td>
-                            <td id="app-subs-@index" title="@application.subscriptions.map(sub => s"${sub.name} (${sub.version})").mkString(", ")">@application.subscriptions.take(3).map(_.name).mkString(", ") @if(application.subscriptions.size > 3) {...}</td>
                             <td id="app-env-@index">
                                 @application.deployedTo.toLowerCase.capitalize
                             </td>

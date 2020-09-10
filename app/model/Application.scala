@@ -318,53 +318,6 @@ object PaginatedSubscribedApplicationResponse {
   implicit val format = Json.format[PaginatedSubscribedApplicationResponse]
 }
 
-case class DetailedSubscribedApplicationResponse(id: ApplicationId,
-                                                 name: String,
-                                                 description: Option[String] = None,
-                                                 collaborators: Set[Collaborator],
-                                                 createdOn: DateTime,
-                                                 state: ApplicationState,
-                                                 access: Access,
-                                                 subscriptions: Seq[SubscriptionDetails],
-                                                 termsOfUseAgreed: Boolean,
-                                                 deployedTo: String,
-                                                 clientId: ClientId = ClientId.empty) extends Application
-
-case class PaginatedDetailedSubscribedApplicationResponse(applications: Seq[DetailedSubscribedApplicationResponse],
-                                                          page: Int,
-                                                          pageSize: Int,
-                                                          total: Int,
-                                                          matching: Int)
-
-object PaginatedDetailedSubscribedApplicationResponse {
-  def apply(psar: PaginatedSubscribedApplicationResponse, applications: Seq[DetailedSubscribedApplicationResponse]) =
-    new PaginatedDetailedSubscribedApplicationResponse(applications, psar.page, psar.pageSize, psar.total, psar.matching)
-}
-
-// TODO: Try to refactor this as name and apiContext seem to be the same thing!!ApplicationsViewSpec
-case class SubscriptionDetails(name: String, apiContext: ApiContext, version: String)
-
-
-object DetailedSubscribedApplicationResponse {
-  implicit val subscriptionsFormat = Json.format[SubscriptionDetails]
-  implicit val format1 = Json.format[APIIdentifier]
-  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = EnumJson.enumFormat(State)
-  implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[TotpIds]
-  private implicit val formatStandard = Json.format[Standard]
-  private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc = Json.format[Ropc]
-  implicit val formatAccess = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[Ropc](AccessType.ROPC.toString)
-    .format
-  implicit val format5 = Json.format[DetailedSubscribedApplicationResponse]
-}
-
-
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
