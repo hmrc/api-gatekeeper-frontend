@@ -127,8 +127,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
+        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(Seq.empty)
+        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(applications))
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
       }
     }
@@ -213,9 +213,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
-        val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
+        givenThePaginatedApplicationsWillBeReturned
 
         val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
@@ -229,10 +227,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        val allSubscribedApplications: PaginatedSubscribedApplicationResponse = aPaginatedSubscribedApplicationResponse(Seq.empty)
-        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(allSubscribedApplications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
-
+        givenThePaginatedApplicationsWillBeReturned
+        
         val result = await(underTest.applicationsPage()(aLoggedInRequest))
         status(result) shouldBe OK
 
@@ -1808,10 +1804,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
     }
 
-    def aPaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse]): PaginatedSubscribedApplicationResponse = {
+    def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10
-      PaginatedSubscribedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+      PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
     }
   }
 }
