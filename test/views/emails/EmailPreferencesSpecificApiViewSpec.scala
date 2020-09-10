@@ -17,6 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
+import model.TopicOptionChoice.TopicOptionChoice
 import model.{LoggedInUser, TopicOptionChoice}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -24,7 +25,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesSpecificApiView
 
@@ -36,12 +36,13 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
     val emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
   }
 
-    def validateStaticPageElements(document: Document){
-      validatePageHeader(document, "Email users interested in a specific API")
-       validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
-       validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-       validateButtonText(document, "filter", "Filter")
-    }
+  def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
+    validatePageHeader(document, "Email users interested in a specific API")
+    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
+    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateButtonText(document, "filter", filterButtonText)
+    validateTopicGrid(document, selectedTopic)
+  }
 
   "email preferences specific api view" must {
 
@@ -49,14 +50,15 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
-      validateStaticPageElements(document)
+      validateStaticPageElements(document, "Filter", None)
     }
 
     "show correct title and options when specifc api filters provided and empty list of users" in new Setup {
+      val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
-        validateStaticPageElements(document)
+      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     }
   }
 

@@ -16,119 +16,121 @@
 
 package views.emails
 
+import model.{APIDefinition, TopicOptionChoice}
+import model.TopicOptionChoice.TopicOptionChoice
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
-import model.APIDefinition
-import model.TopicOptionChoice
-import model.TopicOptionChoice.TopicOptionChoice
-import org.jsoup.select.NodeFilter
 
 trait EmailUsersHelper extends MustMatchers {
-    def validatePageHeader(document: Document, expectedTitle: String)= {
-      val maybeTitleText = getElementBySelector(document, "#pageTitle")
-      maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
-    }
+  def validatePageHeader(document: Document, expectedTitle: String) = {
+    val maybeTitleText = getElementBySelector(document, "#pageTitle")
+    maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
+  }
 
 
-    def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit ={
-      val checkedRadio = getElementBySelector(document, "input[checked]")
-      checkedRadio.isDefined mustBe true
-      checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) mustBe shouldBeChecked
-    }
+  def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit = {
+    val checkedRadio = getElementBySelector(document, "input[checked]")
+    checkedRadio.isDefined mustBe true
+    checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) mustBe shouldBeChecked
+  }
 
-    def noInputChecked(document: Document): Unit ={
-      val checkedRadio = getElementBySelector(document, "input[checked]")
-      checkedRadio.isDefined mustBe false
-    }
+  def noInputChecked(document: Document): Unit = {
+    val checkedRadio = getElementBySelector(document, "input[checked]")
+    checkedRadio.isDefined mustBe false
+  }
 
 
-    def checkElementsExistById(document: Document, ids: Seq[String]): Unit ={
-      ids.foreach(id => {
-        withClue(s"$id element exists?:") {
-          elementExistsById(document, id) mustBe true
-        }
-        ()
-      })
-    }
-
-    def validateCopyToClipboardLink(document: Document, isVisible: Boolean = true){
-       withClue(s"Copy to cliboard link validation failed") {
-         elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
-       }
-
-    }
-
-     def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String){
-      val combinedTuples =  Seq(("" ,defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
-      validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
-     
-    }
-    def validateNonSelectedDropDown(document: Document, jsoupSelector: String, dropdownItems: Seq[(String, String)], defaultOption: String){
-     
-       withClue(s"Expected Default Select Option: `$defaultOption` is not rendered") {
-          elementExistsByText(document, "option", defaultOption) mustBe true
-       }
-      elementExistsById(document, "selectedAPIs")
-       val selectElement: Option[Element]  = getElementBySelector(document, jsoupSelector)
-        withClue(s"Expected select with id: `$jsoupSelector` is not present") {
-          
-          selectElement.isDefined mustBe true
-        }
-    
-       val dropdownsWithIndex: Seq[((String,String), Int)] = dropdownItems.zipWithIndex
-
-        for((dropdownItem, index) <- dropdownsWithIndex){
-          val optionItem: Element = selectElement.head.child(index)
-          optionItem.text mustBe dropdownItem._2
-          optionItem.attr("value") mustBe dropdownItem._1
-        }
-    }
-
-    def validateFormDestination(document: Document, formId: String, expectedDestination: String) = {
-      val formSelector = s"#$formId"
-      val maybeForm = getElementBySelector(document, formSelector)
-
-      withClue(s"Form with id $formId was not found") {
-        maybeForm.isDefined mustBe true
+  def checkElementsExistById(document: Document, ids: Seq[String]): Unit = {
+    ids.foreach(id => {
+      withClue(s"$id element exists?:") {
+        elementExistsById(document, id) mustBe true
       }
-      maybeForm.get.attr("action") mustBe expectedDestination
+      ()
+    })
+  }
+
+  def validateCopyToClipboardLink(document: Document, isVisible: Boolean = true)  = {
+    withClue(s"Copy to cliboard link validation failed") {
+      elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
     }
 
-    def validateButtonText(document:Document, buttonId: String, expectedButtonText: String)={
-        val maybeButtonElement = getElementBySelector(document, s"#$buttonId")
-          withClue(s"button with id `$buttonId` was not found") {
-            maybeButtonElement.isDefined mustBe true
-          }
-          maybeButtonElement.head.tag().getName match {
-            case "input" =>  maybeButtonElement.head.attr("value") mustBe expectedButtonText
-            case "button" =>  maybeButtonElement.head.text mustBe expectedButtonText
-          }
-         
+  }
+
+  def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String) = {
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
+    validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
+
+  }
+
+  def validateNonSelectedDropDown(document: Document, jsoupSelector: String, dropdownItems: Seq[(String, String)], defaultOption: String) = {
+
+    withClue(s"Expected Default Select Option: `$defaultOption` is not rendered") {
+      elementExistsByText(document, "option", defaultOption) mustBe true
+    }
+    elementExistsById(document, "selectedAPIs")
+    val selectElement: Option[Element] = getElementBySelector(document, jsoupSelector)
+    withClue(s"Expected select with id: `$jsoupSelector` is not present") {
+
+      selectElement.isDefined mustBe true
     }
 
-    def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition]){
+    val dropdownsWithIndex: Seq[((String, String), Int)] = dropdownItems.zipWithIndex
 
-      val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
-      elements.size mustBe selectedAPIs.size
-      elements.map(_.attr("value")) must contain allElementsOf selectedAPIs.map(_.serviceName)
+    for ((dropdownItem, index) <- dropdownsWithIndex) {
+      val optionItem: Element = selectElement.head.child(index)
+      optionItem.text mustBe dropdownItem._2
+      optionItem.attr("value") mustBe dropdownItem._1
     }
+  }
 
-    def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
-   APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
+  def validateFormDestination(document: Document, formId: String, expectedDestination: String) = {
+    val formSelector = s"#$formId"
+    val maybeForm = getElementBySelector(document, formSelector)
+
+    withClue(s"Form with id $formId was not found") {
+      maybeForm.isDefined mustBe true
+    }
+    maybeForm.get.attr("action") mustBe expectedDestination
+  }
+
+  def validateButtonText(document: Document, buttonId: String, expectedButtonText: String) = {
+    val maybeButtonElement = getElementBySelector(document, s"#$buttonId")
+    withClue(s"button with id `$buttonId` was not found") {
+      maybeButtonElement.isDefined mustBe true
+    }
+    maybeButtonElement.head.tag().getName match {
+      case "input" => maybeButtonElement.head.attr("value") mustBe expectedButtonText
+      case "button" => maybeButtonElement.head.text mustBe expectedButtonText
+    }
+  }
+
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition]) = {
+    val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
+    elements.size mustBe selectedAPIs.size
+    elements.map(_.attr("value")) must contain allElementsOf selectedAPIs.map(_.serviceName)
+  }
+
+  def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
+    APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
 
 
-   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {
-     val selectedInput = getElementBySelector(document, "input[selected]")
-     selectedTopic.fold(selectedInput mustBe None)(topic => {
-       selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe (topic.toString()))
-      })
-     getElementBySelector(document, s"#${TopicOptionChoice.BUSINESS_AND_POLICY}")
-     getElementBySelector(document, s"#${TopicOptionChoice.EVENT_INVITES}")
-     getElementBySelector(document, s"#${TopicOptionChoice.RELEASE_SCHEDULES}")
-     getElementBySelector(document, s"#${TopicOptionChoice.TECHNICAL}")
+  def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {
+    TopicOptionChoice.values.foreach(topic => validateTopicEntry(document, topic))
+    validateSelectedTopic(document, selectedTopic)
+  }
 
-    
+  private def validateTopicEntry(document: Document, topic: TopicOptionChoice) = {
+    val maybeRadioButton = getElementBySelector(document, s"input#$topic")
+    maybeRadioButton.fold(fail(s"Topic $topic radio button is missing"))(radioButton => {
+      radioButton.attr("value") must be (topic.toString)
+    })
+  }
 
-   }
+  private def validateSelectedTopic(document: Document, selectedTopic: Option[TopicOptionChoice]) = {
+    val selectedInput = getElementBySelector(document, "input[checked]")
+    selectedTopic.fold(selectedInput mustBe None)(topic => {
+      selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe topic.toString)
+    })
+  }
 }

@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{APIDefinition, LoggedInUser}
+import model.LoggedInUser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
@@ -64,13 +64,7 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
       val document: Document = Jsoup.parse(result.body)
       validateStaticPageElements(document)
         // As above, check hidden fields
-      validateHiddenSelectedApiValues(document, selectedApis)  
-
+      validateHiddenSelectedApiValues(document, selectedApis)
     }
-
-
   }
-
-
-  
 }
