@@ -29,7 +29,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext
 
-case class ApiDefinitionView(apiName: String, apiVersion: String, status: String, access: String, isTrial: Boolean, environment: String)
+case class ApiDefinitionView(apiName: String, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
 
 @Singleton
 class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,

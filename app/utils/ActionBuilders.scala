@@ -63,7 +63,7 @@ trait ActionBuilders extends ErrorHelper {
 
   def withAppAndSubscriptionVersion(appId: ApplicationId,
                                     apiContext: ApiContext,
-                                    apiVersion: String)
+                                    apiVersion: ApiVersion)
                                    (action: ApplicationAndSubscriptionVersion => Future[Result])
                                    (implicit request: LoggedInRequest[_],
                                     messages: Messages,

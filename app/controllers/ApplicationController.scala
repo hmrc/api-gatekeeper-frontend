@@ -130,14 +130,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
         }
   }
 
-  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
