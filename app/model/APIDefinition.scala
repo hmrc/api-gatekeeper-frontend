@@ -44,7 +44,7 @@ case class APIDefinition(serviceName: String,
                          name: String,
                          description: String,
                          context: ApiContext,
-                         versions: Seq[APIVersion],
+                         versions: Seq[ApiVersionDefinition],
                          requiresTrust: Option[Boolean]) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
@@ -56,7 +56,7 @@ object APIDefinition {
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
-  implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatAPIVersion = Json.format[ApiVersionDefinition]
   implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
   implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
@@ -70,7 +70,7 @@ object APIDefinition {
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback = Array(1, 0, 0)
 
-  private def versionSorter(v1: APIVersion, v2: APIVersion) = {
+  private def versionSorter(v1: ApiVersionDefinition, v2: ApiVersionDefinition) = {
     val v1Parts = Try(v1.version.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
     val v2Parts = Try(v2.version.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
     val pairs = v1Parts.zip(v2Parts)
@@ -89,11 +89,11 @@ object APICategory{
   implicit val formatApiCategory = Json.format[APICategory]
 }
 
-case class VersionSubscription(version: APIVersion,
+case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
 
-case class APIVersion(version: String, status: APIStatus, access: Option[APIAccess] = None) {
+case class ApiVersionDefinition(version: String, status: APIStatus, access: Option[APIAccess] = None) {
   val displayedStatus = APIStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
@@ -148,7 +148,7 @@ case class SubscriptionWithoutFields(name: String,
                                      context: ApiContext,
                                      versions: Seq[VersionSubscriptionWithoutFields])
 
-case class VersionSubscriptionWithoutFields(version: APIVersion, subscribed: Boolean)
+case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
 
 object Subscription {
   def subscriptionNumberLabel(versions: Seq[VersionSubscription]) = versions.count(_.subscribed) match {
@@ -159,7 +159,7 @@ object Subscription {
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]
-  implicit val formatAPIVersion = Json.format[APIVersion]
+  implicit val formatAPIVersion = Json.format[ApiVersionDefinition]
   implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldDefinition]
   implicit val subscriptionFieldValue = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFieldsWrapper = Json.format[SubscriptionFieldsWrapper]

@@ -16,7 +16,7 @@
 
 package utils
 
-import model.{APIDefinition, APIStatus, APIVersion, ApiContextVersion, DropDownValue, LoggedInRequest, User}
+import model.{APIDefinition, APIStatus, ApiVersionDefinition, ApiContextVersion, DropDownValue, LoggedInRequest, User}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
 trait UserFunctionsWrapper {
@@ -39,7 +39,7 @@ trait UserFunctionsWrapper {
   }
 
   def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {
-    def toKeyValue(api: APIDefinition, version: APIVersion) = {
+    def toKeyValue(api: APIDefinition, version: ApiVersionDefinition) = {
       val value: String = ApiContextVersion(api.context, version.version).toStringValue.trim
       val displayedStatus: String = APIStatus.displayedStatus(version.status).trim
       val description: String = s"${api.name} (${version.version}) ($displayedStatus)"
