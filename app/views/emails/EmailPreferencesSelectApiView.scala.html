@@ -23,42 +23,40 @@
 @(apis: Seq[APIDefinition], filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @drawAPIDropDown() = {
-<select class="govuk-select govuk-select-width-full"
-id="selectedAPIs"
-name="selectedAPIs">
-    <option value="">Select an API</option>
-    @for(api <- apis) {
-        <option value="@api.serviceName"> @api.name </option>
-    }
-</select>
+    <select class="govuk-select govuk-select-width-full"
+    id="selectedAPIs"
+    name="selectedAPIs">
+        <option value="">Select an API</option>
+        @for(api <- apis) {
+            <option value="@api.serviceName"> @api.name </option>
+        }
+    </select>
 }
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
-
-
 
     <div class="govuk-template__body">
         <div>
             <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
         </div>
         <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty, None).url" method="get">
-        <div class="form-group">
-            <fieldset class=" govuk-fieldset">
-                <legend class="form-label-bold">
-                    <h1 id="pageTitle">Email users interested in a specific API</h1>
-                </legend>
+            <div class="form-group">
+                <fieldset class=" govuk-fieldset">
+                    <legend class="form-label-bold">
+                        <h1 id="pageTitle">Email users interested in a specific API</h1>
+                    </legend>
 
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="selectedApi">Select an API from the list</label>
-                    @if(filteredApis.nonEmpty) {
-                        @for(filteredApi <- filteredApis){
-                            <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
-                        }                  
-                    }
-                     @drawAPIDropDown
-                </div>
-            </fieldset>
-        </div>
+                    <div class="govuk-form-group">
+                        <label class="govuk-label" for="selectedApi">Select an API from the list</label>
+                        @if(filteredApis.nonEmpty) {
+                            @for(filteredApi <- filteredApis) {
+                                <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
+                            }
+                        }
+                        @drawAPIDropDown
+                    </div>
+                </fieldset>
+            </div>
             <div class="form-field">
                 <button id="submit" class="button button--padded" type="submit">Select API</button>
             </div>

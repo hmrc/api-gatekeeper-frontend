@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesSpecificApiView
 
-class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -40,7 +40,7 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(Seq.empty, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
@@ -48,9 +48,6 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
 
       validatePageHeader(document, "Email users interested in a specific API")
       validateCopyToClipboardLink(document, isVisible = false)
-
-
-
     }
   }
 
