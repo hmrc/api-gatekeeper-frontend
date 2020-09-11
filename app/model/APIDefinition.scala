@@ -51,7 +51,7 @@ object ApiVersion {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiVersion((Random.nextInt()/10).toString)
+  def random = ApiVersion((Random.nextDouble()).toString)
 }
 
 case class APIDefinition(serviceName: String,

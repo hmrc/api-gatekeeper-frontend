@@ -51,7 +51,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   }
 
   trait withSubscription extends Setup {
-    def subscription = buildSubscription("mySubscription", versions = Seq(
+    val subscription = buildSubscription("mySubscription", versions = Seq(
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     ))
@@ -148,7 +148,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, versionSubscription.version.version)(request => {
         request.subscription shouldBe subscription
-        request.version shouldBe version
+        request.version shouldBe versionSubscription
         
         Future.successful(Ok(expectedResult))
       }))
