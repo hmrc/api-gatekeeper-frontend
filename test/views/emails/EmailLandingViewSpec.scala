@@ -42,9 +42,6 @@ class EmailLandingViewSpec extends CommonViewSpec {
       val result: Html = emailLandingView.render(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
       elementExistsByText(document, "h1", "Send emails to users based on") mustBe true
 
       verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = false)

@@ -58,7 +58,7 @@
                     </fieldset>
                 </div>
             </form>
-            <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.map(_.serviceName), None).url" method="get">
+            <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty, None).url" method="get">
                 <div class="form-group">
 
                     <fieldset class=" govuk-fieldset">

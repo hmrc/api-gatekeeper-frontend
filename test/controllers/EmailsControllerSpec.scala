@@ -387,6 +387,28 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     }
 
+    //TODO write tests for select api route
+
+    "email preferences select api page" should {
+       "return ok on initial load" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/select-api")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
+        status(eventualResult) shouldBe OK
+
+      }
+
+     "return ok when filters provided" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+
+        val request = createGetRequest("/emails/api-subscribers/email-preferences/select-api?selectedAPIs=tax-free-childcare-provider")
+        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
+        status(eventualResult) shouldBe OK
+
+      }
+    }
+
     "email preferences specific api page" should {
       "render the view correctly when no filter selected" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
@@ -407,6 +429,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         verifyZeroInteractions(mockDeveloperService)
       }
+
+      // todo check page is redirected when no api list is provided
+      // check dev service called correctly when apis provided and selected topic
     }
 
     "email preferences topic page" should {
@@ -424,8 +449,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         givenTheUserIsAuthorisedAndIsANormalUser()
 
         givenfetchDevelopersByEmailPreferences(Seq.empty)
-        val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
-        val eventualResult: Result = await(underTest.emailPreferencesTopic(Some("TECHNICAL"))(request))
+        val eventualResult: Result = await(underTest.emailPreferencesTopic(Some("TECHNICAL"))(FakeRequest()))
         status(eventualResult) shouldBe OK
 
         val responseBody = Helpers.contentAsString(eventualResult)

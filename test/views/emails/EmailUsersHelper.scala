@@ -54,7 +54,13 @@ trait EmailUsersHelper extends MustMatchers {
     withClue(s"Copy to cliboard link validation failed") {
       elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
     }
+  }
 
+  def validateCopyToClipboardValue(document: Document, expectedValue: String) = {
+    withClue(s"Copy to cliboard link validation failed") {
+      getElementBySelector(document, "a#copy-users-to-clip")
+        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") mustBe expectedValue)
+    }
   }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String) = {
@@ -91,7 +97,9 @@ trait EmailUsersHelper extends MustMatchers {
     withClue(s"Form with id $formId was not found") {
       maybeForm.isDefined mustBe true
     }
-    maybeForm.get.attr("action") mustBe expectedDestination
+    withClue(s"Form destination url was not as expected") {
+      maybeForm.get.attr("action") mustBe expectedDestination
+    }
   }
 
   def validateButtonText(document: Document, buttonId: String, expectedButtonText: String) = {
@@ -130,7 +138,20 @@ trait EmailUsersHelper extends MustMatchers {
   private def validateSelectedTopic(document: Document, selectedTopic: Option[TopicOptionChoice]) = {
     val selectedInput = getElementBySelector(document, "input[checked]")
     selectedTopic.fold(selectedInput mustBe None)(topic => {
-      selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe topic.toString)
+      withClue(s"selected topic was not as expected..") {
+        selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe topic.toString)
+      }
     })
+  }
+
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[APIDefinition]): Unit ={
+    val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
+    val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
+    
+    hiddenApiInputs.size mustBe apis.size
+    hiddenApiInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
+
+     hiddenTopicInputs.size mustBe apis.size
+     hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
   }
 }

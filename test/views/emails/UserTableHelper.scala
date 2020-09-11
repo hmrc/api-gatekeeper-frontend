@@ -29,7 +29,7 @@ trait UserTableHelper extends MustMatchers  {
       elementExistsByText(document, "td", user.lastName) mustBe true
     }
 
-    def verifyTableHeader(document: Document, tableIsVisible: Boolean = false): Unit ={
+    def verifyTableHeader(document: Document, tableIsVisible: Boolean = true): Unit ={
       elementExistsByText(document, "th", "Email") mustBe tableIsVisible
       elementExistsByText(document, "th", "First name") mustBe tableIsVisible
       elementExistsByText(document, "th", "Last name") mustBe tableIsVisible

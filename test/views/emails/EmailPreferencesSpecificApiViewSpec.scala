@@ -18,7 +18,7 @@ package views.emails
 
 import mocks.config.AppConfigMock
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{LoggedInUser, TopicOptionChoice}
+import model.{APIDefinition, LoggedInUser, TopicOptionChoice, User}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
@@ -45,20 +45,53 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
   }
 
   "email preferences specific api view" must {
+    val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
+    val selectedApis: Seq[APIDefinition] = Seq(simpleAPIDefinition("Api1ServiceName", "Api1Name"),
+      simpleAPIDefinition("Api2ServiceName", "Api2Name"))
+    val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
+    val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
+    val users = Seq(user1, user2)
 
-    "show correct title and options when no filter provided and empty list of users" in new Setup {
+    "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
       validateStaticPageElements(document, "Filter", None)
+      verifyTableHeader(document, tableIsVisible = false)
     }
 
-    "show correct title and options when specifc api filters provided and empty list of users" in new Setup {
-      val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
+    "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
+
       validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+      verifyTableHeader(document, tableIsVisible = false)
+    }
+
+    "show correct title and elements when topic filter provided and selectedApis" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSpecificApiView.render(Seq.empty, "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+      val document: Document = Jsoup.parse(result.body)
+
+      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+      verifyTableHeader(document, tableIsVisible = false)
+      validateSelectedSpecificApiItems(document, selectedApis)
+    }
+
+     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
+       val emailsStr = users.map(_.email).mkString(";")
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSpecificApiView.render(users, emailsStr, selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+      val document: Document = Jsoup.parse(result.body)
+      
+      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+      validateSelectedSpecificApiItems(document, selectedApis)
+
+      verifyTableHeader(document)
+      verifyUserRow(document, user1)
+      verifyUserRow(document, user2)
+      validateCopyToClipboardValue(document, emailsStr)
     }
   }
 

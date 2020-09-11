@@ -44,8 +44,6 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailUsersHelpe
 
       val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
       validatePageHeader(document, "Who do you want to email?")
 
       verifyEmailOptions(SPECIFIC_API, document)

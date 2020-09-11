@@ -41,13 +41,13 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
 
   def validateCategoryDropDown(document: Document, categories: List[APICategory])={
     for(category <- categories){
-      withClue(s"Category: option `${category.category}` not in select list: ") { 
-        elementExistsByText(document, "option", category.name) mustBe true 
+      withClue(s"Category: option `${category.category}` not in select list: ") {
+        elementExistsByText(document, "option", category.name) mustBe true
       }
     }
   }
 
-  def validatePermanentElements(document: Document, categories: List[APICategory])={
+  def validateStaticPageElements(document: Document, categories: List[APICategory])={
       validatePageHeader(document, expectedTitle)
       validateCategoryDropDown(document, categories)
       checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
@@ -69,16 +69,16 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, "", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
+
       val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
+      validateStaticPageElements(document, categories)
       validateCopyToClipboardLink(document, isVisible = false)
-     
+
       getSelectedOptionValue(document) mustBe None
       noInputChecked(document)
-  
-      verifyTableHeader(document, tableIsVisible)
+
+      verifyTableHeader(document, tableIsVisible = false)
 
     }
 
@@ -88,16 +88,16 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), categories, "", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
+
       val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
+      validateStaticPageElements(document, categories)
       validateCopyToClipboardLink(document, isVisible = false)
-     
+
       getSelectedOptionValue(document) mustBe None
       isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
-  
-      verifyTableHeader(document, tableIsVisible)
+
+      verifyTableHeader(document, tableIsVisible = false)
 
     }
 
@@ -108,12 +108,12 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
+      validateStaticPageElements(document, categories)
       validateCopyToClipboardLink(document, isVisible = false)
-     
+
       getSelectedOptionValue(document) mustBe Some(category1.category)
       noInputChecked(document)
-  
+
       verifyTableHeader(document, tableIsVisible)
 
     }
@@ -121,17 +121,16 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
     "show correct title and select correct option when both filters and user lists are present" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY),  categories, category2.category, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = true
       val document: Document = Jsoup.parse(result.body)
 
-       validatePermanentElements(document, categories)
+       validateStaticPageElements(document, categories)
       elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
       validateCopyToClipboardLink(document)
        getSelectedOptionValue(document) mustBe Some(category2.category)
 
       isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
 
-      verifyTableHeader(document, tableIsVisible)
+      verifyTableHeader(document)
       verifyUserRow(document, user1)
       verifyUserRow(document, user2)
     }
@@ -139,11 +138,10 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES),  categories, category2.category, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
 
-      validatePermanentElements(document, categories)
+      validateStaticPageElements(document, categories)
       validateCopyToClipboardLink(document, isVisible = false)
       getSelectedOptionValue(document) mustBe Some(category2.category)
       
@@ -151,7 +149,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
  
       isElementChecked(document, TopicOptionChoice.RELEASE_SCHEDULES.toString)
 
-      verifyTableHeader(document, tableIsVisible)
+      verifyTableHeader(document, tableIsVisible = false)
 
     }
 
