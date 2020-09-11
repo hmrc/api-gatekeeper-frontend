@@ -41,13 +41,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
     val publicDefinition = APIDefinition(
       "publicAPI", "http://localhost/",
       "publicAPI", "public api.", ApiContext.random,
-      Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
     )
 
     val privateDefinition = APIDefinition(
       "privateAPI", "http://localhost/",
       "privateAPI", "private api.", ApiContext.random,
-      Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
     )
   }
 

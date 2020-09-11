@@ -60,7 +60,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     val developerTeamMember = Collaborator(developerUser.email, CollaboratorRole.DEVELOPER)
     val commonUsers = Seq(verifiedAdminUser, unverifiedAdminUser, developerUser)
     val apiContext = ApiContext("api")
-    val apiVersion = "1.0"
+    val apiVersion = ApiVersion.random
 
     implicit val hc = HeaderCarrier()
 
