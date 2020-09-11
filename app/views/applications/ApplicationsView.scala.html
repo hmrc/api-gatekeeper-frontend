@@ -91,9 +91,9 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                                         status
                                     }">
                                     @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                                        @defining(s"${version.apiIdentifier.context}--${version.apiIdentifier.version}") { value =>
+                                        @defining(s"${version.apiIdentifier.context.value}--${version.apiIdentifier.version.value}") { value =>
                                             <option @if(apiSubscription == Some(value)){selected} value="@value">
-                                                @version.name (@version.apiIdentifier.version)
+                                                @version.name (@version.apiIdentifier.version.value)
                                             </option>
                                         }
                                     }
