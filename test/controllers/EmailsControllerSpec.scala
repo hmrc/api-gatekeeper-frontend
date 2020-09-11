@@ -49,11 +49,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
   private lazy val emailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   private lazy val emailPreferencesAPICategoryView = app.injector.instanceOf[EmailPreferencesAPICategoryView]
-
-  val apiVersion1 = ApiVersion("1")
-  val apiVersion3 = ApiVersion("3")
-
-  private lazy val emailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
+  private lazy val mockEmailPreferencesSpecificApiView = mock[EmailPreferencesSpecificApiView]
   private lazy val mockEmailPreferencesSelectApiView = mock[EmailPreferencesSelectApiView]
   running(app) {
 
@@ -61,8 +57,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       when(mockSendEmailChoiceView.apply()(*,*,*)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailInformationView.apply(*)(*,*,*)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+
       val csrfToken: (String, String) = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] =
@@ -98,10 +96,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val category1 = APICategory("EXAMPLE", "Example")
       val category2 = APICategory("VAT", "Vat")
       val category3 = APICategory("AGENTS", "Agents")
-
+ 
 
       def givenVerifiedDeveloper(): Unit = {
-
+    
         when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(verified2Users))
       }
 
@@ -121,14 +119,18 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*,*)(*)).thenReturn(Future.successful(users))
       }
 
+      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[User]) = {
+        when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*,*, *)(*)).thenReturn(Future.successful(users))
+      }
+
       def givenNoVerifiedDevelopers(): Unit = {
         val users = Seq(unVerifiedUser1)
         when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
-        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None, categories = Some(Seq.empty))
-        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None, categories = Some(Seq.empty))
-      val twoApis = Seq(api1, api2)
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None, categories = Some(Seq(category1.toString)))
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None, categories = Some(Seq(category2.toString)))
+        val twoApis = Seq(api1, api2)
         def givenApiDefinition2Apis() = {
         when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
           .thenReturn(Future.successful(twoApis))
@@ -150,7 +152,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailPreferencesChoiceView,
         emailPreferencesTopicView,
         emailPreferencesAPICategoryView,
-        emailPreferencesSpecificApiView,
+        mockEmailPreferencesSpecificApiView,
         mockEmailPreferencesSelectApiView,
         mockApplicationService,
         forbiddenView,
@@ -166,7 +168,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         givenTheUserIsAuthorisedAndIsANormalUser()
         val eventualResult: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(eventualResult) shouldBe OK
-
+       
         verifyAuthConnectorCalledForUser
         verify(mockSendEmailChoiceView).apply()(*,*,*)
       }
@@ -311,62 +313,81 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
         val eventualResult: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(eventualResult) shouldBe OK
-
+        
         verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(Seq.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
         verifyAuthConnectorCalledForUser
       }
 
     }
 
-    //TODO write tests for select api route
 
     "email preferences select api page" should {
        "return ok on initial load" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
-        val sortedAPIsList = List(api1, api2).sortBy(_.name)
-
         val eventualResult: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
         status(eventualResult) shouldBe OK
 
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(sortedAPIsList), eqTo(Seq.empty))(*, *, *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(twoApis.sortBy(_.name)), eqTo(Seq.empty))(*, *, *)
       }
 
      "return ok when filters provided" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
-        val request = createGetRequest("/emails/api-subscribers/email-preferences/select-api?selectedAPIs=tax-free-childcare-provider")
-        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(FakeRequest())
+        val eventualResult: Future[Result] = underTest.selectSpecficApi(Some(Seq(api1.serviceName)))(FakeRequest())
         status(eventualResult) shouldBe OK
 
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(twoApis.sortBy(_.name)), eqTo(Seq(api1)))(*, *, *)
       }
     }
 
     "email preferences specific api page" should {
-      "render the view correctly when no filter selected" in new Setup {
+      "redirect to select API page when no filter selected" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition2Apis()
 
-        val request = createGetRequest("/emails/api-subscribers/email-preferences/by-specific-api")
-        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
-        status(eventualResult) shouldBe OK
+        val eventualResult: Result = await(underTest.emailPreferencesSpecificApis(Seq.empty, None)(FakeRequest()))
+        status(eventualResult) shouldBe SEE_OTHER
+        eventualResult.header.headers.get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api")
 
         verifyZeroInteractions(mockDeveloperService)
+        verifyZeroInteractions(mockEmailPreferencesSpecificApiView)
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition2Apis()
 
-        val request = createGetRequest("/emails/api-subscribers/email-preferences/by-specific-api?selectedAPIs=tax-free-childcare-provider")
-        val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
+        val selectedAPIs = Seq(api1)
+
+        val eventualResult: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), None)(FakeRequest())
         status(eventualResult) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(Seq.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
       }
 
-      // todo check page is redirected when no api list is provided
-      // check dev service called correctly when apis provided and selected topic
+      "render the view with results correctly when apis and topic filters have been selected" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenApiDefinition2Apis()
+        givenfetchDevelopersBySpecificAPIEmailPreferences(verified2Users)
+
+        val expectedEmailString = verified2Users.map(_.email).mkString("; ")
+
+        val selectedAPIs = Seq(api1)
+        val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
+
+        val eventualResult: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic.toString))(FakeRequest())
+        status(eventualResult) shouldBe OK
+        val apiNames = selectedAPIs.map(_.serviceName)
+         val  categories = selectedAPIs.flatMap(_.categories.getOrElse(Seq.empty))
+
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
+      }
+
     }
 
     "email preferences topic page" should {
