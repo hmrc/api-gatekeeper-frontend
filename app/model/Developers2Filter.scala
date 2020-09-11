@@ -24,7 +24,7 @@ case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
 case class ApiContextVersion(context: ApiContext, version: ApiVersion) {
-  def toStringValue: String = s"${context.value}__$version"
+  def toStringValue: String = s"${context.value}__${version.value}"
 }
 
 object ApiContextVersion {

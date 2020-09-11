@@ -19,7 +19,7 @@ package utils
 import builder.SubscriptionsBuilder
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
-import model.{ApiContext, ApiVersion, LoggedInRequest}
+import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
@@ -140,13 +140,13 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
 
   "withAppAndSubscriptionVersion" should {
     "fetch subscription and version" in new withSubscription {
-      val version = subscription.versions.head
+      val versionSubscription: VersionSubscription = subscription.versions.head
       val context = subscription.context
     
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
   
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, version.version.version)(request => {
+      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, versionSubscription.version.version)(request => {
         request.subscription shouldBe subscription
         request.version shouldBe version
         

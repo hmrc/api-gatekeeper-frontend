@@ -73,7 +73,7 @@ trait ActionBuilders extends ErrorHelper {
       appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
         (for{
           subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
-          version <- subscription.versions.find(v => v.version.version == apiVersion)
+          version <- subscription.versions.find((v: VersionSubscription) => v.version.version == apiVersion)
         } yield action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version)))
           .getOrElse(Future.successful(notFound("Subscription or version not found")))
       }

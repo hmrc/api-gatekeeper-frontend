@@ -228,13 +228,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersion = ApiVersionDefinition(apiVersion1, APIStatus.ALPHA)
+        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, APIStatus.ALPHA)
 
-        val apiVersions = List(apiVersion, apiVersion)
-        val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", apiContext, apiVersions, None))
+        val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
+        val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
-
 
         result.size shouldBe 1
         result.head.value shouldBe s"${apiContext.value}__${apiVersion1.value}"

@@ -569,7 +569,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.subscribeToApi(*, *[ApiContext], *)(*))
+        given(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
@@ -600,7 +600,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *)(*))
+        given(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*))
           .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
@@ -620,7 +620,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *)(*)
+        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)
       }
     }
 

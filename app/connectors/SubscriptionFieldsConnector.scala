@@ -149,8 +149,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } recover recovery(None)
   }
 
-  private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
-
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
     s"$serviceBaseUrl/field/application/${clientId.urlEncode()}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
