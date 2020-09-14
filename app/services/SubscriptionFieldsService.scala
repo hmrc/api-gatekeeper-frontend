@@ -18,7 +18,7 @@ package services
 
 import javax.inject.{Inject, Named, Singleton}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
+import model.{APIDefinitionFormatters, APIIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldName, FieldValue, FieldsDeleteResult}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,7 +26,8 @@ import scala.concurrent.Future
 
 @Singleton
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
-                                          @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector) {
+                                          @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector)
+                                          extends APIDefinitionFormatters {
 
   def fetchFieldsValues(application: Application, fieldDefinitions: Seq[SubscriptionFieldDefinition], apiIdentifier: APIIdentifier)
                        (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
@@ -69,8 +70,8 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
     def createEmptyFieldValues(fieldDefinitions: Seq[SubscriptionFieldDefinition]) = {
       fieldDefinitions
-        .map(d => d.name -> "")
-        .toMap
+        .map(d => d.name -> FieldValue.empty)
+        .toMap[FieldName, FieldValue]
     }
 
     if(values.forall(_.value.isEmpty)){
