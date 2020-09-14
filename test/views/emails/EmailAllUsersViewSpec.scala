@@ -38,6 +38,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
   }
 
   "email all user view" must {
+
     "show correct title and content for 2 verified users" in new Setup {
       val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
       val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
@@ -47,7 +48,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
 
       result.contentType must include("text/html")
       validateEmailAllUsersPage(document)
-      validateResultsTable(document, Seq(user1, user2))
+      validateResultsTable(document, users)
     }
 
     "show correct title and content for empty / no users" in new Setup {
@@ -56,8 +57,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
 
       result.contentType must include("text/html")
       validateEmailAllUsersPage(document)
-      assertZeroResultsTextDisplayed(document)
-      assertNoResultsTableDisplayed(document)
+      validateResultsTable(document, Seq.empty)
     }
 
   }

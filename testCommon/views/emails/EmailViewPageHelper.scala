@@ -17,7 +17,7 @@
 package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
-import model.User
+import model.{APIDefinition, User}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText}
 
@@ -69,16 +69,19 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
   def validateResultsTable(document: Document, users: Seq[User]) = {
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe true
-
-    verifyTableHeader(document)
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
   }
+}
 
-  def assertZeroResultsTextDisplayed(document: Document) = elementExistsContainsText(document, "div", "0 results") mustBe true
+trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHelper {
+  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
+     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
-  def assertNoResultsTableDisplayed(document: Document) = {
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
-    verifyTableHeader(document, tableIsVisible = false)
+     for(api: APIDefinition <- apis){
+      elementExistsByText(document, "option", api.name) mustBe true
+     }
+     validateButtonText(document, "submit", "Filter")
   }
 }
