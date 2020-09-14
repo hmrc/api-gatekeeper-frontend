@@ -42,7 +42,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
-  private lazy val mockSendEmailChoiceView = mock[SendEmailChoiceView]
+  private lazy val mockSendEmailChoiceView = mock[EmailLandingView]
   private lazy val mockEmailInformationView = mock[EmailInformationView]
   private lazy val mockEmailAllUsersView = mock[EmailAllUsersView]
   private lazy val mockEmailApiSubscriptionsView = mock[EmailApiSubscriptionsView]
