@@ -69,7 +69,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiIdentifier = APIIdentifier(ApiContext.random,"1.0")
+    val apiIdentifier = APIIdentifier(ApiContext.random, ApiVersion.random)
 
     val context = apiIdentifier.context
     val version = apiIdentifier.version
@@ -425,7 +425,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
       
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val result = await(underTest.subscribeToApi(stdApp1, context, version))
@@ -449,7 +449,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
         .willReturn(Future.successful(subscriptionFieldValues))
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
         .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap
@@ -477,7 +477,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       val errors = Map("fieldName" -> "failure reason")
 
-      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *, *)(*))
+      given(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
           .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(errors)))
 
       private val exception = intercept[RuntimeException](
@@ -492,7 +492,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   "unsubscribeFromApi" should {
     "call the service to unsubscribe from the API and delete the field values" in new Setup {
 
-      given(mockProductionApplicationConnector.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *)(*))
+      given(mockProductionApplicationConnector.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))

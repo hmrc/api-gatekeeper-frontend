@@ -23,8 +23,8 @@ case class Developers2Filter(maybeEmailFilter: Option[String] = None,
                              environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
                              developerStatusFilter: DeveloperStatusFilter = AllStatus)
 
-case class ApiContextVersion(context: ApiContext, version: String) {
-  def toStringValue: String = s"${context.value}__$version"
+case class ApiContextVersion(context: ApiContext, version: ApiVersion) {
+  def toStringValue: String = s"${context.value}__${version.value}"
 }
 
 object ApiContextVersion {
@@ -33,7 +33,7 @@ object ApiContextVersion {
   def apply(value: Option[String]): Option[ApiContextVersion] = {
     value match {
       case None => None
-      case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), version))
+      case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), ApiVersion(version)))
       case _ => throw new Exception("Invalid API context or version")
     }
   }

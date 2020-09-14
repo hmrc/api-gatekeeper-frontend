@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import views.html.{ErrorTemplate, ForbiddenView}
-import model.ApiContext
+import model.{ApiContext, ApiVersion}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -52,7 +52,7 @@ class SubscriptionConfigurationControllerSpec
       errorTemplateView
     )
 
-    val version = "1.0"
+    val version = ApiVersion.random
     val context = ApiContext.random
     val subscriptionFieldValue = buildSubscriptionFieldValue("field-name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
@@ -74,7 +74,7 @@ class SubscriptionConfigurationControllerSpec
       val responseBody = Helpers.contentAsString(result)
       responseBody should include("<h1>Subscription configuration</h1>")
       responseBody should include(subscription.name)
-      responseBody should include(subscription.versions.head.version.version)
+      responseBody should include(subscription.versions.head.version.version.value)
       responseBody should include(subscription.versions.head.version.displayedStatus)
       responseBody should include(subscription.versions.head.fields.fields.head.definition.shortDescription)
       responseBody should include(subscription.versions.head.fields.fields.head.value)
@@ -116,7 +116,7 @@ class SubscriptionConfigurationControllerSpec
       val responseBody = Helpers.contentAsString(result)
 
       responseBody should include(subscription.name)
-      responseBody should include(subscription.versions.head.version.version)
+      responseBody should include(subscription.versions.head.version.version.value)
       responseBody should include(subscription.versions.head.version.displayedStatus)
       
       responseBody should include(subscriptionFieldValue.definition.description)

@@ -28,7 +28,7 @@ class ApiContextVersionSpec extends UnitSpec with Matchers {
 
       apiContextVersion.nonEmpty shouldBe true
       apiContextVersion.get.context.value shouldBe "my-api-context"
-      apiContextVersion.get.version shouldBe "1.0"
+      apiContextVersion.get.version.value shouldBe "1.0"
     }
 
     "given an invalid api context and version should error" in {

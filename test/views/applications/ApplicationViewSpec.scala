@@ -304,8 +304,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show API subscriptions" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id)
+      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
+      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
 
       val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
 
@@ -315,13 +315,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       result.contentType must include("text/html")
       result.body.contains("API subscriptions") mustBe true
       result.body.contains("My API Name") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields1.version.version} (Stable)") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields2.version.version} (Stable)") mustBe true
+      result.body.contains(s"${versionWithSubscriptionFields1.version.version.value} (Stable)") mustBe true
+      result.body.contains(s"${versionWithSubscriptionFields2.version.version.value} (Stable)") mustBe true
     }
 
      "show subscriptions that have subscription fields configurartion" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields("1.0", true, application.id)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields("2.0", true, application.id)
+      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
+      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
 
       val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
 
@@ -331,8 +331,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe true
       result.body.contains("My API Name") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields1.version.version} (Stable)") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields2.version.version} (Stable)") mustBe true
+      result.body.contains(s"${versionWithSubscriptionFields1.version.version.value} (Stable)") mustBe true
+      result.body.contains(s"${versionWithSubscriptionFields2.version.version.value} (Stable)") mustBe true
     }
 
     "hide subscriptions configurartion" in new Setup {

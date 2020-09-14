@@ -18,12 +18,11 @@ package services
 
 import javax.inject.{Inject, Named, Singleton}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIIdentifier, Application, FieldsDeleteResult}
+import model.{APIIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import model.{ClientId, ApiContext}
 
 @Singleton
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
@@ -57,14 +56,14 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     connectorFor(application).fetchFieldsValuesWithPrefetchedDefinitions(application.clientId, apiIdentifier, definitions)
   }
 
-  def saveFieldValues(application: Application, apiContext: ApiContext, apiVersion: String, fields: Fields)
+  def saveFieldValues(application: Application, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields)
       (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     connectorFor(application).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
   def saveBlankFieldValues( application: Application,
                             apiContext: ApiContext,
-                            apiVersion: String,
+                            apiVersion: ApiVersion,
                             values : Seq[SubscriptionFieldValue])
                           (implicit hc: HeaderCarrier) : Future[SaveSubscriptionFieldsResponse] = {
 
@@ -85,7 +84,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     }
   }
 
-  def deleteFieldValues(application: Application, context: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
+  def deleteFieldValues(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     connectorFor(application).deleteFieldValues(application.clientId, context, version)
   }
 
@@ -101,7 +100,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
 object SubscriptionFieldsService {
   trait SubscriptionFieldsConnector {
-    def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: String)
+    def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)
                         (implicit hc: HeaderCarrier) : Future[Seq[SubscriptionFieldValue]]
 
     def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
@@ -109,12 +108,12 @@ object SubscriptionFieldsService {
 
     def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion]
 
-    def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: String)
+    def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)
                              (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]]
 
-    def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: String, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+    def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
 
-    def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: String)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
+    def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
   }
 
   type DefinitionsByApiVersion = Map[APIIdentifier, Seq[SubscriptionFieldDefinition]]

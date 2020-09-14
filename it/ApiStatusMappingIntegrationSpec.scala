@@ -39,6 +39,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
     implicit val hc = HeaderCarrier()
     val connector = app.injector.instanceOf[ProductionApiDefinitionConnector]
     val apiContext = ApiContext.random
+    val apiVersion = ApiVersion.random
   }
 
   "API status mapping" should {
@@ -54,7 +55,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
           |   "context": "${apiContext.value}",
           |   "versions": [
           |     {
-          |       "version": "1.0",
+          |       "version": "${apiVersion.value}",
           |       "status": "PROTOTYPED",
           |       "access": {
           |         "type": "PUBLIC"
@@ -81,7 +82,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition("1.0", APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion, APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
@@ -96,7 +97,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
           |   "context": "${apiContext.value}",
           |   "versions": [
           |     {
-          |       "version": "1.0",
+          |       "version": "${apiVersion.value}",
           |       "status": "PUBLISHED",
           |       "access": {
           |         "type": "PUBLIC"
@@ -123,7 +124,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       result shouldBe Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition("1.0", APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
     }
   }
 }

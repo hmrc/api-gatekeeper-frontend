@@ -189,7 +189,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).manageIpWhitelist(application.id, whitelistedIp)
   }
 
-  def subscribeToApi(application: Application, context: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def subscribeToApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     val applicationConnector: ApplicationConnector = applicationConnectorFor(application)
 
     val apiIdentifier = APIIdentifier(context, version)
@@ -225,7 +225,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       .flatMap(_ => subscribeResponse)
   }
 
-  def unsubscribeFromApi(application: Application, context: ApiContext, version: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
       applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 

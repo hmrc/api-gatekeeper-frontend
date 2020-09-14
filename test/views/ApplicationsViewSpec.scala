@@ -49,10 +49,10 @@ class ApplicationsViewSpec extends CommonViewSpec {
     implicit val loggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, APIIdentifier(ApiContext("dummy-api"), "1.0"))),
-      displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier(ApiContext("beta-api"), "1.0"))),
-      displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier(ApiContext("ret-api"), "1.0"))),
-      displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier(ApiContext("dep-api"), "1.0")))
+      displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, APIIdentifier(ApiContext("dummy-api"), ApiVersion.random))),
+      displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, APIIdentifier(ApiContext("beta-api"), ApiVersion.random))),
+      displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, APIIdentifier(ApiContext("ret-api"), ApiVersion.random))),
+      displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, APIIdentifier(ApiContext("dep-api"), ApiVersion.random)))
     )
 
     val collaborators = Set(

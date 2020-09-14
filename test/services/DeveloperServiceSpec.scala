@@ -60,7 +60,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     val developerTeamMember = Collaborator(developerUser.email, CollaboratorRole.DEVELOPER)
     val commonUsers = Seq(verifiedAdminUser, unverifiedAdminUser, developerUser)
     val apiContext = ApiContext("api")
-    val apiVersion = "1.0"
+    val apiVersion = ApiVersion.random
 
     implicit val hc = HeaderCarrier()
 
@@ -359,9 +359,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email1 = user1.email
       private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(user1.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(user2.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
@@ -379,9 +379,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(user.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(user.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
@@ -494,9 +494,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email1 = productionUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
@@ -508,7 +508,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       result shouldBe List(productionUser)
 
       verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *, *)(*)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -517,9 +517,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       private val email2 = sandboxUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(productionUser.email))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *, *)(*))
+      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(Seq(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
@@ -530,7 +530,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *, *)(*)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }

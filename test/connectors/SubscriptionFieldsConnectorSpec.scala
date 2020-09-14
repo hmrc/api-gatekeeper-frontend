@@ -24,7 +24,7 @@ import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
 import model.Environment.Environment
 import model.SubscriptionFields._
-import model.{APIIdentifier, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
+import model.{APIIdentifier, ApiContext, ApiVersion, ClientId, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
@@ -34,8 +34,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.ClientId
-import model.ApiContext
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
@@ -43,7 +41,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   private val clientId = ClientId.random
   private val apiContext = ApiContext.random
-  private val apiVersion = "1.0"
+  private val apiVersion = ApiVersion.random
   private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
@@ -113,7 +111,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
 
-    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/$apiVersion"
+    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
     "return subscription fields for an API" in new Setup {
       when(mockHttpClient
@@ -236,7 +234,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldDefinitions" should {
-    val url = s"/definition/context/${apiContext.urlEncode()}/version/$apiVersion"
+    val url = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
     val definitionsFromRestService = List(
       FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
@@ -281,8 +279,8 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldValues" should {
-    val definitionsUrl = s"/definition/context/${apiContext.urlEncode()}/version/$apiVersion"
-    val valuesUrl = s"/field/application/${clientId.value}/context/${apiContext.urlEncode()}/version/$apiVersion"
+    val definitionsUrl = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
+    val valuesUrl = s"/field/application/${clientId.value}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
     val definitionsFromRestService = List(
       FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
@@ -336,7 +334,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val fieldsValues = fields("field001" -> "value001", "field002" -> "value002")
     val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)
 
-    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/$apiVersion"
+    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
     "save the fields" in new Setup {
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](eqTo(putUrl), eqTo(subFieldsPutRequest), *)(*, *, *, *))
@@ -370,7 +368,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "deleteFieldValues" should {
 
-    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/$apiVersion"
+    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
     "return success after delete call has returned 204 NO CONTENT" in new Setup {
 

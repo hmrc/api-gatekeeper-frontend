@@ -58,7 +58,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withAppAndSubscriptionVersion(appId, apiContext, version) {
           app => {
@@ -73,7 +73,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, version: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => {
 
       withAppAndSubscriptionVersion(appId, apiContext, version) {

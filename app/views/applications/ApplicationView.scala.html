@@ -113,7 +113,7 @@
                 @subscription.name
                 @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
                     @for((version, index) <- subscribedVersions.zipWithIndex) {
-                        @version.version (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
+                        @version.version.value (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
                     }
                 }
             </td>

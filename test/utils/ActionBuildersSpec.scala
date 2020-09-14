@@ -19,7 +19,7 @@ package utils
 import builder.SubscriptionsBuilder
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
-import model.LoggedInRequest
+import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
@@ -28,7 +28,6 @@ import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ErrorTemplate
-import model.ApiContext
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -52,22 +51,22 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   }
 
   trait withSubscription extends Setup {
-    def subscription = buildSubscription("mySubscription", versions = Seq(
-      buildVersionWithSubscriptionFields("1.0", true, applicationId),
-      buildVersionWithSubscriptionFields("2.0", true, applicationId)
+    val subscription = buildSubscription("mySubscription", versions = Seq(
+      buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
+      buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     ))
   }
   
   trait SubscriptionsWithMixOfSubscribedVersionsSetup extends withSubscription {
-    val version1Subscribed = buildVersionWithSubscriptionFields("1.0", true, applicationId)
-    val version2NotSubscribed = buildVersionWithSubscriptionFields("2.0", false, applicationId)
+    val version1Subscribed = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
+    val version2NotSubscribed = buildVersionWithSubscriptionFields(ApiVersion.random, false, applicationId)
 
     val emptySubscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId)
-    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields("3.0", true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
+    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
     val subscriptionFieldValue = buildSubscriptionFieldValue("name")
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields("4.0", true, applicationId, fields = Some(subscriptionFieldsWrapper))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
     val subscription1 = buildSubscription("Subscription1")
 
@@ -141,15 +140,15 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
 
   "withAppAndSubscriptionVersion" should {
     "fetch subscription and version" in new withSubscription {
-      val version = subscription.versions.head
+      val versionSubscription: VersionSubscription = subscription.versions.head
       val context = subscription.context
     
       fetchApplicationReturns(application)
       fetchApplicationSubscriptionsReturns(Seq(subscription))
   
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, version.version.version)(request => {
+      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, versionSubscription.version.version)(request => {
         request.subscription shouldBe subscription
-        request.version shouldBe version
+        request.version shouldBe versionSubscription
         
         Future.successful(Ok(expectedResult))
       }))
@@ -178,7 +177,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
       fetchApplicationSubscriptionsReturns(Seq(subscription))
 
       val apiContext = subscription.context
-      val invalidVersion = "not-a-version"
+      val invalidVersion = ApiVersion("not-a-version")
 
       val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, apiContext, invalidVersion)(_ => {
         throw new RuntimeException("This shouldn't be called")
