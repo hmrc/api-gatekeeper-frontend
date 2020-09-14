@@ -18,7 +18,7 @@ package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import org.jsoup.nodes.Document
-import utils.ViewHelpers.{elementExistsByIdWithAttr, elementExistsByText}
+import utils.ViewHelpers.{elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText}
 
 
 trait EmailLandingViewHelper extends EmailUsersHelper{
@@ -34,4 +34,34 @@ trait EmailLandingViewHelper extends EmailUsersHelper{
     validateButtonText(document, "submit", "Continue")
   }
 
+}
+
+trait EmailInformationViewHelper extends EmailUsersHelper{
+
+  def validateApiSubcriptionInformationPage(document: Document): Unit = {
+      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
+      elementExistsByText(document, "h1", "Check you can send your email") mustBe true
+      elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") mustBe true
+      elementExistsByText(document, "li", "important notices and service updates") mustBe true
+      elementExistsByText(document, "li", "changes to any application they have") mustBe true
+      elementExistsByText(document, "li", "making their application accessible") mustBe true
+  }
+
+  def validateAllUsersInformationPage(document: Document): Unit = {
+      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
+      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
+      elementExistsByText(document, "h1", "Check you can email all users") mustBe true
+      elementExistsContainsText(document, "div", "You can only email all users if your message is about:") mustBe true
+      elementExistsByText(document, "li", "important notices and service updates") mustBe true
+      elementExistsByText(document, "li", "changes to any application they have") mustBe true
+      elementExistsByText(document, "li", "making their application accessible") mustBe true
+  }
+
+}
+
+trait EmailAllUsersViewHelper{
+
+  def validateEmailAllUsersPage(document: Document): Unit = {
+    
+  }
 }

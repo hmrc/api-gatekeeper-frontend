@@ -26,9 +26,10 @@ import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
+import views.emails.EmailInformationViewHelper
 import views.html.emails.EmailInformationView
 
-class EmailInformationViewSpec extends CommonViewSpec {
+class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -44,28 +45,15 @@ class EmailInformationViewSpec extends CommonViewSpec {
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-      elementExistsByText(document, "h1", "Check you can email all users") mustBe true
-      elementExistsContainsText(document, "div", "You can only email all users if your message is about:") mustBe true
-      elementExistsByText(document, "li", "important notices and service updates") mustBe true
-      elementExistsByText(document, "li", "changes to any application they have") mustBe true
-      elementExistsByText(document, "li", "making their application accessible") mustBe true
+      validateAllUsersInformationPage(document)
     }
 
     "show correct title and content for API_SUBSCRIPTION" in new Setup {
       val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
+      validateApiSubcriptionInformationPage(document)
 
-      result.contentType must include("text/html")
-      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-      elementExistsByText(document, "h1", "Check you can send your email") mustBe true
-      elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") mustBe true
-      elementExistsByText(document, "li", "important notices and service updates") mustBe true
-      elementExistsByText(document, "li", "changes to any application they have") mustBe true
-      elementExistsByText(document, "li", "making their application accessible") mustBe true
     }
   }
 

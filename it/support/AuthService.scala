@@ -43,6 +43,7 @@ trait AuthService {
       .willReturn(
         aResponse()
           .withStatus(Status.UNAUTHORIZED)
+          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
 
       )
     )
