@@ -58,13 +58,13 @@ class EmailAllUsersViewSpec extends CommonViewSpec with UserTableHelper{
 
     "show correct title and content for empty / no users" in new Setup {
       val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, s"", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = true
+      val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
       elementExistsByText(document, "h1", "Email all users") mustBe true
       elementExistsContainsText(document, "div", "0 results") mustBe true
-      verifyTableHeader(document)
+      verifyTableHeader(document, tableIsVisible)
     }
 
   }
