@@ -51,7 +51,9 @@ trait Env {
   }
 
   def createChromeDriver(): WebDriver = {
-    val driver = new ChromeDriver()
+    val options = new ChromeOptions()
+    options.addArguments("--headless")
+    val driver = new ChromeDriver(options)
     driver.manage().deleteAllCookies()
     driver.manage().window().setSize(windowSize)
     driver
