@@ -33,14 +33,14 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, SendEmailChoiceView, EmailPreferencesSelectApiView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, EmailLandingView, EmailPreferencesSelectApiView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailsController  @Inject()(developerService: DeveloperService,
                                   apiDefinitionService: ApiDefinitionService,
-                                  sendEmailChoiceView: SendEmailChoiceView,
+                                  emailLandingView: EmailLandingView,
                                   emailInformationView: EmailInformationView,
                                   emailsAllUsersView: EmailAllUsersView,
                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
@@ -59,7 +59,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
 
   def landing(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      Future.successful(Ok(sendEmailChoiceView()))
+      Future.successful(Ok(emailLandingView()))
   }
 
   def chooseEmailOption(): Action[AnyContent] = {
@@ -73,7 +73,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
             }
         }
         def handleInvalidForm(formWithErrors: Form[SendEmailChoice]) =
-          Future.successful(BadRequest(sendEmailChoiceView()))
+          Future.successful(BadRequest(emailLandingView()))
           SendEmailChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
 
       }
