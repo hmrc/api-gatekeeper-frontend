@@ -51,7 +51,11 @@ trait Env {
   }
 
   def createChromeDriver(): WebDriver = {
-    val driver = new ChromeDriver()
+    val options = new ChromeOptions()
+    options.addArguments("--headless")
+    options.addArguments("--proxy-server='direct://'")
+    options.addArguments("--proxy-bypass-list=*")
+    val driver = new ChromeDriver(options)
     driver.manage().deleteAllCookies()
     driver.manage().window().setSize(windowSize)
     driver
