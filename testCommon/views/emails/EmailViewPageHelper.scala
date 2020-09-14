@@ -17,11 +17,12 @@
 package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
+import model.User
 import org.jsoup.nodes.Document
-import utils.ViewHelpers.{elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText}
+import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText}
 
 
-trait EmailLandingViewHelper extends EmailUsersHelper{
+trait EmailLandingViewHelper extends EmailUsersHelper {
 
   def validateLandingPage(document: Document): Unit = {
     validatePageHeader(document, "Send emails to users based on")
@@ -36,7 +37,7 @@ trait EmailLandingViewHelper extends EmailUsersHelper{
 
 }
 
-trait EmailInformationViewHelper extends EmailUsersHelper{
+trait EmailInformationViewHelper extends EmailUsersHelper {
 
   def validateApiSubcriptionInformationPage(document: Document): Unit = {
       elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
@@ -59,9 +60,25 @@ trait EmailInformationViewHelper extends EmailUsersHelper{
 
 }
 
-trait EmailAllUsersViewHelper{
+trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
   def validateEmailAllUsersPage(document: Document): Unit = {
-    
+    elementExistsByText(document, "h1", "Email all users") mustBe true
+
+  }
+
+  def validateResultsTable(document: Document, users: Seq[User]) = {
+    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe true
+
+    verifyTableHeader(document)
+    users.foreach(user => verifyUserRow(document, user))
+  }
+
+  def assertZeroResultsTextDisplayed(document: Document) = elementExistsContainsText(document, "div", "0 results") mustBe true
+
+  def assertNoResultsTableDisplayed(document: Document) = {
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    verifyTableHeader(document, tableIsVisible = false)
   }
 }

@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailAllUsersView
 
-class EmailAllUsersViewSpec extends CommonViewSpec with UserTableHelper{
+class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -43,28 +43,21 @@ class EmailAllUsersViewSpec extends CommonViewSpec with UserTableHelper{
       val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
       val users = Seq(user1, user2)
       val result: HtmlFormat.Appendable = emailAllUsersView.render(users, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = true
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email all users") mustBe true
-      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-      elementExistsByAttr(document, "a", "data-clip-text") mustBe true
-      verifyTableHeader(document, tableIsVisible)
-      verifyUserRow(document, user1)
-      verifyUserRow(document, user2)
-
+      validateEmailAllUsersPage(document)
+      validateResultsTable(document, Seq(user1, user2))
     }
 
     "show correct title and content for empty / no users" in new Setup {
       val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, s"", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email all users") mustBe true
-      elementExistsContainsText(document, "div", "0 results") mustBe true
-      verifyTableHeader(document, tableIsVisible)
+      validateEmailAllUsersPage(document)
+      assertZeroResultsTextDisplayed(document)
+      assertNoResultsTableDisplayed(document)
     }
 
   }
