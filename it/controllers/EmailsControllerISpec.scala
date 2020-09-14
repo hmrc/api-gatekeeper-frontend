@@ -8,9 +8,9 @@ import play.api.http.HeaderNames.{CONTENT_TYPE, LOCATION}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
-import model.{User, APIDefinition}
-import support.{AuthService, DeveloperService, ApiDefinitionService, ServerBaseISpec}
-import views.emails.{EmailLandingViewHelper, EmailInformationViewHelper, EmailAllUsersViewHelper, EmailApiSubscriptionsViewHelper}
+import model.{APIDefinition, APIStatus, APIVersion, User}
+import support.{ApiDefinitionService, AuthService, DeveloperService, ServerBaseISpec}
+import views.emails.{EmailAllUsersViewHelper, EmailApiSubscriptionsViewHelper, EmailInformationViewHelper, EmailLandingViewHelper}
 import views.html.emails.EmailAllUsersView
 
 
@@ -171,10 +171,11 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
      }
 
      "GET /emails/api-subscribers " should {
-        def simpleAPIDefinition(serviceName: String, name: String): APIDefinition = APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
-        val api1 = simpleAPIDefinition("api-1", "API 1")
-        val api2 = simpleAPIDefinition("api-2", "API 2")
-        val api3 = simpleAPIDefinition("api-3", "API 3")
+        def simpleAPIDefinition(serviceName: String, name: String, context: String): APIDefinition =
+          APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion("1", APIStatus.BETA)), None, None)
+        val api1 = simpleAPIDefinition("api-1", "API 1", "api1")
+        val api2 = simpleAPIDefinition("api-2", "API 2", "api2")
+        val api3 = simpleAPIDefinition("api-3", "API 3", "api3")
         val apis = Seq(api1, api2, api3)
         
          "respond  with 200 and render the page correctly on initial load when authorised" in {
@@ -184,7 +185,6 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
             result.status mustBe OK
             val document: Document = Jsoup.parse(result.body)
-            println(document.toString())
             validateEmailApiSubscriptionsPage(document, apis)
 
          }

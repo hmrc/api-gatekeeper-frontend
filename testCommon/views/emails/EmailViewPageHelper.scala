@@ -17,9 +17,9 @@
 package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
-import model.{APIDefinition, User}
+import model.{APIDefinition, APIVersion, User}
 import org.jsoup.nodes.Document
-import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText}
+import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText, getElementBySelector}
 
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
@@ -79,9 +79,14 @@ trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHe
   def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
      elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
+
+
      for(api: APIDefinition <- apis){
-      elementExistsByText(document, "option", api.name) mustBe true
+       for(version: APIVersion <- api.versions) {
+         val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
+         versionOption.isDefined mustBe true
+       }
      }
-     validateButtonText(document, "submit", "Filter")
+     validateButtonText(document, "filter", "Filter")
   }
 }
