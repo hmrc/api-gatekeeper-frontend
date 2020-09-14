@@ -16,8 +16,9 @@
 
 package views.emails
 
-import model.{APIDefinition, TopicOptionChoice}
+import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.TopicOptionChoice.TopicOptionChoice
+import model.{APIDefinition, TopicOptionChoice}
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
@@ -131,7 +132,7 @@ trait EmailUsersHelper extends MustMatchers {
   private def validateTopicEntry(document: Document, topic: TopicOptionChoice) = {
     val maybeRadioButton = getElementBySelector(document, s"input#$topic")
     maybeRadioButton.fold(fail(s"Topic $topic radio button is missing"))(radioButton => {
-      radioButton.attr("value") must be (topic.toString)
+      radioButton.attr("value") mustBe topic.toString
     })
   }
 
@@ -153,5 +154,12 @@ trait EmailUsersHelper extends MustMatchers {
 
      hiddenTopicInputs.size mustBe apis.size
      hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
+  }
+
+  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean): Unit ={
+    elementExistsById(document, option.toString) mustBe true
+    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
+    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
+    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
   }
 }

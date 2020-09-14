@@ -26,15 +26,15 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
-import views.CommonViewSpec
-import views.html.emails.SendEmailChoiceView
+import views.CommonEmailViewSpec
+import views.html.emails.EmailLandingView
 
-class EmailLandingViewSpec extends CommonViewSpec {
+class EmailLandingViewSpec extends CommonEmailViewSpec with EmailLandingViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailLandingView: SendEmailChoiceView = app.injector.instanceOf[SendEmailChoiceView]
+    val emailLandingView: EmailLandingView = app.injector.instanceOf[EmailLandingView]
   }
 
   "email landing view" must {
@@ -42,19 +42,9 @@ class EmailLandingViewSpec extends CommonViewSpec {
       val result: Html = emailLandingView.render(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
-      elementExistsByText(document, "h1", "Send emails to users based on") mustBe true
-
-      verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = false)
-      verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = false)
-      verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
-      elementExistsByIdWithAttr(document, EMAIL_PREFERENCES.toString, "checked") mustBe true
+      validateLandingPage(document)
     }
   }
 
-  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean): Unit ={
-    elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
-    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
-  }
+
 }
