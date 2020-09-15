@@ -55,11 +55,14 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String): APIDefinition =
-      APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion("1", APIStatus.BETA)), None, None)
-    val api1 = simpleAPIDefinition("api-1", "API 1", "api1")
-    val api2 = simpleAPIDefinition("api-2", "API 2", "api2")
-    val api3 = simpleAPIDefinition("api-3", "API 3", "api3")
+  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[Seq[String]]): APIDefinition =
+      APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion("1", APIStatus.BETA)), None, categories)
+    val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None)
+    val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")))
+    val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")))
+    val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None)
+    val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None)
+    val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None)
     val apis = Seq(api1, api2, api3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
@@ -373,9 +376,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
 
       "respond with 200 and render the page correctly when selectedAPis provided" in {
-        val api4 = simpleAPIDefinition("api-4", "API 4", "api4")
-        val api5 = simpleAPIDefinition("api-5", "API 5", "api5")
-        val api6 = simpleAPIDefinition("api-6", "API 6", "api6")
         val selectedApis = Seq(api4, api5, api6)
 
         primeAuthServiceSuccess()
@@ -395,9 +395,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     }
 
     "GET /emails/email-preferences/by-specific-api" should {
-        val api4 = simpleAPIDefinition("api-4", "API 4", "api4")
-        val api5 = simpleAPIDefinition("api-5", "API 5", "api5")
-        val api6 = simpleAPIDefinition("api-6", "API 6", "api6")
         val selectedApis = Seq(api4, api5, api6)
 
      "respond with 200 and render the page correctly on initial load with selectedApis" in {
@@ -413,16 +410,25 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
      "redirect to select api page when no selectedApis in query params" in {
         primeAuthServiceSuccess()
-        // primeDefinitionServiceSuccessWithPublicApis(Seq.empty)
-        // primeDefinitionServiceSuccessWithPrivateApis(apis++selectedApis)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
 
       } 
 
+       "respond with 200 and render the page with users table with selectedApis" in {
+        primeAuthServiceSuccess()
+        primeDefinitionServiceSuccessWithPublicApis(Seq.empty)
+        primeDefinitionServiceSuccessWithPrivateApis(apis++selectedApis)
+        primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(allUsers, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
+        val document: Document = Jsoup.parse(result.body)
+        println(document.toString())
+        validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
+      } 
+
        "respond with 403 when not authorised" in {
         primeAuthServiceFail()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("selectedAPIs="+_.serviceName).mkString("&")}", validHeaders)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs="+_.serviceName)}", validHeaders)
         result.status mustBe FORBIDDEN
       }
     }
