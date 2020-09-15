@@ -5,11 +5,12 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
 import model.APIDefinition
+import model.APICategory
 
-trait ApiDefinitionService {
+trait ApiDefinitionServiceStub {
   val apiPublicDefinitionUrl = "/api-definition"
   val apiPrivateDefinitionUrl = "/api-definition?type=private"
-
+  val getCategoriesUrl = "/api-categories"
 
   def primeDefinitionServiceSuccessWithPublicApis(apis: Seq[APIDefinition]): Unit = {
 
@@ -23,6 +24,15 @@ trait ApiDefinitionService {
     def primeDefinitionServiceSuccessWithPrivateApis(apis: Seq[APIDefinition]): Unit = {
 
     stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(apis).toString())))
+  }
+
+     def primeGetAllCategories(apis: Seq[APICategory]): Unit = {
+
+    stubFor(get(urlEqualTo(getCategoriesUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)

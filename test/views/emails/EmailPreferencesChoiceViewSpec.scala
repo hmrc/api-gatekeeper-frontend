@@ -30,7 +30,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesChoiceView
 
-class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailUsersHelper {
+class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -43,12 +43,8 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailUsersHelpe
       val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
+      validateInitialPageLoad(document)
 
-      validatePageHeader(document, "Who do you want to email?")
-
-      verifyEmailOptions(SPECIFIC_API, document)
-      verifyEmailOptions(TAX_REGIME, document)
-      verifyEmailOptions(TOPIC, document)
 
     }
   }

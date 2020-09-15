@@ -129,7 +129,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
           apiNames = filteredApis.map(_.serviceName)
           categories = filteredApis.flatMap(_.categories.getOrElse(Seq.empty))
           users <-  selectedTopic.fold(Future.successful(Seq.empty[User]))(topic => {
-            developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames)
+            developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified.getOrElse(false))) 
           })
         } yield  Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis.sortBy(_.name), selectedTopic))
       }
@@ -142,7 +142,10 @@ class EmailsController  @Inject()(developerService: DeveloperService,
         //withName could throw an exception here
         val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
         maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(Seq.empty))
-        .map(users => Ok(emailPreferencesTopicView(users, usersToEmailCopyText(users) , maybeTopic)))
+        .map(users => {
+          val filteredUsers = users.filter(_.verified.getOrElse(false))
+          Ok(emailPreferencesTopicView(filteredUsers, usersToEmailCopyText(filteredUsers) , maybeTopic)) 
+        })
       }
     }
   }
@@ -160,7 +163,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
          categories <- apiDefinitionService.apiCategories
          users <-  topicAndCategory.map(tup=>
            developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2))
-           .getOrElse(Future.successful(Seq.empty))
+           .getOrElse(Future.successful(Seq.empty)).map(_.filter(_.verified.getOrElse(false)))
          
        } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))
       }
@@ -197,7 +200,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
       val filter = Developers2Filter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
       val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(Seq.empty[User]))(_=>developerService.searchDevelopers(filter))
           for{
-            userList <- fetchedUsers
+            userList <- fetchedUsers.map(_.filter(_.verified.getOrElse(false)))
             apis     <- apiDropDowns
           } yield Ok(emailApiSubscriptionsView(apis, userList, usersToEmailCopyText(userList), queryParams))
   }

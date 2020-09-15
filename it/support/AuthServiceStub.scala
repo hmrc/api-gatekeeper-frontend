@@ -6,7 +6,7 @@ import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
 import uk.gov.hmrc.auth.core.authorise.Predicate
 
-trait AuthService {
+trait AuthServiceStub {
   val authUrl = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)
 

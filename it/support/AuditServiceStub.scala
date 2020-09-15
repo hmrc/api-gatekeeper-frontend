@@ -3,7 +3,7 @@ package support
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 
-trait AuditService {
+trait AuditServiceStub {
   val auditUrl = "/write/audit"
   val auditMergedUrl = "/write/audit/merged"
   private val auditUrlMAtcher = urlEqualTo(auditUrl)

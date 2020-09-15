@@ -17,10 +17,12 @@
 package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
-import model.{APIDefinition, APIVersion, User}
+import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
+import model.{APIDefinition, APIVersion, EmailPreferencesChoice, User, TopicOptionChoice, APICategory}
+import model.TopicOptionChoice._
+import model.APICategory._
 import org.jsoup.nodes.Document
 import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText, getElementBySelector, getSelectedOptionValue}
-
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
 
@@ -98,5 +100,139 @@ trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHe
       }
     }
     validateButtonText(document, "filter", "Filter Again")
+  }
+}
+
+trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHelper { // Is UserTableHelper required here?
+  def validateEmailPreferencesChoicePage(document: Document): Unit = {
+    validatePageHeader(document, "Who do you want to email?")
+
+    verifyEmailPreferencesChoiceOptions(SPECIFIC_API, document)
+    verifyEmailPreferencesChoiceOptions(TAX_REGIME, document)
+    verifyEmailPreferencesChoiceOptions(TOPIC, document)
+  }
+}
+
+trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHelper {
+  def validateEmailPreferencesTopicPage(document: Document) = {
+    elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+
+    validateButtonText(document, "filter", "Filter")
+
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    noInputChecked(document)
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[User]) = {
+    elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    isElementChecked(document, selectedTopic.toString)
+    validateButtonText(document, "filter", "Filter Again")
+    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    if(users.nonEmpty){
+      verifyTableHeader(document)
+    }
+    users.foreach(verifyUserRow(document, _))
+  }
+}
+
+trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTableHelper {
+  private def validateCategoryDropDown(document: Document, categories: List[APICategory]) = {
+    for(category <- categories){
+      withClue(s"Category: option `${category.category}` not in select list: ") {
+        elementExistsByText(document, "option", category.name) mustBe true
+      }
+    }
+  }
+
+  private def validateStaticPageElements(document: Document, categories: List[APICategory]) = {
+      validatePageHeader(document, "Email users interested in a tax regime")
+      validateCategoryDropDown(document, categories)
+      checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+  }
+
+  def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategory]) = {
+    validateStaticPageElements(document, categories)
+    validateCopyToClipboardLink(document, isVisible = false)
+
+    getSelectedOptionValue(document) mustBe None
+
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategory], selectedCategory: APICategory) = {
+    validateStaticPageElements(document, categories)
+    validateCopyToClipboardLink(document, isVisible = false)
+
+    getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+    noInputChecked(document)
+
+    verifyTableHeader(document, false)
+  }
+
+  def validateEmailPreferencsAPICategoryResultsPage(document: Document, categories: List[APICategory], selectedCategory: APICategory, selectedTopic: TopicOptionChoice, users: Seq[User]) = {
+    validateStaticPageElements(document, categories)
+    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+    validateCopyToClipboardLink(document, isVisible = users.nonEmpty)
+    getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+
+    isElementChecked(document, selectedTopic.toString)
+
+    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
+
+    users.foreach(verifyUserRow(document, _))
+  }
+}
+
+trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTableHelper {
+  private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
+    validatePageHeader(document, "Email users interested in a specific API")
+    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
+    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateButtonText(document, "filter", filterButtonText)
+    validateTopicGrid(document, selectedTopic)
+  }
+
+  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[APIDefinition]) = {
+    validateStaticPageElements(document, "Filter", None)
+    validateHiddenSelectedApiValues(document, selectedApis, 2)
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(document: Document, selectedTopic: TopicOptionChoice) = {
+    validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesSpecificAPIResults(document: Document, selectedTopic: TopicOptionChoice, selectedAPIs: Seq[APIDefinition], users: Seq[User], emailsString: String) = {
+    validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+    validateSelectedSpecificApiItems(document, selectedAPIs)
+    validateHiddenSelectedApiValues(document, selectedAPIs, 2)
+    verifyTableHeader(document)
+    users.foreach(verifyUserRow(document, _))
+    
+    validateCopyToClipboardValue(document, emailsString)
+  }
+}
+
+trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[APIDefinition]){
+    validatePageHeader(document, "Email users interested in a specific API")
+    validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
+
+    validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateButtonText(document, "submit", "Select API")
+  }
+
+  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[APIDefinition]) = {
+    validateStaticPageElements(document, dropDownAPIs)
+  }
+
+  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[APIDefinition], selectedAPIs: Seq[APIDefinition]) = {
+    validateStaticPageElements(document, dropDownAPIs)
+    validateHiddenSelectedApiValues(document, selectedAPIs)
   }
 }

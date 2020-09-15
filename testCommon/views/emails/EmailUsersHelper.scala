@@ -17,8 +17,9 @@
 package views.emails
 
 import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
+import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APIDefinition, TopicOptionChoice}
+import model.{APIDefinition, EmailPreferencesChoice, TopicOptionChoice}
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
@@ -114,10 +115,10 @@ trait EmailUsersHelper extends MustMatchers {
     }
   }
 
-  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition]) = {
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition], numberOfSets: Int = 1) = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
-    elements.size mustBe selectedAPIs.size
-    elements.map(_.attr("value")) must contain allElementsOf selectedAPIs.map(_.serviceName)
+    elements.size mustBe selectedAPIs.size * numberOfSets
+    elements.map(_.attr("value")).toSet must contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
   def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
@@ -156,10 +157,17 @@ trait EmailUsersHelper extends MustMatchers {
      hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
   }
 
-  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean): Unit ={
+  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit ={
     elementExistsById(document, option.toString) mustBe true
     elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
     elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
+    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
+  }
+
+  def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit ={
+    elementExistsById(document, option.toString) mustBe true
+    elementExistsContainsText(document, "label",  EmailPreferencesChoice.optionLabel(option)) mustBe true
+    elementExistsContainsText(document, "label",  EmailPreferencesChoice.optionHint(option)) mustBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
   }
 }
