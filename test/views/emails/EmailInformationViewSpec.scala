@@ -24,12 +24,10 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
-import views.emails.EmailInformationViewHelper
 import views.html.emails.EmailInformationView
 
-class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewHelper{
+class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken

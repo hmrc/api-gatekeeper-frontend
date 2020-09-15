@@ -18,7 +18,6 @@ package views
 
 import java.util.Locale
 
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}

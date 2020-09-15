@@ -28,7 +28,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
 
-class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -52,8 +52,8 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper 
 
       noInputChecked(document)
 
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
+      checkElementsExistById(document, Seq(TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+        TopicOptionChoice.TECHNICAL.toString, TopicOptionChoice.RELEASE_SCHEDULES.toString, TopicOptionChoice.EVENT_INVITES.toString))
 
       verifyTableHeader(document, tableIsVisible = false)
 
@@ -71,9 +71,9 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper 
 
       isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
 
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
-  
+      checkElementsExistById(document, Seq(TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+        TopicOptionChoice.TECHNICAL.toString, TopicOptionChoice.RELEASE_SCHEDULES.toString, TopicOptionChoice.EVENT_INVITES.toString))
+
       verifyTableHeader(document)
       verifyUserRow(document, user1)
       verifyUserRow(document, user2)

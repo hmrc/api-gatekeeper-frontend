@@ -18,11 +18,10 @@ package views.emails
 
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
-import model.{APIDefinition, APIVersion, EmailPreferencesChoice, User, TopicOptionChoice, APICategory}
 import model.TopicOptionChoice._
-import model.APICategory._
+import model.{APICategory, APIDefinition, APIVersion, User}
 import org.jsoup.nodes.Document
-import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText, getElementBySelector, getSelectedOptionValue}
+import utils.ViewHelpers._
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
 
@@ -42,22 +41,22 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
 trait EmailInformationViewHelper extends EmailUsersHelper {
 
   def validateApiSubcriptionInformationPage(document: Document): Unit = {
-      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-      elementExistsByText(document, "h1", "Check you can send your email") mustBe true
-      elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") mustBe true
-      elementExistsByText(document, "li", "important notices and service updates") mustBe true
-      elementExistsByText(document, "li", "changes to any application they have") mustBe true
-      elementExistsByText(document, "li", "making their application accessible") mustBe true
+    elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
+    elementExistsByText(document, "h1", "Check you can send your email") mustBe true
+    elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") mustBe true
+    elementExistsByText(document, "li", "important notices and service updates") mustBe true
+    elementExistsByText(document, "li", "changes to any application they have") mustBe true
+    elementExistsByText(document, "li", "making their application accessible") mustBe true
   }
 
   def validateAllUsersInformationPage(document: Document): Unit = {
-      elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-      elementExistsByText(document, "h1", "Check you can email all users") mustBe true
-      elementExistsContainsText(document, "div", "You can only email all users if your message is about:") mustBe true
-      elementExistsByText(document, "li", "important notices and service updates") mustBe true
-      elementExistsByText(document, "li", "changes to any application they have") mustBe true
-      elementExistsByText(document, "li", "making their application accessible") mustBe true
+    elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
+    elementExistsByText(document, "h2", "There is an error on the page") mustBe false
+    elementExistsByText(document, "h1", "Check you can email all users") mustBe true
+    elementExistsContainsText(document, "div", "You can only email all users if your message is about:") mustBe true
+    elementExistsByText(document, "li", "important notices and service updates") mustBe true
+    elementExistsByText(document, "li", "changes to any application they have") mustBe true
+    elementExistsByText(document, "li", "making their application accessible") mustBe true
   }
 
 }
@@ -67,8 +66,8 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
   def validateEmailAllUsersPage(document: Document, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users") mustBe true
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
-
+    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
   }
@@ -76,36 +75,37 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
 trait EmailApiSubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
-     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
-
-     for(api: APIDefinition <- apis){
-       for(version: APIVersion <- api.versions) {
-         val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
-         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}"){
-          versionOption.isDefined mustBe true
-         }
-       }
-     }
-     validateButtonText(document, "filter", "Filter")
-     elementExistsByAttr(document, "a", "data-clip-text") mustBe false
-      verifyTableHeader(document, tableIsVisible = false)
-  }
-
-  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName : String, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
-     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
+    for (api: APIDefinition <- apis) {
+      for (version: APIVersion <- api.versions) {
+        val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
+        withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}") {
+          versionOption.isDefined mustBe true
+        }
+      }
+    }
+    validateButtonText(document, "filter", "Filter")
+    validateCopyToClipboardLink(document, Seq.empty)
+    //     elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName: String, users: Seq[User]): Unit = {
+    elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
+
+    getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
     validateButtonText(document, "filter", "Filter Again")
-   
-    for(api: APIDefinition <- apis){
-      for(version: APIVersion <- api.versions) {
+
+    for (api: APIDefinition <- apis) {
+      for (version: APIVersion <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
         versionOption.isDefined mustBe true
       }
     }
-   
-    
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+
+    validateCopyToClipboardLink(document, users)
+    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
   }
@@ -128,7 +128,8 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 
     validateButtonText(document, "filter", "Filter")
 
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    validateCopyToClipboardLink(document)
+    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
     noInputChecked(document)
     verifyTableHeader(document, tableIsVisible = false)
   }
@@ -139,8 +140,9 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
-    if(users.nonEmpty){
+    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    validateCopyToClipboardLink(document, users)
+    if (users.nonEmpty) {
       verifyTableHeader(document)
     }
     users.foreach(verifyUserRow(document, _))
@@ -149,7 +151,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 
 trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTableHelper {
   private def validateCategoryDropDown(document: Document, categories: List[APICategory]) = {
-    for(category <- categories){
+    for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
         elementExistsByText(document, "option", category.name) mustBe true
       }
@@ -157,34 +159,40 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   }
 
   private def validateStaticPageElements(document: Document, categories: List[APICategory]) = {
-      validatePageHeader(document, "Email users interested in a tax regime")
-      validateCategoryDropDown(document, categories)
-      checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    validatePageHeader(document, "Email users interested in a tax regime")
+    validateCategoryDropDown(document, categories)
+    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
   }
 
   def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategory]) = {
     validateStaticPageElements(document, categories)
-    validateCopyToClipboardLink(document, isVisible = false)
+    validateCopyToClipboardLink(document, Seq.empty)
 
     getSelectedOptionValue(document) mustBe None
 
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategory], selectedCategory: APICategory) = {
+  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document,
+                                                                categories: List[APICategory],
+                                                                selectedCategory: APICategory) = {
     validateStaticPageElements(document, categories)
-    validateCopyToClipboardLink(document, isVisible = false)
+    validateCopyToClipboardLink(document, Seq.empty)
 
     getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
     noInputChecked(document)
 
-    verifyTableHeader(document, false)
+    verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencsAPICategoryResultsPage(document: Document, categories: List[APICategory], selectedCategory: APICategory, selectedTopic: TopicOptionChoice, users: Seq[User]) = {
+  def validateEmailPreferencesAPICategoryResultsPage(document: Document,
+                                                     categories: List[APICategory],
+                                                     selectedCategory: APICategory,
+                                                     selectedTopic: TopicOptionChoice,
+                                                     users: Seq[User]) = {
     validateStaticPageElements(document, categories)
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    validateCopyToClipboardLink(document, isVisible = users.nonEmpty)
+    validateCopyToClipboardLink(document, users)
     getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
 
     isElementChecked(document, selectedTopic.toString)
@@ -215,19 +223,26 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesSpecificAPIResults(document: Document, selectedTopic: TopicOptionChoice, selectedAPIs: Seq[APIDefinition], users: Seq[User], emailsString: String) = {
+  def validateEmailPreferencesSpecificAPIResults(document: Document,
+                                                 selectedTopic: TopicOptionChoice,
+                                                 selectedAPIs: Seq[APIDefinition],
+                                                 users: Seq[User],
+                                                 emailsString: String) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs, 2)
     verifyTableHeader(document, users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
-    
-    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+
+    validateCopyToClipboardLink(document, users)
+
+    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    //    getElementBySelector(document, "a[data-clip-text]")
   }
 }
 
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
-  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[APIDefinition]){
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[APIDefinition]) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 

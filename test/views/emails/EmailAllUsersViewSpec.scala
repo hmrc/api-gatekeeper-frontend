@@ -33,7 +33,6 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailAllUsersView: EmailAllUsersView = app.injector.instanceOf[EmailAllUsersView]
-
   }
 
   "email all user view" must {
@@ -46,7 +45,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val document: Document = Jsoup.parse(result.body)
 
       validateEmailAllUsersPage(document, users)
-      
+
     }
 
     "show correct title and content for empty / no users" in new Setup {

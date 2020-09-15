@@ -79,19 +79,19 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
       validateSelectedSpecificApiItems(document, selectedApis)
     }
 
-     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
-       val emailsStr = users.map(_.email).mkString(";")
+    "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
+      val emailsStr = users.map(_.email).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(users, emailsStr, selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
-      
+
       validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
       validateSelectedSpecificApiItems(document, selectedApis)
 
       verifyTableHeader(document)
       verifyUserRow(document, user1)
       verifyUserRow(document, user2)
-      validateCopyToClipboardValue(document, emailsStr)
+      validateCopyToClipboardLink(document, users)
     }
   }
 

@@ -17,7 +17,6 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.EmailOptionChoice._
 import model.LoggedInUser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -25,7 +24,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonEmailViewSpec
 import views.html.emails.EmailLandingView
 
@@ -45,6 +43,5 @@ class EmailLandingViewSpec extends CommonEmailViewSpec with EmailLandingViewHelp
       validateLandingPage(document)
     }
   }
-
 
 }

@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APIDefinition, EmailPreferencesChoice, TopicOptionChoice}
+import model.{APIDefinition, EmailPreferencesChoice, TopicOptionChoice, User}
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
@@ -52,18 +52,24 @@ trait EmailUsersHelper extends MustMatchers {
     })
   }
 
-  def validateCopyToClipboardLink(document: Document, isVisible: Boolean = true)  = {
-    withClue(s"Copy to cliboard link validation failed") {
-      elementExistsByAttr(document, "a", "data-clip-text") mustBe isVisible
+  def validateCopyToClipboardLink(document: Document, users: Seq[User] = Seq.empty) = {
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copy-users-to-clip") mustBe users.nonEmpty
     }
-  }
 
-  def validateCopyToClipboardValue(document: Document, expectedValue: String) = {
-    withClue(s"Copy to cliboard link validation failed") {
+    if(users.nonEmpty) {
+      val expectedValue = users.map(_.email).sorted.mkString("; ")
       getElementBySelector(document, "a#copy-users-to-clip")
         .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") mustBe expectedValue)
     }
   }
+
+//  def validateCopyToClipboardValue(document: Document, expectedValue: String) = {
+//    withClue(s"Copy to clipboard link validation failed") {
+//      getElementBySelector(document, "a#copy-users-to-clip")
+//        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") mustBe expectedValue)
+//    }
+//  }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String) = {
     val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
@@ -146,28 +152,28 @@ trait EmailUsersHelper extends MustMatchers {
     })
   }
 
-  def validateSelectedSpecificApiItems(document: Document, apis: Seq[APIDefinition]): Unit ={
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[APIDefinition]): Unit = {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
-    
+
     hiddenApiInputs.size mustBe apis.size
     hiddenApiInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
 
-     hiddenTopicInputs.size mustBe apis.size
-     hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
+    hiddenTopicInputs.size mustBe apis.size
+    hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
   }
 
-  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit ={
+  def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
+    elementExistsContainsText(document, "label", optionLabel(option)) mustBe true
+    elementExistsContainsText(document, "label", optionHint(option)) mustBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
   }
 
-  def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit ={
+  def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label",  EmailPreferencesChoice.optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label",  EmailPreferencesChoice.optionHint(option)) mustBe true
+    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) mustBe true
+    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionHint(option)) mustBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
   }
 }

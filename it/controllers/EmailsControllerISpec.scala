@@ -342,7 +342,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status mustBe OK
         val document: Document = Jsoup.parse(result.body)
 
-        validateEmailPreferencsAPICategoryResultsPage(document, categories, categories.head, TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
+        validateEmailPreferencesAPICategoryResultsPage(document, categories, categories.head, TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
       } 
 
      "respond with 200 and render the page correctly when category and topic filter provided and some users returned" in {
@@ -353,7 +353,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status mustBe OK
         val document: Document = Jsoup.parse(result.body)
 
-        validateEmailPreferencsAPICategoryResultsPage(document, categories, categories.head, TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
+        validateEmailPreferencesAPICategoryResultsPage(document, categories, categories.head, TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
       } 
 
       "respond with 403 when not authorised" in {
