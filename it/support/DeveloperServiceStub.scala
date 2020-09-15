@@ -51,13 +51,14 @@ trait DeveloperServiceStub {
 
 
     def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[APIDefinition], topic: TopicOptionChoice): Unit = {
-    val categories: Set[String] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct.toSet
+    val categories: Seq[String] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
 
     val topicParam = s"topic=${topic.toString}"
-    val regimeParams = categories.map(category => s"&regime=$category")
-    val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}")
+    val regimeParams = categories.map(category => s"&regime=$category").mkString
+    val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
     val emailpreferencesByTopicAndCategoryUrl = s"$emailPreferencesUrl?$topicParam$regimeParams$serviceParams"
+    println("****-"+emailpreferencesByTopicAndCategoryUrl+"-****")
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
         aResponse()

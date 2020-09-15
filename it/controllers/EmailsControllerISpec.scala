@@ -428,9 +428,23 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
       } 
 
+
+      "respond with 200 and render the page with selectedApis but no users" in {
+        primeAuthServiceSuccess()
+        primeDefinitionServiceSuccessWithPublicApis(Seq.empty)
+        primeDefinitionServiceSuccessWithPrivateApis(apis++selectedApis)
+        primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(Seq.empty, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
+
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
+        val document: Document = Jsoup.parse(result.body)
+        println(document.toString)
+        validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, Seq.empty, "")
+      } 
+
        "respond with 403 when not authorised" in {
         primeAuthServiceFail()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs="+_.serviceName)}", validHeaders)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
         result.status mustBe FORBIDDEN
       }
     }

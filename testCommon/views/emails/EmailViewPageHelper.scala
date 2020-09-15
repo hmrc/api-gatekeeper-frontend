@@ -211,10 +211,10 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs, 2)
-    verifyTableHeader(document)
+    verifyTableHeader(document, users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
     
-    validateCopyToClipboardValue(document, emailsString)
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
   }
 }
 
