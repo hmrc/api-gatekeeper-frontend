@@ -64,12 +64,6 @@ trait EmailUsersHelper extends MustMatchers {
     }
   }
 
-//  def validateCopyToClipboardValue(document: Document, expectedValue: String) = {
-//    withClue(s"Copy to clipboard link validation failed") {
-//      getElementBySelector(document, "a#copy-users-to-clip")
-//        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") mustBe expectedValue)
-//    }
-//  }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String) = {
     val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))

@@ -17,10 +17,9 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{DropDownValue, LoggedInUser, User, APIDefinition, APIVersion, APIStatus}
+import model.{DropDownValue, LoggedInUser, User, APIStatus}
 import model.APIStatus._
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -28,22 +27,13 @@ import utils.FakeRequestCSRFSupport._
 import views.CommonViewSpec
 import views.html.emails.EmailApiSubscriptionsView
 
-class EmailApiSubscriptionsViewSpec extends CommonViewSpec with EmailApiSubscriptionsViewHelper {
+class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailApiSubscriptionsView: EmailApiSubscriptionsView = app.injector.instanceOf[EmailApiSubscriptionsView]
-
   }
-
-  def simpleAPIDefinition(serviceName: String,
-                          name: String,
-                          context: String,
-                          categories: Option[Seq[String]],
-                          version: String,
-                          status: APIStatus): APIDefinition =
-    APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion(version, status)), None, categories)
 
   "email api subscriptions view" must {
 
@@ -60,25 +50,22 @@ class EmailApiSubscriptionsViewSpec extends CommonViewSpec with EmailApiSubscrip
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
         emailApiSubscriptionsView.render(dropdowns, users, s"${user1.email}; ${user2.email}", queryParams, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateEmailApiSubscriptionsPage(document, Seq(api1, api2), dropdownview1.value, users)
+      validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview1.value, users)
     }
 
     "show correct title and select correct option when filter present but no Users returned" in new Setup {
       val queryParams = Map("apiVersionFilter" -> dropdownview2.value)
       val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateEmailApiSubscriptionsPage(document, Seq(api1, api2), dropdownview2.value, Seq.empty)
+      validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview2.value, Seq.empty)
     }
 
     "show correct title and select no options when no filter present and no Users returned" in new Setup {
       val queryParams: Map[String, String] = Map.empty
       val result: HtmlFormat.Appendable = emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateEmailApiSubscriptionsPage(document, Seq(api1, api2))
+      validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2))
     }
   }
 

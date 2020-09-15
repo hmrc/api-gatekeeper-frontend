@@ -23,6 +23,16 @@ import model.{APICategory, APIDefinition, APIVersion, User}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
 
+trait EmailsPagesHelper extends EmailLandingViewHelper
+ with EmailInformationViewHelper
+ with EmailAllUsersViewHelper
+ with EmailAPISubscriptionsViewHelper
+ with EmailPreferencesChoiceViewHelper
+ with EmailPreferencesTopicViewHelper
+ with EmailPreferencesAPICategoryViewHelper
+ with EmailPreferencesSpecificAPIViewHelper
+ with EmailPreferencesSelectAPIViewHelper
+
 trait EmailLandingViewHelper extends EmailUsersHelper {
 
   def validateLandingPage(document: Document): Unit = {
@@ -73,8 +83,8 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
   }
 }
 
-trait EmailApiSubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
-  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
+trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
     for (api: APIDefinition <- apis) {
@@ -91,7 +101,7 @@ trait EmailApiSubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName: String, users: Seq[User]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName: String, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
@@ -187,19 +197,20 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesAPICategoryResultsPage(document: Document,
                                                      categories: List[APICategory],
-                                                     selectedCategory: APICategory,
+                                                     mayBeSelectedCategory: Option[APICategory],
                                                      selectedTopic: TopicOptionChoice,
                                                      users: Seq[User]) = {
     validateStaticPageElements(document, categories)
-    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    validateCopyToClipboardLink(document, users)
-    getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+
+    mayBeSelectedCategory.map{ selectedCategory =>
+      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+      validateCopyToClipboardLink(document, users)
+      getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+      verifyTableHeader(document, tableIsVisible = users.nonEmpty)
+      users.foreach(verifyUserRow(document, _))
+    }
 
     isElementChecked(document, selectedTopic.toString)
-
-    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
-
-    users.foreach(verifyUserRow(document, _))
   }
 }
 

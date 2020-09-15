@@ -39,8 +39,7 @@ class EmailLandingViewSpec extends CommonEmailViewSpec with EmailLandingViewHelp
     "show correct title and options" in new Setup {
       val result: Html = emailLandingView.render(request, LoggedInUser(None), messagesProvider)
 
-      val document: Document = Jsoup.parse(result.body)
-      validateLandingPage(document)
+      validateLandingPage(Jsoup.parse(result.body))
     }
   }
 

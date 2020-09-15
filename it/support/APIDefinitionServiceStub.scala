@@ -7,12 +7,12 @@ import play.api.libs.json.{JsArray, Json}
 import model.APIDefinition
 import model.APICategory
 
-trait ApiDefinitionServiceStub {
+trait APIDefinitionServiceStub {
   val apiPublicDefinitionUrl = "/api-definition"
   val apiPrivateDefinitionUrl = "/api-definition?type=private"
   val getCategoriesUrl = "/api-categories"
 
-  def primeDefinitionServiceSuccessWithPublicApis(apis: Seq[APIDefinition]): Unit = {
+  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[APIDefinition]): Unit = {
 
     stubFor(get(urlEqualTo(apiPublicDefinitionUrl))
       .willReturn(
@@ -21,7 +21,7 @@ trait ApiDefinitionServiceStub {
           .withBody(Json.toJson(apis).toString())))
   }
 
-    def primeDefinitionServiceSuccessWithPrivateApis(apis: Seq[APIDefinition]): Unit = {
+    def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[APIDefinition]): Unit = {
 
     stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
       .willReturn(

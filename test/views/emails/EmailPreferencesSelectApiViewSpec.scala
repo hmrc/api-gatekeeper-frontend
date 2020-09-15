@@ -19,7 +19,6 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -27,7 +26,7 @@ import utils.FakeRequestCSRFSupport._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesSelectApiView
 
-class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPreferencesSelectAPIViewHelper{
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -42,29 +41,19 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with UserTableHel
      val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3")
      val dropDownApis = Seq(api1, api2, api3)
 
-
-    def validateStaticPageElements(document: Document){
-      validatePageHeader(document, "Email users interested in a specific API")
-      validateNonSelectedApiDropDown(document, dropDownApis, "Select an API")
-
-      validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-      validateButtonText(document, "submit", "Select API")
-    }
-
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
-      validateStaticPageElements(document)
+      emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
+      
+      validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), dropDownApis)
     }
+    
     "show correct title and options when selectedAPis are provided" in new Setup {
       val selectedApis = Seq(api2)
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectApiView.render(dropDownApis, selectedApis, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
-      validateStaticPageElements(document)
-        // As above, check hidden fields
-      validateHiddenSelectedApiValues(document, selectedApis)
+      emailPreferencesSelectApiView.render(dropDownApis, selectedApis, request, LoggedInUser(None), messagesProvider)
+
+      validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), dropDownApis, selectedApis)
     }
   }
 }

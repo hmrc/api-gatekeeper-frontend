@@ -19,7 +19,6 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.{EmailOptionChoice, LoggedInUser}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -33,27 +32,19 @@ class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewH
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailInformationPageView: EmailInformationView = app.injector.instanceOf[EmailInformationView]
-
   }
 
   "email information view" must {
     "show correct title and content for EMAIL_ALL_USERS" in new Setup {
       val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EMAIL_ALL_USERS, request, LoggedInUser(None), messagesProvider)
 
-      val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      validateAllUsersInformationPage(document)
+      validateAllUsersInformationPage(Jsoup.parse(result.body))
     }
 
     "show correct title and content for API_SUBSCRIPTION" in new Setup {
       val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser(None), messagesProvider)
 
-      val document: Document = Jsoup.parse(result.body)
-      validateApiSubcriptionInformationPage(document)
-
+      validateApiSubcriptionInformationPage(Jsoup.parse(result.body))
     }
   }
-
-
 }

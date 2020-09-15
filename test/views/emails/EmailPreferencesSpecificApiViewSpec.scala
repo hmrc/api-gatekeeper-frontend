@@ -20,7 +20,6 @@ import mocks.config.AppConfigMock
 import model.TopicOptionChoice.TopicOptionChoice
 import model.{APIDefinition, LoggedInUser, TopicOptionChoice, User}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -28,20 +27,12 @@ import utils.FakeRequestCSRFSupport._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesSpecificApiView
 
-class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper {
+class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
-  }
-
-  def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
-    validatePageHeader(document, "Email users interested in a specific API")
-    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
-    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-    validateButtonText(document, "filter", filterButtonText)
-    validateTopicGrid(document, selectedTopic)
   }
 
   "email preferences specific api view" must {
@@ -55,43 +46,30 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with UserTableH
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
-      validateStaticPageElements(document, "Filter", None)
-      verifyTableHeader(document, tableIsVisible = false)
+
+       validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), Seq.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
+      emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
-      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
-      verifyTableHeader(document, tableIsVisible = false)
+      validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body),  selectedTopic)
     }
 
     "show correct title and elements when topic filter provided and selectedApis" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(Seq.empty, "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
-      verifyTableHeader(document, tableIsVisible = false)
-      validateSelectedSpecificApiItems(document, selectedApis)
+      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, Seq.empty, "")
     }
 
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
       val emailsStr = users.map(_.email).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(users, emailsStr, selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
-
-      validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
-      validateSelectedSpecificApiItems(document, selectedApis)
-
-      verifyTableHeader(document)
-      verifyUserRow(document, user1)
-      verifyUserRow(document, user2)
-      validateCopyToClipboardLink(document, users)
+     
+      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, users, emailsStr)
     }
   }
 

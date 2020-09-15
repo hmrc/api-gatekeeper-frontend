@@ -19,7 +19,6 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, User}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -42,17 +41,14 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
       val users = Seq(user1, user2)
       val result: HtmlFormat.Appendable = emailAllUsersView.render(users, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateEmailAllUsersPage(document, users)
-
+      validateEmailAllUsersPage(Jsoup.parse(result.body), users)
     }
 
     "show correct title and content for empty / no users" in new Setup {
       val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, s"", request, LoggedInUser(None), messagesProvider)
-      val document: Document = Jsoup.parse(result.body)
 
-      validateEmailAllUsersPage(document, Seq.empty)
+      validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)
     }
 
   }
