@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.{APIDefinition, APIVersion, User}
 import org.jsoup.nodes.Document
-import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText, getElementBySelector}
+import utils.ViewHelpers.{elementExistsByAttr, elementExistsByIdWithAttr, elementExistsByText, elementExistsContainsText, getElementBySelector, getSelectedOptionValue}
 
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
@@ -79,8 +79,6 @@ trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHe
   def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
      elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
-
-
      for(api: APIDefinition <- apis){
        for(version: APIVersion <- api.versions) {
          val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
@@ -88,5 +86,17 @@ trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHe
        }
      }
      validateButtonText(document, "filter", "Filter")
+  }
+
+  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName : String): Unit = {
+    elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
+    getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
+    for(api: APIDefinition <- apis){
+      for(version: APIVersion <- api.versions) {
+        val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
+        versionOption.isDefined mustBe true
+      }
+    }
+    validateButtonText(document, "filter", "Filter Again")
   }
 }

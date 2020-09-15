@@ -9,6 +9,7 @@ import model.User
 trait DeveloperService {
   val emailPreferencesUrl = "/developers/email-preferences"
   val allUrl = "/developers/all"
+  val byEmails = "/developers/get-by-emails"
 
   def primeDeveloperServiceAllSuccessWithUsers(users: Seq[User]): Unit = {
 
@@ -19,6 +20,14 @@ trait DeveloperService {
           .withBody(Json.toJson(users).toString())))
   }
 
+  def primeDeveloperServiceGetByEmails(users: Seq[User]): Unit = {
+
+    stubFor(post(urlEqualTo(byEmails))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(users).toString())))
+  }
  
 
 

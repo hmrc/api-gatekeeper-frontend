@@ -20,7 +20,6 @@ import model.{APIDefinition, APIStatus, ApiVersionDefinition, ApiContextVersion,
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
 trait UserFunctionsWrapper {
-  self: FrontendBaseController =>
 
 
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {

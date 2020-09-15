@@ -8,15 +8,17 @@ import play.api.http.HeaderNames.{CONTENT_TYPE, LOCATION}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
-import model.{APIDefinition, APIStatus, APIVersion, User}
-import support.{ApiDefinitionService, AuthService, DeveloperService, ServerBaseISpec}
+import model.{APIDefinition, APIStatus, APIVersion, DropDownValue, User}
+import support.{ApiDefinitionService, ApplicationService, AuthService, DeveloperService, ServerBaseISpec}
+import utils.UserFunctionsWrapper
 import views.emails.{EmailAllUsersViewHelper, EmailApiSubscriptionsViewHelper, EmailInformationViewHelper, EmailLandingViewHelper}
 import views.html.emails.EmailAllUsersView
 
 
 
-class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with AuthService with DeveloperService with ApiDefinitionService
-with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersViewHelper with EmailApiSubscriptionsViewHelper{
+class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
+  with ApplicationService with AuthService with DeveloperService with ApiDefinitionService with EmailLandingViewHelper with EmailInformationViewHelper
+  with EmailAllUsersViewHelper with EmailApiSubscriptionsViewHelper{
   this: Suite with ServerProvider =>
 
   protected override def appBuilder: GuiceApplicationBuilder =
@@ -31,10 +33,12 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
         "microservice.services.third-party-developer.port" -> wireMockPort,
         "microservice.services.api-definition-production.host" ->  wireMockHost,
         "microservice.services.api-definition-production.port" -> wireMockPort,
-        "microservice.services.api-definition-production.use-proxy" -> false,
         "microservice.services.api-definition-sandbox.host" ->  wireMockHost,
         "microservice.services.api-definition-sandbox.port" -> wireMockPort,
-        "microservice.services.api-definition-sandbox.use-proxy" -> false
+        "microservice.services.third-party-application-production.host" ->  wireMockHost,
+        "microservice.services.third-party-application-production.port" -> wireMockPort,
+        "microservice.services.third-party-application-sandbox.host" ->  wireMockHost,
+        "microservice.services.third-party-application-sandbox.port" -> wireMockPort
       )
 
   val url = s"http://localhost:$port"
@@ -42,6 +46,9 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded")
 
+  val verifiedUser1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
+  val unverifiedUser1 = User("user2@hmrc.com", "userB", "2", verified = Some(false))
+  val verifiedUser2 = User("user3@hmrc.com", "userC", "3", verified = Some(true))
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient
@@ -135,11 +142,9 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
      }
 
      "GET  /emails/all-users" should {
-        val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
-        val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(false))
-        val user3 = User("user3@hmrc.com", "userC", "3", verified = Some(true))
-        val returnedUsers = Seq(user1, user2, user3)
-        val expectedUsers = Seq(user1, user3)
+
+        val returnedUsers = Seq(verifiedUser1, unverifiedUser1, verifiedUser2)
+        val expectedUsers = Seq(verifiedUser1, verifiedUser2)
          "respond with 200 and render the all users page correctly on initial load when authorised" in {
             primeAuthServiceSuccess()
             primeDeveloperServiceAllSuccessWithUsers(Seq.empty)
@@ -177,6 +182,7 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
         val api2 = simpleAPIDefinition("api-2", "API 2", "api2")
         val api3 = simpleAPIDefinition("api-3", "API 3", "api3")
         val apis = Seq(api1, api2, api3)
+        val users = Seq(verifiedUser1, verifiedUser2)
         
          "respond  with 200 and render the page correctly on initial load when authorised" in {
             primeAuthServiceSuccess()
@@ -189,6 +195,20 @@ with EmailLandingViewHelper with EmailInformationViewHelper with EmailAllUsersVi
 
          }
 
+         "respond  with 200 and render the page with users when selected api sent" in {
+           primeAuthServiceSuccess()
+           primeDefinitionServiceSuccessWithPublicApis(apis)
+           primeDefinitionServiceSuccessWithPrivateApis(Seq.empty)
+           primeApplicationServiceSuccessWithUsers(users)
+           primeDeveloperServiceGetByEmails(users++Seq(unverifiedUser1))
+           val dropdownvalues: Seq[DropDownValue] = getApiVersionsDropDownValues(apis)
+           val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers?apiVersionFilter=${dropdownvalues.head.value}", validHeaders)
+           result.status mustBe OK
+           val document: Document = Jsoup.parse(result.body)
+           validateEmailApiSubscriptionsPage(document, apis, dropdownvalues.head.value)
+           validateResultsTable(document, users)
+         }
+        //test when application service fails? api definition service fails?
          "respond with 401 when not authorised" in {
             primeAuthServiceFail()
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
