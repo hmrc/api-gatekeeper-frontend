@@ -30,8 +30,6 @@ case class ApiContext(value: String) extends AnyVal {
 
 object ApiContext {
 
-  implicit val formatApiContext = Json.valueFormat[ApiContext]
-
   implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
@@ -44,8 +42,6 @@ case class ApiVersion(value: String) extends AnyVal {
 }
 
 object ApiVersion {
-
-  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
 
   implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)

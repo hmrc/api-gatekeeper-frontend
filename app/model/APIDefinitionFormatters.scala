@@ -26,6 +26,15 @@ trait APIDefinitionFormatters {
   implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 
+  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
+  implicit val formatApiContext = Json.valueFormat[ApiContext]
+
+  implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
+  implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
+
+  implicit val keyReadsApiVersion: KeyReads[ApiVersion] = key => JsSuccess(ApiVersion(key))
+  implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
+
   implicit val formatAPIStatus = APIStatusJson.apiStatusFormat(APIStatus)
   implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
   implicit val formatAPIAccess = Json.format[APIAccess]

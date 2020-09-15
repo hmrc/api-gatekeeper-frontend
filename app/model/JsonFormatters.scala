@@ -49,8 +49,7 @@ object EnumJson {
 
 class InvalidEnumException(className: String, input:String) extends RuntimeException(s"Enumeration expected of type: '$className', but it does not contain '$input'")
 
-object APIStatusJson {
-
+trait APIStatusJson {
   def apiStatusReads[APIStatus](apiStatus: APIStatus): Reads[APIStatus.Value] = new Reads[APIStatus.Value] {
     def reads(json: JsValue): JsResult[APIStatus.Value] = json match {
       case JsString("PROTOTYPED") => JsSuccess(APIStatus.BETA)
@@ -74,5 +73,6 @@ object APIStatusJson {
   implicit def apiStatusFormat[APIStatus](apiStatus: APIStatus): Format[APIStatus.Value] = {
     Format(apiStatusReads(apiStatus), apiStatusWrites)
   }
-
 }
+
+object APIStatusJson extends APIStatusJson
