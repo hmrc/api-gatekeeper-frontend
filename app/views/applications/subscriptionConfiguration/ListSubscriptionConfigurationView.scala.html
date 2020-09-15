@@ -49,7 +49,7 @@
   
 
   @for(subscriptionVersion <- subscriptionVersions) {
-    <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version} @{subscriptionVersion.displayedStatus}</h2>
+    <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version.value} @{subscriptionVersion.displayedStatus}</h2>
     <table>
       <thead>
         <tr>
@@ -64,7 +64,7 @@
       @for(field <- subscriptionVersion.fields) {
         <tr>
           <td>@{field.shortDescription}</td>
-          <td>@{field.value}</td>
+          <td>@{field.value.value}</td>
           <td></td>
         </tr>
       }
