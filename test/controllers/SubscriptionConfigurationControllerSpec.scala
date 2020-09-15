@@ -113,7 +113,7 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${appConfig.title} - ${subscription.name} $version ${subscription.versions.head.version.displayedStatus}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${subscription.name} ${version.value} ${subscription.versions.head.version.displayedStatus}"
 
       val responseBody = Helpers.contentAsString(result)
 

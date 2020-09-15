@@ -81,7 +81,6 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
           def errors(errors: Form[EditApiMetadataForm]) = {
-            println("***** ERROR")
             Future.successful(technicalDifficulties)
           }
 
