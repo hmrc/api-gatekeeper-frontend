@@ -73,7 +73,7 @@ object EditApiMetadataForm {
     )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
   )
 
-  def toFields(form: EditApiMetadataForm) : Fields = {
+  def toFields(form: EditApiMetadataForm) : Fields.Alias = {
     form.fields
       .map(f => (f.name -> f.value))
       .toMap[FieldName, FieldValue]

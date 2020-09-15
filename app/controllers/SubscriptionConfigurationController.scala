@@ -98,7 +98,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           }
 
           def doSaveConfigurations(form: EditApiMetadataForm) = {
-            val fields: Fields = EditApiMetadataForm.toFields(form)
+            val fields: Fields.Alias = EditApiMetadataForm.toFields(form)
 
             subscriptionFieldsService.saveFieldValues(app.application.application, apiContext, version, fields)
             .map({

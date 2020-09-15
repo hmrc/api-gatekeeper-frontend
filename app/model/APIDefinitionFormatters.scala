@@ -48,6 +48,8 @@ trait APIDefinitionFormatters {
 
   implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
   implicit val subscriptionWithoutFieldsJsonFormatter = Json.format[SubscriptionWithoutFields]
+
+  implicit val formatSubscriptionResponse = Json.format[SubscriptionResponse]
 }
 
 object APIDefinitionFormatters extends APIDefinitionFormatters

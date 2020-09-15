@@ -72,7 +72,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
                                        apiIdentifier: APIIdentifier)
                                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
+    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields.Alias): Seq[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, FieldValue.empty)))
     }
 
@@ -110,7 +110,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } recover recovery(DefinitionsByApiVersion.empty)
   }
 
-  def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields)
+  def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
                      (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
 

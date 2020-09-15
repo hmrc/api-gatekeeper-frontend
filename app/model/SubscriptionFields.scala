@@ -71,7 +71,7 @@ object SubscriptionFields {
     }
   }
 
-  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
+  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
   object SubscriptionFieldsPutRequest extends APIDefinitionFormatters {
     implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }

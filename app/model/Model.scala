@@ -85,7 +85,7 @@ object ApplicationWithHistory {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val format1 = Json.format[APIIdentifier]
+  // implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
