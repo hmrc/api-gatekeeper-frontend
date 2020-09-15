@@ -129,7 +129,7 @@ class EmailsController  @Inject()(developerService: DeveloperService,
           apiNames = filteredApis.map(_.serviceName)
           categories = filteredApis.flatMap(_.categories.getOrElse(Seq.empty))
           users <-  selectedTopic.fold(Future.successful(Seq.empty[User]))(topic => {
-            developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified.getOrElse(false))) 
+            developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified.getOrElse(false)))
           })
         } yield  Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis.sortBy(_.name), selectedTopic))
       }

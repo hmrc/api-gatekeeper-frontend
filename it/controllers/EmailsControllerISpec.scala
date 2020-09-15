@@ -415,14 +415,16 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       } 
 
-       "respond with 200 and render the page with users table with selectedApis" in {
+      "respond with 200 and render the page with users table with selectedApis" in {
         primeAuthServiceSuccess()
         primeDefinitionServiceSuccessWithPublicApis(Seq.empty)
         primeDefinitionServiceSuccessWithPrivateApis(apis++selectedApis)
         primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(allUsers, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
+
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
         val document: Document = Jsoup.parse(result.body)
-        println(document.toString())
+        println(document.toString)
         validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
       } 
 

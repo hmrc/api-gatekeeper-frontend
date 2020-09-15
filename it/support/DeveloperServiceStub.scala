@@ -51,8 +51,8 @@ trait DeveloperServiceStub {
 
 
     def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[APIDefinition], topic: TopicOptionChoice): Unit = {
-    val categories: Seq[String] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
-    
+    val categories: Set[String] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct.toSet
+
     val topicParam = s"topic=${topic.toString}"
     val regimeParams = categories.map(category => s"&regime=$category")
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}")
