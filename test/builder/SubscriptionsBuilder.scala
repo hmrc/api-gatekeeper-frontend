@@ -21,6 +21,7 @@ import model.{APIStatus, ApiVersionDefinition, Subscription, VersionSubscription
 import model.{ApiContext, ApiVersion, ClientId, ApplicationId}
 import model.FieldName
 import model.FieldValue
+import scala.util.Random
 
 trait SubscriptionsBuilder {
 
@@ -35,14 +36,21 @@ trait SubscriptionsBuilder {
       val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
       VersionSubscription(ApiVersionDefinition(version, APIStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
-    }
+  }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {
     SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), ApiContext(s"context-${applicationId.value}"), ApiVersion(s"apiVersion-${applicationId.value}"), fields = fields)
   }
 
+  def buildSubscriptionFieldDefinition(
+    fieldName: FieldName = FieldName.random,
+    description: String = Random.nextString(8),
+    hint: String = Random.nextString(8),
+    `type`: String = "STRING",
+    shortDescription: String = Random.nextString(8)
+  ) = SubscriptionFieldDefinition(fieldName, description, hint, `type`, shortDescription)
 
   def buildSubscriptionFieldValue(name: FieldName) = {
-    SubscriptionFieldValue(SubscriptionFieldDefinition(name, s"description-${name.value}", s"hint-${name.value}", "STRING", s"shortDescription-${name.value}"), FieldValue(s"value-${name.value}"))
+    SubscriptionFieldValue(buildSubscriptionFieldDefinition(name, s"description-${name.value}", s"hint-${name.value}", "STRING", s"shortDescription-${name.value}"), FieldValue(s"value-${name.value}"))
   }
 }

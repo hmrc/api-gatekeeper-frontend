@@ -44,9 +44,11 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   private val clientId = ClientId.random
   private val apiContext = ApiContext.random
   private val apiVersion = ApiVersion.random
-  private val subscriptionDefinition = SubscriptionFieldDefinition(FieldName.random, "my-description", "my-hint", "my-type", "my-shortDescription")
+  private val fieldName = FieldName.random
+  private val subscriptionDefinition = SubscriptionFieldDefinition(fieldName, "my-description", "my-hint", "my-type", "my-shortDescription")
+  private val expectedSubscriptionDefinition = SubscriptionFieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
   private val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, FieldValue.random)
-  private val fieldDefinition1 = FieldDefinition(FieldName.random, "desc1", "hint1", "some type", "shortDescription")
+  private val fieldDefinition1 = FieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
   private val fieldDefinition2 = fieldDefinition1.copy(name = FieldName.random)
   private val definitions = List(fieldDefinition1, fieldDefinition2)
   private val definitionsFromRestService = List(fieldDefinition1)
@@ -230,7 +232,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   "fetchFieldDefinitions" should {
     val url = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
-    val expectedDefinitions = List(fieldDefinition1)
+    val expectedDefinitions = List(expectedSubscriptionDefinition)
 
     val validResponse = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 

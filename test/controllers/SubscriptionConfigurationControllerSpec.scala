@@ -28,6 +28,8 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import model.{ApiContext, ApiVersion}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import model.FieldName
+import model.FieldValue
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec
@@ -54,7 +56,7 @@ class SubscriptionConfigurationControllerSpec
 
     val version = ApiVersion.random
     val context = ApiContext.random
-    val subscriptionFieldValue = buildSubscriptionFieldValue("field-name")
+    val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
     val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
@@ -77,7 +79,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(subscription.versions.head.version.version.value)
       responseBody should include(subscription.versions.head.version.displayedStatus)
       responseBody should include(subscription.versions.head.fields.fields.head.definition.shortDescription)
-      responseBody should include(subscription.versions.head.fields.fields.head.value)
+      responseBody should include(subscription.versions.head.fields.fields.head.value.value)
 
       verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
@@ -121,7 +123,7 @@ class SubscriptionConfigurationControllerSpec
       
       responseBody should include(subscriptionFieldValue.definition.description)
       responseBody should include(subscriptionFieldValue.definition.hint)
-      responseBody should include(subscriptionFieldValue.value)
+      responseBody should include(subscriptionFieldValue.value.value)
     
       verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
     }
@@ -155,7 +157,7 @@ class SubscriptionConfigurationControllerSpec
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
 
-      val newValue = "new value"
+      val newValue = FieldValue.random
 
       val request = requestWithFormData(subscriptionFieldValue.definition.name, newValue)(aLoggedInRequest)
 
@@ -174,12 +176,12 @@ class SubscriptionConfigurationControllerSpec
       givenTheAppWillBeReturned()
       
       val validationMessage = "My validation error"
-      val errors = Map(subscriptionFieldValue.definition.name -> validationMessage)
+      val errors = Map(subscriptionFieldValue.definition.name.value -> validationMessage)
 
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsFailure(errors)
 
-      val request = requestWithFormData(subscriptionFieldValue.definition.name , "field value")(aLoggedInRequest)
+      val request = requestWithFormData(subscriptionFieldValue.definition.name , FieldValue.random)(aLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
@@ -196,7 +198,7 @@ class SubscriptionConfigurationControllerSpec
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
 
-      val request = requestWithFormData("", "")(aSuperUserLoggedInRequest)
+      val request = requestWithFormData(FieldName.random, FieldValue.empty)(aSuperUserLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
 
@@ -207,7 +209,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
       givenTheUserHasInsufficientEnrolments()
       
-      val request = requestWithFormData("","")(aLoggedInRequest)
+      val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
@@ -216,10 +218,10 @@ class SubscriptionConfigurationControllerSpec
   }
 
   trait EditSaveFormData extends Setup {
-    def requestWithFormData(fieldName: String, fieldValue: String)(request : FakeRequest[_]) = {
+    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request : FakeRequest[_]) = {
       request.withFormUrlEncodedBody(
-        "fields[0].name" -> fieldName,
-        "fields[0].value" -> fieldValue)
+        "fields[0].name" -> fieldName.value,
+        "fields[0].value" -> fieldValue.value)
     }
   }
 }

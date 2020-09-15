@@ -67,7 +67,7 @@ object EditApiMetadataForm {
       "fields" -> list(
         mapping(
           "name" -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
-          "value" -> nonEmptyText.transform[FieldValue](FieldValue(_), fieldValue => fieldValue.value)
+          "value" -> text.transform[FieldValue](FieldValue(_), fieldValue => fieldValue.value)
         )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
       )
     )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)

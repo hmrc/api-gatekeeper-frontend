@@ -30,7 +30,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
 import org.mockito.scalatest.ResetMocksAfterEachTest
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ResetMocksAfterEachTest {
@@ -82,10 +81,12 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val sandboxTestContext = ApiContext("sandbox-test-context")
     val sandboxUnknownContext = ApiContext("sandbox-unknown-context")
     val sandboxSuperContext = ApiContext("sandbox-super-context")
+    val subscriptionFieldDefinition = SubscriptionFieldDefinition(FieldName.random, "description", "hint", "String", "shortDescription")
+    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(subscriptionFieldDefinition))
+    val definitions = Seq(subscriptionFieldDefinition)
   }
 
-  trait SubscriptionFieldsServiceSetup  extends Setup {
-    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(SubscriptionFieldDefinition("name", "description", "hint", "String", "shortDescription")))
+  trait SubscriptionFieldsServiceSetup extends Setup {
 
     def subscriptionFields : Seq[SubscriptionFieldValue]
 
@@ -411,8 +412,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   }
 
   "subscribeToApi" should {
-    val definitions = Seq(SubscriptionFieldDefinition("field1", "description", "hint", "type", "shortDescription"))
-
     "field definitions with empty values will persist empty values" in new Setup {
       given(mockProductionApplicationConnector.subscribeToApi(*[ApplicationId], *)(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
@@ -420,7 +419,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.empty))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -444,7 +443,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
         .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, Random.nextString(length = 8)))
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.random))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -470,7 +469,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, ""))
+      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.empty))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -564,7 +563,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
       val apiVersion = ApiVersionDefinition(version, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))
-      val subscriptionFields = Seq(SubscriptionFieldValue(SubscriptionFieldDefinition("name", "description", "hint", "type", "shortDescription"), "value"))
+      val subscriptionFields = Seq(SubscriptionFieldValue(subscriptionFieldDefinition, FieldValue.random))
     
       val versionsWithoutFields = Seq(VersionSubscriptionWithoutFields(apiVersion, subscribed = true))
       val subscriptionsWithoutFields = SubscriptionWithoutFields("subscription name", "service name", context, versionsWithoutFields)
