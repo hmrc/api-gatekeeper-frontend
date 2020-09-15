@@ -64,42 +64,50 @@ trait EmailInformationViewHelper extends EmailUsersHelper {
 
 trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
-  def validateEmailAllUsersPage(document: Document): Unit = {
+  def validateEmailAllUsersPage(document: Document, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users") mustBe true
-
-  }
-
-  def validateResultsTable(document: Document, users: Seq[User]) = {
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
     elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
   }
 }
 
-trait EmailApiSubscriptionsViewHelper  extends EmailUsersHelper with UserTableHelper {
+trait EmailApiSubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
      elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
      for(api: APIDefinition <- apis){
        for(version: APIVersion <- api.versions) {
          val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
-         versionOption.isDefined mustBe true
+         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}"){
+          versionOption.isDefined mustBe true
+         }
        }
      }
      validateButtonText(document, "filter", "Filter")
+     elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+      verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName : String): Unit = {
+  def validateEmailApiSubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName : String, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
-    getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
+
+     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
+    validateButtonText(document, "filter", "Filter Again")
+   
     for(api: APIDefinition <- apis){
       for(version: APIVersion <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
         versionOption.isDefined mustBe true
       }
     }
-    validateButtonText(document, "filter", "Filter Again")
+   
+    
+    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
+    users.foreach(verifyUserRow(document, _))
   }
 }
 

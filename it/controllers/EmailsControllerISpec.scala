@@ -165,8 +165,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users", validHeaders)
             result.status mustBe OK
             val document: Document = Jsoup.parse(result.body)
-            validateEmailAllUsersPage(document)
-            validateResultsTable(document, Seq.empty)
+            validateEmailAllUsersPage(document, Seq.empty)
+            
           }
 
 
@@ -176,8 +176,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users", validHeaders)
             result.status mustBe OK
             val document: Document = Jsoup.parse(result.body)
-            validateEmailAllUsersPage(document)
-            validateResultsTable(document, verifiedUsers)
+            validateEmailAllUsersPage(document, verifiedUsers)
+            
           }
 
           "respond with 403 when not authorised" in {
@@ -200,6 +200,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
             result.status mustBe OK
             val document: Document = Jsoup.parse(result.body)
+            println(document)
             validateEmailApiSubscriptionsPage(document, apis)
 
          }
@@ -214,8 +215,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
            val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers?apiVersionFilter=${dropdownvalues.head.value}", validHeaders)
            result.status mustBe OK
            val document: Document = Jsoup.parse(result.body)
-           validateEmailApiSubscriptionsPage(document, apis, dropdownvalues.head.value)
-           validateResultsTable(document, verifiedUsers)
+           validateEmailApiSubscriptionsPage(document, apis, dropdownvalues.head.value, verifiedUsers)
+           
          }
         //test when application service fails? api definition service fails?
          "respond with 403 when not authorised" in {
@@ -424,7 +425,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result =
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
         val document: Document = Jsoup.parse(result.body)
-        println(document.toString)
         validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
       } 
 
@@ -438,7 +438,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result =
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
         val document: Document = Jsoup.parse(result.body)
-        println(document.toString)
         validateEmailPreferencesSpecificAPIResults(document, TopicOptionChoice.BUSINESS_AND_POLICY, apis, Seq.empty, "")
       } 
 

@@ -24,7 +24,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailAllUsersView
 
@@ -46,18 +45,15 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val result: HtmlFormat.Appendable = emailAllUsersView.render(users, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      validateEmailAllUsersPage(document)
-      validateResultsTable(document, users)
+      validateEmailAllUsersPage(document, users)
+      
     }
 
     "show correct title and content for empty / no users" in new Setup {
       val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, s"", request, LoggedInUser(None), messagesProvider)
       val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      validateEmailAllUsersPage(document)
-      validateResultsTable(document, Seq.empty)
+      validateEmailAllUsersPage(document, Seq.empty)
     }
 
   }

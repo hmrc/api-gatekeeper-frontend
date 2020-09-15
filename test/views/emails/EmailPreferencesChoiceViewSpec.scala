@@ -17,8 +17,6 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.EmailPreferencesChoice._
-import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.LoggedInUser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -26,7 +24,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesChoiceView
 
@@ -43,16 +40,9 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreference
       val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
-      validateInitialPageLoad(document)
-
+      validateEmailPreferencesChoicePage(document)
 
     }
   }
 
-  def verifyEmailOptions(option: EmailPreferencesChoice, document: Document): Unit ={
-    elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
-    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe false
-  }
 }
