@@ -19,6 +19,8 @@ package builder
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import model.{APIStatus, ApiVersionDefinition, Subscription, VersionSubscription}
 import model.{ApiContext, ApiVersion, ClientId, ApplicationId}
+import model.FieldName
+import model.FieldValue
 
 trait SubscriptionsBuilder {
 
@@ -40,7 +42,7 @@ trait SubscriptionsBuilder {
   }
 
 
-  def buildSubscriptionFieldValue(name: String) = {
-    SubscriptionFieldValue(SubscriptionFieldDefinition(name, s"description-$name", s"hint-$name", "STRING", s"shortDescription-$name"), s"value-$name")
+  def buildSubscriptionFieldValue(name: FieldName) = {
+    SubscriptionFieldValue(SubscriptionFieldDefinition(name, s"description-${name.value}", s"hint-${name.value}", "STRING", s"shortDescription-${name.value}"), FieldValue(s"value-${name.value}"))
   }
 }

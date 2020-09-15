@@ -16,7 +16,8 @@
 
 package model
 
-import play.api.libs.json.{Format, JsSuccess, Json, KeyReads, KeyWrites}
+import play.api.libs.json.{Format, Json}
+import scala.util.Random
 
 case class FieldName(value: String) extends AnyVal
 
@@ -24,6 +25,8 @@ object FieldName {
   implicit val ordering: Ordering[FieldName] = new Ordering[FieldName] {
     override def compare(x: FieldName, y: FieldName): Int = x.value.compareTo(y.value)
   }
+
+  def random = FieldName(Random.nextString(8))
 }
 
 case class FieldValue(value: String) extends AnyVal {
@@ -32,6 +35,8 @@ case class FieldValue(value: String) extends AnyVal {
 
 object FieldValue {
   def empty = FieldValue("")
+
+  def random = FieldValue(Random.nextString(8))
 }
 
 object SubscriptionFields {
