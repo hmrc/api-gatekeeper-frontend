@@ -25,12 +25,14 @@ import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
+import builder.SubscriptionsBuilder
+
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
-  trait Setup {
+  trait Setup extends SubscriptionsBuilder {
     val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
     val mockProductionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
 
@@ -61,9 +63,9 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "fetchFieldDefinitions" in new Setup {
       val subscriptionFieldDefinitions = List(
-        SubscriptionFieldDefinition("nameOne", "descriptionThree", "hintOne", "typeOne", "shortDescription"),
-        SubscriptionFieldDefinition("nameTwo", "descriptionThree", "hintTwo", "typeTwo", "shortDescription"),
-        SubscriptionFieldDefinition("nameThree", "descriptionThree", "hintThree", "typeThree", "shortDescription")
+        buildSubscriptionFieldDefinition(),
+        buildSubscriptionFieldDefinition(),
+        buildSubscriptionFieldDefinition()
       )
 
       val apiIdentifier = APIIdentifier(ApiContext.random, apiVersion)
@@ -135,7 +137,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       }
 
       "return somme field values when given some field definitions" in new Setup {
-        private val definitions = Seq(SubscriptionFieldDefinition("field1","description", "hint", "type", "shortDescription"))
+        private val definitions = Seq(buildSubscriptionFieldDefinition())
 
         when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
@@ -165,9 +167,9 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
     "fetchFieldDefinitions" in new Setup {
       val subscriptionFieldDefinitions = List(
-        SubscriptionFieldDefinition("nameOne", "descriptionThree", "hintOne", "typeOne", "shortDescription"),
-        SubscriptionFieldDefinition("nameTwo", "descriptionThree", "hintTwo", "typeTwo", "shortDescription"),
-        SubscriptionFieldDefinition("nameThree", "descriptionThree", "hintThree", "typeThree", "shortDescription")
+        buildSubscriptionFieldDefinition(),
+        buildSubscriptionFieldDefinition(),
+        buildSubscriptionFieldDefinition()
       )
 
       val apiIdentifier = APIIdentifier(ApiContext.random, apiVersion)
@@ -239,7 +241,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       }
 
       "return somme field values when given some field definitions" in new Setup {
-        private val definitions = Seq(SubscriptionFieldDefinition("field1","description", "hint", "type", "shortDescription"))
+        private val definitions = Seq(buildSubscriptionFieldDefinition())
 
         when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))

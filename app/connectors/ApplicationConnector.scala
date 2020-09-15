@@ -36,7 +36,7 @@ import model.ApiContext
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends Retries {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends Retries with APIDefinitionFormatters {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment

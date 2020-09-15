@@ -34,6 +34,8 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.{ExecutionContext, Future}
+import model.FieldName
+import model.FieldValue
 
 class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
@@ -42,6 +44,15 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   private val clientId = ClientId.random
   private val apiContext = ApiContext.random
   private val apiVersion = ApiVersion.random
+  private val fieldName = FieldName.random
+  private val subscriptionDefinition = SubscriptionFieldDefinition(fieldName, "my-description", "my-hint", "my-type", "my-shortDescription")
+  private val expectedSubscriptionDefinition = SubscriptionFieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
+  private val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, FieldValue.random)
+  private val fieldDefinition1 = FieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
+  private val fieldDefinition2 = fieldDefinition1.copy(name = FieldName.random)
+  private val definitions = List(fieldDefinition1, fieldDefinition2)
+  private val definitionsFromRestService = List(fieldDefinition1)
+
   private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
@@ -99,11 +110,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   }
 
   "fetchFieldsValuesWithPrefetchedDefinitions" should {
-
-    val subscriptionDefinition = SubscriptionFieldDefinition("my-name", "my-description", "my-hint", "my-type", "my-shortDescription")
-
-    val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, "my-value")
-
     val subscriptionFields =
       ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.definition.name -> subscriptionFieldValue.value))
 
@@ -139,7 +145,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
         .thenReturn(Future.failed(new NotFoundException("")))
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
-      result shouldBe Seq(subscriptionFieldValue.copy(value = ""))
+      result shouldBe Seq(subscriptionFieldValue.copy(value = FieldValue.empty))
     }
 
     "send the x-api-header key when retrieving subscription fields for an API" in new ProxiedSetup {
@@ -171,11 +177,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val url = "/definition"
 
     "return all field definitions" in new Setup {
-
-      val definitions = List(
-        FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"),
-        FieldDefinition("field2", "desc2", "hint2", "some other type", "shortDescription")
-      )
 
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
 
@@ -211,11 +212,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     "when retry logic is enabled should retry on failure" in new Setup {
 
-      val definitions = List(
-        FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"),
-        FieldDefinition("field2", "desc2", "hint2", "some other type", "shortDescription")
-      )
-
       private val validResponse = AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))
 
       when(mockAppConfig.retryCount).thenReturn(1)
@@ -236,11 +232,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   "fetchFieldDefinitions" should {
     val url = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
-    val definitionsFromRestService = List(
-      FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
-    )
-
-    val expectedDefinitions = List(SubscriptionFieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription"))
+    val expectedDefinitions = List(expectedSubscriptionDefinition)
 
     val validResponse = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 
@@ -282,17 +274,15 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
     val definitionsUrl = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
     val valuesUrl = s"/field/application/${clientId.value}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
 
-    val definitionsFromRestService = List(
-      FieldDefinition("field1", "desc1", "hint1", "some type", "shortDescription")
-    )
+    
 
     val validDefinitionsResponse: ApiFieldDefinitions = ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)
 
     "return field values" in new Setup {
       val expectedDefinitions = definitionsFromRestService.map(d => SubscriptionFieldDefinition(d.name, d.description, d.hint, d.`type`, d.shortDescription))
-      val expectedFieldValues = expectedDefinitions.map(definition => SubscriptionFieldValue(definition, "my-value"))
+      val expectedFieldValues = expectedDefinitions.map(definition => SubscriptionFieldValue(definition, FieldValue.random))
 
-      val fieldsValues: Map[String, String] = fields(expectedFieldValues.map(v => v.definition.name -> v.value): _*)
+      val fieldsValues: Map[FieldName, FieldValue] = fields(expectedFieldValues.map(v => v.definition.name -> v.value): _*)
 
       val validValuesResponse: ApplicationApiFieldValues = ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fieldsValues)
 
@@ -331,7 +321,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
   "saveFieldValues" should {
 
-    val fieldsValues = fields("field001" -> "value001", "field002" -> "value002")
+    val fieldsValues = fields(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     val subFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)
 
     val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"

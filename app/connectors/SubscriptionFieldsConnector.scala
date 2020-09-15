@@ -73,7 +73,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
                                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields): Seq[SubscriptionFieldValue] = {
-      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
+      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, FieldValue.empty)))
     }
 
     def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
@@ -179,15 +179,15 @@ object SubscriptionFieldsConnector {
     .toMap
   }
 
-  private[connectors] case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fieldsId: UUID, fields: Map[String, String])
+  private[connectors] case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fieldsId: UUID, fields: Map[FieldName, FieldValue])
 
-  private[connectors] case class FieldDefinition(name: String, description: String, hint: String, `type`: String, shortDescription: String)
+  private[connectors] case class FieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
   private[connectors] case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: List[FieldDefinition])
 
   private[connectors] case class AllApiFieldDefinitions(apis: Seq[ApiFieldDefinitions])
 
-  object JsonFormatters {
+  object JsonFormatters extends APIDefinitionFormatters {
     implicit val format: Format[ApplicationApiFieldValues] = Json.format[ApplicationApiFieldValues]
     implicit val formatFieldDefinition: Format[FieldDefinition] = Json.format[FieldDefinition]
     implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions] = Json.format[ApiFieldDefinitions]

@@ -16,10 +16,10 @@
 
 package model.view
 
-import model.{ApiContext, ApiVersion, Subscription, SubscriptionFields, VersionSubscription}
+import model.{ApiContext, ApiVersion, FieldName, FieldValue, Subscription, SubscriptionFields, VersionSubscription}
 import model.SubscriptionFields.SubscriptionFieldsWrapper
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.{nonEmptyText, _}
 import model.SubscriptionFields.Fields
 
 case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: Seq[SubscriptionField])
@@ -42,7 +42,7 @@ object SubscriptionVersion {
   }
 }
 
-case class SubscriptionField(name: String, shortDescription: String, description: String, hint: String, value: String)
+case class SubscriptionField(name: FieldName, shortDescription: String, description: String, hint: String, value: FieldValue)
 
 object SubscriptionField {
   def apply(fields : SubscriptionFieldsWrapper): Seq[SubscriptionField] = {
@@ -57,7 +57,7 @@ object SubscriptionField {
   }
 }
 
-case class SubscriptionFieldValueForm(name: String, value: String)
+case class SubscriptionFieldValueForm(name: FieldName, value: FieldValue)
 
 case class EditApiMetadataForm(fields: List[SubscriptionFieldValueForm])
 
@@ -66,8 +66,8 @@ object EditApiMetadataForm {
     mapping(
       "fields" -> list(
         mapping(
-          "name" -> text,
-          "value" -> text
+          "name" -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
+          "value" -> text.transform[FieldValue](FieldValue(_), fieldValue => fieldValue.value)
         )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
       )
     )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
@@ -76,6 +76,6 @@ object EditApiMetadataForm {
   def toFields(form: EditApiMetadataForm) : Fields = {
     form.fields
       .map(f => (f.name -> f.value))
-      .toMap
+      .toMap[FieldName, FieldValue]
   }
 }

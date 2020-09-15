@@ -34,8 +34,8 @@ lazy val dependencies = Seq(
   "org.slf4j" % "jul-to-slf4j" % slf4jVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "ch.qos.logback" % "logback-core" % logbackVersion,
-  "com.typesafe.play" %% "play-json" % "2.7.4",
-  "com.typesafe.play" %% "play-json-joda" % "2.7.4"
+  "com.typesafe.play" %% "play-json" % "2.8.1",
+  "com.typesafe.play" %% "play-json-joda" % "2.8.1"
 )
 
 lazy val testDependencies: Seq[ModuleID] = Seq(

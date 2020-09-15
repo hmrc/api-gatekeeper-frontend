@@ -31,6 +31,7 @@ import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import model.FieldName
 
 class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
   trait Setup extends ControllerSetupBase {
@@ -64,7 +65,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
     val emptySubscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId)
     val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
-    val subscriptionFieldValue = buildSubscriptionFieldValue("name")
+    val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
     val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
