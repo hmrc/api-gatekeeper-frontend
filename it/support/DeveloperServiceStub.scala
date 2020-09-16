@@ -1,12 +1,10 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import play.api.http.Status
-import play.api.libs.json.{JsArray, Json}
-import model.{APIDefinition, User}
 import model.TopicOptionChoice._
-import model.APICategory
+import model.{APICategory, APICategoryDetails, APIDefinition, User}
+import play.api.http.Status
+import play.api.libs.json.Json
 
 trait DeveloperServiceStub {
   val emailPreferencesUrl = "/developers/email-preferences"
@@ -40,7 +38,7 @@ trait DeveloperServiceStub {
           .withBody(Json.toJson(users).toString())))
   }
 
-    def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[User], topic: TopicOptionChoice, category: APICategory): Unit = {
+    def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[User], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
     val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl+"?topic="+topic.toString+"&regime="+category.category
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
@@ -51,10 +49,10 @@ trait DeveloperServiceStub {
 
 
     def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[APIDefinition], topic: TopicOptionChoice): Unit = {
-    val categories: Seq[String] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
+    val categories: Seq[APICategory] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
 
     val topicParam = s"topic=${topic.toString}"
-    val regimeParams = categories.map(category => s"&regime=$category").mkString
+    val regimeParams = categories.map(category => s"&regime=${category.value}").mkString
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
     val emailpreferencesByTopicAndCategoryUrl = s"$emailPreferencesUrl?$topicParam$regimeParams$serviceParams"

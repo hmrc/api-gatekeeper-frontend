@@ -24,7 +24,8 @@ import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
 
-trait EmailUsersHelper extends MustMatchers {
+trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
+
   def validatePageHeader(document: Document, expectedTitle: String) = {
     val maybeTitleText = getElementBySelector(document, "#pageTitle")
     maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
@@ -120,9 +121,6 @@ trait EmailUsersHelper extends MustMatchers {
     elements.size mustBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet must contain allElementsOf selectedAPIs.map(_.serviceName)
   }
-
-  def simpleAPIDefinition(serviceName: String, name: String): APIDefinition =
-    APIDefinition(serviceName, "url1", name, "desc", "context", Seq.empty, None, None)
 
 
   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {

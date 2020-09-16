@@ -140,17 +140,18 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    developerConnector.fetchByEmailPreferences(topic)
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(Seq(_)))
   }
 
-  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: String)(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchByEmailPreferences(topic, None, Some(Seq(apiCategory)))
+  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: APICategory)(implicit hc: HeaderCarrier) = {
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }
 
-  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: Seq[String], apiNames: Seq[String])(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: Seq[APICategory], apiNames: Seq[String])(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct))
   }
+
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
     developerConnector.removeMfa(email, loggedInUser)

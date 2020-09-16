@@ -41,13 +41,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
     val publicDefinition = APIDefinition(
       "publicAPI", "http://localhost/",
       "publicAPI", "public api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)
+      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None
     )
 
     val privateDefinition = APIDefinition(
       "privateAPI", "http://localhost/",
       "privateAPI", "private api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)
+      Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None
     )
   }
 
@@ -141,14 +141,14 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
   "apiCategories" when {
     "get all apiCategories" in new Setup {
-      val prodCategories = List(APICategory("Business", "Business"), APICategory("VAT", "Vat"), APICategory("EXAMPLE", "Example"))
-      val sandboxCategories = List(APICategory("VAT", "Vat"), APICategory("EXAMPLE", "Example"), APICategory("AGENTS", "Agents"))
+      val prodCategories = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"))
+      val sandboxCategories = List(APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"), APICategoryDetails("AGENTS", "Agents"))
       val allCategories = (prodCategories ++ sandboxCategories).distinct
       
       given(mockProductionApiDefinitionConnector.fetchAPICategories()).willReturn(Future(prodCategories))
       given(mockSandboxApiDefinitionConnector.fetchAPICategories()).willReturn(Future(sandboxCategories))
 
-      val response: List[APICategory] = await(definitionService.apiCategories)
+      val response: List[APICategoryDetails] = await(definitionService.apiCategories)
       response should contain only (allCategories:_*)
     }
   }

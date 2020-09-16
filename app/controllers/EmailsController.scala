@@ -24,7 +24,7 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APIDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
+import model.{APICategory, APIDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView, EmailLandingView, EmailPreferencesSelectApiView}
+import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -166,7 +166,7 @@ class EmailsController @Inject()(developerService: DeveloperService,
         for {
           categories <- apiDefinitionService.apiCategories
           users <- topicAndCategory.map(tup =>
-            developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2))
+            developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2)))
             .getOrElse(Future.successful(Seq.empty)).map(_.filter(_.verified.getOrElse(false)))
 
         } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))

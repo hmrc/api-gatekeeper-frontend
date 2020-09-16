@@ -27,7 +27,7 @@ import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesAPICategoryView
-import model.APICategory
+import model.APICategoryDetails
 
 class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -39,7 +39,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   val expectedTitle = "Email users interested in a tax regime"
 
-  def validateCategoryDropDown(document: Document, categories: List[APICategory]) = {
+  def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
         elementExistsByText(document, "option", category.name) mustBe true
@@ -47,7 +47,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     }
   }
 
-  def validateStaticPageElements(document: Document, categories: List[APICategory]) = {
+  def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
     validatePageHeader(document, expectedTitle)
     validateCategoryDropDown(document, categories)
     checkElementsExistById(document, Seq(TopicOptionChoice.BUSINESS_AND_POLICY.toString,
@@ -60,9 +60,9 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)
 
-    val category1 = APICategory("VAT", "Vat")
-    val category2 = APICategory("AGENT", "Agents")
-    val category3 = APICategory("RELIEF_AT_SOURCE", "Relief at source")
+    val category1 = APICategoryDetails("VAT", "Vat")
+    val category2 = APICategoryDetails("AGENT", "Agents")
+    val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
 
     val categories = List(category1, category2, category3)
 

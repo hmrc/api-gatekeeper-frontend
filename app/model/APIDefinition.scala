@@ -60,7 +60,8 @@ case class APIDefinition(serviceName: String,
                          description: String,
                          context: ApiContext,
                          versions: Seq[ApiVersionDefinition],
-                         requiresTrust: Option[Boolean]) {
+                         requiresTrust: Option[Boolean],
+                         categories: Option[Seq[APICategory]]) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.value.toDouble > v2.version.version.value.toDouble
@@ -86,11 +87,19 @@ object APIDefinition {
   }
 }
 
-case class APICategory(category: String, name: String)
+case class APICategory(value: String) extends AnyVal
 object APICategory{
   implicit val formatApiCategory = Json.format[APICategory]
 }
 
+case class APICategoryDetails(category: String, name: String){
+  def toAPICategory(): APICategory ={
+    APICategory(category)
+  }
+}
+object APICategoryDetails{
+  implicit val formatApiCategory = Json.format[APICategoryDetails]
+}
 case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)

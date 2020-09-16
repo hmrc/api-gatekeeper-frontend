@@ -16,15 +16,13 @@
 
 package views.emails
 
-import model.{APIDefinition, APIStatus, APIVersion}
-import model.APIStatus._
+import model._
 
 trait APIDefinitionHelper {
-    def simpleAPIDefinition(serviceName: String,
+  def simpleAPIDefinition(serviceName: String,
                           name: String,
                           context: String,
                           categories: Option[Seq[String]],
-                          version: String,
-                          status: APIStatus): APIDefinition =
-    APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion(version, status)), None, categories)
+                          version: String): APIDefinition =
+    APIDefinition(serviceName, "url1", name, "desc", ApiContext(context), Seq(ApiVersionDefinition(ApiVersion(version), APIStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
 }

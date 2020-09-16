@@ -1,10 +1,7 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
-import play.api.libs.json.{JsArray, Json}
-import uk.gov.hmrc.auth.core.authorise.Predicate
 
 trait AuthServiceStub {
   val authUrl = "/auth/authorise"

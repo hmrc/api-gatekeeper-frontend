@@ -16,8 +16,7 @@
 
 package utils
 
-import model.{APIDefinition, APIStatus, ApiVersionDefinition, ApiContextVersion, DropDownValue, LoggedInRequest, User}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import model._
 
 trait UserFunctionsWrapper {
 

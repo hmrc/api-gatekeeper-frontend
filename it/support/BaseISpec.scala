@@ -1,18 +1,14 @@
 package support
 
-import java.util.regex.Pattern
-
 import akka.stream.Materializer
+import org.scalatestplus.play.PlaySpec
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import org.scalatestplus.play.PlaySpec
 
 
 abstract class BaseISpec

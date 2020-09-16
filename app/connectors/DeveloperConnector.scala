@@ -41,7 +41,7 @@ trait DeveloperConnector {
 
   def fetchByEmailPreferences(topic: TopicOptionChoice,
                               maybeApis: Option[Seq[String]] = None,
-                              maybeApiCategory: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[Seq[User]]
+                              maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[Seq[User]]
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
@@ -66,8 +66,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
 
   def fetchByEmailPreferences(topic: TopicOptionChoice,
                               maybeApis: Option[Seq[String]] = None,
-                              maybeApiCategories: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    val regimes: Seq[(String,String)] = maybeApiCategories.fold(Seq.empty[(String,String)])(regimes =>  regimes.flatMap(regime => Seq("regime" -> regime)))
+                              maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    val regimes: Seq[(String,String)] = maybeApiCategories.fold(Seq.empty[(String,String)])(regimes =>  regimes.flatMap(regime => Seq("regime" -> regime.value)))
     val queryParams =
       Seq("topic" -> topic.toString) ++ regimes ++
       maybeApis.fold(Seq.empty[(String,String)])(apis => apis.map(("service" -> _)))
@@ -114,7 +114,7 @@ class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends D
 
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 
-  def fetchByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategories: Option[Seq[String]] = None)(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
+  def fetchByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)

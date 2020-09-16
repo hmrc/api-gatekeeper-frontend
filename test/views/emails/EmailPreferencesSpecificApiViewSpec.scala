@@ -17,7 +17,6 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.TopicOptionChoice.TopicOptionChoice
 import model.{APIDefinition, LoggedInUser, TopicOptionChoice, User}
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
@@ -37,8 +36,8 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences specific api view" must {
     val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
-    val selectedApis: Seq[APIDefinition] = Seq(simpleAPIDefinition("Api1ServiceName", "Api1Name"),
-      simpleAPIDefinition("Api2ServiceName", "Api2Name"))
+    val selectedApis: Seq[APIDefinition] = Seq(simpleAPIDefinition("Api1ServiceName", "Api1Name", "context", None, "1"),
+      simpleAPIDefinition("Api2ServiceName", "Api2Name", "context",  None, "1"))
     val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)

@@ -20,7 +20,7 @@ import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.Environment.Environment
-import model.TopicOptionChoice._
+import model.TopicOptionChoice.TopicOptionChoice
 import model._
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
@@ -93,9 +93,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = Seq(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users = Seq(verifiedUser1, verifiedUser2)
-      val category1 = APICategory("EXAMPLE", "Example")
-      val category2 = APICategory("VAT", "Vat")
-      val category3 = APICategory("AGENTS", "Agents")
+      val category1 = APICategoryDetails("EXAMPLE", "Example")
+      val category2 = APICategoryDetails("VAT", "Vat")
+      val category3 = APICategoryDetails("AGENTS", "Agents")
  
 
       def givenVerifiedDeveloper(): Unit = {
@@ -112,11 +112,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
-        when(mockDeveloperService.fetchDevelopersByEmailPreferences(*)(*)).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(Future.successful(users))
       }
 
       def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[User]) = {
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*,*)(*)).thenReturn(Future.successful(users))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[APICategory])(*)).thenReturn(Future.successful(users))
       }
 
       def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[User]) = {
@@ -128,8 +128,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
-        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", "service1", Seq(APIVersion("1", APIStatus.BETA)), None, categories = Some(Seq(category1.toString)))
-        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", "service2", Seq(APIVersion("3", APIStatus.STABLE)), None, categories = Some(Seq(category2.toString)))
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(ApiVersionDefinition(ApiVersion("1"), APIStatus.BETA)), None, categories = Some(Seq(category1.toAPICategory())))
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition(ApiVersion("3"), APIStatus.STABLE)), None, categories = Some(Seq(category2.toAPICategory())))
         val twoApis = Seq(api1, api2)
         def givenApiDefinition2Apis() = {
         when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))

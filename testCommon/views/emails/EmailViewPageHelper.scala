@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice._
-import model.{APICategory, APIDefinition, APIVersion, User}
+import model.{APICategoryDetails, APIDefinition, ApiVersionDefinition, User}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
 
@@ -31,7 +31,7 @@ trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailPreferencesTopicViewHelper
  with EmailPreferencesAPICategoryViewHelper
  with EmailPreferencesSpecificAPIViewHelper
- with EmailPreferencesSelectAPIViewHelper
+ with EmailPreferencesSelectAPIViewHelper with APIDefinitionHelper
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
 
@@ -88,8 +88,8 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
     for (api: APIDefinition <- apis) {
-      for (version: APIVersion <- api.versions) {
-        val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
+      for (version: ApiVersionDefinition <- api.versions) {
+        val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}") {
           versionOption.isDefined mustBe true
         }
@@ -108,8 +108,8 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateButtonText(document, "filter", "Filter Again")
 
     for (api: APIDefinition <- apis) {
-      for (version: APIVersion <- api.versions) {
-        val versionOption = getElementBySelector(document, s"option[value=${api.context}__${version.version}]")
+      for (version: ApiVersionDefinition <- api.versions) {
+        val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         versionOption.isDefined mustBe true
       }
     }
@@ -160,7 +160,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 }
 
 trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTableHelper {
-  private def validateCategoryDropDown(document: Document, categories: List[APICategory]) = {
+  private def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
         elementExistsByText(document, "option", category.name) mustBe true
@@ -168,13 +168,13 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
   }
 
-  private def validateStaticPageElements(document: Document, categories: List[APICategory]) = {
+  private def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
     validateCategoryDropDown(document, categories)
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
   }
 
-  def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategory]) = {
+  def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategoryDetails]) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -184,8 +184,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document,
-                                                                categories: List[APICategory],
-                                                                selectedCategory: APICategory) = {
+                                                                categories: List[APICategoryDetails],
+                                                                selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -196,8 +196,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   }
 
   def validateEmailPreferencesAPICategoryResultsPage(document: Document,
-                                                     categories: List[APICategory],
-                                                     mayBeSelectedCategory: Option[APICategory],
+                                                     categories: List[APICategoryDetails],
+                                                     mayBeSelectedCategory: Option[APICategoryDetails],
                                                      selectedTopic: TopicOptionChoice,
                                                      users: Seq[User]) = {
     validateStaticPageElements(document, categories)

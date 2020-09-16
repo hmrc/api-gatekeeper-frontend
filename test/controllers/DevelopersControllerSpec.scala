@@ -16,21 +16,17 @@
 
 package controllers
 
-import java.util.UUID
-
 import model._
 import org.joda.time.DateTime
 import org.mockito.BDDMockito._
-import org.mockito.Mockito.verify
 import play.api.mvc.Result
-import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.DeveloperService
-import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers._
+import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

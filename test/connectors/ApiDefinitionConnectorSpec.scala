@@ -78,7 +78,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
 
@@ -90,7 +90,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
@@ -116,7 +116,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
@@ -127,7 +127,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(APIDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false)))
+        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
@@ -149,18 +149,18 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
   "fetchAPICategories" should {
     val url = s"$baseUrl/api-categories"
     "respond with 200 and convert body" in new Setup {
-      val response = List(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
+      val response = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"))
 
-      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[List[APICategoryDetails]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchAPICategories()) shouldBe response
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
-      val response = List(APICategory("Business", "Business"), APICategory("VAT", "Vat"))
+      val response = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *)).thenReturn(Future.failed(new BadRequestException("")),
+      when(mockHttpClient.GET[List[APICategoryDetails]](eqTo(url))(*, *, *)).thenReturn(Future.failed(new BadRequestException("")),
         Future.successful(response))
 
       await(connector.fetchAPICategories()) shouldBe response

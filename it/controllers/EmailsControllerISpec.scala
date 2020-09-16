@@ -1,5 +1,6 @@
 package controllers
 
+import model._
 import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
@@ -7,12 +8,9 @@ import play.api.http.HeaderNames.{CONTENT_TYPE, LOCATION}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
-import model.{APIDefinition, APIStatus, APIVersion, DropDownValue, User}
-import support.{APIDefinitionServiceStub, ApplicationServiceStub, AuthServiceStub, DeveloperServiceStub, ServerBaseISpec}
+import support._
 import utils.UserFunctionsWrapper
 import views.emails.EmailsPagesHelper
-import model.TopicOptionChoice
-import model.APICategory
 
 
 
@@ -52,14 +50,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[Seq[String]]): APIDefinition =
-      APIDefinition(serviceName, "url1", name, "desc", context, Seq(APIVersion("1", APIStatus.BETA)), None, categories)
-    val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None)
-    val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")))
-    val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")))
-    val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None)
-    val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None)
-    val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None)
+    val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None, "1")
+    val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")), "1")
+    val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")), "1")
+    val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None, "1")
+    val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
+    val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
     val apis = Seq(api1, api2, api3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
@@ -302,7 +298,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     } 
     
     "GET /emails/email-preferences/by-api-category" should {
-      val categories = List(APICategory("category1", "name1"), APICategory("category2", "name2"),  APICategory("category3", "name3"))
+      val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"),  APICategoryDetails("category3", "name3"))
       
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()

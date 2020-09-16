@@ -1,11 +1,10 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import model.APIDefinitionFormatters._
+import model.{APICategoryDetails, APIDefinition}
 import play.api.http.Status
-import play.api.libs.json.{JsArray, Json}
-import model.APIDefinition
-import model.APICategory
+import play.api.libs.json.Json
 
 trait APIDefinitionServiceStub {
   val apiPublicDefinitionUrl = "/api-definition"
@@ -30,7 +29,7 @@ trait APIDefinitionServiceStub {
           .withBody(Json.toJson(apis).toString())))
   }
 
-     def primeGetAllCategories(apis: Seq[APICategory]): Unit = {
+     def primeGetAllCategories(apis: Seq[APICategoryDetails]): Unit = {
 
     stubFor(get(urlEqualTo(getCategoriesUrl))
       .willReturn(

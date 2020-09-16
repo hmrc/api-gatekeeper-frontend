@@ -537,8 +537,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
    "developerService fetchDevelopersByEmailPreferences" should {
      val topic = TopicOptionChoice.BUSINESS_AND_POLICY
       val sandboxUser = aUser("sandbox")
-      val category1 = "category1"
-      val category2 = "category2"
+      val category1 = APICategory("category1")
+      val category2 = APICategory("category2")
       val categories = Seq(category1, category2)
       val apiName1 = "apiName1"
       val apiName2 = "apiName2"

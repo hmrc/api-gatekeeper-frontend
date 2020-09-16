@@ -17,8 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{DropDownValue, LoggedInUser, User, APIStatus}
-import model.APIStatus._
+import model.{DropDownValue, LoggedInUser, User}
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -40,8 +39,8 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)
-    val api1 = simpleAPIDefinition("api", "Magical API", "magical", None, "1", APIStatus.BETA)
-    val api2 = simpleAPIDefinition("api", "Magical API", "magical", None, "2", APIStatus.ALPHA)
+    val api1 = simpleAPIDefinition("api", "Magical API", "magical", None, "1")
+    val api2 = simpleAPIDefinition("api", "Magical API", "magical", None, "2")
     val dropdownview1 = DropDownValue("magical__2", "Magical API (ALPHA)")
     val dropdownview2 = DropDownValue("magical__1", "Magical API (BETA)")
     val queryParams = Map("apiVersionFilter" -> dropdownview1.value)

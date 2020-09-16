@@ -36,9 +36,9 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPrefere
 
   "email preferences specific api view" must {
 
-     val api1 = simpleAPIDefinition(serviceName="serviceName1", name="api1")
-     val api2 = simpleAPIDefinition(serviceName="serviceName2", name="api2")
-     val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3")
+     val api1 = simpleAPIDefinition(serviceName="serviceName1", name="api1","context",  None, "1")
+     val api2 = simpleAPIDefinition(serviceName="serviceName2", name="api2","context",  None, "1")
+     val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3", "context",  None, "1")
      val dropDownApis = Seq(api1, api2, api3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {

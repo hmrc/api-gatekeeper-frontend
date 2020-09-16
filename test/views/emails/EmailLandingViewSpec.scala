@@ -19,7 +19,6 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html

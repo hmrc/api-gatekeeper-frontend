@@ -19,12 +19,10 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, TopicOptionChoice, User}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
 
