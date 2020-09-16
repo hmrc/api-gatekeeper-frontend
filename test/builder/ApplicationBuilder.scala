@@ -26,6 +26,7 @@ import model.State
 import model.Collaborator
 import model.applications.ApplicationWithSubscriptionData
 import model.CollaboratorRole
+import model.ApplicationState
 
 
 trait ApplicationBuilder {
@@ -45,7 +46,7 @@ trait ApplicationBuilder {
       Environment.SANDBOX,
       Some(s"$appId-description"),
       buildCollaborators(Seq(appOwnerEmail)),
-      state = State.PRODUCTION,
+      state = ApplicationState(State.PRODUCTION),
       access = Standard(
         redirectUris = Seq("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")

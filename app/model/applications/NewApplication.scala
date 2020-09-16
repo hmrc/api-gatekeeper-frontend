@@ -25,8 +25,7 @@ import model.Environment.Environment
 import model.Collaborator
 import model.Access
 import model.Standard
-import model.State
-import model.State.State
+import model.ApplicationState
 import model.CollaboratorRole
 import uk.gov.hmrc.play.json.Union
 import model.AccessType
@@ -45,7 +44,7 @@ case class NewApplication(
     description: Option[String] = None,
     collaborators: Set[Collaborator] = Set.empty,
     access: Access = Standard(),
-    state: State = State.TESTING,
+    state: ApplicationState = ApplicationState(),
     checkInformation: Option[CheckInformation] = None,
     ipWhitelist: Set[String] = Set.empty
 ) {
@@ -70,6 +69,7 @@ object NewApplication {
 
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val formatCollaborator = Json.format[Collaborator]
+  implicit val formatApplicationState = Json.format[ApplicationState]
   implicit val applicationFormat = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)
