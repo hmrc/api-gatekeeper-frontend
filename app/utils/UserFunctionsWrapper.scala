@@ -16,11 +16,9 @@
 
 package utils
 
-import model.{APIDefinition, APIStatus, ApiVersionDefinition, ApiContextVersion, DropDownValue, LoggedInRequest, User}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import model._
 
 trait UserFunctionsWrapper {
-  self: FrontendBaseController =>
 
 
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
@@ -35,7 +33,7 @@ trait UserFunctionsWrapper {
   }
 
   def usersToEmailCopyText(users: Seq[User]): String = {
-    users.map(_.email).mkString("; ")
+    users.map(_.email).sorted.mkString("; ")
   }
 
   def getApiVersionsDropDownValues(apiDefinitions: Seq[APIDefinition]) = {

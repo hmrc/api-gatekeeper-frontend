@@ -18,8 +18,8 @@ package services
 
 import connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import javax.inject.Inject
-import model.{APICategory, APIDefinition}
 import model.Environment._
+import model.{APICategoryDetails, APIDefinition}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -65,7 +65,7 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
       .map(_.sortBy { case (api, env) => (api.name, env) } )
   }
 
-  def apiCategories()(implicit hc: HeaderCarrier) : Future[List[APICategory]] = {
+  def apiCategories()(implicit hc: HeaderCarrier) : Future[List[APICategoryDetails]] = {
     for{
       sandboxCategories <- sandboxApiDefinitionConnector.fetchAPICategories()
       productionCategories <- productionApiDefinitionConnector.fetchAPICategories()

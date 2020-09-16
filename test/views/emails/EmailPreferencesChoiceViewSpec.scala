@@ -17,20 +17,16 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.EmailPreferencesChoice._
-import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesChoiceView
 
-class EmailPreferencesChoiceViewSpec extends CommonViewSpec {
+class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -42,23 +38,8 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec {
     "show correct title and options" in new Setup {
       val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
 
-      val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-      elementExistsByText(document, "h1", "Who do you want to email?") mustBe true
-
-      verifyEmailOptions(SPECIFIC_API, document, isDisabled = true)
-      verifyEmailOptions(TAX_REGIME, document)
-      verifyEmailOptions(TOPIC, document)
-
+      validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
     }
   }
 
-  def verifyEmailOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit ={
-    elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label",  optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label",  optionHint(option)) mustBe true
-    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
-  }
 }

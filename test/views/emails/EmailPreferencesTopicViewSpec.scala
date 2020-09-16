@@ -19,16 +19,14 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, TopicOptionChoice, User}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
 
-class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -45,58 +43,22 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with UserTableHelper 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesTopicView.render(Seq.empty, "", None, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
-      elementExistsByAttr(document, "a", "data-clip-text") mustBe false
-
-      noInputChecked(document)
-
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
-
-      verifyTableHeader(document, tableIsVisible)
-
+      validateEmailPreferencesTopicPage(Jsoup.parse(result.body))
     }
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = true
-      val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
-      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-      elementExistsByAttr(document, "a", "data-clip-text") mustBe true
-
-      isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
-
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
-  
-      verifyTableHeader(document, tableIsVisible)
-      verifyUserRow(document, user1)
-      verifyUserRow(document, user2)
+      emailPreferencesTopicView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
+      
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
-
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
-      elementExistsContainsText(document, "div", "0 results") mustBe true
-      elementExistsByAttr(document, "a", "data-clip-text") mustBe false
-
-      isElementChecked(document, TopicOptionChoice.RELEASE_SCHEDULES.toString)
-
-      verifyTableHeader(document, tableIsVisible)
-
+      emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+      
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }
 
   }

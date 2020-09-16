@@ -18,18 +18,15 @@ package controllers
 
 import builder.SubscriptionsBuilder
 import mocks.service.SubscriptionFieldsServiceMock
+import model.{ApiContext, ApiVersion, FieldName, FieldValue}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.http.HeaderCarrier
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import views.html.{ErrorTemplate, ForbiddenView}
-import model.{ApiContext, ApiVersion}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import model.FieldName
-import model.FieldValue
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

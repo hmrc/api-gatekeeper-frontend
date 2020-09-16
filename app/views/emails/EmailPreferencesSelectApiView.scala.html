@@ -1,0 +1,68 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import model.TopicOptionChoice.TopicOptionChoice
+@import config.AppConfig
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(apis: Seq[APIDefinition], filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@drawAPIDropDown() = {
+<select class="govuk-select govuk-select-width-full"
+id="selectedAPIs"
+name="selectedAPIs">
+    <option value="">Select an API</option>
+    @for(api <- apis) {
+        <option value="@api.serviceName"> @api.name </option>
+    }
+</select>
+}
+
+@main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
+
+
+
+    <div class="govuk-template__body">
+        <div>
+            <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
+        </div>
+        <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(Seq.empty, None).url" method="get">
+        <div class="form-group">
+            <fieldset class=" govuk-fieldset">
+                <legend class="form-label-bold">
+                    <h1 id="pageTitle">Email users interested in a specific API</h1>
+                </legend>
+
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="selectedApi">Select an API from the list</label>
+                    @if(filteredApis.nonEmpty) {
+                        @for(filteredApi <- filteredApis){
+                            <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
+                        }                  
+                    }
+                     @drawAPIDropDown
+                </div>
+            </fieldset>
+        </div>
+            <div class="form-field">
+                <button id="submit" class="button button--padded" type="submit">Select API</button>
+            </div>
+        </form>
+    </div>
+
+}

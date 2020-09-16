@@ -203,12 +203,28 @@ class HttpDeveloperConnectorSpec
 
        "make a call with topic and api category passed into the service and return users from response" in new Setup {
 
-        val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT"
+        val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1"
         stubFor(get(urlEqualTo(url)).willReturn(
           aResponse().withStatus(OK).withBody(
             Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
         )
-        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApiCategory = Some("VAT")))
+        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))))
+
+         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+
+        result shouldBe List(aUserResponse(developerEmail))
+
+      }
+
+
+       "make a call with topic, api categories and apis passed into the service and return users from response" in new Setup {
+
+        val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1&service=service1&service=service2"
+        stubFor(get(urlEqualTo(url)).willReturn(
+          aResponse().withStatus(OK).withBody(
+            Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+        )
+        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = Some(Seq("service1", "service2")), maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))))
 
          wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 

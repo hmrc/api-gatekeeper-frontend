@@ -23,13 +23,12 @@
 
 @()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@disabledFlag(enabled: Boolean) = @{if(!enabled){" disabled"} else {""}}
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
-@buildOptionRow(preferencesChoice: EmailPreferencesChoice, enabled: Boolean = false, checked: Boolean = false) = {
+@buildOptionRow(preferencesChoice: EmailPreferencesChoice, checked: Boolean = false) = {
     <div class="multiple-choice">
 
-            <input id="@preferencesChoice.toString" name="sendEmailPreferences" aria-label="@EmailPreferencesChoice.optionHint(preferencesChoice)" type="radio" value="@preferencesChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
+            <input id="@preferencesChoice.toString" name="sendEmailPreferences" aria-label="@EmailPreferencesChoice.optionHint(preferencesChoice)" type="radio" value="@preferencesChoice.toString"@checkedFlag(checked)>
 
             <label class="form-label-bold" for="@preferencesChoice.toString" >@EmailPreferencesChoice.optionLabel(preferencesChoice)
                 <span><div class="font-small text-secondary">@EmailPreferencesChoice.optionHint(preferencesChoice)</div></span>
@@ -52,9 +51,9 @@
                         <h1 id="pageTitle">Who do you want to email?</h1>
                     </legend>
                     <div class="govuk-radios">
-                        @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API)
-                        @buildOptionRow(EmailPreferencesChoice.TAX_REGIME, enabled = true)
-                        @buildOptionRow(EmailPreferencesChoice.TOPIC, enabled = true)
+                        @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
+                        @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
+                        @buildOptionRow(EmailPreferencesChoice.TOPIC)
                     </div>
                 </fieldset>
                 <div><br/></div>

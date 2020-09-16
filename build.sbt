@@ -97,14 +97,17 @@ lazy val microservice =  (project in file("."))
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
-    routesImport += "controllers.binders._"
+    routesImport += "controllers.binders._",
+    Test / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
+    Test / unmanagedSourceDirectories += baseDirectory(_ / "test").value  
   )
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
     IntegrationTest / Keys.fork := false,
     IntegrationTest / parallelExecution := false,
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value  
   )
   .configs(AcceptanceTest)
   .settings(
@@ -137,10 +140,13 @@ lazy val microservice =  (project in file("."))
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
 
+
 lazy val TemplateTest = config("tt") extend Test
 lazy val TemplateItTest = config("tit") extend IntegrationTest
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
+
+ 
 lazy val appName = "api-gatekeeper-frontend"
 
 lazy val testScope = "test,it"

@@ -27,9 +27,9 @@ import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesAPICategoryView
-import model.APICategory
+import model.APICategoryDetails
 
-class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableHelper with EmailUsersHelper{
+class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -39,19 +39,19 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
 
   val expectedTitle = "Email users interested in a tax regime"
 
-  def validateCategoryDropDown(document: Document, categories: List[APICategory])={
-    for(category <- categories){
-      withClue(s"Category: option `${category.category}` not in select list: ") { 
-        elementExistsByText(document, "option", category.name) mustBe true 
+  def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
+    for (category <- categories) {
+      withClue(s"Category: option `${category.category}` not in select list: ") {
+        elementExistsByText(document, "option", category.name) mustBe true
       }
     }
   }
 
-  def validatePermanentElements(document: Document, categories: List[APICategory])={
-      validatePageHeader(document, expectedTitle)
-      validateCategoryDropDown(document, categories)
-      checkElementsExistById(document, Seq( TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,  TopicOptionChoice.RELEASE_SCHEDULES.toString,  TopicOptionChoice.EVENT_INVITES.toString))
+  def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
+    validatePageHeader(document, expectedTitle)
+    validateCategoryDropDown(document, categories)
+    checkElementsExistById(document, Seq(TopicOptionChoice.BUSINESS_AND_POLICY.toString,
+      TopicOptionChoice.TECHNICAL.toString, TopicOptionChoice.RELEASE_SCHEDULES.toString, TopicOptionChoice.EVENT_INVITES.toString))
   }
 
   "email preferences category view" must {
@@ -60,26 +60,17 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
     val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
     val users = Seq(user1, user2)
 
-    val category1 = APICategory("VAT", "Vat")
-    val category2 = APICategory("AGENT", "Agents")
-    val category3 = APICategory("RELIEF_AT_SOURCE", "Relief at source")
+    val category1 = APICategoryDetails("VAT", "Vat")
+    val category2 = APICategoryDetails("AGENT", "Agents")
+    val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
 
     val categories = List(category1, category2, category3)
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, "", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
-      validateCopyToClipboardLink(document, isVisible = false)
-     
-      getSelectedOptionValue(document) mustBe None
-      noInputChecked(document)
-  
-      verifyTableHeader(document, tableIsVisible)
-
+        validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
 
 
@@ -88,71 +79,46 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with UserTableH
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), categories, "", request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
-      validateCopyToClipboardLink(document, isVisible = false)
-     
-      getSelectedOptionValue(document) mustBe None
-      isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
-  
-      verifyTableHeader(document, tableIsVisible)
-
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)    
     }
 
     "show correct title and options when only Category filter provided" in new Setup {
-        //If adding errors to the page we need to add tests in here for that message
+      //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, category1.category, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
 
-      validatePermanentElements(document, categories)
-      validateCopyToClipboardLink(document, isVisible = false)
-     
-      getSelectedOptionValue(document) mustBe Some(category1.category)
-      noInputChecked(document)
-  
-      verifyTableHeader(document, tableIsVisible)
-
+      validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
 
     "show correct title and select correct option when both filters and user lists are present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY),  categories, category2.category, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = true
-      val document: Document = Jsoup.parse(result.body)
-
-       validatePermanentElements(document, categories)
-      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-      validateCopyToClipboardLink(document)
-       getSelectedOptionValue(document) mustBe Some(category2.category)
-
-      isElementChecked(document, TopicOptionChoice.BUSINESS_AND_POLICY.toString)
-
-      verifyTableHeader(document, tableIsVisible)
-      verifyUserRow(document, user1)
-      verifyUserRow(document, user2)
+        emailPreferencesAPICategoryView.render(
+          users,
+          s"${user1.email}; ${user2.email}",
+          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
+          categories,
+          category2.category,
+          request,
+          LoggedInUser(None),
+          messagesProvider)
+      
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(category2), TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES),  categories, category2.category, request, LoggedInUser(None), messagesProvider)
-      val tableIsVisible = false
-      val document: Document = Jsoup.parse(result.body)
+        emailPreferencesAPICategoryView.render(
+          Seq.empty,
+          "",
+          Some(TopicOptionChoice.RELEASE_SCHEDULES),
+          categories,
+          category2.category,
+          request,
+          LoggedInUser(None),
+          messagesProvider)
 
-
-      validatePermanentElements(document, categories)
-      validateCopyToClipboardLink(document, isVisible = false)
-      getSelectedOptionValue(document) mustBe Some(category2.category)
-      
-      elementExistsContainsText(document, "div", "0 results") mustBe true
- 
-      isElementChecked(document, TopicOptionChoice.RELEASE_SCHEDULES.toString)
-
-      verifyTableHeader(document, tableIsVisible)
-
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(category2), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }
 
   }

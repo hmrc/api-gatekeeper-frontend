@@ -38,6 +38,10 @@ object ViewHelpers {
     doc.select(s"$selector").asScala.headOption
   }
 
+  def getElementsBySelector(doc: Document, selector: String): List[Element] = {
+    doc.select(s"$selector").asScala.toList
+  }
+
   def elementExistsById(doc: Document, id: String): Boolean = doc.select(s"#$id").asScala.nonEmpty
 
   def elementExistsByIdWithAttr(doc: Document, id: String, attr: String): Boolean =
