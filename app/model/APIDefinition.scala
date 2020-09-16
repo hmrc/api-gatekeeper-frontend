@@ -89,7 +89,7 @@ object APIDefinition {
 
 case class APICategory(value: String) extends AnyVal
 object APICategory{
-  implicit val formatApiCategory = Json.format[APICategory]
+  implicit val formatApiCategory = Json.valueFormat[APICategory]
 }
 
 case class APICategoryDetails(category: String, name: String){
