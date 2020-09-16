@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package config
 
-import javax.inject.{Inject, Singleton}
-import config.AppConfig
-import model.StaticNavLinks
-import play.api.libs.json._
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import connectors.ApmConnector
+import com.google.inject.{Provider, Inject, Singleton}
 
 @Singleton
-class NavigationController @Inject()(mcc: MessagesControllerComponents)
-                                    (implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) {
-
-  def navLinks() = Action.async { _ =>
-    Future.successful(Ok(Json.toJson(StaticNavLinks())))
-  }
+class LiveApmConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApmConnector.Config] {
+//TODO: Add APM config to GK's app-config-base
+  override def get(): ApmConnector.Config =
+    ApmConnector.Config(
+      serviceBaseUrl = config.baseUrl("api-platform-microservice")
+    )
 }

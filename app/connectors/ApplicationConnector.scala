@@ -31,7 +31,6 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
-import model.Subscription._
 import model.ApiContext
 
 import scala.concurrent.{ExecutionContext, Future}

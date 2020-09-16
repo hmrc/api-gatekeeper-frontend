@@ -16,7 +16,6 @@
 
 package connectors
 
-import java.net.URLEncoder.encode
 import java.util.UUID
 
 import akka.actor.ActorSystem

@@ -43,7 +43,9 @@ class ConfigurationModule extends Module {
         .to(classOf[SandboxSubscriptionFieldsConnector]),
       bind(classOf[SubscriptionFieldsConnector])
         .qualifiedWith(Names.named("PRODUCTION"))
-        .to(classOf[ProductionSubscriptionFieldsConnector])
+        .to(classOf[ProductionSubscriptionFieldsConnector]),
+      bind(classOf[ApmConnector.Config])
+      .toProvider(classOf[LiveApmConnectorConfigProvider])
     )
   }
 }
