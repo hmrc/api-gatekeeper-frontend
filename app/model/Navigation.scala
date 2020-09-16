@@ -31,7 +31,6 @@ case object StaticNavLinks {
     Seq(
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage(None).url)),
       NavLink("Developers", Some(routes.Developers2Controller.developersPage(None, None, None, None).url)),
-      NavLink("Emails", Some(routes.EmailsController.landing().url)),
       NavLink("API Approvals", Some(routes.DeploymentApprovalController.pendingPage().url))
     )
   }
