@@ -99,7 +99,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
-      val fields: Fields = mock[Fields]
+      val fields: Fields.Alias = mock[Fields.Alias]
 
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 
@@ -203,7 +203,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId],*[ApiContext],*[ApiVersion],*)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
-      val fields: Fields = mock[Fields]
+      val fields: Fields.Alias = mock[Fields.Alias]
 
       await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
 

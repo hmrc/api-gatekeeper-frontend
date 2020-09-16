@@ -37,7 +37,7 @@ trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSu
         .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
   }
 
-  def verifySaveSubscriptionFields(application: Application, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields) = {
+  def verifySaveSubscriptionFields(application: Application, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) = {
     verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
   }
 }
