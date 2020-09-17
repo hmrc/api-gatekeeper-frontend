@@ -421,7 +421,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
 
         validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, apis, Seq.empty, "")
-      } 
+      }
 
        "respond with 403 when not authorised" in {
         primeAuthServiceFail()

@@ -49,6 +49,31 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
       "privateAPI", "private api.", ApiContext.random,
       Seq(ApiVersionDefinition(ApiVersion.random, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None
     )
+
+
+    val version1 = ApiVersionDefinition(ApiVersion("1.0"), APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))
+    val version2 = ApiVersionDefinition(ApiVersion("2.0"), APIStatus.BETA, Some(APIAccess(APIAccessType.PRIVATE)))
+    val version3 = ApiVersionDefinition(ApiVersion("3.0"), APIStatus.BETA, Some(APIAccess(APIAccessType.PRIVATE)))
+
+    val customsDeclarations1 = APIDefinition(serviceName = "customs-declarations",
+      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
+      name = "Customs Declarations",
+      description = "Single WCO-compliant Customs Declarations API",
+      context = ApiContext("customs/declarations"),
+      requiresTrust = Some(false),
+      versions = Seq(version1),
+      categories = Some(Seq(APICategory("CUSTOMS")))
+    )
+
+    val customsDeclarations2 = APIDefinition(serviceName = "customs-declarations",
+      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
+      name = "Customs Declarations",
+      description = "Single WCO-compliant Customs Declarations API",
+      context = ApiContext("customs/declarations"),
+      requiresTrust = Some(false),
+      versions = Seq(version2.copy(), version3.copy()),
+      categories = Some(Seq(APICategory("CUSTOMS")))
+    )
   }
 
   "DefinitionService" when {
@@ -67,6 +92,20 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
         val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
         await(allDefinitions) shouldBe expectedApiDefintions
+      }
+
+      "Return a filtered API from both environments" in new Setup {
+
+        val expectedApiDefinitions = Seq(customsDeclarations1)
+
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(customsDeclarations1)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(customsDeclarations2)))
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(customsDeclarations1)))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(customsDeclarations2)))
+
+        val allDefinitions: Future[Seq[APIDefinition]] = definitionService.fetchAllDistinctApisIgnoreVersions(None)
+
+        await(allDefinitions) shouldBe expectedApiDefinitions
       }
 
       "Return a combination of public and private APIs in sandbox" in new Setup {
