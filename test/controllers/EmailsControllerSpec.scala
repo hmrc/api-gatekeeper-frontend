@@ -35,6 +35,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import services.ApmService
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -160,7 +161,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         forbiddenView,
         mockAuthConnector,
         mcc,
-        errorTemplateView
+        errorTemplateView,
+        mockApmService
       )
 
     }

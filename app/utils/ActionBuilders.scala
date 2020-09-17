@@ -19,18 +19,25 @@ package utils
 import model._
 import play.api.i18n.Messages
 import play.api.mvc.Result
-import services.ApplicationService
+import services.{ApplicationService, ApmService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
+import model.applications.ApplicationWithSubscriptionData
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
+  val apmService: ApmService
 
   def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])
              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
+  }
+  
+  def withAppAndSubsData(appId: ApplicationId)(f: Option[ApplicationWithSubscriptionData] => Future[Result])
+             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap(f)
   }
 
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
@@ -44,6 +51,18 @@ trait ActionBuilders extends ErrorHelper {
             val subscriptions = filterSubscriptionsVersions(allApis)(v => v.subscribed)
             action(ApplicationAndSubscriptionsWithHistory(appWithHistory, subscriptions))
           }
+        }
+      }
+    }
+  }
+
+  def withAppSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
+                                         (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    withAppAndSubsData(appId){
+      appWithSubsOption => {
+        appWithSubsOption match {
+          case Some(value) => action(ApplicationWithSubscriptionDataAndStateHistory(???, ???))
+          case None => Future.successful(notFound("Application not found"))
         }
       }
     }

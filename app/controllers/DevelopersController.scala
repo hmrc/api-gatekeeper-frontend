@@ -23,7 +23,7 @@ import model._
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
@@ -44,7 +44,8 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      removeMfaSuccessView: RemoveMfaSuccessView,
                                      deleteDeveloperView: DeleteDeveloperView,
                                      deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
-                                     override val errorTemplate: ErrorTemplate
+                                     override val errorTemplate: ErrorTemplate,
+                                     val apmService: ApmService
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 

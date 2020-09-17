@@ -27,6 +27,12 @@ import model.Collaborator
 import model.applications.ApplicationWithSubscriptionData
 import model.CollaboratorRole
 import model.ApplicationState
+import model.APIIdentifier
+import model.ApiVersion
+import model.ApiContext
+import model.SubscriptionFields.Fields
+import model.FieldName
+import model.FieldValue
 
 
 trait ApplicationBuilder {
@@ -58,9 +64,24 @@ trait ApplicationBuilder {
     emails.map(email => Collaborator(email, CollaboratorRole.ADMINISTRATOR)).toSet
   }
 
-  def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
-    val application = buildApplication(ApplicationId.random)
+  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[APIIdentifier] = 
+    Set(
+      APIIdentifier(apiContext, apiVersion)
+    )
 
-    ApplicationWithSubscriptionData(application)
+  def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {
+    val fields = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
+    Map(apiContext -> Map(apiVersion -> fields))
+  }
+
+  def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
+    val apiContext = ApiContext.random
+    val apiVersion = ApiVersion.random
+
+    ApplicationWithSubscriptionData(
+      buildApplication(ApplicationId.random),
+      buildSubscriptions(apiContext, apiVersion),
+      buildSubscriptionFieldValues(apiContext, apiVersion)
+    )
   }
 }

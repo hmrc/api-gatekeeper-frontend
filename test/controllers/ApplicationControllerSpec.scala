@@ -123,7 +123,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         createApplicationSuccessView,
         manageTeamMembersView,
         addTeamMemberView,
-        removeTeamMemberView
+        removeTeamMemberView,
+        mockApmService
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {

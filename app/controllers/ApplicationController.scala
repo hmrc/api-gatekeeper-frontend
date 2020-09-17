@@ -27,7 +27,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
@@ -66,7 +66,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       createApplicationSuccessView: CreateApplicationSuccessView,
                                       manageTeamMembersView: ManageTeamMembersView,
                                       addTeamMemberView: AddTeamMemberView,
-                                      removeTeamMemberView: RemoveTeamMemberView
+                                      removeTeamMemberView: RemoveTeamMemberView,
+                                      val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 

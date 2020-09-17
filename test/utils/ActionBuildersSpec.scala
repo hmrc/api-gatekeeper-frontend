@@ -16,7 +16,7 @@
 
 package utils
 
-import builder.SubscriptionsBuilder
+import builder.{SubscriptionsBuilder, ApplicationBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
 import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
@@ -32,14 +32,16 @@ import views.html.ErrorTemplate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import model.FieldName
+import services.ApmService
 
-class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
+class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder with ApplicationBuilder {
   trait Setup extends ControllerSetupBase {
     implicit val materializer = app.materializer
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new ActionBuilders {
       val applicationService: ApplicationService = mockApplicationService
+      val apmService: ApmService = mockApmService
       val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
     }
     
@@ -70,12 +72,14 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
     val subscription1 = buildSubscription("Subscription1")
-
     val subscription2 = buildSubscription("Subscription2", versions = Seq(version1Subscribed, version2NotSubscribed))
-
     val subscription3 = buildSubscription("Subscription3", versions = Seq(version1Subscribed, version2NotSubscribed))
-
     val subscription4 = buildSubscription("Subscription4", versions = Seq(version1Subscribed, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
+  }
+
+  trait AppWithSubscriptionDataSetup extends Setup {
+    
+    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
   }
 
   "withApp" should {
@@ -123,6 +127,27 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder {
 
       bodyOf(result) shouldBe expectedResult
     }
+  }
+
+  "withAppAndSubsData" should {
+    "fetch Application with Subscription Data" in new AppWithSubscriptionDataSetup {
+
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+
+      val result: Result = await(underTest.withAppAndSubsData(applicationId)(_ => {
+        Future.successful(Ok(expectedResult))
+      }))
+
+      verifyFetchApplicationById(applicationId)
+
+      status(result) shouldBe OK
+      bodyOf(result) shouldBe expectedResult
+    }
+
+  }
+
+  "withAppSubscriptionsAndStateHistory" should {
+
   }
 
   "withAppAndFieldDefinitions" should {

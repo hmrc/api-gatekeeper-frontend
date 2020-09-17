@@ -129,6 +129,7 @@ object APIAccessType extends Enumeration {
 case class APIIdentifier(context: ApiContext, version: ApiVersion)
 object APIIdentifier {
   // implicit val format = Json.format[APIIdentifier]
+  def random() = APIIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 class FetchApiDefinitionsFailed extends Throwable

@@ -18,7 +18,7 @@ package controllers
 
 
 import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
-import mocks.service.ApplicationServiceMock
+import mocks.service.{ApplicationServiceMock, ApmServiceMock}
 import mocks.TestRoles._
 import model._
 import org.joda.time.DateTime
@@ -31,7 +31,7 @@ import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 
 import scala.concurrent.Future
 
-trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with ArgumentMatchersSugar {
+trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with ApmServiceMock with ArgumentMatchersSugar {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockApiDefinitionService = mock[ApiDefinitionService]

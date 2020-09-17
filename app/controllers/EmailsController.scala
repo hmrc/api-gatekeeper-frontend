@@ -28,7 +28,7 @@ import model.{APICategory, APIDefinition, AnyEnvironment, ApiContextVersion, Dev
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
@@ -53,7 +53,8 @@ class EmailsController @Inject()(developerService: DeveloperService,
                                  val forbiddenView: ForbiddenView,
                                  override val authConnector: AuthConnector,
                                  mcc: MessagesControllerComponents,
-                                 override val errorTemplate: ErrorTemplate
+                                 override val errorTemplate: ErrorTemplate,
+                                 val apmService: ApmService
                                 )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with UserFunctionsWrapper with ActionBuilders with I18nSupport {
 
