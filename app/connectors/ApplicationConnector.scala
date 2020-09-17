@@ -91,6 +91,12 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
+  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[StateHistory]] = {
+    retry {
+      http.GET[Seq[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
+    }
+  }
+
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
     retry{
       http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))

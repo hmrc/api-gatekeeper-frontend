@@ -310,6 +310,24 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
   }
 
+  "fetchStateHistory" should {
+    val applicationId = ApplicationId.random
+    val url = s"$baseUrl/gatekeeper/application/${applicationId.value}/stateHistory"
+    val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
+    val response = Seq(applicationState)
+
+    "retrieve state history for app id" in new Setup {
+      when(mockHttpClient.GET[Seq[StateHistory]](*)(*, *, *))
+        .thenReturn(Future.successful(response))
+
+      val result = await(connector.fetchStateHistory(applicationId))
+
+      verify(mockHttpClient).GET(eqTo(url))(*, *, *)
+
+      result shouldBe response
+    }
+  }
+
   "updateOverrides" should {
     val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/access/overrides"
