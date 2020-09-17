@@ -33,7 +33,7 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
       case Some(SANDBOX) => Seq(sandboxApiDefinitionConnector)
       case _ => Seq(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
     }
-    val publicApisFuture = connectors.map(_.fetchPublic())
+    val publicApisFuture: Seq[Future[Seq[APIDefinition]]] = connectors.map(_.fetchPublic())
     val privateApisFuture = connectors.map(_.fetchPrivate())
 
     for {
@@ -42,6 +42,9 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     } yield (publicApis ++ privateApis).distinct
   }
 
+  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toSeq)
+  }
 
   def apis(implicit hc: HeaderCarrier) : Future[Seq[(APIDefinition, Environment)]] = {
     

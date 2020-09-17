@@ -132,8 +132,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition(ApiVersion("3"), APIStatus.STABLE)), None, categories = Some(Seq(category2.toAPICategory())))
         val twoApis = Seq(api1, api2)
         def givenApiDefinition2Apis() = {
-        when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
+          when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(any[Option[Environment]])(*))
           .thenReturn(Future.successful(twoApis))
+          when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
+            .thenReturn(Future.successful(twoApis))
       }
 
       def givenApiDefinition3Categories() = {
@@ -435,8 +437,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view correctly when no filters selected" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
-       // givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
-
         val request = createGetRequest("/emails/email-preferences/by-api-category")
         val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory()(request)
         status(eventualResult) shouldBe OK

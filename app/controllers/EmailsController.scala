@@ -111,14 +111,13 @@ class EmailsController @Inject()(developerService: DeveloperService,
   def selectSpecficApi(selectedAPIs: Option[Seq[String]]): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       for {
-        apis <- apiDefinitionService.fetchAllApiDefinitions()
+        apis <- apiDefinitionService.fetchAllDistinctApisIgnoreVersions()
         selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
       } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.name), selectedApis.sortBy(_.name)))
   }
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[Seq[String]], apiList: Seq[APIDefinition]) =
     maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
-
 
   def emailPreferencesSpecificApis(selectedAPIs: Seq[String],
                                    selectedTopicStr: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -128,16 +127,17 @@ class EmailsController @Inject()(developerService: DeveloperService,
         Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
       } else {
         for {
-          apis <- apiDefinitionService.fetchAllApiDefinitions()
-          filteredApis = filterSelectedApis(Some(selectedAPIs), apis)
+          apis <- apiDefinitionService.fetchAllDistinctApisIgnoreVersions()
+          filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.name)
           apiNames = filteredApis.map(_.serviceName)
           categories = filteredApis.flatMap(_.categories.getOrElse(Seq.empty))
           users <- selectedTopic.fold(Future.successful(Seq.empty[User]))(topic => {
             developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified.getOrElse(false)))
           })
-        } yield Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis.sortBy(_.name), selectedTopic))
+        } yield Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis, selectedTopic))
       }
   }
+
 
 
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = {
