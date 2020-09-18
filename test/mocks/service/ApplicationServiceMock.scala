@@ -22,12 +22,18 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
 
 import scala.concurrent.Future
+import model.StateHistory
 
 trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {
     given(mockApplicationService.fetchApplication(*[ApplicationId])(*))
+      .willReturn(Future.successful(returns))
+  }
+
+def fetchStateHistoryReturns(returns: Seq[StateHistory]) = {
+    given(mockApplicationService.fetchStateHistory(*[ApplicationId])(*))
       .willReturn(Future.successful(returns))
   }
 
@@ -38,6 +44,10 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
 
   def verifyFetchApplication(applicationId: ApplicationId) = {
     verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
+  }
+  
+  def verifyFetchStateHistory(applicationId: ApplicationId) = {
+    verify(mockApplicationService).fetchStateHistory(eqTo(applicationId))(*)
   }
 
   def verifyFetchApplicationSubscriptions(application: Application, withFields: Boolean) = {

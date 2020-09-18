@@ -33,6 +33,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import model.FieldName
 import services.ApmService
+import model.State
 
 class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder with ApplicationBuilder {
   trait Setup extends ControllerSetupBase {
@@ -78,7 +79,6 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
   }
 
   trait AppWithSubscriptionDataSetup extends Setup {
-    
     val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
   }
 
@@ -147,7 +147,20 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
   }
 
   "withAppSubscriptionsAndStateHistory" should {
+    "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      fetchStateHistoryReturns(Seq(buildStateHistory(State.PRODUCTION)))
 
+      val result = await(underTest.withAppSubscriptionsAndStateHistory(applicationId)( _ =>
+        Future.successful(Ok(expectedResult))
+      ))
+
+      verifyFetchApplicationById(applicationId)
+      verifyFetchStateHistory(applicationId)
+
+      status(result) shouldBe OK
+      bodyOf(result) shouldBe expectedResult
+    }
   }
 
   "withAppAndFieldDefinitions" should {

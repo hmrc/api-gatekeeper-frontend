@@ -35,7 +35,8 @@ lazy val dependencies = Seq(
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "ch.qos.logback" % "logback-core" % logbackVersion,
   "com.typesafe.play" %% "play-json" % "2.8.1",
-  "com.typesafe.play" %% "play-json-joda" % "2.8.1"
+  "com.typesafe.play" %% "play-json-joda" % "2.8.1",
+  "org.typelevel" %% "cats-core" % "2.0.0"
 )
 
 lazy val testDependencies: Seq[ModuleID] = Seq(
@@ -131,6 +132,7 @@ lazy val microservice =  (project in file("."))
     SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
+  .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .settings(
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),

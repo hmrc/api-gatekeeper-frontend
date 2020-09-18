@@ -26,6 +26,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
 
+import cats.data.OptionT
+
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
   val apmService: ApmService
@@ -58,14 +60,29 @@ trait ActionBuilders extends ErrorHelper {
 
   def withAppSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    withAppAndSubsData(appId){
-      appWithSubsOption => {
-        appWithSubsOption match {
-          case Some(value) => action(ApplicationWithSubscriptionDataAndStateHistory(???, ???))
-          case None => Future.successful(notFound("Application not found"))
-        }
-      }
-    }
+    // withAppAndSubsData(appId){
+    //   appWithSubsOption => {
+    //     appWithSubsOption match {
+    //       case Some(value) => action(ApplicationWithSubscriptionDataAndStateHistory(value, ???))
+    //       case None => Future.successful(notFound("Application not found"))
+    //     }
+    //   }
+    // }
+    import cats.implicits._
+
+    val result = for {
+      appWithSubsData <- OptionT(apmService.fetchApplicationById(appId))
+      stateHistory <- OptionT.liftF(applicationService.fetchStateHistory(appId))
+    } yield ApplicationWithSubscriptionDataAndStateHistory(appWithSubsData, stateHistory)
+
+    result.map(action).getOrElse[Future[Result]](notFound("Application not found"))
+
+
+
+    // (for {
+    //   appWithSubsData <- OptionT(apmService.fetchApplicationById(appId))
+    //   stateHistory <- OptionT.liftF(applicationService.fetchStateHistory(appId))
+    // } yield action(ApplicationWithSubscriptionDataAndStateHistory(appWithSubsData, stateHistory)))
   }
 
   def withAppAndFieldDefinitions(appId: ApplicationId)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])

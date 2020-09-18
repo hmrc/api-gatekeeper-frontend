@@ -33,6 +33,11 @@ import model.ApiContext
 import model.SubscriptionFields.Fields
 import model.FieldName
 import model.FieldValue
+import model.State.State
+import model.StateHistory
+import org.joda.time.DateTime
+import java.{util => ju}
+import model.Actor
 
 
 trait ApplicationBuilder {
@@ -72,6 +77,10 @@ trait ApplicationBuilder {
   def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {
     val fields = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     Map(apiContext -> Map(apiVersion -> fields))
+  }
+
+ def buildStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+    StateHistory(ju.UUID.randomUUID(), state, Actor("actor id"), None, changedAt)
   }
 
   def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
