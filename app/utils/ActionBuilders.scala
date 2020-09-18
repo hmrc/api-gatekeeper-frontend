@@ -60,29 +60,12 @@ trait ActionBuilders extends ErrorHelper {
 
   def withAppSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    // withAppAndSubsData(appId){
-    //   appWithSubsOption => {
-    //     appWithSubsOption match {
-    //       case Some(value) => action(ApplicationWithSubscriptionDataAndStateHistory(value, ???))
-    //       case None => Future.successful(notFound("Application not found"))
-    //     }
-    //   }
-    // }
-    import cats.implicits._
-
-    val result = for {
-      appWithSubsData <- OptionT(apmService.fetchApplicationById(appId))
-      stateHistory <- OptionT.liftF(applicationService.fetchStateHistory(appId))
-    } yield ApplicationWithSubscriptionDataAndStateHistory(appWithSubsData, stateHistory)
-
-    result.map(action).getOrElse[Future[Result]](notFound("Application not found"))
-
-
-
-    // (for {
-    //   appWithSubsData <- OptionT(apmService.fetchApplicationById(appId))
-    //   stateHistory <- OptionT.liftF(applicationService.fetchStateHistory(appId))
-    // } yield action(ApplicationWithSubscriptionDataAndStateHistory(appWithSubsData, stateHistory)))
+    apmService.fetchApplicationById(appId).flatMap {
+      case Some(value) => {
+        applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+      }
+      case None => Future.successful(notFound("Application not found"))
+    }
   }
 
   def withAppAndFieldDefinitions(appId: ApplicationId)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
