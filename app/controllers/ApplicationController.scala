@@ -21,6 +21,7 @@ import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Forms._
+import model.SubscriptionFields.Fields.Alias
 import model.view.ApplicationViewModel
 import model.UpliftAction.{APPROVE, REJECT}
 import org.joda.time.DateTime
@@ -28,7 +29,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
@@ -40,6 +41,7 @@ import views.html.review.ReviewView
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import model.applications.NewApplication
+import model.subscriptions.ApiData
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -91,8 +93,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
         withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
           val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
-          val subscriptions = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
-          val subscriptionFieldValues = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
+          val subscriptions: Set[APIIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+          val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
           val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
 
           def latestTOUAgreement(application: NewApplication): Option[TermsOfUseAgreement] = {
@@ -105,7 +107,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           //TODO - mash up some api subscriptions with more api info
-          val allPossibleSubscriptions = apmService.fetchAllPossibleSubscriptions(appId)
+          val allPossibleSubscriptions: Future[Map[ApiContext, ApiData]] = apmService.fetchAllPossibleSubscriptions(appId)
 
           // TODO - filter
           

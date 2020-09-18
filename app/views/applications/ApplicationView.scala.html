@@ -361,7 +361,7 @@
                                 }
                             }
                         </td>
-                        <td data-collaborator-mfaEnabled>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
+                        <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
                             case true => "Yes"
                             case false => "No"
                             })</td>
@@ -411,7 +411,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted on</h3>
             </td>
-            @{ ApplicationSubmission.getSubmittedOn(model.applicationWithHistory) match {
+            @{ ApplicationSubmission.getSubmittedOn(model.stateHistory) match {
                 case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
                 case None => <td data-submitted-on="" class="faded-text">N/A</td>
                }
@@ -422,7 +422,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted by</h3>
             </td>
-            @{ApplicationSubmission.getSubmittedBy(model.applicationWithHistory) match {
+            @{ApplicationSubmission.getSubmittedBy(model.stateHistory) match {
                     case Some(email) =>
                             <td>
                                 <p data-submitted-by-email="">

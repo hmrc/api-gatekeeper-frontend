@@ -56,22 +56,22 @@ object ApplicationFormatter {
 object ApplicationSubmission {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
-  private def getLastSubmission(application: ApplicationWithHistory): Option[StateHistory] =
-    application.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
+  private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
+    stateHistory.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 
 
-  def getSubmittedBy(application: ApplicationWithHistory): Option[String] = {
+  def getSubmittedBy(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
-      submission <- getLastSubmission(application)
+      submission <- getLastSubmission(stateHistory)
       email <- Some(submission.actor.id)
     } yield email
   }
 
-  def getSubmittedOn(application: ApplicationWithHistory): Option[String] = {
+  def getSubmittedOn(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
-      submission <- getLastSubmission(application)
+      submission <- getLastSubmission(stateHistory)
       submittedOn <- Some(dateFormatter.print(submission.changedAt))
     } yield submittedOn
   }
