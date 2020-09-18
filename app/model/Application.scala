@@ -346,6 +346,13 @@ object Environment extends Enumeration {
   type Environment = Value
   val SANDBOX, PRODUCTION = Value
   implicit val format = EnumJson.enumFormat(Environment)
+
+  implicit class Display(e: Environment) {
+    def asDisplayed() = e match {
+      case SANDBOX => "Sandbox"
+      case PRODUCTION => "Production"
+    }
+  }
 }
 
 object CollaboratorRole extends Enumeration {

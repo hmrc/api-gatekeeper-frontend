@@ -58,7 +58,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  def withAppSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
+  def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) => {

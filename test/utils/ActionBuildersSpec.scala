@@ -146,12 +146,12 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
 
   }
 
-  "withAppSubscriptionsAndStateHistory" should {
+  "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       fetchStateHistoryReturns(Seq(buildStateHistory(State.PRODUCTION)))
 
-      val result = await(underTest.withAppSubscriptionsAndStateHistory(applicationId)( _ =>
+      val result = await(underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>
         Future.successful(Ok(expectedResult))
       ))
 

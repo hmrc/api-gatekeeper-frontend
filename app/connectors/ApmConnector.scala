@@ -41,9 +41,9 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   //    http.GET[Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
   //  }
 
-  //  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
-  //    http.GET[Map[ApiContext, ApiData]](s"${config.serviceBaseUrl}/api-definitions?applicationId=${applicationId.value}")
-  //  }
+   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
+     http.GET[Map[ApiContext, ApiData]](s"${config.serviceBaseUrl}/api-definitions?applicationId=${applicationId.value}")
+   }
 }
 
 object ApmConnector {

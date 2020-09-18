@@ -32,10 +32,12 @@ import model.AccessType
 import model.Privileged
 import model.Ropc
 import model.TotpIds
+import model.RateLimitTier.RateLimitTier
 
 case class NewApplication(
     id: ApplicationId,
     clientId: ClientId,
+    gatewayId: String,
     name: String,
     createdOn: DateTime,
     lastAccess: DateTime,
@@ -45,10 +47,11 @@ case class NewApplication(
     collaborators: Set[Collaborator] = Set.empty,
     access: Access = Standard(),
     state: ApplicationState = ApplicationState(),
+    rateLimitTier: RateLimitTier,
+    blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipWhitelist: Set[String] = Set.empty
-) {
-}
+)
 
 object NewApplication {
   import play.api.libs.json.Json
@@ -70,6 +73,7 @@ object NewApplication {
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val formatCollaborator = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
+  implicit val formatRateLimitTier = EnumJson.enumFormat(model.RateLimitTier)
   implicit val applicationFormat = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)

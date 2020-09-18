@@ -21,6 +21,7 @@ import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Forms._
+import model.view.ApplicationViewModel
 import model.UpliftAction.{APPROVE, REJECT}
 import org.joda.time.DateTime
 import play.api.Logger
@@ -38,6 +39,7 @@ import views.html.review.ReviewView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import model.applications.NewApplication
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -87,11 +89,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-        withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
-          val app = applicationWithSubscriptions.application
+        withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
+          val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+          val subscriptions = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+          val subscriptionFieldValues = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
+          val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
 
-          def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
-            appWithHistory.application.checkInformation.flatMap {
+          def latestTOUAgreement(application: NewApplication): Option[TermsOfUseAgreement] = {
+            application.checkInformation.flatMap {
               _.termsOfUseAgreements match {
                 case Nil => None
                 case agreements => Option(agreements.maxBy(_.timeStamp))
@@ -99,13 +104,15 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
           }
 
-          val subscriptions = applicationWithSubscriptions.subscriptions
-          val subscriptionsWithFields = filterHasSubscriptionFields(subscriptions)
+          //TODO - mash up some api subscriptions with more api info
+          val allPossibleSubscriptions = apmService.fetchAllPossibleSubscriptions(appId)
 
+          // TODO - filter
+          
           developerService
-            .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
+            .fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
             .map(devs => {
-              Ok(applicationView(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
+              Ok(applicationView(ApplicationViewModel(devs.toList, app, subscriptions, subscriptionFieldValues, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
             })
         }
   }

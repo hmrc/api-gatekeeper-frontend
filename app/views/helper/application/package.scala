@@ -23,9 +23,10 @@ import org.joda.time.Months.monthsBetween
 import org.joda.time.Seconds.secondsBetween
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.time.DateTimeUtils.now
+import model.applications.NewApplication
 
 object ApplicationPublicDescription {
-  def apply(application: ApplicationResponse): Option[String] = {
+  def apply(application: NewApplication): Option[String] = {
     for {
       checkInformation <- application.checkInformation
       description <- checkInformation.applicationDetails
@@ -37,11 +38,11 @@ object ApplicationFormatter {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
   val initialLastAccessDate = new DateTime(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
-  def getCreatedOn(app: ApplicationResponse): String = {
+  def getCreatedOn(app: NewApplication): String = {
     dateFormatter.print(app.createdOn)
   }
 
-  def getLastAccess(app: ApplicationResponse): String = {
+  def getLastAccess(app: NewApplication): String = {
     if (secondsBetween(app.createdOn, app.lastAccess).getSeconds == 0) {
       "No API called"
     } else if (daysBetween(initialLastAccessDate.toLocalDate, app.lastAccess.toLocalDate).getDays > 0) {
@@ -79,33 +80,33 @@ object ApplicationSubmission {
 object ApplicationReview {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
-  private def getLastApproval(app: ApplicationWithHistory) =
-    app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+  private def getLastApproval(history: Seq[StateHistory]) =
+    history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 
-  def getApprovedOn(app: ApplicationWithHistory): Option[String] =
-    getLastApproval(app).map(approval => dateFormatter.print(approval.changedAt))
+  def getApprovedOn(history: Seq[StateHistory]): Option[String] =
+    getLastApproval(history).map(approval => dateFormatter.print(approval.changedAt))
 
-  def getApprovedBy(app: ApplicationWithHistory): Option[String] = getLastApproval(app).map(_.actor.id)
+  def getApprovedBy(history: Seq[StateHistory]): Option[String] = getLastApproval(history).map(_.actor.id)
 
-  def getReviewContactName(app: ApplicationResponse): Option[String] = {
+  def getReviewContactName(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
-      checkInformation <- app.checkInformation
+      checkInformation <- checkInformationOpt
       contactDetails <- checkInformation.contactDetails
     } yield contactDetails.fullname
   }
 
-  def getReviewContactEmail(app: ApplicationResponse): Option[String] = {
+  def getReviewContactEmail(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
-      checkInformation <- app.checkInformation
+      checkInformation <- checkInformationOpt
       contactDetails <- checkInformation.contactDetails
     } yield contactDetails.email
   }
 
-  def getReviewContactTelephone(app: ApplicationResponse): Option[String] = {
+  def getReviewContactTelephone(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
-      checkInformation <- app.checkInformation
+      checkInformation <- checkInformationOpt
       contactDetails <- checkInformation.contactDetails
     } yield contactDetails.telephoneNumber
   }
