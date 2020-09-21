@@ -34,8 +34,10 @@ import services.ApplicationService
 import views.html.ErrorTemplate
 import views.html.ForbiddenView
 import connectors.AuthConnector
+import com.google.inject.{Singleton, Inject}
 
-class SubscriptionController(
+@Singleton
+class SubscriptionController @Inject()(
   manageSubscriptionsView: ManageSubscriptionsView,
   mcc: MessagesControllerComponents,
   val forbiddenView: ForbiddenView,

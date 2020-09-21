@@ -129,7 +129,11 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, APIStatus)])] = {
-            Seq( (data.name, data.versions.toSeq.map(v => (v._1, v._2.status))) ) 
+            if(data.versions.isEmpty) {
+              Seq.empty
+            } else {
+              Seq( (data.name, data.versions.toSeq.map(v => (v._1, v._2.status))) ) 
+            }
           }
 
           // TODO - filter
@@ -141,7 +145,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             subscribedWithFields = subscribedVersions.map(filterForFields)
 
             seqOfSubscriptions = subscribedVersions.values.toSeq.flatMap(asSeqOfSeq)
-            subscriptionsThatHaveFieldDefns = subscribedWithFields.map(filterOutVersions).values.toSeq.flatMap(asSeqOfSeq)
+            subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toSeq.flatMap(asSeqOfSeq)
           } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
         }
   }
