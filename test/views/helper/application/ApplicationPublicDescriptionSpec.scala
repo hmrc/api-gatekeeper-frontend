@@ -24,7 +24,7 @@ class ApplicationPublicDescriptionSpec extends UnitSpec with ApplicationBuilder 
   "ApplicationsPublicDescription" when {
     "submittedBy" should {
       "is present" in {
-        val app = buildApplication(aCheckInformation())
+        val app = buildApplication(checkInformation = Some(aCheckInformation()))
         ApplicationPublicDescription.apply(app) shouldBe Some("application details")
       }
       "is not present" in {
