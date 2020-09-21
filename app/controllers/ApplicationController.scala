@@ -42,6 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import model.applications.NewApplication
 import model.subscriptions.ApiData
+import model.APIStatus.APIStatus
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -117,18 +118,31 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             (apiContext, filteredApiData)
           }
 
+          def filterForFields( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
+            def hasFields(apiContext: ApiContext, apiVersions: Set[ApiVersion]): Boolean = {
+              subscriptionFieldValues.get(apiContext).flatMap(sfv => sfv.keySet.intersect(apiVersions).headOption).isDefined
+            }
+            val apiContext = t._1
+            val filteredVersions = t._2.versions.filter( versions => hasFields(apiContext, t._2.versions.keySet))
+            val filteredApiData = t._2.copy(versions = filteredVersions)
+            (apiContext, filteredApiData)
+          }
 
-          // def billy(bloatedMa: Map[ApiContext, ApiData]): Map[String, Seq[ApiVersionDefinition]] = {
-          //   bloatedMap.map(x => )
-          // }
+          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, APIStatus)])] = {
+            Seq( (data.name, data.versions.toSeq.map(v => (v._1, v._2.status))) ) 
+          }
 
           // TODO - filter
           for {
             collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
             allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
             subscribedContexts = allPossibleSubs.filter(isSubscribed)
-            realSubscriptions = subscribedContexts.map(filterOutVersions) 
-          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, realSubscriptions, subscriptionFieldValues, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
+            subscribedVersions = subscribedContexts.map(filterOutVersions)
+            subscribedWithFields = subscribedVersions.map(filterForFields)
+
+            seqOfSubscriptions = subscribedVersions.values.toSeq.flatMap(asSeqOfSeq)
+            subscriptionsThatHaveFieldDefns = subscribedWithFields.map(filterOutVersions).values.toSeq.flatMap(asSeqOfSeq)
+          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
         }
   }
 

@@ -27,8 +27,22 @@ import model.ApiVersion
 import utils.ActionBuilders
 import utils.GatekeeperAuthWrapper
 import config.AppConfig
+import scala.concurrent.ExecutionContext
+import views.html.applications.ManageSubscriptionsView
+import services.ApmService
+import services.ApplicationService
+import views.html.ErrorTemplate
+import views.html.ForbiddenView
+import connectors.AuthConnector
 
-class SubscriptionsController(mcc: MessagesControllerComponents)
+class SubscriptionController(
+  manageSubscriptionsView: ManageSubscriptionsView,
+  mcc: MessagesControllerComponents,
+  val forbiddenView: ForbiddenView,
+  val authConnector: AuthConnector,
+  val errorTemplate: ErrorTemplate,
+  val applicationService: ApplicationService,
+  val apmService: ApmService)
   (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends FrontendController(mcc)
   with GatekeeperAuthWrapper
@@ -46,14 +60,14 @@ class SubscriptionsController(mcc: MessagesControllerComponents)
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
-          applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+          applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
         }
   }
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
-          applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+          applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
         }
   }
 }
