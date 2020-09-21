@@ -21,8 +21,10 @@ import org.scalatest.BeforeAndAfterAll
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ApplicationGenerator._
 import views.helper.application.ApplicationFormatter.{getCreatedOn, getLastAccess, initialLastAccessDate}
+import builder.ApplicationBuilder
+import model.ApplicationId
 
-class ApplicationFormatterSpec extends UnitSpec with BeforeAndAfterAll {
+class ApplicationFormatterSpec extends UnitSpec with BeforeAndAfterAll with ApplicationBuilder {
   val FixedTimeNow: DateTime = new DateTime("2019-09-01T00:30:00.000")
   override def beforeAll(): Unit = {
     DateTimeUtils.setCurrentMillisFixed(FixedTimeNow.toDate.getTime)
@@ -32,10 +34,12 @@ class ApplicationFormatterSpec extends UnitSpec with BeforeAndAfterAll {
     DateTimeUtils.setCurrentMillisSystem()
   }
 
+  val applicationId = ApplicationId.random
+
   "getCreatedOn" should {
     "return the createdOn value with long date format" in {
       val createdOn = new DateTime(2019, 1, 1, 0, 0) // scalastyle:ignore magic.number
-      getCreatedOn(anApplicationResponse(createdOn = createdOn)) shouldBe "01 January 2019"
+      getCreatedOn(buildApplication(createdOn = createdOn)) shouldBe "01 January 2019"
     }
   }
 
@@ -43,34 +47,34 @@ class ApplicationFormatterSpec extends UnitSpec with BeforeAndAfterAll {
     "return the lastAccess value with long date format for dates after the initial last access date" in {
       val lastAccessDate = initialLastAccessDate.plusDays(1)
       val createdOnDate = lastAccessDate.minusHours(1)
-      val app = anApplicationResponse(createdOn = createdOnDate, lastAccess = lastAccessDate)
+      val app = buildApplication(createdOn = createdOnDate, lastAccess = lastAccessDate)
       getLastAccess(app) shouldBe "26 June 2019"
     }
 
     "use inexact format for dates before the initial last access date" in {
       val lastAccessDate = initialLastAccessDate.minusDays(1)
       val createdOnDate = lastAccessDate.minusHours(1)
-      val app = anApplicationResponse(createdOn = createdOnDate, lastAccess = lastAccessDate)
+      val app = buildApplication(createdOn = createdOnDate, lastAccess = lastAccessDate)
       getLastAccess(app) shouldBe "More than 2 months ago"
     }
 
     "use inexact format for dates on the initial last access date" in {
       val lastAccessDate = initialLastAccessDate.plusHours(3)
       val createdOnDate = lastAccessDate.minusHours(1)
-      val app = anApplicationResponse(createdOn = createdOnDate, lastAccess = lastAccessDate)
+      val app = buildApplication(createdOn = createdOnDate, lastAccess = lastAccessDate)
       getLastAccess(app) shouldBe "More than 2 months ago"
     }
 
     "display 'never used' if the last access date is the same as the created date" in {
       val createdOnDate = initialLastAccessDate.plusHours(3)
-      val app = anApplicationResponse(createdOn = createdOnDate, lastAccess = createdOnDate)
+      val app = buildApplication(createdOn = createdOnDate, lastAccess = createdOnDate)
       getLastAccess(app) shouldBe "No API called"
     }
 
     "display 'never used' if the last access date is within a second of the created date" in {
       val createdOnDate = initialLastAccessDate.plusHours(3)
-      getLastAccess(anApplicationResponse(createdOnDate, createdOnDate.plusMillis(900))) shouldBe "No API called" // scalastyle:ignore magic.number
-      getLastAccess(anApplicationResponse(createdOnDate, createdOnDate.minusMillis(900))) shouldBe "No API called" // scalastyle:ignore magic.number
+      getLastAccess(buildApplication(createdOn = createdOnDate, lastAccess = createdOnDate.plusMillis(900))) shouldBe "No API called" // scalastyle:ignore magic.number
+      getLastAccess(buildApplication(createdOn = createdOnDate, lastAccess = createdOnDate.minusMillis(900))) shouldBe "No API called" // scalastyle:ignore magic.number
     }
   }
 }

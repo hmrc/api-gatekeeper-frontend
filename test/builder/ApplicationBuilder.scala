@@ -39,11 +39,12 @@ import org.joda.time.DateTime
 import java.{util => ju}
 import model.Actor
 import model.RateLimitTier
+import model.CheckInformation
 
 
 trait ApplicationBuilder {
 
-  def buildApplication(appId: ApplicationId): NewApplication = {
+  def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): NewApplication = {
 
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
@@ -53,8 +54,8 @@ trait ApplicationBuilder {
       clientId = clientId,
       gatewayId = "",
       name = s"$appId-name",
-      createdOn = DateTimeUtils.now,
-      lastAccess = DateTimeUtils.now,
+      createdOn = createdOn,
+      lastAccess = lastAccess,
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
@@ -65,7 +66,8 @@ trait ApplicationBuilder {
       access = Standard(
         redirectUris = Seq("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
-      )
+      ),
+      checkInformation = checkInformation
     )
   }
 
