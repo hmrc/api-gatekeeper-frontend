@@ -108,16 +108,16 @@
     v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
-@renderSubscriptions(subs: Seq[Subscription]) = {
+@renderSubscriptions(subs: Seq[ApiData]) = {
     @for(subscription <- subs.toIterator) {
         <tr>
             <td>
                 @subscription.name
-                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
-                    @for((version, index) <- subscribedVersions.zipWithIndex) {
+                <!-- @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions => -->
+                    @for((version, index) <- subscription.versions.toSeq.zipWithIndex) {
                         @version.version.value (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
                     }
-                }
+                <!-- } -->
             </td>
             <td></td>
         </tr>
@@ -310,7 +310,7 @@
             <th><h3>API subscriptions</h3></th>
             <td data-subscriptions>
               <table class="table-plain">
-                @renderSubscriptions(subscriptions)
+                @renderSubscriptions(model.subscriptions.values)
                 </table>
             </td>
             <td>

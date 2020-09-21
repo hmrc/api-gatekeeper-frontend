@@ -106,16 +106,29 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
           }
 
-          //TODO - mash up some api subscriptions with more api info
-          val allPossibleSubscriptions: Future[Map[ApiContext, ApiData]] = apmService.fetchAllPossibleSubscriptions(appId)
+          def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
+            subscriptions.exists(id => id.context == t._1)
+          }
+
+          def filterOutVersions( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
+            val apiContext = t._1
+            val filteredVersions = t._2.versions.filter( versions => subscriptions.contains(APIIdentifier(apiContext, versions._1)))
+            val filteredApiData = t._2.copy(versions = filteredVersions)
+            (apiContext, filteredApiData)
+          }
+
+
+          // def billy(bloatedMa: Map[ApiContext, ApiData]): Map[String, Seq[ApiVersionDefinition]] = {
+          //   bloatedMap.map(x => )
+          // }
 
           // TODO - filter
-          
-          developerService
-            .fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
-            .map(devs => {
-              Ok(applicationView(ApplicationViewModel(devs.toList, app, subscriptions, subscriptionFieldValues, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
-            })
+          for {
+            collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
+            allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
+            subscribedContexts = allPossibleSubs.filter(isSubscribed)
+            realSubscriptions = subscribedContexts.map(filterOutVersions) 
+          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, realSubscriptions, subscriptionFieldValues, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
         }
   }
 
@@ -131,28 +144,28 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.fetchApplicationSubscriptions(app.application).map {
-            subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
-          }
-        }
-  }
+  // def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  //   implicit request =>
+  //       withApp(appId) { app =>
+  //         applicationService.fetchApplicationSubscriptions(app.application).map {
+  //           subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
+  //         }
+  //       }
+  // }
 
-  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-        }
-  }
+  // def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  //   implicit request =>
+  //       withApp(appId) { app =>
+  //         applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+  //       }
+  // }
 
-  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-        }
-  }
+  // def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  //   implicit request =>
+  //       withApp(appId) { app =>
+  //         applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
+  //       }
+  // }
 
   def manageAccessOverrides(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>

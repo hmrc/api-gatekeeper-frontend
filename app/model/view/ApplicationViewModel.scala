@@ -18,17 +18,17 @@ package model.view
 
 import model.User
 import model.applications.NewApplication
-import model.APIIdentifier
 import model.ApiContext
 import model.ApiVersion
 import model.SubscriptionFields.Fields
 import model.StateHistory
 import model.TermsOfUseAgreement
+import model.subscriptions.ApiData
 
 case class ApplicationViewModel(
   developers: List[User],
   application: NewApplication,
-  subscriptions: Set[APIIdentifier],
+  subscriptions: Map[ApiContext, ApiData],
   subsWithSubscriptionFields: Map[ApiContext, Map[ApiVersion, Fields.Alias]],
   stateHistory: Seq[StateHistory],
   isAtLeastSuperUser: Boolean,
