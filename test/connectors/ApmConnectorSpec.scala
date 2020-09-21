@@ -27,19 +27,22 @@ import model.applications.ApplicationWithSubscriptionData
 import model.ApplicationId
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
-import builder.ApplicationBuilder
+import builder.{ApplicationBuilder, ApiBuilder}
 import model.APIStatus.APIStatus
+import model.ApiContext
+import model.subscriptions.ApiData
 
 class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures {
     val mockHttp = mock[HttpClient] 
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
+    
+    val applicationId = ApplicationId.random
 
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn("https://example.com")
 
     trait Setup extends ApplicationBuilder with ApiBuilder {
         implicit val hc = HeaderCarrier()
         
-        val applicationId = ApplicationId.random
         val application = buildApplication(applicationId)
     }
 
@@ -64,7 +67,7 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
     "fetchAllPossibleSubscriptions" should {
         val url = s"${mockApmConnectorConfig.serviceBaseUrl}/api-definitions?${applicationId.value}"
 
-        "return all subscribeable API's and their ApiData" in Setup {
+        "return all subscribeable API's and their ApiData" in new Setup {
        
             val apiContext = ApiContext("Api Context")
             val apiContextAndApiData = builAapiContextAndApiData(apiContext)
@@ -72,7 +75,7 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
             when(mockHttp.GET[Map[ApiContext, ApiData]](eqTo(url))(*, *, *)).thenReturn(Future.successful(apiContextAndApiData))
 
             val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-            result.get(apiContext).name shouldBe "API Name" 
+            result(apiContext).name shouldBe "API Name" 
         }
-    }
+    } 
 }

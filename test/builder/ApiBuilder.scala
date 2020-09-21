@@ -16,19 +16,26 @@
 
 package builder
 
+import model.APIAccessType
+import model.APIAccessType._
+import model.APIAccess
+import model.APIStatus
+import model.APIStatus._
+import model.subscriptions.VersionData
+import model.subscriptions.ApiData
 import model.ApiContext
+import model.ApiVersion
 
 trait ApiBuilder {
 
-  def buildApiAccess(accessType: ApiAccessType = APIAccessType.PUBLIC) = APIAccess(accessType)
+  def buildApiAccess(accessType: APIAccessType = APIAccessType.PUBLIC) = APIAccess(accessType)
 
-  def buildApiVersionData(status: APIStatus = APIStatus.BETA, apiAccess: APIAccess = buildApiAccess) = VersionData(status, apiAccess)
+  def buildApiVersionData(status: APIStatus = APIStatus.BETA, apiAccess: APIAccess = buildApiAccess()) = VersionData(status, apiAccess)
 
-  def buildApiData(serviceName: String = "helloworld", isTestSupport: Boolean = false, versions: Map[ApiVersion, VersionData] = buildApiVersionData): ApiData = {
-    Map(ApiVersion.random -> versions)
+  def buildApiData(serviceName: String = "helloworld", isTestSupport: Boolean = false, versionData: VersionData = buildApiVersionData()): ApiData = {
+    ApiData(serviceName, serviceName, isTestSupport, Map(ApiVersion.random -> versionData))
   }
 
-  def builAapiContextAndApiData(apiContext: ApiContext = ApiContext.random, apiData: ApiData = buildApiData) = Map(apiContext -> apiData)
-
+  def builAapiContextAndApiData(apiContext: ApiContext = ApiContext.random, apiData: ApiData = buildApiData()) = Map(apiContext -> apiData)
 
 }

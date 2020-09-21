@@ -136,7 +136,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             }
           }
 
-          // TODO - filter
           for {
             collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
             allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
@@ -161,29 +160,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
         }
   }
-
-  // def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-  //   implicit request =>
-  //       withApp(appId) { app =>
-  //         applicationService.fetchApplicationSubscriptions(app.application).map {
-  //           subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
-  //         }
-  //       }
-  // }
-
-  // def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-  //   implicit request =>
-  //       withApp(appId) { app =>
-  //         applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-  //       }
-  // }
-
-  // def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-  //   implicit request =>
-  //       withApp(appId) { app =>
-  //         applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-  //       }
-  // }
 
   def manageAccessOverrides(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>

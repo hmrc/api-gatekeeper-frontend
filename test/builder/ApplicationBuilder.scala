@@ -38,6 +38,7 @@ import model.StateHistory
 import org.joda.time.DateTime
 import java.{util => ju}
 import model.Actor
+import model.RateLimitTier
 
 
 trait ApplicationBuilder {
@@ -48,16 +49,19 @@ trait ApplicationBuilder {
     val appOwnerEmail = "a@b.com"
 
     NewApplication(
-      appId,
-      clientId,
-      s"$appId-name",
-      DateTimeUtils.now,
-      DateTimeUtils.now,
-      None,
-      Environment.SANDBOX,
-      Some(s"$appId-description"),
-      buildCollaborators(Seq(appOwnerEmail)),
+      id = appId,
+      clientId = clientId,
+      gatewayId = "",
+      name = s"$appId-name",
+      createdOn = DateTimeUtils.now,
+      lastAccess = DateTimeUtils.now,
+      lastAccessTokenUsage = None,
+      deployedTo = Environment.SANDBOX,
+      description = Some(s"$appId-description"),
+      collaborators = buildCollaborators(Seq(appOwnerEmail)),
       state = ApplicationState(State.PRODUCTION),
+      rateLimitTier = RateLimitTier.BRONZE,
+      blocked = false,
       access = Standard(
         redirectUris = Seq("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
