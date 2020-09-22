@@ -1,7 +1,6 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import utils.WiremockSpec
 import play.api.http.Status._
 import model.ApplicationId
 
@@ -18,16 +17,19 @@ trait ApmConnectorMock {
                         |   "application": {
                         |       "id": "${applicationId.value}",
                         |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+                        |       "blocked": false,
+                        |       "gatewayId": "12345",
+                        |       "rateLimitTier": "BRONZE",
                         |       "name": "My new app",
                         |       "createdOn": "2016-04-08T10:24:40.651Z",
                         |       "lastAccess": "2019-07-01T00:00:00.000Z",
                         |       "deployedTo": "PRODUCTION",
                         |       "description": "my description",
                         |       "collaborators": [
-                        |       {
-                        |           "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
-                        |           "role": "ADMINISTRATOR"
-                        |       }
+                        |           {
+                        |               "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+                        |               "role": "ADMINISTRATOR"
+                        |           }
                         |       ],
                         |       "access": {
                         |       "redirectUris": [
