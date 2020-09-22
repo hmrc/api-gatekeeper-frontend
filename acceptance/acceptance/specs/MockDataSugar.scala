@@ -81,6 +81,83 @@ trait MockDataSugar {
   val statusUnverified = "not yet verified"
   val statusUnregistered = "not registered"
 
+val stateHistory = 
+       s"""       
+       |  "history": [
+       |      {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_GATEKEEPER_APPROVAL",
+       |      "actor": {
+       |        "id": "$adminEmail",
+       |        "actorType": "COLLABORATOR"
+       |      },
+       |      "changedAt": 1458659208000
+       |    },
+       |    {
+       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
+       |      "state": "PENDING_REQUESTER_VERIFICATION",
+       |      "actor": {
+       |        "id": "gatekeeper.username",
+       |        "actorType": "GATEKEEPER"
+       |      },
+       |      "changedAt": 1459868522961
+       |    }
+       |  ]
+""".stripMargin
+
+val applicationWithSubscriptionData =
+                    s"""{
+                        |   "application": {
+                        |       "id": "${approvedApp1}",
+                        |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+                        |       "blocked": false,
+                        |       "gatewayId": "12345",
+                        |       "rateLimitTier": "BRONZE",
+                        |       "name": "My new app",
+                        |       "createdOn": "2016-04-08T10:24:40.651Z",
+                        |       "lastAccess": "2019-07-01T00:00:00.000Z",
+                        |       "deployedTo": "PRODUCTION",
+                        |       "description": "my description",
+                        |       "collaborators": [
+                        |           {
+                        |               "emailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+                        |               "role": "ADMINISTRATOR"
+                        |           }
+                        |       ],
+                        |       "access": {
+                        |       "redirectUris": [
+                        |           "http://localhost:8080/callback"
+                        |       ],
+                        |       "termsAndConditionsUrl": "http://terms",
+                        |       "privacyPolicyUrl": "http://privacypolicy",
+                        |       "overrides": [],
+                        |       "accessType": "STANDARD"
+                        |       },
+                        |       "state": {
+                        |       "name": "PRODUCTION",
+                        |       "requestedByEmailAddress": "thomas.vandevelde@digital.hmrc.gov.uk",
+                        |       "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+                        |       "updatedOn": "2016-04-08T11:11:18.463Z"
+                        |       },
+                        |       "ipWhitelist": []
+                        |   },
+                        |   "subscriptions": [
+                        |       {
+                        |       "context": "marriage-allowance",
+                        |       "version": "1.0"
+                        |       },
+                        |       {
+                        |       "context": "api-simulator",
+                        |       "version": "1.0"
+                        |       },
+                        |       {
+                        |       "context": "hello",
+                        |       "version": "1.0"
+                        |       }
+                        |   ],
+                        |   "subscriptionFieldValues": {}
+                        |}""".stripMargin
+
   val applicationsPendingApproval =
     s"""
        |[
