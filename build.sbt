@@ -12,6 +12,7 @@ import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import bloop.integrations.sbt.BloopDefaults
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
@@ -114,6 +115,7 @@ lazy val microservice =  (project in file("."))
   .settings(
     inConfig(AcceptanceTest)(Defaults.testSettings): _*
   )
+  .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
   .settings(
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,
