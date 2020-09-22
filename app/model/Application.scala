@@ -78,7 +78,17 @@ case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             providedPrivacyPolicyURL: Boolean = false,
                             providedTermsAndConditionsURL: Boolean = false,
                             applicationDetails: Option[String] = None,
-                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
+                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty) {
+
+  def latestTOUAgreement: Option[TermsOfUseAgreement] = {
+    implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+    
+    termsOfUseAgreements match {
+      case Nil => None
+      case agreements => Option(agreements.maxBy(_.timeStamp))
+    }
+  }
+}
 
 object CheckInformation {
 

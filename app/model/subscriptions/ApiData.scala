@@ -29,6 +29,7 @@ case class ApiData(
     versions: Map[ApiVersion, VersionData])
 
 
+// TODO - Sort this idea
 object Bob {
     import model._
     type ContextVersions[C,V] = Map[ApiContext, (C, Map[ApiVersion, V])]

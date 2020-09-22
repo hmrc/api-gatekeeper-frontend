@@ -22,6 +22,8 @@ import services.ApmService
 import model.ApplicationId
 import model.applications.ApplicationWithSubscriptionData
 import scala.concurrent.Future
+import model.ApiContext
+import model.subscriptions.ApiData
 
 trait ApmServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApmService = mock[ApmService]
@@ -31,8 +33,17 @@ trait ApmServiceMock extends MockitoSugar with ArgumentMatchersSugar {
       .willReturn(Future.successful(returns))
   }
 
+   def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
+    given(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
+      .willReturn(Future.successful(returns))
+  }
 
   def verifyFetchApplicationById(applicationId: ApplicationId) = {
     verify(mockApmService).fetchApplicationById(eqTo(applicationId))(*)
   }
+
+    def verifyAllPossibleSubscriptions(applicationId: ApplicationId) = {
+    verify(mockApmService).fetchAllPossibleSubscriptions(eqTo(applicationId))(*)
+  }
+
 }

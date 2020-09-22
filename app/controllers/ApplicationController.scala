@@ -40,7 +40,6 @@ import views.html.review.ReviewView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-import model.applications.NewApplication
 import model.subscriptions.ApiData
 import model.APIStatus.APIStatus
 
@@ -98,15 +97,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
           val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
 
-          def latestTOUAgreement(application: NewApplication): Option[TermsOfUseAgreement] = {
-            application.checkInformation.flatMap {
-              _.termsOfUseAgreements match {
-                case Nil => None
-                case agreements => Option(agreements.maxBy(_.timeStamp))
-              }
-            }
-          }
-
           def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
             subscriptions.exists(id => id.context == t._1)
           }
@@ -145,7 +135,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
             seqOfSubscriptions = subscribedVersions.values.toSeq.flatMap(asSeqOfSeq)
             subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toSeq.flatMap(asSeqOfSeq)
-          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app))))
+          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin)))
         }
   }
 

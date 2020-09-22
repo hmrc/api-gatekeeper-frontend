@@ -26,8 +26,13 @@ import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.ApplicationView
+import model.view.ApplicationViewModel
+import model.applications.NewApplication
+import builder.ApplicationBuilder
+import builder.ApiBuilder
+import model.APIStatus._
 
-class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
+class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {
     implicit val request = FakeRequest()
     val applicationView = app.injector.instanceOf[ApplicationView]
@@ -35,31 +40,61 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     val developers = List[User] {
       new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
     }
+
+    val clientId = ClientId("clientid")
+
+    val application = NewApplication(
+      id = ApplicationId.random,
+      clientId = clientId,
+      gatewayId = "gateway",
+      name = "AnApplicationName",
+      createdOn = DateTime.now(),
+      lastAccess = DateTime.now(),
+      lastAccessTokenUsage = None,
+      deployedTo = Environment.PRODUCTION,
+      description = None,
+      collaborators = Set.empty,
+      access = Standard(),
+      state = ApplicationState(),
+      rateLimitTier = RateLimitTier.BRONZE,
+      blocked = false,
+      checkInformation = None,
+      ipWhitelist = Set.empty
+    )
+
+    val DefaultApplicationViewModel = ApplicationViewModel(
+      developers = developers,
+      application = application,
+      subscriptions = Seq.empty,
+      subscriptionsThatHaveFieldDefns = Seq.empty,
+      stateHistory = Seq.empty,
+      isAtLeastSuperUser = false,
+      isAdmin = false
+    )
   }
 
-  val clientId = ClientId("clientid")
+  trait SubscriptionsSetup extends Setup {
+      val subscriptionsViewData: Seq[(String, Seq[(ApiVersion, APIStatus)])] = Seq(
+        (
+          "My API Name", 
+          Seq(
+            (VersionOne, APIStatus.STABLE), 
+            (VersionTwo, APIStatus.BETA)
+          )
+        ),
+        (
+          "My Other API Name", 
+          Seq(
+            (VersionOne, APIStatus.STABLE) 
+          )
+        )
+      )
+  }
+
 
   "application view" must {
-    val application =
-      ApplicationResponse(
-        ApplicationId.random,
-        clientId,
-        "gatewayId",
-        "application1",
-        "PRODUCTION",
-        None,
-        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
-        DateTime.now(),
-        DateTime.now(),
-        Standard(),
-        ApplicationState()
-      )
-
-    val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
-
     "show application with no check information" in new Setup {
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(DefaultApplicationViewModel, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -69,25 +104,17 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application with check information but no terms of use agreed" in new Setup {
+
       val checkInformation = CheckInformation()
-      val applicationWithCheckInformationButNoTerms = ApplicationResponse(
-        ApplicationId.random,
-        clientId,
-        "gatewayId",
-        "name",
-        "PRODUCTION",
-        None,
-        Set.empty,
-        DateTime.now(),
-        DateTime.now(),
-        Standard(),
-        ApplicationState(),
-        checkInformation = Option(checkInformation)
-      )
+      val applicationWithCheckInformationButNoTerms = application.withCheckInformation(checkInformation)
 
       val result = applicationView.render(
-        developers, applicationWithHistory.copy(application = applicationWithCheckInformationButNoTerms), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+        DefaultApplicationViewModel.withApplication(applicationWithCheckInformationButNoTerms),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -100,27 +127,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       val termsOfUseVersion = "1.0"
       val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
       val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
-
-
-      val applicationWithTermsOfUse = ApplicationResponse(
-        ApplicationId.random,
-        clientId,
-        "gatewayId",
-        "name",
-        "PRODUCTION",
-        None,
-        Set.empty,
-        DateTime.now(),
-        DateTime.now(),
-        Standard(),
-        ApplicationState(),
-        checkInformation = Option(checkInformation)
-      )
+      val applicationWithTermsOfUse = application.withCheckInformation(checkInformation)
 
       val result = applicationView.render(
-        developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, Some(termsOfUseAgreement), request, LoggedInUser(None),
-        Flash.emptyCookie, messagesProvider)
+        DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -138,25 +153,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       val newVersion = "1.1"
       val newTOUAgreement = TermsOfUseAgreement("test", DateTime.now(), newVersion)
       val checkInformation = CheckInformation(termsOfUseAgreements = Seq(oldTOUAgreement, newTOUAgreement))
+      val applicationWithTermsOfUse = application.copy(checkInformation = Some(checkInformation))
 
-      val applicationWithTermsOfUse = ApplicationResponse(
-
-        ApplicationId.random,
-        clientId,
-        "gatewayId",
-        "name",
-        "PRODUCTION",
-        None,
-        Set.empty,
-        DateTime.now(),
-        DateTime.now(),
-        Standard(),
-        ApplicationState(),
-        checkInformation = Option(checkInformation)
-      )
       val result = applicationView.render(
-        developers, applicationWithHistory.copy(application = applicationWithTermsOfUse), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, Some(newTOUAgreement), request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+        DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -170,9 +175,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information, including status information" in new Setup {
-
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -186,11 +195,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information, including link to check application" in new Setup {
+      val applicationPendingCheck = application.pendingGKApproval
 
-      val applicationPendingCheck = application.copy(state = ApplicationState(State.PENDING_GATEKEEPER_APPROVAL))
-
-      val result = applicationView.render(developers, applicationWithHistory.copy(application = applicationPendingCheck), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withApplication(applicationPendingCheck),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -204,9 +217,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information, including superuser specific actions, when logged in as superuser" in new Setup {
-
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.asSuperUser,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -218,8 +235,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information, excluding superuser specific actions, when logged in as non superuser" in new Setup {
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -230,9 +252,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show 'Manage' rate limit link when logged in as admin" in new Setup {
-
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.asAdmin,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -243,8 +269,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "not show 'Manage' rate limit link when logged in as non admin" in new Setup {
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.asSuperUser,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -254,11 +285,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show 'Block Application' button when logged in as admin" in new Setup {
+      val activeApplication = application.inProduction
 
-      val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
-
-      val result = applicationView.render(developers, applicationWithHistory.copy(application = activeApplication), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = true, isAdmin = true, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withApplication(activeApplication).asSuperUser.asAdmin,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -268,11 +303,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "hide 'Block Application' button when logged in as non-admin" in new Setup {
+      val activeApplication = application.inProduction
 
-      val activeApplication = application.copy(state = ApplicationState(State.PRODUCTION))
-
-      val result = applicationView.render(developers, applicationWithHistory.copy(application = activeApplication), Seq.empty, Seq.empty,
-        isAtLeastSuperUser = true, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withApplication(activeApplication).asSuperUser,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -282,8 +321,14 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information and click on associated developer" in new Setup {
-      val result = applicationView.render(developers, applicationWithHistory, Seq.empty, Seq.empty,
-        isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val user = User("sample@example.com", "joe", "bloggs", None, None, false)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withDeveloper(user),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -292,10 +337,15 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
     }
 
     "show application information, pending verification status should have link to resend email" in new Setup {
-      val applicationPendingVerification = application.copy(state = ApplicationState(State.PENDING_REQUESTER_VERIFICATION))
+      val applicationPendingVerification = application.pendingVerification
 
-      val result = applicationView.render(developers, applicationWithHistory.copy(application = applicationPendingVerification),
-        Seq.empty, Seq.empty, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withApplication(applicationPendingVerification),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       val document = Jsoup.parse(result.body)
 
@@ -303,43 +353,51 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder {
       elementExistsByText(document, "a", "Resend verify email") mustBe true
     }
 
-    "show API subscriptions" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
-
-      val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
-
-      val result = applicationView.render(developers, applicationWithHistory,
-        subscriptions, Seq.empty, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+    "show API subscriptions" in new SubscriptionsSetup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withSubscriptions(subscriptionsViewData),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       result.contentType must include("text/html")
       result.body.contains("API subscriptions") mustBe true
       result.body.contains("My API Name") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields1.version.version.value} (Stable)") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields2.version.version.value} (Stable)") mustBe true
+      result.body.contains(s"${VersionOne.value} (Stable)") mustBe true
+      result.body.contains(s"${VersionTwo.value} (Beta)") mustBe true
+      result.body.contains("My Other API Name") mustBe true
+      result.body.contains(s"${VersionOne.value} (Stable)") mustBe true
     }
 
-     "show subscriptions that have subscription fields configurartion" in new Setup {
-      val versionWithSubscriptionFields1 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
-      val versionWithSubscriptionFields2 = buildVersionWithSubscriptionFields(ApiVersion.random, true, application.id)
-
-      val subscriptions = Seq(buildSubscription("My API Name", versions = Seq(versionWithSubscriptionFields1, versionWithSubscriptionFields2)))
-
-      val result = applicationView.render(developers, applicationWithHistory,
-        Seq.empty, subscriptions, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
-
+     "show subscriptions that have subscription fields configurartion" in new SubscriptionsSetup {
+       val result = applicationView.render(
+        DefaultApplicationViewModel.withSubscriptionsThatHaveFieldDefns(subscriptionsViewData),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe true
       result.body.contains("My API Name") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields1.version.version.value} (Stable)") mustBe true
-      result.body.contains(s"${versionWithSubscriptionFields2.version.version.value} (Stable)") mustBe true
+      result.body.contains(s"${VersionOne.value} (Stable)") mustBe true
+      result.body.contains(s"${VersionTwo.value} (Beta)") mustBe true
+      result.body.contains("My Other API Name") mustBe true
+      result.body.contains(s"${VersionOne.value} (Stable)") mustBe true
     }
 
-    "hide subscriptions configurartion" in new Setup {
+    "hide subscriptions configuration" in new Setup {
       val subscriptions = Seq.empty
 
-      val result = applicationView.render(developers, applicationWithHistory,
-        Seq.empty, subscriptions, isAtLeastSuperUser = false, isAdmin = false, None, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withSubscriptions(subscriptions),
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
 
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe false

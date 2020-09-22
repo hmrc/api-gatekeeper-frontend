@@ -40,6 +40,12 @@ import java.{util => ju}
 import model.Actor
 import model.RateLimitTier
 import model.CheckInformation
+import model.Access
+import model.view.ApplicationViewModel
+import model.Privileged
+import model.Ropc
+import model.APIStatus._
+import model.User
 
 
 trait ApplicationBuilder {
@@ -71,6 +77,8 @@ trait ApplicationBuilder {
     )
   }
 
+  val DefaultApplication = buildApplication()
+
   def buildCollaborators(emails: Seq[String]): Set[Collaborator] = {
     emails.map(email => Collaborator(email, CollaboratorRole.ADMINISTRATOR)).toSet
   }
@@ -99,4 +107,70 @@ trait ApplicationBuilder {
       buildSubscriptionFieldValues(apiContext, apiVersion)
     )
   }
+
+  implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
+    def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
+
+    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+    
+    def asSuperUser = applicationViewModel.copy(isAtLeastSuperUser = true)
+    def asAdmin = applicationViewModel.copy(isAdmin = true)
+    
+    def withDeveloper(developer: User) = {
+      val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer.email)
+      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
+    }
+    def withAdmin(developer: User) = {
+      val newAppWithDev = this.applicationViewModel.application.withAdmin(developer.email)
+      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
+    }
+  }
+
+  implicit class ApplicationStateExtension(applicationState: ApplicationState) {
+    def inProduction = applicationState.copy(name = State.PRODUCTION)
+    def inTesting = applicationState.copy(name = State.TESTING)
+    def pendingGKApproval = applicationState.copy(name = State.PENDING_GATEKEEPER_APPROVAL)
+    def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
+  }
+
+  implicit class ApplicationExtension(app: NewApplication) {
+    def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
+    def deployedToSandbox = app.copy(deployedTo = Environment.SANDBOX)
+
+    def withoutCollaborator(email: String) = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withAdmin(email: String) = {
+      val app1 = app.withoutCollaborator(email)
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.ADMINISTRATOR))
+    }
+    def withDeveloper(email: String) = {
+      val app1 = app.withoutCollaborator(email)
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.DEVELOPER))
+    }
+
+    def withAccess(access: Access) = app.copy(access = access)
+    def asStandard = app.copy(access = Standard())
+    def asPrivileged = app.copy(access = Privileged())
+    def asROPC = app.copy(access = Ropc())
+
+    def withState(state: ApplicationState) = app.copy(state = state)
+    def inProduction = app.copy(state = app.state.inProduction)
+    def inTesting = app.copy(state = app.state.inTesting)
+    def pendingGKApproval = app.copy(state = app.state.pendingGKApproval)
+    def pendingVerification = app.copy(state = app.state.pendingVerification)
+
+    def withBlocked(isBlocked: Boolean) = app.copy(blocked = isBlocked)
+    def blocked = app.copy(blocked = true)
+    def unblocked = app.copy(blocked = false)
+
+    def withCheckInformation(checkInfo: CheckInformation) = app.copy(checkInformation = Some(checkInfo))
+    def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
+    def noCheckInformation = app.copy(checkInformation = None)
+
+    def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
+
+    def createdOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
+    def lastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+    
+  }  
 }

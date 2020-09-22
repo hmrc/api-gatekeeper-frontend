@@ -30,6 +30,7 @@ case class ApplicationViewModel(
   subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, APIStatus)])],
   stateHistory: Seq[StateHistory],
   isAtLeastSuperUser: Boolean,
-  isAdmin: Boolean,
-  maybeLatestTOUAgreement: Option[TermsOfUseAgreement]
-)
+  isAdmin: Boolean
+) {
+  val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
+}

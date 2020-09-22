@@ -30,6 +30,7 @@ import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, Inv
 import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 
 import scala.concurrent.Future
+import model.applications.ApplicationWithSubscriptionData
 
 trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with ApmServiceMock with ArgumentMatchersSugar {
 

@@ -43,6 +43,8 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import model.applications.ApplicationWithSubscriptionData
+import builder.{ApplicationBuilder, ApiBuilder}
 
 class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar {
 
@@ -1044,21 +1046,27 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
     }
 
     "applicationPage" should {
-      val apiContext = ApiContext.random
 
-      "return the application details without subscription fields" in new Setup {
-        val subscriptions = Seq(Subscription("name", "serviceName", apiContext, Seq()))
+      "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
+
+        val application2 = buildApplication()
+        val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
+        val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+        val apiContext = ApiContext("Api Context")
+        val apiContextAndApiData = Map(apiContext -> apiData)
 
         givenTheUserIsAuthorisedAndIsANormalUser()
-        givenTheAppWillBeReturned()
-        given(mockApplicationService.fetchApplicationSubscriptions(*)(*)).willReturn(subscriptions)
-        given(mockDeveloperService.fetchDevelopersByEmails(eqTo(application.application.collaborators.map(colab => colab.emailAddress)))(*))
+        fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+
+        fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+        fetchStateHistoryReturns(Seq(buildStateHistory(State.PRODUCTION)))
+
+        given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
           .willReturn(developers)
 
         val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*)
 
         verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*)
         verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*, *, *)(*)

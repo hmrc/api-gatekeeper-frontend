@@ -28,14 +28,41 @@ import model.ApiVersion
 
 trait ApiBuilder {
 
-  def buildApiAccess(accessType: APIAccessType = APIAccessType.PUBLIC) = APIAccess(accessType)
+  implicit class VersionDataExtension(versionData: VersionData) {
+    def withStatus(newStatus: APIStatus) = versionData.copy(status = newStatus)
+    def alpha = versionData.copy(status = APIStatus.ALPHA)
+    def beta = versionData.copy(status = APIStatus.BETA)
+    def stable = versionData.copy(status = APIStatus.STABLE)
+    def deprecated = versionData.copy(status = APIStatus.DEPRECATED)
+    def retired = versionData.copy(status = APIStatus.RETIRED)
 
-  def buildApiVersionData(status: APIStatus = APIStatus.BETA, apiAccess: APIAccess = buildApiAccess()) = VersionData(status, apiAccess)
-
-  def buildApiData(serviceName: String = "helloworld", isTestSupport: Boolean = false, versionData: VersionData = buildApiVersionData()): ApiData = {
-    ApiData(serviceName, serviceName, isTestSupport, Map(ApiVersion.random -> versionData))
+    def withAccess(newAccessType: APIAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
+    def publicAccess = this.withAccess(APIAccessType.PUBLIC)
+    def privateAccess = this.withAccess(APIAccessType.PRIVATE)
   }
 
-  def builAapiContextAndApiData(apiContext: ApiContext = ApiContext.random, apiData: ApiData = buildApiData()) = Map(apiContext -> apiData)
+  implicit class ApiDataExtension(apiData: ApiData) {
+    def testSupport = apiData.copy(isTestSupport = true)
+
+    def withName(newName: String) = apiData.copy(name = newName)
+
+    def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
+  }
+
+  val DefaultVersionData = VersionData(status = STABLE, access = APIAccess(`type` = APIAccessType.PUBLIC))
+
+  val DefaultServiceName = "A-Service"
+  val DefaultName = "API Name"
+
+  val VersionOne = ApiVersion("1.0")
+  val VersionTwo = ApiVersion("2.0")
+  val VersionThree = ApiVersion("3.0")
+
+  val DefaultApiData = ApiData(
+    serviceName = DefaultServiceName,
+    name = DefaultName,
+    isTestSupport = false,
+    versions = Map(VersionOne -> DefaultVersionData)
+  )
 
 }
