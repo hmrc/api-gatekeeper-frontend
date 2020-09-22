@@ -9,7 +9,7 @@ import play.api.Configuration
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.libs.ws.WSClient
 
-class ApmConnectorSpec extends WiremockSpec with ApmConnectorMock {
+class ApmConnectorItSpec extends WiremockSpec with ApmConnectorMock {
   val fakeConfiguration = Configuration(
     "microservice.services.api-platform-microservice.host" -> "localhost",
     "microservice.services.api-platform-microservice.port" -> 11111
