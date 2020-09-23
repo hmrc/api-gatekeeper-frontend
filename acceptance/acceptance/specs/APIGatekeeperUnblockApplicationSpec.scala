@@ -25,16 +25,15 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  val appName = "Automated Test Application - Blocked"
   val unblockedAppName = "Automated Test Application"
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
-      stubBlockedApplication(blockedApplication, developers)
+      stubApplication(applicationWithSubscriptionDataToUnblock, developers, stateHistoryToUnblock, appUnblock)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(appName, BlockedApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(blockedAppName, BlockedApplicationPage, developers)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -44,7 +43,6 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
     }
 
     scenario("I cannot unblock an application that is already unblocked") {
-      stubApplication(unblockedApplication, developers)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(unblockedAppName, ApplicationPage, developers)
@@ -55,6 +53,7 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
   }
 
   def selectToUnblockApplication() = {
+    stubBlockedApplication(blockedApplication)
     When("I select the Unblock Application Button")
     BlockedApplicationPage.selectUnblockApplication()
 
@@ -62,7 +61,7 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
     on(UnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    UnblockApplicationPage.completeForm(appName)
+    UnblockApplicationPage.completeForm(blockedAppName)
 
     And("I select the Unblock Application Button")
     UnblockApplicationPage.selectUnblockButton()

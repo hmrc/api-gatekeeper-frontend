@@ -29,16 +29,16 @@ import play.api.libs.json.Json
 import scala.io.Source
 
 class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
-  def stubNewApplication(application: String) = {
-    stubFor(get(urlEqualTo("/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  def stubNewApplication(application: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
 
-  def stubStateHistory(stateHistory: String) = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+  def stubStateHistory(stateHistory: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$appId/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
   }
 
-  def stubApiDefintionsForApplication(apiDefinitions: String) = {
-    stubFor(get(urlEqualTo("/api-definitions?applicationId=fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
+  def stubApiDefintionsForApplication(apiDefinitions: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
   def stubDevelopers(developers: List[User]) = {
@@ -46,30 +46,27 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubApplication(developers: List[User]) = {
-
-    stubNewApplication(applicationWithSubscriptionData)
-    stubStateHistory(stateHistory)
-    stubApiDefintionsForApplication(allSubscribeableApis)
+  def stubApplication(application: String, developers: List[User], stateHistory: String, appId: String) = {
+    stubNewApplication(application, appId)
+    stubStateHistory(stateHistory, appId)
+    stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
-    // stubFor(get(urlEqualTo("/applications/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    // stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/stateHistory")).willReturn(aResponse().withBody("Active").withStatus(OK)))
-    // stubFor(get(urlEqualTo("/api-definitions/?applicationId=fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    // stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    // stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    // stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    // stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-
-    // stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
-    // stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
+  }
+  
+  def stubUnblockedApplication(application: String) {
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
 
-  def stubBlockedApplication(application: String, developers: List[User]) = {
+  def stubBlockedApplication(application: String) {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
+
+  // def stubBlockedApplication(application: String, developers: List[User]) = {
+  //   stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  //   stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  //   stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+  //   stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+  // }
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))

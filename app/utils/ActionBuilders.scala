@@ -19,14 +19,14 @@ package utils
 import model._
 import play.api.i18n.Messages
 import play.api.mvc.Result
-import services.{ApplicationService, ApmService}
+import services.{ApmService, ApplicationService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
-
 import cats.data.OptionT
+import play.api.libs.json.Json
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
@@ -62,7 +62,15 @@ trait ActionBuilders extends ErrorHelper {
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) => {
-        applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+        val x: Future[Seq[StateHistory]] = applicationService.fetchStateHistory(appId)
+        x.map(z => {
+          println("****** START")
+          println(s"In ActionBuilders -  applicationService.fetchStateHistory statehistory is: $x")
+          println(s"${Json.toJson(z).toString()}")
+          println("****** END")
+          }
+        )
+        x.flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       }
       case None => Future.successful(notFound("Application not found"))
     }

@@ -25,11 +25,9 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  val appName = "Automated Test Application"
-
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(unblockedApplication, developers)
+      stubApplication(applicationWithSubscriptionDataToBlock, developers, stateHistoryToBlock, appToDelete)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
@@ -44,7 +42,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(blockedApplication, developers)
+      stubApplication(blockedApplication, developers, stateHistoryToBlock, appToDelete)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(appName, ApplicationPage, developers)
@@ -56,6 +54,7 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
 
   def selectToBlockApplication() = {
     When("I select the Block Application Button")
+    stubUnblockedApplication(unblockedApplication)
     ApplicationPage.selectBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")

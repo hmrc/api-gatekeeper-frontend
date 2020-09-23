@@ -55,23 +55,30 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
     scenario("View a specific application") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
+println("***** pomegranate 1")
 
       stubApiDefinition()
+println("***** pomegranate 2")
 
       signInGatekeeper()
-      on(ApplicationsPage)
+println("***** pomegranate 3")
 
-      stubApplication(developers)
+      on(ApplicationsPage)
+println("***** pomegranate 4")
+      stubApplication(applicationWithSubscriptionData, developers, stateHistory, appToDelete)
 
       When("I select to navigate to the Automated Test Application page")
-
-      ApplicationsPage.selectByApplicationName("Automated Test Application")
+println("***** pomegranate 5")
+      ApplicationsPage.selectByApplicationName(s"Application requiring approval")
+      println("***** pomegranate 6")
       
 
       Then("I am successfully navigated to the Automated Test Application page")
+      println("***** pomegranate 7")
       on(ApplicationPage)
+      println("***** pomegranate 8")
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", appPendingApprovalId1)
+      verifyText("data-app-id", appToDelete)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)
@@ -112,7 +119,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
   //     signInGatekeeper()
   //     on(ApplicationsPage)
 
-  //     stubApplication(application, developers)
+  //     stubApplication(applicationWithSubscriptionData, developers, stateHistory, approvedApp1)
 
   //     When("I select to navigate to the Automated Test Application page")
   //     ApplicationsPage.selectByApplicationName("Automated Test Application")

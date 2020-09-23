@@ -27,8 +27,6 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  val appName = "Automated Test Application"
-
   feature("Delete an application") {
     scenario("I can delete an application") {
 
@@ -75,7 +73,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(applicationToDelete, developers)
+    stubApplication(applicationToDelete, developers, stateHistory, appToDelete)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.selectByApplicationName(appName)
