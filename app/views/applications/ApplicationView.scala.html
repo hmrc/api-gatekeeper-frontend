@@ -285,11 +285,11 @@
         </tr>
         <tr>
             <th>
-                <h3>Whitelisted IPs</h3>
+                <h3>IP allow list</h3>
             </th>
             <td>
             @if(application.ipWhitelist.isEmpty) {
-                <span class="faded-text">No whitelisted IPs</span>
+                <span class="faded-text">No IP allow list ranges</span>
             } else {
                 <table class="table-plain">
                 @for(ipRange <-application.ipWhitelist.toSeq.sorted) {
@@ -300,7 +300,7 @@
             </td>
             <td>
             @if(isAtLeastSuperUser) {
-                <a id="manage-ip-whitelist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id)}" class="button--link" role="button">Manage</a>
+                <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id)}" class="button--link" role="button">Manage</a>
             }
             </td>
         </tr>

@@ -366,7 +366,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(underTest.manageWhitelistedIpPage(applicationId)(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
-        bodyOf(result) should include("Manage whitelisted IP")
+        bodyOf(result) should include("Manage IP allow list")
       }
 
       "return the manage whitelisted IP page for a super user" in new Setup {
@@ -376,7 +376,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val result = await(underTest.manageWhitelistedIpPage(applicationId)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
-        bodyOf(result) should include("Manage whitelisted IP")
+        bodyOf(result) should include("Manage IP allow list")
       }
 
       "return the forbidden page for a normal user" in new Setup {
@@ -398,7 +398,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
 
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
@@ -412,7 +412,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
 
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
