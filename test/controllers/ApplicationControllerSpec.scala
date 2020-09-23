@@ -398,7 +398,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
 
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 
@@ -412,7 +412,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageWhitelistedIp(*, *)(*))
           .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
 
         val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
 

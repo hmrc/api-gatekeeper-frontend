@@ -49,18 +49,18 @@
         <p><strong class="bold">Third parties should be as specific as possible about the IP address range. Keep IP address ranges as small as possible.</strong></p>
 
         @helper.CSRF.formField
-        <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
-            <label for="whitelistedIps" id="whitelistedIps-label">Enter each CIDR block on a separate line:</label>
-            @fieldError(form.errors, "whitelistedIps", false)
+        <div class="form-group @if(form.errors("allowlistedIps").nonEmpty) {form-field--error}">
+            <label for="allowlistedIps" id="allowlistedIps-label">Enter each CIDR block on a separate line:</label>
+            @fieldError(form.errors, "allowlistedIps", false)
             <textarea
             inputtype="text"
-            id="whitelistedIps"
-            name="whitelistedIps"
+            id="allowlistedIps"
+            name="allowlistedIps"
             cols="20"
             rows="5"
-            class="form-control @if(form.errors("whitelistedIps").nonEmpty) {form-control-error}"
-            aria-labelledby="whitelistedIps-label"
-            aria-describedby="whitelistedIps-note">@form.data.getOrElse("whitelistedIps", "")</textarea>
+            class="form-control @if(form.errors("allowlistedIps").nonEmpty) {form-control-error}"
+            aria-labelledby="allowlistedIps-label"
+            aria-describedby="allowlistedIps-note">@form.data.getOrElse("allowlistedIps", "")</textarea>
         </div>
 
         <div class="form-field">

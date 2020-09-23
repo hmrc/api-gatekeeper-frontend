@@ -194,7 +194,7 @@ object Forms {
     def fromSetOfWhitelistedIps(whiteListedIps: Set[String]) = Some(whiteListedIps.mkString("\n"))
 
     val form: Form[Set[String]] = Form(mapping(
-      "whitelistedIps" -> text.verifying(whitelistedIpsConstraint)
+      "allowlistedIps" -> text.verifying(whitelistedIpsConstraint)
     )(WhitelistedIpForm.toSetOfWhitelistedIps)(WhitelistedIpForm.fromSetOfWhitelistedIps))
   }
 
