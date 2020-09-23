@@ -22,31 +22,31 @@
 
 @(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Manage whitelisted IPs") {
+@main(title = s"${applicationConfig.title} - Manage IP allow list") {
 
-<div class="ip-whitelist">
+<div class="ip-allowlist">
     <nav class="breadcrumb-nav">
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage whitelisted IPs</li>
+            <li class="breadcrumb-nav__item">Manage IP allow list</li>
         </ul>
     </nav>
 
-    <h1 class="heading-xlarge">Manage whitelisted IPs</h1>
+    <h1 class="heading-xlarge">Manage IP allow list</h1>
 
     @helper.form(action = controllers.routes.ApplicationController.manageWhitelistedIpAction(application.id)) {
 
-        <p>Whitelisted IP addresses control where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
+        <p>The IP allow list controls where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
         <p>The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
         <p style ="margin-left: 40px">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
 
         <p>The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
-        <p>The netmask identifies how large the network is.<p>
+        <p>The netmask identifies how large the network is.</p>
         <p>This notation can be used to give access to a single IP address (by using a 32bit netmask) or a larger network by varying the IP address.</p>
-        <p><strong class="bold">Third parties should be as specific as possible about the IP address range that requires whitelisting. Keep IP address ranges as small as possible.</strong></p>
+        <p><strong class="bold">Third parties should be as specific as possible about the IP address range. Keep IP address ranges as small as possible.</strong></p>
 
         @helper.CSRF.formField
         <div class="form-group @if(form.errors("whitelistedIps").nonEmpty) {form-field--error}">
