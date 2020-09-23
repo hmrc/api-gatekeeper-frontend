@@ -20,9 +20,7 @@ import model.APIStatusJson
 import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
 
-// import domain.services.{ApiDefinitionsJsonFormatters, ApplicationsJsonFormatters}
-
-private[connectors] object ApmConnectorJsonFormatters extends APIStatusJson with APIDefinitionFormatters {//extends ApplicationsJsonFormatters with ApiDefinitionsJsonFormatters {
+private[connectors] object ApmConnectorJsonFormatters extends APIStatusJson with APIDefinitionFormatters {
 
   import model.subscriptions.{VersionData, ApiData}
   import play.api.libs.json._

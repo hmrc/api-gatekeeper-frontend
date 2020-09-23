@@ -23,7 +23,6 @@ import model.APIStatus
 import model.APIStatus._
 import model.subscriptions.VersionData
 import model.subscriptions.ApiData
-import model.ApiContext
 import model.ApiVersion
 
 trait ApiBuilder {

@@ -18,15 +18,13 @@ package acceptance.specs
 
 import acceptance.matchers.CustomMatchers
 import acceptance.pages.ApplicationsPage
-import acceptance.{BaseSpec, SignInSugar}
+import acceptance.{SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
 
-import scala.io.Source
-
-class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class SignInSpec extends APIGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
 
   feature("Gatekeeper Sign in") {
 
@@ -35,6 +33,8 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     info("I would like to sign in")
 
     scenario("Sign in with invalid auth token") {
+
+      stubApplicationList()
 
       stubFor(post(urlPathEqualTo("/auth/authorise"))
         .willReturn(aResponse()
@@ -49,14 +49,9 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
 
       stubApplicationList()
+
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse()
-        .withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription()
       stubApiDefinition()
 
       val authBody =
@@ -97,6 +92,10 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
 
+      stubApplicationList()
+
+      stubApiDefinition()
+
       Given("The developer goes to the Gatekeeper home page")
       signInGatekeeper
 
@@ -108,24 +107,8 @@ class SignInSpec extends BaseSpec with SignInSugar with Matchers with CustomMatc
     }
   }
 
-  def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-      .withBody(applications).withStatus(OK)))
-  }
-
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions"))
       .willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
-  }
-
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo(s"/api-definition"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo(s"/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 }

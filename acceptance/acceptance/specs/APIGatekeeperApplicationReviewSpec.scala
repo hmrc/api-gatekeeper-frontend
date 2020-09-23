@@ -50,11 +50,6 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
 
@@ -94,11 +89,6 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
       on(ApplicationsPage)
@@ -132,11 +122,6 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(List())
       stubApiDefinition()
       signInSuperUserGatekeeper()
       on(ApplicationsPage)
