@@ -18,15 +18,13 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
+import acceptance.pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.NewApplicationPage
-
-import scala.io.Source
 
 class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
 
