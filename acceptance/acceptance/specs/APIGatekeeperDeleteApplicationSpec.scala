@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-import scala.io.Source
-
-class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
+class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
@@ -36,8 +34,8 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
       navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application Success page")
-      on(DeleteApplicationSuccessPage)
-      assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
+      on(NewDeleteApplicationSuccessPage)
+      assert(NewDeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
     }
 
     scenario("I cannot delete an application") {
@@ -48,7 +46,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
       navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
-      on(DeleteApplicationSuccessPage)
+      on(NewDeleteApplicationSuccessPage)
       assert(DeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
     }
   }
@@ -57,48 +55,52 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-    stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
     stubApplicationSubscription(List( ))
     stubApiDefinition()
 
     signInSuperUserGatekeeper
     on(ApplicationsPage)
-
+    
     When("I select to navigate to the Applications page")
     DashboardPage.selectApplications()
 
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(applicationToDelete, developers, stateHistory, appToDelete)
+    stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.selectByApplicationName(appName)
+    ApplicationsPage.selectByApplicationName(newApplicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
-    on(ApplicationPage)
+    on(NewApplicationPage)
+
+    stubApplicationToDelete()
 
     When("I select the Delete Application Button")
-    ApplicationPage.selectDeleteApplication()
+    NewApplicationPage.selectDeleteApplication()
 
     Then("I am successfully navigated to the Delete Application page")
-    on(DeleteApplicationPage)
+    on(NewDeleteApplicationPage)
+
+    stubApplicationToDelete()
 
     When("I fill out the Delete Application Form correctly")
-    DeleteApplicationPage.completeForm(appName)
+    NewDeleteApplicationPage.completeForm(newApplicationName)
 
     And("I select the Delete Application Button")
-    DeleteApplicationPage.selectDeleteButton()
+    NewDeleteApplicationPage.selectDeleteButton()
+  }
+
+  def stubApplicationToDelete() = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
   }
 
   def stubApplicationForDeleteSuccess() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
+    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
   def stubApplicationForDeleteFailure() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }
