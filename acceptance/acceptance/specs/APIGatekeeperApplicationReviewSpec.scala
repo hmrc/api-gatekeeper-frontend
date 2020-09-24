@@ -156,9 +156,4 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewA
   def stubApplicationToReview(developers: List[User]) = {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
   }
-
-  def stubApplicationListWithNoSubs() = {
-    stubFor(get(urlEqualTo("/gatekeeper/resources/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(OK)))
-  }
 }
