@@ -24,17 +24,17 @@ import model.User
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
+import acceptance.pages.NewApplicationPage
 
 import scala.io.Source
 
-class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
+class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationMock {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
   }
 
   feature("Application List for Search Functionality") {
-
     info("AS A Product Owner")
     info("I WANT The SDST (Software Developer Support Team) to be able to search for applications")
     info("SO THAT The SDST can review the status of the applications")
@@ -55,34 +55,23 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec {
     scenario("View a specific application") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
-println("***** pomegranate 1")
-
       stubApiDefinition()
-println("***** pomegranate 2")
-
       signInGatekeeper()
-println("***** pomegranate 3")
 
       on(ApplicationsPage)
-println("***** pomegranate 4")
-      stubApplication(applicationWithSubscriptionData, developers, stateHistory, appToDelete)
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-println("***** pomegranate 5")
-      ApplicationsPage.selectByApplicationName(s"Application requiring approval")
-      println("***** pomegranate 6")
-      
+      ApplicationsPage.selectByApplicationName("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      println("***** pomegranate 7")
-      on(ApplicationPage)
-      println("***** pomegranate 8")
+      on(NewApplicationPage)
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", appToDelete)
+      verifyText("data-app-id", newApplicationWithSubscriptionDataId)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description-private", applicationDescription)
-      verifyText("data-description-public", "An application that is pending approval")
+      verifyText("data-description-private", newApplicationDescription)
+      verifyText("data-description-public", "")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
@@ -105,7 +94,6 @@ println("***** pomegranate 5")
       And("I can see the Copy buttons")
       verifyText("data-clip-text", "Copy all team member email addresses", 0)
       verifyText("data-clip-text", "Copy admin email addresses", 1)
-
     }
   }
 
