@@ -1,6 +1,6 @@
 package acceptance.specs
 
-trait NewApplicationMock {
+trait NewApplicationTestData {
   val newApplicationWithSubscriptionDataId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
   val newApplicationDescription = "application description"
   val newAdminEmail = "admin@example.com"
@@ -127,4 +127,51 @@ trait NewApplicationMock {
     |    "changedAt": "2020-07-22T16:12:38.686+01:00"
     |  }
     |]""".stripMargin
+
+    val newApplicationUser =
+    s"""
+       |{
+       |  "email": "$newDeveloper8",
+       |  "firstName": "$newDeveloper8FirstName",
+       |  "lastName": "$newDeveloper8LastName",
+       |  "verified": false,
+       |  "mfaEnabled": true
+       |}
+   """.stripMargin
+
+    val applicationResponseForNewApplicationUserEmail =
+    s"""
+       |  [{
+       |    "id": "$newApplicationWithSubscriptionDataId",
+       |    "clientId": "clientid1",
+       |    "gatewayId": "gatewayId1",
+       |    "name": "Automated Test Application",
+       |    "description": "application for test",
+       |    "deployedTo": "PRODUCTION",
+       |   "collaborators": [
+       |    {
+       |      "emailAddress": "$newDeveloper8",
+       |      "role": "ADMINISTRATOR"
+       |    },
+       |    {
+       |      "emailAddress": "fred@example.com",
+       |      "role": "DEVELOPER"
+       |    }
+       |    ],
+       |    "createdOn": 1458832690624,
+       |    "lastAccess": 1458832690624,
+       |    "access": {
+       |      "redirectUris": [],
+       |      "overrides": [],
+       |      "accessType": "STANDARD"
+       |    },
+       |    "rateLimitTier": "BRONZE",
+       |    "state": {
+       |      "name": "PRODUCTION",
+       |      "requestedByEmailAddress": "$newDeveloper",
+       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |      "updatedOn": 1459868573962
+       |    }
+       |  }]
+    """.stripMargin
 }

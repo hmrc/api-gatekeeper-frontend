@@ -28,7 +28,7 @@ import acceptance.pages.NewApplicationPage
 
 import scala.io.Source
 
-class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationMock {
+class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -42,9 +42,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
     scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
-
       stubApiDefinition()
-
       signInGatekeeper()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationsPage)
@@ -97,51 +95,44 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
     }
   }
 
-  // feature("Show an applications developer information") {
-  //   scenario("View a specific developer on an application") {
-  //     Given("I have successfully logged in to the API Gatekeeper")
-  //     stubApplicationList()
+  feature("Show an applications developer information") {
+    scenario("View a specific developer on an application") {
+      Given("I have successfully logged in to the API Gatekeeper")
+      stubApplicationList()
+      stubApiDefinition()
+      signInGatekeeper()
 
-  //     stubApiDefinition()
+      on(ApplicationsPage)
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
-  //     signInGatekeeper()
-  //     on(ApplicationsPage)
+      When("I select to navigate to the Automated Test Application page")
+      ApplicationsPage.selectByApplicationName("My new app")
 
-  //     stubApplication(applicationWithSubscriptionData, developers, stateHistory, approvedApp1)
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(NewApplicationPage)
 
-  //     When("I select to navigate to the Automated Test Application page")
-  //     ApplicationsPage.selectByApplicationName("Automated Test Application")
+      stubDeveloper()
+      stubApplicationForDeveloperEmail()
 
-  //     Then("I am successfully navigated to the Automated Test Application page")
-  //     on(ApplicationPage)
+      When("I select to navigate to a collaborator")
+      ApplicationsPage.selectDeveloperByEmail(newDeveloper8)
 
-  //     stubDeveloper()
-  //     stubApplicationForEmail()
-
-  //     When("I select to navigate to a collaborator")
-  //     ApplicationsPage.selectDeveloperByEmail("Dixie.fakename@example.com")
-
-  //     Then("I am successfully navigated to the developer details page")
-  //     on(DeveloperDetailsPage)
-  //   }
-  // }
-
-  def stubApplicationListWithNoSubs() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(OK)))
+      Then("I am successfully navigated to the developer details page")
+      on(DeveloperDetailsPage)
+    }
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(user)))
+      .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
   }
 
-  def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
+  def stubApplicationForDeveloperEmail() = {
+    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
   }
 }
