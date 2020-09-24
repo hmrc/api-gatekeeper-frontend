@@ -258,7 +258,7 @@ trait NewBlockedApplicationTestData {
        |      "approvedOn": 1459968573962,
        |      "verified": true
        |    },
-       |    "blocked": false,
+       |    "blocked": true,
        |    "ipWhitelist": []
        |  },
        |  "history": [

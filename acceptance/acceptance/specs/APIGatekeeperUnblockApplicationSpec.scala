@@ -20,54 +20,82 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
+import acceptance.WebPage
 
-class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec {
+class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with NewBlockedApplicationTestData with NewApplicationTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  val unblockedAppName = "Automated Test Application"
+  // val unblockedAppName = "Automated Test Application"
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
-      stubApplication(applicationWithSubscriptionDataToUnblock, developers, stateHistoryToUnblock, appUnblock)
+      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(blockedAppName, BlockedApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, NewBlockedApplicationPage, developers)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
 
       Then("I am successfully navigated to the Unblock Application Success page")
-      on(UnblockApplicationSuccessPage)
+      on(NewUnblockApplicationSuccessPage)
     }
 
     scenario("I cannot unblock an application that is already unblocked") {
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(unblockedAppName, ApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(newApplicationName, NewApplicationPage)
 
       Then("I cannot see the unblock button")
-      ApplicationPage.bodyText.contains("Unblock application") shouldBe false
+      NewApplicationPage.bodyText.contains("Unblock application") shouldBe false
     }
   }
 
   def selectToUnblockApplication() = {
-    stubBlockedApplication(blockedApplication)
+    stubBlockedApplication()
     When("I select the Unblock Application Button")
-    BlockedApplicationPage.selectUnblockApplication()
+    NewBlockedApplicationPage.selectUnblockApplication()
 
     Then("I am successfully navigated to the Unblock Application page")
-    on(UnblockApplicationPage)
+    on(NewUnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    UnblockApplicationPage.completeForm(blockedAppName)
+    NewUnblockApplicationPage.completeForm(newBlockedApplicationName)
 
     And("I select the Unblock Application Button")
-    UnblockApplicationPage.selectUnblockButton()
+    NewUnblockApplicationPage.selectUnblockButton()
   }
 
   def stubApplicationForUnblockSuccess() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/$newBlockedApplicationWithSubscriptionDataId/unblock")).willReturn(aResponse().withStatus(OK)))
+  }
+
+    def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
+    Given("I have successfully logged in to the API Gatekeeper")
+    stubApplicationList()
+
+    stubApplicationSubscription(developers)
+    stubApiDefinition()
+
+    signInAdminUserGatekeeper
+    on(ApplicationsPage)
+
+    When("I select to navigate to the Applications page")
+    DashboardPage.selectApplications()
+
+    Then("I am successfully navigated to the Applications page where I can view all applications")
+    on(ApplicationsPage)
+
+    When(s"I select to navigate to the application named $appName")
+    ApplicationsPage.selectByApplicationName(appName)
+
+    Then(s"I am successfully navigated to the application named $appName")
+    on(page)
+  }
+
+  def stubBlockedApplication() {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newBlockedApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(blockedApplicationResponseForNewApplication).withStatus(OK)))
   }
 }
