@@ -23,7 +23,7 @@ class ApmConnectorItSpec extends WiremockSpec with ApmConnectorMock {
 
   trait Setup {
     val apmConnector = app.injector.instanceOf[ApmConnector]
-    implicit val hc = new HeaderCarrier()
+    implicit val hc = HeaderCarrier()
     val wsClient = app.injector.instanceOf[WSClient]
   }
 

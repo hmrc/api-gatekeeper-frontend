@@ -26,7 +26,7 @@ object DashboardPage extends WebPage {
     currentUrl == url
   }
 
-  def isUnauthorised() = {
+  def isUnauthorised = {
     find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
   }
 

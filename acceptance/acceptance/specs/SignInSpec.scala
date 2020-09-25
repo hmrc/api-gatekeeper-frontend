@@ -18,7 +18,7 @@ package acceptance.specs
 
 import acceptance.matchers.CustomMatchers
 import acceptance.pages.ApplicationsPage
-import acceptance.{SignInSugar}
+import acceptance.SignInSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}

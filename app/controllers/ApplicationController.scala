@@ -155,9 +155,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
         withApp(appId) { app =>
           app.application.access match {
-            case access: Standard => {
+            case access: Standard =>
               Future.successful(Ok(manageAccessOverridesView(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
-            }
           }
         }
   }

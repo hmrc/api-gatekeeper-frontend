@@ -61,17 +61,8 @@ trait ActionBuilders extends ErrorHelper {
   def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
-      case Some(value) => {
-        val x: Future[Seq[StateHistory]] = applicationService.fetchStateHistory(appId)
-        x.map(z => {
-          println("****** START")
-          println(s"In ActionBuilders -  applicationService.fetchStateHistory statehistory is: $x")
-          println(s"${Json.toJson(z).toString()}")
-          println("****** END")
-          }
-        )
-        x.flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
-      }
+      case Some(value) =>
+        applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       case None => Future.successful(notFound("Application not found"))
     }
   }

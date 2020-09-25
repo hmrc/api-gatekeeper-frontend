@@ -27,21 +27,21 @@ class FiltersSpec  extends UnitSpec with Matchers {
         val context = "a-test-service"
         val version = "1.0"
 
-        ApiFilter(Some(s"${context}__${version}")) shouldBe Value(context, version)
+        ApiFilter(Some(s"${context}__$version")) shouldBe Value(context, version)
       }
 
       "create a valid Value for a simple service name and extended version" in {
         val context = "a-test-service"
         val version = "0.0.1-pre-alpha"
 
-        ApiFilter(Some(s"${context}__${version}")) shouldBe Value(context, version)
+        ApiFilter(Some(s"${context}__$version")) shouldBe Value(context, version)
       }
 
       "create a valid Value for a complex service name and extended version" in {
         val context = "a-test-service__with__double__underscores"
         val version = "0.0.1-pre-alpha"
 
-        ApiFilter(Some(s"${context}__${version}")) shouldBe Value(context, version)
+        ApiFilter(Some(s"${context}__$version")) shouldBe Value(context, version)
       }
     }
   }

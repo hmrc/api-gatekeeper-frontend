@@ -37,7 +37,7 @@ object ApplicationId {
   import play.api.libs.json.Json
   implicit val applicationIdFormat = Json.valueFormat[ApplicationId]
 
-  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
+  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString)
 }
 
 case class ClientId(value: String) extends AnyVal {
@@ -49,7 +49,7 @@ object ClientId {
   implicit val clientIdFormat = Json.valueFormat[ClientId]
 
   def empty: ClientId = ClientId("")
-  def random: ClientId = ClientId(UUID.randomUUID().toString())
+  def random: ClientId = ClientId(UUID.randomUUID().toString)
 }
 
 trait Application {

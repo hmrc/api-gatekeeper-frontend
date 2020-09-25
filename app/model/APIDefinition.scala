@@ -47,7 +47,7 @@ object ApiVersion {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiVersion((Random.nextDouble()).toString)
+  def random = ApiVersion(Random.nextDouble().toString)
 }
 
 case class APIDefinition(serviceName: String,
@@ -89,7 +89,7 @@ object APICategory{
 }
 
 case class APICategoryDetails(category: String, name: String){
-  def toAPICategory(): APICategory ={
+  def toAPICategory: APICategory ={
     APICategory(category)
   }
 }
