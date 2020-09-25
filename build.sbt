@@ -120,6 +120,7 @@ lazy val microservice =  (project in file("."))
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
     AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
+    AcceptanceTest / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .configs(SandboxTest)
