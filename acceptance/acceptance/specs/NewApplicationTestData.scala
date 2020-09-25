@@ -147,7 +147,7 @@ trait NewApplicationTestData {
        |    "id": "$newApplicationWithSubscriptionDataId",
        |    "clientId": "clientid1",
        |    "gatewayId": "gatewayId1",
-       |    "name": "Automated Test Application",
+       |    "name": "$newApplicationName",
        |    "description": "application for test",
        |    "deployedTo": "PRODUCTION",
        |   "collaborators": [

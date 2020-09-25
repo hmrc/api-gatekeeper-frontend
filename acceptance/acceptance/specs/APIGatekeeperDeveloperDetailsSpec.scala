@@ -18,16 +18,19 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
-import acceptance.matchers.CustomMatchers
 import acceptance.pages._
-import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+import model.User
+import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
+class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with Assertions {
+
+  val developers = List[User] {
+    new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
+  }
 
   info("AS A Gatekeeper superuser")
   info("I WANT to be able to view the applications an administrator/developer is on")
@@ -44,7 +47,7 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(OK)))
       stubApplicationForEmail()
-      stubApplication()
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
       stubApiDefinition()
       stubDevelopers()
       stubDeveloper()
@@ -53,53 +56,38 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       signInGatekeeper()
       on(ApplicationsPage)
 
-            When("I select to navigate to the Developers page")
-            ApplicationsPage.selectDevelopers()
-            DeveloperPage.selectOldDevelopersPage()
+      When("I select to navigate to the Developers page")
+      ApplicationsPage.selectDevelopers()
+      DeveloperPage.selectOldDevelopersPage()
 
-            Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
-            on(DeveloperPage)
+      Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
+      on(DeveloperPage)
 
-            When("I select a developer email")
-            DeveloperPage.selectByDeveloperEmail(developer8)
+      When("I select a developer email")
+      DeveloperPage.selectByDeveloperEmail(newDeveloper8)
 
-            Then("I am successfully navigated to the Developer Details page")
-            on(DeveloperDetailsPage)
+      Then("I am successfully navigated to the Developer Details page")
+      on(DeveloperDetailsPage)
 
-            And("I can see the developer's details and associated applications")
-            assert(DeveloperDetailsPage.firstName == "Dixie")
-            assert(DeveloperDetailsPage.lastName == "Fakename")
-            assert(DeveloperDetailsPage.status == "not yet verified")
-            assert(DeveloperDetailsPage.mfaEnabled == "Yes")
+      And("I can see the developer's details and associated applications")
+      assert(DeveloperDetailsPage.firstName == s"$newDeveloper8FirstName")
+      assert(DeveloperDetailsPage.lastName == s"$newDeveloper8LastName")
+      assert(DeveloperDetailsPage.status == "not yet verified")
+      assert(DeveloperDetailsPage.mfaEnabled == "Yes")
 
-            When("I select an associated application")
-            DeveloperDetailsPage.selectByApplicationName("Automated Test Application")
+      When("I select an associated application")
+      DeveloperDetailsPage.selectByApplicationName("My new app")
 
-            Then("I am successfully navigated to the Automated Test Application page")
-            on(ApplicationPage)
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(NewApplicationPage)
     }
   }
 
-  def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-      .withBody(applicationResponse).withStatus(OK)))
-  }
-
-  def stubApplication() = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-  }
-
   def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String) = {
@@ -112,14 +100,6 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
       .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(OK)))
   }
 
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-  }
-
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
@@ -130,10 +110,10 @@ class APIGatekeeperDeveloperDetailsSpec extends BaseSpec with SignInSugar with M
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(user)))
+      .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
   }
 
   case class TestUser(firstName: String, lastName:String, emailAddress:String)

@@ -47,7 +47,7 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
       on(NewDeleteApplicationSuccessPage)
-      assert(DeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
+      assert(NewDeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
     }
   }
 
