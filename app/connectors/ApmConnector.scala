@@ -51,4 +51,3 @@ object ApmConnector {
       serviceBaseUrl: String
   )
 }
-

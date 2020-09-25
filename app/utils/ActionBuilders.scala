@@ -25,7 +25,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
-import cats.data.OptionT
 import play.api.libs.json.Json
 
 trait ActionBuilders extends ErrorHelper {

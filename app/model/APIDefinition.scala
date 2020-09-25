@@ -128,7 +128,6 @@ object APIAccessType extends Enumeration {
 
 case class APIIdentifier(context: ApiContext, version: ApiVersion)
 object APIIdentifier {
-  // implicit val format = Json.format[APIIdentifier]
   def random() = APIIdentifier(ApiContext.random, ApiVersion.random)
 }
 
@@ -138,11 +137,6 @@ class FetchApiCategoriesFailed extends Throwable
 case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
 
 case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
-
-object SubscriptionResponse {
-  // implicit val format1 = Json.format[APIIdentifier]
-  // implicit val format2 = Json.format[SubscriptionResponse]
-}
 
 case class Subscription(name: String,
                         serviceName: String,

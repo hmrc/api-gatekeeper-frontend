@@ -34,5 +34,4 @@ class ApmService @Inject() (apmConnector: ApmConnector)(implicit ec: ExecutionCo
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
   }
-
 }

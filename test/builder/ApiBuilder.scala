@@ -63,5 +63,4 @@ trait ApiBuilder {
     isTestSupport = false,
     versions = Map(VersionOne -> DefaultVersionData)
   )
-
 }

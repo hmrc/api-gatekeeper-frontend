@@ -26,8 +26,6 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with New
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  // val unblockedAppName = "Automated Test Application"
-
   feature("Unblock an application") {
     scenario("I can unblock an application") {
       stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
