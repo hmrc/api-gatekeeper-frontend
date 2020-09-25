@@ -27,14 +27,3 @@ case class ApiData(
     name: String,
     isTestSupport: Boolean,
     versions: Map[ApiVersion, VersionData])
-
-
-// TODO - Sort this idea
-object Bob {
-    import model._
-    type ContextVersions[C,V] = Map[ApiContext, (C, Map[ApiVersion, V])]
-
-    case class ApiVersionData[V](apiVersion: ApiVersion, data: V)
-    case class ApiContextData[C,V](apiContext: ApiContext, data: C, versions: ApiVersionData[V])
-    type ContextVersionsSeqs[C,V] = Seq[(ApiContext, C, Seq[(ApiVersion, V)])]
-}
