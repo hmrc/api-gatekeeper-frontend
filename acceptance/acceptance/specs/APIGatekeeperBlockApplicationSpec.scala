@@ -20,20 +20,19 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
+import acceptance.WebPage
 
-class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
+class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
-  val appName = "Automated Test Application"
-
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(unblockedApplication, developers)
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(appName, ApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -44,31 +43,59 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec {
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(blockedApplication, developers)
+      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(appName, ApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage)
 
       Then("I cannot see the block button")
-      ApplicationPage.bodyText.contains("Block application") shouldBe false
+      BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
     }
   }
 
   def selectToBlockApplication() = {
     When("I select the Block Application Button")
+    stubUnblockedApplication()
     ApplicationPage.selectBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")
     on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    BlockApplicationPage.completeForm(appName)
+    BlockApplicationPage.completeForm(newApplicationName)
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()
   }
 
   def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/block")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/block")).willReturn(aResponse().withStatus(OK)))
+  }
+
+  def stubUnblockedApplication() {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+  }
+
+  def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
+    Given("I have successfully logged in to the API Gatekeeper")
+    stubApplicationList()
+
+    stubApplicationSubscription(developers)
+    stubApiDefinition()
+
+    signInAdminUserGatekeeper
+    on(ApplicationsPage)
+
+    When("I select to navigate to the Applications page")
+    DashboardPage.selectApplications()
+
+    Then("I am successfully navigated to the Applications page where I can view all applications")
+    on(ApplicationsPage)
+
+    When(s"I select to navigate to the application named $appName")
+    ApplicationsPage.selectByApplicationName(appName)
+
+    Then(s"I am successfully navigated to the application named $appName")
+    on(page)
   }
 }

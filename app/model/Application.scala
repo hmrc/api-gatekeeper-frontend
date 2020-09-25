@@ -37,7 +37,7 @@ object ApplicationId {
   import play.api.libs.json.Json
   implicit val applicationIdFormat = Json.valueFormat[ApplicationId]
 
-  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString())
+  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString)
 }
 
 case class ClientId(value: String) extends AnyVal {
@@ -49,7 +49,7 @@ object ClientId {
   implicit val clientIdFormat = Json.valueFormat[ClientId]
 
   def empty: ClientId = ClientId("")
-  def random: ClientId = ClientId(UUID.randomUUID().toString())
+  def random: ClientId = ClientId(UUID.randomUUID().toString)
 }
 
 trait Application {
@@ -78,7 +78,17 @@ case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             providedPrivacyPolicyURL: Boolean = false,
                             providedTermsAndConditionsURL: Boolean = false,
                             applicationDetails: Option[String] = None,
-                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
+                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty) {
+
+  def latestTOUAgreement: Option[TermsOfUseAgreement] = {
+    implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+    
+    termsOfUseAgreements match {
+      case Nil => None
+      case agreements => Option(agreements.maxBy(_.timeStamp))
+    }
+  }
+}
 
 object CheckInformation {
 
@@ -208,7 +218,6 @@ object ApplicationResponse {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = EnumJson.enumFormat(State)
@@ -269,55 +278,6 @@ case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
-case class SubscribedApplicationResponse(id: ApplicationId,
-                                         name: String,
-                                         description: Option[String] = None,
-                                         collaborators: Set[Collaborator],
-                                         createdOn: DateTime,
-                                         state: ApplicationState,
-                                         access: Access,
-                                         subscriptions: Seq[SubscriptionNameAndVersion],
-                                         termsOfUseAgreed: Boolean,
-                                         deployedTo: String,
-                                         clientId: ClientId = ClientId.empty) extends Application
-
-
-object SubscribedApplicationResponse {
-  implicit val format1 = Json.format[APIIdentifier]
-  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = EnumJson.enumFormat(State)
-  implicit val format4 = Json.format[ApplicationState]
-  implicit val formatTotpIds = Json.format[TotpIds]
-  private implicit val formatStandard = Json.format[Standard]
-  private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc = Json.format[Ropc]
-  implicit val formatAccess = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[Ropc](AccessType.ROPC.toString)
-    .format
-  implicit val format5 = Json.format[SubscriptionNameAndVersion]
-  implicit val format6 = Json.format[SubscribedApplicationResponse]
-
-  private def isTermsOfUseAccepted(checkInformation: CheckInformation): Boolean = {
-    checkInformation.termsOfUseAgreements.nonEmpty
-  }
-
-  def createFrom(appResponse: ApplicationResponse, subscriptions: Seq[SubscriptionNameAndVersion]) =
-    SubscribedApplicationResponse(appResponse.id, appResponse.name, appResponse.description, appResponse.collaborators, appResponse.createdOn,
-      appResponse.state, appResponse.access, subscriptions, appResponse.checkInformation.exists(isTermsOfUseAccepted), appResponse.deployedTo)
-}
-
-case class PaginatedSubscribedApplicationResponse(applications: Seq[SubscribedApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
-
-object PaginatedSubscribedApplicationResponse {
-  def apply(par: PaginatedApplicationResponse, apps: Seq[SubscribedApplicationResponse]) =
-    new PaginatedSubscribedApplicationResponse(apps, par.page, par.pageSize, par.total, par.matching)
-
-  implicit val format = Json.format[PaginatedSubscribedApplicationResponse]
-}
-
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
@@ -346,6 +306,13 @@ object Environment extends Enumeration {
   type Environment = Value
   val SANDBOX, PRODUCTION = Value
   implicit val format = EnumJson.enumFormat(Environment)
+
+  implicit class Display(e: Environment) {
+    def asDisplayed() = e match {
+      case SANDBOX => "Sandbox"
+      case PRODUCTION => "Production"
+    }
+  }
 }
 
 object CollaboratorRole extends Enumeration {

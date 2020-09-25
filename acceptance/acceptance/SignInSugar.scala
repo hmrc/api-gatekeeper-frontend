@@ -147,7 +147,7 @@ trait SignInSugar extends NavigationSugar {
 
   private def setupAuthCall(requestJson: String, responseJson: String)(implicit webDriver: WebDriver) = {
     stubFor(post(urlPathEqualTo("/auth/authorise"))
-      .withRequestBody(equalToJson(requestJson.toString))
+      .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse()
         .withBody(responseJson)
         .withStatus(OK)))

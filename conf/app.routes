@@ -31,9 +31,9 @@ POST        /applications/:id/ip-allowlist/manage                             co
 GET         /applications/:id/access/overrides                                controllers.ApplicationController.manageAccessOverrides(id: model.ApplicationId)
 POST        /applications/:id/access/overrides                                controllers.ApplicationController.updateAccessOverrides(id: model.ApplicationId)
 
-GET         /applications/:id/subscriptions                                   controllers.ApplicationController.manageSubscription(id: model.ApplicationId)
-POST        /applications/:id/subscriptions/subscribe                         controllers.ApplicationController.subscribeToApi(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
-POST        /applications/:id/subscriptions/unsubscribe                       controllers.ApplicationController.unsubscribeFromApi(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
+GET         /applications/:id/subscriptions                                   controllers.SubscriptionController.manageSubscription(id: model.ApplicationId)
+POST        /applications/:id/subscriptions/subscribe                         controllers.SubscriptionController.subscribeToApi(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
+POST        /applications/:id/subscriptions/unsubscribe                       controllers.SubscriptionController.unsubscribeFromApi(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
 
 GET         /applications/:id/subscriptions-configuration                     controllers.SubscriptionConfigurationController.listConfigurations(id: model.ApplicationId)
 GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)

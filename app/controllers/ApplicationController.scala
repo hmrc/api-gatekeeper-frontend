@@ -21,13 +21,15 @@ import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Forms._
+import model.SubscriptionFields.Fields.Alias
+import model.view.ApplicationViewModel
 import model.UpliftAction.{APPROVE, REJECT}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService}
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
@@ -38,6 +40,8 @@ import views.html.review.ReviewView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import model.subscriptions.ApiData
+import model.APIStatus.APIStatus
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -66,7 +70,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       createApplicationSuccessView: CreateApplicationSuccessView,
                                       manageTeamMembersView: ManageTeamMembersView,
                                       addTeamMemberView: AddTeamMemberView,
-                                      removeTeamMemberView: RemoveTeamMemberView
+                                      removeTeamMemberView: RemoveTeamMemberView,
+                                      val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
@@ -86,26 +91,51 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-        withAppAndSubscriptions(appId) { applicationWithSubscriptions =>
-          val app = applicationWithSubscriptions.application
+        withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
+          val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+          val subscriptions: Set[APIIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+          val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
+          val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
 
-          def latestTOUAgreement(appWithHistory: ApplicationWithHistory): Option[TermsOfUseAgreement] = {
-            appWithHistory.application.checkInformation.flatMap {
-              _.termsOfUseAgreements match {
-                case Nil => None
-                case agreements => Option(agreements.maxBy(_.timeStamp))
-              }
+          def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
+            subscriptions.exists(id => id.context == t._1)
+          }
+
+          def filterOutVersions( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
+            val apiContext = t._1
+            val filteredVersions = t._2.versions.filter( versions => subscriptions.contains(APIIdentifier(apiContext, versions._1)))
+            val filteredApiData = t._2.copy(versions = filteredVersions)
+            (apiContext, filteredApiData)
+          }
+
+          def filterForFields( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
+            def hasFields(apiContext: ApiContext, apiVersions: Set[ApiVersion]): Boolean = {
+              subscriptionFieldValues.get(apiContext).flatMap(sfv => sfv.keySet.intersect(apiVersions).headOption).isDefined
+            }
+            val apiContext = t._1
+            val filteredVersions = t._2.versions.filter( versions => hasFields(apiContext, t._2.versions.keySet))
+            val filteredApiData = t._2.copy(versions = filteredVersions)
+            (apiContext, filteredApiData)
+          }
+
+          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, APIStatus)])] = {
+            if(data.versions.isEmpty) {
+              Seq.empty
+            } else {
+              Seq( (data.name, data.versions.toSeq.map(v => (v._1, v._2.status))) ) 
             }
           }
 
-          val subscriptions = applicationWithSubscriptions.subscriptions
-          val subscriptionsWithFields = filterHasSubscriptionFields(subscriptions)
+          for {
+            collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
+            allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
+            subscribedContexts = allPossibleSubs.filter(isSubscribed)
+            subscribedVersions = subscribedContexts.map(filterOutVersions)
+            subscribedWithFields = subscribedVersions.map(filterForFields)
 
-          developerService
-            .fetchDevelopersByEmails(app.application.collaborators.map(colab => colab.emailAddress))
-            .map(devs => {
-              Ok(applicationView(devs.toList, app, subscriptions, subscriptionsWithFields, isAtLeastSuperUser, isAdmin, latestTOUAgreement(app)))
-            })
+            seqOfSubscriptions = subscribedVersions.values.toSeq.flatMap(asSeqOfSeq)
+            subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toSeq.flatMap(asSeqOfSeq)
+          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin)))
         }
   }
 
@@ -121,36 +151,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.fetchApplicationSubscriptions(app.application).map {
-            subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
-          }
-        }
-  }
-
-  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-        }
-  }
-
-  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
-    implicit request =>
-        withApp(appId) { app =>
-          applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.ApplicationController.manageSubscription(appId)))
-        }
-  }
-
   def manageAccessOverrides(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
           app.application.access match {
-            case access: Standard => {
+            case access: Standard =>
               Future.successful(Ok(manageAccessOverridesView(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
-            }
           }
         }
   }

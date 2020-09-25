@@ -25,11 +25,11 @@ class ApplicationSubmissionSpec extends UnitSpec {
     "submittedBy" should {
       "is present" in {
         val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
-        ApplicationSubmission.getSubmittedBy(app) shouldBe Some("actor id")
+        ApplicationSubmission.getSubmittedBy(app.history) shouldBe Some("actor id")
       }
       "is not present" in {
         val app = anApplicationWithHistory()
-        ApplicationSubmission.getSubmittedBy(app) shouldBe None
+        ApplicationSubmission.getSubmittedBy(app.history) shouldBe None
       }
     }
   }

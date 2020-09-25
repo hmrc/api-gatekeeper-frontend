@@ -19,18 +19,26 @@ package utils
 import model._
 import play.api.i18n.Messages
 import play.api.mvc.Result
-import services.ApplicationService
+import services.{ApmService, ApplicationService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
+import model.applications.ApplicationWithSubscriptionData
+import play.api.libs.json.Json
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
+  val apmService: ApmService
 
   def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])
              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
+  }
+  
+  def withAppAndSubsData(appId: ApplicationId)(f: Option[ApplicationWithSubscriptionData] => Future[Result])
+             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap(f)
   }
 
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
@@ -46,6 +54,15 @@ trait ActionBuilders extends ErrorHelper {
           }
         }
       }
+    }
+  }
+
+  def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
+                                         (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap {
+      case Some(value) =>
+        applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+      case None => Future.successful(notFound("Application not found"))
     }
   }
 

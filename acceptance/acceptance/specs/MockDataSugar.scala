@@ -29,6 +29,9 @@ trait MockDataSugar {
   val approvedApp4 = "56148b28-65b0-47dd-a3ce-2f02840ddd31"
   val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
   val appUnblock = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
+  val appName = "Automated Test Application"
+  val blockedAppName = "Automated Test Application"
+  val appRequiringApprovalAppName = "Application requiring approval"
 
   val applicationDescription = "application description"
   val adminEmail = "admin@example.com"
@@ -80,6 +83,465 @@ trait MockDataSugar {
   val statusVerified = "verified"
   val statusUnverified = "not yet verified"
   val statusUnregistered = "not registered"
+
+  val applicationWithSubscriptionData =
+    s"""{
+        |   "application": {
+        |       "id": "$appToDelete",
+        |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+        |       "blocked": false,
+        |       "gatewayId": "12345",
+        |       "rateLimitTier": "BRONZE",
+        |       "name": "Application requiring approval",
+        |       "createdOn": "2016-04-08T10:24:40.651Z",
+        |       "lastAccess": "2019-07-01T00:00:00.000Z",
+        |       "deployedTo": "PRODUCTION",
+        |       "description": "$applicationDescription",
+        |       "collaborators": [
+        |           {
+        |               "emailAddress": "$adminEmail",
+        |               "role": "ADMINISTRATOR"
+        |           },
+        |           {
+        |               "emailAddress": "$developer",
+        |               "role": "DEVELOPER"
+        |           },
+        |           {
+        |               "emailAddress": "$developer8",
+        |               "role": "DEVELOPER"
+        |           }
+        |       ],
+        |       "access": {
+        |       "redirectUris": [
+        |           "http://localhost:8080/callback"
+        |       ],
+        |       "termsAndConditionsUrl": "http://localhost:22222/terms",
+        |       "privacyPolicyUrl": "http://localhost:22222/privacy",
+        |       "overrides": [],
+        |       "accessType": "STANDARD"
+        |       },
+        |       "state": {
+        |           "name": "PRODUCTION",
+        |           "requestedByEmailAddress": "$adminEmail",
+        |           "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+        |           "updatedOn": "2016-04-08T11:11:18.463Z"
+        |       },
+        |       "checkInformation": {
+        |         "contactDetails": {
+        |           "fullname": "Holly Golightly",
+        |           "email": "holly.golightly@example.com",
+        |           "telephoneNumber": "020 1122 3344"
+        |         },
+        |         "confirmedName": true,
+        |         "providedPrivacyPolicyURL": true,
+        |         "providedTermsAndConditionsURL": true,
+        |         "applicationDetails": "An application that is pending approval",
+        |         "termsOfUseAgreements": [{
+        |           "emailAddress": "test@example.com",
+        |           "timeStamp": 1459868573962,
+        |           "version": "1.0"
+        |         }]
+        |       },
+        |       "ipWhitelist": []
+        |   },
+        |   "subscriptions": [
+        |       {
+        |       "context": "marriage-allowance",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "api-simulator",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "hello",
+        |       "version": "1.0"
+        |       }
+        |   ],
+        |   "subscriptionFieldValues": {}
+        |}""".stripMargin
+
+  val stateHistory = s"""
+        |[
+        |  {
+        |    "applicationId": "$approvedApp1",
+        |    "state": "TESTING",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:21:50.160+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$approvedApp1",
+        |    "state": "PENDING_GATEKEEPER_APPROVAL",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:23:10.644+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$approvedApp1",
+        |    "state": "PENDING_REQUESTER_VERIFICATION",
+        |    "actor": {
+        |      "id": "gatekeeper.username"
+        |    },
+        |    "changedAt": "2020-07-22T15:12:38.686+01:00"
+        |  }
+        |]""".stripMargin
+
+  val applicationWithSubscriptionDataToBlock =
+    s"""{
+        |   "application": {
+        |       "id": "$appToDelete",
+        |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+        |       "blocked": false,
+        |       "gatewayId": "12345",
+        |       "rateLimitTier": "BRONZE",
+        |       "name": "$appName",
+        |       "createdOn": "2016-04-08T10:24:40.651Z",
+        |       "lastAccess": "2019-07-01T00:00:00.000Z",
+        |       "deployedTo": "PRODUCTION",
+        |       "description": "$applicationDescription",
+        |       "collaborators": [
+        |           {
+        |               "emailAddress": "$adminEmail",
+        |               "role": "ADMINISTRATOR"
+        |           },
+        |           {
+        |               "emailAddress": "$developer",
+        |               "role": "DEVELOPER"
+        |           },
+        |           {
+        |               "emailAddress": "$developer8",
+        |               "role": "DEVELOPER"
+        |           }
+        |       ],
+        |       "access": {
+        |       "redirectUris": [
+        |           "http://localhost:8080/callback"
+        |       ],
+        |       "termsAndConditionsUrl": "http://localhost:22222/terms",
+        |       "privacyPolicyUrl": "http://localhost:22222/privacy",
+        |       "overrides": [],
+        |       "accessType": "STANDARD"
+        |       },
+        |       "state": {
+        |           "name": "PRODUCTION",
+        |           "requestedByEmailAddress": "$adminEmail",
+        |           "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+        |           "updatedOn": "2016-04-08T11:11:18.463Z"
+        |       },
+        |       "checkInformation": {
+        |         "contactDetails": {
+        |           "fullname": "Holly Golightly",
+        |           "email": "holly.golightly@example.com",
+        |           "telephoneNumber": "020 1122 3344"
+        |         },
+        |         "confirmedName": true,
+        |         "providedPrivacyPolicyURL": true,
+        |         "providedTermsAndConditionsURL": true,
+        |         "applicationDetails": "An application that is pending approval",
+        |         "termsOfUseAgreements": [{
+        |           "emailAddress": "test@example.com",
+        |           "timeStamp": 1459868573962,
+        |           "version": "1.0"
+        |         }]
+        |       },
+        |       "ipWhitelist": []
+        |   },
+        |   "subscriptions": [
+        |       {
+        |       "context": "marriage-allowance",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "api-simulator",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "hello",
+        |       "version": "1.0"
+        |       }
+        |   ],
+        |   "subscriptionFieldValues": {}
+        |}""".stripMargin
+
+  val stateHistoryToBlock = s"""
+        |[
+        |  {
+        |    "applicationId": "$appToDelete",
+        |    "state": "TESTING",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:21:50.160+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$appToDelete",
+        |    "state": "PENDING_GATEKEEPER_APPROVAL",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:23:10.644+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$appToDelete",
+        |    "state": "PENDING_REQUESTER_VERIFICATION",
+        |    "actor": {
+        |      "id": "gatekeeper.username"
+        |    },
+        |    "changedAt": "2020-07-22T15:12:38.686+01:00"
+        |  }
+        |]""".stripMargin
+
+  val applicationWithSubscriptionDataToUnblock =
+    s"""{
+        |   "application": {
+        |       "id": "$appUnblock",
+        |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+        |       "blocked": true,
+        |       "gatewayId": "12345",
+        |       "rateLimitTier": "BRONZE",
+        |       "name": "$blockedAppName",
+        |       "createdOn": "2016-04-08T10:24:40.651Z",
+        |       "lastAccess": "2019-07-01T00:00:00.000Z",
+        |       "deployedTo": "PRODUCTION",
+        |       "description": "$applicationDescription",
+        |       "collaborators": [
+        |           {
+        |               "emailAddress": "$adminEmail",
+        |               "role": "ADMINISTRATOR"
+        |           },
+        |           {
+        |               "emailAddress": "$developer",
+        |               "role": "DEVELOPER"
+        |           },
+        |           {
+        |               "emailAddress": "$developer8",
+        |               "role": "DEVELOPER"
+        |           }
+        |       ],
+        |       "access": {
+        |       "redirectUris": [
+        |           "http://localhost:8080/callback"
+        |       ],
+        |       "termsAndConditionsUrl": "http://localhost:22222/terms",
+        |       "privacyPolicyUrl": "http://localhost:22222/privacy",
+        |       "overrides": [],
+        |       "accessType": "STANDARD"
+        |       },
+        |       "state": {
+        |           "name": "PRODUCTION",
+        |           "requestedByEmailAddress": "$adminEmail",
+        |           "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+        |           "updatedOn": "2016-04-08T11:11:18.463Z"
+        |       },
+        |       "checkInformation": {
+        |         "contactDetails": {
+        |           "fullname": "Holly Golightly",
+        |           "email": "holly.golightly@example.com",
+        |           "telephoneNumber": "020 1122 3344"
+        |         },
+        |         "confirmedName": true,
+        |         "providedPrivacyPolicyURL": true,
+        |         "providedTermsAndConditionsURL": true,
+        |         "applicationDetails": "An application that is pending approval",
+        |         "termsOfUseAgreements": [{
+        |           "emailAddress": "test@example.com",
+        |           "timeStamp": 1459868573962,
+        |           "version": "1.0"
+        |         }]
+        |       },
+        |       "ipWhitelist": []
+        |   },
+        |   "subscriptions": [
+        |       {
+        |       "context": "marriage-allowance",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "api-simulator",
+        |       "version": "1.0"
+        |       },
+        |       {
+        |       "context": "hello",
+        |       "version": "1.0"
+        |       }
+        |   ],
+        |   "subscriptionFieldValues": {}
+        |}""".stripMargin
+
+  val stateHistoryToUnblock = s"""
+        |[
+        |  {
+        |    "applicationId": "$appUnblock",
+        |    "state": "TESTING",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:21:50.160+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$appUnblock",
+        |    "state": "PENDING_GATEKEEPER_APPROVAL",
+        |    "actor": {
+        |      "id": "$adminEmail"
+        |    },
+        |    "changedAt": "2019-08-22T11:23:10.644+01:00"
+        |  },
+        |  {
+        |    "applicationId": "$appUnblock",
+        |    "state": "PENDING_REQUESTER_VERIFICATION",
+        |    "actor": {
+        |      "id": "gatekeeper.username"
+        |    },
+        |    "changedAt": "2020-07-22T15:12:38.686+01:00"
+        |  }
+        |]""".stripMargin
+
+  val allSubscribeableApis =
+  s"""
+  |{
+    | "marriage-allowance": {
+    |     "serviceName": "marriage-allowance",
+    |     "name": "Marriage Allowance",
+    |     "isTestSupport": false,
+    |     "versions": {
+    |         "2.0": {
+    |             "status": "BETA",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         }
+    |     }
+    | },
+    | "api-simulator": {
+    |   "serviceName": "api-simulator",
+    |   "name": "API Simulator",
+    |   "isTestSupport": false,
+    |   "versions": {
+    |       "1.0": {
+    |           "status": "STABLE",
+    |           "access": {
+    |               "type": "PUBLIC"
+    |           }
+    |       }
+    |   }
+    | },
+    | "hello": {
+    |   "serviceName": "api-example-microservice",
+    |   "name": "Hello World",
+    |   "isTestSupport": false,
+    |   "versions": {
+    |       "1.0": {
+    |           "status": "STABLE",
+    |           "access": {
+    |               "type": "PUBLIC"
+    |           }
+    |       }
+    |   }
+    | },
+    |     "notifications": {
+    |     "serviceName": "api-notification-pull",
+    |     "name": "Pull Notifications",
+    |     "isTestSupport": false,
+    |     "versions": {
+    |         "1.0": {
+    |             "status": "BETA",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         }
+    |     }
+    | },
+    | "test/api-platform-test": {
+    |     "serviceName": "api-platform-test",
+    |     "name": "API Platform Test",
+    |     "isTestSupport": false,
+    |     "versions": {
+    |         "7.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "6.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "5.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "4.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "3.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "2.3": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "2.2": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "2.1": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "2.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "1.0": {
+    |             "status": "STABLE",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         }
+    |     }
+    | },
+    | "customs/inventory-linking/exports": {
+    |     "serviceName": "customs-inventory-linking-exports",
+    |     "name": "Customs Inventory Linking Exports",
+    |     "isTestSupport": false,
+    |     "versions": {
+    |         "2.0": {
+    |             "status": "BETA",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         },
+    |         "1.0": {
+    |             "status": "BETA",
+    |             "access": {
+    |                 "type": "PUBLIC"
+    |             }
+    |         }
+    |     }
+    | }
+  |}
+  | """.stripMargin
 
   val applicationsPendingApproval =
     s"""

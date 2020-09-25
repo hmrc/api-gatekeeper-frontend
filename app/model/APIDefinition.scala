@@ -30,8 +30,6 @@ case class ApiContext(value: String) extends AnyVal {
 
 object ApiContext {
 
-  implicit val formatApiContext = Json.valueFormat[ApiContext]
-
   implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
@@ -45,13 +43,11 @@ case class ApiVersion(value: String) extends AnyVal {
 
 object ApiVersion {
 
-  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
-
   implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiVersion((Random.nextDouble()).toString)
+  def random = ApiVersion(Random.nextDouble().toString)
 }
 
 case class APIDefinition(serviceName: String,
@@ -93,7 +89,7 @@ object APICategory{
 }
 
 case class APICategoryDetails(category: String, name: String){
-  def toAPICategory(): APICategory ={
+  def toAPICategory: APICategory ={
     APICategory(category)
   }
 }
@@ -132,7 +128,7 @@ object APIAccessType extends Enumeration {
 
 case class APIIdentifier(context: ApiContext, version: ApiVersion)
 object APIIdentifier {
-  implicit val format = Json.format[APIIdentifier]
+  def random() = APIIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 class FetchApiDefinitionsFailed extends Throwable
@@ -141,11 +137,6 @@ class FetchApiCategoriesFailed extends Throwable
 case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
 
 case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
-
-object SubscriptionResponse {
-  implicit val format1 = Json.format[APIIdentifier]
-  implicit val format2 = Json.format[SubscriptionResponse]
-}
 
 case class Subscription(name: String,
                         serviceName: String,

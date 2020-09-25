@@ -66,7 +66,7 @@
 
             @for((linkType, i) <- pageNumbers(maxPage)) {
                 @if(linkType == "href") {
-                    <a href="@pageUrl("page" -> s"${i}")" class="paginate_button @if(i == page){current}" tabindex="0">@i</a>
+                    <a href="@pageUrl("page" -> s"$i")" class="paginate_button @if(i == page){current}" tabindex="0">@i</a>
                 } else {
                     <span class="ellipsis">…</span>
                 }

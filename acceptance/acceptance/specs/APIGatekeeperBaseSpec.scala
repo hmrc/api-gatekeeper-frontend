@@ -29,26 +29,43 @@ import play.api.libs.json.Json
 import scala.io.Source
 
 class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
-  def stubApplication(application: String, developers: List[User]) = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73216/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+  def stubNewApplication(application: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  }
 
+  def stubStateHistory(stateHistory: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$appId/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+  }
+
+  def stubApiDefintionsForApplication(apiDefinitions: String, appId: String) = {
+    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
+  }
+
+  def stubDevelopers(developers: List[User]) = {
     stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubBlockedApplication(application: String, developers: List[User]) = {
+  def stubApplication(application: String, developers: List[User], stateHistory: String, appId: String) = {
+    stubNewApplication(application, appId)
+    stubStateHistory(stateHistory, appId)
+    stubApiDefintionsForApplication(allSubscribeableApis, appId)
+    stubDevelopers(developers)
+  }
+  
+  def stubUnblockedApplication(application: String) {
+    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  }
+
+  def stubBlockedApplication(application: String) {
     stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/fa38d130-7c8e-47d8-abc0-0374c7f73217/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 
   def stubApplicationList() = {
     stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applications).withStatus(OK)))
+
+    val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
+    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }
 
   def stubApiDefinition() = {
@@ -67,10 +84,6 @@ class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[User]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
-
-    val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-    stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
 
     stubApplicationSubscription(developers)
     stubApiDefinition()

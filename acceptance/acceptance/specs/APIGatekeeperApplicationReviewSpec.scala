@@ -23,9 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-import scala.io.Source
-
-class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
+class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewApplicationPendingApprovalTestData {
 
   val developers = List[User]{new User("holly.golightly@example.com", "holly", "golightly", None, None, false)}
 
@@ -50,37 +48,30 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
 
       on(ApplicationsPage)
-      stubApplicationToReview(developers)
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Application requiring approval")
+      ApplicationsPage.selectByApplicationName(newApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
-      verifyText("data-checked-on", "05 April 2016")
-      verifyText("data-checked-by", "gatekeeper.username")
 
       stubApplicationToReview(developers)
       clickOnReview("review")
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
+      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
       clickOnElement("approve-app")
 
-      stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/approve-uplift"))
+      stubFor(post(urlMatching(s"/application/$newApplicationWithSubscriptionDataId/approve-uplift"))
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
@@ -94,36 +85,32 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(developers)
       stubApiDefinition()
       signInSuperUserGatekeeper()
+
       on(ApplicationsPage)
-      stubApplicationToReview(developers)
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Application requiring approval")
+      ApplicationsPage.selectByApplicationName(newApplicationName)
+
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
-      verifyText("data-checked-on", "05 April 2016")
-      verifyText("data-checked-by", "gatekeeper.username")
 
       stubApplicationToReview(developers)
       clickOnReview("review")
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
-      clickOnSubmit()
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
-      verifyText("data-global-error", "Review the application")
 
+      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      clickOnSubmit()
+
+      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      verifyText("data-global-error", "Review the application")
     }
   }
 
@@ -132,69 +119,41 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec {
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
-      val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
-      stubFor(get(urlMatching("/applications.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
-
-      stubApplicationSubscription(List())
       stubApiDefinition()
       signInSuperUserGatekeeper()
+
       on(ApplicationsPage)
-      stubApplicationToReview(List())
+      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("Application requiring approval")
+      ApplicationsPage.selectByApplicationName(newApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
 
-      verifyText("data-submitted-on", "22 March 2016")
+      verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
-      verifyText("data-checked-on", "05 April 2016")
-      verifyText("data-checked-by", "gatekeeper.username")
 
-      stubApplicationToReview(List())
+      stubApplicationToReview(developers)
       clickOnReview("review")
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
+
+      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
       clickOnElement("reject-app")
-      stubFor(post(urlMatching(s"/application/$appPendingApprovalId1/reject-uplift"))
+
+      stubFor(post(urlMatching(s"/application/$newApplicationWithSubscriptionDataId/reject-uplift"))
         .withRequestBody(equalToJson(rejectRequest))
         .willReturn(aResponse().withStatus(200)))
       clickOnSubmit()
-      on(ReviewPage(appPendingApprovalId1, "First Application"))
+
+      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
       verifyText("data-global-error", "This field is required")
-
-
     }
   }
 
   def stubApplicationToReview(developers: List[User]) = {
-    stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff")).willReturn(aResponse().withBody(applicationToReview).withStatus(OK)))
-    stubFor(get(urlEqualTo("/gatekeeper/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody("[]").withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
   }
-
-  def stubApplicationListWithNoSubs() = {
-    stubFor(get(urlEqualTo("/gatekeeper/resources/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application")).willReturn(aResponse().withBody(applicationWithNoSubscription).withStatus(OK)))
-  }
-
-  def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
-
-    stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(user)))
-  }
-
-  def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
-
-    stubFor(get(urlPathEqualTo("/developer/resources/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(OK)))
-  }
-
 }

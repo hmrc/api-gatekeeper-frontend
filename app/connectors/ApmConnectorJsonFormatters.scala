@@ -16,13 +16,16 @@
 
 package connectors
 
-// import domain.services.{ApiDefinitionsJsonFormatters, ApplicationsJsonFormatters}
+import model.APIStatusJson
+import model.APIDefinitionFormatters
+import model.applications.ApplicationWithSubscriptionData
 
-private[connectors] object ApmConnectorJsonFormatters {//extends ApplicationsJsonFormatters with ApiDefinitionsJsonFormatters {
+private[connectors] object ApmConnectorJsonFormatters extends APIStatusJson with APIDefinitionFormatters {
 
-  // import domain.models.subscriptions._
-  // import play.api.libs.json._
+  import model.subscriptions.{VersionData, ApiData}
+  import play.api.libs.json._
 
-  // implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-  // implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+  implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
+  implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+  implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
 }

@@ -73,7 +73,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         removeMfaSuccessView,
         deleteDeveloperView,
         deleteDeveloperSuccessView,
-        errorTemplateView
+        errorTemplateView,
+        mockApmService
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+import model.applications.ApplicationWithSubscriptionData
 
 case class Role(scope: String, name: String)
 
@@ -73,6 +74,8 @@ case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHi
 
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
+case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: Seq[StateHistory])
+
 object ApplicationWithHistory {
   implicit val formatTotpIds = Json.format[TotpIds]
 
@@ -85,7 +88,6 @@ object ApplicationWithHistory {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val format1 = Json.format[APIIdentifier]
   implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]

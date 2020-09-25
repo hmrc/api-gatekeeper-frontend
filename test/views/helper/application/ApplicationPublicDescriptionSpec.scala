@@ -18,16 +18,17 @@ package views.helper.application
 
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.ApplicationGenerator._
+import builder.ApplicationBuilder
 
-class ApplicationPublicDescriptionSpec extends UnitSpec {
+class ApplicationPublicDescriptionSpec extends UnitSpec with ApplicationBuilder {
   "ApplicationsPublicDescription" when {
     "submittedBy" should {
       "is present" in {
-        val app = anApplicationResponseWith(aCheckInformation())
+        val app = buildApplication().withCheckInformation(aCheckInformation())
         ApplicationPublicDescription.apply(app) shouldBe Some("application details")
       }
       "is not present" in {
-        val app = anApplicationResponse()
+        val app = buildApplication()
         ApplicationPublicDescription.apply(app) shouldBe None
       }
     }

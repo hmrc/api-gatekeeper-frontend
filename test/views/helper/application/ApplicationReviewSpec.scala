@@ -32,19 +32,19 @@ class ApplicationReviewSpec extends UnitSpec {
       val appResponse = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {
-        ApplicationReview.getApprovedBy(app) shouldBe Some("actor id")
+        ApplicationReview.getApprovedBy(app.history) shouldBe Some("actor id")
       }
       "approved on return Some" in {
-        ApplicationReview.getApprovedOn(app) shouldBe Some(dateFormatter.print(now))
+        ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.print(now))
       }
       "review contact name return Some" in {
-        ApplicationReview.getReviewContactName(appResponse) shouldBe Some("contactFullName")
+        ApplicationReview.getReviewContactName(appResponse.checkInformation) shouldBe Some("contactFullName")
       }
       "review contact email return Some" in {
-        ApplicationReview.getReviewContactEmail(appResponse) shouldBe Some("contactEmail")
+        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactEmail")
       }
       "review contact telephone return Some" in {
-        ApplicationReview.getReviewContactTelephone(appResponse) shouldBe Some("contactTelephone")
+        ApplicationReview.getReviewContactTelephone(appResponse.checkInformation) shouldBe Some("contactTelephone")
       }
     }
     "application is not approved" should {
@@ -52,19 +52,19 @@ class ApplicationReviewSpec extends UnitSpec {
       val app = anApplicationResponse()
 
       "approved by return None" in {
-        ApplicationReview.getApprovedBy(appWithHistory) shouldBe None
+        ApplicationReview.getApprovedBy(appWithHistory.history) shouldBe None
       }
       "approved on return None" in {
-        ApplicationReview.getApprovedOn(appWithHistory) shouldBe None
+        ApplicationReview.getApprovedOn(appWithHistory.history) shouldBe None
       }
       "review contact name return None" in {
-        ApplicationReview.getReviewContactName(app) shouldBe None
+        ApplicationReview.getReviewContactName(app.checkInformation) shouldBe None
       }
       "review contact email return None" in {
-        ApplicationReview.getReviewContactEmail(app) shouldBe None
+        ApplicationReview.getReviewContactEmail(app.checkInformation) shouldBe None
       }
       "review contact telephone return None" in {
-        ApplicationReview.getReviewContactTelephone(app) shouldBe None
+        ApplicationReview.getReviewContactTelephone(app.checkInformation) shouldBe None
       }
     }
   }

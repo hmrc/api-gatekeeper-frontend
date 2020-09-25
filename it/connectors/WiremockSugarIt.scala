@@ -24,7 +24,7 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 
 trait WiremockSugarIt extends BeforeAndAfterEach {
   this: Suite =>
-  val stubPort = sys.env.getOrElse("WIREMOCK", "22222").toInt
+  val stubPort = sys.env.getOrElse("WIREMOCK", "11111").toInt
   val stubHost = "localhost"
   val wireMockUrl = s"http://$stubHost:$stubPort"
 

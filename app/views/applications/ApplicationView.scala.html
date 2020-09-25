@@ -17,17 +17,20 @@
 @import model.OverrideType.OverrideType
 @import model._
 @import model.State._
+@import model.view.ApplicationViewModel
 @import views.helper.application._
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 @import config.AppConfig
+@import model.APIStatus.APIStatus
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developers: List[User], applicationWithHistory: ApplicationWithHistory, subscriptions: Seq[Subscription], subsWithSubscriptionFields: Seq[Subscription], isAtLeastSuperUser: Boolean, isAdmin: Boolean, maybeLatestTOUAgreement: Option[TermsOfUseAgreement])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(model: ApplicationViewModel)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
-@application = @{applicationWithHistory.application}
-@access = @{application.access}
+@access = @{model.application.access}
+@application = @{model.application}
+@applicationId = @{model.application.id}
 
 @renderScopes(scopes: Set[String]) = {
     <th>
@@ -45,8 +48,8 @@
         }
     </td>
     <td>
-        @if(isAtLeastSuperUser) {
-        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(application.id)}" class="button--link" role="button">Manage</a>
+        @if(model.isAtLeastSuperUser) {
+        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(applicationId)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -89,8 +92,8 @@
         }
     </td>
     <td>
-        @if(isAtLeastSuperUser) {
-            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(application.id)}" class="button--link" role="button">Manage</a>
+        @if(model.isAtLeastSuperUser) {
+            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}" class="button--link" role="button">Manage</a>
         }
     </td>
 }
@@ -106,15 +109,17 @@
     v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
-@renderSubscriptions(subs: Seq[Subscription]) = {
+@renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = {
     @for(subscription <- subs.toIterator) {
         <tr>
             <td>
-                @subscription.name
-                @defining(subscription.versions.filter(_.subscribed).map(_.version)) { subscribedVersions =>
-                    @for((version, index) <- subscribedVersions.zipWithIndex) {
-                        @version.version.value (@APIStatus.displayedStatus(version.status))@if(index != subscribedVersions.length-1) {,}
-                    }
+                @subscription._1
+                @for(versionData <- subscription._2.dropRight(1) ) {
+                    @versionData._1.value (@APIStatus.displayedStatus(versionData._2)),
+                }
+    
+                 @for(versionData <- subscription._2.takeRight(1) ) {
+                    @versionData._1.value (@APIStatus.displayedStatus(versionData._2))
                 }
             </td>
             <td></td>
@@ -150,12 +155,12 @@
     <table>
         <tr>
             <th><h3>Environment</h3></th>
-            <td data-environment>@application.deployedTo.toLowerCase.capitalize</td>
+            <td data-environment>@application.deployedTo.asDisplayed</td>
             <td></td>
         </tr>
         <tr>
             <th><h3>Application ID</h3></th>
-            <td data-app-id>@application.id.value</td>
+            <td data-app-id>@applicationId.value</td>
             <td></td>
         </tr>
         <tr>
@@ -176,9 +181,9 @@
             </td>
             <td>
                 @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
-                    <a href={routes.ApplicationController.reviewPage(application.id).url} class="button--link" role="button" id="review">Check application</a>
+                    <a href={routes.ApplicationController.reviewPage(applicationId).url} class="button--link" role="button" id="review">Check application</a>
                    } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
-                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(application.id).url}>Resend verify email</a>)</span>
+                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
                    }
                 }
             </td>
@@ -196,8 +201,8 @@
         <tr>
             <th><h3>Rate limit tier</h3></th>
             <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
-            <td>@if(isAdmin) {
-                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(application.id)}" class="button--link" role="button">Manage</a>
+            <td>@if(model.isAdmin) {
+                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(applicationId)}" class="button--link" role="button">Manage</a>
                 }</td>
         </tr>
         <tr>
@@ -205,7 +210,7 @@
             <td>
                 <div data-terms>
                     @{
-                        maybeLatestTOUAgreement match{
+                        model.maybeLatestTOUAgreement match {
                             case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
                             case _ =>  <p>Not agreed</p>
                         }
@@ -265,7 +270,7 @@
         </tr>
         <tr>
             <th><h3>Access type</h3></th>
-            <td data-access-type>@AccessType.displayedType(application.access.accessType)</td>
+            <td data-access-type>@AccessType.displayedType(access.accessType)</td>
             <td></td>
         </tr>
         <tr>
@@ -299,7 +304,7 @@
             }
             </td>
             <td>
-            @if(isAtLeastSuperUser) {
+            @if(model.isAtLeastSuperUser) {
                 <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id)}" class="button--link" role="button">Manage</a>
             }
             </td>
@@ -308,27 +313,27 @@
             <th><h3>API subscriptions</h3></th>
             <td data-subscriptions>
               <table class="table-plain">
-                @renderSubscriptions(subscriptions)
+                @renderSubscriptions(model.subscriptions)
                 </table>
             </td>
             <td>
-                @if(isAtLeastSuperUser) {
-                    <a id="manage-subscriptions" href="@{routes.ApplicationController.manageSubscription(application.id)}" class="button--link" role="button">Manage</a>
+                @if(model.isAtLeastSuperUser) {
+                    <a id="manage-subscriptions" href="@{routes.SubscriptionController.manageSubscription(applicationId)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
 
-        @if(subsWithSubscriptionFields.nonEmpty){
+        @if(model.subscriptionsThatHaveFieldDefns.nonEmpty){
             <tr>
                 <th><h3>Subscription configuration</h3></th>
                 <td data-subscriptions>
-                    <table class="table-plain">
-                        @renderSubscriptions(subsWithSubscriptionFields)
+                    <table class="table-plain">                        
+                        @renderSubscriptions(model.subscriptionsThatHaveFieldDefns)
                     </table>
                 </td>
                 <td>
-                    @if(isAtLeastSuperUser) {
-                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}" class="button--link" role="button">Manage</a>
+                    @if(model.isAtLeastSuperUser) {
+                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}" class="button--link" role="button">Manage</a>
                     }
                 </td>
             </tr>
@@ -359,7 +364,7 @@
                                 }
                             }
                         </td>
-                        <td data-collaborator-mfaEnabled>@(developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
+                        <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
                             case true => "Yes"
                             case false => "No"
                             })</td>
@@ -369,8 +374,8 @@
                 </table>
             </td>
             <td class="no-border">
-                @if(isAtLeastSuperUser || application.access.accessType == AccessType.STANDARD) {
-                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(application.id)}" class="button--link" role="button">Manage</a>
+                @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
+                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(applicationId)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>
@@ -409,7 +414,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted on</h3>
             </td>
-            @{ ApplicationSubmission.getSubmittedOn(applicationWithHistory) match {
+            @{ ApplicationSubmission.getSubmittedOn(model.stateHistory) match {
                 case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
                 case None => <td data-submitted-on="" class="faded-text">N/A</td>
                }
@@ -420,7 +425,7 @@
             <td>
                 <h3 class="heading--font-reset">Submitted by</h3>
             </td>
-            @{ApplicationSubmission.getSubmittedBy(applicationWithHistory) match {
+            @{ApplicationSubmission.getSubmittedBy(model.stateHistory) match {
                     case Some(email) =>
                             <td>
                                 <p data-submitted-by-email="">
@@ -437,17 +442,17 @@
                 <h3 class="heading--font-reset">Submission contact</h3>
             </td>
             <td>
-                @{ApplicationReview.getReviewContactName(application) match {
+                @{ApplicationReview.getReviewContactName(application.checkInformation) match {
                     case Some(name) => <p data-submission-contact-name="">{name}</p>
                     case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
                     }
                 }
-                @{ApplicationReview.getReviewContactEmail(application) match {
+                @{ApplicationReview.getReviewContactEmail(application.checkInformation) match {
                         case Some(email) => <p data-submission-contact-email="">{email}</p>
                         case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
                     }
                 }
-                @{ApplicationReview.getReviewContactTelephone(application) match {
+                @{ApplicationReview.getReviewContactTelephone(application.checkInformation) match {
                         case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
                         case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
                     }
@@ -459,7 +464,7 @@
             <td>
                 <h3 class="heading--font-reset">Checked on</h3>
             </td>
-            @{ApplicationReview.getApprovedOn(applicationWithHistory) match {
+            @{ApplicationReview.getApprovedOn(model.stateHistory) match {
                   case Some(approvedOn) => <td data-checked-on="">{approvedOn}</td>
                   case None => <td data-checked-on="" class="faded-text">N/A</td>
                 }
@@ -470,7 +475,7 @@
             <td>
                 <h3 class="heading--font-reset">Checked by</h3>
             </td>
-            @{ApplicationReview.getApprovedBy(applicationWithHistory) match {
+            @{ApplicationReview.getApprovedBy(model.stateHistory) match {
                     case Some(approvedBy) => <td data-checked-by="">{approvedBy}</td>
                     case None => <td data-checked-by="" class="faded-text">N/A</td>
                 }
@@ -479,15 +484,15 @@
         </tr>
     </table>
     <br>
-    @if(isAtLeastSuperUser) {
-        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(application.id)}" class="button--alert text--center">Delete application</a>
+    @if(model.isAtLeastSuperUser) {
+        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="button--alert text--center">Delete application</a>
     }
-    @if(isAdmin) {
+    @if(model.isAdmin) {
         @if(application.state.name == PRODUCTION && !application.blocked) {
-            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(application.id)}" class="button--alert text--center">Block application</a>
+            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="button--alert text--center">Block application</a>
         }
         @if(application.state.name == PRODUCTION && application.blocked) {
-        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(application.id)}" class="button--alert text--center">Unblock application</a>
+        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="button--alert text--center">Unblock application</a>
         }
     }
 </div>

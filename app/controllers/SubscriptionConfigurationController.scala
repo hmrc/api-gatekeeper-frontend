@@ -27,7 +27,7 @@ import play.api.data
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{ApplicationService, SubscriptionFieldsService}
+import services.{ApplicationService, SubscriptionFieldsService, ApmService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
@@ -43,7 +43,8 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
                                                     mcc: MessagesControllerComponents,
                                                     listSubscriptionConfiguration: ListSubscriptionConfigurationView,
                                                     editSubscriptionConfiguration: EditSubscriptionConfigurationView,
-                                                    override val errorTemplate: ErrorTemplate
+                                                    override val errorTemplate: ErrorTemplate,
+                                                    val apmService: ApmService
                                                    )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
@@ -98,7 +99,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           }
 
           def doSaveConfigurations(form: EditApiMetadataForm) = {
-            val fields: Fields = EditApiMetadataForm.toFields(form)
+            val fields: Fields.Alias = EditApiMetadataForm.toFields(form)
 
             subscriptionFieldsService.saveFieldValues(app.application.application, apiContext, version, fields)
             .map({

@@ -107,7 +107,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
 }
 
 @Singleton
-class DummyDeveloperConnector @Inject()(implicit ec: ExecutionContext) extends DeveloperConnector {
+class DummyDeveloperConnector extends DeveloperConnector {
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredCollaborator(email))
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)

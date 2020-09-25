@@ -48,7 +48,8 @@ class SubscriptionConfigurationControllerSpec
       mcc,
       listSubscriptionConfigurationView,
       editSubscriptionConfigurationView,
-      errorTemplateView
+      errorTemplateView,
+      mockApmService
     )
 
     val version = ApiVersion.random

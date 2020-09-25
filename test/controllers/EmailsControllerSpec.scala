@@ -35,6 +35,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import services.ApmService
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -128,8 +129,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.fetchUsers(*)).thenReturn(Future.successful(users))
       }
 
-        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(ApiVersionDefinition(ApiVersion("1"), APIStatus.BETA)), None, categories = Some(Seq(category1.toAPICategory())))
-        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition(ApiVersion("3"), APIStatus.STABLE)), None, categories = Some(Seq(category2.toAPICategory())))
+        val api1 = APIDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), Seq(ApiVersionDefinition(ApiVersion("1"), APIStatus.BETA)), None, categories = Some(Seq(category1.toAPICategory)))
+        val api2 = APIDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), Seq(ApiVersionDefinition(ApiVersion("3"), APIStatus.STABLE)), None, categories = Some(Seq(category2.toAPICategory)))
         val twoApis = Seq(api1, api2)
         def givenApiDefinition2Apis() = {
           when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(any[Option[Environment]])(*))
@@ -160,7 +161,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         forbiddenView,
         mockAuthConnector,
         mcc,
-        errorTemplateView
+        errorTemplateView,
+        mockApmService
       )
 
     }
@@ -478,7 +480,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   }
 
   def verifyUserTable(responseBody: String, users: Seq[User], showZeroUsers: Boolean = false) {
-    if (!users.isEmpty) {
+    if (users.nonEmpty) {
       responseBody should include(s"<div>${users.size} results</div>")
 
       responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
@@ -486,9 +488,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
 
       for ((user, index) <- users.zipWithIndex) {
-        responseBody should include(raw"""<td id="dev-email-${index}" width="45%">${user.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-${index}">${user.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-${index}">${user.lastName}</td>""")
+        responseBody should include(raw"""<td id="dev-email-$index" width="45%">${user.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-$index">${user.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-$index">${user.lastName}</td>""")
       }
     } else {
       if (showZeroUsers) {

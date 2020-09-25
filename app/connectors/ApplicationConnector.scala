@@ -31,7 +31,6 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.Retries
-import model.Subscription._
 import model.ApiContext
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -89,6 +88,12 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     retry{
       http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}")
+    }
+  }
+
+  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[StateHistory]] = {
+    retry {
+      http.GET[Seq[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
     }
   }
 

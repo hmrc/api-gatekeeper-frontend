@@ -40,11 +40,12 @@ object FieldValue {
 }
 
 object SubscriptionFields {
-
-  type Fields = Map[FieldName, FieldValue]
-
-  object Fields {
+  trait Fields {
     val empty = Map.empty[FieldName, FieldValue]
+  }
+
+  object Fields extends Fields {
+    type Alias = Map[FieldName,FieldValue]
   }
 
   def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl: _*)
@@ -70,7 +71,7 @@ object SubscriptionFields {
     }
   }
 
-  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
+  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
   object SubscriptionFieldsPutRequest extends APIDefinitionFormatters {
     implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }
