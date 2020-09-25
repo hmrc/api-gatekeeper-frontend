@@ -15,13 +15,13 @@ import model.ApplicationId
 import model.ClientId
 import model.Environment
 import model.RateLimitTier
-import model.APIIdentifier
 import model.ApiContext
 import model.ApiVersion
 import model.applications.ApplicationWithSubscriptionData
 import play.api.libs.json.Json
+import builder.SubscriptionsBuilder
 
-trait NewApplicationTestData {
+trait NewApplicationTestData extends SubscriptionsBuilder {
   val newApplicationWithSubscriptionDataId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
   val newApplicationDescription = "application description"
   val newAdminEmail = "admin@example.com"
@@ -98,95 +98,96 @@ trait NewApplicationTestData {
   )
 
   val testSubscriptions = Set(
-     APIIdentifier(ApiContext("marriage-allowance"), ApiVersion("1.0")),
-     APIIdentifier(ApiContext("api-simulator"), ApiVersion("1.0")),
-     APIIdentifier(ApiContext("hello"), ApiVersion("1.0"))
+     buildApiIdentifier(ApiContext("marriage-allowance"), ApiVersion("1.0")),
+     buildApiIdentifier(ApiContext("api-simulator"), ApiVersion("1.0")),
+     buildApiIdentifier(ApiContext("hello"), ApiVersion("1.0"))
   )
+
 
   val test = ApplicationWithSubscriptionData(testApplication, testSubscriptions, Map.empty)
 
   import model.APIDefinitionFormatters._
   implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]
 
-  val testAsJson = Json.toJson(test).toString()
+  val newApplicationWithSubscriptionData = Json.toJson(test).toString()
 
-  val newApplicationWithSubscriptionData =
-    s"""
-      |{
-      |   "application": {
-      |       "id": "$newApplicationWithSubscriptionDataId",
-      |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
-      |       "blocked": false,
-      |       "gatewayId": "12345",
-      |       "rateLimitTier": "BRONZE",
-      |       "name": "$newApplicationName",
-      |       "createdOn": "2016-04-08T10:24:40.651Z",
-      |       "lastAccess": "2019-07-01T00:00:00.000Z",
-      |       "deployedTo": "PRODUCTION",
-      |       "description": "$newApplicationDescription",
-      |       "collaborators": [
-      |           {
-      |               "emailAddress": "$newAdminEmail",
-      |               "role": "ADMINISTRATOR"
-      |           },
-      |           {
-      |               "emailAddress": "$newDeveloper",
-      |               "role": "DEVELOPER"
-      |           },
-      |           {
-      |               "emailAddress": "$newDeveloper8",
-      |               "role": "DEVELOPER"
-      |           }
-      |       ],
-      |       "access": {
-      |       "redirectUris": [
-      |           "http://localhost:8080/callback"
-      |       ],
-      |       "termsAndConditionsUrl": "http://localhost:22222/terms",
-      |       "privacyPolicyUrl": "http://localhost:22222/privacy",
-      |       "overrides": [],
-      |       "accessType": "STANDARD"
-      |       },
-      |       "state": {
-      |           "name": "PRODUCTION",
-      |           "requestedByEmailAddress": "$newAdminEmail",
-      |           "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
-      |           "updatedOn": "2016-04-08T11:11:18.463Z"
-      |       },
-      |       "checkInformation": {
-      |         "contactDetails": {
-      |           "fullname": "Holly Golightly",
-      |           "email": "holly.golightly@example.com",
-      |           "telephoneNumber": "020 1122 3344"
-      |         },
-      |         "confirmedName": true,
-      |         "providedPrivacyPolicyURL": true,
-      |         "providedTermsAndConditionsURL": true,
-      |         "applicationDetails": "",
-      |         "termsOfUseAgreements": [{
-      |           "emailAddress": "test@example.com",
-      |           "timeStamp": 1459868573962,
-      |           "version": "1.0"
-      |         }]
-      |       },
-      |       "ipWhitelist": []
-      |   },
-      |   "subscriptions": [
-      |       {
-      |       "context": "marriage-allowance",
-      |       "version": "1.0"
-      |       },
-      |       {
-      |       "context": "api-simulator",
-      |       "version": "1.0"
-      |       },
-      |       {
-      |       "context": "hello",
-      |       "version": "1.0"
-      |       }
-      |   ],
-      |   "subscriptionFieldValues": {}
-      |}""".stripMargin
+//   val newApplicationWithSubscriptionData =
+//     s"""
+//       |{
+//       |   "application": {
+//       |       "id": "$newApplicationWithSubscriptionDataId",
+//       |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+//       |       "blocked": false,
+//       |       "gatewayId": "12345",
+//       |       "rateLimitTier": "BRONZE",
+//       |       "name": "$newApplicationName",
+//       |       "createdOn": "2016-04-08T10:24:40.651Z",
+//       |       "lastAccess": "2019-07-01T00:00:00.000Z",
+//       |       "deployedTo": "PRODUCTION",
+//       |       "description": "$newApplicationDescription",
+//       |       "collaborators": [
+//       |           {
+//       |               "emailAddress": "$newAdminEmail",
+//       |               "role": "ADMINISTRATOR"
+//       |           },
+//       |           {
+//       |               "emailAddress": "$newDeveloper",
+//       |               "role": "DEVELOPER"
+//       |           },
+//       |           {
+//       |               "emailAddress": "$newDeveloper8",
+//       |               "role": "DEVELOPER"
+//       |           }
+//       |       ],
+//       |       "access": {
+//       |       "redirectUris": [
+//       |           "http://localhost:8080/callback"
+//       |       ],
+//       |       "termsAndConditionsUrl": "http://localhost:22222/terms",
+//       |       "privacyPolicyUrl": "http://localhost:22222/privacy",
+//       |       "overrides": [],
+//       |       "accessType": "STANDARD"
+//       |       },
+//       |       "state": {
+//       |           "name": "PRODUCTION",
+//       |           "requestedByEmailAddress": "$newAdminEmail",
+//       |           "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
+//       |           "updatedOn": "2016-04-08T11:11:18.463Z"
+//       |       },
+//       |       "checkInformation": {
+//       |         "contactDetails": {
+//       |           "fullname": "Holly Golightly",
+//       |           "email": "holly.golightly@example.com",
+//       |           "telephoneNumber": "020 1122 3344"
+//       |         },
+//       |         "confirmedName": true,
+//       |         "providedPrivacyPolicyURL": true,
+//       |         "providedTermsAndConditionsURL": true,
+//       |         "applicationDetails": "",
+//       |         "termsOfUseAgreements": [{
+//       |           "emailAddress": "test@example.com",
+//       |           "timeStamp": 1459868573962,
+//       |           "version": "1.0"
+//       |         }]
+//       |       },
+//       |       "ipWhitelist": []
+//       |   },
+//       |   "subscriptions": [
+//       |       {
+//       |       "context": "marriage-allowance",
+//       |       "version": "1.0"
+//       |       },
+//       |       {
+//       |       "context": "api-simulator",
+//       |       "version": "1.0"
+//       |       },
+//       |       {
+//       |       "context": "hello",
+//       |       "version": "1.0"
+//       |       }
+//       |   ],
+//       |   "subscriptionFieldValues": {}
+//       |}""".stripMargin
 
   val newApplicationStateHistory = 
   s"""

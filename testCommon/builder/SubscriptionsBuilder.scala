@@ -22,6 +22,7 @@ import model.{ApiContext, ApiVersion, ClientId, ApplicationId}
 import model.FieldName
 import model.FieldValue
 import scala.util.Random
+import model.APIIdentifier
 
 trait SubscriptionsBuilder {
 
@@ -31,6 +32,8 @@ trait SubscriptionsBuilder {
       context = context.getOrElse(ApiContext(s"context-$name")),
       versions = versions)
   }
+
+  def buildApiIdentifier(apiContext: ApiContext, apiVersion: ApiVersion) : APIIdentifier = APIIdentifier(apiContext, apiVersion)
 
   def buildVersionWithSubscriptionFields(version: ApiVersion, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
       val defaults = buildSubscriptionFieldsWrapper(applicationId)
