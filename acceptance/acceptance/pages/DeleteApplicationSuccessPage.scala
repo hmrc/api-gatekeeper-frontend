@@ -18,11 +18,11 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object NewUnblockApplicationSuccessPage extends WebPage {
+object DeleteApplicationSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d/delete"
 
   override def isCurrentPage: Boolean = {
-    currentUrl == url && bodyText.contains("Application unblocked")
+    currentUrl == url
   }
 }

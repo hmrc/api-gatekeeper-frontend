@@ -58,7 +58,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewA
       ApplicationsPage.selectByApplicationName(newApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPendingApprovalPage)
+      on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
@@ -76,7 +76,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewA
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
 
-      on(NewApplicationPendingApprovalPage)
+      on(ApplicationToReviewPage)
     }
   }
 
@@ -95,7 +95,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewA
       ApplicationsPage.selectByApplicationName(newApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPendingApprovalPage)
+      on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
@@ -129,7 +129,7 @@ class APIGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewA
       ApplicationsPage.selectByApplicationName(newApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPendingApprovalPage)
+      on(ApplicationToReviewPage)
 
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")

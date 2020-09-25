@@ -24,7 +24,7 @@ import model.User
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
-import acceptance.pages.NewApplicationPage
+import acceptance.pages.ApplicationPage
 
 class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
 
@@ -61,7 +61,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       ApplicationsPage.selectByApplicationName("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPage)
+      on(ApplicationPage)
       verifyText("data-environment", "Production")
       verifyText("data-app-id", newApplicationWithSubscriptionDataId)
       verifyText("data-status", "Active")
@@ -107,7 +107,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       ApplicationsPage.selectByApplicationName("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPage)
+      on(ApplicationPage)
 
       stubDeveloper()
       stubApplicationForDeveloperEmail()

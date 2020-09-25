@@ -18,32 +18,23 @@ package acceptance.pages
 
 import acceptance.WebPage
 
-object NewDeleteApplicationPage extends WebPage {
+object ApplicationPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d/delete"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d"
 
-  override def isCurrentPage: Boolean = currentUrl == url
-
-  def radioButton = find(name("collaboratorEmail")).get
-
-  def selectRadioButton() = {
-    click on radioButton
-  }
-
-  def textBox = textField("applicationNameConfirmation")
-
-  def writeInTextBox(input: String) = {
-    textBox.value = input
+  override def isCurrentPage: Boolean = {
+    currentUrl == url
   }
 
   def deleteApplicationButton = find(id("delete-application")).get
 
-  def selectDeleteButton() = {
+  def selectDeleteApplication() = {
     click on deleteApplicationButton
   }
 
-  def completeForm(input: String) = {
-    selectRadioButton()
-    writeInTextBox(input)
+  def blockApplicationButton = find(id("block-application")).get
+
+  def selectBlockApplication() = {
+    click on blockApplicationButton
   }
 }

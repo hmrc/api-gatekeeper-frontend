@@ -34,8 +34,8 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
       navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application Success page")
-      on(NewDeleteApplicationSuccessPage)
-      assert(NewDeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
+      on(DeleteApplicationSuccessPage)
+      assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
     }
 
     scenario("I cannot delete an application") {
@@ -46,8 +46,8 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
       navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
-      on(NewDeleteApplicationSuccessPage)
-      assert(NewDeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
+      on(DeleteApplicationSuccessPage)
+      assert(DeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
     }
   }
 
@@ -73,23 +73,23 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
     ApplicationsPage.selectByApplicationName(newApplicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
-    on(NewApplicationPage)
+    on(ApplicationPage)
 
     stubApplicationToDelete()
 
     When("I select the Delete Application Button")
-    NewApplicationPage.selectDeleteApplication()
+    ApplicationPage.selectDeleteApplication()
 
     Then("I am successfully navigated to the Delete Application page")
-    on(NewDeleteApplicationPage)
+    on(DeleteApplicationPage)
 
     stubApplicationToDelete()
 
     When("I fill out the Delete Application Form correctly")
-    NewDeleteApplicationPage.completeForm(newApplicationName)
+    DeleteApplicationPage.completeForm(newApplicationName)
 
     And("I select the Delete Application Button")
-    NewDeleteApplicationPage.selectDeleteButton()
+    DeleteApplicationPage.selectDeleteButton()
   }
 
   def stubApplicationToDelete() = {

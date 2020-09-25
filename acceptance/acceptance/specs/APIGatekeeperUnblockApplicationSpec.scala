@@ -34,38 +34,38 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with New
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, NewBlockedApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage, developers)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
 
       Then("I am successfully navigated to the Unblock Application Success page")
-      on(NewUnblockApplicationSuccessPage)
+      on(UnblockApplicationSuccessPage)
     }
 
     scenario("I cannot unblock an application that is already unblocked") {
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newApplicationName, NewApplicationPage)
+      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
 
       Then("I cannot see the unblock button")
-      NewApplicationPage.bodyText.contains("Unblock application") shouldBe false
+      ApplicationPage.bodyText.contains("Unblock application") shouldBe false
     }
   }
 
   def selectToUnblockApplication() = {
     stubBlockedApplication()
     When("I select the Unblock Application Button")
-    NewBlockedApplicationPage.selectUnblockApplication()
+    BlockedApplicationPage.selectUnblockApplication()
 
     Then("I am successfully navigated to the Unblock Application page")
-    on(NewUnblockApplicationPage)
+    on(UnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    NewUnblockApplicationPage.completeForm(newBlockedApplicationName)
+    UnblockApplicationPage.completeForm(newBlockedApplicationName)
 
     And("I select the Unblock Application Button")
-    NewUnblockApplicationPage.selectUnblockButton()
+    UnblockApplicationPage.selectUnblockButton()
   }
 
   def stubApplicationForUnblockSuccess() = {

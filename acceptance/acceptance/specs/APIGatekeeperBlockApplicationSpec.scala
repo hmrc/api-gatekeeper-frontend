@@ -32,40 +32,40 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewAp
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newApplicationName, NewApplicationPage)
+      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
 
       Then("I am successfully navigated to the Block Application Success page")
-      on(NewBlockApplicationSuccessPage)
-      assert(NewBlockApplicationSuccessPage.bodyText.contains("Application blocked"))
+      on(BlockApplicationSuccessPage)
+      assert(BlockApplicationSuccessPage.bodyText.contains("Application blocked"))
     }
 
     scenario("I cannot block an application that is already blocked") {
       stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, NewBlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage)
 
       Then("I cannot see the block button")
-      NewBlockedApplicationPage.bodyText.contains("Block application") shouldBe false
+      BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
     }
   }
 
   def selectToBlockApplication() = {
     When("I select the Block Application Button")
     stubUnblockedApplication()
-    NewApplicationPage.selectBlockApplication()
+    ApplicationPage.selectBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")
-    on(NewBlockApplicationPage)
+    on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    NewBlockApplicationPage.completeForm(newApplicationName)
+    BlockApplicationPage.completeForm(newApplicationName)
 
     And("I select the Block Application Button")
-    NewBlockApplicationPage.selectBlockButton()
+    BlockApplicationPage.selectBlockButton()
   }
 
   def stubApplicationForBlockSuccess() = {

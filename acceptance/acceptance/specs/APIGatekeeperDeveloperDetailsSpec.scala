@@ -79,7 +79,7 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
       DeveloperDetailsPage.selectByApplicationName("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      on(NewApplicationPage)
+      on(ApplicationPage)
     }
   }
 
