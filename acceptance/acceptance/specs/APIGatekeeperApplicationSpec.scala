@@ -55,7 +55,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(testAsJson, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -101,7 +101,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(testAsJson, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")

@@ -1,5 +1,26 @@
 package acceptance.specs
 
+import model.Collaborator
+import model.CollaboratorRole
+import model.Standard
+import model.Access
+import model.ApplicationState
+import model.State
+import org.joda.time.DateTime
+import model.CheckInformation
+import model.ContactDetails
+import model.TermsOfUseAgreement
+import model.applications.NewApplication
+import model.ApplicationId
+import model.ClientId
+import model.Environment
+import model.RateLimitTier
+import model.APIIdentifier
+import model.ApiContext
+import model.ApiVersion
+import model.applications.ApplicationWithSubscriptionData
+import play.api.libs.json.Json
+
 trait NewApplicationTestData {
   val newApplicationWithSubscriptionDataId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
   val newApplicationDescription = "application description"
@@ -14,6 +35,80 @@ trait NewApplicationTestData {
   val newDeveloper8LastName = "Fakename"
 
   val newApplicationName = "My new app"
+
+  val testCollaborators: Set[Collaborator] = Set(
+     Collaborator(newAdminEmail, CollaboratorRole.ADMINISTRATOR),
+     Collaborator(newDeveloper, CollaboratorRole.DEVELOPER),
+     Collaborator(newDeveloper8, CollaboratorRole.DEVELOPER)
+  )
+
+  val testAccess: Access = Standard(
+     redirectUris = Seq("http://localhost:8080/callback"),
+     termsAndConditionsUrl = Some("http://localhost:22222/terms"),
+     privacyPolicyUrl = Some("http://localhost:22222/privacy")
+  )
+
+  val testState: ApplicationState = ApplicationState(
+     name = State.PRODUCTION,
+     requestedByEmailAddress = Some(newAdminEmail),
+     verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw"),
+     updatedOn = DateTime.parse("2016-04-08T11:11:18.463Z")
+  )
+
+  val testCheckInformation: CheckInformation = 
+    CheckInformation(
+      contactDetails = Some(
+         ContactDetails(
+            fullname = "Holly Golightly",
+            email = "holly.golightly@example.com",
+            telephoneNumber = "020 1122 3344"
+         )
+      ),
+      confirmedName = true,
+      providedPrivacyPolicyURL = true,
+      providedTermsAndConditionsURL = true,
+      applicationDetails = Some(""),
+      termsOfUseAgreements = Seq(
+         TermsOfUseAgreement(
+            emailAddress = "test@example.com",
+            timeStamp = new DateTime(1459868573962L),
+            version = "1.0"
+         )
+      )
+    )
+
+  val testIpWhitelist = Set.empty[String]
+  
+  val testApplication = NewApplication(
+     id = ApplicationId(newApplicationWithSubscriptionDataId),
+     clientId = ClientId("qDxLu6_zZVGurMX7NA7g2Wd5T5Ia"),
+     gatewayId = "12345",
+     name = newApplicationName,
+     createdOn = DateTime.parse("2016-04-08T10:24:40.651Z"),
+     lastAccess = DateTime.parse("2019-07-01T00:00:00.000Z"),
+     deployedTo = Environment.PRODUCTION,
+     description = Some(newApplicationDescription),
+     collaborators = testCollaborators,
+     access = testAccess,
+     state = testState,
+     rateLimitTier = RateLimitTier.BRONZE,
+     blocked = false,
+     checkInformation = Some(testCheckInformation),
+     ipWhitelist = testIpWhitelist
+  )
+
+  val testSubscriptions = Set(
+     APIIdentifier(ApiContext("marriage-allowance"), ApiVersion("1.0")),
+     APIIdentifier(ApiContext("api-simulator"), ApiVersion("1.0")),
+     APIIdentifier(ApiContext("hello"), ApiVersion("1.0"))
+  )
+
+  val test = ApplicationWithSubscriptionData(testApplication, testSubscriptions, Map.empty)
+
+  import model.APIDefinitionFormatters._
+  implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]
+
+  val testAsJson = Json.toJson(test).toString()
 
   val newApplicationWithSubscriptionData =
     s"""

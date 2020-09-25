@@ -17,18 +17,17 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
-import model.{ApiContext, ApiVersion, ApplicationId, FieldName}
+import model.ApiContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import model.applications._
 import scala.concurrent.Future
 
-import model.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext
-import model.Environment.Environment
 import model.subscriptions.ApiData
+import model.ApplicationId
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {

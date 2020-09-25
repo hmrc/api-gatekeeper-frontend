@@ -29,7 +29,6 @@ case class ApiContext(value: String) extends AnyVal {
 }
 
 object ApiContext {
-
   implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
@@ -42,7 +41,6 @@ case class ApiVersion(value: String) extends AnyVal {
 }
 
 object ApiVersion {
-
   implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
@@ -65,7 +63,6 @@ case class APIDefinition(serviceName: String,
 }
 
 object APIDefinition {
-
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback = Array(1, 0, 0)
 
