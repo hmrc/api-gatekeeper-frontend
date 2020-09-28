@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APIDefinition, EmailPreferencesChoice, TopicOptionChoice, User}
+import model.{ApiDefinition, EmailPreferencesChoice, TopicOptionChoice, User}
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
@@ -66,7 +66,7 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
   }
 
 
-  def validateNonSelectedApiDropDown(document: Document, apis: Seq[APIDefinition], defaultOption: String) = {
+  def validateNonSelectedApiDropDown(document: Document, apis: Seq[ApiDefinition], defaultOption: String) = {
     val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
@@ -116,7 +116,7 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
     }
   }
 
-  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[APIDefinition], numberOfSets: Int = 1) = {
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[ApiDefinition], numberOfSets: Int = 1) = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size mustBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet must contain allElementsOf selectedAPIs.map(_.serviceName)
@@ -144,7 +144,7 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
     })
   }
 
-  def validateSelectedSpecificApiItems(document: Document, apis: Seq[APIDefinition]): Unit = {
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[ApiDefinition]): Unit = {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
 

@@ -27,7 +27,7 @@ import model.Collaborator
 import model.applications.ApplicationWithSubscriptionData
 import model.CollaboratorRole
 import model.ApplicationState
-import model.APIIdentifier
+import model.ApiIdentifier
 import model.ApiVersion
 import model.ApiContext
 import model.SubscriptionFields.Fields
@@ -83,9 +83,9 @@ trait ApplicationBuilder {
     emails.map(email => Collaborator(email, CollaboratorRole.ADMINISTRATOR)).toSet
   }
 
-  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[APIIdentifier] = 
+  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] = 
     Set(
-      APIIdentifier(apiContext, apiVersion)
+      ApiIdentifier(apiContext, apiVersion)
     )
 
   def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {

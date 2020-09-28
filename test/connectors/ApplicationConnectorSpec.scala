@@ -105,7 +105,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       val apiContext = ApiContext.random
       val response = Seq(
         SubscriptionResponse(
-          APIIdentifier(apiContext, ApiVersion.random),
+          ApiIdentifier(apiContext, ApiVersion.random),
           Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))
 
       when(mockHttpClient.GET[Seq[SubscriptionResponse]](eqTo(url))(*, *, *))
@@ -405,10 +405,10 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     val apiContext = ApiContext.random
     val applicationId = ApplicationId.random
     val url = s"$baseUrl/application/${applicationId.value}/subscription"
-    val apiIdentifier = APIIdentifier(apiContext, apiVersion1)
+    val apiIdentifier = ApiIdentifier(apiContext, apiVersion1)
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.POST[APIIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
         .thenReturn(Future.successful(HttpResponse(CREATED)))
 
       val result = await(connector.subscribeToApi(applicationId, apiIdentifier))
@@ -417,11 +417,11 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.POST[APIIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.subscribeToApi(applicationId, APIIdentifier(apiContext, apiVersion1)))
+        await(connector.subscribeToApi(applicationId, ApiIdentifier(apiContext, apiVersion1)))
       }
     }
   }

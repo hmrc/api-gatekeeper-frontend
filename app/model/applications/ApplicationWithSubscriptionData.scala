@@ -18,11 +18,11 @@ package model.applications
 
 import model.ApiContext
 import model.ApiVersion
-import model.APIIdentifier
+import model.ApiIdentifier
 import model.SubscriptionFields.Fields
 
 case class ApplicationWithSubscriptionData(
     application: NewApplication,
-    subscriptions: Set[APIIdentifier] = Set.empty,
+    subscriptions: Set[ApiIdentifier] = Set.empty,
     subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Fields.Alias]] = Map.empty
 )

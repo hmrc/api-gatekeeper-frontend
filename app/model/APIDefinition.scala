@@ -48,7 +48,7 @@ object ApiVersion {
   def random = ApiVersion(Random.nextDouble().toString)
 }
 
-case class APIDefinition(serviceName: String,
+case class ApiDefinition(serviceName: String,
                          serviceBaseUrl: String,
                          name: String,
                          description: String,
@@ -62,7 +62,7 @@ case class APIDefinition(serviceName: String,
   }
 }
 
-object APIDefinition {
+object ApiDefinition {
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback = Array(1, 0, 0)
 
@@ -123,17 +123,17 @@ object APIAccessType extends Enumeration {
   val PRIVATE, PUBLIC = Value
 }
 
-case class APIIdentifier(context: ApiContext, version: ApiVersion)
-object APIIdentifier {
-  def random() = APIIdentifier(ApiContext.random, ApiVersion.random)
+case class ApiIdentifier(context: ApiContext, version: ApiVersion)
+object ApiIdentifier {
+  def random() = ApiIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed extends Throwable
 
-case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
+case class VersionSummary(name: String, status: APIStatus, apiIdentifier: ApiIdentifier)
 
-case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
+case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: Seq[String])
 
 case class Subscription(name: String,
                         serviceName: String,

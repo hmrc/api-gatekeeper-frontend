@@ -73,7 +73,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
         given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
         given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(*)).willReturn(developers)
@@ -176,7 +176,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.ALPHA), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
-        val apiDefinition = APIDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+        val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
@@ -194,7 +194,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val apiContext = ApiContext.random
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.STABLE), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
-        val apiDefinition = APIDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
+        val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
@@ -231,7 +231,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val apiVersionDefinition = ApiVersionDefinition(apiVersion1, APIStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition = Seq(APIDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition = Seq(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

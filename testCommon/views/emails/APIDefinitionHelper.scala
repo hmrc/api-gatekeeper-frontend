@@ -23,6 +23,6 @@ trait APIDefinitionHelper {
                           name: String,
                           context: String,
                           categories: Option[Seq[String]],
-                          version: String): APIDefinition =
-    APIDefinition(serviceName, "url1", name, "desc", ApiContext(context), Seq(ApiVersionDefinition(ApiVersion(version), APIStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
+                          version: String): ApiDefinition =
+    ApiDefinition(serviceName, "url1", name, "desc", ApiContext(context), Seq(ApiVersionDefinition(ApiVersion(version), APIStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
 }

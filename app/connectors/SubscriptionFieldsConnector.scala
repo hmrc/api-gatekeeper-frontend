@@ -49,7 +49,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: APIIdentifier, definitionsCache: DefinitionsByApiVersion)
+  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: ApiIdentifier, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def getDefinitions() =
@@ -63,12 +63,12 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     def getDefinitions() =
       fetchFieldDefinitions(apiContext, version)
 
-    internalFetchFieldValues(getDefinitions)(clientId, APIIdentifier(apiContext, version))
+    internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
 
   private def internalFetchFieldValues(getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
                                       (clientId: ClientId,
-                                       apiIdentifier: APIIdentifier)
+                                       apiIdentifier: ApiIdentifier)
                                       (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
     def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields.Alias): Seq[SubscriptionFieldValue] = {
@@ -173,7 +173,7 @@ object SubscriptionFieldsConnector {
 
   def toDomain(fs: AllApiFieldDefinitions): DefinitionsByApiVersion = {
     fs.apis.map( fd =>
-      APIIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
+      ApiIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
     )
     .toMap
   }

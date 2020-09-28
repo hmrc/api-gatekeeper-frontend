@@ -68,7 +68,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
-    val apiIdentifier = APIIdentifier(ApiContext.random, ApiVersion.random)
+    val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
 
     val context = apiIdentifier.context
     val version = apiIdentifier.version

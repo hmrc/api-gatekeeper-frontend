@@ -2,7 +2,7 @@ package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.TopicOptionChoice._
-import model.{APICategory, APICategoryDetails, APIDefinition, User}
+import model.{APICategory, APICategoryDetails, ApiDefinition, User}
 import play.api.http.Status
 import play.api.libs.json.Json
 
@@ -48,7 +48,7 @@ trait DeveloperServiceStub {
   }
 
 
-    def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[APIDefinition], topic: TopicOptionChoice): Unit = {
+    def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
     val categories: Seq[APICategory] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
 
     val topicParam = s"topic=${topic.toString}"

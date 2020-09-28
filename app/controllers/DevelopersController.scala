@@ -107,11 +107,11 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: Seq[ApiDefinition]): Map[String, Seq[VersionSummary]] = {
     val versions = for {
       api <- apis
       version <- api.versions
-    } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
+    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
     versions.groupBy(v => APIStatus.displayedStatus(v.status))
   }

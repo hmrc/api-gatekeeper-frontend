@@ -2,7 +2,7 @@ package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.APIDefinitionFormatters._
-import model.{APICategoryDetails, APIDefinition}
+import model.{APICategoryDetails, ApiDefinition}
 import play.api.http.Status
 import play.api.libs.json.Json
 
@@ -11,7 +11,7 @@ trait APIDefinitionServiceStub {
   val apiPrivateDefinitionUrl = "/api-definition?type=private"
   val getCategoriesUrl = "/api-categories"
 
-  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[APIDefinition]): Unit = {
+  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[ApiDefinition]): Unit = {
 
     stubFor(get(urlEqualTo(apiPublicDefinitionUrl))
       .willReturn(
@@ -20,7 +20,7 @@ trait APIDefinitionServiceStub {
           .withBody(Json.toJson(apis).toString())))
   }
 
-    def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[APIDefinition]): Unit = {
+    def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinition]): Unit = {
 
     stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
       .willReturn(
