@@ -179,7 +179,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                 overrideFlagErrors.foreach(err =>
                   form = form.withError(
                     formFieldForOverrideFlag(err),
-                    messagesApi.preferred(request)("invaid.scope")
+                    messagesApi.preferred(request)("invalid.scope")
                   )
                 )
 
@@ -215,7 +215,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleValidForm(scopes: Set[String]) = {
             applicationService.updateScopes(app.application, scopes).map {
               case UpdateScopesInvalidScopesResult =>
-                val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invaid.scope"))
+                val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
                 BadRequest(manageScopesView(app.application, form, isAtLeastSuperUser))
 
               case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
@@ -329,7 +329,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               }
             }
             else {
-              messagesApi.preferred(request)("invaid.scope")
+              messagesApi.preferred(request)("invalid.scope")
               val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
               Future.successful(BadRequest(blockApplicationView(app, isAtLeastSuperUser, formWithErrors)))
