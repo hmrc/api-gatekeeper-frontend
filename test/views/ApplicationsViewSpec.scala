@@ -33,7 +33,7 @@
 package views
 
 import config.AppConfig
-import model.APIStatus._
+import model.ApiStatus._
 import model.{LoggedInUser, _}
 import org.joda.time.DateTime
 import org.jsoup.Jsoup

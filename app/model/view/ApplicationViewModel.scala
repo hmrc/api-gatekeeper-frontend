@@ -21,13 +21,13 @@ import model.applications.NewApplication
 import model.ApiVersion
 import model.StateHistory
 import model.TermsOfUseAgreement
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 
 case class ApplicationViewModel(
   developers: List[User],
   application: NewApplication,
-  subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])],
-  subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, APIStatus)])],
+  subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
+  subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
   stateHistory: Seq[StateHistory],
   isAtLeastSuperUser: Boolean,
   isAdmin: Boolean

@@ -16,7 +16,7 @@
 
 package model
 
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 import model.SubscriptionFields._
 import play.api.libs.json.Json
 
@@ -97,22 +97,22 @@ case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: Option[APIAccess] = None) {
-  val displayedStatus = APIStatus.displayedStatus(status)
+case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: Option[APIAccess] = None) {
+  val displayedStatus = ApiStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
 }
 
-object APIStatus extends Enumeration {
-  type APIStatus = Value
+object ApiStatus extends Enumeration {
+  type ApiStatus = Value
   val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
 
-  val displayedStatus: (APIStatus) => String = {
-    case APIStatus.ALPHA => "Alpha"
-    case APIStatus.BETA => "Beta"
-    case APIStatus.STABLE => "Stable"
-    case APIStatus.DEPRECATED => "Deprecated"
-    case APIStatus.RETIRED => "Retired"
+  val displayedStatus: (ApiStatus) => String = {
+    case ApiStatus.ALPHA => "Alpha"
+    case ApiStatus.BETA => "Beta"
+    case ApiStatus.STABLE => "Stable"
+    case ApiStatus.DEPRECATED => "Deprecated"
+    case ApiStatus.RETIRED => "Retired"
   }
 }
 
@@ -131,7 +131,7 @@ object ApiIdentifier {
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed extends Throwable
 
-case class VersionSummary(name: String, status: APIStatus, apiIdentifier: ApiIdentifier)
+case class VersionSummary(name: String, status: ApiStatus, apiIdentifier: ApiIdentifier)
 
 case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: Seq[String])
 

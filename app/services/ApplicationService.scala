@@ -124,8 +124,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
     def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: SubscriptionWithoutFields): Future[Subscription] = {
       val apiSubscriptionStatuses = subscription.versions
-          .filterNot(_.version.status == APIStatus.RETIRED)
-          .filterNot(s => s.version.status == APIStatus.DEPRECATED && !s.subscribed)
+          .filterNot(_.version.status == ApiStatus.RETIRED)
+          .filterNot(s => s.version.status == ApiStatus.DEPRECATED && !s.subscribed)
           .sortWith(ApiDefinition.descendingVersion)
           .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
 

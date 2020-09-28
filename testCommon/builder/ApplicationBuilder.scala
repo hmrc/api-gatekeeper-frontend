@@ -44,7 +44,7 @@ import model.Access
 import model.view.ApplicationViewModel
 import model.Privileged
 import model.Ropc
-import model.APIStatus._
+import model.ApiStatus._
 import model.User
 
 
@@ -111,8 +111,8 @@ trait ApplicationBuilder {
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
     def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
 
-    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
     
     def asSuperUser = applicationViewModel.copy(isAtLeastSuperUser = true)
     def asAdmin = applicationViewModel.copy(isAdmin = true)

@@ -83,7 +83,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition(apiVersion, APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), Some(Seq(APICategory("VAT")))))
+        Seq(ApiVersionDefinition(apiVersion, ApiStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), Some(Seq(APICategory("VAT")))))
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
@@ -125,7 +125,7 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
       result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition(apiVersion, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
     }
   }
 }

@@ -175,7 +175,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.ALPHA), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
@@ -193,7 +193,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiContext = ApiContext.random
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, APIStatus.STABLE), ApiVersionDefinition(apiVersion2, APIStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List(apiDefinition))
 
@@ -228,7 +228,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, APIStatus.ALPHA)
+        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
         val apiDefinition = Seq(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))

@@ -19,8 +19,8 @@ package builder
 import model.APIAccessType
 import model.APIAccessType._
 import model.APIAccess
-import model.APIStatus
-import model.APIStatus._
+import model.ApiStatus
+import model.ApiStatus._
 import model.subscriptions.VersionData
 import model.subscriptions.ApiData
 import model.ApiVersion
@@ -28,12 +28,12 @@ import model.ApiVersion
 trait ApiBuilder {
 
   implicit class VersionDataExtension(versionData: VersionData) {
-    def withStatus(newStatus: APIStatus) = versionData.copy(status = newStatus)
-    def alpha = versionData.copy(status = APIStatus.ALPHA)
-    def beta = versionData.copy(status = APIStatus.BETA)
-    def stable = versionData.copy(status = APIStatus.STABLE)
-    def deprecated = versionData.copy(status = APIStatus.DEPRECATED)
-    def retired = versionData.copy(status = APIStatus.RETIRED)
+    def withStatus(newStatus: ApiStatus) = versionData.copy(status = newStatus)
+    def alpha = versionData.copy(status = ApiStatus.ALPHA)
+    def beta = versionData.copy(status = ApiStatus.BETA)
+    def stable = versionData.copy(status = ApiStatus.STABLE)
+    def deprecated = versionData.copy(status = ApiStatus.DEPRECATED)
+    def retired = versionData.copy(status = ApiStatus.RETIRED)
 
     def withAccess(newAccessType: APIAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
     def publicAccess = this.withAccess(APIAccessType.PUBLIC)

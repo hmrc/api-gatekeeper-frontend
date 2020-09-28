@@ -28,7 +28,7 @@ import model.ApplicationId
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 import builder.{ApplicationBuilder, ApiBuilder}
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 import model.ApiContext
 import model.subscriptions.ApiData
 import model.APIAccessType._

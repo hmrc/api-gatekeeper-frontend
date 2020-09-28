@@ -17,7 +17,7 @@
 package builder
 
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
-import model.{APIStatus, ApiVersionDefinition, Subscription, VersionSubscription}
+import model.{ApiStatus, ApiVersionDefinition, Subscription, VersionSubscription}
 import model.{ApiContext, ApiVersion, ClientId, ApplicationId}
 import model.FieldName
 import model.FieldValue
@@ -38,7 +38,7 @@ trait SubscriptionsBuilder {
   def buildVersionWithSubscriptionFields(version: ApiVersion, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
       val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
-      VersionSubscription(ApiVersionDefinition(version, APIStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
+      VersionSubscription(ApiVersionDefinition(version, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: Seq[SubscriptionFieldValue] = Seq.empty) = {

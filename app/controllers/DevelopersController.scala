@@ -113,6 +113,6 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       version <- api.versions
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
-    versions.groupBy(v => APIStatus.displayedStatus(v.status))
+    versions.groupBy(v => ApiStatus.displayedStatus(v.status))
   }
 }

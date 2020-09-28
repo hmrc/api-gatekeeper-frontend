@@ -41,7 +41,7 @@ import views.html.review.ReviewView
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import model.subscriptions.ApiData
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -118,7 +118,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             (apiContext, filteredApiData)
           }
 
-          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, APIStatus)])] = {
+          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, ApiStatus)])] = {
             if(data.versions.isEmpty) {
               Seq.empty
             } else {
@@ -382,7 +382,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       version <- api.versions
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
-    versions.groupBy(v => APIStatus.displayedStatus(v.status))
+    versions.groupBy(v => ApiStatus.displayedStatus(v.status))
   }
 
   private def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
