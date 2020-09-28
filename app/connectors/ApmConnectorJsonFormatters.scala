@@ -16,11 +16,11 @@
 
 package connectors
 
-import model.APIStatusJson
+import model.ApiStatusJson
 import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
 
-private[connectors] object ApmConnectorJsonFormatters extends APIStatusJson with APIDefinitionFormatters {
+private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
   import model.subscriptions.{VersionData, ApiData}
   import play.api.libs.json._

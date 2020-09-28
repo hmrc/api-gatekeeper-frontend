@@ -97,7 +97,7 @@ case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: Option[APIAccess] = None) {
+case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = ApiStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
@@ -116,7 +116,7 @@ object ApiStatus extends Enumeration {
   }
 }
 
-case class APIAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean] = None)
+case class ApiAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean] = None)
 
 object APIAccessType extends Enumeration {
   type APIAccessType = Value

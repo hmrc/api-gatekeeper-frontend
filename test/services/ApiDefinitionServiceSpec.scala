@@ -41,19 +41,19 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
     val publicDefinition = ApiDefinition(
       "publicAPI", "http://localhost/",
       "publicAPI", "public api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None
+      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
     )
 
     val privateDefinition = ApiDefinition(
       "privateAPI", "http://localhost/",
       "privateAPI", "private api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None
+      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
     )
 
 
-    val version1 = ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))
-    val version2 = ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.BETA, Some(APIAccess(APIAccessType.PRIVATE)))
-    val version3 = ApiVersionDefinition(ApiVersion("3.0"), ApiStatus.BETA, Some(APIAccess(APIAccessType.PRIVATE)))
+    val version1 = ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))
+    val version2 = ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
+    val version3 = ApiVersionDefinition(ApiVersion("3.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
 
     val customsDeclarations1 = ApiDefinition(serviceName = "customs-declarations",
       serviceBaseUrl = "https://customs-declarations.protected.mdtp",

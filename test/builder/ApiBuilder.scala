@@ -18,7 +18,7 @@ package builder
 
 import model.APIAccessType
 import model.APIAccessType._
-import model.APIAccess
+import model.ApiAccess
 import model.ApiStatus
 import model.ApiStatus._
 import model.subscriptions.VersionData
@@ -48,7 +48,7 @@ trait ApiBuilder {
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
   }
 
-  val DefaultVersionData = VersionData(status = STABLE, access = APIAccess(`type` = APIAccessType.PUBLIC))
+  val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = APIAccessType.PUBLIC))
 
   val DefaultServiceName = "A-Service"
   val DefaultName = "API Name"

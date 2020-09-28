@@ -78,7 +78,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
 
@@ -90,7 +90,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(
@@ -116,7 +116,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
       when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
@@ -127,7 +127,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
       when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(

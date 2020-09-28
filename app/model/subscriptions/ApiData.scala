@@ -18,9 +18,9 @@ package model.subscriptions
 
 import model.ApiVersion
 import model.ApiStatus.ApiStatus
-import model.APIAccess
+import model.ApiAccess
 
-case class VersionData(status: ApiStatus, access: APIAccess)
+case class VersionData(status: ApiStatus, access: ApiAccess)
 
 case class ApiData(
     serviceName: String,

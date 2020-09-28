@@ -22,7 +22,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 class JsonFormattersSpec extends UnitSpec {
 
   trait Setup {
-    val underTest = APIStatusJson.apiStatusReads(ApiStatus)
+    val underTest = ApiStatusJson.apiStatusReads(ApiStatus)
   }
 
   "reads" should {
