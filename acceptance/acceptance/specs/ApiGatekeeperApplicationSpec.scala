@@ -26,7 +26,7 @@ import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
 
-class ApiGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)

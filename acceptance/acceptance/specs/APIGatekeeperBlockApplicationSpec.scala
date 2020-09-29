@@ -22,7 +22,7 @@ import model.User
 import play.api.http.Status._
 import acceptance.WebPage
 
-class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 

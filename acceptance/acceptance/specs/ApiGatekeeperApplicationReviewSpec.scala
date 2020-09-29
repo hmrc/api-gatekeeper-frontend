@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-class ApiGatekeeperApplicationReviewSpec extends APIGatekeeperBaseSpec with NewApplicationPendingApprovalTestData {
+class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewApplicationPendingApprovalTestData {
 
   val developers = List[User]{new User("holly.golightly@example.com", "holly", "golightly", None, None, false)}
 

@@ -24,7 +24,7 @@ import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
 
-class SignInSpec extends APIGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
 
   feature("Gatekeeper Sign in") {
 

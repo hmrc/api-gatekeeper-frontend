@@ -27,7 +27,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with Assertions with TestData {
+class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with Assertions with TestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)

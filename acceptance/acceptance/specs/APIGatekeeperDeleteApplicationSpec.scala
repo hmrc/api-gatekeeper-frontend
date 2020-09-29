@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 

@@ -28,7 +28,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
+class ApiGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")

@@ -28,7 +28,7 @@ import play.api.libs.json.Json
 
 import scala.io.Source
 
-class APIGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
   def stubNewApplication(application: String, appId: String) = {
     stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
