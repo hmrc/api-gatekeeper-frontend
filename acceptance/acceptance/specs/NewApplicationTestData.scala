@@ -81,8 +81,7 @@ trait NewApplicationTestData extends SubscriptionsBuilder with ApplicationBuilde
 
   val newApplicationUser = Json.toJson(unverifiedUser).toString
 
-  val applicationResponseForNewApplicationUserEmailTest = Seq(
-   DefaultApplicationResponse
+  val applicationResponseTest =    DefaultApplicationResponse
       .withId(ApplicationId(newApplicationWithSubscriptionDataId))
       .withName(newApplicationName)
       .withDescription("application for test")
@@ -96,114 +95,10 @@ trait NewApplicationTestData extends SubscriptionsBuilder with ApplicationBuilde
       .withRateLimitTier(RateLimitTier.BRONZE)
       .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))
       .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
-  )
 
-   val applicationResponseForNewApplicationUserEmail = Json.toJson(applicationResponseForNewApplicationUserEmailTest).toString
+   val applicationResponseForNewApplicationUserEmail = Json.toJson(Seq(applicationResponseTest)).toString
 
-    val applicationResponseForNewApplication =
-    s"""
-       |{
-       |  "application": {
-       |    "id": "$newApplicationWithSubscriptionDataId",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "$newApplicationName",
-       |    "description": "$newApplicationDescription",
-       |    "deployedTo": "PRODUCTION",
-       |    "collaborators": [
-       |      {
-       |        "emailAddress": "$newAdminEmail",
-       |        "role": "ADMINISTRATOR"
-       |      },
-       |      {
-       |        "emailAddress": "$newDeveloper",
-       |        "role": "DEVELOPER"
-       |      },
-       |      {
-       |        "emailAddress": "$newDeveloper*",
-       |        "role": "DEVELOPER"
-       |      }
-       |    ],
-       |    "createdOn": 1459866628433,
-       |    "lastAccess": 1459866628433,
-       |    "redirectUris": [],
-       |    "termsAndConditionsUrl": "http://www.example.com/termsAndConditions",
-       |    "privacyPolicyUrl": "http://www.example.com/privacy",
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "termsAndConditionsUrl": "http://localhost:22222/terms",
-       |      "privacyPolicyUrl": "http://localhost:22222/privacy",
-       |      "accessType": "STANDARD"
-       |    },
-       |    "state": {
-       |      "name": "PENDING_GATEKEEPER_APPROVAL",
-       |      "requestedByEmailAddress": "$newAdminEmail",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "checkInformation": {
-       |      "contactDetails": {
-       |        "fullname": "Holly Golightly",
-       |        "email": "holly.golightly@example.com",
-       |        "telephoneNumber": "020 1122 3344"
-       |      },
-       |      "confirmedName": true,
-       |      "providedPrivacyPolicyURL": true,
-       |      "providedTermsAndConditionsURL": true,
-       |      "applicationDetails": "An application that is pending approval",
-       |      "termsOfUseAgreements": [{
-       |        "emailAddress": "test@example.com",
-       |        "timeStamp": 1459868573962,
-       |        "version": "1.0"
-       |      }]
-       |    },
-       |    "approvedDetails": {
-       |      "details": {
-       |        "id": "",
-       |        "clientId": "",
-       |        "name": "",
-       |        "description": "",
-       |        "rateLimitTier": "BRONZE",
-       |        "submission": {
-       |          "submitterName": "Barry Fakename",
-       |          "submitterEmail": "barry.fakename@example.com",
-       |          "submittedOn": 1459868573962
-       |        },
-       |        "reviewContactName": "Harry Golightly",
-       |        "reviewContactEmail": "harry.fakename@example.com",
-       |        "reviewContactTelephone": "020 1122 3345",
-       |        "applicationDetails": ""
-       |      },
-       |      "admins": [],
-       |      "approvedBy": "gatekeeperUserId",
-       |      "approvedOn": 1459968573962,
-       |      "verified": true
-       |    },
-       |    "blocked": false,
-       |    "ipWhitelist": []
-       |  },
-       |  "history": [
-       |      {
-       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
-       |      "state": "PENDING_GATEKEEPER_APPROVAL",
-       |      "actor": {
-       |        "id": "$newAdminEmail",
-       |        "actorType": "COLLABORATOR"
-       |      },
-       |      "changedAt": 1458659208000
-       |    },
-       |    {
-       |      "applicationId": "a6d37b4a-0a80-4b7f-b150-5f8f99fe27ea",
-       |      "state": "PENDING_REQUESTER_VERIFICATION",
-       |      "actor": {
-       |        "id": "gatekeeper.username",
-       |        "actorType": "GATEKEEPER"
-       |      },
-       |      "changedAt": 1459868522961
-       |    }
-       |  ]
-       |}
-    """.stripMargin
-}
+   val applicationResponseForNewApplicationTest = ApplicationWithHistory(applicationResponseTest, newStateHistoryTest)
+
+    val applicationResponseForNewApplication = Json.toJson(applicationResponseForNewApplicationTest).toString
+ }
