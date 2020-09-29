@@ -19,6 +19,7 @@ package acceptance.specs
 import java.net.URLEncoder
 
 import acceptance.pages._
+import acceptance.mocks.TestData
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.scalatest.{Assertions, Tag}
@@ -26,7 +27,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with Assertions {
+class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with Assertions with TestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -64,14 +65,14 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
       on(DeveloperPage)
 
       When("I select a developer email")
-      DeveloperPage.selectByDeveloperEmail(newDeveloper8)
+      DeveloperPage.selectByDeveloperEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)
 
       And("I can see the developer's details and associated applications")
-      assert(DeveloperDetailsPage.firstName == s"$newDeveloper8FirstName")
-      assert(DeveloperDetailsPage.lastName == s"$newDeveloper8LastName")
+      assert(DeveloperDetailsPage.firstName == s"${unverifiedUser.firstName}")
+      assert(DeveloperDetailsPage.lastName == s"${unverifiedUser.lastName}")
       assert(DeveloperDetailsPage.status == "not yet verified")
       assert(DeveloperDetailsPage.mfaEnabled == "Yes")
 
@@ -84,7 +85,7 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
   }
 
   def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
       .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
@@ -110,12 +111,10 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
       .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
   }
-
-  case class TestUser(firstName: String, lastName:String, emailAddress:String)
 }
 

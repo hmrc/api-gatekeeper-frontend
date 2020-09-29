@@ -26,7 +26,7 @@ import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
 
-class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -113,7 +113,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       stubApplicationForDeveloperEmail()
 
       When("I select to navigate to a collaborator")
-      ApplicationsPage.selectDeveloperByEmail(newDeveloper8)
+      ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the developer details page")
       on(DeveloperDetailsPage)
@@ -121,14 +121,14 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
       .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
   }
 
   def stubApplicationForDeveloperEmail() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
       .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))

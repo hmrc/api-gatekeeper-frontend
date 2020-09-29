@@ -18,9 +18,9 @@ package views.helper.application
 
 import model.State._
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ApplicationGenerator._
+import builder.ApplicationResponseBuilder
 
-class ApplicationSubmissionSpec extends UnitSpec {
+class ApplicationSubmissionSpec extends UnitSpec with ApplicationResponseBuilder {
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {

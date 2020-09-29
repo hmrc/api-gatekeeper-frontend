@@ -49,10 +49,8 @@ import model.ApiStatus._
 import model.RateLimitTier.RateLimitTier
 import model.User
 
-trait ApplicationBuilder {
-
+trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): NewApplication = {
-
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
 
@@ -66,7 +64,7 @@ trait ApplicationBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq(appOwnerEmail)),
+      collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       state = ApplicationState(State.PRODUCTION),
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
@@ -80,10 +78,6 @@ trait ApplicationBuilder {
 
   val DefaultApplication = buildApplication()
 
-  def buildCollaborators(emails: Seq[String]): Set[Collaborator] = {
-    emails.map(email => Collaborator(email, CollaboratorRole.ADMINISTRATOR)).toSet
-  }
-
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] = 
     Set(
       ApiIdentifier(apiContext, apiVersion)
@@ -92,10 +86,6 @@ trait ApplicationBuilder {
   def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {
     val fields = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     Map(apiContext -> Map(apiVersion -> fields))
-  }
-
-  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTimeUtils.now): StateHistory = {
-    StateHistory(applicationId, state, actor, None, changedAt)
   }
 
   def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
