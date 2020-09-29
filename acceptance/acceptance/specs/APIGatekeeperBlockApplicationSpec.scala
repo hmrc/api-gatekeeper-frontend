@@ -21,14 +21,17 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
+import acceptance.mocks.ApplicationResponseMock
+import acceptance.mocks.StateHistoryMock
+import model.ApplicationId
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData with ApplicationResponseMock with StateHistoryMock {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newApplicationWithSubscriptionData, developers, stateHistories.withApplicationId(ApplicationId(newApplicationWithSubscriptionDataId)), newApplicationWithSubscriptionDataId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")

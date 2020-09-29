@@ -116,5 +116,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
+
+    def toSeq = Seq(app)
   } 
 }

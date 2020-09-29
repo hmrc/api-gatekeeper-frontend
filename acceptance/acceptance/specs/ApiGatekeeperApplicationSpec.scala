@@ -25,8 +25,9 @@ import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
+import acceptance.mocks.{StateHistoryMock, ApplicationWithSubscriptionDataMock, ApplicationResponseMock}
 
-class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryMock with ApplicationWithSubscriptionDataMock with ApplicationResponseMock { //with NewApplicationTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -55,7 +56,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -101,7 +102,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -131,6 +132,6 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with NewApplica
     val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(applicationResponseTest.toSeq.toJsonString).withStatus(OK)))
   }
 }

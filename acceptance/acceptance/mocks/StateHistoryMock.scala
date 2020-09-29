@@ -19,5 +19,7 @@ trait StateHistoryMock extends StateHistoryBuilder with TestData {
   implicit class StateHistoryExtension(stateHistories: Seq[StateHistory]) {
     def toJson = Json.toJson(stateHistories)
     def toJsonString = Json.toJson(stateHistories).toString
+
+    def withApplicationId(applicationId: ApplicationId) = stateHistories.map(sh => sh.copy(applicationId = applicationId))
   }
 }
