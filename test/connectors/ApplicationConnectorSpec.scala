@@ -273,7 +273,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
-    val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
+    val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
     val application = ApplicationResponse(
       applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     val response = ApplicationWithHistory(application, Seq(applicationState))
@@ -313,7 +313,7 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   "fetchStateHistory" should {
     val applicationId = ApplicationId.random
     val url = s"$baseUrl/gatekeeper/application/${applicationId.value}/stateHistory"
-    val applicationState = StateHistory(UUID.randomUUID(), State(2), Actor(UUID.randomUUID().toString))
+    val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
     val response = Seq(applicationState)
 
     "retrieve state history for app id" in new Setup {

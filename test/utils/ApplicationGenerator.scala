@@ -46,7 +46,7 @@ object ApplicationGenerator {
   }
 
   def aStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
-    StateHistory(randomUUID(), state, anActor(), None, changedAt)
+    StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
   }
 
   def anActor() = Actor("actor id")

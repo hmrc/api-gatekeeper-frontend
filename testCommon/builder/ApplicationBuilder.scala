@@ -37,6 +37,7 @@ import model.State.State
 import model.StateHistory
 import org.joda.time.DateTime
 import java.{util => ju}
+
 import model.Actor
 import model.RateLimitTier
 import model.CheckInformation
@@ -45,8 +46,8 @@ import model.view.ApplicationViewModel
 import model.Privileged
 import model.Ropc
 import model.ApiStatus._
+import model.RateLimitTier.RateLimitTier
 import model.User
-
 
 trait ApplicationBuilder {
 
@@ -93,8 +94,8 @@ trait ApplicationBuilder {
     Map(apiContext -> Map(apiVersion -> fields))
   }
 
- def buildStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
-    StateHistory(ju.UUID.randomUUID(), state, Actor("actor id"), None, changedAt)
+  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+    StateHistory(applicationId, state, actor, None, changedAt)
   }
 
   def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
@@ -139,6 +140,15 @@ trait ApplicationBuilder {
     def deployedToSandbox = app.copy(deployedTo = Environment.SANDBOX)
 
     def withoutCollaborator(email: String) = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
+
+    def withId(id: ApplicationId) = app.copy(id = id)
+    def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
+    def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
+    
+    def withName(name: String) = app.copy(name = name)
+    def withDescription(description: String) = app.copy(description = Some(description))
+
     def withAdmin(email: String) = {
       val app1 = app.withoutCollaborator(email)
       app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.ADMINISTRATOR))
@@ -169,8 +179,10 @@ trait ApplicationBuilder {
 
     def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
 
-    def createdOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
-    def lastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+    def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
+    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+
+    def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
     
   }  
 }

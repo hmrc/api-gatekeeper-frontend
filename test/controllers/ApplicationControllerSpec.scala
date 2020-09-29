@@ -1059,7 +1059,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
 
         fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
-        fetchStateHistoryReturns(Seq(buildStateHistory(State.PRODUCTION)))
+        fetchStateHistoryReturns(Seq(buildStateHistory(application2.id, State.PRODUCTION)))
 
         given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
           .willReturn(developers)
