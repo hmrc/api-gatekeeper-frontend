@@ -21,17 +21,17 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
-import acceptance.mocks.ApplicationResponseMock
-import acceptance.mocks.StateHistoryMock
+import acceptance.mocks.{ApplicationWithSubscriptionDataMock, ApplicationResponseMock}
+import acceptance.mocks.{StateHistoryMock, ApplicationWithHistoryMock}
 import model.ApplicationId
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData with ApplicationResponseMock with StateHistoryMock {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewBlockedApplicationTestData with ApplicationResponseMock with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationWithHistoryMock {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(newApplicationWithSubscriptionData, developers, stateHistories.withApplicationId(ApplicationId(newApplicationWithSubscriptionDataId)), newApplicationWithSubscriptionDataId)
+      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(newApplicationWithSubscriptionDataId)).toJsonString, newApplicationWithSubscriptionDataId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
@@ -46,7 +46,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewAp
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
+      stubApplication(newBlockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(newBlockedApplicationWithSubscriptionDataId)).toJsonString, newBlockedApplicationWithSubscriptionDataId)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage)

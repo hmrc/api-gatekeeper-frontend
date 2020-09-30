@@ -26,4 +26,6 @@ trait ApplicationMock extends ApplicationBuilder with TestData with Collaborator
    .withRateLimitTier(RateLimitTier.BRONZE)
    .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))
    .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
+
+   val blockedApplicationTest = testApplication.copy(id = ApplicationId(newBlockedApplicationWithSubscriptionDataId), blocked = true)
 }

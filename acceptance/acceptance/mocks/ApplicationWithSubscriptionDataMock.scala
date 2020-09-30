@@ -6,6 +6,8 @@ import play.api.libs.json.Json
 trait ApplicationWithSubscriptionDataMock extends TestData with SubscriptionsMock with ApplicationMock {
   val newApplicationWithSubscriptionData = ApplicationWithSubscriptionData(testApplication, testSubscriptions, Map.empty)
 
+  val newBlockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplicationTest, testSubscriptions, Map.empty)
+
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
     import model.APIDefinitionFormatters._
     implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020 HM Revenue & Customs
  *
@@ -21,14 +22,16 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
+import model.ApplicationId
+import acceptance.mocks.{ApplicationWithSubscriptionDataMock, StateHistoryMock, ApplicationResponseMock, ApplicationWithHistoryMock}
 
-class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with NewBlockedApplicationTestData with NewApplicationTestData {
+class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with NewBlockedApplicationTestData with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationResponseMock with ApplicationWithHistoryMock {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
-      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
+      stubApplication(newBlockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(newBlockedApplicationWithSubscriptionDataId)).toJsonString, newBlockedApplicationWithSubscriptionDataId)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
@@ -94,6 +97,6 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with New
   }
 
   def stubBlockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newBlockedApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(blockedApplicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newBlockedApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(blockedApplicationResponseForNewApplicationTest.toJsonString).withStatus(OK)))
   }
 }

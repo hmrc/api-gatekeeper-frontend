@@ -25,6 +25,8 @@ trait ApplicationResponseMock extends ApplicationResponseBuilder with Collaborat
       .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))
       .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
 
+  val blockedApplicationResponse = applicationResponseTest.copy(id = ApplicationId(newBlockedApplicationWithSubscriptionDataId), blocked = true, name = newBlockedApplicationName)
+
   implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[ApplicationResponse]) {
     def toJson = Json.toJson(applicationResponses)
     def toJsonString = Json.toJson(applicationResponses).toString

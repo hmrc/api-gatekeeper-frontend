@@ -24,10 +24,11 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
+import acceptance.mocks.{ApplicationWithSubscriptionDataMock, ApplicationResponseMock, StateHistoryMock}
 
 import scala.io.Source
 
-class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData with Assertions with TestData {
+class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataMock with ApplicationResponseMock with StateHistoryMock with Assertions with TestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -48,7 +49,7 @@ class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with NewAp
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(OK)))
       stubApplicationForEmail()
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
       stubApiDefinition()
       stubDevelopers()
       stubDeveloper()
@@ -88,7 +89,7 @@ class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with NewAp
     val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(applicationResponseTest.toSeq.toJsonString).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String) = {

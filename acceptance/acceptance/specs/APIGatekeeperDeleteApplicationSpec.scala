@@ -20,8 +20,9 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
+import acceptance.mocks.{ApplicationWithSubscriptionDataMock, StateHistoryMock, ApplicationWithHistoryMock}
 
-class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationWithHistoryMock {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
@@ -67,7 +68,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with NewA
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+    stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.selectByApplicationName(newApplicationName)
