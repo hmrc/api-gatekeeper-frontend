@@ -25,7 +25,7 @@ import acceptance.mocks.{ApplicationWithSubscriptionDataMock, ApplicationRespons
 import acceptance.mocks.{StateHistoryMock, ApplicationWithHistoryMock}
 import model.ApplicationId
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with NewBlockedApplicationTestData with ApplicationResponseMock with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationWithHistoryMock {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseMock with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationWithHistoryMock {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
