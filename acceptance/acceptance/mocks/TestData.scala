@@ -6,10 +6,12 @@ import play.api.libs.json.Json
 trait TestData {
   val newApplicationWithSubscriptionDataId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
   val newBlockedApplicationWithSubscriptionDataId = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
+  val newPendingApprovalApplicationWithSubscriptionDataId = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
   
   val newApplicationDescription = "application description"
   val newApplicationName = "My new app"
   val newBlockedApplicationName = "Automated Test Application - Blocked"
+  val newPendingApprovalApplicationName = "Application requiring approval"
 
   val newAdminEmail = "admin@example.com"
 

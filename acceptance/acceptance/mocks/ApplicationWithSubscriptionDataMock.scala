@@ -8,6 +8,8 @@ trait ApplicationWithSubscriptionDataMock extends TestData with SubscriptionsMoc
 
   val newBlockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplicationTest, testSubscriptions, Map.empty)
 
+  val newPendingApprovalApplicationWithSubscriptionData = ApplicationWithSubscriptionData(pendingApprovalApplicationTest, testSubscriptions, Map.empty)
+
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
     import model.APIDefinitionFormatters._
     implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]

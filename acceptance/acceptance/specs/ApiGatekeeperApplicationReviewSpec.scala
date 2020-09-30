@@ -18,12 +18,13 @@ package acceptance.specs
 
 import java.net.URLEncoder
 
+import acceptance.mocks.{ApplicationResponseMock, ApplicationWithHistoryMock, ApplicationWithSubscriptionDataMock, StateHistoryMock}
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewApplicationPendingApprovalTestData {
+class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with StateHistoryMock with ApplicationWithSubscriptionDataMock with ApplicationResponseMock with ApplicationWithHistoryMock {
 
   val developers = List[User]{new User("holly.golightly@example.com", "holly", "golightly", None, None, false)}
 
@@ -52,10 +53,10 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
       signInSuperUserGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newPendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, newPendingApprovalApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(newApplicationName)
+      ApplicationsPage.selectByApplicationName(newPendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -68,10 +69,10 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
 
       stubApplicationToReview(developers)
       clickOnReview("review")
-      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      on(ReviewPage(newPendingApprovalApplicationWithSubscriptionDataId, "Application requiring approval"))
       clickOnElement("approve-app")
 
-      stubFor(post(urlMatching(s"/application/$newApplicationWithSubscriptionDataId/approve-uplift"))
+      stubFor(post(urlMatching(s"/application/$newPendingApprovalApplicationWithSubscriptionDataId/approve-uplift"))
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK)))
       clickOnSubmit()
@@ -89,10 +90,10 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
       signInSuperUserGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newPendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, newPendingApprovalApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(newApplicationName)
+      ApplicationsPage.selectByApplicationName(newPendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -106,10 +107,10 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
       stubApplicationToReview(developers)
       clickOnReview("review")
 
-      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      on(ReviewPage(newPendingApprovalApplicationWithSubscriptionDataId, "Application requiring approval"))
       clickOnSubmit()
 
-      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      on(ReviewPage(newPendingApprovalApplicationWithSubscriptionDataId, "Application requiring approval"))
       verifyText("data-global-error", "Review the application")
     }
   }
@@ -123,10 +124,10 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
       signInSuperUserGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(newPendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, newPendingApprovalApplicationWithSubscriptionDataId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(newApplicationName)
+      ApplicationsPage.selectByApplicationName(newPendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -140,20 +141,20 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with NewA
       stubApplicationToReview(developers)
       clickOnReview("review")
 
-      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      on(ReviewPage(newPendingApprovalApplicationWithSubscriptionDataId, "Application requiring approval"))
       clickOnElement("reject-app")
 
-      stubFor(post(urlMatching(s"/application/$newApplicationWithSubscriptionDataId/reject-uplift"))
+      stubFor(post(urlMatching(s"/application/$newPendingApprovalApplicationWithSubscriptionDataId/reject-uplift"))
         .withRequestBody(equalToJson(rejectRequest))
         .willReturn(aResponse().withStatus(200)))
       clickOnSubmit()
 
-      on(ReviewPage(newApplicationWithSubscriptionDataId, "Application requiring approval"))
+      on(ReviewPage(newPendingApprovalApplicationWithSubscriptionDataId, "Application requiring approval"))
       verifyText("data-global-error", "This field is required")
     }
   }
 
   def stubApplicationToReview(developers: List[User]) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newPendingApprovalApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(pendingApprovalApplicationResponseForNewApplicationTest.toJsonString).withStatus(OK)))
   }
 }

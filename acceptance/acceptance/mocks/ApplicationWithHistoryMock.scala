@@ -9,6 +9,8 @@ trait ApplicationWithHistoryMock extends ApplicationResponseMock with StateHisto
 
   val blockedApplicationResponseForNewApplicationTest = ApplicationWithHistory(blockedApplicationResponse, stateHistories)
 
+  val pendingApprovalApplicationResponseForNewApplicationTest = ApplicationWithHistory(pendingApprovalApplicationResponse, pendingApprovalStateHistory)
+
   val applicationResponseForNewApplication = Json.toJson(applicationResponseForNewApplicationTest).toString
 
   implicit class ApplicationWithHistoryExtension(applicationWithHistory: ApplicationWithHistory) {

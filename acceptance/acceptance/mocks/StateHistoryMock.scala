@@ -16,6 +16,11 @@ trait StateHistoryMock extends StateHistoryBuilder with TestData {
      buildStateHistory(ApplicationId(newApplicationWithSubscriptionDataId), State.PRODUCTION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T16:12:38.686+01:00"))
   )
 
+  val pendingApprovalStateHistory = Seq(
+    buildStateHistory(ApplicationId(newPendingApprovalApplicationWithSubscriptionDataId), State.PENDING_GATEKEEPER_APPROVAL, Actor(newAdminEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
+    buildStateHistory(ApplicationId(newPendingApprovalApplicationWithSubscriptionDataId), State.PENDING_REQUESTER_VERIFICATION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00"))
+  )
+
   implicit class StateHistoryExtension(stateHistories: Seq[StateHistory]) {
     def toJson = Json.toJson(stateHistories)
     def toJsonString = Json.toJson(stateHistories).toString

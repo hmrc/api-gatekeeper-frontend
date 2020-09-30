@@ -10,7 +10,14 @@ trait ApplicationStateMock extends TestData {
      requestedByEmailAddress = Some(newAdminEmail),
      verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kd w"),
      updatedOn = DateTime.parse("2016-04-08T11:11:18.463Z")
-  )  
+  )
+
+  val pendingApprovalState: ApplicationState = ApplicationState(
+     name = State.PENDING_GATEKEEPER_APPROVAL,
+     requestedByEmailAddress = Some(newAdminEmail),
+     verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kd w"),
+     updatedOn = DateTime.parse("2016-04-08T11:11:18.463Z")
+  )
 
   val testStateForFetchAppResponseByEmail: ApplicationState = ApplicationState(
      name = State.PRODUCTION,
