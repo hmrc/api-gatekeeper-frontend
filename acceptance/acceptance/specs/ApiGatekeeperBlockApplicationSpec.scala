@@ -83,7 +83,6 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInAdminUserGatekeeper

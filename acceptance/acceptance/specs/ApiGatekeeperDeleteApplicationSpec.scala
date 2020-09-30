@@ -56,7 +56,6 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(List( ))
     stubApiDefinition()
 
     signInSuperUserGatekeeper

@@ -73,19 +73,10 @@ class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
-  def stubApplicationSubscription(developers: List[User]) = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
-    stubFor(get(urlEqualTo("/application/df0c32b6-bbb7-46eb-ba50-e6e5459162ff/subscription")).willReturn(aResponse().withBody(applicationSubscriptions).withStatus(OK)))
-
-    stubFor(get(urlMatching(s"/developers.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
-    stubFor(post(urlMatching(s"/developers/get-by-emails.*")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
-  }
-
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[User]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInAdminUserGatekeeper

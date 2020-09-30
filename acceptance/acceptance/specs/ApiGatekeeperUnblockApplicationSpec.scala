@@ -77,7 +77,6 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInAdminUserGatekeeper
