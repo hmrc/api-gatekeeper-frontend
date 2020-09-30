@@ -56,7 +56,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -64,10 +64,10 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", newApplicationWithSubscriptionDataId)
+      verifyText("data-app-id", applicationId)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description-private", newApplicationDescription)
+      verifyText("data-description-private", applicationDescription)
       verifyText("data-description-public", "")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
@@ -102,7 +102,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -125,13 +125,13 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
     val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
+      .willReturn(aResponse().withStatus(OK).withBody(unverifiedUserJson)))
   }
 
   def stubApplicationForDeveloperEmail() = {
     val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseTest.toSeq.toJsonString).withStatus(OK)))
+      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 }

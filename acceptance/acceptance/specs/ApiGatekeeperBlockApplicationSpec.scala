@@ -31,11 +31,11 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(newApplicationWithSubscriptionDataId)).toJsonString, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(applicationId)).toJsonString, applicationId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -46,10 +46,10 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(newBlockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(newBlockedApplicationWithSubscriptionDataId)).toJsonString, newBlockedApplicationWithSubscriptionDataId)
+      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
 
       Then("I cannot see the block button")
       BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
@@ -65,18 +65,18 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    BlockApplicationPage.completeForm(newApplicationName)
+    BlockApplicationPage.completeForm(applicationName)
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()
   }
 
   def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/block")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/block")).willReturn(aResponse().withStatus(OK)))
   }
 
   def stubUnblockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {

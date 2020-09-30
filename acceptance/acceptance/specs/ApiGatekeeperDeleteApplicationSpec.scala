@@ -67,10 +67,10 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(newApplicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, newApplicationWithSubscriptionDataId)
+    stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.selectByApplicationName(newApplicationName)
+    ApplicationsPage.selectByApplicationName(applicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
@@ -86,21 +86,21 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     stubApplicationToDelete()
 
     When("I fill out the Delete Application Form correctly")
-    DeleteApplicationPage.completeForm(newApplicationName)
+    DeleteApplicationPage.completeForm(applicationName)
 
     And("I select the Delete Application Button")
     DeleteApplicationPage.selectDeleteButton()
   }
 
   def stubApplicationToDelete() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def stubApplicationForDeleteSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
   def stubApplicationForDeleteFailure() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }

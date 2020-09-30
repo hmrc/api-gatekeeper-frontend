@@ -4,11 +4,11 @@ import model.applications.ApplicationWithSubscriptionData
 import play.api.libs.json.Json
 
 trait ApplicationWithSubscriptionDataMock extends TestData with SubscriptionsMock with ApplicationMock {
-  val newApplicationWithSubscriptionData = ApplicationWithSubscriptionData(testApplication, testSubscriptions, Map.empty)
+  val applicationWithSubscriptionData = ApplicationWithSubscriptionData(defaultApplication, defaultSubscriptions, Map.empty)
 
-  val newBlockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplicationTest, testSubscriptions, Map.empty)
+  val blockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplication, defaultSubscriptions, Map.empty)
 
-  val newPendingApprovalApplicationWithSubscriptionData = ApplicationWithSubscriptionData(pendingApprovalApplicationTest, testSubscriptions, Map.empty)
+  val pendingApprovalApplicationWithSubscriptionData = ApplicationWithSubscriptionData(pendingApprovalApplication, defaultSubscriptions, Map.empty)
 
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
     import model.APIDefinitionFormatters._

@@ -4,7 +4,7 @@ import model.{CheckInformation, ContactDetails, TermsOfUseAgreement}
 import org.joda.time.DateTime
 
 trait CheckInformationMock {
-  val testCheckInformation: CheckInformation = 
+  val defaultCheckInformation: CheckInformation =
     CheckInformation(
       contactDetails = Some(
          ContactDetails(

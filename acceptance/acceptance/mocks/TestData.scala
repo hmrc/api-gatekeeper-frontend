@@ -4,20 +4,20 @@ import model.User
 import play.api.libs.json.Json
 
 trait TestData {
-  val newApplicationWithSubscriptionDataId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
-  val newBlockedApplicationWithSubscriptionDataId = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
-  val newPendingApprovalApplicationWithSubscriptionDataId = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
+  val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
+  val blockedApplicationId = "fa38d130-7c8e-47d8-abc0-0374c7f73217"
+  val pendingApprovalApplicationId = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
   
-  val newApplicationDescription = "application description"
-  val newApplicationName = "My new app"
-  val newBlockedApplicationName = "Automated Test Application - Blocked"
-  val newPendingApprovalApplicationName = "Application requiring approval"
+  val applicationDescription = "application description"
+  val applicationName = "My new app"
+  val blockedApplicationName = "Automated Test Application - Blocked"
+  val pendingApprovalApplicationName = "Application requiring approval"
 
-  val newAdminEmail = "admin@example.com"
+  val administratorEmail = "admin@example.com"
 
-  val newDeveloper = "purnima.fakename@example.com"
-  val newDeveloperFirstName = "Purnima"
-  val newDeveloperLastName = "Fakename"
+  val developerEmail = "purnima.fakename@example.com"
+  val developerFirstName = "Purnima"
+  val developerLastName = "Fakename"
 
   val unverifiedUser = User(
     email = "Dixie.fakename@example.com",
@@ -27,5 +27,5 @@ trait TestData {
     mfaEnabled = true
   )
 
-  val newApplicationUser = Json.toJson(unverifiedUser).toString
+  val unverifiedUserJson = Json.toJson(unverifiedUser).toString
 }

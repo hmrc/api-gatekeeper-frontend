@@ -18,6 +18,7 @@ package acceptance.specs
 
 
 import acceptance.matchers.CustomMatchers
+import acceptance.mocks.{AllSubscribeableApisMock, ApiDefinitionMock}
 import acceptance.pages.{ApplicationsPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar, WebPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -28,7 +29,7 @@ import play.api.libs.json.Json
 
 import scala.io.Source
 
-class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen {
+class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AllSubscribeableApisMock with ApiDefinitionMock {
   def stubNewApplication(application: String, appId: String) = {
     stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
@@ -52,18 +53,8 @@ class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
   }
-  
-  def stubUnblockedApplication(application: String) {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73216")).willReturn(aResponse().withBody(application).withStatus(OK)))
-  }
-
-  def stubBlockedApplication(application: String) {
-    stubFor(get(urlEqualTo("/gatekeeper/application/fa38d130-7c8e-47d8-abc0-0374c7f73217")).willReturn(aResponse().withBody(application).withStatus(OK)))
-  }
 
   def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications")).willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }

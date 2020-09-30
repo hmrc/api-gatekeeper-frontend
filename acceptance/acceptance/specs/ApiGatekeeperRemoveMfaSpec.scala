@@ -19,6 +19,7 @@ package acceptance.specs
 import java.net.URLEncoder
 
 import acceptance.matchers.CustomMatchers
+import acceptance.mocks.ApiDefinitionMock
 import acceptance.pages._
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -28,7 +29,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class ApiGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions {
+class ApiGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionMock {
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")

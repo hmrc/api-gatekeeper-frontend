@@ -5,13 +5,11 @@ import play.api.libs.json.Json
 
 trait ApplicationWithHistoryMock extends ApplicationResponseMock with StateHistoryMock {
 
-  val applicationResponseForNewApplicationTest = ApplicationWithHistory(applicationResponseTest, stateHistories)
+  val defaultApplicationWithHistory = ApplicationWithHistory(defaultApplicationResponse, stateHistories)
 
-  val blockedApplicationResponseForNewApplicationTest = ApplicationWithHistory(blockedApplicationResponse, stateHistories)
+  val blockedApplicationWithHistory = ApplicationWithHistory(blockedApplicationResponse, stateHistories)
 
-  val pendingApprovalApplicationResponseForNewApplicationTest = ApplicationWithHistory(pendingApprovalApplicationResponse, pendingApprovalStateHistory)
-
-  val applicationResponseForNewApplication = Json.toJson(applicationResponseForNewApplicationTest).toString
+  val pendingApprovalApplicationWithHistory = ApplicationWithHistory(pendingApprovalApplicationResponse, pendingApprovalStateHistory)
 
   implicit class ApplicationWithHistoryExtension(applicationWithHistory: ApplicationWithHistory) {
     def toJson = Json.toJson(applicationWithHistory)

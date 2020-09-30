@@ -10,15 +10,15 @@ import builder.StateHistoryBuilder
 
 trait StateHistoryMock extends StateHistoryBuilder with TestData {
   val stateHistories = Seq(
-     buildStateHistory(ApplicationId(newApplicationWithSubscriptionDataId), State.TESTING, Actor(newAdminEmail), DateTime.parse("2019-08-22T11:21:50.160+01:00")),
-     buildStateHistory(ApplicationId(newApplicationWithSubscriptionDataId), State.PENDING_GATEKEEPER_APPROVAL, Actor(newAdminEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
-     buildStateHistory(ApplicationId(newApplicationWithSubscriptionDataId), State.PENDING_REQUESTER_VERIFICATION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00")),
-     buildStateHistory(ApplicationId(newApplicationWithSubscriptionDataId), State.PRODUCTION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T16:12:38.686+01:00"))
+     buildStateHistory(ApplicationId(applicationId), State.TESTING, Actor(administratorEmail), DateTime.parse("2019-08-22T11:21:50.160+01:00")),
+     buildStateHistory(ApplicationId(applicationId), State.PENDING_GATEKEEPER_APPROVAL, Actor(administratorEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
+     buildStateHistory(ApplicationId(applicationId), State.PENDING_REQUESTER_VERIFICATION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00")),
+     buildStateHistory(ApplicationId(applicationId), State.PRODUCTION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T16:12:38.686+01:00"))
   )
 
   val pendingApprovalStateHistory = Seq(
-    buildStateHistory(ApplicationId(newPendingApprovalApplicationWithSubscriptionDataId), State.PENDING_GATEKEEPER_APPROVAL, Actor(newAdminEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
-    buildStateHistory(ApplicationId(newPendingApprovalApplicationWithSubscriptionDataId), State.PENDING_REQUESTER_VERIFICATION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00"))
+    buildStateHistory(ApplicationId(pendingApprovalApplicationId), State.PENDING_GATEKEEPER_APPROVAL, Actor(administratorEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
+    buildStateHistory(ApplicationId(pendingApprovalApplicationId), State.PENDING_REQUESTER_VERIFICATION, Actor("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00"))
   )
 
   implicit class StateHistoryExtension(stateHistories: Seq[StateHistory]) {
