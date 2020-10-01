@@ -36,9 +36,12 @@ trait ActionBuilders extends ErrorHelper {
     applicationService.fetchApplication(appId).flatMap(f)
   }
   
-  def withAppAndSubsData(appId: ApplicationId)(f: Option[ApplicationWithSubscriptionData] => Future[Result])
-             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    apmService.fetchApplicationById(appId).flatMap(f)
+  def withAppAndSubsData(appId: ApplicationId)(f: ApplicationWithSubscriptionData => Future[Result])
+             (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap {
+      case Some(appWithSubsData) => f(appWithSubsData)
+      case None => Future.successful(notFound("Application not found"))
+    }
   }
 
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])

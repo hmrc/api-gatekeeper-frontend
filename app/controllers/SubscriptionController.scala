@@ -27,7 +27,7 @@ import model.ApiVersion
 import utils.ActionBuilders
 import utils.GatekeeperAuthWrapper
 import config.AppConfig
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import views.html.applications.ManageSubscriptionsView
 import services.ApmService
 import services.ApplicationService
@@ -35,6 +35,14 @@ import views.html.ErrorTemplate
 import views.html.ForbiddenView
 import connectors.AuthConnector
 import com.google.inject.{Singleton, Inject}
+import model.view.SubscriptionViewModel
+import model.ApiIdentifier
+import model.Subscription
+import model.subscriptions.ApiData
+import model.VersionSubscription
+import model.ApiVersionDefinition
+import model.ClientId
+import model.SubscriptionFields.SubscriptionFieldsWrapper
 
 @Singleton
 class SubscriptionController @Inject()(
@@ -52,11 +60,34 @@ class SubscriptionController @Inject()(
     
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-        withApp(appId) { app =>
-          applicationService.fetchApplicationSubscriptions(app.application).map {
-            subs => Ok(manageSubscriptionsView(app, subs.sortWith(_.name.toLowerCase < _.name.toLowerCase), isAtLeastSuperUser))
-          }
-        }
+      def convertToVersionSubscription(apiData: ApiData, apiVersions: Seq[ApiVersion], clientId: ClientId, apiContext: ApiContext): Seq[VersionSubscription] = {
+        apiData.versions.map {
+          case (version, data) => 
+            VersionSubscription(
+              ApiVersionDefinition(version, data.status, Some(data.access)),
+              apiVersions.contains(version),
+              SubscriptionFieldsWrapper(appId, clientId, apiContext, version, Seq.empty)
+            )
+        }.toSeq
+      }
+
+      def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : Seq[ApiVersion] = {
+        subscriptions.filter(id => id.context == context).map(id => id.version).toSeq
+      }
+
+      def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData], clientId: ClientId): Seq[Subscription] = {
+        allPossibleSubs.map {
+          case (context, data) => Subscription(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context), clientId, context))
+        }.toSeq
+      }
+
+      withAppAndSubsData(appId) { appWithSubsData =>
+        for {
+          allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
+          subscriptions = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs, appWithSubsData.application.clientId)
+          subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, subscriptions, isAtLeastSuperUser)
+        } yield Ok(manageSubscriptionsView(subscriptionsViewModel))
+      }
   }
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
