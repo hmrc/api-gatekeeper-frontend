@@ -62,28 +62,6 @@ case class ApiDefinition(serviceName: String,
   }
 }
 
-// object ApiDefinition {
-//   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
-//   private val fallback = Array(1, 0, 0)
-
-//   private def versionSorter(v1: ApiVersionDefinition, v2: ApiVersionDefinition) = {
-//     val v1Parts = Try(v1.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-//     val v2Parts = Try(v2.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-//     val pairs = v1Parts.zip(v2Parts)
-
-//     val firstUnequalPair = pairs.find { case (one, two) => one != two }
-//     firstUnequalPair.fold(v1.version.value.length > v2.version.value.length) { case (a, b) => a > b }
-//   }
-
-//   def descendingVersion(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
-//     versionSorter(v1.version, v2.version)
-//   }
-
-//   def descendingVersionWithFields(v1: VersionSubscription, v2: VersionSubscription) = {
-//     versionSorter(v1.version, v2.version)
-//   }
-// }
-
 case class APICategory(value: String) extends AnyVal
 object APICategory{
   implicit val formatApiCategory = Json.valueFormat[APICategory]
