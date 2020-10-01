@@ -16,12 +16,12 @@
 
 package model.view
 
-import model.Subscription
 import model.ApplicationId
+import model.SubscriptionWithoutFields
 
 case class SubscriptionViewModel(
   applicationId: ApplicationId, 
   applicationName: String,
-  subscriptions: Seq[Subscription],
+  subscriptions: Seq[SubscriptionWithoutFields],
   isAtLeastSuperUser: Boolean
 )

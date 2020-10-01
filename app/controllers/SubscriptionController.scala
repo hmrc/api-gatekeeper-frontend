@@ -44,6 +44,9 @@ import model.ApiVersionDefinition
 import model.ClientId
 import model.SubscriptionFields.SubscriptionFieldsWrapper
 import model.ApiDefinition
+import utils.SortingHelper
+import model.SubscriptionWithoutFields
+import model.VersionSubscriptionWithoutFields
 
 @Singleton
 class SubscriptionController @Inject()(
@@ -61,31 +64,30 @@ class SubscriptionController @Inject()(
     
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      def convertToVersionSubscription(apiData: ApiData, apiVersions: Seq[ApiVersion], clientId: ClientId, apiContext: ApiContext): Seq[VersionSubscription] = {
+      def convertToVersionSubscription(apiData: ApiData, apiVersions: Seq[ApiVersion]): Seq[VersionSubscriptionWithoutFields] = {
         apiData.versions.map {
           case (version, data) => 
-            VersionSubscription(
+            VersionSubscriptionWithoutFields(
               ApiVersionDefinition(version, data.status, Some(data.access)),
-              apiVersions.contains(version),
-              SubscriptionFieldsWrapper(appId, clientId, apiContext, version, Seq.empty)
+              apiVersions.contains(version)
             )
-        }.toSeq.sortWith(ApiDefinition.descendingVersionWithFields)
+        }.toSeq.sortWith(SortingHelper.descendingVersionWithoutFields)
       }
 
       def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : Seq[ApiVersion] = {
         subscriptions.filter(id => id.context == context).map(id => id.version).toSeq
       }
 
-      def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData], clientId: ClientId): Seq[Subscription] = {
+      def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): Seq[SubscriptionWithoutFields] = {
         allPossibleSubs.map {
-          case (context, data) => Subscription(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context), clientId, context))
+          case (context, data) => SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
         }.toSeq
       }
 
       withAppAndSubsData(appId) { appWithSubsData =>
         for {
           allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
-          subscriptions = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs, appWithSubsData.application.clientId)
+          subscriptions = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)
           sortedSubscriptions = subscriptions.sortWith(_.name.toLowerCase < _.name.toLowerCase)
           subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, sortedSubscriptions, isAtLeastSuperUser)
         } yield Ok(manageSubscriptionsView(subscriptionsViewModel))
