@@ -33,7 +33,7 @@ object ApiContext {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiContext(Random.nextString(10))
+  def random = ApiContext(Random.alphanumeric.take(10).toString)
 }
 
 case class ApiVersion(value: String) extends AnyVal {
@@ -76,6 +76,10 @@ object ApiDefinition {
   }
 
   def descendingVersion(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
+    versionSorter(v1.version, v2.version)
+  }
+
+  def descendingVersionWithFields(v1: VersionSubscription, v2: VersionSubscription) = {
     versionSorter(v1.version, v2.version)
   }
 }

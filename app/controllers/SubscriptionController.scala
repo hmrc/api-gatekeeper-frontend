@@ -43,6 +43,7 @@ import model.VersionSubscription
 import model.ApiVersionDefinition
 import model.ClientId
 import model.SubscriptionFields.SubscriptionFieldsWrapper
+import model.ApiDefinition
 
 @Singleton
 class SubscriptionController @Inject()(
@@ -68,7 +69,7 @@ class SubscriptionController @Inject()(
               apiVersions.contains(version),
               SubscriptionFieldsWrapper(appId, clientId, apiContext, version, Seq.empty)
             )
-        }.toSeq
+        }.toSeq.sortWith(ApiDefinition.descendingVersionWithFields)
       }
 
       def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : Seq[ApiVersion] = {
@@ -85,7 +86,8 @@ class SubscriptionController @Inject()(
         for {
           allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
           subscriptions = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs, appWithSubsData.application.clientId)
-          subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, subscriptions, isAtLeastSuperUser)
+          sortedSubscriptions = subscriptions.sortWith(_.name.toLowerCase < _.name.toLowerCase)
+          subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, sortedSubscriptions, isAtLeastSuperUser)
         } yield Ok(manageSubscriptionsView(subscriptionsViewModel))
       }
   }

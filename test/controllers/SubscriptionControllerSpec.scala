@@ -31,6 +31,9 @@ import services.SubscriptionFieldsService
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import builder.ApplicationBuilder
+import model.applications.ApplicationWithSubscriptionData
+import builder.ApiBuilder
 
 class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar {
   implicit val materializer = app.materializer
@@ -154,17 +157,21 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       val apiContext = ApiContext.random
 
       "the user is a superuser" should {
-        "fetch the subscriptions with the fields" in new Setup {
+        "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val subscription = Subscription("name", "serviceName", apiContext, Seq())
+          val newApplication = buildApplication()
+          val applicationWithSubscriptionData = ApplicationWithSubscriptionData(newApplication, Set.empty, Map.empty)
+          val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+          val apiContext = ApiContext("Api Context")
+          val apiContextAndApiData = Map(apiContext -> apiData)
+
           givenTheUserIsAuthorisedAndIsASuperUser()
-          givenTheAppWillBeReturned()
-          when(mockApplicationService.fetchApplicationSubscriptions(*)(*)).thenReturn(Seq(subscription))
+          fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+          fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest))
 
           status(result) shouldBe OK
-          verify(mockApplicationService, times(1)).fetchApplicationSubscriptions(eqTo(application.application))(*)
           verifyAuthConnectorCalledForSuperUser
         }
       }

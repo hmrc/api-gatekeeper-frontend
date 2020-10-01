@@ -26,7 +26,7 @@ object FieldName {
     override def compare(x: FieldName, y: FieldName): Int = x.value.compareTo(y.value)
   }
 
-  def random = FieldName(Random.nextString(8))
+  def random = FieldName(Random.alphanumeric.take(8).toString)
 }
 
 case class FieldValue(value: String) extends AnyVal {
@@ -36,7 +36,7 @@ case class FieldValue(value: String) extends AnyVal {
 object FieldValue {
   def empty = FieldValue("")
 
-  def random = FieldValue(Random.nextString(8))
+  def random = FieldValue(Random.alphanumeric.take(8).toString)
 }
 
 object SubscriptionFields {
