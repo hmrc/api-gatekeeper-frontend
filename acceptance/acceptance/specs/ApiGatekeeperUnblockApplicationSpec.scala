@@ -23,9 +23,9 @@ import model.User
 import play.api.http.Status._
 import acceptance.WebPage
 import model.ApplicationId
-import acceptance.mocks.{ApplicationWithSubscriptionDataMock, StateHistoryMock, ApplicationResponseMock, ApplicationWithHistoryMock}
+import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
 
-class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationResponseMock with ApplicationWithHistoryMock {
+class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 

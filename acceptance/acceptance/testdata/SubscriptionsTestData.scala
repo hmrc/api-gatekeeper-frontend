@@ -1,9 +1,9 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import builder.SubscriptionsBuilder
 import model.{ApiContext, ApiVersion}
 
-trait SubscriptionsMock extends SubscriptionsBuilder {
+trait SubscriptionsTestData extends SubscriptionsBuilder {
 
   val defaultSubscriptions = Set(
      buildApiIdentifier(ApiContext("marriage-allowance"), ApiVersion("1.0")),

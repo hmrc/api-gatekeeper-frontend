@@ -1,10 +1,10 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.ApplicationState
 import model.State
 import org.joda.time.DateTime
 
-trait ApplicationStateMock extends TestData {
+trait ApplicationStateTestData extends CommonTestData {
   val productionState: ApplicationState = ApplicationState(
      name = State.PRODUCTION,
      requestedByEmailAddress = Some(administratorEmail),

@@ -1,4 +1,4 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import builder.ApplicationResponseBuilder
 import model.{ApplicationId, ClientId, RateLimitTier}
@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.Json
 import model.ApplicationResponse
 
-trait ApplicationResponseMock extends ApplicationResponseBuilder with CollaboratorsMock with AccessMock with ApplicationStateMock {
+trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 
   val defaultApplicationResponse = DefaultApplicationResponse
     .withId(ApplicationId(applicationId))

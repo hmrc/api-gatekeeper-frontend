@@ -19,7 +19,7 @@ package acceptance.specs
 import java.net.URLEncoder
 
 import acceptance.pages._
-import acceptance.mocks.{ApiDefinitionMock, ApplicationResponseMock, ApplicationWithSubscriptionDataMock, StateHistoryMock, TestData}
+import acceptance.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.scalatest.{Assertions, Tag}
@@ -27,7 +27,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataMock with ApplicationResponseMock with StateHistoryMock with Assertions with TestData  with ApiDefinitionMock with MockDataSugar {
+class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with StateHistoryTestData with Assertions with CommonTestData  with ApiDefinitionTestData with MockDataSugar {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)

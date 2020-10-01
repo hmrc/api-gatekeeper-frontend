@@ -1,9 +1,9 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.ApplicationWithHistory
 import play.api.libs.json.Json
 
-trait ApplicationWithHistoryMock extends ApplicationResponseMock with StateHistoryMock {
+trait ApplicationWithHistoryTestData extends ApplicationResponseTestData with StateHistoryTestData {
 
   val defaultApplicationWithHistory = ApplicationWithHistory(defaultApplicationResponse, stateHistories)
 

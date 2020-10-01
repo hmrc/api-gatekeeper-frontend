@@ -1,11 +1,11 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.{Actor, ApplicationId, State, StateHistory}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import builder.StateHistoryBuilder
 
-trait StateHistoryMock extends StateHistoryBuilder with TestData {
+trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
   val stateHistories = Seq(
      buildStateHistory(ApplicationId(applicationId), State.TESTING, Actor(administratorEmail), DateTime.parse("2019-08-22T11:21:50.160+01:00")),
      buildStateHistory(ApplicationId(applicationId), State.PENDING_GATEKEEPER_APPROVAL, Actor(administratorEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),

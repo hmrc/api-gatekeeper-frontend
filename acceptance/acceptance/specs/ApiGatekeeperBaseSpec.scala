@@ -18,7 +18,7 @@ package acceptance.specs
 
 
 import acceptance.matchers.CustomMatchers
-import acceptance.mocks.{AllSubscribeableApisMock, ApiDefinitionMock}
+import acceptance.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
 import acceptance.pages.{ApplicationsPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar, WebPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -29,7 +29,7 @@ import play.api.libs.json.Json
 
 import scala.io.Source
 
-class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AllSubscribeableApisMock with ApiDefinitionMock {
+class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AllSubscribeableApisTestData with ApiDefinitionTestData {
   def stubNewApplication(application: String, appId: String) = {
     stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }

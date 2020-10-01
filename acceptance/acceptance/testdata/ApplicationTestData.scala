@@ -1,10 +1,10 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import builder.ApplicationBuilder
 import model.{ApplicationId, ClientId, RateLimitTier}
 import org.joda.time.DateTime
 
-trait ApplicationMock extends ApplicationBuilder with TestData with CollaboratorsMock with ApplicationStateMock with AccessMock with CheckInformationMock {
+trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData with CheckInformationTestData {
 
     val ipWhitelist = Set.empty[String]
 

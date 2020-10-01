@@ -1,9 +1,9 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.{CheckInformation, ContactDetails, TermsOfUseAgreement}
 import org.joda.time.DateTime
 
-trait CheckInformationMock {
+trait CheckInformationTestData {
   val defaultCheckInformation: CheckInformation =
     CheckInformation(
       contactDetails = Some(

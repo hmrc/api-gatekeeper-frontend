@@ -1,8 +1,8 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.{Access, Standard}
 
-trait AccessMock {
+trait AccessTestData {
 
   val standardAccess: Access = Standard(
     redirectUris = Seq("http://localhost:8080/callback"),

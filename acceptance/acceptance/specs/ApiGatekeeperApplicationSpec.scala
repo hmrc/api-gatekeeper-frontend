@@ -25,9 +25,9 @@ import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
-import acceptance.mocks.{StateHistoryMock, ApplicationWithSubscriptionDataMock, ApplicationResponseMock}
+import acceptance.testdata.{StateHistoryTestData, ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
 
-class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryMock with ApplicationWithSubscriptionDataMock with ApplicationResponseMock {
+class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)

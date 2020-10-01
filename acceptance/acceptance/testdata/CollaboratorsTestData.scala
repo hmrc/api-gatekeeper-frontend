@@ -1,9 +1,9 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.Collaborator
 import model.CollaboratorRole
 
-trait CollaboratorsMock extends TestData {
+trait CollaboratorsTestData extends CommonTestData {
   val collaboratorsAdminAndUnverifiedDev: Set[Collaborator] = Set(
      Collaborator(administratorEmail, CollaboratorRole.ADMINISTRATOR),
      Collaborator(developerEmail, CollaboratorRole.DEVELOPER),

@@ -1,9 +1,9 @@
-package acceptance.mocks
+package acceptance.testdata
 
 import model.applications.ApplicationWithSubscriptionData
 import play.api.libs.json.Json
 
-trait ApplicationWithSubscriptionDataMock extends TestData with SubscriptionsMock with ApplicationMock {
+trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {
   val applicationWithSubscriptionData = ApplicationWithSubscriptionData(defaultApplication, defaultSubscriptions, Map.empty)
 
   val blockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplication, defaultSubscriptions, Map.empty)

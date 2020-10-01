@@ -1,6 +1,6 @@
-package acceptance.mocks
+package acceptance.testdata
 
-trait ApiDefinitionMock {
+trait ApiDefinitionTestData {
 
   val apiDefinition =
     s"""

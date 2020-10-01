@@ -21,11 +21,11 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
-import acceptance.mocks.{ApplicationWithSubscriptionDataMock, ApplicationResponseMock}
-import acceptance.mocks.{StateHistoryMock, ApplicationWithHistoryMock}
+import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
+import acceptance.testdata.{StateHistoryTestData, ApplicationWithHistoryTestData}
 import model.ApplicationId
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseMock with ApplicationWithSubscriptionDataMock with StateHistoryMock with ApplicationWithHistoryMock {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 

@@ -1,6 +1,6 @@
-package acceptance.mocks
+package acceptance.testdata
 
-trait AllSubscribeableApisMock {
+trait AllSubscribeableApisTestData {
 
   val allSubscribeableApis =
     s"""
