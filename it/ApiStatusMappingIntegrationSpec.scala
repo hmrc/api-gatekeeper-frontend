@@ -78,12 +78,12 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
           |]
         """.stripMargin)))
 
-      val result: Seq[APIDefinition] = await(connector.fetchPublic())
+      val result: Seq[ApiDefinition] = await(connector.fetchPublic())
       
-      result shouldBe Seq(APIDefinition(
+      result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition(apiVersion, APIStatus.BETA, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), Some(Seq(APICategory("VAT")))))
+        Seq(ApiVersionDefinition(apiVersion, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), Some(Seq(APICategory("VAT")))))
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
@@ -120,12 +120,12 @@ class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceO
           |]
         """.stripMargin)))
 
-      val result: Seq[APIDefinition] = await(connector.fetchPublic())
+      val result: Seq[ApiDefinition] = await(connector.fetchPublic())
       
-      result shouldBe Seq(APIDefinition(
+      result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        Seq(ApiVersionDefinition(apiVersion, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
     }
   }
 }

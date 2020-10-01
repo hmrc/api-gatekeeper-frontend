@@ -25,8 +25,9 @@ import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
+import acceptance.testdata.{StateHistoryTestData, ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
 
-class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -55,7 +56,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -63,10 +64,10 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", newApplicationWithSubscriptionDataId)
+      verifyText("data-app-id", applicationId)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
-      verifyText("data-description-private", newApplicationDescription)
+      verifyText("data-description-private", applicationDescription)
       verifyText("data-description-public", "")
       webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
       webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
@@ -101,7 +102,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       signInGatekeeper()
 
       on(ApplicationsPage)
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -113,7 +114,7 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
       stubApplicationForDeveloperEmail()
 
       When("I select to navigate to a collaborator")
-      ApplicationsPage.selectDeveloperByEmail(newDeveloper8)
+      ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the developer details page")
       on(DeveloperDetailsPage)
@@ -121,16 +122,16 @@ class APIGatekeeperApplicationSpec extends APIGatekeeperBaseSpec with NewApplica
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
+      .willReturn(aResponse().withStatus(OK).withBody(unverifiedUserJson)))
   }
 
   def stubApplicationForDeveloperEmail() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 }

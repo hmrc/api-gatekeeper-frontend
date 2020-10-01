@@ -21,18 +21,21 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
+import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
+import acceptance.testdata.{StateHistoryTestData, ApplicationWithHistoryTestData}
+import model.ApplicationId
 
-class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with NewBlockedApplicationTestData {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Block an application") {
     scenario("I can block an application") {
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(applicationId)).toJsonString, applicationId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -43,10 +46,10 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewAp
     }
 
     scenario("I cannot block an application that is already blocked") {
-      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
+      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
 
       Then("I cannot see the block button")
       BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
@@ -62,25 +65,24 @@ class APIGatekeeperBlockApplicationSpec extends APIGatekeeperBaseSpec with NewAp
     on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    BlockApplicationPage.completeForm(newApplicationName)
+    BlockApplicationPage.completeForm(applicationName)
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()
   }
 
   def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/block")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/block")).willReturn(aResponse().withStatus(OK)))
   }
 
   def stubUnblockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInAdminUserGatekeeper

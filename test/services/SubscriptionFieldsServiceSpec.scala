@@ -18,7 +18,7 @@ package services
 
 import connectors._
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
+import model.{ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
 import org.scalatest.concurrent.ScalaFutures
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
@@ -43,7 +43,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
   }
 
   val apiVersion = ApiVersion.random
-  private val apiIdentifier = APIIdentifier(ApiContext.random, apiVersion)
+  private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
   "When application is deployedTo production then principal connector is called" should {
     val application = mock[Application]
@@ -68,7 +68,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         buildSubscriptionFieldDefinition()
       )
 
-      val apiIdentifier = APIIdentifier(ApiContext.random, apiVersion)
+      val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
       when(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(*[ApiContext], *[ApiVersion])(*))
         .thenReturn(subscriptionFieldDefinitions)
@@ -130,7 +130,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
-        await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
+        await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockProductionSubscriptionFieldsConnector, never)
           .fetchFieldValues(*[ClientId],*[ApiContext], *[ApiVersion])(*)
@@ -142,7 +142,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
-        await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
+        await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockProductionSubscriptionFieldsConnector)
           .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
@@ -172,7 +172,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         buildSubscriptionFieldDefinition()
       )
 
-      val apiIdentifier = APIIdentifier(ApiContext.random, apiVersion)
+      val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
       when(mockSandboxSubscriptionFieldsConnector.fetchFieldDefinitions(*[ApiContext], *[ApiVersion])(*))
         .thenReturn(subscriptionFieldDefinitions)
@@ -234,7 +234,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
-        await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
+        await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockSandboxSubscriptionFieldsConnector, never)
           .fetchFieldValues(*[ClientId],*[ApiContext], *[ApiVersion])(*)
@@ -246,7 +246,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
         when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
           .thenReturn(Future.successful(Seq.empty))
 
-        await (service.fetchFieldsValues(application, definitions, APIIdentifier(apiIdentifier.context, apiIdentifier.version)))
+        await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
         verify(mockSandboxSubscriptionFieldsConnector)
           .fetchFieldValues(eqTo(application.clientId),eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)

@@ -22,7 +22,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 class JsonFormattersSpec extends UnitSpec {
 
   trait Setup {
-    val underTest = APIStatusJson.apiStatusReads(APIStatus)
+    val underTest = ApiStatusJson.apiStatusReads(ApiStatus)
   }
 
   "reads" should {
@@ -30,42 +30,42 @@ class JsonFormattersSpec extends UnitSpec {
 
       val result = underTest.reads(JsString("PROTOTYPED"))
 
-      result shouldBe JsSuccess(APIStatus.BETA)
+      result shouldBe JsSuccess(ApiStatus.BETA)
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
 
       val result = underTest.reads(JsString("PUBLISHED"))
 
-      result shouldBe JsSuccess(APIStatus.STABLE)
+      result shouldBe JsSuccess(ApiStatus.STABLE)
     }
 
     "map API status of ALPHA to ALPHA" in new Setup {
 
       val result = underTest.reads(JsString("ALPHA"))
 
-      result shouldBe JsSuccess(APIStatus.ALPHA)
+      result shouldBe JsSuccess(ApiStatus.ALPHA)
     }
 
     "map API status of DEPRECATED to DEPRECATED" in new Setup {
 
       val result = underTest.reads(JsString("DEPRECATED"))
 
-      result shouldBe JsSuccess(APIStatus.DEPRECATED)
+      result shouldBe JsSuccess(ApiStatus.DEPRECATED)
     }
 
     "map API status of RETIRED to RETIRED" in new Setup {
 
       val result = underTest.reads(JsString("RETIRED"))
 
-      result shouldBe JsSuccess(APIStatus.RETIRED)
+      result shouldBe JsSuccess(ApiStatus.RETIRED)
     }
 
     "error when the status is unrecognised" in new Setup {
 
       val result = underTest.reads(JsString("NOT_A_STATUS"))
 
-      result shouldBe JsError(s"Enumeration expected of type: APIStatus, but it does not contain 'NOT_A_STATUS'")
+      result shouldBe JsError(s"Enumeration expected of type: ApiStatus, but it does not contain 'NOT_A_STATUS'")
     }
 
     "error when not given a JsString" in new Setup {

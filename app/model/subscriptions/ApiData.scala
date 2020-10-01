@@ -17,10 +17,10 @@
 package model.subscriptions
 
 import model.ApiVersion
-import model.APIStatus.APIStatus
-import model.APIAccess
+import model.ApiStatus.ApiStatus
+import model.ApiAccess
 
-case class VersionData(status: APIStatus, access: APIAccess)
+case class VersionData(status: ApiStatus, access: ApiAccess)
 
 case class ApiData(
     serviceName: String,

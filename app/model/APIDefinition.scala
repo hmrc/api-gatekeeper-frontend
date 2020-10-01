@@ -16,7 +16,7 @@
 
 package model
 
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 import model.SubscriptionFields._
 import play.api.libs.json.Json
 
@@ -29,7 +29,6 @@ case class ApiContext(value: String) extends AnyVal {
 }
 
 object ApiContext {
-
   implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
@@ -42,7 +41,6 @@ case class ApiVersion(value: String) extends AnyVal {
 }
 
 object ApiVersion {
-
   implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
@@ -50,7 +48,7 @@ object ApiVersion {
   def random = ApiVersion(Random.nextDouble().toString)
 }
 
-case class APIDefinition(serviceName: String,
+case class ApiDefinition(serviceName: String,
                          serviceBaseUrl: String,
                          name: String,
                          description: String,
@@ -64,8 +62,7 @@ case class APIDefinition(serviceName: String,
   }
 }
 
-object APIDefinition {
-
+object ApiDefinition {
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback = Array(1, 0, 0)
 
@@ -100,43 +97,43 @@ case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: Option[APIAccess] = None) {
-  val displayedStatus = APIStatus.displayedStatus(status)
+case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: Option[ApiAccess] = None) {
+  val displayedStatus = ApiStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
 }
 
-object APIStatus extends Enumeration {
-  type APIStatus = Value
+object ApiStatus extends Enumeration {
+  type ApiStatus = Value
   val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
 
-  val displayedStatus: (APIStatus) => String = {
-    case APIStatus.ALPHA => "Alpha"
-    case APIStatus.BETA => "Beta"
-    case APIStatus.STABLE => "Stable"
-    case APIStatus.DEPRECATED => "Deprecated"
-    case APIStatus.RETIRED => "Retired"
+  val displayedStatus: (ApiStatus) => String = {
+    case ApiStatus.ALPHA => "Alpha"
+    case ApiStatus.BETA => "Beta"
+    case ApiStatus.STABLE => "Stable"
+    case ApiStatus.DEPRECATED => "Deprecated"
+    case ApiStatus.RETIRED => "Retired"
   }
 }
 
-case class APIAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean] = None)
+case class ApiAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean] = None)
 
 object APIAccessType extends Enumeration {
   type APIAccessType = Value
   val PRIVATE, PUBLIC = Value
 }
 
-case class APIIdentifier(context: ApiContext, version: ApiVersion)
-object APIIdentifier {
-  def random() = APIIdentifier(ApiContext.random, ApiVersion.random)
+case class ApiIdentifier(context: ApiContext, version: ApiVersion)
+object ApiIdentifier {
+  def random() = ApiIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed extends Throwable
 
-case class VersionSummary(name: String, status: APIStatus, apiIdentifier: APIIdentifier)
+case class VersionSummary(name: String, status: ApiStatus, apiIdentifier: ApiIdentifier)
 
-case class SubscriptionResponse(apiIdentifier: APIIdentifier, applications: Seq[String])
+case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: Seq[String])
 
 case class Subscription(name: String,
                         serviceName: String,

@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice._
-import model.{APICategoryDetails, APIDefinition, ApiVersionDefinition, User}
+import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition, User}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
 
@@ -84,10 +84,10 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 }
 
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[APIDefinition]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
-    for (api: APIDefinition <- apis) {
+    for (api: ApiDefinition <- apis) {
       for (version: ApiVersionDefinition <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}") {
@@ -101,13 +101,13 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[APIDefinition], selectedApiName: String, users: Seq[User]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition], selectedApiName: String, users: Seq[User]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
     validateButtonText(document, "filter", "Filter Again")
 
-    for (api: APIDefinition <- apis) {
+    for (api: ApiDefinition <- apis) {
       for (version: ApiVersionDefinition <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         versionOption.isDefined mustBe true
@@ -223,7 +223,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateTopicGrid(document, selectedTopic)
   }
 
-  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[APIDefinition]) = {
+  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[ApiDefinition]) = {
     validateStaticPageElements(document, "Filter", None)
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
@@ -236,7 +236,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesSpecificAPIResults(document: Document,
                                                  selectedTopic: TopicOptionChoice,
-                                                 selectedAPIs: Seq[APIDefinition],
+                                                 selectedAPIs: Seq[ApiDefinition],
                                                  users: Seq[User],
                                                  emailsString: String) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
@@ -253,7 +253,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 }
 
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
-  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[APIDefinition]) {
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[ApiDefinition]) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
@@ -261,11 +261,11 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateButtonText(document, "submit", "Select API")
   }
 
-  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[APIDefinition]) = {
+  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[ApiDefinition]) = {
     validateStaticPageElements(document, dropDownAPIs)
   }
 
-  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[APIDefinition], selectedAPIs: Seq[APIDefinition]) = {
+  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[ApiDefinition], selectedAPIs: Seq[ApiDefinition]) = {
     validateStaticPageElements(document, dropDownAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs)
   }

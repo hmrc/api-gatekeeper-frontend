@@ -16,8 +16,6 @@
 
 package model
 
-import java.util.UUID
-
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import model.State.State
@@ -27,7 +25,7 @@ import play.api.libs.json.JodaWrites._
 
 case class Actor(id: String)
 
-case class StateHistory(applicationId: UUID,
+case class StateHistory(applicationId: ApplicationId,
                         state: State,
                         actor: Actor,
                         notes: Option[String] = None,
@@ -42,7 +40,8 @@ object StateHistory {
     }
   }
 
-  implicit val format1 = EnumJson.enumFormat(State)
-  implicit val format2 = Json.format[Actor]
+  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
+  implicit val formatState = EnumJson.enumFormat(State)
+  implicit val formatActor = Json.format[Actor]
   implicit val format = Json.format[StateHistory]
 }

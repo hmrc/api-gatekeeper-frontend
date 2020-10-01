@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020 HM Revenue & Customs
  *
@@ -21,18 +22,20 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.WebPage
+import model.ApplicationId
+import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
 
-class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with NewBlockedApplicationTestData with NewApplicationTestData {
+class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
-      stubApplication(newBlockedApplicationWithSubscriptionData, developers, newBlockedApplicationStateHistory, newBlockedApplicationWithSubscriptionDataId)
+      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newBlockedApplicationName, BlockedApplicationPage, developers)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage, developers)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -44,7 +47,7 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with New
     scenario("I cannot unblock an application that is already unblocked") {
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(newApplicationName, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
 
       Then("I cannot see the unblock button")
       ApplicationPage.bodyText.contains("Unblock application") shouldBe false
@@ -60,21 +63,20 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with New
     on(UnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    UnblockApplicationPage.completeForm(newBlockedApplicationName)
+    UnblockApplicationPage.completeForm(blockedApplicationName)
 
     And("I select the Unblock Application Button")
     UnblockApplicationPage.selectUnblockButton()
   }
 
   def stubApplicationForUnblockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$newBlockedApplicationWithSubscriptionDataId/unblock")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/$blockedApplicationId/unblock")).willReturn(aResponse().withStatus(OK)))
   }
 
     def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(developers)
     stubApiDefinition()
 
     signInAdminUserGatekeeper
@@ -94,6 +96,6 @@ class APIGatekeeperUnblockApplicationSpec extends APIGatekeeperBaseSpec with New
   }
 
   def stubBlockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newBlockedApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(blockedApplicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$blockedApplicationId")).willReturn(aResponse().withBody(blockedApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 }

@@ -45,8 +45,8 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     "return a csv" in new Setup {
       givenTheUserIsAuthorisedAndIsANormalUser()
 
-      val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), APIStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), APIStatus.STABLE))
-      val apiDefinition = APIDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+      val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.STABLE))
+      val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
       
       given(mockApiDefinitionService.apis(*))
         .willReturn(Seq((apiDefinition, PRODUCTION) ))

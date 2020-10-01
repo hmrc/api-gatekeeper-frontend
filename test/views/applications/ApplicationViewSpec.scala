@@ -30,7 +30,7 @@ import model.view.ApplicationViewModel
 import model.applications.NewApplication
 import builder.ApplicationBuilder
 import builder.ApiBuilder
-import model.APIStatus._
+import model.ApiStatus._
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {
@@ -74,18 +74,18 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
   }
 
   trait SubscriptionsSetup extends Setup {
-      val subscriptionsViewData: Seq[(String, Seq[(ApiVersion, APIStatus)])] = Seq(
+      val subscriptionsViewData: Seq[(String, Seq[(ApiVersion, ApiStatus)])] = Seq(
         (
           "My API Name", 
           Seq(
-            (VersionOne, APIStatus.STABLE), 
-            (VersionTwo, APIStatus.BETA)
+            (VersionOne, ApiStatus.STABLE), 
+            (VersionTwo, ApiStatus.BETA)
           )
         ),
         (
           "My Other API Name", 
           Seq(
-            (VersionOne, APIStatus.STABLE) 
+            (VersionOne, ApiStatus.STABLE) 
           )
         )
       )

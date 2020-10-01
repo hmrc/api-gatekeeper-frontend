@@ -41,7 +41,7 @@ import views.html.review.ReviewView
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import model.subscriptions.ApiData
-import model.APIStatus.APIStatus
+import model.ApiStatus.ApiStatus
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -93,7 +93,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
         withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
           val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
-          val subscriptions: Set[APIIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+          val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
           val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
           val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
 
@@ -103,7 +103,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
           def filterOutVersions( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
             val apiContext = t._1
-            val filteredVersions = t._2.versions.filter( versions => subscriptions.contains(APIIdentifier(apiContext, versions._1)))
+            val filteredVersions = t._2.versions.filter( versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
             val filteredApiData = t._2.copy(versions = filteredVersions)
             (apiContext, filteredApiData)
           }
@@ -118,7 +118,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             (apiContext, filteredApiData)
           }
 
-          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, APIStatus)])] = {
+          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, ApiStatus)])] = {
             if(data.versions.isEmpty) {
               Seq.empty
             } else {
@@ -376,13 +376,13 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  private def groupApisByStatus(apis: Seq[APIDefinition]): Map[String, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: Seq[ApiDefinition]): Map[String, Seq[VersionSummary]] = {
     val versions = for {
       api <- apis
       version <- api.versions
-    } yield VersionSummary(api.name, version.status, APIIdentifier(api.context, version.version))
+    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
-    versions.groupBy(v => APIStatus.displayedStatus(v.status))
+    versions.groupBy(v => ApiStatus.displayedStatus(v.status))
   }
 
   private def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {

@@ -132,7 +132,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       def givenThePaginatedApplicationsWillBeReturned = {
         val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(Seq.empty)
         given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(applications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[APIDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
       }
     }
 
@@ -1059,7 +1059,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
 
         fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
-        fetchStateHistoryReturns(Seq(buildStateHistory(State.PRODUCTION)))
+        fetchStateHistoryReturns(Seq(buildStateHistory(application2.id, State.PRODUCTION)))
 
         given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
           .willReturn(developers)

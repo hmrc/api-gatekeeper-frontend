@@ -24,7 +24,7 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APICategory, APIDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
+import model.{APICategory, ApiDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -117,8 +117,8 @@ class EmailsController @Inject()(developerService: DeveloperService,
       } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.name), selectedApis.sortBy(_.name)))
   }
 
-  private def filterSelectedApis(maybeSelectedAPIs: Option[Seq[String]], apiList: Seq[APIDefinition]) =
-    maybeSelectedAPIs.fold(Seq.empty[APIDefinition])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
+  private def filterSelectedApis(maybeSelectedAPIs: Option[Seq[String]], apiList: Seq[ApiDefinition]) =
+    maybeSelectedAPIs.fold(Seq.empty[ApiDefinition])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
   def emailPreferencesSpecificApis(selectedAPIs: Seq[String],
                                    selectedTopicStr: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {

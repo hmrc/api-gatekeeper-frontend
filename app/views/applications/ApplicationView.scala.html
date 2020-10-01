@@ -22,7 +22,7 @@
 @import org.joda.time.format.DateTimeFormat
 @import views.helper.EmailsFormatter
 @import config.AppConfig
-@import model.APIStatus.APIStatus
+@import model.ApiStatus.ApiStatus
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -109,17 +109,17 @@
     v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
-@renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = {
+@renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
     @for(subscription <- subs.toIterator) {
         <tr>
             <td>
                 @subscription._1
                 @for(versionData <- subscription._2.dropRight(1) ) {
-                    @versionData._1.value (@APIStatus.displayedStatus(versionData._2)),
+                    @versionData._1.value (@ApiStatus.displayedStatus(versionData._2)),
                 }
     
                  @for(versionData <- subscription._2.takeRight(1) ) {
-                    @versionData._1.value (@APIStatus.displayedStatus(versionData._2))
+                    @versionData._1.value (@ApiStatus.displayedStatus(versionData._2))
                 }
             </td>
             <td></td>

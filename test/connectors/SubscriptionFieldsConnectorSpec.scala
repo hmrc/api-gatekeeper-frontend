@@ -24,7 +24,7 @@ import config.AppConfig
 import connectors.SubscriptionFieldsConnector._
 import model.Environment.Environment
 import model.SubscriptionFields._
-import model.{APIIdentifier, ApiContext, ApiVersion, ClientId, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
+import model.{ApiIdentifier, ApiContext, ApiVersion, ClientId, Environment, FieldsDeleteFailureResult, FieldsDeleteSuccessResult}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
@@ -53,7 +53,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
   private val definitions = List(fieldDefinition1, fieldDefinition2)
   private val definitionsFromRestService = List(fieldDefinition1)
 
-  private val apiIdentifier = APIIdentifier(apiContext, apiVersion)
+  private val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
   private val upstream500Response = Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)

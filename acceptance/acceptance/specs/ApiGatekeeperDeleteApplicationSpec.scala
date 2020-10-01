@@ -20,8 +20,9 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
+import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithHistoryTestData}
 
-class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewApplicationTestData {
+class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
   val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
 
@@ -55,7 +56,6 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 
-    stubApplicationSubscription(List( ))
     stubApiDefinition()
 
     signInSuperUserGatekeeper
@@ -67,10 +67,10 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+    stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.selectByApplicationName(newApplicationName)
+    ApplicationsPage.selectByApplicationName(applicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
@@ -86,21 +86,21 @@ class APIGatekeeperDeleteApplicationSpec extends APIGatekeeperBaseSpec with NewA
     stubApplicationToDelete()
 
     When("I fill out the Delete Application Form correctly")
-    DeleteApplicationPage.completeForm(newApplicationName)
+    DeleteApplicationPage.completeForm(applicationName)
 
     And("I select the Delete Application Button")
     DeleteApplicationPage.selectDeleteButton()
   }
 
   def stubApplicationToDelete() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$newApplicationWithSubscriptionDataId")).willReturn(aResponse().withBody(applicationResponseForNewApplication).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def stubApplicationForDeleteSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
   def stubApplicationForDeleteFailure() = {
-    stubFor(post(urlEqualTo(s"/application/$newApplicationWithSubscriptionDataId/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+    stubFor(post(urlEqualTo(s"/application/$applicationId/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }

@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package model.view
+package builder
 
-import model.User
-import model.applications.NewApplication
-import model.ApiVersion
+import model.ApplicationId
+import model.State.State
+import model.Actor
+import org.joda.time.DateTime
+import uk.gov.hmrc.time.DateTimeUtils
 import model.StateHistory
-import model.TermsOfUseAgreement
-import model.ApiStatus.ApiStatus
 
-case class ApplicationViewModel(
-  developers: List[User],
-  application: NewApplication,
-  subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
-  subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
-  stateHistory: Seq[StateHistory],
-  isAtLeastSuperUser: Boolean,
-  isAdmin: Boolean
-) {
-  val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
+trait StateHistoryBuilder {
+  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+    StateHistory(applicationId, state, actor, None, changedAt)
+  }
 }

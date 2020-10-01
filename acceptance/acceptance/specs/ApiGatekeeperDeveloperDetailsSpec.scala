@@ -19,6 +19,7 @@ package acceptance.specs
 import java.net.URLEncoder
 
 import acceptance.pages._
+import acceptance.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.scalatest.{Assertions, Tag}
@@ -26,7 +27,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 
-class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewApplicationTestData with Assertions {
+class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with StateHistoryTestData with Assertions with CommonTestData  with ApiDefinitionTestData with MockDataSugar {
 
   val developers = List[User] {
     new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
@@ -47,7 +48,7 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
       stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
         .withBody(applicationsList).withStatus(OK)))
       stubApplicationForEmail()
-      stubApplication(newApplicationWithSubscriptionData, developers, newApplicationStateHistory, newApplicationWithSubscriptionDataId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
       stubDeveloper()
@@ -64,14 +65,14 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
       on(DeveloperPage)
 
       When("I select a developer email")
-      DeveloperPage.selectByDeveloperEmail(newDeveloper8)
+      DeveloperPage.selectByDeveloperEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)
 
       And("I can see the developer's details and associated applications")
-      assert(DeveloperDetailsPage.firstName == s"$newDeveloper8FirstName")
-      assert(DeveloperDetailsPage.lastName == s"$newDeveloper8LastName")
+      assert(DeveloperDetailsPage.firstName == s"${unverifiedUser.firstName}")
+      assert(DeveloperDetailsPage.lastName == s"${unverifiedUser.lastName}")
       assert(DeveloperDetailsPage.status == "not yet verified")
       assert(DeveloperDetailsPage.mfaEnabled == "Yes")
 
@@ -84,10 +85,10 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
   }
 
   def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForNewApplicationUserEmail).withStatus(OK)))
+      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String) = {
@@ -110,12 +111,10 @@ class APIGatekeeperDeveloperDetailsSpec extends APIGatekeeperBaseSpec with NewAp
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(newDeveloper8, "UTF-8")
+    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
     stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(newApplicationUser)))
+      .willReturn(aResponse().withStatus(OK).withBody(unverifiedUserJson)))
   }
-
-  case class TestUser(firstName: String, lastName:String, emailAddress:String)
 }
 

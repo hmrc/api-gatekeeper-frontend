@@ -75,25 +75,25 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     val url = s"$baseUrl/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = Seq(APIDefinition(
+      val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchPublic()) shouldBe response
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
 
-      val response = Seq(APIDefinition(
+      val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response)
       )
@@ -102,7 +102,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
@@ -113,24 +113,24 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     val url = s"$baseUrl/api-definition?type=private"
 
     "respond with 200 and convert body" in new Setup {
-      val response = Seq(APIDefinition(
+      val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
 
       await(connector.fetchPrivate()) shouldBe response
     }
 
     "when retry logic is enabled should retry on failure" in new Setup {
-      val response = Seq(APIDefinition(
+      val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, APIStatus.STABLE, Some(APIAccess(APIAccessType.PRIVATE)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None))
 
       when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))( *, *, *)).thenReturn(
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response)
       )
@@ -139,7 +139,7 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
     }
 
     "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[APIDefinition]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))

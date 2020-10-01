@@ -170,8 +170,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       .map(_ => UpdateIpWhitelistSuccessResult)
   }
 
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: APIIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[APIIdentifier, HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST[ApiIdentifier, HttpResponse](s"${baseApplicationUrl(applicationId)}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       ApplicationUpdateSuccessResult
     }
   }

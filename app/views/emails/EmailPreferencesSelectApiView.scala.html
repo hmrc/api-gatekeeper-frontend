@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(apis: Seq[APIDefinition], filteredApis: Seq[APIDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(apis: Seq[ApiDefinition], filteredApis: Seq[ApiDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @drawAPIDropDown() = {
 <select class="govuk-select govuk-select-width-full"

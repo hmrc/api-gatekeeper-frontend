@@ -27,7 +27,7 @@ import model.Collaborator
 import model.applications.ApplicationWithSubscriptionData
 import model.CollaboratorRole
 import model.ApplicationState
-import model.APIIdentifier
+import model.ApiIdentifier
 import model.ApiVersion
 import model.ApiContext
 import model.SubscriptionFields.Fields
@@ -37,6 +37,7 @@ import model.State.State
 import model.StateHistory
 import org.joda.time.DateTime
 import java.{util => ju}
+
 import model.Actor
 import model.RateLimitTier
 import model.CheckInformation
@@ -44,14 +45,12 @@ import model.Access
 import model.view.ApplicationViewModel
 import model.Privileged
 import model.Ropc
-import model.APIStatus._
+import model.ApiStatus._
+import model.RateLimitTier.RateLimitTier
 import model.User
 
-
-trait ApplicationBuilder {
-
+trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): NewApplication = {
-
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
 
@@ -65,7 +64,7 @@ trait ApplicationBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq(appOwnerEmail)),
+      collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       state = ApplicationState(State.PRODUCTION),
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
@@ -79,22 +78,14 @@ trait ApplicationBuilder {
 
   val DefaultApplication = buildApplication()
 
-  def buildCollaborators(emails: Seq[String]): Set[Collaborator] = {
-    emails.map(email => Collaborator(email, CollaboratorRole.ADMINISTRATOR)).toSet
-  }
-
-  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[APIIdentifier] = 
+  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] = 
     Set(
-      APIIdentifier(apiContext, apiVersion)
+      ApiIdentifier(apiContext, apiVersion)
     )
 
   def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {
     val fields = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     Map(apiContext -> Map(apiVersion -> fields))
-  }
-
- def buildStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
-    StateHistory(ju.UUID.randomUUID(), state, Actor("actor id"), None, changedAt)
   }
 
   def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
@@ -111,8 +102,8 @@ trait ApplicationBuilder {
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
     def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
 
-    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, APIStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
     
     def asSuperUser = applicationViewModel.copy(isAtLeastSuperUser = true)
     def asAdmin = applicationViewModel.copy(isAdmin = true)
@@ -139,6 +130,15 @@ trait ApplicationBuilder {
     def deployedToSandbox = app.copy(deployedTo = Environment.SANDBOX)
 
     def withoutCollaborator(email: String) = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
+
+    def withId(id: ApplicationId) = app.copy(id = id)
+    def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
+    def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
+    
+    def withName(name: String) = app.copy(name = name)
+    def withDescription(description: String) = app.copy(description = Some(description))
+
     def withAdmin(email: String) = {
       val app1 = app.withoutCollaborator(email)
       app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.ADMINISTRATOR))
@@ -169,8 +169,10 @@ trait ApplicationBuilder {
 
     def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
 
-    def createdOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
-    def lastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+    def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
+    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+
+    def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
     
   }  
 }

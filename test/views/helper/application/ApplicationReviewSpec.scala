@@ -21,9 +21,9 @@ import model.State._
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.DateTimeUtils
-import utils.ApplicationGenerator._
+import builder.ApplicationResponseBuilder
 
-class ApplicationReviewSpec extends UnitSpec {
+class ApplicationReviewSpec extends UnitSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
       val now = DateTimeUtils.now

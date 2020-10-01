@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package model.applications
+package builder
 
-import model.ApiContext
-import model.ApiVersion
-import model.ApiIdentifier
-import model.SubscriptionFields.Fields
+import model.Collaborator
+import model.CollaboratorRole
 
-case class ApplicationWithSubscriptionData(
-    application: NewApplication,
-    subscriptions: Set[ApiIdentifier] = Set.empty,
-    subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Fields.Alias]] = Map.empty
-)
+trait CollaboratorsBuilder {
+  def buildCollaborators(collaborators: Seq[(String, CollaboratorRole.Value)]): Set[Collaborator] = {
+    collaborators.map(
+      n => Collaborator(n._1, n._2)
+    ).toSet
+  }
+}

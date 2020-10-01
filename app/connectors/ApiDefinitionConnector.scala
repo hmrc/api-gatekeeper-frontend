@@ -40,18 +40,18 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) extends Ret
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchPublic()(implicit hc: HeaderCarrier): Future[Seq[ApiDefinition]] = {
     retry {
-      http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition")
+      http.GET[Seq[ApiDefinition]](s"$serviceBaseUrl/api-definition")
         .recover {
           case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
         }
     }
   }
 
-  def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchPrivate()(implicit hc: HeaderCarrier): Future[Seq[ApiDefinition]] = {
     retry {
-      http.GET[Seq[APIDefinition]](s"$serviceBaseUrl/api-definition?type=private")
+      http.GET[Seq[ApiDefinition]](s"$serviceBaseUrl/api-definition?type=private")
         .recover {
           case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
         }
