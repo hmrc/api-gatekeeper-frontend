@@ -1,8 +1,7 @@
 package acceptance.mocks
 
 import builder.SubscriptionsBuilder
-import model.ApiContext
-import model.ApiVersion
+import model.{ApiContext, ApiVersion}
 
 trait SubscriptionsMock extends SubscriptionsBuilder {
 

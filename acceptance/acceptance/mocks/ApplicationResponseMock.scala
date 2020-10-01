@@ -1,9 +1,7 @@
 package acceptance.mocks
 
 import builder.ApplicationResponseBuilder
-import model.ApplicationId
-import model.ClientId
-import model.RateLimitTier
+import model.{ApplicationId, ClientId, RateLimitTier}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import model.ApplicationResponse

@@ -1,9 +1,6 @@
 package acceptance.mocks
 
-import model.StateHistory
-import model.ApplicationId
-import model.State
-import model.Actor
+import model.{Actor, ApplicationId, State, StateHistory}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import builder.StateHistoryBuilder

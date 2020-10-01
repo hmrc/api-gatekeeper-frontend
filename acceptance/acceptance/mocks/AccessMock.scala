@@ -1,7 +1,6 @@
 package acceptance.mocks
 
-import model.Access
-import model.Standard
+import model.{Access, Standard}
 
 trait AccessMock {
 

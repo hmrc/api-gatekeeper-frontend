@@ -1,9 +1,7 @@
 package acceptance.mocks
 
 import builder.ApplicationBuilder
-import model.ApplicationId
-import model.ClientId
-import model.RateLimitTier
+import model.{ApplicationId, ClientId, RateLimitTier}
 import org.joda.time.DateTime
 
 trait ApplicationMock extends ApplicationBuilder with TestData with CollaboratorsMock with ApplicationStateMock with AccessMock with CheckInformationMock {
