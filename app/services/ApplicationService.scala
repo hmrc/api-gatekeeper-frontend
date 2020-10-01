@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 import scala.concurrent.{ExecutionContext, Future}
+import utils.SortingHelper
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
@@ -126,7 +127,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       val apiSubscriptionStatuses = subscription.versions
           .filterNot(_.version.status == ApiStatus.RETIRED)
           .filterNot(s => s.version.status == ApiStatus.DEPRECATED && !s.subscribed)
-          .sortWith(ApiDefinition.descendingVersion)
+          .sortWith(SortingHelper.descendingVersionWithoutFields)
           .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
 
       Future.sequence(apiSubscriptionStatuses)

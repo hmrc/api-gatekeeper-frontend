@@ -33,7 +33,7 @@ object ApiContext {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiContext(Random.nextString(10))
+  def random = ApiContext(Random.alphanumeric.take(10).toString)
 }
 
 case class ApiVersion(value: String) extends AnyVal {
@@ -59,24 +59,6 @@ case class ApiDefinition(serviceName: String,
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.value.toDouble > v2.version.version.value.toDouble
-  }
-}
-
-object ApiDefinition {
-  private val nonNumericOrPeriodRegex = "[^\\d^.]*"
-  private val fallback = Array(1, 0, 0)
-
-  private def versionSorter(v1: ApiVersionDefinition, v2: ApiVersionDefinition) = {
-    val v1Parts = Try(v1.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-    val v2Parts = Try(v2.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-    val pairs = v1Parts.zip(v2Parts)
-
-    val firstUnequalPair = pairs.find { case (one, two) => one != two }
-    firstUnequalPair.fold(v1.version.value.length > v2.version.value.length) { case (a, b) => a > b }
-  }
-
-  def descendingVersion(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
-    versionSorter(v1.version, v2.version)
   }
 }
 
@@ -145,12 +127,21 @@ case class Subscription(name: String,
 case class SubscriptionWithoutFields(name: String,
                                      serviceName: String,
                                      context: ApiContext,
-                                     versions: Seq[VersionSubscriptionWithoutFields])
+                                     versions: Seq[VersionSubscriptionWithoutFields]) {
+  lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
+}
 
 case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
 
 object Subscription {
   def subscriptionNumberLabel(versions: Seq[VersionSubscription]) = versions.count(_.subscribed) match {
+    case 1 => s"1 subscription"
+    case number => s"$number subscriptions"
+  }
+}
+
+object SubscriptionWithoutFields {
+  def subscriptionNumberLabel(versions: Seq[VersionSubscriptionWithoutFields]) = versions.count(_.subscribed) match {
     case 1 => s"1 subscription"
     case number => s"$number subscriptions"
   }
