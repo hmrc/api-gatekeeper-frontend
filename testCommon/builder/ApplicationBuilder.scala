@@ -88,10 +88,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     Map(apiContext -> Map(apiVersion -> fields))
   }
 
-  def buildApplicationWithSubscriptionData(): ApplicationWithSubscriptionData = {
-    val apiContext = ApiContext.random
-    val apiVersion = ApiVersion.random
-
+  def buildApplicationWithSubscriptionData(apiContext: ApiContext = ApiContext.random,
+                                          apiVersion: ApiVersion = ApiVersion.random): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
       buildApplication(ApplicationId.random),
       buildSubscriptions(apiContext, apiVersion),

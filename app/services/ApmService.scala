@@ -18,12 +18,14 @@ package services
 
 import connectors.ApmConnector
 import model.ApplicationId
+import model.ApiDefinitions
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions._
 import model.ApiContext
+import model.Environment.Environment
 
 class ApmService @Inject() (apmConnector: ApmConnector)(implicit ec: ExecutionContext) {
 
@@ -33,5 +35,9 @@ class ApmService @Inject() (apmConnector: ApmConnector)(implicit ec: ExecutionCo
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
+  }  
+  
+  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias]  = {
+    apmConnector.getAllFieldDefinitions(environment)
   }
 }

@@ -16,7 +16,7 @@
 
 package utils
 
-import builder.{SubscriptionsBuilder, ApplicationBuilder}
+import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
 import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
@@ -82,6 +82,15 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
     val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
   }
 
+  trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder {
+    val allFieldDefinitions = buildApiDefinitions()
+
+    val apiContext = allFieldDefinitions.keySet.head
+    val apiVersion = allFieldDefinitions(apiContext).keySet.head
+
+    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion)
+  }
+
   "withApp" should {
     "fetch application" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
       fetchApplicationReturns(application)
@@ -144,6 +153,26 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
       bodyOf(result) shouldBe expectedResult
     }
 
+  }
+
+  "withAppAndSubscriptionsAndFieldDefinitions" should {
+    "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+
+      val result: Result = await(underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
+        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions.nonEmpty shouldBe true
+        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions(apiContext).keySet.contains(apiVersion) shouldBe true
+        
+        Future.successful(Ok(expectedResult))
+      }))
+
+      verifyFetchApplicationById(applicationId)
+      verifyGetAllFieldDefinitionsReturns(model.Environment.SANDBOX)
+
+      status(result) shouldBe OK
+      bodyOf(result) shouldBe expectedResult
+    }
   }
 
   "withAppAndSubscriptionsAndStateHistory" should {

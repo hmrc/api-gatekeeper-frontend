@@ -25,7 +25,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
-import play.api.libs.json.Json
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
@@ -44,6 +43,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
+  // TODO: Rewrite this!!
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
 
@@ -65,6 +65,32 @@ trait ActionBuilders extends ErrorHelper {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+      case None => Future.successful(notFound("Application not found"))
+    }
+  }
+
+  private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]) : ApiDefinitions.Alias = {
+    val apiContexts: Seq[ApiContext] = applicationSubscriptions.map(apiIdentifier => apiIdentifier.context).toSeq
+    val apiDefinitionsByApiContext = allApiDefintions.filter(api => 
+      apiContexts.contains(api._1) && api._2.exists(version => 
+        applicationSubscriptions.contains(ApiIdentifier(api._1, version._1)))
+      )
+
+      apiDefinitionsByApiContext
+  }
+
+  def withAppAndSubscriptionsAndFieldDefinitions(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result])
+                                              (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap {
+      case Some(applicationWithSubs) => {
+        apmService.getAllFieldDefinitions(
+          applicationWithSubs.application.deployedTo
+        ).map(allApiDefintions => 
+          filterApiDefinitions(allApiDefintions, applicationWithSubs.subscriptions)
+        ).flatMap(defs => 
+          action(ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, defs))
+        )
+      }
       case None => Future.successful(notFound("Application not found"))
     }
   }
