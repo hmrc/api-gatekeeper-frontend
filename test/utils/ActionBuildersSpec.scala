@@ -16,7 +16,7 @@
 
 package utils
 
-import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder}
+import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
 import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
@@ -82,7 +82,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
     val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
   }
 
-  trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder {
+  trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder {
     val allFieldDefinitions = buildApiDefinitions()
 
     val apiContext = allFieldDefinitions.keySet.head
@@ -157,8 +157,12 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
     "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
+        val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+        val apiContextAndApiData = Map(apiContext -> apiData)
+
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
       val result: Result = await(underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions.nonEmpty shouldBe true

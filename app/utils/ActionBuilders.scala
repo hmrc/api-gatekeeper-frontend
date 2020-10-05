@@ -83,21 +83,13 @@ trait ActionBuilders extends ErrorHelper {
                                               (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(applicationWithSubs) => {
-        // apmService.getAllFieldDefinitions(
-        //   applicationWithSubs.application.deployedTo
-        // ).map(allApiDefintions => 
-        //   filterApiDefinitions(allApiDefintions, applicationWithSubs.subscriptions)
-        // ).flatMap(defs => 
-        //   action(ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, defs))
-        // )
-
-        val defs = for {
+        val applicationWithSubscriptionDataAndFieldDefinitions = for {
           allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.application.deployedTo)
           apiDefinitions = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
           allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
         } yield ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, apiDefinitions, allPossibleSubs)
 
-        defs.flatMap(defs => action(defs))
+        applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
       case None => Future.successful(notFound("Application not found"))
     }
