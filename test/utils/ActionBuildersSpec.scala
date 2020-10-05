@@ -35,7 +35,7 @@ import model.FieldName
 import services.ApmService
 import model.State
 
-class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder with ApplicationBuilder {
+class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {
     implicit val materializer = app.materializer
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -54,14 +54,14 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
     val expectedResult = "result text"
   }
 
-  trait withSubscription extends Setup {
+  trait WithSubscription extends Setup with SubscriptionsBuilder {
     val subscription = buildSubscription("mySubscription", versions = Seq(
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     ))
   }
   
-  trait SubscriptionsWithMixOfSubscribedVersionsSetup extends withSubscription {
+  trait SubscriptionsWithMixOfSubscribedVersionsSetup extends WithSubscription {
     val version1Subscribed = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     val version2NotSubscribed = buildVersionWithSubscriptionFields(ApiVersion.random, false, applicationId)
 
@@ -78,17 +78,17 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
     val subscription4 = buildSubscription("Subscription4", versions = Seq(version1Subscribed, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
   }
 
-  trait AppWithSubscriptionDataSetup extends Setup {
+  trait AppWithSubscriptionDataSetup extends Setup with ApplicationBuilder {
     val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
   }
 
-  trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder {
+  trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends AppWithSubscriptionDataSetup with FieldDefinitionsBuilder with ApiBuilder {
     val allFieldDefinitions = buildApiDefinitions()
 
     val apiContext = allFieldDefinitions.keySet.head
     val apiVersion = allFieldDefinitions(apiContext).keySet.head
 
-    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion)
+    override val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion)
   }
 
   "withApp" should {
@@ -211,7 +211,7 @@ class ActionBuildersSpec extends ControllerBaseSpec with SubscriptionsBuilder wi
   }
 
   "withAppAndSubscriptionVersion" should {
-    "fetch subscription and version" in new withSubscription {
+    "fetch subscription and version" in new WithSubscription {
       val versionSubscription: VersionSubscription = subscription.versions.head
       val context = subscription.context
     

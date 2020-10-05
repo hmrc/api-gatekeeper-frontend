@@ -21,34 +21,29 @@ import model.ApiDefinitions
 import model.ApiVersion
 import model.FieldName
 import model.SubscriptionFields.SubscriptionFieldDefinition
-import scala.util.Random
 
 trait FieldDefinitionsBuilder {
   
   def buildApiDefinitions() : ApiDefinitions.Alias = {
-    def contexts = gen10[ApiContext](ApiContext.random)
-    buildApiContexts(contexts:_*)
+    def contexts = Seq.fill(1)(ApiContext.random)
+    buildApiContexts(contexts)
   }
 
-  private def buildApiContexts(apiContexts: ApiContext*) : ApiDefinitions.Alias = {
-    def versions = gen10[ApiVersion](ApiVersion.random)
-    apiContexts.map(apiContext => (apiContext -> buildVersions(versions:_*))).toMap
+  private def buildApiContexts(apiContexts: Seq[ApiContext]) : ApiDefinitions.Alias = {
+    def versions = Seq.fill(1)(ApiVersion.random)
+    apiContexts.map(apiContext => (apiContext -> buildVersions(versions))).toMap
   }
 
-  private def buildVersions(apiVersions: ApiVersion*) : Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]] = {
-    def fieldNames = gen10[FieldName](FieldName.random)
-    apiVersions.map(apiVersion => (apiVersion -> buildFields(fieldNames:_*))).toMap
+  private def buildVersions(apiVersions: Seq[ApiVersion]) : Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]] = {
+    def fieldNames = Seq.fill(2)(FieldName.random)
+    apiVersions.map(apiVersion => (apiVersion -> buildFields(fieldNames))).toMap
   }
 
-  private def buildFields(fieldNames: FieldName* ) : Map[FieldName, SubscriptionFieldDefinition] = {
+  private def buildFields(fieldNames: Seq[FieldName] ) : Map[FieldName, SubscriptionFieldDefinition] = {
     fieldNames.map(fieldName => (fieldName -> buildSubscriptionFieldDefinition(fieldName))).toMap
   }
 
   private def buildSubscriptionFieldDefinition(fieldName: FieldName) : SubscriptionFieldDefinition = {
     SubscriptionFieldDefinition(fieldName, "Description", "This is a hint", "URL", "shortDescription")
   }
-
-  private def gen[T](maxSize: Int)(f: => T) = for(i <- 1 to Random.nextInt(maxSize)) yield f
-
-  private def gen10[T](f: => T) = gen(10)(f)
 }
