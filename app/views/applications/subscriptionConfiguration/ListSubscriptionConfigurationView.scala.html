@@ -15,15 +15,15 @@
  *@
 
 @import model._
+@import model.applications.NewApplication
 @import model.view.SubscriptionVersion
 @import views.helper._
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: NewApplication, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@application = @{applicationWithHistory.application}
 @pageTitle = @{"Subscription configuration"}
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {

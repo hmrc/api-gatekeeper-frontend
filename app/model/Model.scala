@@ -35,6 +35,7 @@ import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 import model.applications.ApplicationWithSubscriptionData
 import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.subscriptions.ApiData
 
 case class Role(scope: String, name: String)
 
@@ -80,7 +81,7 @@ object ApiDefinitions {
   type Alias = Map[ApiContext,Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
-case class ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubscriptionData: ApplicationWithSubscriptionData, apiDefinitions: ApiDefinitions.Alias)
+case class ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubscriptionData: ApplicationWithSubscriptionData, apiDefinitions: ApiDefinitions.Alias, allPossibleSubs: Map[ApiContext, ApiData])
 
 object ApplicationWithHistory {
   implicit val formatTotpIds = Json.format[TotpIds]

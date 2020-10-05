@@ -21,6 +21,9 @@ import model.SubscriptionFields.SubscriptionFieldsWrapper
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
 import model.SubscriptionFields.Fields
+import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.ApplicationWithSubscriptionDataAndFieldDefinitions
+import model.ApiStatus
 
 case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: Seq[SubscriptionField])
 
@@ -30,6 +33,29 @@ object SubscriptionVersion {
       sub <- subscriptionsWithFieldDefinitions
       version <- sub.versions
     } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
+  }
+
+  def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): Seq[SubscriptionVersion] = {
+    app.apiDefinitions.flatMap(contextMap => {
+      contextMap._2.map(versionMap => {
+        def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): Seq[SubscriptionField] = {
+          fieldNames.map(fieldName => {
+            val subscriptionFieldDefinition = fieldName._2
+            val fieldValue = app.applicationWithSubscriptionData.subscriptionFieldValues(contextMap._1)(versionMap._1)(fieldName._1)
+
+            SubscriptionField(fieldName._1, subscriptionFieldDefinition.shortDescription, subscriptionFieldDefinition.description, subscriptionFieldDefinition.hint, fieldValue)
+          }).toSeq
+        }
+
+        SubscriptionVersion(
+          app.allPossibleSubs(contextMap._1).name,
+          contextMap._1,
+          versionMap._1,
+          ApiStatus.displayedStatus(app.allPossibleSubs(contextMap._1).versions(versionMap._1).status),
+          toSubscriptionFields(versionMap._2)
+        )
+      })
+    }).toSeq
   }
 
   def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : Seq[SubscriptionField]) : SubscriptionVersion = {

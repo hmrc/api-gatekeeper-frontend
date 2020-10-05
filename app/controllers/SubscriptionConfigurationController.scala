@@ -52,9 +52,9 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
   def listConfigurations(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-        withAppAndFieldDefinitions(appId) {
+        withAppAndSubscriptionsAndFieldDefinitions(appId) {
           app => {
-            Future.successful(Ok(listSubscriptionConfiguration(app.application,  SubscriptionVersion(app.subscriptionsWithFieldDefinitions))))
+            Future.successful(Ok(listSubscriptionConfiguration(app.applicationWithSubscriptionData.application,  SubscriptionVersion(app))))
           }
         }
   }
