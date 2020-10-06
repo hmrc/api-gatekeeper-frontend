@@ -44,6 +44,8 @@ trait ApiBuilder {
     def testSupport = apiData.copy(isTestSupport = true)
 
     def withName(newName: String) = apiData.copy(name = newName)
+    
+    def withVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(version -> data))
 
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
   }

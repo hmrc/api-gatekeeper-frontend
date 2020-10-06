@@ -80,8 +80,8 @@ class SubscriptionConfigurationControllerSpec
 
     val apiName = "API Name"
     val versionData = DefaultVersionData
-    val apiData = DefaultApiData.withName(apiName).addVersion(apiVersion, versionData)
-    val apiContextAndApiData = Map(apiContext -> apiData)
+    val apiData = DefaultApiData.withName(apiName).withVersion(apiVersion, versionData)
+    val allPossibleSubs = Map(apiContext -> apiData)
   }
 
   "list Subscription Configuration" should {
@@ -90,8 +90,8 @@ class SubscriptionConfigurationControllerSpec
       
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
-
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
       status(result) shouldBe OK
 
@@ -116,7 +116,7 @@ class SubscriptionConfigurationControllerSpec
 
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
       val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
       status(result) shouldBe OK

@@ -30,7 +30,7 @@ trait FieldDefinitionsBuilder {
   }
 
   private def buildApiContexts(apiContexts: Seq[ApiContext]) : ApiDefinitions.Alias = {
-    def versions = Seq.fill(1)(ApiVersion.random)
+    def versions = Seq.fill(2)(ApiVersion.random)
     apiContexts.map(apiContext => (apiContext -> buildVersions(versions))).toMap
   }
 
