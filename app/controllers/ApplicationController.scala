@@ -109,11 +109,15 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           }
 
           def filterForFields( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
-            def hasFields(apiContext: ApiContext, apiVersions: Set[ApiVersion]): Boolean = {
-              subscriptionFieldValues.get(apiContext).flatMap(sfv => sfv.keySet.intersect(apiVersions).headOption).isDefined
+            def hasFields(apiContext: ApiContext, apiVersion: ApiVersion): Boolean = {
+              subscriptionFieldValues.get(apiContext) match {
+                case Some(versions) => versions.get(apiVersion).isDefined
+                case None => false
+              }
             }
+            
             val apiContext = t._1
-            val filteredVersions = t._2.versions.filter( versions => hasFields(apiContext, t._2.versions.keySet))
+            val filteredVersions = t._2.versions.filter(v => hasFields(apiContext, v._1))
             val filteredApiData = t._2.copy(versions = filteredVersions)
             (apiContext, filteredApiData)
           }
