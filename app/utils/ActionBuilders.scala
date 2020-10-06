@@ -71,12 +71,14 @@ trait ActionBuilders extends ErrorHelper {
 
   private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]) : ApiDefinitions.Alias = {
     val apiContexts: Seq[ApiContext] = applicationSubscriptions.map(apiIdentifier => apiIdentifier.context).toSeq
-    val apiDefinitionsByApiContext = allApiDefintions.filter(api => 
-      apiContexts.contains(api._1) && api._2.exists(version => 
-        applicationSubscriptions.contains(ApiIdentifier(api._1, version._1)))
-      )
+    
+    val apiDefinitionsFilteredByContext = allApiDefintions.filter(contextMap => apiContexts.contains(contextMap._1))
 
-      apiDefinitionsByApiContext
+    apiDefinitionsFilteredByContext.map(contextMap =>
+      contextMap._1 -> contextMap._2.filter(versionMap =>
+        applicationSubscriptions.contains(ApiIdentifier(contextMap._1, versionMap._1))
+      )
+    )
   }
 
   def withAppAndSubscriptionsAndFieldDefinitions(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result])
