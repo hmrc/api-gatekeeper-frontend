@@ -43,7 +43,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  // TODO: Rewrite this!!
+  // TODO: Remove this along with ApplicationService.fetchApplicationSubscriptions when using APM!!
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
 
@@ -92,18 +92,6 @@ trait ActionBuilders extends ErrorHelper {
         applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
       case None => Future.successful(notFound("Application not found"))
-    }
-  }
-
-  def withAppAndFieldDefinitions(appId: ApplicationId)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
-                                (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) : Future[Result] = {
-
-    withAppAndSubscriptions(appId) {
-      appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-        val app = appWithFieldSubscriptions.application
-        val subscriptionsWithFieldDefinitions = filterHasSubscriptionFields(appWithFieldSubscriptions.subscriptions)
-        action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
-      }
     }
   }
 

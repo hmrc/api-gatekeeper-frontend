@@ -196,20 +196,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     }
   }
 
-  "withAppAndFieldDefinitions" should {
-    "fetch Subscriptions with Subscription Fields" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      fetchApplicationReturns(application)
-      fetchApplicationSubscriptionsReturns(Seq(subscription4))
-
-      val result: Result = await(underTest.withAppAndFieldDefinitions(applicationId)(request => {
-        request.subscriptionsWithFieldDefinitions shouldBe Seq(subscription4.copy(versions = Seq(versionWithSubscriptionFields)))
-        Future.successful(Ok(expectedResult))
-      }))
-
-      bodyOf(result) shouldBe expectedResult
-    }
-  }
-
   "withAppAndSubscriptionVersion" should {
     "fetch subscription and version" in new WithSubscription {
       val versionSubscription: VersionSubscription = subscription.versions.head
