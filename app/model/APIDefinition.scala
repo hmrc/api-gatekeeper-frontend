@@ -33,7 +33,7 @@ object ApiContext {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
 
-  def random = ApiContext(Random.alphanumeric.take(10).toString)
+  def random = ApiContext(Random.alphanumeric.take(10).mkString)
 }
 
 case class ApiVersion(value: String) extends AnyVal {

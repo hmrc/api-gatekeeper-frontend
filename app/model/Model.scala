@@ -34,6 +34,8 @@ import uk.gov.hmrc.play.json.Union
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 import model.applications.ApplicationWithSubscriptionData
+import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.subscriptions.ApiData
 
 case class Role(scope: String, name: String)
 
@@ -46,7 +48,6 @@ object GatekeeperRole extends Enumeration {
   type GatekeeperRole = Value
   val USER,SUPERUSER,ADMIN = Value
 }
-
 
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
@@ -75,6 +76,12 @@ case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHi
 case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
 
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: Seq[StateHistory])
+
+object ApiDefinitions {
+  type Alias = Map[ApiContext,Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
+}
+
+case class ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubscriptionData: ApplicationWithSubscriptionData, apiDefinitions: ApiDefinitions.Alias, allPossibleSubs: Map[ApiContext, ApiData])
 
 object ApplicationWithHistory {
   implicit val formatTotpIds = Json.format[TotpIds]

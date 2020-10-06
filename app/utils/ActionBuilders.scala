@@ -25,7 +25,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
-import play.api.libs.json.Json
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
@@ -44,6 +43,7 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
+  // TODO: Remove this along with ApplicationService.fetchApplicationSubscriptions when using APM!!
   def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
                              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
 
@@ -69,15 +69,29 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  def withAppAndFieldDefinitions(appId: ApplicationId)(action: ApplicationAndSubscribedFieldDefinitionsWithHistory => Future[Result])
-                                (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) : Future[Result] = {
+  private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]) : ApiDefinitions.Alias = {
+    val apiContexts: Seq[ApiContext] = applicationSubscriptions.map(apiIdentifier => apiIdentifier.context).toSeq
+    val apiDefinitionsByApiContext = allApiDefintions.filter(api => 
+      apiContexts.contains(api._1) && api._2.exists(version => 
+        applicationSubscriptions.contains(ApiIdentifier(api._1, version._1)))
+      )
 
-    withAppAndSubscriptions(appId) {
-      appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-        val app = appWithFieldSubscriptions.application
-        val subscriptionsWithFieldDefinitions = filterHasSubscriptionFields(appWithFieldSubscriptions.subscriptions)
-        action(ApplicationAndSubscribedFieldDefinitionsWithHistory(app, subscriptionsWithFieldDefinitions))
+      apiDefinitionsByApiContext
+  }
+
+  def withAppAndSubscriptionsAndFieldDefinitions(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result])
+                                              (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    apmService.fetchApplicationById(appId).flatMap {
+      case Some(applicationWithSubs) => {
+        val applicationWithSubscriptionDataAndFieldDefinitions = for {
+          allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.application.deployedTo)
+          apiDefinitions = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
+          allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
+        } yield ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, apiDefinitions, allPossibleSubs)
+
+        applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
+      case None => Future.successful(notFound("Application not found"))
     }
   }
 
