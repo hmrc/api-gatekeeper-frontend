@@ -238,7 +238,7 @@ class SubscriptionConfigurationControllerSpec
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      // givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
 
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aSuperUserLoggedInRequest)

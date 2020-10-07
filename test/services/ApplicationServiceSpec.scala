@@ -560,31 +560,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
   }
 
-  "fetchApplicationSubscriptions" should {
-
-    "fetch subscriptions with fields" in new SubscriptionFieldsServiceSetup {
-      val apiVersion = ApiVersionDefinition(version, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))
-      val subscriptionFields = Seq(SubscriptionFieldValue(subscriptionFieldDefinition, FieldValue.random))
-    
-      val versionsWithoutFields = Seq(VersionSubscriptionWithoutFields(apiVersion, subscribed = true))
-      val subscriptionsWithoutFields = SubscriptionWithoutFields("subscription name", "service name", context, versionsWithoutFields)
-
-      given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
-      given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
-        .willReturn(subscriptionFields)
-
-      given(mockProductionApplicationConnector.fetchApplicationSubscriptions(stdApp1.id)).willReturn(Seq(subscriptionsWithoutFields))
-
-      val result = await(underTest.fetchApplicationSubscriptions(stdApp1))
-
-      val subscriptionFieldsWrapper = SubscriptionFieldsWrapper(stdApp1.id, stdApp1.clientId, context, version, subscriptionFields)
-      val versions = Seq(VersionSubscription(apiVersion, subscribed = true, subscriptionFieldsWrapper))
-      val subscriptions = Seq(Subscription(subscriptionsWithoutFields.name, subscriptionsWithoutFields.serviceName, context, versions))
-
-      result shouldBe subscriptions
-    }
-  }
-
   "add teamMember" when {
     val email = "email@testuser.com"
     val teamMember = Collaborator(email, CollaboratorRole.ADMINISTRATOR)

@@ -37,25 +37,11 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
       .willReturn(Future.successful(returns))
   }
 
-  def fetchApplicationSubscriptionsReturns(returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(*)(*))
-      .willReturn(Future.successful(returns))
-  }
-
   def verifyFetchApplication(applicationId: ApplicationId) = {
     verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
   }
   
   def verifyFetchStateHistory(applicationId: ApplicationId) = {
     verify(mockApplicationService).fetchStateHistory(eqTo(applicationId))(*)
-  }
-
-  def verifyFetchApplicationSubscriptions(application: Application, withFields: Boolean) = {
-    verify(mockApplicationService).fetchApplicationSubscriptions(eqTo(application))(*)
-  }
-
-  def givenTheSubscriptionsWillBeReturned(application: Application, withFields: Boolean, returns: Seq[Subscription]) = {
-    given(mockApplicationService.fetchApplicationSubscriptions(eqTo(application))((*)))
-      .willReturn(Future.successful(returns))
   }
 }
