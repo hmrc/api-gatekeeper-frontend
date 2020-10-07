@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.mockito.scalatest.ResetMocksAfterEachTest
+import model.applications.NewApplication
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ResetMocksAfterEachTest {
 
@@ -458,7 +459,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       result shouldBe ApplicationUpdateSuccessResult
 
       verify(mockProductionApplicationConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
-      verify(mockSubscriptionFieldsService, never).saveFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(fields))(*)
+      verify(mockSubscriptionFieldsService, never).saveFieldValues(*[NewApplication], eqTo(context), eqTo(version), eqTo(fields))(*)
       verify(mockSubscriptionFieldsService).saveBlankFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(subscriptionFieldValues))(*)
     }
 

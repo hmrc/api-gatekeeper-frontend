@@ -23,6 +23,7 @@ import services.SubscriptionFieldsService.{DefinitionsByApiVersion, Subscription
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import model.applications.NewApplication
 
 @Singleton
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
@@ -57,9 +58,9 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     connectorFor(application).fetchFieldsValuesWithPrefetchedDefinitions(application.clientId, apiIdentifier, definitions)
   }
 
-  def saveFieldValues(application: Application, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
+  def saveFieldValues(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
       (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
-    connectorFor(application).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
+    connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
   def saveBlankFieldValues( application: Application,

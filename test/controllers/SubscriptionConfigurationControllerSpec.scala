@@ -84,6 +84,14 @@ class SubscriptionConfigurationControllerSpec
     val allPossibleSubs = Map(apiContext -> apiData)
   }
 
+  trait EditSaveFormData extends AppWithSubscriptionDataAndFieldDefinitionsSetup {
+    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request : FakeRequest[_]) = {
+      request.withFormUrlEncodedBody(
+        "fields[0].name" -> fieldName.value,
+        "fields[0].value" -> fieldValue.value)
+    }
+  }
+
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheUserIsAuthorisedAndIsASuperUser()
@@ -133,36 +141,39 @@ class SubscriptionConfigurationControllerSpec
   }
 
   "edit Subscription Configuration" should {
-    "show Subscription Configuration" in new Setup {
+    "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()
-      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
-
-      val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aLoggedInRequest))
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      
+      val result : Result = await(addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest))
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${appConfig.title} - ${subscription.name} ${version.value} ${subscription.versions.head.version.displayedStatus}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${ApiStatus.displayedStatus(versionData.status)}"
 
       val responseBody = Helpers.contentAsString(result)
 
-      responseBody should include(subscription.name)
-      responseBody should include(subscription.versions.head.version.version.value)
-      responseBody should include(subscription.versions.head.version.displayedStatus)
-      
-      responseBody should include(subscriptionFieldValue.definition.description)
-      responseBody should include(subscriptionFieldValue.definition.hint)
-      responseBody should include(subscriptionFieldValue.value.value)
-    
-      verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
+      responseBody should include(apiName)
+      responseBody should include(apiVersion.value)
+      responseBody should include(ApiStatus.displayedStatus(versionData.status))
+      responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.description)
+      responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
+      responseBody should include(fields.head._2.value)
+
+      verifyFetchApplicationById(applicationId)
+      verifyAllPossibleSubscriptions(applicationId)
+      verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
 
-     "When logged in as super user renders the page correctly" in new Setup {
+     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheUserIsAuthorisedAndIsASuperUser()
-      givenTheAppWillBeReturned()
-      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result : Result = await(addToken(controller.editConfigurations(applicationId, context, version))(aSuperUserLoggedInRequest))
+      val result : Result = await(addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aSuperUserLoggedInRequest))
 
       status(result) shouldBe OK
 
@@ -181,38 +192,39 @@ class SubscriptionConfigurationControllerSpec
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()
-      
-      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       givenSaveSubscriptionFieldsSuccess
 
       val newValue = FieldValue.random
 
-      val request = requestWithFormData(subscriptionFieldValue.definition.name, newValue)(aLoggedInRequest)
+      val request = requestWithFormData(fields.head._1 , newValue)(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = await(addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
     
-      val expectedFields = Map(subscriptionFieldValue.definition.name -> newValue)
+      val expectedFields = Map(fields.head._1 -> newValue)
 
-      verifySaveSubscriptionFields(application.application, context, version, expectedFields)
+      verifySaveSubscriptionFields(applicationWithSubscriptionData.application, apiContext, apiVersion, expectedFields)
     }
 
     "save gives validation errors" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsANormalUser()
-      givenTheAppWillBeReturned()
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
       val validationMessage = "My validation error"
-      val errors = Map(subscriptionFieldValue.definition.name.value -> validationMessage)
+      val errors = Map(fields.head._1.value -> validationMessage)
 
-      givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsFailure(errors)
 
-      val request = requestWithFormData(subscriptionFieldValue.definition.name , FieldValue.random)(aLoggedInRequest)
+      val request = requestWithFormData(fields.head._1 , FieldValue.random)(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = await(addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request))
 
       status(result) shouldBe BAD_REQUEST
 
@@ -222,7 +234,9 @@ class SubscriptionConfigurationControllerSpec
 
     "When logged in as super saves the data" in new EditSaveFormData {
       givenTheUserIsAuthorisedAndIsASuperUser()
-      givenTheAppWillBeReturned()
+      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      getAllFieldDefinitionsReturns(allFieldDefinitions)
+      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
       givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
       givenSaveSubscriptionFieldsSuccess
@@ -243,14 +257,6 @@ class SubscriptionConfigurationControllerSpec
       val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
-    }
-  }
-
-  trait EditSaveFormData extends Setup {
-    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request : FakeRequest[_]) = {
-      request.withFormUrlEncodedBody(
-        "fields[0].name" -> fieldName.value,
-        "fields[0].value" -> fieldValue.value)
     }
   }
 }

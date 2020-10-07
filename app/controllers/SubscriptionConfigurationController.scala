@@ -59,25 +59,25 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
         }
   }
 
-  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, apiVersion: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-        withAppAndSubscriptionVersion(appId, apiContext, version) {
+        withAppAndSubscriptionsAndFieldDefinitions(appId) {
           app => {
-            val subscriptionFields = SubscriptionField(app.version.fields)
-            val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
+            val subscriptionVersionsForApp: Seq[SubscriptionVersion] = SubscriptionVersion(app)
+            val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
+            val subscriptionFields = subscriptionFieldsForContextAndVersion.fields
 
             val form = EditApiMetadataForm.form
               .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))
 
-            Future.successful(Ok(editSubscriptionConfiguration(app.application, subscriptionViewModel, form)))
+            Future.successful(Ok(editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, form)))
           }
         }
   }
 
-  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, apiVersion: ApiVersion): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit  request => {
-
-      withAppAndSubscriptionVersion(appId, apiContext, version) {
+      withAppAndSubscriptionsAndFieldDefinitions(appId) {
         app => {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
@@ -90,10 +90,10 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
 
             val errorForm = EditApiMetadataForm.form.fill(form).copy(errors = errors)
 
-            val subscriptionFields = SubscriptionField(app.version.fields)
-            val subscriptionViewModel = SubscriptionVersion(app.subscription, app.version, subscriptionFields)
+            val subscriptionVersionsForApp: Seq[SubscriptionVersion] = SubscriptionVersion(app)
+            val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
 
-            val view = editSubscriptionConfiguration(app.application, subscriptionViewModel, errorForm)
+            val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, errorForm)
 
             BadRequest(view)
           }
@@ -101,7 +101,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           def doSaveConfigurations(form: EditApiMetadataForm) = {
             val fields: Fields.Alias = EditApiMetadataForm.toFields(form)
 
-            subscriptionFieldsService.saveFieldValues(app.application.application, apiContext, version, fields)
+            subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.application, apiContext, apiVersion, fields)
             .map({
               case SaveSubscriptionFieldsSuccessResponse => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
               case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)

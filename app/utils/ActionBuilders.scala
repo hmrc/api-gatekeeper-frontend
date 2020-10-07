@@ -43,23 +43,6 @@ trait ActionBuilders extends ErrorHelper {
     }
   }
 
-  // TODO: Remove this along with ApplicationService.fetchApplicationSubscriptions when using APM!!
-  def withAppAndSubscriptions(appId: ApplicationId)(action: ApplicationAndSubscriptionsWithHistory => Future[Result])
-                             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-
-    withApp(appId) {
-      appWithHistory => {
-        val app = appWithHistory.application
-        applicationService.fetchApplicationSubscriptions(app).flatMap {
-          allApis => {
-            val subscriptions = filterSubscriptionsVersions(allApis)(v => v.subscribed)
-            action(ApplicationAndSubscriptionsWithHistory(appWithHistory, subscriptions))
-          }
-        }
-      }
-    }
-  }
-
   def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
@@ -95,35 +78,5 @@ trait ActionBuilders extends ErrorHelper {
       }
       case None => Future.successful(notFound("Application not found"))
     }
-  }
-
-  def withAppAndSubscriptionVersion(appId: ApplicationId,
-                                    apiContext: ApiContext,
-                                    apiVersion: ApiVersion)
-                                   (action: ApplicationAndSubscriptionVersion => Future[Result])
-                                   (implicit request: LoggedInRequest[_],
-                                    messages: Messages,
-                                    ec: ExecutionContext,
-                                    hc: HeaderCarrier): Future[Result] = {
-    withAppAndSubscriptions(appId) {
-      appWithFieldSubscriptions: ApplicationAndSubscriptionsWithHistory => {
-        (for{
-          subscription <- appWithFieldSubscriptions.subscriptions.find(sub => sub.context == apiContext)
-          version <- subscription.versions.find((v: VersionSubscription) => v.version.version == apiVersion)
-        } yield action(ApplicationAndSubscriptionVersion(appWithFieldSubscriptions.application, subscription, version)))
-          .getOrElse(Future.successful(notFound("Subscription or version not found")))
-      }
-    }
-  }
-
-  private def filterSubscriptionsVersions(subscriptions: Seq[Subscription])(predicate: VersionSubscription => Boolean): Seq[Subscription] = {
-    subscriptions
-      .map(api => api.copy(versions = api.versions.filter(predicate)))
-      .filterNot(api => api.versions.isEmpty)
-      .sortWith(_.name.toLowerCase < _.name.toLowerCase)
-  }
-
-  def filterHasSubscriptionFields(subscriptions : Seq[Subscription]) : Seq[Subscription] = {
-    filterSubscriptionsVersions(subscriptions)(v => v.fields.fields.nonEmpty)
   }
 }

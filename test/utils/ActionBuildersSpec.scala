@@ -106,38 +106,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     }
   }
 
-  "withAppAndSubscriptions" should {
-    "fetch Subscriptions" when {
-      "withSubFields is true" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-        fetchApplicationReturns(application)
-        fetchApplicationSubscriptionsReturns(Seq(subscription1, subscription2))
-
-        val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
-          request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)))
-          Future.successful(Ok(expectedResult))
-        }))
-
-        verifyFetchApplication(applicationId)
-        verifyFetchApplicationSubscriptions(basicApplication, true)
-
-        status(result) shouldBe OK
-        bodyOf(result) shouldBe expectedResult
-      }
-    }
-
-    "fetch sorted Subscriptions when withSubFields is true" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      fetchApplicationReturns(application)
-      fetchApplicationSubscriptionsReturns(Seq(subscription3, subscription2))
-
-      val result: Result = await(underTest.withAppAndSubscriptions(applicationId)(request => {
-        request.subscriptions shouldBe Seq(subscription2.copy(versions = Seq(version1Subscribed)), subscription3.copy(versions = Seq(version1Subscribed)))
-        Future.successful(Ok(expectedResult))
-      }))
-
-      bodyOf(result) shouldBe expectedResult
-    }
-  }
-
   "withAppAndSubsData" should {
     "fetch Application with Subscription Data" in new AppWithSubscriptionDataSetup {
 
@@ -193,56 +161,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
       status(result) shouldBe OK
       bodyOf(result) shouldBe expectedResult
-    }
-  }
-
-  "withAppAndSubscriptionVersion" should {
-    "fetch subscription and version" in new WithSubscription {
-      val versionSubscription: VersionSubscription = subscription.versions.head
-      val context = subscription.context
-    
-      fetchApplicationReturns(application)
-      fetchApplicationSubscriptionsReturns(Seq(subscription))
-  
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, context, versionSubscription.version.version)(request => {
-        request.subscription shouldBe subscription
-        request.version shouldBe versionSubscription
-        
-        Future.successful(Ok(expectedResult))
-      }))
-
-      bodyOf(result) shouldBe expectedResult
-    }
-
-    "404 for invalid context" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      val version = subscription.versions.head
-
-      fetchApplicationReturns(application)
-      fetchApplicationSubscriptionsReturns(Seq(subscription))
-
-      val invalidContext = ApiContext("not-a-context")
-
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, invalidContext, version.version.version)(_ => {
-        throw new RuntimeException("This shouldn't be called")
-        Future.successful(Ok(expectedResult))
-      }))
-
-      status(result) shouldBe NOT_FOUND
-    }
-
-    "404 for invalid version" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      fetchApplicationReturns(application)
-      fetchApplicationSubscriptionsReturns(Seq(subscription))
-
-      val apiContext = subscription.context
-      val invalidVersion = ApiVersion("not-a-version")
-
-      val result: Result = await(underTest.withAppAndSubscriptionVersion(applicationId, apiContext, invalidVersion)(_ => {
-        throw new RuntimeException("This shouldn't be called")
-        Future.successful(Ok(expectedResult))
-      }))
-
-      status(result) shouldBe NOT_FOUND
     }
   }
 }

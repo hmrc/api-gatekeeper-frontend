@@ -20,12 +20,12 @@
 @import model.view.SubscriptionVersion
 @import views.helper._
 @import config.AppConfig
+@import model.applications.NewApplication
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
+@(application: NewApplication, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
-@application = @{applicationWithHistory.application}
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version.value} ${subscriptionViewModel.displayedStatus}"}
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {
