@@ -105,44 +105,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(env).searchApplications(params)
   }
 
-  // def fetchApplicationSubscriptions(application: Application)(implicit hc: HeaderCarrier): Future[Seq[Subscription]] = {
-  //   def toApiSubscriptionStatuses(allDefinitionsByApiVersion: DefinitionsByApiVersion,
-  //                                 subscription: SubscriptionWithoutFields,
-  //                                 version: VersionSubscriptionWithoutFields): Future[VersionSubscription] = {
-
-  //   val apiIdentifier = ApiIdentifier(subscription.context, version.version.version)
-
-  //   subscriptionFieldsService
-  //     .fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, allDefinitionsByApiVersion)
-  //     .map {
-  //       fields: Seq[SubscriptionFieldValue] =>
-  //         VersionSubscription(
-  //           version.version,
-  //           version.subscribed,
-  //           SubscriptionFieldsWrapper(application.id, application.clientId, subscription.context, version.version.version, fields))
-  //     }
-  //   }
-
-  //   def toApiVersions(allDefinitionsByApiVersion: DefinitionsByApiVersion, subscription: SubscriptionWithoutFields): Future[Subscription] = {
-  //     val apiSubscriptionStatuses = subscription.versions
-  //         .filterNot(_.version.status == ApiStatus.RETIRED)
-  //         .filterNot(s => s.version.status == ApiStatus.DEPRECATED && !s.subscribed)
-  //         .sortWith(SortingHelper.descendingVersionWithoutFields)
-  //         .map(toApiSubscriptionStatuses(allDefinitionsByApiVersion, subscription, _))
-
-  //     Future.sequence(apiSubscriptionStatuses)
-  //       .map(versionSubscrioptions => {
-  //           Subscription(subscription.name, subscription.serviceName, subscription.context, versionSubscrioptions)
-  //       })
-  //   }
-
-  //   for {
-  //     allDefinitionsByApiVersion <- subscriptionFieldsService.fetchAllFieldDefinitions(application.deployedTo)
-  //     subscriptions <- applicationConnectorFor(application).fetchApplicationSubscriptions(application.id)
-  //     subscriptionsWithSubscriptionFields <- Future.sequence(subscriptions.map(subscription => toApiVersions(allDefinitionsByApiVersion, subscription)))
-  //   } yield subscriptionsWithSubscriptionFields
-  // }
-
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[OverrideFlag]] = {
       def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
