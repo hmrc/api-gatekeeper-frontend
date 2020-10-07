@@ -29,6 +29,8 @@ import builder.SubscriptionsBuilder
 
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+import model.applications.NewApplication
+import model.Environment
 
 class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
 
@@ -47,8 +49,13 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
   "When application is deployedTo production then principal connector is called" should {
     val application = mock[Application]
+    val newApplication = mock[NewApplication]
+
     when(application.clientId).thenReturn(ClientId("client-id"))
     when(application.deployedTo).thenReturn("PRODUCTION")
+
+    when(newApplication.clientId).thenReturn(ClientId("client-id"))
+    when(newApplication.deployedTo).thenReturn(Environment.PRODUCTION)
 
     "fetchAllFieldDefinitions" in new Setup {
 
@@ -95,16 +102,15 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     }
 
     "saveFieldValues" in new Setup {
-
       when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
       verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*)
     }
@@ -114,7 +120,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       when(mockProductionSubscriptionFieldsConnector.deleteFieldValues(*[ClientId],*[ApiContext],*[ApiVersion])(*))
         .thenReturn(successful(mock[FieldsDeleteResult]))
 
-      await (service.deleteFieldValues(application, apiIdentifier.context, apiIdentifier.version))
+      await(service.deleteFieldValues(application, apiIdentifier.context, apiIdentifier.version))
 
       verify(mockProductionSubscriptionFieldsConnector)
         .deleteFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*)
@@ -152,8 +158,13 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
 
   "When application is deployed to sandbox then subordinate connector is called" should {
     val application = mock[Application]
+    val newApplication = mock[NewApplication]
+
     when(application.clientId).thenReturn(ClientId("client-id"))
     when(application.deployedTo).thenReturn("SANDBOX")
+
+    when(newApplication.clientId).thenReturn(ClientId("client-id"))
+    when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)
 
     "fetchAllFieldDefinitions" in new Setup {
       when(mockSandboxSubscriptionFieldsConnector.fetchAllFieldDefinitions()(*))
@@ -199,16 +210,15 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     }
 
     "saveFieldValues" in new Setup {
-
       when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId],*[ApiContext],*[ApiVersion],*)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await (service.saveFieldValues(application, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
       verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId],*[ApiContext],*[ApiVersion],*)(*)
     }

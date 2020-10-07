@@ -182,8 +182,6 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
           givenTheUserHasInsufficientEnrolments()
 
-          when(mockApplicationService.fetchApplicationSubscriptions(*)(*)).thenReturn(Seq(subscription))
-
           val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
 
           status(result) shouldBe FORBIDDEN

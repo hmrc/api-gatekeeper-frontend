@@ -32,13 +32,13 @@ trait ApmConnectorMock {
                         |           }
                         |       ],
                         |       "access": {
-                        |       "redirectUris": [
-                        |           "http://localhost:8080/callback"
-                        |       ],
-                        |       "termsAndConditionsUrl": "http://terms",
-                        |       "privacyPolicyUrl": "http://privacypolicy",
-                        |       "overrides": [],
-                        |       "accessType": "STANDARD"
+                        |           "redirectUris": [
+                        |               "http://localhost:8080/callback"
+                        |           ],
+                        |           "termsAndConditionsUrl": "http://terms",
+                        |           "privacyPolicyUrl": "http://privacypolicy",
+                        |           "overrides": [],
+                        |           "accessType": "STANDARD"
                         |       },
                         |       "state": {
                         |       "name": "PRODUCTION",
