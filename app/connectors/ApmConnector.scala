@@ -50,8 +50,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[Map[ApiContext, ApiData]](
       s"${config.serviceBaseUrl}/api-definitions", 
       Seq(
-        (applicationIdQueryParam, applicationId.value),
-        (restrictedQueryParam, "false")
+        applicationIdQueryParam -> applicationId.value,
+        restrictedQueryParam -> "false"
       )
     )
   }
