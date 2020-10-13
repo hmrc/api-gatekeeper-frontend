@@ -54,7 +54,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
         (unrestrictedQueryParam, "true")
       )
     )
-   }
+  }
 }
 
 object ApmConnector {
