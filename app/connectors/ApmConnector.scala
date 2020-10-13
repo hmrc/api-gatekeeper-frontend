@@ -51,7 +51,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
       s"${config.serviceBaseUrl}/api-definitions", 
       Seq(
         (applicationIdQueryParam, applicationId.value),
-        (unrestrictedQueryParam, "true")
+        (restrictedQueryParam, "false")
       )
     )
   }
@@ -59,7 +59,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
 object ApmConnector {
   val applicationIdQueryParam = "applicationId"
-  val unrestrictedQueryParam = "unrestricted"
+  val restrictedQueryParam = "restricted"
 
   case class Config(
       serviceBaseUrl: String

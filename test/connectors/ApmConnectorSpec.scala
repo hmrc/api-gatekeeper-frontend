@@ -68,7 +68,7 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
         
         val queryParams = Seq(
             (ApmConnector.applicationIdQueryParam, applicationId.value),
-            (ApmConnector.unrestrictedQueryParam, "true")
+            (ApmConnector.restrictedQueryParam, "false")
         )
         
         "return all subscribeable API's and their ApiData" in new Setup with ApiBuilder {
