@@ -39,7 +39,7 @@ class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
   }
 
   def stubApiDefintionsForApplication(apiDefinitions: String, appId: String) = {
-    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
   def stubDevelopers(developers: List[User]) = {
