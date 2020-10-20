@@ -40,6 +40,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val mockProductionApplicationConnector = mock[ProductionApplicationConnector]
     val mockSandboxApiScopeConnector = mock[SandboxApiScopeConnector]
     val mockProductionApiScopeConnector = mock[ProductionApiScopeConnector]
+    val mockApmConnector = mock[ApmConnector]
     val mockDeveloperConnector = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
@@ -48,6 +49,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       mockProductionApplicationConnector,
       mockSandboxApiScopeConnector,
       mockProductionApiScopeConnector,
+      mockApmConnector,
       mockDeveloperConnector,
       mockSubscriptionFieldsService)
     val underTest = spy(applicationService)
@@ -414,7 +416,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
   "subscribeToApi" should {
     "field definitions with empty values will persist empty values" in new Setup {
-      given(mockProductionApplicationConnector.subscribeToApi(*[ApplicationId], *)(*))
+      given(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
@@ -432,13 +434,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(mockProductionApplicationConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
+      verify(mockApmConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
       verify(mockSubscriptionFieldsService).fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*)
       verify(mockSubscriptionFieldsService).saveBlankFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(subscriptionFieldValues))(*)
     }
 
     "field definitions with non-empty values will not persist anything" in new Setup {
-      given(mockProductionApplicationConnector.subscribeToApi(*[ApplicationId], *)(*))
+      given(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
@@ -458,13 +460,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(mockProductionApplicationConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
+      verify(mockApmConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
       verify(mockSubscriptionFieldsService, never).saveFieldValues(*[NewApplication], eqTo(context), eqTo(version), eqTo(fields))(*)
       verify(mockSubscriptionFieldsService).saveBlankFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(subscriptionFieldValues))(*)
     }
 
     "with field definitions but fails to save subscription fields throws error" in new Setup {
-      given(mockProductionApplicationConnector.subscribeToApi(*[ApplicationId], *)(*))
+      given(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
         .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))

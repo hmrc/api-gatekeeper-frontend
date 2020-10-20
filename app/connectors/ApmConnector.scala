@@ -33,6 +33,12 @@ import model.ApiVersion
 import model.FieldName
 import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.ApiDefinitions
+import model.ApiIdentifier
+import model.ApplicationUpdateResult
+import uk.gov.hmrc.http.HttpResponse
+import play.api.http.ContentTypes.JSON
+import play.api.http.HeaderNames.CONTENT_TYPE
+import model.ApplicationUpdateSuccessResult
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -54,6 +60,12 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
         restrictedQueryParam -> "false"
       )
     )
+  }
+
+  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST[ApiIdentifier, HttpResponse](s"${config.serviceBaseUrl}/applications/${applicationId.value}/subscriptions", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+      ApplicationUpdateSuccessResult
+    }
   }
 }
 

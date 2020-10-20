@@ -30,11 +30,17 @@ import uk.gov.hmrc.http.HeaderCarrier
 import builder.{ApplicationBuilder, ApiBuilder}
 import model.ApiContext
 import model.subscriptions.ApiData
+import model.ApiIdentifier
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.Upstream5xxResponse
+import play.api.test.Helpers._
+import model.ApplicationUpdateSuccessResult
+import model.ApiVersion
 
 class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures {
     val mockHttp = mock[HttpClient] 
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
-    
+
     val applicationId = ApplicationId.random
 
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn("https://example.com")
@@ -81,5 +87,31 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
             val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
             result(apiContext).name shouldBe "API Name" 
         }
-    } 
+    }
+
+    "subscribeToApi" should {
+        val applicationId = ApplicationId.random
+        val apiContext = ApiContext.random
+        val apiVersion = ApiVersion.random
+        val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
+        val url = s"https://example.com/applications/${applicationId.value}/subscriptions"
+
+        "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+            when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+                .thenReturn(Future.successful(HttpResponse(CREATED))) 
+
+            val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
+
+            result shouldBe ApplicationUpdateSuccessResult
+        }
+
+        "fail if the request failed on the backend" in new Setup {
+            when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+                .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+            intercept[Upstream5xxResponse] {
+                await(underTest.subscribeToApi(applicationId, apiIdentifier))
+            }
+        }
+    }
 }

@@ -32,6 +32,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                    productionApplicationConnector: ProductionApplicationConnector,
                                    sandboxApiScopeConnector: SandboxApiScopeConnector,
                                    productionApiScopeConnector: ProductionApiScopeConnector,
+                                   apmConnector: ApmConnector,
                                    developerConnector: DeveloperConnector,
                                    subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) {
 
@@ -159,8 +160,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def subscribeToApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val applicationConnector: ApplicationConnector = applicationConnectorFor(application)
-
     val apiIdentifier = ApiIdentifier(context, version)
 
     trait HasSucceeded
@@ -186,7 +185,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       }
     }
 
-    val subscribeResponse = applicationConnector.subscribeToApi(application.id, apiIdentifier)
+    val subscribeResponse = apmConnector.subscribeToApi(application.id, apiIdentifier)
     val fieldDefinitions = subscriptionFieldsService.fetchFieldDefinitions(application.deployedTo, apiIdentifier)
 
     fieldDefinitions
