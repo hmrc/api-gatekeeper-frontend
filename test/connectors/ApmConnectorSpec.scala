@@ -94,7 +94,7 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
         val apiContext = ApiContext.random
         val apiVersion = ApiVersion.random
         val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
-        val url = s"https://example.com/applications/${applicationId.value}/subscriptions"
+        val url = s"https://example.com/applications/${applicationId.value}/subscriptions?restricted=false"
 
         "send Authorisation and return OK if the request was successful on the backend" in new Setup {
             when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
