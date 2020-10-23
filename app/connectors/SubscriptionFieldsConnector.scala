@@ -25,7 +25,6 @@ import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
-import play.api.Logger
 import play.api.http.Status.{NO_CONTENT, OK, BAD_REQUEST, CREATED}
 import play.api.libs.json.{Format, Json, JsSuccess}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -93,7 +92,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
-    Logger.debug(s"fetchFieldDefinitions() - About to call $url in ${environment.toString}")
     retry {
       http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain))
     } recover recovery(Seq.empty[SubscriptionFieldDefinition])

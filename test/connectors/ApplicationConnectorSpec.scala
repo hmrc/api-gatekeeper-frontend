@@ -401,31 +401,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
   }
 
-  "subscribeToApi" should {
-    val apiContext = ApiContext.random
-    val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value}/subscription"
-    val apiIdentifier = ApiIdentifier(apiContext, apiVersion1)
-
-    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
-        .thenReturn(Future.successful(HttpResponse(CREATED)))
-
-      val result = await(connector.subscribeToApi(applicationId, apiIdentifier))
-
-      result shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-      intercept[Upstream5xxResponse] {
-        await(connector.subscribeToApi(applicationId, ApiIdentifier(apiContext, apiVersion1)))
-      }
-    }
-  }
-
   "unsubscribeFromApi" should {
     val apiContext = ApiContext.random
     val applicationId = ApplicationId.random
