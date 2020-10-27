@@ -16,11 +16,12 @@
 
 @import include._
 @import model._
+@import model.Forms.IpAllowlistForm
 @import config.AppConfig
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[Set[String]])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[IpAllowlistForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Manage IP allow list") {
 
@@ -35,13 +36,15 @@
         </ul>
     </nav>
 
+    @errorSummary(form)
+
     <h1 class="heading-xlarge">Manage IP allow list</h1>
 
-    @helper.form(action = controllers.routes.ApplicationController.manageWhitelistedIpAction(application.id)) {
+    @helper.form(action = controllers.routes.ApplicationController.manageIpAllowlistAction(application.id)) {
 
         <p>The IP allow list controls where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
         <p>The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
-        <p style ="margin-left: 40px">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
+        <p class="indented">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
 
         <p>The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
         <p>The netmask identifies how large the network is.</p>
@@ -61,6 +64,12 @@
             class="form-control @if(form.errors("allowlistedIps").nonEmpty) {form-control-error}"
             aria-labelledby="allowlistedIps-label"
             aria-describedby="allowlistedIps-note">@form.data.getOrElse("allowlistedIps", "")</textarea>
+        </div>
+        <div class="form-group">
+            <div class="multiple-choice">
+                <input type="checkbox" name="required" value="true" @if(form.data.get("required").contains("true")){checked}>
+                <label for="required">Make the IP allow list mandatory for this application</label>
+            </div>
         </div>
 
         <div class="form-field">

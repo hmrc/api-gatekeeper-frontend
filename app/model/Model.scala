@@ -238,14 +238,14 @@ case object UpdateScopesSuccessResult extends UpdateScopesResult
 case object UpdateScopesFailureResult extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
-case class UpdateIpWhitelistRequest(ipWhitelist: Set[String])
+case class UpdateIpAllowlistRequest(required: Boolean, allowlist: Set[String])
 
-object UpdateIpWhitelistRequest {
-  implicit val format = Json.format[UpdateIpWhitelistRequest]
+object UpdateIpAllowlistRequest {
+  implicit val format = Json.format[UpdateIpAllowlistRequest]
 }
 
-sealed trait UpdateIpWhitelistResult
-case object UpdateIpWhitelistSuccessResult extends UpdateIpWhitelistResult
+sealed trait UpdateIpAllowlistResult
+case object UpdateIpAllowlistSuccessResult extends UpdateIpAllowlistResult
 
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult

@@ -46,7 +46,10 @@ trait ApmConnectorMock {
                         |       "verificationCode": "8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kdw",
                         |       "updatedOn": "2016-04-08T11:11:18.463Z"
                         |       },
-                        |       "ipWhitelist": []
+                        |       "ipAllowlist": {
+                        |         "required": false,
+                        |         "allowlist": []
+                        |       }
                         |   },
                         |   "subscriptions": [
                         |       {

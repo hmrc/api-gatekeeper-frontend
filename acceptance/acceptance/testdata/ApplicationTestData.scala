@@ -1,12 +1,10 @@
 package acceptance.testdata
 
 import builder.ApplicationBuilder
-import model.{ApplicationId, ClientId, RateLimitTier}
+import model.{ApplicationId, ClientId, IpAllowlist, RateLimitTier}
 import org.joda.time.DateTime
 
 trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData with CheckInformationTestData {
-
-    val ipWhitelist = Set.empty[String]
 
     val defaultApplication = DefaultApplication
        .withId(ApplicationId(applicationId))
@@ -19,7 +17,7 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
        .withState(productionState)
        .withAccess(standardAccess)
        .withCheckInformation(defaultCheckInformation)
-       .allowIPs(ipWhitelist.toSeq :_*)
+       .withIpAllowlist(IpAllowlist())
        .unblocked
        .withRateLimitTier(RateLimitTier.BRONZE)
        .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))

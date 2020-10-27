@@ -27,7 +27,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.time.DateTimeUtils
-
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
@@ -200,7 +199,7 @@ case class ApplicationResponse(id: ApplicationId,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
                                blocked: Boolean = false,
-                               ipWhitelist: Set[String] = Set.empty)
+                               ipAllowlist: IpAllowlist = IpAllowlist())
   extends Application
 
 object ApplicationResponse {
@@ -242,7 +241,7 @@ object ApplicationResponse {
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-      ((JsPath \ "ipWhitelist").read[Set[String]] or Reads.pure(Set.empty[String]))
+      (JsPath \ "ipAllowlist").read[IpAllowlist]
     ) (ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {
