@@ -25,7 +25,13 @@
         }
         <ul class="error-summary-list">
             @for(error <- form.errors) {
-                <li><a href="#@error.key">@Messages(s"${error.messages.head}")</a></li>
+                <li><a href="#@error.key">
+                    @if(error.args.nonEmpty) {
+                        @Messages(error.message, error.args.head)
+                    } else {
+                        @Messages(error.message)
+                    }
+                </a></li>
             }
         </ul>
     </div>

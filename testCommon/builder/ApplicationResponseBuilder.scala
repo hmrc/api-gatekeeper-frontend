@@ -50,7 +50,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       privacyPolicyUrl = Some("http://privacy-policy-url.com"),
       checkInformation = checkInformation,
       blocked = false,
-      ipWhitelist = Set.empty
+      ipAllowlist = IpAllowlist()
     )
   }
 
@@ -110,7 +110,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
     def noCheckInformation = app.copy(checkInformation = None)
 
-    def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
+    def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)

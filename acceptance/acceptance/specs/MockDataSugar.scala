@@ -143,7 +143,11 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": []
+       |    "subscriptions": [],
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
+       |    }
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
@@ -180,7 +184,11 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": []
+       |    "subscriptions": [],
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
+       |    }
        |  }]
     """.stripMargin
 
@@ -216,6 +224,10 @@ trait MockDataSugar {
        |      "requestedByEmailAddress": "$developer",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
+       |    },
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
        |    }
        |  }]
     """.stripMargin
@@ -244,7 +256,11 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": []
+       |    "subscriptions": [],
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
+       |    }
        |  }]
     """.stripMargin
 
@@ -289,7 +305,11 @@ trait MockDataSugar {
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "subscriptions": []
+       |    "subscriptions": [],
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
+       |    }
        |  }]
     """.stripMargin
 
@@ -430,7 +450,11 @@ trait MockDataSugar {
        |      "accessType": "STANDARD"
        |    },
        |    "rateLimitTier": "BRONZE",
-       |    $state
+       |    $state,
+       |    "ipAllowlist" : {
+       |        "required" : false,
+       |        "allowlist" : []
+       |    }
        |  },
        |  "history": [
        |      {

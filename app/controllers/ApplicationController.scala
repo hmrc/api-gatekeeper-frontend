@@ -55,7 +55,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageSubscriptionsView: ManageSubscriptionsView,
                                       manageAccessOverridesView: ManageAccessOverridesView,
                                       manageScopesView: ManageScopesView,
-                                      manageWhitelistedIpView: ManageWhitelistedIpView,
+                                      manageIpAllowlistView: ManageIpAllowlistView,
                                       manageRateLimitView: ManageRateLimitView,
                                       deleteApplicationView: DeleteApplicationView,
                                       deleteApplicationSuccessView: DeleteApplicationSuccessView,
@@ -235,27 +235,33 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  def manageWhitelistedIpPage(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def manageIpAllowlistPage(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
-          Future.successful(Ok(manageWhitelistedIpView(app.application, WhitelistedIpForm.form.fill(app.application.ipWhitelist))))
+          Future.successful(Ok(manageIpAllowlistView(app.application,
+            IpAllowlistForm.form.fill(IpAllowlistForm(app.application.ipAllowlist.required, app.application.ipAllowlist.allowlist)))))
         }
   }
 
-  def manageWhitelistedIpAction(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def manageIpAllowlistAction(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>
-          def handleValidForm(whitelistedIps: Set[String]) = {
-            applicationService.manageWhitelistedIp(app.application, whitelistedIps).map { _ =>
-              Redirect(routes.ApplicationController.applicationPage(appId))
+          def handleValidForm(form: IpAllowlistForm) = {
+            if (form.required && form.allowlist.isEmpty) {
+              val formWithErrors = IpAllowlistForm.form.fill(form).withError("allowlistedIps", messagesApi.preferred(request)("ipAllowlist.invalid.required"))
+              Future.successful(BadRequest(manageIpAllowlistView(app.application, formWithErrors)))
+            } else {
+              applicationService.manageIpAllowlist(app.application, form.required, form.allowlist).map { _ =>
+                Redirect(routes.ApplicationController.applicationPage(appId))
+              }
             }
           }
 
-          def handleFormError(form: Form[Set[String]]) = {
-            Future.successful(BadRequest(manageWhitelistedIpView(app.application, form)))
+          def handleFormError(form: Form[IpAllowlistForm]) = {
+            Future.successful(BadRequest(manageIpAllowlistView(app.application, form)))
           }
 
-          WhitelistedIpForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+          IpAllowlistForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
         }
   }
 

@@ -390,26 +390,26 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
   }
 
-  "updateWhitelistedIp" should {
-    "send the updated IP whitelist to the TPA connector" in new Setup {
-      val existingWhitelistedIp = "192.168.1.0/24"
-      val app: ApplicationResponse = stdApp1.copy(ipWhitelist = Set(existingWhitelistedIp))
-      val newWhitelistedIp = "192.168.2.0/24"
-      given(mockProductionApplicationConnector.manageIpWhitelist(*[ApplicationId], *)(*))
-        .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
+  "manageIpAllowlist" should {
+    "send the updated IP allowlist to the TPA connector" in new Setup {
+      val existingIpAllowlist = IpAllowlist(required = false, Set("192.168.1.0/24"))
+      val app: ApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
+      val newIpAllowlist = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
+      given(mockProductionApplicationConnector.updateIpAllowlist(*[ApplicationId], *, *)(*))
+        .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
 
-      val result: UpdateIpWhitelistResult = await(underTest.manageWhitelistedIp(app, Set(existingWhitelistedIp, newWhitelistedIp)))
+      val result: UpdateIpAllowlistResult = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist))
 
-      result shouldBe UpdateIpWhitelistSuccessResult
-      verify(mockProductionApplicationConnector).manageIpWhitelist(eqTo(app.id), eqTo(Set(existingWhitelistedIp, newWhitelistedIp)))(*)
+      result shouldBe UpdateIpAllowlistSuccessResult
+      verify(mockProductionApplicationConnector).updateIpAllowlist(eqTo(app.id), eqTo(newIpAllowlist.required), eqTo(newIpAllowlist.allowlist))(*)
     }
 
     "propagate connector errors" in new Setup {
-      given(mockProductionApplicationConnector.manageIpWhitelist(*[ApplicationId], *)(*))
+      given(mockProductionApplicationConnector.updateIpAllowlist(*[ApplicationId], *, *)(*))
         .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
 
       intercept[Upstream5xxResponse] {
-        await(underTest.manageWhitelistedIp(stdApp1, Set("192.168.1.0/24")))
+        await(underTest.manageIpAllowlist(stdApp1, false, Set("192.168.1.0/24")))
       }
     }
   }

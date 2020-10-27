@@ -59,7 +59,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
       checkInformation = None,
-      ipWhitelist = Set.empty
+      ipAllowlist = IpAllowlist()
     )
 
     val DefaultApplicationViewModel = ApplicationViewModel(

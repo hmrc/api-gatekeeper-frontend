@@ -165,9 +165,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       .map(_ => UpdateScopesSuccessResult)
   }
 
-  def manageIpWhitelist(applicationId: ApplicationId, ipWhitelist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    http.PUT[UpdateIpWhitelistRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/ipWhitelist", UpdateIpWhitelistRequest(ipWhitelist))
-      .map(_ => UpdateIpWhitelistSuccessResult)
+  def updateIpAllowlist(applicationId: ApplicationId, required: Boolean, ipAllowlist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
+    http.PUT[UpdateIpAllowlistRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/ipAllowlist", UpdateIpAllowlistRequest(required, ipAllowlist))
+      .map(_ => UpdateIpAllowlistSuccessResult)
   }
 
   def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

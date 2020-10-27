@@ -293,19 +293,19 @@
                 <h3>IP allow list</h3>
             </th>
             <td>
-            @if(application.ipWhitelist.isEmpty) {
+            @if(application.ipAllowlist.allowlist.isEmpty) {
                 <span class="faded-text">No IP allow list ranges</span>
             } else {
-                <table class="table-plain">
-                @for(ipRange <-application.ipWhitelist.toSeq.sorted) {
-                    <tr><td>@ipRange</td></tr>
+                @if(application.ipAllowlist.required) {
+                    Mandatory and active
+                } else {
+                    Active
                 }
-                </table>
             }
             </td>
             <td>
             @if(model.isAtLeastSuperUser) {
-                <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageWhitelistedIpPage(application.id)}" class="button--link" role="button">Manage</a>
+                <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}" class="button--link" role="button">Manage</a>
             }
             </td>
         </tr>

@@ -57,7 +57,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
   private lazy val manageAccessOverridesView = app.injector.instanceOf[ManageAccessOverridesView]
   private lazy val manageScopesView = app.injector.instanceOf[ManageScopesView]
-  private lazy val manageWhitelistedIpView = app.injector.instanceOf[ManageWhitelistedIpView]
+  private lazy val manageIpAllowlistView = app.injector.instanceOf[ManageIpAllowlistView]
   private lazy val manageRateLimitView = app.injector.instanceOf[ManageRateLimitView]
   private lazy val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
   private lazy val deleteApplicationSuccessView = app.injector.instanceOf[DeleteApplicationSuccessView]
@@ -110,7 +110,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         manageSubscriptionsView,
         manageAccessOverridesView,
         manageScopesView,
-        manageWhitelistedIpView,
+        manageIpAllowlistView,
         manageRateLimitView,
         deleteApplicationView,
         deleteApplicationSuccessView,
@@ -361,22 +361,22 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
     }
 
-    "manageWhitelistedIp" should {
-      "return the manage whitelisted IP page for an admin" in new Setup {
+    "manageIpAllowlistPage" should {
+      "return the manage IP allowlist page for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageWhitelistedIpPage(applicationId)(anAdminLoggedInRequest))
+        val result = await(underTest.manageIpAllowlistPage(applicationId)(anAdminLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Manage IP allow list")
       }
 
-      "return the manage whitelisted IP page for a super user" in new Setup {
+      "return the manage IP allowlist page for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageWhitelistedIpPage(applicationId)(aSuperUserLoggedInRequest))
+        val result = await(underTest.manageIpAllowlistPage(applicationId)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe OK
         bodyOf(result) should include("Manage IP allow list")
@@ -386,46 +386,75 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageWhitelistedIpPage(applicationId)(aLoggedInRequest))
+        val result = await(underTest.manageIpAllowlistPage(applicationId)(aLoggedInRequest))
 
         status(result) shouldBe FORBIDDEN
         bodyOf(result) should include("You do not have permission")
       }
     }
 
-    "manageWhitelistedIpAction" should {
-      val whitelistedIpToUpdate: String = "1.1.1.0/24"
+    "manageIpAllowlistAction" should {
+      val allowlistedIpToUpdate: String = "1.1.1.0/24"
+      val required: Boolean = false
 
-      "manage whitelisted IP using the app service for an admin" in new Setup {
+      "manage the IP allowlist using the app service for an admin" in new Setup {
         givenTheUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageWhitelistedIp(*, *)(*))
-          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
+        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
+          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
-        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
       }
 
-      "manage whitelisted IP using the app service for a super user" in new Setup {
+      "manage the IP allowlist using the app service for a super user" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageWhitelistedIp(*, *)(*))
-          .willReturn(Future.successful(UpdateIpWhitelistSuccessResult))
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("allowlistedIps" -> whitelistedIpToUpdate)
+        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
+          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
-        verify(mockApplicationService).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
+      }
+
+      "clear the IP allowlist when allowlistedIps is empty" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
+          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> "")
+
+        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set()))(*)
+      }
+
+      "fail validation when clearing a required IP allowlist" in new Setup {
+        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
+          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> "true", "allowlistedIps" -> "")
+
+        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+
+        status(result) shouldBe BAD_REQUEST
+        bodyOf(result) should include("The IP allow list is mandatory for this application")
+        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
       }
 
       "return bad request for invalid values" in new Setup {
-        val invalidWhitelistedIps: Seq[String] = Seq(
+        val invalidAllowlistedIps: Seq[String] = Seq(
           "1.1.1.0", // no mask
           "1.1.1.0/33", // mask greater than 32
           "1.1.1.0/23", // mask less than 24
@@ -438,24 +467,24 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "10.255.255.255/24" // within a private network range, using the broadcast address
         )
 
-        invalidWhitelistedIps.foreach { invalidWhitelistedIp =>
+        invalidAllowlistedIps.foreach { invalidAllowlistedIp =>
           givenTheUserIsAuthorisedAndIsASuperUser()
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> invalidWhitelistedIp)
+          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
 
-          val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
+          val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageWhitelistedIp(eqTo(application.application), eqTo(Set(whitelistedIpToUpdate)))(*)
+          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
         }
       }
 
       "return the forbidden page for a normal user" in new Setup {
         givenTheUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
-        val request = aLoggedInRequest.withFormUrlEncodedBody("whitelistedIps" -> whitelistedIpToUpdate)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageWhitelistedIpAction(applicationId)(request))
+        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
 
         status(result) shouldBe FORBIDDEN
         bodyOf(result) should include("You do not have permission")

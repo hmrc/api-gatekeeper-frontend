@@ -17,37 +17,17 @@
 package builder
 
 import model.applications.NewApplication
-import model.ApplicationId
-import model.ClientId
+import model.{Access, Actor, ApiContext, ApiIdentifier, ApiVersion, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, Environment, FieldName, FieldValue, IpAllowlist, Privileged, RateLimitTier, Ropc, Standard, State, StateHistory, User}
 import uk.gov.hmrc.time.DateTimeUtils
-import model.Environment
-import model.Standard
-import model.State
-import model.Collaborator
 import model.applications.ApplicationWithSubscriptionData
-import model.CollaboratorRole
-import model.ApplicationState
-import model.ApiIdentifier
-import model.ApiVersion
-import model.ApiContext
 import model.SubscriptionFields.Fields
-import model.FieldName
-import model.FieldValue
 import model.State.State
-import model.StateHistory
 import org.joda.time.DateTime
 import java.{util => ju}
 
-import model.Actor
-import model.RateLimitTier
-import model.CheckInformation
-import model.Access
 import model.view.ApplicationViewModel
-import model.Privileged
-import model.Ropc
 import model.ApiStatus._
 import model.RateLimitTier.RateLimitTier
-import model.User
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): NewApplication = {
@@ -165,7 +145,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
     def noCheckInformation = app.copy(checkInformation = None)
 
-    def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
+    def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)

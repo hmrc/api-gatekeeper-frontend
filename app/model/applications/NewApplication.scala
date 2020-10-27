@@ -16,22 +16,10 @@
 
 package model.applications
 
-import model.ClientId
-
-import model.ApplicationId
-import model.CheckInformation
+import model.{Access, AccessType, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, IpAllowlist, Privileged, Ropc, Standard, TotpIds}
 import org.joda.time.DateTime
 import model.Environment.Environment
-import model.Collaborator
-import model.Access
-import model.Standard
-import model.ApplicationState
-import model.CollaboratorRole
 import uk.gov.hmrc.play.json.Union
-import model.AccessType
-import model.Privileged
-import model.Ropc
-import model.TotpIds
 import model.RateLimitTier.RateLimitTier
 
 case class NewApplication(
@@ -50,7 +38,7 @@ case class NewApplication(
     rateLimitTier: RateLimitTier,
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
-    ipWhitelist: Set[String] = Set.empty
+    ipAllowlist: IpAllowlist = IpAllowlist()
 )
 
 object NewApplication {

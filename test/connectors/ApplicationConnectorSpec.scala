@@ -376,27 +376,27 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
   }
 
-  "updateIpWhitelist" should {
+  "updateIpAllowlist" should {
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value}/ipWhitelist"
-    val newIpWhitelist = Set("192.168.1.0/24", "192.168.2.0/24")
+    val url = s"$baseUrl/application/${applicationId.value}/ipAllowlist"
+    val newIpAllowlist = IpAllowlist(required = false, Set("192.168.1.0/24", "192.168.2.0/24"))
 
     "make a PUT request and return a successful result if the request was successful on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), *)(*, *, *, *))
+      when(mockHttpClient.PUT[UpdateIpAllowlistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpAllowlistRequest(newIpAllowlist.required, newIpAllowlist.allowlist)), *)(*, *, *, *))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = await(connector.manageIpWhitelist(applicationId, newIpWhitelist))
+      val result = await(connector.updateIpAllowlist(applicationId, newIpAllowlist.required, newIpAllowlist.allowlist))
 
-      result shouldBe UpdateIpWhitelistSuccessResult
-      verify(mockHttpClient).PUT(eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), *)(*, *, *, *)
+      result shouldBe UpdateIpAllowlistSuccessResult
+      verify(mockHttpClient).PUT(eqTo(url), eqTo(UpdateIpAllowlistRequest(newIpAllowlist.required, newIpAllowlist.allowlist)), *)(*, *, *, *)
     }
 
     "fail if the request failed on the backend" in new Setup {
-      when(mockHttpClient.PUT[UpdateIpWhitelistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpWhitelistRequest(newIpWhitelist)), *)(*, *, *, *))
+      when(mockHttpClient.PUT[UpdateIpAllowlistRequest, HttpResponse](eqTo(url), eqTo(UpdateIpAllowlistRequest(newIpAllowlist.required, newIpAllowlist.allowlist)), *)(*, *, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
-        await(connector.manageIpWhitelist(applicationId, newIpWhitelist))
+        await(connector.updateIpAllowlist(applicationId, newIpAllowlist.required, newIpAllowlist.allowlist))
       }
     }
   }

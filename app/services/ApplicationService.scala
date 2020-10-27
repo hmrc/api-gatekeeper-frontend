@@ -155,8 +155,9 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def manageWhitelistedIp(application: ApplicationResponse, whitelistedIp: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpWhitelistResult] = {
-    applicationConnectorFor(application).manageIpWhitelist(application.id, whitelistedIp)
+  def manageIpAllowlist(application: ApplicationResponse, required: Boolean, ipAllowlist: Set[String])
+                       (implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
+    applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
   }
 
   def subscribeToApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

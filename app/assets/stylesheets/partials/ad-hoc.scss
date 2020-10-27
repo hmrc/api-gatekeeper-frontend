@@ -127,24 +127,11 @@ th {
 }
 
 .ip-allowlist {
-  h1 {
-    width: 60%;
+  .indented {
+    margin-left: 40px;
   }
-
-  table {
-    width: 40%;
-
-    td:nth-of-type(2) {
-      text-align: right;
-    }
-  }
-
   textarea {
     width: auto;
-    }
-
-  input {
-    width: 25%;
   }
 }
 
