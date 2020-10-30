@@ -62,11 +62,20 @@
                             <li>
                                 <div class="accordion__body__row accordion__body__row--no-border api-subscriber">
                                     <div class="accordion__body__row__left">
-                                        <span class="font-xsmall external-link-16">@{
-                                            version.version.version.value
-                                        } (@{
-                                            version.version.displayedStatus
-                                        })</span>
+                                        <span class="font-xsmall external-link-16 api-subscription">
+                                            <span class="font-xsmall external-link-16 api-subscription-version">
+                                                @{version.version.version.value} 
+                                            </span>
+                                            <span>
+
+                                            </span class="font-xsmall external-link-16 api-subscription-info">
+                                                @if(version.version.accessType == APIAccessType.PRIVATE) {
+                                                    (@{version.version.displayedAccessType} @{version.version.displayedStatus})
+                                                } else {
+                                                    (@{version.version.displayedStatus})
+                                                }
+                                            </span>
+                                        </span>
                                     </div>
                                     <div class="accordion__body__row__right">
                                         <div class="float--right">

@@ -83,6 +83,11 @@ case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: 
   val displayedStatus = ApiStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
+
+  val displayedAccessType = {
+    val text = accessType.toString()
+    text.take(1) + text.toLowerCase.takeRight(text.length()-1)
+  }
 }
 
 object ApiStatus extends Enumeration {
