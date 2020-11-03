@@ -44,7 +44,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import model.applications.ApplicationWithSubscriptionData
-import builder.{ApplicationBuilder, ApiBuilder}
+import builder.{ApiBuilder, ApplicationBuilder}
 
 class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar {
 
@@ -57,6 +57,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
   private lazy val manageAccessOverridesView = app.injector.instanceOf[ManageAccessOverridesView]
   private lazy val manageScopesView = app.injector.instanceOf[ManageScopesView]
+  private lazy val ipAllowlistView = app.injector.instanceOf[IpAllowlistView]
   private lazy val manageIpAllowlistView = app.injector.instanceOf[ManageIpAllowlistView]
   private lazy val manageRateLimitView = app.injector.instanceOf[ManageRateLimitView]
   private lazy val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
@@ -110,6 +111,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         manageSubscriptionsView,
         manageAccessOverridesView,
         manageScopesView,
+        ipAllowlistView,
         manageIpAllowlistView,
         manageRateLimitView,
         deleteApplicationView,
@@ -358,6 +360,18 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateScopes(*, *)(*)
+      }
+    }
+
+    "viewIpAllowlistPage" should {
+      "return the view IP allowlist page for a normal user" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheAppWillBeReturned()
+
+        val result = await(underTest.viewIpAllowlistPage(applicationId)(aLoggedInRequest))
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("View IP allow list")
       }
     }
 

@@ -55,6 +55,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageSubscriptionsView: ManageSubscriptionsView,
                                       manageAccessOverridesView: ManageAccessOverridesView,
                                       manageScopesView: ManageScopesView,
+                                      ipAllowlistView: IpAllowlistView,
                                       manageIpAllowlistView: ManageIpAllowlistView,
                                       manageRateLimitView: ManageRateLimitView,
                                       deleteApplicationView: DeleteApplicationView,
@@ -233,6 +234,13 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
           scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
         }
+  }
+
+  def viewIpAllowlistPage(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+      withApp(appId) { app =>
+        Future.successful(Ok(ipAllowlistView(app.application)))
+      }
   }
 
   def manageIpAllowlistPage(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
