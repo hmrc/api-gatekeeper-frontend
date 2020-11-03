@@ -402,6 +402,52 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       result.contentType must include("text/html")
       result.body.contains("Subscription configuration") mustBe false
     }
+
+    "show manage IP allowlist link when user is at least a superuser" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel.asSuperUser,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      elementExistsById(document, "manage-ip-allowlist") mustBe true
+      elementExistsById(document, "view-ip-allowlist") mustBe false
+    }
+
+    "not show IP allowlist links for normal users when the IP allowlist is not active" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      elementExistsById(document, "view-ip-allowlist") mustBe false
+      elementExistsById(document, "manage-ip-allowlist") mustBe false
+    }
+
+    "show view IP allowlist link for normal users when the IP allowlist is active" in new Setup {
+      val x = DefaultApplicationViewModel.withApplication(application.withIpAllowlist(IpAllowlist(allowlist = Set("1.1.1.1/24"))))
+      val result = applicationView.render(
+        x,
+        request,
+        LoggedInUser(None),
+        Flash.emptyCookie,
+        messagesProvider
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      elementExistsById(document, "view-ip-allowlist") mustBe true
+      elementExistsById(document, "manage-ip-allowlist") mustBe false
+    }
   }
 
   private def formatTermsOfUseAgreedDateTime(termsOfUseAgreement: TermsOfUseAgreement) = {

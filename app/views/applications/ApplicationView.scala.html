@@ -294,7 +294,7 @@
             </th>
             <td>
             @if(application.ipAllowlist.allowlist.isEmpty) {
-                <span class="faded-text">No IP allow list ranges</span>
+                <span class="faded-text">No IP allow list</span>
             } else {
                 @if(application.ipAllowlist.required) {
                     Mandatory and active
@@ -306,6 +306,10 @@
             <td>
             @if(model.isAtLeastSuperUser) {
                 <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}" class="button--link" role="button">Manage</a>
+            } else {
+                @if(application.ipAllowlist.allowlist.nonEmpty) {
+                    <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id)}" class="button--link" role="button">View</a>
+                }
             }
             </td>
         </tr>
