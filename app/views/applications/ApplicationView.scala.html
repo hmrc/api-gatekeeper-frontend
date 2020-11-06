@@ -114,12 +114,10 @@
         <tr>
             <td>
                 @subscription._1
-                @for(versionData <- subscription._2.dropRight(1) ) {
-                    @versionData._1.value (@ApiStatus.displayedStatus(versionData._2)),
-                }
-    
-                 @for(versionData <- subscription._2.takeRight(1) ) {
-                    @versionData._1.value (@ApiStatus.displayedStatus(versionData._2))
+                @{
+                    subscription._2.map(data => 
+                        data._1.value + " (" + ApiStatus.displayedStatus(data._2) + ")"
+                    ).mkString(", ")
                 }
             </td>
             <td></td>

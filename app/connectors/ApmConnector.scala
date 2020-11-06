@@ -39,7 +39,11 @@ import uk.gov.hmrc.http.HttpResponse
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import model.ApplicationUpdateSuccessResult
-import play.api.Logger
+import model.AddTeamMemberRequest
+import model.TeamMemberAlreadyExists
+import uk.gov.hmrc.http.Upstream4xxResponse
+import model.ApplicationNotFound
+import uk.gov.hmrc.http.NotFoundException
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -51,6 +55,17 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
     http.GET[Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
+  }
+  
+  def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val recovery: PartialFunction[Throwable, Unit] = {
+      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
+      case e: NotFoundException => throw new ApplicationNotFound
+    }
+
+    http.POST[AddTeamMemberRequest, HttpResponse](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
+    .map(_ => ())
+    .recover(recovery)
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {

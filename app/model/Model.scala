@@ -37,13 +37,6 @@ import model.applications.ApplicationWithSubscriptionData
 import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.subscriptions.ApiData
 
-case class Role(scope: String, name: String)
-
-object Role {
-  implicit val format = Json.format[Role]
-  val APIGatekeeper = Role("api", "gatekeeper")
-}
-
 object GatekeeperRole extends Enumeration {
   type GatekeeperRole = Value
   val USER,SUPERUSER,ADMIN = Value
@@ -56,8 +49,6 @@ case class BearerToken(authToken: String, expiry: DateTime) {
 object BearerToken {
   implicit val format = Json.format[BearerToken]
 }
-
-case class SuccessfulAuthentication(access_token: BearerToken, userName: String, roles: Option[Set[Role]])
 
 object GatekeeperSessionKeys {
   val LoggedInUser = "LoggedInUser"
