@@ -338,7 +338,7 @@ object CreatePrivOrROPCAppRequest {
 
 case class AppAccess(accessType: AccessType, scopes: Seq[String])
 
-final case class AddTeamMemberRequest(adminEmail: String, collaborator: Collaborator, isRegistered: Boolean, adminsToEmail: Set[String])
+final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
 
 object AddTeamMemberRequest {
   implicit val format1 = EnumJson.enumFormat(CollaboratorRole)

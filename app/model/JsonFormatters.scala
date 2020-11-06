@@ -18,9 +18,6 @@ package model
 
 import play.api.libs.json._
 
-object JsonFormatters {
-}
-
 object EnumJson {
 
   def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {

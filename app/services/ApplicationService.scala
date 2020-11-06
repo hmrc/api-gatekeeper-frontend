@@ -23,10 +23,8 @@ import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 import scala.concurrent.{ExecutionContext, Future}
-import utils.SortingHelper
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
@@ -232,12 +230,9 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def addTeamMember(app: Application, teamMember: Collaborator, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val applicationConnector = applicationConnectorFor(app)
+  def addTeamMember(app: Application, teamMember: Collaborator)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(requestingEmail))
-      developer <- developerConnector.fetchByEmail(teamMember.emailAddress)
-      response <- applicationConnector.addCollaborator(app.id, AddTeamMemberRequest(requestingEmail, teamMember, developer.verified.isDefined, adminsToEmail.toSet))
+      response <- apmConnector.addTeamMember(app.id, AddTeamMemberRequest(teamMember.emailAddress, teamMember.role, None))
     } yield response
 
   }

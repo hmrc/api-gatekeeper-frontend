@@ -209,15 +209,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       }
   }
 
-  def addCollaborator(applicationId: ApplicationId, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[AddTeamMemberRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
-      _ => ApplicationUpdateSuccessResult
-    } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == CONFLICT => throw new TeamMemberAlreadyExists
-      case _: NotFoundException => throw new ApplicationNotFound
-    }
-  }
-
   def removeCollaborator(applicationId: ApplicationId, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult

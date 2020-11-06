@@ -36,6 +36,12 @@ import uk.gov.hmrc.http.Upstream5xxResponse
 import play.api.test.Helpers._
 import model.ApplicationUpdateSuccessResult
 import model.ApiVersion
+import uk.gov.hmrc.http.Upstream4xxResponse
+import model.TeamMemberAlreadyExists
+import uk.gov.hmrc.http.NotFoundException
+import model.ApplicationNotFound
+import model.AddTeamMemberRequest
+import model.CollaboratorRole
 
 class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures {
     val mockHttp = mock[HttpClient] 
@@ -111,6 +117,57 @@ class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersS
 
             intercept[Upstream5xxResponse] {
                 await(underTest.subscribeToApi(applicationId, apiIdentifier))
+            }
+        }
+    }
+
+    "addTeamMember" should {
+        val applicationId = ApplicationId.random
+        val url = s"${mockApmConnectorConfig.serviceBaseUrl}/applications/${applicationId.value}/collaborators"
+        val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", CollaboratorRole.DEVELOPER, None)
+
+        "post the team member to the service" in new Setup {
+            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](*, *, *)(*, *, *, *))
+                .thenReturn(Future.successful(HttpResponse(OK)))
+
+            await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+
+            verify(mockHttp).POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *)
+        }
+
+        "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
+            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+                .thenReturn(Future.successful(HttpResponse(OK)))
+
+            val result = await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+
+            result shouldBe(())
+        }
+
+        "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
+            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+                .thenReturn(Future.failed(Upstream4xxResponse("Conflict", CONFLICT, CONFLICT)))
+
+            intercept[TeamMemberAlreadyExists] {
+                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+            }
+        }
+
+        "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
+            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+                .thenReturn(Future.failed(new NotFoundException("Not Found")))
+
+            intercept[ApplicationNotFound] {
+                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+            }
+        }
+
+        "throw the error when the service returns any other error" in new Setup {
+            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+                .thenReturn(Future.failed( Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+            intercept[Upstream5xxResponse] {
+                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
             }
         }
     }

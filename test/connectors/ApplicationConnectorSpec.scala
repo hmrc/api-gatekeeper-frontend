@@ -451,58 +451,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
     }
   }
 
-  "addCollaborator" should {
-    val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value}/collaborator"
-    val teamMember = Collaborator("newUser@example.com", role = CollaboratorRole.DEVELOPER)
-    val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", teamMember, isRegistered = true, Set.empty)
-
-    "post the team member to the service" in new Setup {
-      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](*, *, *)(*, *, *, *))
-        .thenReturn(Future.successful(HttpResponse(OK)))
-
-      await(connector.addCollaborator(applicationId, addTeamMemberRequest))
-
-      verify(mockHttpClient).POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *)
-    }
-
-    "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
-      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-        .thenReturn(Future.successful(HttpResponse(OK)))
-
-      val result = await(connector.addCollaborator(applicationId, addTeamMemberRequest))
-
-      result shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
-      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-        .thenReturn(Future.failed(Upstream4xxResponse("Conflict", CONFLICT, CONFLICT)))
-
-      intercept[TeamMemberAlreadyExists] {
-        await(connector.addCollaborator(applicationId, addTeamMemberRequest))
-      }
-    }
-
-    "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
-      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-        .thenReturn(Future.failed(new NotFoundException("Not Found")))
-
-      intercept[ApplicationNotFound] {
-        await(connector.addCollaborator(applicationId, addTeamMemberRequest))
-      }
-    }
-
-    "throw the error when the service returns any other error" in new Setup {
-      when(mockHttpClient.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-        .thenReturn(Future.failed( Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-      intercept[Upstream5xxResponse] {
-        await(connector.addCollaborator(applicationId, addTeamMemberRequest))
-      }
-    }
-  }
-
   "removeCollaborator" should {
 
     val applicationId = ApplicationId.random

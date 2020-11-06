@@ -324,6 +324,8 @@ object CollaboratorRole extends Enumeration {
     case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
     case _ => Some(CollaboratorRole.DEVELOPER)
   }
+
+  implicit val format = Json.formatEnum(CollaboratorRole)
 }
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole)
@@ -345,5 +347,5 @@ object RateLimitTier extends Enumeration {
     case PLATINUM => "Platinum"
   }
 
-  implicit val format = EnumJson.enumFormat(RateLimitTier)
+  implicit val format = Json.formatEnum(RateLimitTier)
 }
