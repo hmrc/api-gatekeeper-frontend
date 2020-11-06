@@ -20,10 +20,10 @@ import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilde
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
 import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
-import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier

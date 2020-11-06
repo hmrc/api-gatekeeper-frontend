@@ -17,13 +17,11 @@
 package builder
 
 import model.applications.NewApplication
-import model.{Access, Actor, ApiContext, ApiIdentifier, ApiVersion, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, Environment, FieldName, FieldValue, IpAllowlist, Privileged, RateLimitTier, Ropc, Standard, State, StateHistory, User}
+import model._
 import uk.gov.hmrc.time.DateTimeUtils
 import model.applications.ApplicationWithSubscriptionData
 import model.SubscriptionFields.Fields
-import model.State.State
 import org.joda.time.DateTime
-import java.{util => ju}
 
 import model.view.ApplicationViewModel
 import model.ApiStatus._

@@ -16,11 +16,12 @@
 
 package model
 
+import play.api.libs.json.Json
 
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
-  implicit val emailOptionsFormat = EnumJson.enumFormat(EmailOptionChoice)
+  implicit val emailOptionsFormat = Json.formatEnum(EmailOptionChoice)
 
   val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email preferences"
@@ -40,7 +41,7 @@ object EmailPreferencesChoice extends Enumeration {
 
   val TOPIC, TAX_REGIME, SPECIFIC_API = Value
 
-  implicit val emailPreferencesChoiceFormat = EnumJson.enumFormat(EmailPreferencesChoice)
+  implicit val emailPreferencesChoiceFormat = Json.formatEnum(EmailPreferencesChoice)
 
   val optionLabel: EmailPreferencesChoice => String = {
     case SPECIFIC_API => "Users interested in a specific API or APIs"
@@ -60,7 +61,7 @@ object TopicOptionChoice extends Enumeration {
 
   val BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES = Value
 
-  implicit val emailPreferencesChoiceFormat = EnumJson.enumFormat(TopicOptionChoice)
+  implicit val emailPreferencesChoiceFormat = Json.formatEnum(TopicOptionChoice)
 
   val optionLabel: TopicOptionChoice => String = {
     case BUSINESS_AND_POLICY => "Business and policy"

@@ -16,8 +16,6 @@
 
 package views.applications
 
-import java.util.UUID
-
 import model.{LoggedInUser, _}
 import model.Forms._
 import org.joda.time.DateTime

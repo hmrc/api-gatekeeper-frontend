@@ -18,7 +18,6 @@ package model
 
 import java.util.UUID
 
-import model.AccessType.AccessType
 import model.EmailOptionChoice.EmailOptionChoice
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.OverrideType.OverrideType
@@ -86,10 +85,10 @@ object ApplicationWithHistory {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
+  implicit val formatRole = Json.formatEnum(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[ApplicationState]
-  implicit val format4 = EnumJson.enumFormat(State)
+  implicit val format4 = Json.formatEnum(State)
   implicit val format5 = Json.format[SubmissionDetails]
   implicit val format6 = Json.format[ApplicationReviewDetails]
   implicit val format7 = Json.format[ApprovedApplication]
@@ -108,7 +107,7 @@ case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: Dat
 
 object ApplicationWithUpliftRequest {
 
-  implicit val formatState = EnumJson.enumFormat(State)
+  implicit val formatState = Json.formatEnum(State)
   implicit val format = Json.format[ApplicationWithUpliftRequest]
 
   val compareBySubmittedOn = (a: ApplicationWithUpliftRequest, b: ApplicationWithUpliftRequest) => a.submittedOn.isBefore(b.submittedOn)
@@ -165,7 +164,7 @@ object UpliftAction extends Enumeration {
 
   def from(action: String) = UpliftAction.values.find(e => e.toString == action.toUpperCase)
 
-  implicit val format = EnumJson.enumFormat(UpliftAction)
+  implicit val format = Json.formatEnum(UpliftAction)
 }
 
 case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: DateTime)
@@ -263,7 +262,7 @@ sealed trait CreatePrivOrROPCAppResult
 case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: String, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess) extends CreatePrivOrROPCAppResult
 object CreatePrivOrROPCAppSuccessResult {
   implicit val rds1 = Json.reads[TotpSecrets]
-  implicit val rds2 = EnumJson.enumReads(AccessType)
+  implicit val rds2 = Json.formatEnum(AccessType)
   implicit val rds4 = Json.reads[AppAccess]
   implicit val rds5 = Json.reads[CreatePrivOrROPCAppSuccessResult]
 
@@ -328,20 +327,20 @@ case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
 final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: Seq[Collaborator], access: AppAccess)
 object CreatePrivOrROPCAppRequest {
-  implicit val format1 = EnumJson.enumFormat(AccessType)
-  implicit val format2 = EnumJson.enumFormat(CollaboratorRole)
+  implicit val format1 = Json.formatEnum(AccessType)
+  implicit val format2 = Json.formatEnum(CollaboratorRole)
   implicit val format3 = Json.format[Collaborator]
   implicit val format4 = Json.format[TotpSecrets]
   implicit val format6 = Json.format[AppAccess]
   implicit val format7 = Json.format[CreatePrivOrROPCAppRequest]
 }
 
-case class AppAccess(accessType: AccessType, scopes: Seq[String])
+case class AppAccess(accessType: AccessType.AccessType, scopes: Seq[String])
 
 final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
 
 object AddTeamMemberRequest {
-  implicit val format1 = EnumJson.enumFormat(CollaboratorRole)
+  implicit val format1 = Json.formatEnum(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[AddTeamMemberRequest]
 }

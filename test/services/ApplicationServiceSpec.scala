@@ -76,7 +76,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val context = apiIdentifier.context
     val version = apiIdentifier.version
 
-    val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
+    val allProductionApplications = List(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
     val testContext = ApiContext("test-context")
     val unknownContext = ApiContext("unknown-context")
@@ -179,7 +179,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when specific subscription filtering is provided" in new Setup {
-      val filteredApplications = Seq(stdApp1, privilegedApp)
+      val filteredApplications = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplicationsBySubscription(*, *)(*))
         .willReturn(Future.successful(filteredApplications))
@@ -194,8 +194,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when OneOrMoreSubscriptions filtering is provided" in new Setup {
-      val noSubscriptions = Seq(stdApp1, privilegedApp)
-      val subscriptions = Seq(stdApp2, ropcApp)
+      val noSubscriptions = List(stdApp1, privilegedApp)
+      val subscriptions = List(stdApp2, ropcApp)
 
       val allApps = noSubscriptions ++ subscriptions
       given(mockProductionApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(allApps))
@@ -213,10 +213,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when OneOrMoreApplications filtering is provided" in new Setup {
-      val allApps = Seq(stdApp1, privilegedApp)
+      val allApps = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(allApps))
-      given(mockSandboxApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(Seq.empty))
+      given(mockSandboxApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(List.empty))
 
       val result = await(underTest.fetchApplications(OneOrMoreApplications, AnyEnvironment))
       result shouldBe allApps
@@ -226,7 +226,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list distinct filtered applications from sandbox and production when NoSubscriptions filtering is provided" in new Setup {
-      val noSubscriptions = Seq(stdApp1, privilegedApp)
+      val noSubscriptions = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(*)).willReturn(Future.successful(noSubscriptions))
       given(mockSandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(*)).willReturn(Future.successful(noSubscriptions))
@@ -242,8 +242,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   "fetchApplicationsByEmail" should {
     "return apps from both production and sandbox" in new Setup {
       val emailAddress = "email@example.com"
-      val productionApps = Seq(stdApp1, privilegedApp)
-      val sandboxApps = Seq(stdApp1.copy(deployedTo = "SANDBOX"), privilegedApp.copy(deployedTo = "SANDBOX"))
+      val productionApps = List(stdApp1, privilegedApp)
+      val sandboxApps = List(stdApp1.copy(deployedTo = "SANDBOX"), privilegedApp.copy(deployedTo = "SANDBOX"))
 
       given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(productionApps))
       given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(sandboxApps))
@@ -255,7 +255,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "return only distinct apps" in new Setup {
       val emailAddress = "email@example.com"
-      val allApps = Seq(stdApp1, privilegedApp)
+      val allApps = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))
       given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))

@@ -55,12 +55,12 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                                        (implicit hc: HeaderCarrier): Future[Set[String]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
-        case ProductionEnvironment => Seq(productionApplicationConnector)
-        case SandboxEnvironment => Seq(sandboxApplicationConnector)
-        case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
+        case ProductionEnvironment => List(productionApplicationConnector)
+        case SandboxEnvironment => List(sandboxApplicationConnector)
+        case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
       }
 
-    val allCollaboratorEmailsFutures: Seq[Future[Seq[String]]] = environmentApplicationConnectors
+    val allCollaboratorEmailsFutures: List[Future[List[String]]] = environmentApplicationConnectors
       .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter))
 
     combine(allCollaboratorEmailsFutures).map(_.toSet)
@@ -195,5 +195,5 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  private def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
+  private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
 }

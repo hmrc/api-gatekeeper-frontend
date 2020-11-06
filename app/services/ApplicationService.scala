@@ -56,10 +56,10 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    val connectors: Seq[ApplicationConnector] = envFilter match {
-      case ProductionEnvironment => Seq(productionApplicationConnector)
-      case SandboxEnvironment => Seq(sandboxApplicationConnector)
-      case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
+    val connectors: List[ApplicationConnector] = envFilter match {
+      case ProductionEnvironment => List(productionApplicationConnector)
+      case SandboxEnvironment => List(sandboxApplicationConnector)
+      case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
     }
 
     apiFilter match {
@@ -260,5 +260,5 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   def apiScopeConnectorFor(application: Application): ApiScopeConnector =
     if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
 
-  private def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
+  private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
 }

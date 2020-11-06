@@ -84,10 +84,10 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq.empty))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq.empty))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List.empty))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List.empty))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -98,10 +98,10 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
         val expectedApiDefinitions = Seq(customsDeclarations1)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(customsDeclarations1)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(customsDeclarations2)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(customsDeclarations1)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(customsDeclarations2)))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(customsDeclarations1)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(customsDeclarations2)))
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(customsDeclarations1)))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(customsDeclarations2)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllDistinctApisIgnoreVersions(None)
 
@@ -112,8 +112,8 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(SANDBOX))
 
@@ -129,8 +129,8 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(PRODUCTION))
 
@@ -144,10 +144,10 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
 
       "Include no duplicates" in new Setup {
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition, publicDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition, privateDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition, publicDefinition)))
+        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition, privateDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition, publicDefinition)))
+        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition, privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -162,10 +162,10 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
       val publicSandbox = publicDefinition.copy(name="sandbox-public")
       val privateSandbox = privateDefinition.copy(name="sandbox-private")
 
-      given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicDefinition)))
-      given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateDefinition)))
-      given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(Seq(publicSandbox)))
-      given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(Seq(privateSandbox)))
+      given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
+      given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
+      given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicSandbox)))
+      given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateSandbox)))
 
       val allDefinitions: Seq[(ApiDefinition, Environment)] = await(definitionService.apis)
 
