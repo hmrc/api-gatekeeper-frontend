@@ -91,15 +91,15 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
-  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[StateHistory]] = {
+  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
     retry {
-      http.GET[Seq[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
+      http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
     }
   }
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     retry{
-      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
+      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
         .recover {
           case e =>
             throw new FetchApplicationsFailed(e)
@@ -107,45 +107,45 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
-  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     retry{
-      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
+      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
         }
     }
   }
 
-  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     retry{
-      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
+      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
         }
     }
   }
 
-  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     retry{
-      http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application")
+      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
         }
     }
   }
 
-  def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[Seq[SubscriptionResponse]] = {
+  def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[List[SubscriptionResponse]] = {
     retry{
-      http.GET[Seq[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
+      http.GET[List[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
         }
     }
   }
 
-  def fetchApplicationSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionWithoutFields]] = {
+  def fetchApplicationSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[SubscriptionWithoutFields]] = {
     retry{
-      http.GET[Seq[SubscriptionWithoutFields]](s"${baseApplicationUrl(applicationId)}/subscription")
+      http.GET[List[SubscriptionWithoutFields]](s"${baseApplicationUrl(applicationId)}/subscription")
         .recover {
           case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
         }
@@ -209,15 +209,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       }
   }
 
-  def addCollaborator(applicationId: ApplicationId, addTeamMemberRequest: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[AddTeamMemberRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator", addTeamMemberRequest, Seq(CONTENT_TYPE -> JSON)) map {
-      _ => ApplicationUpdateSuccessResult
-    } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == CONFLICT => throw new TeamMemberAlreadyExists
-      case _: NotFoundException => throw new ApplicationNotFound
-    }
-  }
-
   def removeCollaborator(applicationId: ApplicationId, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
@@ -243,7 +234,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     encode(str, encoding)
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[String]] = {
     val queryParameters = List(
       "context" -> apiContext.value,
       "version" -> apiVersion.value
@@ -255,7 +246,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
 
     retry{
-      http.GET[Seq[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
+      http.GET[List[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
     }
   }
 }

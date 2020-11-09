@@ -41,7 +41,7 @@ object StateHistory {
   }
 
   implicit val formatApplicationId = Json.valueFormat[ApplicationId]
-  implicit val formatState = EnumJson.enumFormat(State)
+  implicit val formatState = Json.formatEnum(State)
   implicit val formatActor = Json.format[Actor]
   implicit val format = Json.format[StateHistory]
 }

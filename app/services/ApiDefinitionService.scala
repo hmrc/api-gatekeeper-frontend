@@ -29,16 +29,16 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
 
   def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[Seq[ApiDefinition]] = {
     val connectors = environment match {
-      case Some(PRODUCTION) => Seq(productionApiDefinitionConnector)
-      case Some(SANDBOX) => Seq(sandboxApiDefinitionConnector)
-      case _ => Seq(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+      case Some(PRODUCTION) => List(productionApiDefinitionConnector)
+      case Some(SANDBOX) => List(sandboxApiDefinitionConnector)
+      case _ => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
     }
-    val publicApisFuture: Seq[Future[Seq[ApiDefinition]]] = connectors.map(_.fetchPublic())
+    val publicApisFuture: List[Future[List[ApiDefinition]]] = connectors.map(_.fetchPublic())
     val privateApisFuture = connectors.map(_.fetchPrivate())
 
     for {
-      publicApis <- Future.reduce(publicApisFuture)(_ ++ _)
-      privateApis <- Future.reduce(privateApisFuture)(_ ++ _)
+      publicApis <- Future.reduceLeft(publicApisFuture)(_ ++ _)
+      privateApis <- Future.reduceLeft(privateApisFuture)(_ ++ _)
     } yield (publicApis ++ privateApis).distinct
   }
 

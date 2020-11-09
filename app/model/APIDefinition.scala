@@ -20,7 +20,6 @@ import model.ApiStatus.ApiStatus
 import model.SubscriptionFields._
 import play.api.libs.json.Json
 
-import scala.util.Try
 import scala.util.Random
 import java.net.URLEncoder.encode
 

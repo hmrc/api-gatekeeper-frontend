@@ -76,7 +76,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val context = apiIdentifier.context
     val version = apiIdentifier.version
 
-    val allProductionApplications = Seq(stdApp1, stdApp2, privilegedApp)
+    val allProductionApplications = List(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
     val testContext = ApiContext("test-context")
     val unknownContext = ApiContext("unknown-context")
@@ -179,7 +179,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when specific subscription filtering is provided" in new Setup {
-      val filteredApplications = Seq(stdApp1, privilegedApp)
+      val filteredApplications = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplicationsBySubscription(*, *)(*))
         .willReturn(Future.successful(filteredApplications))
@@ -194,8 +194,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when OneOrMoreSubscriptions filtering is provided" in new Setup {
-      val noSubscriptions = Seq(stdApp1, privilegedApp)
-      val subscriptions = Seq(stdApp2, ropcApp)
+      val noSubscriptions = List(stdApp1, privilegedApp)
+      val subscriptions = List(stdApp2, ropcApp)
 
       val allApps = noSubscriptions ++ subscriptions
       given(mockProductionApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(allApps))
@@ -213,10 +213,10 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list filtered applications from sandbox and production when OneOrMoreApplications filtering is provided" in new Setup {
-      val allApps = Seq(stdApp1, privilegedApp)
+      val allApps = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(allApps))
-      given(mockSandboxApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(Seq.empty))
+      given(mockSandboxApplicationConnector.fetchAllApplications()(*)).willReturn(Future.successful(List.empty))
 
       val result = await(underTest.fetchApplications(OneOrMoreApplications, AnyEnvironment))
       result shouldBe allApps
@@ -226,7 +226,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "list distinct filtered applications from sandbox and production when NoSubscriptions filtering is provided" in new Setup {
-      val noSubscriptions = Seq(stdApp1, privilegedApp)
+      val noSubscriptions = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(*)).willReturn(Future.successful(noSubscriptions))
       given(mockSandboxApplicationConnector.fetchAllApplicationsWithNoSubscriptions()(*)).willReturn(Future.successful(noSubscriptions))
@@ -242,8 +242,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   "fetchApplicationsByEmail" should {
     "return apps from both production and sandbox" in new Setup {
       val emailAddress = "email@example.com"
-      val productionApps = Seq(stdApp1, privilegedApp)
-      val sandboxApps = Seq(stdApp1.copy(deployedTo = "SANDBOX"), privilegedApp.copy(deployedTo = "SANDBOX"))
+      val productionApps = List(stdApp1, privilegedApp)
+      val sandboxApps = List(stdApp1.copy(deployedTo = "SANDBOX"), privilegedApp.copy(deployedTo = "SANDBOX"))
 
       given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(productionApps))
       given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(sandboxApps))
@@ -255,7 +255,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "return only distinct apps" in new Setup {
       val emailAddress = "email@example.com"
-      val allApps = Seq(stdApp1, privilegedApp)
+      val allApps = List(stdApp1, privilegedApp)
 
       given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))
       given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))
@@ -559,159 +559,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       verify(mockSandboxApplicationConnector)
         .createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
       verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
-    }
-  }
-
-  "add teamMember" when {
-    val email = "email@testuser.com"
-    val teamMember = Collaborator(email, CollaboratorRole.ADMINISTRATOR)
-    val adminEmail = "admin.email@example.com"
-    val adminsToEmail = Set.empty[String]
-
-    "adding to a standard app" should {
-      "add an unregistered teamMember successfully in the correct environment" in new Setup {
-        val application = stdApp1
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-
-      "add a registered teamMember successfully in the correct environment" in new Setup {
-        val application = stdApp1
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-    }
-
-    "adding to a privileged app" should {
-      "add an unregistered teamMember successfully in the correct environment" in new Setup {
-        val application = privilegedApp
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-
-      "add a registered teamMember successfully in the correct environment" in new Setup {
-        val application = privilegedApp
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-    }
-
-    "adding to an ROPC app" should {
-      "add an unregistered teamMember successfully in the correct environment" in new Setup {
-        val application = ropcApp
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val unregisteredUser = User(email, firstName = "n/a", lastName = "n/a", verified = None)
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(unregisteredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-
-      "add a registered teamMember successfully in the correct environment" in new Setup {
-        val application = ropcApp
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val registeredUser = User(email, "firstName", "lastName", verified = Some(true))
-
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(registeredUser))
-        given(mockProductionApplicationConnector.addCollaborator(application.id, request)).willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adminEmail)) shouldBe response
-        verify(underTest).applicationConnectorFor(application)
-      }
-    }
-
-    "application connector fails" should {
-      "propagate TeamMemberAlreadyExists from application connector" in new Setup {
-        val existingUser = User(email, "firstName", "lastName", verified = Some(true))
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
-
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockProductionApplicationConnector.addCollaborator(stdApp1.id, request)).willReturn(Future.failed(new TeamMemberAlreadyExists))
-
-        intercept[TeamMemberAlreadyExists] {
-          await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
-        }
-      }
-
-      "propagate ApplicationNotFound from application connector" in new Setup {
-        val existingUser = User(email, "firstName", "lastName", verified = Some(true))
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
-
-        given(mockDeveloperConnector.fetchByEmail(email)).willReturn(Future.successful(existingUser))
-        given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
-        given(mockProductionApplicationConnector.addCollaborator(stdApp1.id, request)).willReturn(Future.failed(new ApplicationNotFound))
-
-        intercept[ApplicationNotFound] {
-          await(underTest.addTeamMember(stdApp1, teamMember, adminEmail))
-        }
-      }
-    }
-
-    "building parameters" should {
-      "include correct set of admins to email" in new Setup {
-        val verifiedAdmin = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR)
-        val unverifiedAdmin = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR)
-        val adderAdmin = Collaborator(adminEmail, CollaboratorRole.ADMINISTRATOR)
-        val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER)
-        val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adderAdmin, verifiedDeveloper))
-        val nonAdderAdmins = Seq(
-          User(verifiedAdmin.emailAddress, "verified", "user", Some(true)),
-          User(unverifiedAdmin.emailAddress, "unverified", "user", Some(false)))
-        val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = false, adminsToEmail)
-        val response = ApplicationUpdateSuccessResult
-        val newUser = User(email, "n/a", "n/a", verified = None)
-
-        given(mockDeveloperConnector.fetchByEmail(email))
-          .willReturn(Future.successful(newUser))
-        given(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
-          .willReturn(Future.successful(nonAdderAdmins))
-        given(mockProductionApplicationConnector.addCollaborator(*[ApplicationId], *)(*))
-          .willReturn(response)
-
-        await(underTest.addTeamMember(application, teamMember, adderAdmin.emailAddress)) shouldBe response
-
-        verify(mockProductionApplicationConnector)
-          .addCollaborator(eqTo(application.id), eqTo(request.copy(adminsToEmail = Set(verifiedAdmin.emailAddress))))(*)
-      }
     }
   }
 

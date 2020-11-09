@@ -1287,14 +1287,14 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *, *)(*))
-              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(*, *)(*))
+              .willReturn(Future.successful(()))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService)
-              .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)), eqTo("superUserName"))(*)
+              .addTeamMember(eqTo(application.application), eqTo(Collaborator(email, CollaboratorRole.DEVELOPER)))(*)
             verifyAuthConnectorCalledForUser
           }
 
@@ -1302,8 +1302,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *, *)(*))
-              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(*, *)(*))
+              .willReturn(Future.successful(()))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -1317,7 +1317,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *, *)(*))
+            given(mockApplicationService.addTeamMember(*, *)(*))
               .willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
@@ -1392,8 +1392,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *, *)(*))
-              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            given(mockApplicationService.addTeamMember(*, *)(*))
+              .willReturn(Future.successful(()))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),

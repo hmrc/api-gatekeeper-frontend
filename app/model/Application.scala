@@ -180,7 +180,7 @@ object OverrideType extends Enumeration {
     case SUPPRESS_IV_FOR_INDIVIDUALS => "Suppress IV for individuals"
   }
 
-  implicit val format = EnumJson.enumFormat(OverrideType)
+  implicit val format = Json.formatEnum(OverrideType)
 }
 
 case class ApplicationResponse(id: ApplicationId,
@@ -217,11 +217,11 @@ object ApplicationResponse {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
+  implicit val formatRole = Json.formatEnum(CollaboratorRole)
   implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = EnumJson.enumFormat(State)
+  implicit val format3 = Json.formatEnum(State)
   implicit val format4 = Json.format[ApplicationState]
-  implicit val formatRateLimitTier = EnumJson.enumFormat(RateLimitTier)
+  implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
   implicit val format5 = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
@@ -280,7 +280,7 @@ case class SubscriptionNameAndVersion(name: String, version: String)
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
-  implicit val format = EnumJson.enumFormat(State)
+  implicit val format = Json.formatEnum(State)
 
   val displayedState: State => String = {
     case TESTING => "Created"
@@ -304,7 +304,7 @@ object State extends Enumeration {
 object Environment extends Enumeration {
   type Environment = Value
   val SANDBOX, PRODUCTION = Value
-  implicit val format = EnumJson.enumFormat(Environment)
+  implicit val format = Json.formatEnum(Environment)
 
   implicit class Display(e: Environment) {
     def asDisplayed() = e match {
@@ -324,6 +324,8 @@ object CollaboratorRole extends Enumeration {
     case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
     case _ => Some(CollaboratorRole.DEVELOPER)
   }
+
+  implicit val format = Json.formatEnum(CollaboratorRole)
 }
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole)
@@ -345,5 +347,5 @@ object RateLimitTier extends Enumeration {
     case PLATINUM => "Platinum"
   }
 
-  implicit val format = EnumJson.enumFormat(RateLimitTier)
+  implicit val format = Json.formatEnum(RateLimitTier)
 }

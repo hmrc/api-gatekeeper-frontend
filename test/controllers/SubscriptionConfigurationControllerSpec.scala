@@ -29,12 +29,8 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import builder.{ApiBuilder, SubscriptionsBuilder, ApplicationBuilder}
 import builder.FieldDefinitionsBuilder
-import model.view.SubscriptionVersion
-import model.ApplicationWithSubscriptionDataAndFieldDefinitions
-import model.ApiIdentifier
-import play.api.libs.json.Json
-import model.Environment
 import model.ApiStatus
+import model.Environment
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

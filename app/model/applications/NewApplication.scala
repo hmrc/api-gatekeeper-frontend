@@ -45,7 +45,6 @@ object NewApplication {
   import play.api.libs.json.Json
   import play.api.libs.json.JodaReads._
   import play.api.libs.json.JodaWrites._
-  import model.EnumJson
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
@@ -58,10 +57,10 @@ object NewApplication {
     .and[Ropc](AccessType.ROPC.toString)
     .format
 
-  implicit val formatRole = EnumJson.enumFormat(CollaboratorRole)
+  implicit val formatRole = Json.formatEnum(CollaboratorRole)
   implicit val formatCollaborator = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
-  implicit val formatRateLimitTier = EnumJson.enumFormat(model.RateLimitTier)
+  implicit val formatRateLimitTier = Json.formatEnum(model.RateLimitTier)
   implicit val applicationFormat = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)

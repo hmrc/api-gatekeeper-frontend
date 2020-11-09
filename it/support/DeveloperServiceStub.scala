@@ -56,7 +56,6 @@ trait DeveloperServiceStub {
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
     val emailpreferencesByTopicAndCategoryUrl = s"$emailPreferencesUrl?$topicParam$regimeParams$serviceParams"
-    println("****-"+emailpreferencesByTopicAndCategoryUrl+"-****")
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
         aResponse()

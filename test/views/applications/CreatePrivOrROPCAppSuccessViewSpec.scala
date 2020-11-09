@@ -71,7 +71,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
       "render" in new Setup {
 
         val accessType = Some(AccessType.ROPC)
-        val totp = None
 
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), messagesProvider)

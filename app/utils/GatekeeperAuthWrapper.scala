@@ -85,6 +85,4 @@ trait GatekeeperAuthWrapper extends I18nSupport{
   def isAdmin(implicit request: LoggedInRequest[_], appConfig: AppConfig): Boolean = {
     request.authorisedEnrolments.getEnrolment(appConfig.adminRole).isDefined
   }
-
 }
-

@@ -64,7 +64,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(developer: User, productionApps: Seq[ApplicationResponse], sandboxApps: Seq[ApplicationResponse] = Seq.empty) = {
+    def fetchDeveloperWillReturn(developer: User, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
       when(mockDeveloperConnector.fetchByEmail(*)(*))
         .thenReturn(Future.successful(developer))
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
@@ -220,7 +220,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     "fetch the developer and the applications they are a team member on" in new Setup {
       val developer = aUser("Fred")
-      val apps = Seq(anApp("application", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
+      val apps = List(anApp("application", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
       fetchDeveloperWillReturn(developer, apps)
 
       val result = await(underTest.fetchDeveloper(developer.email))
@@ -247,7 +247,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val gatekeeperUserId = "gate.keeper"
       val developer = aUser("Fred")
   
-      fetchDeveloperWillReturn(developer, productionApps = Seq.empty, sandboxApps = Seq.empty)
+      fetchDeveloperWillReturn(developer, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
 
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
@@ -265,7 +265,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val app2 = aProdApp("application2", Set(unverifiedAdminTeamMember, Collaborator(user.email, CollaboratorRole.ADMINISTRATOR)))
       val app3 = aProdApp("application3", Set(verifiedAdminTeamMember, unverifiedAdminTeamMember, Collaborator(user.email, CollaboratorRole.ADMINISTRATOR)))
 
-      fetchDeveloperWillReturn(user, Seq(app1, app2, app3))
+      fetchDeveloperWillReturn(user, List(app1, app2, app3))
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
 
@@ -286,7 +286,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val app2 = aSandboxApp("application2", Set(unverifiedAdminTeamMember, Collaborator(user.email, CollaboratorRole.ADMINISTRATOR)))
       val app3 = aSandboxApp("application3", Set(verifiedAdminTeamMember, unverifiedAdminTeamMember, Collaborator(user.email, CollaboratorRole.ADMINISTRATOR)))
 
-      fetchDeveloperWillReturn(user, Seq.empty, Seq(app1, app2, app3))
+      fetchDeveloperWillReturn(user, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
 
       val result = await(underTest.deleteDeveloper(user.email, gatekeeperUserId))
@@ -302,8 +302,8 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
       val gatekeeperUserId = "gate.keeper"
       val developer = aUser("Fred")
-      val productionApps = Seq(anApp("productionApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
-      val sandboxApps = Seq(anApp(
+      val productionApps = List(anApp("productionApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
+      val sandboxApps = List(anApp(
         name = "sandboxApplication",
         collaborators = Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))
       ))
@@ -320,11 +320,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
       val gatekeeperUserId = "gate.keeper"
       val developer = aUser("Fred")
-      val productionApps = Seq(anApp(
+      val productionApps = List(anApp(
         name = "productionApplication",
         collaborators = Set(Collaborator(developer.email, CollaboratorRole.DEVELOPER), Collaborator("another@example.com", CollaboratorRole.ADMINISTRATOR))
       ))
-      val sandboxApps = Seq(anApp("sandboxApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
+      val sandboxApps = List(anApp("sandboxApplication", Set(Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR))))
       fetchDeveloperWillReturn(developer, productionApps, sandboxApps)
 
       val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
@@ -360,9 +360,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email2 = user2.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(user1.email))
+        .thenReturn(List(user1.email))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(user2.email))
+        .thenReturn(List(user2.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
 
@@ -380,9 +380,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val user = aUser("user")
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(user.email))
+        .thenReturn(List(user.email))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(user.email))
+        .thenReturn(List(user.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
 
@@ -407,11 +407,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockProductionApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(Seq(email1, email2, email3))
+        .thenReturn(List(email1, email2, email3))
 
       when(mockSandboxApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(Seq.empty[String])
+        .thenReturn(List.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
 
@@ -453,11 +453,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockProductionApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(Seq(email1, email2, email3, email4))
+        .thenReturn(List(email1, email2, email3, email4))
 
       when(mockSandboxApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(Seq.empty[String])
+        .thenReturn(List.empty[String])
 
       when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(Seq(user1, user2, user3))
 
@@ -495,9 +495,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email1 = productionUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(productionUser.email))
+        .thenReturn(List(productionUser.email))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(sandboxUser.email))
+        .thenReturn(List(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
 
@@ -518,9 +518,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(productionUser.email))
+        .thenReturn(List(productionUser.email))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(Seq(sandboxUser.email))
+        .thenReturn(List(sandboxUser.email))
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
 

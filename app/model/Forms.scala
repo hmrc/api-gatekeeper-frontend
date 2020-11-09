@@ -119,7 +119,7 @@ object Forms {
       val (suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes) =
         overrideWithScopes(overrides, SUPPRESS_IV_FOR_INDIVIDUALS)
 
-      Some(
+      Some( (
         persistLoginEnabled,
         grantWithoutConsentEnabled,
         grantWithoutConsentScopes,
@@ -129,7 +129,7 @@ object Forms {
         suppressIvForOrganisationsScopes,
         suppressIvForIndividualsEnabled,
         suppressIvForIndividualsScopes
-      )
+      ) )
     }
   }
 

@@ -617,7 +617,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       withRestrictedApp(appId) { app =>
         def handleValidForm(form: AddTeamMemberForm) = {
-          applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)), loggedIn.userFullName.get)
+          applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)))
             .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
             case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
           }

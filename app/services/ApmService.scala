@@ -19,7 +19,7 @@ package services
 import connectors.ApmConnector
 import model.ApplicationId
 import model.ApiDefinitions
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import model.applications.ApplicationWithSubscriptionData
@@ -27,7 +27,7 @@ import model.subscriptions._
 import model.ApiContext
 import model.Environment.Environment
 
-class ApmService @Inject() (apmConnector: ApmConnector)(implicit ec: ExecutionContext) {
+class ApmService @Inject() (apmConnector: ApmConnector) {
 
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
     apmConnector.fetchApplicationById(applicationId)

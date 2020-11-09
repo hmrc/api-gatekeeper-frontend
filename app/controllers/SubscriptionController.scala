@@ -27,7 +27,7 @@ import model.ApiVersion
 import utils.ActionBuilders
 import utils.GatekeeperAuthWrapper
 import config.AppConfig
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import views.html.applications.ManageSubscriptionsView
 import services.ApmService
 import services.ApplicationService
@@ -37,16 +37,11 @@ import connectors.AuthConnector
 import com.google.inject.{Singleton, Inject}
 import model.view.SubscriptionViewModel
 import model.ApiIdentifier
-import model.Subscription
 import model.subscriptions.ApiData
-import model.VersionSubscription
-import model.ApiVersionDefinition
-import model.ClientId
-import model.SubscriptionFields.SubscriptionFieldsWrapper
-import model.ApiDefinition
 import utils.SortingHelper
 import model.SubscriptionWithoutFields
 import model.VersionSubscriptionWithoutFields
+import model.ApiVersionDefinition
 
 @Singleton
 class SubscriptionController @Inject()(

@@ -23,10 +23,8 @@ import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 import scala.concurrent.{ExecutionContext, Future}
-import utils.SortingHelper
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
@@ -58,10 +56,10 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
-    val connectors: Seq[ApplicationConnector] = envFilter match {
-      case ProductionEnvironment => Seq(productionApplicationConnector)
-      case SandboxEnvironment => Seq(sandboxApplicationConnector)
-      case AnyEnvironment => Seq(productionApplicationConnector, sandboxApplicationConnector)
+    val connectors: List[ApplicationConnector] = envFilter match {
+      case ProductionEnvironment => List(productionApplicationConnector)
+      case SandboxEnvironment => List(sandboxApplicationConnector)
+      case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
     }
 
     apiFilter match {
@@ -232,12 +230,9 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def addTeamMember(app: Application, teamMember: Collaborator, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val applicationConnector = applicationConnectorFor(app)
+  def addTeamMember(app: Application, teamMember: Collaborator)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(requestingEmail))
-      developer <- developerConnector.fetchByEmail(teamMember.emailAddress)
-      response <- applicationConnector.addCollaborator(app.id, AddTeamMemberRequest(requestingEmail, teamMember, developer.verified.isDefined, adminsToEmail.toSet))
+      response <- apmConnector.addTeamMember(app.id, AddTeamMemberRequest(teamMember.emailAddress, teamMember.role, None))
     } yield response
 
   }
@@ -265,5 +260,5 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   def apiScopeConnectorFor(application: Application): ApiScopeConnector =
     if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
 
-  private def combine[T](futures: Seq[Future[Seq[T]]]): Future[Seq[T]] = Future.reduce(futures)(_ ++ _)
+  private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
 }

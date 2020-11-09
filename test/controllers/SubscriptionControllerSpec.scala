@@ -178,8 +178,6 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       "the user is not a superuser" should {
         "show 403 forbidden" in new Setup {
-          val subscription = Subscription("name", "serviceName", apiContext, Seq())
-
           givenTheUserHasInsufficientEnrolments()
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))

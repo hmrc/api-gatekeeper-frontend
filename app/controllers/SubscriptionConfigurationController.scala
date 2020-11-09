@@ -20,7 +20,7 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import model.view.{EditApiMetadataForm, SubscriptionField, SubscriptionFieldValueForm, SubscriptionVersion}
+import model.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.joda.time.DateTime
 import play.api.data
