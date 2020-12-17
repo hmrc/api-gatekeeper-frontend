@@ -21,7 +21,7 @@ import config.AppConfig
 import model.DeveloperStatusFilter.DeveloperStatusFilter
 import model._
 import model.TopicOptionChoice.TopicOptionChoice
-import security._
+import encryption._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
@@ -51,7 +51,7 @@ trait DeveloperConnector {
 }
 
 @Singleton
-class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("TPD") val payloadEncryption: PayloadEncryption)
+class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
     (implicit ec: ExecutionContext) 
     extends DeveloperConnector
     with SendsSecretRequest {
@@ -84,7 +84,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
   }
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) = {
-    http.POST(s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, postHeaders)
+    http.POST[DeleteDeveloperRequest,HttpResponse](s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, postHeaders)
       .map(response => response.status match {
         case NO_CONTENT => DeveloperDeleteSuccessResult
         case _ => DeveloperDeleteFailureResult
@@ -98,26 +98,14 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
     http.POST[JsValue, User](s"${appConfig.developerBaseUrl}/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
 
-  
-  // def register(registration: Registration)(implicit hc: HeaderCarrier): Future[RegistrationDownstreamResponse] = metrics.record(api) {
-  //   encryptedJson.secretRequestJson[RegistrationDownstreamResponse](
-  //     Json.toJson(registration), { secretRequestJson =>
-  //       http.POST(s"$serviceBaseUrl/developer", secretRequestJson, Seq(CONTENT_TYPE -> JSON)) map {
-  //         r =>
-  //           r.status match {
-  //             case CREATED => RegistrationSuccessful
-  //             case _ => throw new InternalServerException("Unexpected 2xx code")
-  //           }
-  //       } recover {
-  //         case Upstream4xxResponse(_, CONFLICT, _, _) => EmailAlreadyInUse
-  //       }
-  //     })
-  // }
-
   def searchDevelopers(maybeEmail: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
     import model.SearchParameters
 
-    http.POST[SearchParameters, Seq[User]](s"${appConfig.developerBaseUrl}/developers/search", SearchParameters(maybeEmail, Some(status.value)))
+    val payload = SearchParameters(maybeEmail, Some(status.value))
+
+    secretRequest(payload) { request =>
+      http.POST[SecretRequest, Seq[User]](s"${appConfig.developerBaseUrl}/developers/search", request)
+    }
   }
 }
 

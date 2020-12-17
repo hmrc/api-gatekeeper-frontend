@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package security
+package encryption
 
 import play.api.libs.json._
 import uk.gov.hmrc.crypto._
@@ -31,7 +31,7 @@ object SecretRequest {
 trait SendsSecretRequest  {
   def payloadEncryption: PayloadEncryption
 
-  def secretRequest[I,R](input: I, block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
+  def secretRequest[I,R](input: I)(block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
     block(toSecretRequest(w.writes(input)))
   }
 
@@ -57,9 +57,9 @@ class PayloadEncryption(jsonEncryptionKey: String) {
   }
 }
 
-private[security] class LocalCrypto(encryptionKey: String) extends CompositeSymmetricCrypto {
+private[encryption] class LocalCrypto(anEncryptionKey: String) extends CompositeSymmetricCrypto {
   override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
-    override protected val encryptionKey: String = encryptionKey
+    override protected val encryptionKey: String = anEncryptionKey
   }
   override protected val previousCryptos: Seq[Decrypter] = Seq.empty
 }

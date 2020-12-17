@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-package security
+package encryption
 
 import com.google.inject.name.Names
 import play.api.{Configuration, Environment}
 import play.api.inject.Module
 import com.google.inject.{Inject, Provider, Singleton}
 
-class SecurityModule extends Module {
-
+class PayloadEncryptionModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration) = {
-
     Seq(
-      bind(classOf[PayloadEncryption]).qualifiedWith(Names.named("TPD")).toProvider(classOf[TpdPayloadEncryptionProvider])
+      bind(classOf[PayloadEncryption]).qualifiedWith(Names.named("ThirdPartyDeveloper")).toProvider(classOf[ThirdPartyDeveloperPayloadEncryptionProvider])
     )
   }
 }
 
 @Singleton
-class TpdPayloadEncryptionProvider @Inject()(val config: Configuration)
+class ThirdPartyDeveloperPayloadEncryptionProvider @Inject()(val config: Configuration)
   extends Provider[PayloadEncryption] {
 
   lazy val jsonEncryptionKey = config.get[String]("third-party-developer.json.encryption.key")
   lazy val payloadEncrypion = new PayloadEncryption(jsonEncryptionKey)
 
-  override def get() = {
-    payloadEncrypion
-  }
+  override def get() = payloadEncrypion
 }
