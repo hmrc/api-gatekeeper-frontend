@@ -19,7 +19,8 @@ package model
 import model.User.UserStatus
 import play.api.libs.json.Json
 
-case class User(email: String,
+case class User(userId: UserId,
+                email: String,
                 firstName: String,
                 lastName: String,
                 verified: Option[Boolean],
@@ -38,7 +39,7 @@ object User {
 }
 
 case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "n/a", verified = None)
+  def apply(email: String) = User(UserId.random, email, "n/a", "n/a", verified = None)
 }
 
 
