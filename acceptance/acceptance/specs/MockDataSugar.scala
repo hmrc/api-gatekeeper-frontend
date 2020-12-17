@@ -19,6 +19,7 @@ package acceptance.specs
 import model.User
 import org.scalacheck.Gen
 import play.api.libs.json.Json
+import model.UserId
 
 trait MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -35,30 +36,37 @@ trait MockDataSugar {
   val developer = "purnima.fakename@example.com"
   val devFirstName = "Purnima"
   val devLastName = "Fakename"
+  val devId = UserId.random
 
   val developer2 = "imran.fakename@example.com"
   val dev2FirstName = "Imran"
   val dev2LastName = "Fakename"
+  val dev2Id = UserId.random
 
   val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
+  val dev4Id = UserId.random
 
   val developer5 = "John.fakename@example.com"
   val dev5FirstName = "John"
   val dev5LastName = "Fakename"
+  val dev5Id = UserId.random
 
   val developer6 = "Vijaya.fakename@example.com"
   val dev6FirstName = "Vijaya"
   val dev6LastName = "Fakename"
+  val dev6Id = UserId.random
 
   val developer7 = "Kerri.fakename@example.com"
   val dev7FirstName = "Kerri"
   val dev7LastName = "Fakename"
+  val dev7Id = UserId.random
 
   val developer8 = "Dixie.fakename@example.com"
   val dev8FirstName = "Dixie"
   val dev8LastName = "Fakename"
+  val dev8Id = UserId.random
 
   val developer9 = "fred@example.com"
   val dev9name = "n/a"
@@ -317,6 +325,7 @@ trait MockDataSugar {
     s"""
        |[
        |  {
+       |    "userId": "$devId",
        |    "email": "$developer",
        |    "firstName": "$devFirstName",
        |    "lastName": "$devLastName",
@@ -324,6 +333,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev2Id",
        |    "email": "$developer2",
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
@@ -331,6 +341,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev4Id",
        |    "email": "$developer4",
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
@@ -338,6 +349,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev5Id",
        |    "email": "$developer5",
        |    "firstName": "$dev5FirstName",
        |    "lastName": "$dev5LastName",
@@ -345,6 +357,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev6Id",
        |    "email": "$developer6",
        |    "firstName": "$dev6FirstName",
        |    "lastName": "$dev6LastName",
@@ -352,6 +365,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev7Id",
        |    "email": "$developer7",
        |    "firstName": "$dev7FirstName",
        |    "lastName": "$dev7LastName",
@@ -359,6 +373,7 @@ trait MockDataSugar {
        |    "mfaEnabled": false
        |  },
        |  {
+       |    "userId": "$dev8Id",
        |    "email": "$developer8",
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
@@ -371,6 +386,7 @@ trait MockDataSugar {
   val user =
     s"""
        |  {
+       |    "userId": "$dev8Id",
        |    "email": "$developer8",
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
@@ -489,7 +505,7 @@ trait MockDataSugar {
     email = randomEmail
     verified = Option(true)
     registered = None
-  } yield User(email, forename, surname, verified)
+  } yield User(UserId.random, email, forename, surname, verified)
 
   def userListGenerator(number: Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
 

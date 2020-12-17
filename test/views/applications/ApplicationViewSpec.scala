@@ -38,7 +38,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     val applicationView = app.injector.instanceOf[ApplicationView]
 
     val developers = List[User] {
-      new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
+      new User(UserId.random, "joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
     }
 
     val clientId = ClientId("clientid")
@@ -321,7 +321,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information and click on associated developer" in new Setup {
-      val user = User("sample@example.com", "joe", "bloggs", None, None, false)
+      val user = User(UserId.random, "sample@example.com", "joe", "bloggs", None, None, false)
       val result = applicationView.render(
         DefaultApplicationViewModel.withDeveloper(user),
         request,

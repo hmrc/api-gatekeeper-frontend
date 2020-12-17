@@ -20,7 +20,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class DeveloperStatusFilterSpec extends WordSpec with Matchers {
 
-  def aUser(name: String, verified: Option[Boolean]) = User(s"$name@example.com", "Fred", "Example", verified)
+  def aUser(name: String, verified: Option[Boolean]) = User(UserId.random, s"$name@example.com", "Fred", "Example", verified)
 
   "DeveloperStatusFilter parsing" should {
 

@@ -24,10 +24,11 @@ import play.api.http.Status._
 import acceptance.WebPage
 import model.ApplicationId
 import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
+import model.UserId
 
 class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+  val developers = List[User](new User(UserId.random, "joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {

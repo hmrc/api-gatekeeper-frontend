@@ -41,7 +41,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   Helpers.running(app) {
 
-    def aUser(email: String) = User(email, "first", "last", verified = Some(false))
+    def aUser(email: String) = User(UserId.random, email, "first", "last", verified = Some(false))
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
@@ -71,7 +71,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users = developers.map(developer => User(UserId.random, developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)

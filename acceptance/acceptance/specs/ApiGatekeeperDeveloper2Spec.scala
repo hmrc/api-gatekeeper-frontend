@@ -29,6 +29,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
+import model.UserId
 
 class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
 
@@ -40,14 +41,22 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
-      val developers = List(User(email = developer4,
-        firstName = dev4FirstName,
-        lastName = dev4LastName,
-        verified = Some(true)),
-        User(email = developer5,
+      val developers = List(
+        User(
+          userId = UserId.random,
+          email = developer4,
+          firstName = dev4FirstName,
+          lastName = dev4LastName,
+          verified = Some(true)
+        ),
+        User(
+          userId = UserId.random,
+          email = developer5,
           firstName = dev5FirstName,
           lastName = dev5LastName,
-          verified = Some(false)))
+          verified = Some(false)
+        )
+      )
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()

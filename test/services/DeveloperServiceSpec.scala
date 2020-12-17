@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar {
 
-  def aUser(name: String, verified: Boolean = true) = User(s"$name@example.com", "Fred", "Example", Some(verified))
+  def aUser(name: String, verified: Boolean = true) = User(UserId.random, s"$name@example.com", "Fred", "Example", Some(verified))
 
   def aDeveloper(name: String, apps: Seq[Application] = Seq.empty, verified: Boolean = true) =
     Developer(s"$name@example.com", name, s"${name}son", Some(verified), apps)
@@ -473,9 +473,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     "find by developer status should sort users by email" in new Setup {
 
-      val firstInTheListUser = User("101@example.com", "alphaFirstName", "alphaLastName", Some(true))
-      val secondInTheListUser = User("lalala@example.com", "betaFirstName", "betaLastName", Some(false))
-      val thirdInTheListUser = User("zigzag@example.com", "thetaFirstName", "thetaLastName", Some(false))
+      val firstInTheListUser = User(UserId.random, "101@example.com", "alphaFirstName", "alphaLastName", Some(true))
+      val secondInTheListUser = User(UserId.random, "lalala@example.com", "betaFirstName", "betaLastName", Some(false))
+      val thirdInTheListUser = User(UserId.random, "zigzag@example.com", "thetaFirstName", "thetaLastName", Some(false))
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
 

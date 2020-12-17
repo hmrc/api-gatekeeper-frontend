@@ -85,7 +85,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users = developers.map(developer => User(UserId.random, developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
         given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
         given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
@@ -155,9 +155,9 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "list all developers when filtering off" in new Setup {
         val users = Seq(
-          User("sample@example.com", "Sample", "Email", Some(false)),
-          User("another@example.com", "Sample2", "Email", Some(true)),
-          User("someone@example.com", "Sample3", "Email", Some(true)))
+          User(UserId.random, "sample@example.com", "Sample", "Email", Some(false)),
+          User(UserId.random, "another@example.com", "Sample2", "Email", Some(true)),
+          User(UserId.random, "someone@example.com", "Sample3", "Email", Some(true)))
         val collaborators = Set(
           Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(
@@ -196,7 +196,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "allow a super user to access the page" in new Setup {
         val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
           Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
-        val developer: Developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
+        val developer: Developer = User(UserId.random, emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenFetchDeveloperReturns(developer)
 
@@ -219,7 +219,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a super user to access the page" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
-        givenRemoveMfaReturns(successful(User(emailAddress, "Firstname", "Lastname", Some(true))))
+        givenRemoveMfaReturns(successful(User(UserId.random, emailAddress, "Firstname", "Lastname", Some(true))))
 
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
 
@@ -242,7 +242,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       val emailAddress = "someone@example.com"
       val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
         Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
-      val developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
+      val developer = User(UserId.random, emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
         givenTheUserHasInsufficientEnrolments()
