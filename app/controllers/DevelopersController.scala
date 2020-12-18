@@ -52,10 +52,6 @@ class DevelopersController @Inject()(developerService: DeveloperService,
   def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
 
-      println("********************")
-      println("OLD DEVELOPERS PAGE")
-      println("********************")
-
       val apiFilter = ApiFilter(filter)
       val statusFilter = StatusFilter(status)
       val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
