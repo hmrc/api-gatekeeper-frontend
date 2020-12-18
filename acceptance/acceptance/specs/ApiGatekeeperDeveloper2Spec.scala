@@ -29,7 +29,6 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
-import model.UserId
 
 class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
 
@@ -43,14 +42,12 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
 
       val developers = List(
         User(
-          userId = UserId.random,
           email = developer4,
           firstName = dev4FirstName,
           lastName = dev4LastName,
           verified = Some(true)
         ),
         User(
-          userId = UserId.random,
           email = developer5,
           firstName = dev5FirstName,
           lastName = dev5LastName,

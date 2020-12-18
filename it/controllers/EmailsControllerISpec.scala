@@ -43,9 +43,9 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded")
 
-  val verifiedUser1 = User(UserId.random, "user1@hmrc.com", "userA", "1", verified = Some(true))
-  val unverifiedUser1 = User(UserId.random, "user2@hmrc.com", "userB", "2", verified = Some(false))
-  val verifiedUser2 = User(UserId.random, "user3@hmrc.com", "userC", "3", verified = Some(true))
+  val verifiedUser1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
+  val unverifiedUser1 = User("user2@hmrc.com", "userB", "2", verified = Some(false))
+  val verifiedUser2 = User("user3@hmrc.com", "userC", "3", verified = Some(true))
 
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)

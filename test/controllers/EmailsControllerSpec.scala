@@ -86,10 +86,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
-      val verifiedUser1: User = User(UserId.random, "user1@hmrc.com", "verifiedUserA", "1", Some(true))
-      val verifiedUser2: User = User(UserId.random, "user2@hmrc.com", "verifiedUserB", "2", Some(true))
-      val verifiedUser3: User = User(UserId.random, "user3@hmrc.com", "verifiedUserC", "3", Some(true))
-      val unVerifiedUser1: User = User(UserId.random, "user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
+      val verifiedUser1: User = User("user1@hmrc.com", "verifiedUserA", "1", Some(true))
+      val verifiedUser2: User = User("user2@hmrc.com", "verifiedUserB", "2", Some(true))
+      val verifiedUser3: User = User("user3@hmrc.com", "verifiedUserC", "3", Some(true))
+      val unVerifiedUser1: User = User("user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = Seq(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users = Seq(verifiedUser1, verifiedUser2)

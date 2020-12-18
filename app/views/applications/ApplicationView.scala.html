@@ -367,7 +367,7 @@
                             }
                         </td>
                         <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
-                            case Some(User(_, _, _, _, _, _, true)) => "Yes"
+                            case Some(User(_, _, _, _, _, true)) => "Yes"
                             case _ => "No"
                         })</td>
                     </tr>

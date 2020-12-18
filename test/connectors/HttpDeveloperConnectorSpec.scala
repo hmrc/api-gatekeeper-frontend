@@ -61,7 +61,7 @@ class HttpDeveloperConnectorSpec
 
     def encode(str: String) = URLEncoder.encode(str, "UTF-8")
 
-    def aUserResponse(email: String) = User(UserId.random, email, "first", "last", verified = Some(false))
+    def aUserResponse(email: String) = User(email, "first", "last", verified = Some(false))
 
     def verifyUserResponse(userResponse: User,
                            expectedEmail: String,

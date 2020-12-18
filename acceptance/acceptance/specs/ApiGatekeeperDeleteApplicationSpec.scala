@@ -21,11 +21,10 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithHistoryTestData}
-import model.UserId
 
 class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User](new User(UserId.random, "joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
+  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   feature("Delete an application") {
     scenario("I can delete an application") {

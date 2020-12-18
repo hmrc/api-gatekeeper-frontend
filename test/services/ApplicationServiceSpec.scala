@@ -628,8 +628,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER)
       val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
       val nonAdderAdmins = Seq(
-        User(UserId.random, verifiedAdmin.emailAddress, "verified", "user", Some(true)),
-        User(UserId.random, unverifiedAdmin.emailAddress, "unverified", "user", Some(false)))
+        User(verifiedAdmin.emailAddress, "verified", "user", Some(true)),
+        User(unverifiedAdmin.emailAddress, "unverified", "user", Some(false)))
       val response = ApplicationUpdateSuccessResult
       val expectedAdminsToEmail = Seq(verifiedAdmin.emailAddress)
 

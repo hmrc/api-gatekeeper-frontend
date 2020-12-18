@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{LoggedInUser, User, UserId}
+import model.{LoggedInUser, User}
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -37,8 +37,8 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
   "email all user view" must {
 
     "show correct title and content for 2 verified users" in new Setup {
-      val user1 = User(UserId.random, "user1@hmrc.com", "userA", "1", verified = Some(true))
-      val user2 = User(UserId.random, "user2@hmrc.com", "userB", "2", verified = Some(true))
+      val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
+      val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
       val users = Seq(user1, user2)
       val result: HtmlFormat.Appendable = emailAllUsersView.render(users, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
 

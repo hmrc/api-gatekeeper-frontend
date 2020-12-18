@@ -21,11 +21,10 @@ import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
-import model.UserId
 
 class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User](new User(UserId.random, "holly.golightly@example.com", "holly", "golightly", None, None, false))
+  val developers = List[User](new User("holly.golightly@example.com", "holly", "golightly", None, None, false))
 
   val approveRequest =
     s"""
