@@ -76,6 +76,7 @@ trait MockDataSugar {
     s"""
        |[
        |  {
+       |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
        |    "gatewayId": "gatewayId1",
        |    "name": "Application",
@@ -83,6 +84,7 @@ trait MockDataSugar {
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
        |  {
+       |    "id": "$approvedApp2",
        |    "clientId": "clientid2",
        |    "gatewayId": "gatewayId2",
        |    "name": "ZApplication",
@@ -90,6 +92,7 @@ trait MockDataSugar {
        |    "state": "PRODUCTION"
        |  },
        |  {
+       |    "id": "$approvedApp3",
        |    "clientId": "clientid3",
        |    "gatewayId": "gatewayId3",
        |    "name": "rapplication",
@@ -97,6 +100,7 @@ trait MockDataSugar {
        |    "state": "PENDING_REQUESTER_VERIFICATION"
        |  },
        |  {
+       |    "id": "$approvedApp4",
        |    "clientId": "clientid4",
        |    "gatewayId": "gatewayId4",
        |    "name": "BApplication",
@@ -109,6 +113,7 @@ trait MockDataSugar {
   val applicationResponse =
     s"""
        |  [{
+       |    "id": "$approvedApp1",
        |    "clientId": "clientid1",
        |    "gatewayId": "gatewayId1",
        |    "name": "Purnimas Application",
