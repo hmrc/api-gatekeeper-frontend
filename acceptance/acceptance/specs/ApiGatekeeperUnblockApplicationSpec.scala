@@ -27,7 +27,7 @@ import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistor
 
 class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {

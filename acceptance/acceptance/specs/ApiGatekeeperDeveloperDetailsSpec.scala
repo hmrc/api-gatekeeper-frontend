@@ -29,9 +29,7 @@ import scala.io.Source
 
 class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with StateHistoryTestData with Assertions with CommonTestData  with ApiDefinitionTestData with MockDataSugar {
 
-  val developers = List[User] {
-    new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
-  }
+  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   info("AS A Gatekeeper superuser")
   info("I WANT to be able to view the applications an administrator/developer is on")

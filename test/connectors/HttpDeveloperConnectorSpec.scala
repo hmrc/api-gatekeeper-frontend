@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import encryption.PayloadEncryption
 
 class HttpDeveloperConnectorSpec
   extends UnitSpec
@@ -46,11 +47,12 @@ class HttpDeveloperConnectorSpec
     implicit val hc = HeaderCarrier()
 
     val mockAppConfig = mock[AppConfig]
+    val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")
     val httpClient = fakeApplication.injector.instanceOf[HttpClient]
 
     when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
 
-    val connector = new HttpDeveloperConnector(mockAppConfig, httpClient)
+    val connector = new HttpDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
   }
 
   "Developer connector" should {
@@ -75,7 +77,9 @@ class HttpDeveloperConnectorSpec
         aResponse().withStatus(OK).withBody(
           Json.toJson(aUserResponse(developerEmail)).toString()))
       )
+
       val result = await(connector.fetchByEmail(developerEmail))
+
       verifyUserResponse(result, developerEmail, "first", "last")
     }
 
@@ -84,7 +88,9 @@ class HttpDeveloperConnectorSpec
         aResponse().withStatus(OK).withBody(
           Json.toJson(aUserResponse(developerEmailWithSpecialCharacter)).toString()))
       )
+
       val result = await(connector.fetchByEmail(developerEmailWithSpecialCharacter))
+
       verifyUserResponse(result, developerEmailWithSpecialCharacter, "first", "last")
     }
 
@@ -99,17 +105,19 @@ class HttpDeveloperConnectorSpec
       )
 
       val result = await(connector.fetchByEmails(Seq(developerEmail, developerEmailWithSpecialCharacter)))
+
       verifyUserResponse(result(0), developerEmail, "first", "last")
       verifyUserResponse(result(1), developerEmailWithSpecialCharacter, "first", "last")
     }
-
 
     "fetch all developers" in new Setup {
       stubFor(get(urlEqualTo("/developers/all")).willReturn(
         aResponse().withStatus(OK).withBody(
           Json.toJson(Seq(aUserResponse(developerEmail), aUserResponse(developerEmailWithSpecialCharacter))).toString()))
       )
+
       val result = await(connector.fetchAll())
+
       verifyUserResponse(result(0), developerEmail, "first", "last")
       verifyUserResponse(result(1), developerEmailWithSpecialCharacter, "first", "last")
     }
@@ -118,6 +126,7 @@ class HttpDeveloperConnectorSpec
       stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
 
       val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
+
       result shouldBe DeveloperDeleteSuccessResult
     }
 
@@ -125,12 +134,14 @@ class HttpDeveloperConnectorSpec
       stubFor(post(urlEqualTo("/developer/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
 
       val result = await(connector.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", "developer@example.com")))
+
       result shouldBe DeveloperDeleteFailureResult
     }
 
     "remove MFA for a developer" in new Setup {
       val user: User = aUserResponse(developerEmail)
       val loggedInUser: String = "admin-user"
+      
       stubFor(post(urlEqualTo(s"/developer/$developerEmail/mfa/remove"))
         .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(user).toString())))
 
@@ -140,95 +151,103 @@ class HttpDeveloperConnectorSpec
     }
 
     "search by email filter" in new Setup {
+      val url = "/developers/search"
+      val user = aUserResponse(developerEmail)
 
-      val url = s"/developers?emailFilter=${encode(developerEmail)}&status=${"ALL"}"
-      stubFor(get(urlEqualTo(url)).willReturn(
+      stubFor(post(urlEqualTo(url)).willReturn(
         aResponse().withStatus(OK).withBody(
-          Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+          Json.toJson(Seq(user)).toString()))
       )
+
       val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.AllStatus))
 
-      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 
-      result shouldBe List(aUserResponse(developerEmail))
-
+      result shouldBe List(user)
     }
 
     "search by developer status filter" in new Setup {
+      val url = "/developers/search"
+      val user = aUserResponse(developerEmail)
 
-      val url = s"/developers?status=${encode("VERIFIED")}"
-      stubFor(get(urlEqualTo(url)).willReturn(
+      stubFor(post(urlEqualTo(url)).willReturn(
         aResponse().withStatus(OK).withBody(
-          Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+          Json.toJson(Seq(user)).toString()))
       )
+
       val result = await(connector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus))
 
-      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 
-      result shouldBe List(aUserResponse(developerEmail))
-
+      result shouldBe List(user)
     }
 
     "search by email filter and developer status filter" in new Setup {
+      val url = "/developers/search"
+      val user = aUserResponse(developerEmail)
 
-      val url = s"/developers?emailFilter=${encode(developerEmail)}&status=${encode("VERIFIED")}"
-      stubFor(get(urlEqualTo(url)).willReturn(
+      stubFor(post(urlEqualTo(url)).willReturn(
         aResponse().withStatus(OK).withBody(
-          Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+          Json.toJson(Seq(user)).toString()))
       )
+
       val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.VerifiedStatus))
 
-      wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+      wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 
-      result shouldBe List(aUserResponse(developerEmail))
+      result shouldBe List(user)
 
     }
 
     "Search by Email Preferences" should {
-
       "make a call with topic passed into the service and return users from response" in new Setup {
-
         val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}"
+        val user = aUserResponse(developerEmail)
+
         stubFor(get(urlEqualTo(url)).willReturn(
           aResponse().withStatus(OK).withBody(
-            Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+            Json.toJson(Seq(user)).toString()))
         )
+
         val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY))
 
         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
-        result shouldBe List(aUserResponse(developerEmail))
+        result shouldBe List(user)
 
       }
 
-       "make a call with topic and api category passed into the service and return users from response" in new Setup {
-
+      "make a call with topic and api category passed into the service and return users from response" in new Setup {
         val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1"
+        val user = aUserResponse(developerEmail)
+
         stubFor(get(urlEqualTo(url)).willReturn(
           aResponse().withStatus(OK).withBody(
-            Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+            Json.toJson(Seq(user)).toString()))
         )
+
         val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))))
 
-         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+        wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
-        result shouldBe List(aUserResponse(developerEmail))
+        result shouldBe List(user)
 
       }
 
-
-       "make a call with topic, api categories and apis passed into the service and return users from response" in new Setup {
-
+      "make a call with topic, api categories and apis passed into the service and return users from response" in new Setup {
         val url = s"/developers/email-preferences?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1&service=service1&service=service2"
+        val user = aUserResponse(developerEmail)
+
         stubFor(get(urlEqualTo(url)).willReturn(
           aResponse().withStatus(OK).withBody(
-            Json.toJson(Seq(aUserResponse(developerEmail))).toString()))
+            Json.toJson(Seq(user)).toString()))
         )
+
         val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = Some(Seq("service1", "service2")), maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))))
 
-         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
+        wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
-        result shouldBe List(aUserResponse(developerEmail))
+        result shouldBe List(user)
 
       }
     }

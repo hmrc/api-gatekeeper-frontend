@@ -21,6 +21,7 @@ import config.AppConfig
 import model.DeveloperStatusFilter.DeveloperStatusFilter
 import model._
 import model.TopicOptionChoice.TopicOptionChoice
+import encryption._
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
@@ -29,6 +30,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import com.google.inject.name.Named
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]]
@@ -49,14 +51,16 @@ trait DeveloperConnector {
 }
 
 @Singleton
-class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends DeveloperConnector {
+class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
+    (implicit ec: ExecutionContext) 
+    extends DeveloperConnector
+    with SendsSecretRequest {
 
   private val postHeaders: Seq[(String, String)] = Seq(CONTENT_TYPE -> JSON)
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
     http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover {
       case e: NotFoundException => UnregisteredCollaborator(email)
-
     }
   }
 
@@ -80,7 +84,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
   }
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) = {
-    http.POST(s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, postHeaders)
+    http.POST[DeleteDeveloperRequest,HttpResponse](s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest, postHeaders)
       .map(response => response.status match {
         case NO_CONTENT => DeveloperDeleteSuccessResult
         case _ => DeveloperDeleteFailureResult
@@ -95,15 +99,14 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)(i
   }
 
   def searchDevelopers(maybeEmail: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    import model.SearchParameters
 
-    val queryParams = (maybeEmail, status) match {
-      case (None, status) => Seq("status" -> status.value)
-      case (Some(email), status) => Seq("emailFilter" -> email, "status" -> status.value)
+    val payload = SearchParameters(maybeEmail, Some(status.value))
+
+    secretRequest(payload) { request =>
+      http.POST[SecretRequest, Seq[User]](s"${appConfig.developerBaseUrl}/developers/search", request)
     }
-
-    http.GET[Seq[User]](s"${appConfig.developerBaseUrl}/developers", queryParams)
   }
-
 }
 
 @Singleton

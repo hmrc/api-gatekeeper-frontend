@@ -366,10 +366,10 @@
                                 }
                             }
                         </td>
-                        <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress).getOrElse(new User("","", "", None)).mfaEnabled match {
-                            case true => "Yes"
-                            case false => "No"
-                            })</td>
+                        <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
+                            case Some(user) if (user.mfaEnabled) => "Yes"
+                            case _ => "No"
+                        })</td>
                     </tr>
                     }
                     </tbody>

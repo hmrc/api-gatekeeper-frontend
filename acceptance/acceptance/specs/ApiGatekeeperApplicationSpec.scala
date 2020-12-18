@@ -29,9 +29,7 @@ import acceptance.testdata.{StateHistoryTestData, ApplicationWithSubscriptionDat
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 
-  val developers = List[User] {
-    new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
-  }
+  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   feature("Application List for Search Functionality") {
     info("AS A Product Owner")

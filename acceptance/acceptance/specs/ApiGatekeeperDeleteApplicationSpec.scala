@@ -24,7 +24,7 @@ import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistor
 
 class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User]{new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)}
+  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
   feature("Delete an application") {
     scenario("I can delete an application") {

@@ -35,7 +35,7 @@ class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with Wiremo
 
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
-      await(underTest.fetchByEmail(email)) shouldBe UnregisteredCollaborator(email)
+      await(underTest.fetchByEmail(email)) shouldBe a[User]
     }
   }
 
@@ -65,7 +65,7 @@ class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with Wiremo
 
   "removeMfa" should {
     "return an UnregisteredCollaborator" in {
-      await(underTest.removeMfa(email, loggedInUser)) shouldBe UnregisteredCollaborator(email)
+      await(underTest.removeMfa(email, loggedInUser)) shouldBe a[User]
     }
   }
 }

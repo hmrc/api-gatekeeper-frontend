@@ -24,7 +24,7 @@ import acceptance.pages.{ApplicationsPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
-import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
 import play.api.libs.json.Json
