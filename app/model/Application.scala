@@ -336,7 +336,7 @@ case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress
 object RateLimitTier extends Enumeration {
   type RateLimitTier = Value
 
-  val BRONZE, SILVER, GOLD, PLATINUM = Value
+  val BRONZE, SILVER, GOLD, PLATINUM, RHODIUM = Value
 
   def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
 
@@ -345,6 +345,7 @@ object RateLimitTier extends Enumeration {
     case SILVER => "Silver"
     case GOLD => "Gold"
     case PLATINUM => "Platinum"
+    case RHODIUM => "Rhodium"
   }
 
   implicit val format = Json.formatEnum(RateLimitTier)

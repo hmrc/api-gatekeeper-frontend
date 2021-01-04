@@ -44,7 +44,7 @@ class ModelSpec  extends UnitSpec with Matchers {
 
     "have all rate limit tiers" in {
       import RateLimitTier._
-      RateLimitTier.values shouldBe Set(PLATINUM, GOLD, SILVER, BRONZE)
+      RateLimitTier.values shouldBe Set(RHODIUM, PLATINUM, GOLD, SILVER, BRONZE)
     }
 
     "convert string value to enum with lowercase" in {
