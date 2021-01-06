@@ -348,5 +348,7 @@ object RateLimitTier extends Enumeration {
     case RHODIUM => "Rhodium"
   }
 
+  lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
+
   implicit val format = Json.formatEnum(RateLimitTier)
 }

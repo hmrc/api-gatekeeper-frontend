@@ -50,7 +50,7 @@
         <div>
             @helper.CSRF.formField
 
-            @for(t <- RateLimitTier.values.toList.sorted) {
+            @for(t <- RateLimitTier.asOrderedList) {
                 <fieldset class="inline">
                 <label class="block-label" style="width: 100%;">
                     <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>

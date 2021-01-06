@@ -52,7 +52,7 @@ trait ApprovedBaseSpec extends BaseSpec
   protected def assertApplicationRateLimitTier(isSuperUser: Boolean, rateLimitTier: String) = {
     if (isSuperUser) {
       id("rate-limit-tier").element.text shouldBe s"Rate limit tier: $rateLimitTier"
-      id("rate-limit-tier-table").element.text should containInOrder(List("BRONZE", "SILVER", "GOLD", "Save new rate limit tier"))
+      id("rate-limit-tier-table").element.text should containInOrder(List("BRONZE", "SILVER", "GOLD", "PLATINUM", "RHODIUM", "Save new rate limit tier"))
       id(rateLimitTier).element.isSelected shouldBe true
     } else {
       intercept[NoSuchElementException] {
