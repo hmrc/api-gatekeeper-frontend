@@ -49,7 +49,13 @@ case class Developer(email: String,
                      apps: Seq[Application],
                      organisation: Option[String] = None,
                      mfaEnabled: Boolean = false)
-  extends ApplicationDeveloper
+  extends BaseUser with Ordered[Developer] {
+
+    override def compare(that: Developer): Int = this.sortField.compare(that.sortField)
+
+    def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation, mfaEnabled)
+
+  }
 
 object Developer {
   def createUnregisteredDeveloper(email: String, apps: Set[Application] = Set.empty) = {
@@ -60,7 +66,7 @@ object Developer {
     Developer(user.email, user.firstName, user.lastName, user.verified, apps, user.organisation, user.mfaEnabled)
 }
 
-trait BaseUser {
+private [model] trait BaseUser {
   val email: String
   val firstName: String
   val lastName: String
@@ -76,10 +82,4 @@ trait BaseUser {
     case Some(false) => UnverifiedStatus
     case None => UnregisteredStatus
   }
-}
-
-trait ApplicationDeveloper extends BaseUser with Ordered[ApplicationDeveloper] {
-  val apps: Seq[Application]
-  override def compare(that: ApplicationDeveloper): Int = this.sortField.compare(that.sortField)
-  def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation, mfaEnabled)
 }

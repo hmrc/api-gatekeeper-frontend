@@ -67,7 +67,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
-                   (users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
+                   (users: Seq[Developer]): Seq[Developer] = {
 
     val registeredEmails = users.map(_.email)
 
@@ -96,27 +96,29 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  def filterUsersBy(filter: StatusFilter)(users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = {
+  def filterUsersBy(filter: StatusFilter)(users: Seq[Developer]): Seq[Developer] = {
     filter match {
       case AnyStatus => users
       case _ => users.filter(u => u.status == filter)
     }
   }
 
-  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[ApplicationDeveloper]): Seq[ApplicationDeveloper] = filter match {
+  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[Developer]): Seq[Developer] = filter match {
     case AnyEnvironment => users
     case ProductionEnvironment => users.filter(user => user.apps.exists(app => app.deployedTo == "PRODUCTION"))
     case SandboxEnvironment => users
   }
 
-  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[ApplicationDeveloper] = {
+  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[Developer] = {
 
-    def collaboratingApps(user: User, apps: Seq[Application]): Seq[Application] = {
-      apps.filter(a => a.collaborators.map(col => col.emailAddress).contains(user.email))
+    def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(c => c.emailAddress == user.email).isDefined
+
+    def collaboratingApps(user: User): Seq[Application] = {
+      apps.filter(isACollaboratorForApp(user))
     }
 
     users.map(u => {
-      Developer.createFromUser(u, collaboratingApps(u, apps))
+      Developer.createFromUser(u, collaboratingApps(u))
     })
   }
 
@@ -128,7 +130,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[ApplicationDeveloper] = {
+  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Developer] = {
     for {
       developer <- developerConnector.fetchByEmail(email)
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByEmail(email)

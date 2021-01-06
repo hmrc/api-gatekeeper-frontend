@@ -65,7 +65,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
   val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)
   val aLoggedOutRequest = FakeRequest().withSession()
-  val noDevs = Seq.empty[ApplicationDeveloper]
+  val noDevs = Seq.empty[Developer]
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(*, *)(*, *))
