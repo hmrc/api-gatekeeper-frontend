@@ -89,7 +89,7 @@
                                 <caption class="visuallyhidden">Table showing rate limit tier</caption>
                                 <tbody id="rate-limit-tier-table">
                                     <tr>
-                                        @for(t <- RateLimitTier.values) {
+                                        @for(t <- RateLimitTier.asOrderedList) {
                                             <td>
                                                 <p>
                                                     <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t

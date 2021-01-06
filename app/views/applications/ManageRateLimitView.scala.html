@@ -50,7 +50,7 @@
         <div>
             @helper.CSRF.formField
 
-            @for(t <- RateLimitTier.values) {
+            @for(t <- RateLimitTier.asOrderedList) {
                 <fieldset class="inline">
                 <label class="block-label" style="width: 100%;">
                     <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>
@@ -58,6 +58,9 @@
                 </label>
                 </fieldset>
             }
+            <strong class="bold-small">
+                NOTE: Do NOT use Platinum or Rhodium.
+            </strong>
         </div>
         <div class="form-field form-field--submit">
             <button id="submit" class="button" type="submit">Save and return</button>
