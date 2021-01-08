@@ -33,6 +33,8 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import encryption.PayloadEncryption
+import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import connectors.DeveloperConnector.RemoveMfaRequest
 
 class HttpDeveloperConnectorSpec
   extends UnitSpec
@@ -55,6 +57,21 @@ class HttpDeveloperConnectorSpec
     val connector = new HttpDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
   }
 
+  def mockGetOrCreateUser(email: String, userId: UserId) = {
+    import connectors.DeveloperConnector._
+    val payload: String = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
+    implicit val writer = Json.writes[GetOrCreateUserIdResponse]
+
+    stubFor(
+      post(urlEqualTo("/developer/user-id")).withRequestBody(equalToJson(payload))
+      .willReturn(
+        aResponse()
+        .withStatus(OK)
+        .withBody(Json.toJson(GetOrCreateUserIdResponse(userId)).toString)
+      )
+    )
+  }
+
   "Developer connector" should {
     val developerEmail = "developer1@example.com"
     val developerEmailWithSpecialCharacter = "developer2+test@example.com"
@@ -71,11 +88,16 @@ class HttpDeveloperConnectorSpec
       userResponse.lastName shouldBe expectedLastName
     }
 
-
     "fetch developer by email" in new Setup {
-      stubFor(get(urlEqualTo(s"/developer?email=${encode(developerEmail)}")).willReturn(
-        aResponse().withStatus(OK).withBody(
-          Json.toJson(aUserResponse(developerEmail)).toString()))
+      val userId = UserId.random
+      mockGetOrCreateUser(developerEmail, userId)
+
+      stubFor(
+        get(urlPathEqualTo("/developer"))
+        .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+        .willReturn(
+          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmail)).toString)
+        )
       )
 
       val result = await(connector.fetchByEmail(developerEmail))
@@ -84,9 +106,16 @@ class HttpDeveloperConnectorSpec
     }
 
     "fetch developer by email when special characters in the email" in new Setup {
-      stubFor(get(urlEqualTo(s"/developer?email=${encode(developerEmailWithSpecialCharacter)}")).willReturn(
-        aResponse().withStatus(OK).withBody(
-          Json.toJson(aUserResponse(developerEmailWithSpecialCharacter)).toString()))
+
+      val userId = UserId.random
+      mockGetOrCreateUser(developerEmailWithSpecialCharacter, userId)
+
+      stubFor(
+        get(urlPathEqualTo("/developer"))
+        .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+        .willReturn(
+          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmailWithSpecialCharacter)).toString)
+        )
       )
 
       val result = await(connector.fetchByEmail(developerEmailWithSpecialCharacter))
@@ -139,11 +168,22 @@ class HttpDeveloperConnectorSpec
     }
 
     "remove MFA for a developer" in new Setup {
-      val user: User = aUserResponse(developerEmail)
+      val userId = UserId.random
+      mockGetOrCreateUser(developerEmail, userId)
+
       val loggedInUser: String = "admin-user"
+      val payload = Json.stringify(Json.toJson(RemoveMfaRequest(loggedInUser)))
+      val user: User = aUserResponse(developerEmail)
       
-      stubFor(post(urlEqualTo(s"/developer/$developerEmail/mfa/remove"))
-        .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(user).toString())))
+      stubFor(
+        post(urlEqualTo(s"/developer/${userId.value}/mfa/remove"))
+        .withRequestBody(equalToJson(payload))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(Json.toJson(user).toString())
+        )
+      )
 
       val result: User = await(connector.removeMfa(developerEmail, loggedInUser))
 

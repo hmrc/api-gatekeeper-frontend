@@ -130,6 +130,8 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
   }
 
+  import uk.gov.hmrc.http.HttpReads.Implicits._
+
   private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)
                                        (implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
