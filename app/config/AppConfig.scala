@@ -29,8 +29,6 @@ trait AppConfig {
   def assetsPrefix: String
 
   def devHubBaseUrl: String
-  def retryCount: Int
-  def retryDelayMilliseconds: Int
 
   def apiScopeSandboxBaseUrl: String
   def apiScopeSandboxUseProxy: Boolean

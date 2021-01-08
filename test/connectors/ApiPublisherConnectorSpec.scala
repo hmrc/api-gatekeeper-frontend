@@ -28,7 +28,6 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,8 +36,6 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with Argument
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
-  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
-  private val actorSystemTest = ActorSystem("test-actor-system")
   private val apiKeyTest = UUID.randomUUID().toString
 
   implicit val hc = HeaderCarrier()
@@ -60,8 +57,6 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with Argument
       val bearerToken = bearer
       val environment = mockEnvironment
       val appConfig = mockAppConfig
-      val actorSystem = actorSystemTest
-      val futureTimeout = futureTimeoutSupport
       val apiKey = apiKeyTest
       implicit val ec: ExecutionContext = ExecutionContext.global
     }
@@ -88,18 +83,6 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with Argument
         await(underTest.fetchUnapproved())
       }
     }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
-
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
-        .thenReturn(
-          Future.failed(new BadRequestException("")),
-          Future.successful(response)
-        )
-      await(underTest.fetchUnapproved()) shouldBe response
-    }
   }
 
   "fetchApprovalSummary" should {
@@ -122,18 +105,6 @@ class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with Argument
       intercept[Upstream5xxResponse] {
         await(underTest.fetchApprovalSummary(serviceName))
       }
-    }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      val validResponse = (APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment)))
-
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[APIApprovalSummary](eqTo(url))(*, *, *))
-        .thenReturn(
-          Future.failed(new BadRequestException("")),
-          Future.successful(validResponse)
-        )
-      await(underTest.fetchApprovalSummary(serviceName)) shouldBe validResponse
     }
   }
 

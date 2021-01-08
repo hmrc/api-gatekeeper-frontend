@@ -18,8 +18,6 @@ package connectors
 
 import java.net.URLEncoder.encode
 
-import akka.actor.ActorSystem
-import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment

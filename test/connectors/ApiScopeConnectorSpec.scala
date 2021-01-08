@@ -28,7 +28,6 @@ import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,8 +35,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with Matchers {
   private val baseUrl = "https://example.com"
   private val bearer = "TestBearerToken"
-  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
-  private val actorSystemTest = ActorSystem("test-actor-system")
   private val apiKeyTest = UUID.randomUUID().toString
 
   class Setup(proxyEnabled: Boolean = false) {
@@ -58,8 +55,6 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatc
       val bearerToken = bearer
       val environment = mockEnvironment
       val appConfig = mockAppConfig
-      val actorSystem = actorSystemTest
-      val futureTimeout = futureTimeoutSupport
       val apiKey = apiKeyTest
       implicit val ec: ExecutionContext = ExecutionContext.global
     }
@@ -78,18 +73,7 @@ class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatc
       result shouldBe scopes
     }
 
-    "when retry logic is enabled should retry on failure" in new Setup {
-
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(scopes))
-
-      await(underTest.fetchAll()) shouldBe scopes
-    }
-
     "fail to fetch a sequence of API scopes" in new Setup {
-
       when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *))
         .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 

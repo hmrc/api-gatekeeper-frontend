@@ -16,7 +16,6 @@
 
 package connectors
 
-import akka.actor.ActorSystem
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment

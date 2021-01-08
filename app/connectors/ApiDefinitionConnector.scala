@@ -16,8 +16,6 @@
 
 package connectors
 
-import akka.actor.ActorSystem
-import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model._
@@ -59,9 +57,6 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
         case _: Upstream5xxResponse => throw new FetchApiCategoriesFailed
       }
   }
-
-
-
 }
 
 @Singleton

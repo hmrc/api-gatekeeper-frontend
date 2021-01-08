@@ -30,7 +30,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,8 +38,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
-  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
-  private val actorSystemTest = ActorSystem("test-actor-system")
   private val apiKeyTest = UUID.randomUUID().toString
   val apiVersion1 = ApiVersion.random
 
@@ -64,8 +61,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       val bearerToken = bearer
       val environment = mockEnvironment
       val appConfig = mockAppConfig
-      val actorSystem = actorSystemTest
-      val futureTimeout = futureTimeoutSupport
       val apiKey = apiKeyTest
     }
   }
@@ -219,16 +214,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
       exception.getCause shouldBe thrownException
     }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(Seq.empty)
-      )
-
-      await(connector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe Seq.empty
-    }
   }
 
   "fetchAllApplications" should {
@@ -255,15 +240,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplications())
       }
-    }
-    "when retry logic is enabled should retry on failure" in new Setup {
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(applications)
-      )
-
-      await(connector.fetchAllApplications()) shouldBe applications
     }
   }
 
@@ -297,16 +273,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
       intercept[Upstream5xxResponse] {
         await(connector.fetchApplication(applicationId))
       }
-    }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[ApplicationWithHistory](eqTo(url))(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(response)
-      )
-
-      await(connector.fetchApplication(applicationId)) shouldBe response
     }
   }
 
@@ -526,16 +492,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
         await(connector.searchApplications(params))
       }
     }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[PaginatedApplicationResponse](*, *)(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(expectedResponse)
-      )
-      val result = await(connector.searchApplications(params))
-      result shouldBe expectedResponse
-    }
   }
 
   "search collaborators" should {
@@ -569,18 +525,6 @@ class ApplicationConnectorSpec extends UnitSpec with MockitoSugar with ArgumentM
 
       verify(mockHttpClient).GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)
 
-      result shouldBe Seq(email)
-    }
-
-    "when retry logic is enabled should retry on failure" in new Setup {
-      val expectedQueryParams = Seq("context" -> apiContext.value, "version" -> apiVersion1.value)
-      private val email = "user@example.com"
-      when(mockAppConfig.retryCount).thenReturn(1)
-      when(mockHttpClient.GET[Seq[String]](eqTo(url), eqTo(expectedQueryParams))(*, *, *)).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(Seq(email))
-      )
-      val result: Seq[String] = await(connector.searchCollaborators(apiContext, apiVersion1, None))
       result shouldBe Seq(email)
     }
   }
