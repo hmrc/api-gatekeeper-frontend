@@ -16,13 +16,11 @@
 
 package config
 
-import akka.pattern.FutureTimeoutSupport
 import com.google.inject.name.Names
 import connectors._
 import play.api.{Configuration, Environment}
 import play.api.inject.Module
 import services.SubscriptionFieldsService.SubscriptionFieldsConnector
-import utils.FutureTimeoutSupportImpl
 
 class ConfigurationModule extends Module {
 
@@ -36,7 +34,6 @@ class ConfigurationModule extends Module {
 
     Seq(
       developerConnectorBinding,
-      bind[FutureTimeoutSupport].to[FutureTimeoutSupportImpl],
 
       bind(classOf[SubscriptionFieldsConnector])
         .qualifiedWith(Names.named("SANDBOX"))

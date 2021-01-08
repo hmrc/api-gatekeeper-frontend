@@ -16,19 +16,16 @@
 
 package connectors
 
-import akka.actor.ActorSystem
-import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Environment.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends Retries{
+abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -40,21 +37,17 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends Retries{
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
-    retry {
-      http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
-        .recover {
-          case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-        }
-    }
+    http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
+      .recover {
+        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
+      }
   }
 }
 
 @Singleton
 class SandboxApiScopeConnector @Inject()(val appConfig: AppConfig,
                                          val httpClient: HttpClient,
-                                         val proxiedHttpClient: ProxiedHttpClient,
-                                         val actorSystem: ActorSystem,
-                                         val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                         val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.SANDBOX
@@ -67,9 +60,7 @@ class SandboxApiScopeConnector @Inject()(val appConfig: AppConfig,
 @Singleton
 class ProductionApiScopeConnector @Inject()(val appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient,
-                                            val actorSystem: ActorSystem,
-                                            val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends ApiScopeConnector {
 
   val environment = Environment.PRODUCTION

@@ -26,7 +26,6 @@ import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,9 +39,6 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
   val clientId: String = UUID.randomUUID().toString
   val apiContext: String = "i-am-a-test"
   val apiVersion: String = "1.0"
-  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
-  private val testActorSystem = ActorSystem("test-actor-system")
-
   class Setup(proxyEnabled: Boolean = false) {
     val testApiKey: String = UUID.randomUUID().toString
     val mockHttpClient: HttpClient = mock[HttpClient]
@@ -61,8 +57,6 @@ class SubscriptionFieldsConnectorProxySpec extends UnitSpec with MockitoSugar wi
       val bearerToken = bearer
       val environment = mockEnvironment
       val apiKey = testApiKey
-      val actorSystem = testActorSystem
-      val futureTimeout = futureTimeoutSupport
       val appConfig = mockAppConfig
       implicit val ec : ExecutionContext = global
     }
