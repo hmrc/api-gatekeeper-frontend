@@ -84,16 +84,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[Application]] = {
-    val sandboxApplicationsFuture = sandboxApplicationConnector.fetchApplicationsByEmail(email)
-    val productionApplicationsFuture = productionApplicationConnector.fetchApplicationsByEmail(email)
-
-    for {
-      sandboxApps <- sandboxApplicationsFuture
-      productionApps <- productionApplicationsFuture
-    } yield (sandboxApps ++ productionApps).distinct
-  }
-
   def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
       case _: NotFoundException => sandboxApplicationConnector.fetchApplication(appId)

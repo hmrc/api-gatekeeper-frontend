@@ -97,6 +97,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     }
   }
 
+  // TODO APIS-4925 - blocked by not all Collaborators having IDs
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     retry{
       http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
@@ -241,6 +242,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
     )
 
     val withOptionalQueryParameters = partialEmailMatch match {
+      // TODO: APIS4925 - encrypt param
       case Some(email) => queryParameters ++ List(("partialEmailMatch", email))
       case None => queryParameters
     }

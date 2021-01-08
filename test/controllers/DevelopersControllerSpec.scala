@@ -81,7 +81,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[ApplicationDeveloper]): Unit = {
+      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[Developer]): Unit = {
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
@@ -94,7 +94,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         given(mockDeveloperService.fetchUsers(*)).willReturn(successful(users))
       }
 
-      def givenFetchDeveloperReturns(developer: ApplicationDeveloper) = {
+      def givenFetchDeveloperReturns(developer: Developer) = {
         given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).willReturn(successful(developer))
       }
 

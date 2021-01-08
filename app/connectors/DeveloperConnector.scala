@@ -59,6 +59,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
   private val postHeaders: Seq[(String, String)] = Seq(CONTENT_TYPE -> JSON)
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    // TODO: APIS-4925 - Need new endpoint for either encrypted email or POST to use body.
     http.GET[User](s"${appConfig.developerBaseUrl}/developer", Seq("email" -> email)).recover {
       case e: NotFoundException => UnregisteredCollaborator(email)
     }
@@ -95,6 +96,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
   }
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
+    // TODO: APIS-4925 - Need new endpoint for either encrypted email or POST to use body.
     http.POST[JsValue, User](s"${appConfig.developerBaseUrl}/developer/$email/mfa/remove", Json.obj("removedBy" -> loggedInUser))
   }
 
