@@ -55,6 +55,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
+      val loggedInUser = "userName"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
 
@@ -193,18 +194,18 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         status(result) shouldBe FORBIDDEN
       }
 
-      "allow a super user to access the page" in new Setup {
+      "allow a normal user to access the page" in new Setup {
         val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
           Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
         val developer: Developer = User(emailAddress, "Firstname", "Lastname", Some(true)).toDeveloper(apps)
-        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenFetchDeveloperReturns(developer)
 
-        val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aSuperUserLoggedInRequest))
+        val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aLoggedInRequest))
 
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(emailAddress))(*)
-        verifyAuthConnectorCalledForSuperUser
+        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -217,15 +218,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         status(result) shouldBe FORBIDDEN
       }
 
-      "allow a super user to access the page" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser()
+      "allow a normal user to access the page" in new Setup {
+        givenTheUserIsAuthorisedAndIsANormalUser()
         givenRemoveMfaReturns(successful(User(emailAddress, "Firstname", "Lastname", Some(true))))
 
-        val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
+        val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInSuperUser))(*)
-        verifyAuthConnectorCalledForSuperUser
+        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInUser))(*)
+        verifyAuthConnectorCalledForUser
       }
 
       "return an internal server error when it fails to remove MFA" in new Setup {
