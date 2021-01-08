@@ -29,7 +29,6 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.FutureTimeoutSupportImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -38,7 +37,6 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
   private val baseUrl = "https://example.com"
   private val environmentName = "ENVIRONMENT"
   private val bearer = "TestBearerToken"
-  private val futureTimeoutSupport = new FutureTimeoutSupportImpl
   private val actorSystemTest = ActorSystem("test-actor-system")
   private val apiKeyTest = UUID.randomUUID().toString
 
@@ -63,7 +61,6 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
       val environment = mockEnvironment
       val appConfig = mockAppConfig
       val actorSystem = actorSystemTest
-      val futureTimeout = futureTimeoutSupport
       val apiKey = apiKeyTest
       implicit val ec = global
     }

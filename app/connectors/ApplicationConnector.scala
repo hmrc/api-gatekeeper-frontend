@@ -30,12 +30,11 @@ import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.Retries
 import model.ApiContext
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends Retries with APIDefinitionFormatters {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -50,9 +49,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
 
   def updateRateLimitTier(applicationId: ApplicationId, tier: RateLimitTier)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-      http.POST[UpdateRateLimitTierRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/rate-limit-tier",
-        UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
-        .map(_ => ApplicationUpdateSuccessResult)
+    http.POST[UpdateRateLimitTierRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/rate-limit-tier",
+      UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
+      .map(_ => ApplicationUpdateSuccessResult)
   }
 
   def approveUplift(applicationId: ApplicationId, gatekeeperUserId: String)
@@ -86,71 +85,55 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    retry{
-      http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}")
-    }
+    http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}")
   }
 
   def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    retry {
-      http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
-    }
+    http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
   }
 
   // TODO APIS-4925 - blocked by not all Collaborators having IDs
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    retry{
-      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
-        .recover {
-          case e =>
-            throw new FetchApplicationsFailed(e)
-        }
-    }
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
+      .recover {
+        case e =>
+          throw new FetchApplicationsFailed(e)
+      }
   }
 
   def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    retry{
-      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
-        .recover {
-          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-        }
-    }
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+      }
   }
 
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    retry{
-      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
-        .recover {
-          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-        }
-    }
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+      }
   }
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    retry{
-      http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application")
-        .recover {
-          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-        }
-    }
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+      }
   }
 
   def fetchAllSubscriptions()(implicit hc: HeaderCarrier): Future[List[SubscriptionResponse]] = {
-    retry{
-      http.GET[List[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
-        .recover {
-          case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
-        }
-    }
+    http.GET[List[SubscriptionResponse]](s"$serviceBaseUrl/application/subscriptions")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationsFailed(e)
+      }
   }
 
   def fetchApplicationSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[SubscriptionWithoutFields]] = {
-    retry{
-      http.GET[List[SubscriptionWithoutFields]](s"${baseApplicationUrl(applicationId)}/subscription")
-        .recover {
-          case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
-        }
-    }
+    http.GET[List[SubscriptionWithoutFields]](s"${baseApplicationUrl(applicationId)}/subscription")
+      .recover {
+        case e: Upstream5xxResponse => throw new FetchApplicationSubscriptionsFailed
+      }
   }
 
   def updateOverrides(applicationId: ApplicationId, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
@@ -226,9 +209,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
   }
 
   def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
-    retry{
-      http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
-    }
+    http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = {
@@ -247,18 +228,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends R
       case None => queryParameters
     }
 
-    retry{
-      http.GET[List[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
-    }
+    http.GET[List[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
   }
 }
 
 @Singleton
 class SandboxApplicationConnector @Inject()(val appConfig: AppConfig,
                                             val httpClient: HttpClient,
-                                            val proxiedHttpClient: ProxiedHttpClient,
-                                            val actorSystem: ActorSystem,
-                                            val futureTimeout: FutureTimeoutSupport)(implicit override val ec: ExecutionContext)
+                                            val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.SANDBOX
@@ -271,9 +248,7 @@ class SandboxApplicationConnector @Inject()(val appConfig: AppConfig,
 @Singleton
 class ProductionApplicationConnector @Inject()(val appConfig: AppConfig,
                                                val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient,
-                                               val actorSystem: ActorSystem,
-                                               val futureTimeout: FutureTimeoutSupport)(implicit override val ec: ExecutionContext)
+                                               val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
   extends ApplicationConnector {
 
   val environment = Environment.PRODUCTION

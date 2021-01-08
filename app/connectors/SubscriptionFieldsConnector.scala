@@ -18,8 +18,6 @@ package connectors
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
@@ -30,11 +28,10 @@ import play.api.libs.json.{Format, Json, JsSuccess}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with Retries {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -92,19 +89,14 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
-    retry {
-      http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain))
-    } recover recovery(Seq.empty[SubscriptionFieldDefinition])
+    http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain)) recover recovery(Seq.empty[SubscriptionFieldDefinition])
   }
 
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
     val url = s"$serviceBaseUrl/definition"
-    retry {
-      for {
+    (for {
         response <- http.GET[AllApiFieldDefinitions](url)
-      } yield toDomain(response)
-
-    } recover recovery(DefinitionsByApiVersion.empty)
+    } yield toDomain(response)) recover recovery(DefinitionsByApiVersion.empty)
   }
 
   def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
@@ -141,9 +133,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)
                                        (implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    retry {
-      http.GET[ApplicationApiFieldValues](url).map(Some(_))
-    } recover recovery(None)
+    http.GET[ApplicationApiFieldValues](url).map(Some(_)) recover recovery(None)
   }
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
@@ -195,9 +185,7 @@ object SubscriptionFieldsConnector {
 @Singleton
 class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                    val httpClient: HttpClient,
-                                                   val proxiedHttpClient: ProxiedHttpClient,
-                                                   val actorSystem: ActorSystem,
-                                                   val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                                   val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
@@ -210,9 +198,7 @@ class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
 @Singleton
 class ProductionSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
                                                       val httpClient: HttpClient,
-                                                      val proxiedHttpClient: ProxiedHttpClient,
-                                                      val actorSystem: ActorSystem,
-                                                      val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                                      val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.PRODUCTION

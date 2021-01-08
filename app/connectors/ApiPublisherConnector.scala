@@ -17,18 +17,16 @@
 package connectors
 
 import akka.actor.ActorSystem
-import akka.pattern.FutureTimeoutSupport
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.Retries
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Retries {
+abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -40,15 +38,11 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Retr
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
-    retry {
-      http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
-    }
+    http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
   }
 
   def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    retry {
-      http.GET[APIApprovalSummary](s"$serviceBaseUrl/service/$serviceName/summary").map(_.copy(environment = Some(environment)))
-    }
+    http.GET[APIApprovalSummary](s"$serviceBaseUrl/service/$serviceName/summary").map(_.copy(environment = Some(environment)))
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
@@ -65,9 +59,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Retr
 @Singleton
 class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
                                              val httpClient: HttpClient,
-                                             val proxiedHttpClient: ProxiedHttpClient,
-                                             val actorSystem: ActorSystem,
-                                             val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                             val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.SANDBOX
@@ -80,9 +72,7 @@ class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
 @Singleton
 class ProductionApiPublisherConnector @Inject()(val appConfig: AppConfig,
                                                 val httpClient: HttpClient,
-                                                val proxiedHttpClient: ProxiedHttpClient,
-                                                val actorSystem: ActorSystem,
-                                                val futureTimeout: FutureTimeoutSupport)(implicit val ec: ExecutionContext)
+                                                val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.PRODUCTION
