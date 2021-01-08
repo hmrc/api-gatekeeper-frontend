@@ -67,12 +67,9 @@ object Developer {
 }
 
 private [model] trait BaseUser {
-  val email: String
   val firstName: String
   val lastName: String
   val verified: Option[Boolean]
-  val organisation: Option[String]
-  val mfaEnabled: Boolean
 
   val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
   val fullName = s"$firstName $lastName"
