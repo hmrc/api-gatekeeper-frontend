@@ -239,33 +239,6 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
   }
 
-  // "fetchApplicationsByEmail" should {
-  //   "return apps from both production and sandbox" in new Setup {
-  //     val emailAddress = "email@example.com"
-  //     val productionApps = List(stdApp1, privilegedApp)
-  //     val sandboxApps = List(stdApp1.copy(deployedTo = "SANDBOX"), privilegedApp.copy(deployedTo = "SANDBOX"))
-
-  //     given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(productionApps))
-  //     given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(sandboxApps))
-
-  //     val result = await(underTest.fetchApplicationsByEmail(emailAddress))
-
-  //     result shouldBe sandboxApps ++ productionApps
-  //   }
-
-  //   "return only distinct apps" in new Setup {
-  //     val emailAddress = "email@example.com"
-  //     val allApps = List(stdApp1, privilegedApp)
-
-  //     given(mockProductionApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))
-  //     given(mockSandboxApplicationConnector.fetchApplicationsByEmail(eqTo(emailAddress))(*)).willReturn(Future.successful(allApps))
-
-  //     val result = await(underTest.fetchApplicationsByEmail(emailAddress))
-
-  //     result shouldBe allApps
-  //   }
-  // }
-
   "fetchApplication" should {
     "return the app when found in production" in new Setup {
       given(mockProductionApplicationConnector.fetchApplication(*[ApplicationId])(*))
