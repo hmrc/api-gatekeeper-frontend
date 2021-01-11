@@ -69,7 +69,7 @@ class ApiGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
     }
 
-    scenario("Ensure a non-super user cannot remove MFA from a developer", Tag("NonSandboxTest")) {
+    scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
@@ -79,8 +79,26 @@ class ApiGatekeeperRemoveMfaSpec extends BaseSpec with SignInSugar with Matchers
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I cannot see the button to remove 2SV")
-      assert(DeveloperDetailsPage.removeMfaButton.isEmpty)
+      Then("I can see the button to remove MFA")
+      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
+
+      When("I click on remove MFA")
+      DeveloperDetailsPage.removeMfa()
+
+      Then("I am successfully navigated to the Remove MFA page")
+      on(RemoveMfaPage)
+
+      When("I confirm I want to remove MFA")
+      RemoveMfaPage.removeMfa()
+
+      Then("I am successfully navigated to the Remove MFA Success page")
+      on(RemoveMfaSuccessPage)
+
+      When("I click on Finish")
+      RemoveMfaSuccessPage.finish()
+
+      Then("I am successfully navigated to the Developers page")
+      on(DeveloperPage)
     }
   }
 

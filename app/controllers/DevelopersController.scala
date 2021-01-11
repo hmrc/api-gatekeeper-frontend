@@ -78,12 +78,12 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
         Ok(removeMfaSuccessView(email))
