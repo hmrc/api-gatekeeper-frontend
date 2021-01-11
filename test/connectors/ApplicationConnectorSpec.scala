@@ -18,7 +18,6 @@ package connectors
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment._
 import model._

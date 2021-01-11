@@ -24,29 +24,49 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
-
+import model.User
+import play.api.libs.json.Json
+import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import model.UserId
+import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import play.api.http.Status._
 trait ApprovedBaseSpec extends BaseSpec
-  with SignInSugar with Matchers with CustomMatchers with MockDataSugar {
+  with SignInSugar with Matchers with CustomMatchers with MockDataSugar with utils.UrlEncoding {
 
   protected def stubRateLimitTier(applicationId: String, tier: String) = {
     stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
       .withRequestBody(equalTo(s"""{"rateLimitTier":"$tier"}""".stripMargin))
-      .willReturn(aResponse().withStatus(204)))
+      .willReturn(aResponse().withStatus(NO_CONTENT)))
+  }
+
+  protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
+    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
+    implicit val format = Json.writes[GetOrCreateUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+
+    stubFor(post(urlEqualTo("/developer/user-id"))
+      .withRequestBody(equalToJson(requestJson))
+      .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
+
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(userJsonText)
+      )
+    )
   }
 
   protected def stubApplicationListAndDevelopers() = {
-    val encodedEmail = URLEncoder.encode(adminEmail, "UTF-8")
-    val encodedAdminEmails = URLEncoder.encode(s"$adminEmail,$admin2Email", "UTF-8")
     val expectedAdmins = s"""[${administrator()},${administrator(admin2Email, "Admin", "McAdmin")}]""".stripMargin
 
     stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse().withBody(approvedApplications).withStatus(200)))
+      .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
 
-    stubFor(get(urlEqualTo(s"/developer?email=$encodedEmail"))
-      .willReturn(aResponse().withBody(administrator()).withStatus(200)))
+    stubGetDeveloper(adminEmail,administrator())
 
-    stubFor(get(urlEqualTo(s"/developers?emails=$encodedAdminEmails"))
-      .willReturn(aResponse().withBody(expectedAdmins).withStatus(200)))
+    stubFor(post(urlEqualTo(s"/developers"))
+      .willReturn(aResponse().withBody(expectedAdmins).withStatus(OK)))
   }
 
   protected def assertApplicationRateLimitTier(isSuperUser: Boolean, rateLimitTier: String) = {

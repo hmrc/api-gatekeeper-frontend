@@ -17,10 +17,12 @@
 package acceptance.pages
 
 import acceptance.WebPage
+import acceptance.testdata.CommonTestData
+import acceptance.specs.MockDataSugar
 
-object DeveloperDetailsPage extends WebPage {
+object DeveloperDetailsPage extends WebPage with utils.UrlEncoding with CommonTestData {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?email=Dixie.fakename%40example.com"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?email=${encode({MockDataSugar.developer8})}"
 
   override def isCurrentPage: Boolean = {
     currentUrl == url

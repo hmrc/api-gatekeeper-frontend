@@ -25,16 +25,14 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import uk.gov.hmrc.http.HttpReads.Implicits._
+
 abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
-  val useProxy: Boolean
-  val bearerToken: String
-  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  def http: HttpClient
 
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
     http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
@@ -45,12 +43,9 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
-    http.POST[ApproveServiceRequest, HttpResponse](s"$serviceBaseUrl/service/$serviceName/approve",
+    http.POST[ApproveServiceRequest, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/service/$serviceName/approve",
       ApproveServiceRequest(serviceName), Seq("Content-Type" -> "application/json"))
-      .map(_ => ())
-      .recover {
-        case _ => throw new UpdateApiDefinitionsFailed
-      }
+      .map(_.fold(err => throw err, _ => ()))
   }
 
 }
@@ -66,17 +61,18 @@ class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
   val useProxy = appConfig.apiPublisherSandboxUseProxy
   val bearerToken = appConfig.apiPublisherSandboxBearerToken
   val apiKey = appConfig.apiPublisherSandboxApiKey
+
+  val http = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+
 }
 
 @Singleton
 class ProductionApiPublisherConnector @Inject()(val appConfig: AppConfig,
-                                                val httpClient: HttpClient,
-                                                val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+                                                val httpClient: HttpClient)(implicit val ec: ExecutionContext)
   extends ApiPublisherConnector {
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
-  val useProxy = appConfig.apiPublisherProductionUseProxy
-  val bearerToken = appConfig.apiPublisherProductionBearerToken
-  val apiKey = appConfig.apiPublisherProductionApiKey
+
+  val http = httpClient
 }

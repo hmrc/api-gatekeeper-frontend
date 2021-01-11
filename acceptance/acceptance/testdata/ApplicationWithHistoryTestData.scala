@@ -13,6 +13,6 @@ trait ApplicationWithHistoryTestData extends ApplicationResponseTestData with St
 
   implicit class ApplicationWithHistoryExtension(applicationWithHistory: ApplicationWithHistory) {
     def toJson = Json.toJson(applicationWithHistory)
-    def toJsonString = Json.toJson(applicationWithHistory).toString
+    def toJsonString = Json.stringify(Json.toJson(applicationWithHistory))
   }
 }

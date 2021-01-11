@@ -21,41 +21,38 @@ import javax.inject.{Inject, Singleton}
 import model._
 import model.APIDefinitionFormatters._
 import model.Environment.Environment
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
 
 abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
-  val useProxy: Boolean
-  val bearerToken: String
-  val apiKey: String
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  def http: HttpClient
+
+  private def for5xx(ex: Throwable): PartialFunction[Throwable,Nothing] = (err: Throwable) => err match {
+    case e: UpstreamErrorResponse if(is5xx(e.statusCode)) => throw ex 
+  }
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
+    .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
   def fetchPrivate()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition?type=private")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiDefinitionsFailed
-      }
+    .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
   def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
     http.GET[List[APICategoryDetails]](s"$serviceBaseUrl/api-categories")
-      .recover {
-        case _: Upstream5xxResponse => throw new FetchApiCategoriesFailed
-      }
+    .recover(for5xx(new FetchApiCategoriesFailed))
   }
 }
 
@@ -70,17 +67,17 @@ class SandboxApiDefinitionConnector @Inject()( val appConfig: AppConfig,
   val useProxy = appConfig.apiDefinitionSandboxUseProxy
   val bearerToken = appConfig.apiDefinitionSandboxBearerToken
   val apiKey = appConfig.apiDefinitionSandboxApiKey
+
+  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 @Singleton
 class ProductionApiDefinitionConnector @Inject()(val appConfig: AppConfig,
-                                                 val httpClient: HttpClient,
-                                                 val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+                                                 val httpClient: HttpClient)(implicit val ec: ExecutionContext)
   extends ApiDefinitionConnector {
+
+  val http: HttpClient = httpClient
 
   val environment = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiDefinitionProductionBaseUrl
-  val useProxy = appConfig.apiDefinitionProductionUseProxy
-  val bearerToken = appConfig.apiDefinitionProductionBearerToken
-  val apiKey = appConfig.apiDefinitionProductionApiKey
 }

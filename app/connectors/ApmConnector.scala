@@ -65,7 +65,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
     http.POST[AddTeamMemberRequest, HttpResponse](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
     .map(_ => ())
-    .recover(recovery)
+    .recover(recovery)  // TODO - does not work as expected
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
@@ -85,7 +85,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
       Seq( CONTENT_TYPE -> JSON )
     )
     .map { _ =>
-      ApplicationUpdateSuccessResult
+      ApplicationUpdateSuccessResult  // TODO - even for failures this is returned (see httpresponse)
     }
   }
 }

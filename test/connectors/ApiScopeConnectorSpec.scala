@@ -18,14 +18,13 @@ package connectors
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
 import config.AppConfig
 import model.Environment.Environment
 import model.{ApiScope, FetchApiDefinitionsFailed}
 import org.scalatest.Matchers
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 

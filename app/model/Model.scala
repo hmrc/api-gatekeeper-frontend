@@ -356,7 +356,7 @@ case class APIApprovalSummary(serviceName: String, name: String, description: Op
 }
 
 object APIApprovalSummary {
-  implicit val formatApiDefinitionSummary = Json.format[APIApprovalSummary]
+  implicit val format = Json.format[APIApprovalSummary]
 }
 
 case class ApproveServiceRequest(serviceName: String)

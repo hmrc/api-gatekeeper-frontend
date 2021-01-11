@@ -22,10 +22,8 @@ import model.DeveloperStatusFilter.DeveloperStatusFilter
 import model._
 import model.TopicOptionChoice.TopicOptionChoice
 import encryption._
-import play.api.http.ContentTypes.JSON
-import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import model.UserId
@@ -62,6 +60,7 @@ object DeveloperConnector {
   case class RemoveMfaRequest(removedBy: String)
   implicit val RemoveMfaRequestWrites = Json.writes[RemoveMfaRequest]
 }
+
 @Singleton
 class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
     (implicit ec: ExecutionContext) 

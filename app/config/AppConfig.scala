@@ -66,18 +66,12 @@ trait AppConfig {
   def apiPublisherSandboxBearerToken: String
   def apiPublisherSandboxApiKey: String
   def apiPublisherProductionBaseUrl: String
-  def apiPublisherProductionUseProxy: Boolean
-  def apiPublisherProductionBearerToken: String
-  def apiPublisherProductionApiKey: String
 
   def apiDefinitionSandboxBaseUrl: String
   def apiDefinitionSandboxUseProxy: Boolean
   def apiDefinitionSandboxBearerToken: String
   def apiDefinitionSandboxApiKey: String
   def apiDefinitionProductionBaseUrl: String
-  def apiDefinitionProductionUseProxy: Boolean
-  def apiDefinitionProductionBearerToken: String
-  def apiDefinitionProductionApiKey: String
 
   def gatekeeperSuccessUrl: String
 

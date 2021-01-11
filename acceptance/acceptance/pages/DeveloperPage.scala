@@ -28,7 +28,7 @@ object DeveloperPage extends WebPage {
     currentUrl == url
   }
 
-  def developerEmail(email:String) = find(linkText(email)).get
+  def developerEmail(email:String) = find(linkText(email)).getOrElse(throw new IllegalArgumentException(s"Developer email link not found for ${email}"))
 
   def previousLink = find(linkText("Previous")).get
 

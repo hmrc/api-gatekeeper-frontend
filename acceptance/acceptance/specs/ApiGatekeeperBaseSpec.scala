@@ -28,8 +28,20 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.io.Source
+import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import model.UserId
+import connectors.DeveloperConnector.GetOrCreateUserIdRequest
 
-class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AllSubscribeableApisTestData with ApiDefinitionTestData {
+class ApiGatekeeperBaseSpec 
+    extends BaseSpec 
+    with SignInSugar 
+    with Matchers 
+    with CustomMatchers 
+    with GivenWhenThen
+    with AllSubscribeableApisTestData 
+    with ApiDefinitionTestData 
+    with utils.UrlEncoding {
+
   def stubNewApplication(application: String, appId: String) = {
     stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
@@ -52,13 +64,44 @@ class ApiGatekeeperBaseSpec extends BaseSpec with SignInSugar with Matchers with
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
+    
+    stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
+
   }
 
   def stubApplicationList() = {
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
+    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))  
   }
 
+  protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
+    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
+    implicit val format = Json.writes[GetOrCreateUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+
+    stubFor(post(urlEqualTo("/developer/user-id"))
+      .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
+
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .withRequestBody(equalToJson(requestJson))
+      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(userJsonText)
+      )
+    )
+
+    // Where we still need the old email route
+    // TODO - remove this on completion of APIS-4925
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .withQueryParam("developerId", equalTo(email))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(userJsonText)
+      )
+    )
+  }
+  
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))

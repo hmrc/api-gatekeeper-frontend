@@ -16,8 +16,6 @@
 
 package connectors
 
-import java.net.URLEncoder
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify}
 import config.AppConfig
@@ -35,7 +33,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import encryption.PayloadEncryption
 import connectors.DeveloperConnector.GetOrCreateUserIdRequest
 import connectors.DeveloperConnector.RemoveMfaRequest
-
 class HttpDeveloperConnectorSpec
   extends UnitSpec
     with MockitoSugar
@@ -43,7 +40,8 @@ class HttpDeveloperConnectorSpec
     with ScalaFutures
     with WiremockSugar
     with BeforeAndAfterEach
-    with WithFakeApplication {
+    with WithFakeApplication
+    with utils.UrlEncoding {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
@@ -76,7 +74,6 @@ class HttpDeveloperConnectorSpec
     val developerEmail = "developer1@example.com"
     val developerEmailWithSpecialCharacter = "developer2+test@example.com"
 
-    def encode(str: String) = URLEncoder.encode(str, "UTF-8")
 
     def aUserResponse(email: String) = User(email, "first", "last", verified = Some(false))
 

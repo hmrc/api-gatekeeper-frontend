@@ -640,3 +640,5 @@ trait MockDataSugar {
        |]
    """.stripMargin
 }
+
+object MockDataSugar extends MockDataSugar

@@ -49,14 +49,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST[UpdateRateLimitTierRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/rate-limit-tier",
       UpdateRateLimitTierRequest(tier), Seq(CONTENT_TYPE -> JSON))
-      .map(_ => ApplicationUpdateSuccessResult)
+      .map(_ => ApplicationUpdateSuccessResult) // TODO - passes even for failures - see httpresponse
   }
 
   def approveUplift(applicationId: ApplicationId, gatekeeperUserId: String)
                    (implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
     http.POST[ApproveUpliftRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/approve-uplift",
       ApproveUpliftRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
-      .map(_ => ApproveUpliftSuccessful)
+      .map(_ => ApproveUpliftSuccessful) // TODO - passes even for failures - see httpresponse
       .recover {
         case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
@@ -66,7 +66,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
                   (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
     http.POST[RejectUpliftRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/reject-uplift",
       RejectUpliftRequest(gatekeeperUserId, rejectionReason), Seq(CONTENT_TYPE -> JSON))
-      .map(_ => RejectUpliftSuccessful)
+      .map(_ => RejectUpliftSuccessful) // TODO - passes even for failures - see httpresponse
       .recover {
         case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
@@ -76,7 +76,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     http.POST[ResendVerificationRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/resend-verification",
       ResendVerificationRequest(gatekeeperUserId), Seq(CONTENT_TYPE -> JSON))
-      .map(_ => ResendVerificationSuccessful)
+      .map(_ => ResendVerificationSuccessful) // TODO - passes even for failures - see httpresponse
       .recover {
         case e: Upstream4xxResponse if e.upstreamResponseCode == PRECONDITION_FAILED => throw new PreconditionFailed
       }
@@ -144,12 +144,12 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def updateScopes(applicationId: ApplicationId, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
     http.PUT[UpdateScopesRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/access/scopes", updateScopesRequest)
-      .map(_ => UpdateScopesSuccessResult)
+      .map(_ => UpdateScopesSuccessResult)// TODO - passes even for failures - see httpresponse
   }
 
   def updateIpAllowlist(applicationId: ApplicationId, required: Boolean, ipAllowlist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
     http.PUT[UpdateIpAllowlistRequest, HttpResponse](s"${baseApplicationUrl(applicationId)}/ipAllowlist", UpdateIpAllowlistRequest(required, ipAllowlist))
-      .map(_ => UpdateIpAllowlistSuccessResult)
+      .map(_ => UpdateIpAllowlistSuccessResult)// TODO - passes even for failures - see httpresponse
   }
 
   def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
@@ -165,7 +165,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case _ => ApplicationDeleteFailureResult
       })
       .recover {
-        case _ => ApplicationDeleteFailureResult
+        case _ => ApplicationDeleteFailureResult // TODO - no throws even for failures - see httpresponse
       }
   }
 
@@ -176,7 +176,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case _ => ApplicationBlockFailureResult
       })
       .recover {
-        case _ => ApplicationBlockFailureResult
+        case _ => ApplicationBlockFailureResult // TODO - no throws even for failures - see httpresponse
       }
   }
 
@@ -187,7 +187,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case _ => ApplicationUnblockFailureResult
       })
       .recover {
-        case _ => ApplicationUnblockFailureResult
+        case _ => ApplicationUnblockFailureResult // TODO - no throws even for failures - see httpresponse
       }
   }
 
@@ -195,6 +195,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.DELETE[HttpResponse](s"${baseApplicationUrl(applicationId)}/collaborator/${urlEncode(emailAddress)}?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}") map { _ =>
       ApplicationUpdateSuccessResult
     } recover {
+       // TODO - no throws even for failures - see httpresponse
       case e: Upstream4xxResponse if e.upstreamResponseCode == FORBIDDEN => throw new TeamMemberLastAdmin
     }
   }
