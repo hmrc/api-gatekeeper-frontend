@@ -20,7 +20,7 @@ import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model._
-import org.mockito.scalatest.MockitoSugar
+import org.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -67,6 +67,7 @@ class ApiDefinitionConnectorSpec
             .withBody(payload.toString)
           )
         )
+
       await(connector.fetchPublic()) shouldBe response
     }
 
@@ -78,6 +79,7 @@ class ApiDefinitionConnectorSpec
             .withStatus(INTERNAL_SERVER_ERROR)
           )
         )
+
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
     }
   }
@@ -95,13 +97,14 @@ class ApiDefinitionConnectorSpec
 
       stubFor(
         get(urlPathEqualTo(url))
-        .withQueryParam("type",equalTo("private"))
+        .withQueryParam("type", equalTo("private"))
         .willReturn(
           aResponse()
           .withStatus(OK)
           .withBody(payload.toString)
         )
       )
+
       await(connector.fetchPrivate()) shouldBe response
     }
 
@@ -114,6 +117,7 @@ class ApiDefinitionConnectorSpec
           .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
+
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
     }
   }
@@ -134,6 +138,7 @@ class ApiDefinitionConnectorSpec
           .withBody(payload.toString)
         )
       )
+
       await(connector.fetchAPICategories()) shouldBe response
     }
 
@@ -145,6 +150,7 @@ class ApiDefinitionConnectorSpec
           .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
+      
       intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
     }
   }

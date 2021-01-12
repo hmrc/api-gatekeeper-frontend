@@ -35,15 +35,13 @@ import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.ApiDefinitions
 import model.ApiIdentifier
 import model.ApplicationUpdateResult
-import uk.gov.hmrc.http.HttpResponse
-import play.api.http.ContentTypes.JSON
-import play.api.http.HeaderNames.CONTENT_TYPE
 import model.ApplicationUpdateSuccessResult
 import model.AddTeamMemberRequest
 import model.TeamMemberAlreadyExists
-import uk.gov.hmrc.http.Upstream4xxResponse
 import model.ApplicationNotFound
-import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import play.api.http.Status._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -58,14 +56,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   }
   
   def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val recovery: PartialFunction[Throwable, Unit] = {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
-      case e: NotFoundException => throw new ApplicationNotFound
-    }
 
-    http.POST[AddTeamMemberRequest, HttpResponse](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
-    .map(_ => ())
-    .recover(recovery)  // TODO - does not work as expected
+    http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
+    .map( _ match {
+      case Right(()) => ()
+      case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw new TeamMemberAlreadyExists
+      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw new ApplicationNotFound
+      case Left(err) => throw err
+    })
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
@@ -79,14 +77,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[ApiIdentifier, HttpResponse](
+    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](
       s"${config.serviceBaseUrl}/applications/${applicationId.value}/subscriptions?restricted=false",
-      apiIdentifier,
-      Seq( CONTENT_TYPE -> JSON )
+      apiIdentifier
     )
-    .map { _ =>
-      ApplicationUpdateSuccessResult  // TODO - even for failures this is returned (see httpresponse)
-    }
+    .map(_ match {
+      case Right(_) => ApplicationUpdateSuccessResult
+      case Left(err) => throw err
+    })
   }
 }
 

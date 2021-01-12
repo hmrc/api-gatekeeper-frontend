@@ -27,7 +27,7 @@ import play.api.http.Status._
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.WithFakeApplication
-import org.mockito.scalatest.MockitoSugar
+import org.mockito.MockitoSugar
 
 class ApiScopeConnectorSpec
   extends UnitSpec

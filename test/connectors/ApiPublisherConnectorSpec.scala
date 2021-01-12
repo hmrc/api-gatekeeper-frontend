@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model.Environment._
 import model._
-import org.mockito.scalatest.MockitoSugar
+import org.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -77,6 +77,7 @@ class ApiPublisherConnectorSpec
           .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
+
       intercept[UpstreamErrorResponse] {
         await(connector.fetchUnapproved())
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
@@ -98,6 +99,7 @@ class ApiPublisherConnectorSpec
           .withBody(Json.stringify(Json.toJson(validResponse)))
         )
       )
+
       await(connector.fetchApprovalSummary(serviceName)) shouldBe validResponse
     }
 
@@ -117,7 +119,6 @@ class ApiPublisherConnectorSpec
   }
 
   "approveService" should {
-
     val serviceName = "ServiceName" + UUID.randomUUID()
     val url = s"/service/$serviceName/approve"
     val approveServiceRequest = ApproveServiceRequest(serviceName)

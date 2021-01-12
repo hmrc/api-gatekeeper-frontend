@@ -41,7 +41,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       createdOn = createdOn,
       lastAccess = lastAccess,
       access = Standard(
-        redirectUris = Seq("https://red1", "https://red2"),
+        redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       state = ApplicationState(State.PRODUCTION),

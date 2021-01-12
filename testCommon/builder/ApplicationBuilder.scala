@@ -36,18 +36,18 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       id = appId,
       clientId = clientId,
       gatewayId = "",
-      name = s"$appId-name",
+      name = s"${appId.value}-name",
       createdOn = createdOn,
       lastAccess = lastAccess,
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
-      description = Some(s"$appId-description"),
+      description = Some(s"${appId.value}-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       state = ApplicationState(State.PRODUCTION),
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
       access = Standard(
-        redirectUris = Seq("https://red1", "https://red2"),
+        redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       checkInformation = checkInformation
