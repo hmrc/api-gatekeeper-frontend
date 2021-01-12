@@ -33,8 +33,14 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.{ExecutionContext, Future}
 import model.FieldName
 import model.FieldValue
+import uk.gov.hmrc.play.test.WithFakeApplication
 
-class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
+class SubscriptionFieldsConnectorSpec 
+    extends UnitSpec 
+    with ScalaFutures 
+    with MockitoSugar 
+    with WiremockSugar
+    with WithFakeApplication {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -62,44 +68,15 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
     val apiKey: String = UUID.randomUUID().toString
     val bearerToken: String = UUID.randomUUID().toString
+    val http = fakeApplication.injector.instanceOf[HttpClient]
     val mockHttpClient: HttpClient = mock[HttpClient]
     val mockProxiedHttpClient: ProxiedHttpClient = mock[ProxiedHttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
 
     when(mockAppConfig.subscriptionFieldsSandboxApiKey).thenReturn(apiKey)
 
-    val subscriptionFieldsConnector = new SubscriptionFieldsTestConnector(
-      useProxy = false, bearerToken = "", apiKey = "", mockHttpClient, mockProxiedHttpClient, mockAppConfig
-    )
+    val subscriptionFieldsConnector = new ProductionSubscriptionFieldsConnector(mockAppConfig, mockHttpClient)
 
-  }
-
-  trait ProxiedSetup extends Setup {
-
-    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
-
-    override val subscriptionFieldsConnector = new SubscriptionFieldsTestConnector(
-      useProxy = true, bearerToken, apiKey, mockHttpClient, mockProxiedHttpClient, mockAppConfig)
-  }
-
-  class SubscriptionFieldsTestConnector(val useProxy: Boolean,
-                                        val bearerToken: String,
-                                        val apiKey: String,
-                                        val httpClient: HttpClient,
-                                        val proxiedHttpClient: ProxiedHttpClient,
-                                        val appConfig: AppConfig)(implicit val ec: ExecutionContext)
-    extends AbstractSubscriptionFieldsConnector {
-    val serviceBaseUrl = ""
-    val environment: Environment = Environment.SANDBOX
-
-  }
-
-  private def squidProxyRelatedBadRequest = {
-    new BadRequestException(
-      "GET of 'https://api.development.tax.service.gov.uk:443/testing/api-subscription-fields/field/application/" +
-        "xxxyyyzzz/context/api-platform-test/version/7.0' returned 400 (Bad Request). Response body " +
-        "'<html>\n<head><title>400 Bad Request</title></head>\n<body bgcolor=\"white\">\n" +
-        "<center><h1>400 Bad Request</h1></center>\n<hr><center>nginx</center>\n</body>\n</html>\n'")
   }
 
   "fetchFieldsValuesWithPrefetchedDefinitions" should {
@@ -127,7 +104,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApplicationApiFieldValues](eqTo(getUrl))(*, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
       }
     }
@@ -139,15 +116,6 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
       result shouldBe Seq(subscriptionFieldValue.copy(value = FieldValue.empty))
-    }
-
-    "send the x-api-header key when retrieving subscription fields for an API" in new ProxiedSetup {
-
-      when(mockProxiedHttpClient.GET[ApplicationApiFieldValues](*)(*, *, *)).thenReturn(Future.successful(subscriptionFields))
-
-      await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
-
-      verify(mockProxiedHttpClient).withHeaders(*, eqTo(apiKey))
     }
   }
 
@@ -174,7 +142,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[AllApiFieldDefinitions](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchAllFieldDefinitions())
       }
     }
@@ -211,7 +179,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
       }
     }
@@ -248,7 +216,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(definitionsUrl))(*, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
       }
     }
@@ -260,7 +228,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.GET[ApiFieldDefinitions](eqTo(valuesUrl))(*, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
       }
     }
@@ -287,7 +255,7 @@ class SubscriptionFieldsConnectorSpec extends UnitSpec with ScalaFutures with Mo
       when(mockHttpClient.PUT[SubscriptionFieldsPutRequest, HttpResponse](*, *, *)(*, *, *, *))
         .thenReturn(Future.failed(upstream500Response))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
       }
     }

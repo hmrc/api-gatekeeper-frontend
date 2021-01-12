@@ -54,9 +54,6 @@ trait AppConfig {
   def subscriptionFieldsSandboxBearerToken: String
   def subscriptionFieldsSandboxApiKey: String
   def subscriptionFieldsProductionBaseUrl: String
-  def subscriptionFieldsProductionUseProxy: Boolean
-  def subscriptionFieldsProductionBearerToken: String
-  def subscriptionFieldsProductionApiKey: String
 
   def apiPublisherSandboxBaseUrl: String
   def apiPublisherSandboxUseProxy: Boolean
