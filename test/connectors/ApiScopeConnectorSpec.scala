@@ -16,82 +16,67 @@
 
 package connectors
 
-import java.util.UUID
-
+import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
-import model.Environment.Environment
 import model.{ApiScope, FetchApiDefinitionsFailed}
-import org.scalatest.Matchers
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import play.api.http.Status.INTERNAL_SERVER_ERROR
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
+import play.api.http.Status._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.json.Json
+import uk.gov.hmrc.play.test.WithFakeApplication
+import org.mockito.scalatest.MockitoSugar
 
-class ApiScopeConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with Matchers {
-  private val baseUrl = "https://example.com"
-  private val bearer = "TestBearerToken"
-  private val apiKeyTest = UUID.randomUUID().toString
+class ApiScopeConnectorSpec
+  extends UnitSpec
+    with MockitoSugar
+    with WiremockSugar
+    with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
-    val mockHttpClient = mock[HttpClient]
-    val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val mockEnvironment = mock[Environment]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
     val mockAppConfig: AppConfig = mock[AppConfig]
+    when(mockAppConfig.apiScopeProductionBaseUrl).thenReturn(wireMockUrl)
 
-    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
-
-    val underTest = new ApiScopeConnector() {
-      val httpClient = mockHttpClient
-      val proxiedHttpClient = mockProxiedHttpClient
-      val serviceBaseUrl = baseUrl
-      val useProxy = proxyEnabled
-      val bearerToken = bearer
-      val environment = mockEnvironment
-      val appConfig = mockAppConfig
-      val apiKey = apiKeyTest
-      implicit val ec: ExecutionContext = ExecutionContext.global
-    }
+    val connector = new ProductionApiScopeConnector(mockAppConfig, httpClient)
   }
 
   "fetchAll" should {
-
-    val scopes = Seq(ApiScope("aKey", "aName", "aDescription"))
-
+    val url = "/scope"
+    
     "fetch a sequence of API scopes" in new Setup {
+      val scopes = Seq(ApiScope("aKey", "aName", "aDescription"))
+      val payload = Json.toJson(scopes)
 
-      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *)).thenReturn(Future.successful(scopes))
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(payload.toString)
+        )
+      )
 
-      val result = await(underTest.fetchAll())
+      val result = await(connector.fetchAll())
 
       result shouldBe scopes
     }
 
     "fail to fetch a sequence of API scopes" in new Setup {
-      when(mockHttpClient.GET[Seq[ApiScope]](eqTo(s"$baseUrl/scope"))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-      intercept[FetchApiDefinitionsFailed](await(underTest.fetchAll()))
-    }
-  }
-
-  "http" when {
-    "configured not to use the proxy" should {
-      "use the HttpClient" in new Setup(proxyEnabled = false) {
-        underTest.http shouldBe mockHttpClient
-      }
-    }
-
-    "configured to use the proxy" should {
-      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
-        underTest.http shouldBe mockProxiedHttpClient
-
-        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
+      intercept[FetchApiDefinitionsFailed] {
+        await(connector.fetchAll())
       }
     }
   }

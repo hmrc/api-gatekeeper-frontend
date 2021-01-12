@@ -23,9 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model.Environment._
 import model._
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.mockito.scalatest.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -36,10 +34,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ApiPublisherConnectorSpec 
   extends UnitSpec
     with MockitoSugar
-    with ArgumentMatchersSugar
-    with ScalaFutures
     with WiremockSugar
-    with BeforeAndAfterEach
     with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {
@@ -49,7 +44,6 @@ class ApiPublisherConnectorSpec
 
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiPublisherProductionBaseUrl).thenReturn(wireMockUrl)
-    when(mockAppConfig.apiPublisherSandboxBaseUrl).thenReturn(wireMockUrl)
 
     val connector = new ProductionApiPublisherConnector(mockAppConfig, httpClient)
     val apiVersion1 = ApiVersion.random
@@ -80,7 +74,7 @@ class ApiPublisherConnectorSpec
         get(urlEqualTo(url))
         .willReturn(
           aResponse()
-          .withStatus(500)
+          .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
       intercept[UpstreamErrorResponse] {
@@ -112,7 +106,7 @@ class ApiPublisherConnectorSpec
         get(urlEqualTo(url))
         .willReturn(
           aResponse()
-          .withStatus(500)
+          .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
 

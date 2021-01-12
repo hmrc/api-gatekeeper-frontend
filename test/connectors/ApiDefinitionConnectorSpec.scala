@@ -20,9 +20,7 @@ import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model._
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.scalatest.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -33,10 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ApiDefinitionConnectorSpec
   extends UnitSpec
     with MockitoSugar
-    with ArgumentMatchersSugar
-    with ScalaFutures
     with WiremockSugar
-    with BeforeAndAfterEach
     with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {
@@ -46,7 +41,6 @@ class ApiDefinitionConnectorSpec
 
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiDefinitionProductionBaseUrl).thenReturn(wireMockUrl)
-    when(mockAppConfig.apiDefinitionSandboxBaseUrl).thenReturn(wireMockUrl)
 
     val connector = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
     val apiVersion1 = ApiVersion.random
@@ -81,7 +75,7 @@ class ApiDefinitionConnectorSpec
           get(urlEqualTo(url))
           .willReturn(
             aResponse()
-            .withStatus(500)
+            .withStatus(INTERNAL_SERVER_ERROR)
           )
         )
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
@@ -117,7 +111,7 @@ class ApiDefinitionConnectorSpec
         .withQueryParam("type",equalTo("private"))
         .willReturn(
           aResponse()
-          .withStatus(500)
+          .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
@@ -148,7 +142,7 @@ class ApiDefinitionConnectorSpec
         get(urlEqualTo(url))
         .willReturn(
           aResponse()
-          .withStatus(500)
+          .withStatus(INTERNAL_SERVER_ERROR)
         )
       )
       intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))

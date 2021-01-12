@@ -43,132 +43,137 @@ import model.ApplicationNotFound
 import model.AddTeamMemberRequest
 import model.CollaboratorRole
 
-class ApmConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures {
-    val mockHttp = mock[HttpClient] 
-    val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
+class ApmConnectorSpec 
+    extends UnitSpec 
+    with MockitoSugar 
+    with ArgumentMatchersSugar 
+    with ScalaFutures {
+  
+  val mockHttp = mock[HttpClient] 
+  val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
 
+  val applicationId = ApplicationId.random
+
+  when(mockApmConnectorConfig.serviceBaseUrl).thenReturn("https://example.com")
+
+  trait Setup extends ApplicationBuilder with ApiBuilder {
+    implicit val hc = HeaderCarrier()
+    
+    val application = buildApplication(applicationId)
+  }
+
+  val underTest = new ApmConnector(mockHttp, mockApmConnectorConfig)
+
+  "fetchApplicationById" should {
+    val url = s"${mockApmConnectorConfig.serviceBaseUrl}/applications/${applicationId.value}"
+
+    "return ApplicationWithSubscriptionData" in new Setup {
+      val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)
+
+      when(mockHttp.GET[Option[ApplicationWithSubscriptionData]](eqTo(url))(*, *, *)).thenReturn(Future.successful(Some(applicationWithSubscriptionData)))
+
+      val result = await(underTest.fetchApplicationById(applicationId))
+      result should not be None
+      result.map { appWithSubsData =>
+        appWithSubsData.application shouldBe application
+      }
+    }
+  }
+
+  "fetchAllPossibleSubscriptions" should {
+    val url = s"${mockApmConnectorConfig.serviceBaseUrl}/api-definitions"
+    
+    val queryParams = Seq(
+      ApmConnector.applicationIdQueryParam -> applicationId.value,
+      ApmConnector.restrictedQueryParam -> "false"
+    )
+    
+    "return all subscribeable API's and their ApiData" in new Setup with ApiBuilder {
+      val apiData = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
+      val apiContext = ApiContext("Api Context")
+      val apiContextAndApiData = Map(apiContext -> apiData)
+
+      when(mockHttp.GET[Map[ApiContext, ApiData]](eqTo(url), eqTo(queryParams))(*, *, *)).thenReturn(Future.successful(apiContextAndApiData))
+
+      val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
+      result(apiContext).name shouldBe "API Name" 
+    }
+  }
+
+  "subscribeToApi" should {
     val applicationId = ApplicationId.random
+    val apiContext = ApiContext.random
+    val apiVersion = ApiVersion.random
+    val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
+    val url = s"https://example.com/applications/${applicationId.value}/subscriptions?restricted=false"
 
-    when(mockApmConnectorConfig.serviceBaseUrl).thenReturn("https://example.com")
+    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
+      when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+        .thenReturn(Future.successful(HttpResponse(CREATED))) 
 
-    trait Setup extends ApplicationBuilder with ApiBuilder {
-        implicit val hc = HeaderCarrier()
-        
-        val application = buildApplication(applicationId)
+      val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
+
+      result shouldBe ApplicationUpdateSuccessResult
     }
 
-    val underTest = new ApmConnector(mockHttp, mockApmConnectorConfig)
+    "fail if the request failed on the backend" in new Setup {
+      when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
+        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
-    "fetchApplicationById" should {
-        val url = s"${mockApmConnectorConfig.serviceBaseUrl}/applications/${applicationId.value}"
+      intercept[Upstream5xxResponse] {
+        await(underTest.subscribeToApi(applicationId, apiIdentifier))
+      }
+    }
+  }
 
-        "return ApplicationWithSubscriptionData" in new Setup {
-            val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)
+  "addTeamMember" should {
+    val applicationId = ApplicationId.random
+    val url = s"${mockApmConnectorConfig.serviceBaseUrl}/applications/${applicationId.value}/collaborators"
+    val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", CollaboratorRole.DEVELOPER, None)
 
-            when(mockHttp.GET[Option[ApplicationWithSubscriptionData]](eqTo(url))(*, *, *)).thenReturn(Future.successful(Some(applicationWithSubscriptionData)))
+    "post the team member to the service" in new Setup {
+      when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](*, *, *)(*, *, *, *))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
-            val result = await(underTest.fetchApplicationById(applicationId))
-            result should not be None
-            result.map { appWithSubsData =>
-                appWithSubsData.application shouldBe application
-            }
-        }
+      await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+
+      verify(mockHttp).POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *)
     }
 
-    "fetchAllPossibleSubscriptions" should {
-        val url = s"${mockApmConnectorConfig.serviceBaseUrl}/api-definitions"
-        
-        val queryParams = Seq(
-            ApmConnector.applicationIdQueryParam -> applicationId.value,
-            ApmConnector.restrictedQueryParam -> "false"
-        )
-        
-        "return all subscribeable API's and their ApiData" in new Setup with ApiBuilder {
-            val apiData = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
-            val apiContext = ApiContext("Api Context")
-            val apiContextAndApiData = Map(apiContext -> apiData)
+    "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
+      when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+        .thenReturn(Future.successful(HttpResponse(OK)))
 
-            when(mockHttp.GET[Map[ApiContext, ApiData]](eqTo(url), eqTo(queryParams))(*, *, *)).thenReturn(Future.successful(apiContextAndApiData))
+      val result = await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
 
-            val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-            result(apiContext).name shouldBe "API Name" 
-        }
+      result shouldBe(())
     }
 
-    "subscribeToApi" should {
-        val applicationId = ApplicationId.random
-        val apiContext = ApiContext.random
-        val apiVersion = ApiVersion.random
-        val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
-        val url = s"https://example.com/applications/${applicationId.value}/subscriptions?restricted=false"
+    "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
+      when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+        .thenReturn(Future.failed(Upstream4xxResponse("Conflict", CONFLICT, CONFLICT)))
 
-        "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-            when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
-                .thenReturn(Future.successful(HttpResponse(CREATED))) 
-
-            val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
-
-            result shouldBe ApplicationUpdateSuccessResult
-        }
-
-        "fail if the request failed on the backend" in new Setup {
-            when(mockHttp.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiIdentifier), *)(*, *, *, *))
-                .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-            intercept[Upstream5xxResponse] {
-                await(underTest.subscribeToApi(applicationId, apiIdentifier))
-            }
-        }
+      intercept[TeamMemberAlreadyExists] {
+        await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+      }
     }
 
-    "addTeamMember" should {
-        val applicationId = ApplicationId.random
-        val url = s"${mockApmConnectorConfig.serviceBaseUrl}/applications/${applicationId.value}/collaborators"
-        val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", CollaboratorRole.DEVELOPER, None)
+    "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
+      when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+        .thenReturn(Future.failed(new NotFoundException("Not Found")))
 
-        "post the team member to the service" in new Setup {
-            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](*, *, *)(*, *, *, *))
-                .thenReturn(Future.successful(HttpResponse(OK)))
-
-            await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
-
-            verify(mockHttp).POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *)
-        }
-
-        "return ApplicationUpdateSuccessResult when the call is successful" in new Setup {
-            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-                .thenReturn(Future.successful(HttpResponse(OK)))
-
-            val result = await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
-
-            result shouldBe(())
-        }
-
-        "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
-            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-                .thenReturn(Future.failed(Upstream4xxResponse("Conflict", CONFLICT, CONFLICT)))
-
-            intercept[TeamMemberAlreadyExists] {
-                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
-            }
-        }
-
-        "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
-            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-                .thenReturn(Future.failed(new NotFoundException("Not Found")))
-
-            intercept[ApplicationNotFound] {
-                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
-            }
-        }
-
-        "throw the error when the service returns any other error" in new Setup {
-            when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
-                .thenReturn(Future.failed( Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-            intercept[Upstream5xxResponse] {
-                await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
-            }
-        }
+      intercept[ApplicationNotFound] {
+        await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+      }
     }
+
+    "throw the error when the service returns any other error" in new Setup {
+      when(mockHttp.POST[AddTeamMemberRequest, HttpResponse](eqTo(url), eqTo(addTeamMemberRequest), *)(*, *, *, *))
+        .thenReturn(Future.failed( Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+      }
+    }
+  }
 }

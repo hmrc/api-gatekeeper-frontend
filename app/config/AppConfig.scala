@@ -35,9 +35,6 @@ trait AppConfig {
   def apiScopeSandboxBearerToken: String
   def apiScopeSandboxApiKey: String
   def apiScopeProductionBaseUrl: String
-  def apiScopeProductionUseProxy: Boolean
-  def apiScopeProductionBearerToken: String
-  def apiScopeProductionApiKey: String
 
   def applicationSandboxBaseUrl: String
   def applicationSandboxUseProxy: Boolean
