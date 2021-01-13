@@ -25,7 +25,7 @@ case object NoSubscriptions extends ApiFilter[Nothing]
 case object OneOrMoreSubscriptions extends ApiFilter[Nothing]
 case object AllUsers extends ApiFilter[Nothing]
 
-case object ApiFilter extends ApiFilter[String] {
+case object ApiFilter {
   private val ApiIdPattern = """^(.+)__(.+?)$""".r
   def apply(value: Option[String]): ApiFilter[String] = {
     value match {
@@ -45,7 +45,7 @@ case object UnverifiedStatus extends StatusFilter
 case object VerifiedStatus extends StatusFilter
 case object AnyStatus extends StatusFilter
 
-case object StatusFilter extends StatusFilter {
+case object StatusFilter {
   def apply(value: Option[String]): StatusFilter = {
     value match {
       case Some("UNREGISTERED") => UnregisteredStatus
@@ -61,7 +61,7 @@ case object AnyEnvironment extends ApiSubscriptionInEnvironmentFilter
 case object ProductionEnvironment extends ApiSubscriptionInEnvironmentFilter
 case object SandboxEnvironment extends ApiSubscriptionInEnvironmentFilter
 
-case object ApiSubscriptionInEnvironmentFilter extends ApiSubscriptionInEnvironmentFilter {
+case object ApiSubscriptionInEnvironmentFilter {
   def apply(value: Option[String]): ApiSubscriptionInEnvironmentFilter = value match {
     case Some("PRODUCTION") => ProductionEnvironment
     case Some("SANDBOX") => SandboxEnvironment

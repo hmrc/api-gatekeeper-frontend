@@ -140,6 +140,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
+      case _: Standard => Future.successful(UpdateScopesInvalidScopesResult) 
     }
   }
 

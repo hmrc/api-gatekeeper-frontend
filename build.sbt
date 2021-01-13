@@ -89,6 +89,7 @@ lazy val microservice =  (project in file("."))
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
+  .settings(SilencerSettings(): _*)
   .settings(
     targetJvm := "jvm-1.8",
     scalaVersion := "2.12.11",

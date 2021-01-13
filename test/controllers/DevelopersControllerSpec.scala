@@ -18,7 +18,6 @@ package controllers
 
 import model._
 import org.joda.time.DateTime
-import org.mockito.BDDMockito._
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -86,24 +85,24 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        given(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).willReturn(successful(apps))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
-        given(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).willReturn(developers)
-        given(mockDeveloperService.filterUsersBy(statusFilter)(developers)).willReturn(developers)
-        given(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))(*)).willReturn(developers)
-        given(mockDeveloperService.fetchUsers(*)).willReturn(successful(users))
+        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
+        when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
+        when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
+        when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
+        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
       }
 
       def givenFetchDeveloperReturns(developer: Developer) = {
-        given(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).willReturn(successful(developer))
+        when(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).thenReturn(successful(developer))
       }
 
       def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        given(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).willReturn(successful(result))
+        when(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).thenReturn(successful(result))
       }
 
       def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
-        given(mockDeveloperService.removeMfa(any[String], any[String])(*)).willReturn(user)
+        when(mockDeveloperService.removeMfa(any[String], any[String])(*)).thenReturn(user)
       }
     }
 

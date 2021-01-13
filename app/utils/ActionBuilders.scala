@@ -35,6 +35,14 @@ trait ActionBuilders extends ErrorHelper {
     applicationService.fetchApplication(appId).flatMap(f)
   }
   
+  def withStandardApp(appId: ApplicationId)(f: (ApplicationWithHistory, Standard) => Future[Result])
+             (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    applicationService.fetchApplication(appId).flatMap(appWithHistory => appWithHistory.application.access match {
+      case access : Standard => f(appWithHistory, access)
+      case _ => Future.successful(badRequest("Application must have standard access for this call"))
+    })
+  }
+
   def withAppAndSubsData(appId: ApplicationId)(f: ApplicationWithSubscriptionData => Future[Result])
              (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {

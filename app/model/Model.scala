@@ -225,7 +225,6 @@ object UpdateScopesRequest {
 
 sealed trait UpdateScopesResult
 case object UpdateScopesSuccessResult extends UpdateScopesResult
-case object UpdateScopesFailureResult extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
 case class UpdateIpAllowlistRequest(required: Boolean, allowlist: Set[String])

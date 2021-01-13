@@ -18,7 +18,7 @@ package utils
 
 import play.api.i18n.MessagesProvider
 import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.{InternalServerError, NotFound}
+import play.api.mvc.Results.{BadRequest, InternalServerError, NotFound}
 import views.html.ErrorTemplate
 
 trait ErrorHelper {
@@ -31,5 +31,9 @@ trait ErrorHelper {
 
   def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
     NotFound(errorTemplate("Not found", "404 - Not found", errors))
+  }
+
+  def badRequest(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+    BadRequest(errorTemplate("Bad request", "400 - Bad request", errors))
   }
 }
