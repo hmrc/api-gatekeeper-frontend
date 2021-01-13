@@ -41,9 +41,6 @@ trait AppConfig {
   def applicationSandboxBearerToken: String
   def applicationSandboxApiKey: String
   def applicationProductionBaseUrl: String
-  def applicationProductionUseProxy: Boolean
-  def applicationProductionBearerToken: String
-  def applicationProductionApiKey: String
 
   def authBaseUrl: String
   def strideLoginUrl: String

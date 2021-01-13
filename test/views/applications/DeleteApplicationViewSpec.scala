@@ -50,7 +50,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         ApplicationState()
       )
 
-    val applicationWithHistory = ApplicationWithHistory(application, Seq.empty)
+    val applicationWithHistory = ApplicationWithHistory(application, List.empty)
   }
 
   "delete application view" should {

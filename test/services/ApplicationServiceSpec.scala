@@ -68,7 +68,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       ApplicationId.random, ClientId("clientid3"), "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
     val ropcApp = ApplicationResponse(
       ApplicationId.random, ClientId("clientid4"), "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
-    val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
+    val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)

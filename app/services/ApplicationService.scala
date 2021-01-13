@@ -39,7 +39,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
-  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[StateHistory]] = {
+  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
     productionApplicationConnector.fetchStateHistory(applicationId).recoverWith {
       case _: NotFoundException => sandboxApplicationConnector.fetchStateHistory(applicationId)
     }

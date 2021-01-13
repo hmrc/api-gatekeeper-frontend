@@ -55,17 +55,17 @@ object GatekeeperSessionKeys {
 }
 
 case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory,
-                                                               subscriptionsWithFieldDefinitions: Seq[Subscription])
+                                                               subscriptionsWithFieldDefinitions: List[Subscription])
 
 case class ApplicationAndSubscriptionVersion( application: ApplicationWithHistory,
                                               subscription: Subscription,
                                               version: VersionSubscription)
 
-case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: Seq[Subscription])
+case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: List[Subscription])
 
-case class ApplicationWithHistory(application: ApplicationResponse, history: Seq[StateHistory])
+case class ApplicationWithHistory(application: ApplicationResponse, history: List[StateHistory])
 
-case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: Seq[StateHistory])
+case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
 object ApiDefinitions {
   type Alias = Map[ApiContext,Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]

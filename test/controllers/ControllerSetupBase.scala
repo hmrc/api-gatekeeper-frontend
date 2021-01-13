@@ -51,7 +51,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
     DateTime.now(),
     Standard(),
     ApplicationState())
-  val application = ApplicationWithHistory(basicApplication, Seq.empty)
+  val application = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId = application.application.id
 
   val userName = "userName"

@@ -28,7 +28,7 @@ class ApplicationReviewSpec extends UnitSpec with ApplicationResponseBuilder {
     "application is approved" should {
       val now = DateTimeUtils.now
       val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
-      val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
+      val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
       val appResponse = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {

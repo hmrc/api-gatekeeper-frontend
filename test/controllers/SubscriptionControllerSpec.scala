@@ -52,13 +52,13 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), Seq.empty)
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), List.empty)
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), Seq.empty)
+        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), List.empty)
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), Seq.empty)
+        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
 
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]

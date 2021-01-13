@@ -84,13 +84,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), Seq.empty)
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), List.empty)
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), Seq.empty)
+        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), List.empty)
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), Seq.empty)
+        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
 
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -1102,7 +1102,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
 
         fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
-        fetchStateHistoryReturns(Seq(buildStateHistory(application2.id, State.PRODUCTION)))
+        fetchStateHistoryReturns(List(buildStateHistory(application2.id, State.PRODUCTION)))
 
         given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
           .willReturn(developers)

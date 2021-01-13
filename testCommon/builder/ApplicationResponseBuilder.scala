@@ -57,7 +57,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val DefaultApplicationResponse = buildApplicationResponse()
 
   def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(),
-                               stateHistories: Seq[StateHistory] = Seq.empty): ApplicationWithHistory = {
+                               stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 

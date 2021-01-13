@@ -32,7 +32,7 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
       .willReturn(Future.successful(returns))
   }
 
-  def fetchStateHistoryReturns(returns: Seq[StateHistory]) = {
+  def fetchStateHistoryReturns(returns: List[StateHistory]) = {
     given(mockApplicationService.fetchStateHistory(*[ApplicationId])(*))
       .willReturn(Future.successful(returns))
   }

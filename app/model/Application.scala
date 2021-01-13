@@ -103,7 +103,7 @@ sealed trait AccessWithRestrictedScopes extends Access {
   val scopes: Set[String]
 }
 
-case class Standard(redirectUris: Seq[String] = Seq.empty,
+case class Standard(redirectUris: List[String] = List.empty,
                     termsAndConditionsUrl: Option[String] = None,
                     privacyPolicyUrl: Option[String] = None,
                     overrides: Set[OverrideFlag] = Set.empty) extends Access {
