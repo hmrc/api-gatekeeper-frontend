@@ -70,9 +70,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
   import DeveloperConnector._
 
   def getOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[UserId] = {
-    http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"${appConfig.developerBaseUrl}/developer/user-id", GetOrCreateUserIdRequest(email)).map(_.userId)
+    http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"${appConfig.developerBaseUrl}/developers/user-id", GetOrCreateUserIdRequest(email)).map(_.userId)
   }
-  
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
     for {

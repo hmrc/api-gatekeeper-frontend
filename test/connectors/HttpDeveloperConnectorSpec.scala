@@ -61,7 +61,7 @@ class HttpDeveloperConnectorSpec
     implicit val writer = Json.writes[GetOrCreateUserIdResponse]
 
     stubFor(
-      post(urlEqualTo("/developer/user-id")).withRequestBody(equalToJson(payload))
+      post(urlEqualTo("/developers/user-id")).withRequestBody(equalToJson(payload))
       .willReturn(
         aResponse()
         .withStatus(OK)

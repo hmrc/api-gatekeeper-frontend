@@ -125,7 +125,7 @@ class ApiGatekeeperDeveloperDetailsSpec
     implicit val format = Json.writes[GetOrCreateUserIdResponse]
     val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
     
-    stubFor(post(urlEqualTo("/developer/user-id"))
+    stubFor(post(urlEqualTo("/developers/user-id"))
       .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 
