@@ -520,18 +520,16 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(ropcApplication)
 
-        intercept[RuntimeException] {
-          await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
-        }
+        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        status(result) shouldBe BAD_REQUEST
       }
 
       "return an error for a Privileged app" in new Setup {
         givenTheUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(privilegedApplication)
 
-        intercept[RuntimeException] {
-          await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
-        }
+        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        status(result) shouldBe BAD_REQUEST
       }
 
       "return forbidden for a non-super user" in new Setup {

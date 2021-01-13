@@ -355,9 +355,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "fail when called for an app with Standard access" in new Setup {
-      intercept[RuntimeException] {
-        await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
-      }
+      val result = await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
+
+      result shouldBe UpdateScopesInvalidScopesResult
 
       verify(mockProductionApplicationConnector, never).updateScopes(*[ApplicationId], *)(*)
     }

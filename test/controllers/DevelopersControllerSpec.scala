@@ -101,7 +101,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         when(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).thenReturn(successful(result))
       }
 
-      def givenRemoveMfaReturns(user: Future[User]): BDDMyOngoingStubbing[Future[User]] = {
+      def givenRemoveMfaReturns(user: Future[User]) = {
         when(mockDeveloperService.removeMfa(any[String], any[String])(*)).thenReturn(user)
       }
     }
