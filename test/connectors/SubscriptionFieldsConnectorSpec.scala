@@ -58,7 +58,7 @@ class SubscriptionFieldsConnectorSpec
   private val fieldsId = UUID.randomUUID()
   private val urlPrefix = "/field"
 
-  def subscriptionFieldsBaseUrl(clientId: ClientId) = s"$urlPrefix/application/${clientId.value}"
+  def subscriptionFieldsBaseUrl(clientId: ClientId) = s"$urlPrefix/application/${clientId.urlEncode}"
 
   trait Setup {
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
@@ -78,7 +78,7 @@ class SubscriptionFieldsConnectorSpec
 
     val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
 
-    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.value}/version/${apiVersion.value}"
+    val getUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
     "return subscription fields for an API" in new Setup {
       val payload = Json.toJson(subscriptionFields).toString
@@ -178,7 +178,7 @@ class SubscriptionFieldsConnectorSpec
   }
 
   "fetchFieldDefinitions" should {
-    val url = s"/definition/context/${apiContext.value}/version/${apiVersion.value}"
+    val url = s"/definition/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
     val expectedDefinitions = List(expectedSubscriptionDefinition)
 
@@ -215,8 +215,8 @@ class SubscriptionFieldsConnectorSpec
   }
 
   "fetchFieldValues" should {
-    val definitionsUrl = s"/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
-    val valuesUrl = s"/field/application/${clientId.value}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
+    val definitionsUrl = s"/definition/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
+    val valuesUrl = s"/field/application/${clientId.urlEncode}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
     val validDefinitionsResponse = Json.toJson(ApiFieldDefinitions(apiContext, apiVersion, definitionsFromRestService)).toString
 
@@ -291,7 +291,7 @@ class SubscriptionFieldsConnectorSpec
     val fieldsValues = fields(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     val subFieldsPutRequest = Json.toJson(SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)).toString
 
-    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
+    val putUrl = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
     "save the fields" in new Setup {
       stubFor(
@@ -338,7 +338,7 @@ class SubscriptionFieldsConnectorSpec
 
   "deleteFieldValues" should {
 
-    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
+    val url = s"${subscriptionFieldsBaseUrl(clientId)}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
     "return success after delete call has returned 204 NO CONTENT" in new Setup {
       stubFor(
