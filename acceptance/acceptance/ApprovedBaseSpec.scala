@@ -16,15 +16,12 @@
 
 package acceptance
 
-import java.net.URLEncoder
-
 import acceptance.matchers.CustomMatchers
 import acceptance.specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
-import model.User
 import play.api.libs.json.Json
 import connectors.DeveloperConnector.GetOrCreateUserIdRequest
 import model.UserId

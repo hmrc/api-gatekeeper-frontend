@@ -16,13 +16,14 @@
 
 package mocks.service
 
-import model.{Application, ApplicationId, ApplicationWithHistory, Subscription}
 import org.mockito.BDDMockito.`given`
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
 
 import scala.concurrent.Future
 import model.StateHistory
+import model.ApplicationWithHistory
+import model.ApplicationId
 
 trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]

@@ -154,8 +154,6 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
     }
 
     "manageSubscription" when {
-      val apiContext = ApiContext.random
-
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 

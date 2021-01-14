@@ -19,7 +19,7 @@ package utils
 import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
-import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
+import model.{ ApiVersion, LoggedInRequest, VersionSubscription}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
