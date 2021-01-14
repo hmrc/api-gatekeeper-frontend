@@ -24,7 +24,7 @@ class ApplicationSubmissionSpec extends UnitSpec with ApplicationResponseBuilder
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {
-        val app = anApplicationWithHistory(stateHistories = Seq(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
+        val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
         ApplicationSubmission.getSubmittedBy(app.history) shouldBe Some("actor id")
       }
       "is not present" in {

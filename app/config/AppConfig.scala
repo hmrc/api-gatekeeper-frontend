@@ -35,18 +35,12 @@ trait AppConfig {
   def apiScopeSandboxBearerToken: String
   def apiScopeSandboxApiKey: String
   def apiScopeProductionBaseUrl: String
-  def apiScopeProductionUseProxy: Boolean
-  def apiScopeProductionBearerToken: String
-  def apiScopeProductionApiKey: String
 
   def applicationSandboxBaseUrl: String
   def applicationSandboxUseProxy: Boolean
   def applicationSandboxBearerToken: String
   def applicationSandboxApiKey: String
   def applicationProductionBaseUrl: String
-  def applicationProductionUseProxy: Boolean
-  def applicationProductionBearerToken: String
-  def applicationProductionApiKey: String
 
   def authBaseUrl: String
   def strideLoginUrl: String
@@ -57,27 +51,18 @@ trait AppConfig {
   def subscriptionFieldsSandboxBearerToken: String
   def subscriptionFieldsSandboxApiKey: String
   def subscriptionFieldsProductionBaseUrl: String
-  def subscriptionFieldsProductionUseProxy: Boolean
-  def subscriptionFieldsProductionBearerToken: String
-  def subscriptionFieldsProductionApiKey: String
 
   def apiPublisherSandboxBaseUrl: String
   def apiPublisherSandboxUseProxy: Boolean
   def apiPublisherSandboxBearerToken: String
   def apiPublisherSandboxApiKey: String
   def apiPublisherProductionBaseUrl: String
-  def apiPublisherProductionUseProxy: Boolean
-  def apiPublisherProductionBearerToken: String
-  def apiPublisherProductionApiKey: String
 
   def apiDefinitionSandboxBaseUrl: String
   def apiDefinitionSandboxUseProxy: Boolean
   def apiDefinitionSandboxBearerToken: String
   def apiDefinitionSandboxApiKey: String
   def apiDefinitionProductionBaseUrl: String
-  def apiDefinitionProductionUseProxy: Boolean
-  def apiDefinitionProductionBearerToken: String
-  def apiDefinitionProductionApiKey: String
 
   def gatekeeperSuccessUrl: String
 

@@ -159,11 +159,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   def manageAccessOverrides(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-        withApp(appId) { app =>
-          app.application.access match {
-            case access: Standard =>
-              Future.successful(Ok(manageAccessOverridesView(app.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
-          }
+        withStandardApp(appId) { (appWithHistory, access) =>
+          Future.successful(Ok(manageAccessOverridesView(appWithHistory.application, accessOverridesForm.fill(access.overrides), isAtLeastSuperUser)))
         }
   }
 
@@ -539,6 +536,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           applicationService.updateRateLimitTier(app.application, newTier) map {
             case ApplicationUpdateSuccessResult =>
               result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+            case _ =>
+              result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
           }
         } else {
           Future.successful(result)
@@ -568,14 +567,14 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
           def handleFormWithValidName: Future[Result] =
             form.accessType.flatMap(AccessType.from) match {
-              case Some(accessType) => {
+              case Some(accessType) =>
                 val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
 
                 applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
                   val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
                   Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
                 }
-              }
+              case None => Future.successful(badRequest("Cannot invoke this without a defined access type"))
             }
 
           def handleFormWithInvalidName: Future[Result] = {

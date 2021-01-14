@@ -109,7 +109,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     case SandboxEnvironment => users
   }
 
-  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User])(implicit hc: HeaderCarrier): Seq[Developer] = {
+  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User]): Seq[Developer] = {
 
     def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(c => c.emailAddress == user.email).isDefined
 

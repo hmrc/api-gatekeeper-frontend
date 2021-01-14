@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package connectors
+package utils
 
-import play.api.http.Status.BAD_REQUEST
-import uk.gov.hmrc.http.{HttpErrorFunctions, HttpReads, HttpResponse}
+import java.net.URLEncoder
 
-object CustomResponseHandlers extends HttpErrorFunctions {
-  implicit val permissiveBadRequestResponseHandler: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
-    override def read(method: String, url: String, response: HttpResponse): HttpResponse = {
-      response.status match {
-        case BAD_REQUEST => response
-        case _ => handleResponse(method, url)(response)
-      }
-    }
-  }
+trait UrlEncoding {
+  
+  def encode(str: String) = URLEncoder.encode(str, "UTF-8")
 }

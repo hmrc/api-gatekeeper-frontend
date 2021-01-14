@@ -17,7 +17,7 @@
 package services
 
 import connectors._
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model.SubscriptionFields._
 import model.{ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
 import org.scalatest.concurrent.ScalaFutures
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}

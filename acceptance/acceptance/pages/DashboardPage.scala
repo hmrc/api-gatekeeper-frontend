@@ -17,7 +17,6 @@
 package acceptance.pages
 
 import acceptance.WebPage
-import org.openqa.selenium.By
 
 object DashboardPage extends WebPage {
 

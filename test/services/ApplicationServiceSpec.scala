@@ -23,15 +23,17 @@ import model._
 import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
 import org.mockito.BDDMockito._
+import play.api.http.Status.NOT_FOUND
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import model.applications.NewApplication
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ResetMocksAfterEachTest {
 
@@ -68,7 +70,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       ApplicationId.random, ClientId("clientid3"), "gatewayId3", "application3", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Privileged(), ApplicationState())
     val ropcApp = ApplicationResponse(
       ApplicationId.random, ClientId("clientid4"), "gatewayId4", "application4", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Ropc(), ApplicationState())
-    val applicationWithHistory = ApplicationWithHistory(stdApp1, Seq.empty)
+    val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId = "loggedin.gatekeeper"
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
@@ -244,7 +246,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockProductionApplicationConnector.fetchApplication(*[ApplicationId])(*))
         .willReturn(Future.successful(applicationWithHistory))
       given(mockSandboxApplicationConnector.fetchApplication(*[ApplicationId])(*))
-        .willReturn(Future.failed(new NotFoundException("Not Found")))
+        .willReturn(Future.failed(UpstreamErrorResponse("Not Found",NOT_FOUND)))
 
       val result = await(underTest.fetchApplication(stdApp1.id))
 
@@ -256,7 +258,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "return the the app in sandbox when not found in production" in new Setup {
       given(mockProductionApplicationConnector.fetchApplication(*[ApplicationId])(*))
-        .willReturn(Future.failed(new NotFoundException("Not Found")))
+        .willReturn(Future.failed(UpstreamErrorResponse("Not Found",NOT_FOUND)))
       given(mockSandboxApplicationConnector.fetchApplication(*[ApplicationId])(*))
         .willReturn(Future.successful(applicationWithHistory))
 
@@ -355,9 +357,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "fail when called for an app with Standard access" in new Setup {
-      intercept[RuntimeException] {
-        await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
-      }
+      val result = await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
+
+      result shouldBe UpdateScopesInvalidScopesResult
 
       verify(mockProductionApplicationConnector, never).updateScopes(*[ApplicationId], *)(*)
     }
@@ -379,9 +381,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "propagate connector errors" in new Setup {
       given(mockProductionApplicationConnector.updateIpAllowlist(*[ApplicationId], *, *)(*))
-        .willReturn(Future.failed(Upstream5xxResponse("Error", 500, 500)))
+        .willReturn(Future.failed(UpstreamErrorResponse("Error", 500)))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(underTest.manageIpAllowlist(stdApp1, false, Set("192.168.1.0/24")))
       }
     }

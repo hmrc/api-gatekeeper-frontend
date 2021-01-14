@@ -22,7 +22,13 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status._
 
-class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
+class ApiGatekeeperApplicationReviewSpec
+    extends ApiGatekeeperBaseSpec 
+    with StateHistoryTestData 
+    with ApplicationWithSubscriptionDataTestData 
+    with ApplicationResponseTestData 
+    with ApplicationWithHistoryTestData
+    with utils.UrlEncoding {
 
   val developers = List[User](new User("holly.golightly@example.com", "holly", "golightly", None, None, false))
 
@@ -44,6 +50,7 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with Stat
 
   feature("Approve a request to uplift an application") {
     scenario("I see the review page and I am able to approve the uplift request") {
+      
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
 
@@ -153,6 +160,6 @@ class ApiGatekeeperApplicationReviewSpec extends ApiGatekeeperBaseSpec with Stat
   }
 
   def stubApplicationToReview(developers: List[User]) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$pendingApprovalApplicationId")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$pendingApprovalApplicationId")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
   }
 }

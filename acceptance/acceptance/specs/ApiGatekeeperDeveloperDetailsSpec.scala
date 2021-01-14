@@ -24,10 +24,21 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-
 import scala.io.Source
+import play.api.libs.json.Json
+import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import connectors.DeveloperConnector.GetOrCreateUserIdResponse
 
-class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with StateHistoryTestData with Assertions with CommonTestData  with ApiDefinitionTestData with MockDataSugar {
+class ApiGatekeeperDeveloperDetailsSpec 
+    extends ApiGatekeeperBaseSpec 
+    with ApplicationWithSubscriptionDataTestData 
+    with ApplicationResponseTestData 
+    with StateHistoryTestData 
+    with Assertions 
+    with CommonTestData 
+    with ApiDefinitionTestData 
+    with MockDataSugar 
+    with utils.UrlEncoding {
 
   val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
 
@@ -69,8 +80,8 @@ class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with Appli
       on(DeveloperDetailsPage)
 
       And("I can see the developer's details and associated applications")
-      assert(DeveloperDetailsPage.firstName == s"${unverifiedUser.firstName}")
-      assert(DeveloperDetailsPage.lastName == s"${unverifiedUser.lastName}")
+      assert(DeveloperDetailsPage.firstName == unverifiedUser.firstName)
+      assert(DeveloperDetailsPage.lastName == unverifiedUser.lastName)
       assert(DeveloperDetailsPage.status == "not yet verified")
       assert(DeveloperDetailsPage.mfaEnabled == "Yes")
 
@@ -109,10 +120,22 @@ class ApiGatekeeperDeveloperDetailsSpec extends ApiGatekeeperBaseSpec with Appli
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
-    stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(unverifiedUserJson)))
+    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(unverifiedUser.email)))
+    implicit val format = Json.writes[GetOrCreateUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    
+    stubFor(post(urlEqualTo("/developers/user-id"))
+      .withRequestBody(equalToJson(requestJson))
+      .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
+
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(unverifiedUserJson)
+      )
+    )
   }
 }
 

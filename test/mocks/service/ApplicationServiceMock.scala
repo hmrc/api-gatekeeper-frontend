@@ -16,13 +16,14 @@
 
 package mocks.service
 
-import model.{Application, ApplicationId, ApplicationWithHistory, Subscription}
 import org.mockito.BDDMockito.`given`
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
 
 import scala.concurrent.Future
 import model.StateHistory
+import model.ApplicationWithHistory
+import model.ApplicationId
 
 trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApplicationService = mock[ApplicationService]
@@ -32,7 +33,7 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar {
       .willReturn(Future.successful(returns))
   }
 
-  def fetchStateHistoryReturns(returns: Seq[StateHistory]) = {
+  def fetchStateHistoryReturns(returns: List[StateHistory]) = {
     given(mockApplicationService.fetchStateHistory(*[ApplicationId])(*))
       .willReturn(Future.successful(returns))
   }

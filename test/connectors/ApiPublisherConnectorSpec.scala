@@ -18,132 +18,137 @@ package connectors
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
+import play.api.libs.json.Json
+import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model.Environment._
 import model._
-import org.scalatest.BeforeAndAfterEach
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
 
-class ApiPublisherConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with BeforeAndAfterEach {
-  private val baseUrl = "https://example.com"
-  private val environmentName = "ENVIRONMENT"
-  private val bearer = "TestBearerToken"
-  private val apiKeyTest = UUID.randomUUID().toString
-
-  implicit val hc = HeaderCarrier()
+class ApiPublisherConnectorSpec 
+  extends UnitSpec
+    with MockitoSugar
+    with WiremockSugar
+    with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {
-    val mockHttpClient = mock[HttpClient]
-    val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val mockEnvironment = mock[Environment]
+    implicit val hc = HeaderCarrier()
+
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
     val mockAppConfig: AppConfig = mock[AppConfig]
+    when(mockAppConfig.apiPublisherProductionBaseUrl).thenReturn(wireMockUrl)
 
-    when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
-
-    val underTest = new ApiPublisherConnector {
-      val httpClient = mockHttpClient
-      val proxiedHttpClient = mockProxiedHttpClient
-      val serviceBaseUrl = baseUrl
-      val useProxy = proxyEnabled
-      val bearerToken = bearer
-      val environment = mockEnvironment
-      val appConfig = mockAppConfig
-      val apiKey = apiKeyTest
-      implicit val ec: ExecutionContext = ExecutionContext.global
-    }
+    val connector = new ProductionApiPublisherConnector(mockAppConfig, httpClient)
+    val apiVersion1 = ApiVersion.random
   }
 
   "fetchUnapproved" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = s"$baseUrl/services/unapproved"
+    val url = "/services/unapproved"
 
     "return unapproved API approval summaries" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(mockEnvironment)))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(PRODUCTION)))
+      val payload = Json.toJson(response)
 
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(response))
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(payload.toString)
+        )
+      )
 
-      await(underTest.fetchUnapproved()) shouldBe response
+      await(connector.fetchUnapproved()) shouldBe response
     }
 
     "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
 
-      intercept[Upstream5xxResponse] {
-        await(underTest.fetchUnapproved())
-      }
+      intercept[UpstreamErrorResponse] {
+        await(connector.fetchUnapproved())
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 
   "fetchApprovalSummary" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = s"$baseUrl/service/$serviceName/summary"
+    val url = s"/service/$serviceName/summary"
 
-    "return subscription fields definition for an API" in new Setup {
-      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(mockEnvironment))
+    "return approval summary for an API" in new Setup {
+      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(PRODUCTION))
 
-      when(mockHttpClient.GET[APIApprovalSummary](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(validResponse))
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(Json.stringify(Json.toJson(validResponse)))
+        )
+      )
 
-      await(underTest.fetchApprovalSummary(serviceName)) shouldBe validResponse
+      await(connector.fetchApprovalSummary(serviceName)) shouldBe validResponse
     }
 
-    "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.GET[Seq[APIApprovalSummary]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+    "fail when fetch approval summary returns an internal server error" in new Setup {
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
 
-      intercept[Upstream5xxResponse] {
-        await(underTest.fetchApprovalSummary(serviceName))
-      }
+      intercept[UpstreamErrorResponse] {
+        await(connector.fetchApprovalSummary(serviceName))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 
   "approveService" should {
-
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = s"$baseUrl/service/$serviceName/approve"
+    val url = s"/service/$serviceName/approve"
     val approveServiceRequest = ApproveServiceRequest(serviceName)
 
-    "save the fields" in new Setup {
-      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](eqTo(url), eqTo(approveServiceRequest), *)(*, *, *, *))
-        .thenReturn(Future.successful(HttpResponse(OK)))
+    "return ok for approve service" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+        .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+        )
+      )
 
-      await(underTest.approveService(serviceName)) shouldBe ((): Unit)
+      await(connector.approveService(serviceName)) shouldBe ((): Unit)
     }
 
-    "fail when api-subscription-fields returns an internal server error" in new Setup {
-      when(mockHttpClient.POST[ApproveServiceRequest, HttpResponse](eqTo(url), eqTo(approveServiceRequest), *)(*, *, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+    "fail when approve service returns an internal server error" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+        .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
 
-      intercept[UpdateApiDefinitionsFailed] {
-        await(underTest.approveService(serviceName))
-      }
-    }
-  }
-
-  "http" when {
-    "configured not to use the proxy" should {
-      "use the HttpClient" in new Setup(proxyEnabled = false) {
-        underTest.http shouldBe mockHttpClient
-      }
-    }
-
-    "configured to use the proxy" should {
-      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
-        underTest.http shouldBe mockProxiedHttpClient
-
-        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
-      }
+      intercept[UpstreamErrorResponse] {
+        await(connector.approveService(serviceName))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

@@ -23,8 +23,6 @@ import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication with MockitoSugar with ArgumentMatchersSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()

@@ -23,41 +23,38 @@ import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
-import play.api.http.Status.{NO_CONTENT, OK, BAD_REQUEST, CREATED}
+import play.api.http.Status._
 import play.api.libs.json.{Format, Json, JsSuccess}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpErrorFunctions._
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
-  val useProxy: Boolean
-  val bearerToken: String
-  val apiKey: String
 
   import SubscriptionFieldsConnector.JsonFormatters._
   import SubscriptionFieldsConnector._
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  def http: HttpClient
 
   def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: ApiIdentifier, definitionsCache: DefinitionsByApiVersion)
                                                 (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    def getDefinitions() =
-      Future.successful(definitionsCache.getOrElse(apiIdentifier, Seq.empty))
+    def getDefinitions() = Future.successful(definitionsCache.getOrElse(apiIdentifier, Seq.empty))
 
     internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
   }
 
   def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
 
-    def getDefinitions() =
-      fetchFieldDefinitions(apiContext, version)
+    def getDefinitions() = fetchFieldDefinitions(apiContext, version)
 
     internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
@@ -89,43 +86,38 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
-    http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain)) recover recovery(Seq.empty[SubscriptionFieldDefinition])
+    http.GET[Option[ApiFieldDefinitions]](url).map(_.fold(Seq.empty[SubscriptionFieldDefinition])(_.fieldDefinitions.map(toDomain)))
   }
 
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
     val url = s"$serviceBaseUrl/definition"
-    (for {
-        response <- http.GET[AllApiFieldDefinitions](url)
-    } yield toDomain(response)) recover recovery(DefinitionsByApiVersion.empty)
+    http.GET[Option[AllApiFieldDefinitions]](url)
+    .map(_.fold(DefinitionsByApiVersion.empty)(toDomain))
   }
 
   def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
                      (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
 
-    import CustomResponseHandlers.permissiveBadRequestResponseHandler
+    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)).map( _ match {
+      case resp: HttpResponse if(is2xx(resp.status)) => SaveSubscriptionFieldsSuccessResponse
 
-    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)).map { response =>
-      response.status match {
-        case BAD_REQUEST =>
-          Json.parse(response.body).validate[Map[String, String]] match {
+      case HttpResponse(BAD_REQUEST, body, _) =>
+          Json.parse(body).validate[Map[String, String]] match {
             case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
             case _ => SaveSubscriptionFieldsFailureResponse(Map.empty)
           }
-        case OK | CREATED => SaveSubscriptionFieldsSuccessResponse
-      }
-    }
+      case HttpResponse(status, body, _)  => throw UpstreamErrorResponse(body, status)
+    })
   }
 
   def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    http.DELETE[HttpResponse](url).map { response =>
-      response.status match {
-        case NO_CONTENT => FieldsDeleteSuccessResult
+    http.DELETE[HttpResponse](url).map(_.status match {
+        case NO_CONTENT | NOT_FOUND => FieldsDeleteSuccessResult
         case _ => FieldsDeleteFailureResult
       }
-    } recover {
-      case _: NotFoundException => FieldsDeleteSuccessResult
+     ) recover {
       case _ => FieldsDeleteFailureResult
     }
   }
@@ -133,18 +125,14 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)
                                        (implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
-    http.GET[ApplicationApiFieldValues](url).map(Some(_)) recover recovery(None)
+    http.GET[Option[ApplicationApiFieldValues]](url)
   }
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/field/application/${clientId.urlEncode()}/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
+    s"$serviceBaseUrl/field/application/${clientId.value}/context/${apiContext.value}/version/${apiVersion.value}"
 
   private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/definition/context/${apiContext.urlEncode()}/version/${apiVersion.urlEncode()}"
-
-  private def recovery[T](value: T): PartialFunction[Throwable, T] = {
-    case _: NotFoundException => value
-  }
+    s"$serviceBaseUrl/definition/context/${apiContext.value}/version/${apiVersion.value}"
 }
 
 object SubscriptionFieldsConnector {
@@ -193,17 +181,15 @@ class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
   val useProxy: Boolean = appConfig.subscriptionFieldsSandboxUseProxy
   val bearerToken: String = appConfig.subscriptionFieldsSandboxBearerToken
   val apiKey: String = appConfig.subscriptionFieldsSandboxApiKey
+  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 @Singleton
 class ProductionSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
-                                                      val httpClient: HttpClient,
-                                                      val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+                                                      val httpClient: HttpClient)(implicit val ec: ExecutionContext)
   extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.PRODUCTION
   val serviceBaseUrl: String = appConfig.subscriptionFieldsProductionBaseUrl
-  val useProxy: Boolean = appConfig.subscriptionFieldsProductionUseProxy
-  val bearerToken: String = appConfig.subscriptionFieldsProductionBearerToken
-  val apiKey: String = appConfig.subscriptionFieldsProductionApiKey
+  val http = httpClient
 }

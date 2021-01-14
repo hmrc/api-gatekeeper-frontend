@@ -51,7 +51,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
     DateTime.now(),
     Standard(),
     ApplicationState())
-  val application = ApplicationWithHistory(basicApplication, Seq.empty)
+  val application = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId = application.application.id
 
   val userName = "userName"
@@ -65,7 +65,7 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
   val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)
   val aLoggedOutRequest = FakeRequest().withSession()
-  val noDevs = Seq.empty[Developer]
+  val noDevs = List.empty[Developer]
 
   def givenAUnsuccessfulLogin(): Unit = {
     given(mockAuthConnector.authorise(*, *)(*, *))

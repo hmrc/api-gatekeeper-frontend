@@ -23,8 +23,9 @@ import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
+import play.api.http.Status.NOT_FOUND
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
@@ -39,7 +40,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
-  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[StateHistory]] = {
+  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
     productionApplicationConnector.fetchStateHistory(applicationId).recoverWith {
       case _: NotFoundException => sandboxApplicationConnector.fetchStateHistory(applicationId)
     }
@@ -86,7 +87,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     productionApplicationConnector.fetchApplication(appId).recoverWith {
-      case _: NotFoundException => sandboxApplicationConnector.fetchApplication(appId)
+      case UpstreamErrorResponse(_, NOT_FOUND, _, _) => sandboxApplicationConnector.fetchApplication(appId)
     }
   }
 
@@ -140,6 +141,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
+      case _: Standard => Future.successful(UpdateScopesInvalidScopesResult) 
     }
   }
 

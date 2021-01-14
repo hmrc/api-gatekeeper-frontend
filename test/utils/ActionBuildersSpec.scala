@@ -19,7 +19,7 @@ package utils
 import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
-import model.{ApiContext, ApiVersion, LoggedInRequest, VersionSubscription}
+import model.{ ApiVersion, LoggedInRequest, VersionSubscription}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -150,7 +150,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      fetchStateHistoryReturns(Seq(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION)))
+      fetchStateHistoryReturns(List(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION)))
 
       val result = await(underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>
         Future.successful(Ok(expectedResult))

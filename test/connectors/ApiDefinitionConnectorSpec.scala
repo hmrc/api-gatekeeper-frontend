@@ -16,57 +16,40 @@
 
 package connectors
 
-import java.util.UUID
-
-import akka.actor.ActorSystem
+import play.api.libs.json.Json
+import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
-import model.Environment._
 import model._
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
-class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with BeforeAndAfterEach {
-  private val baseUrl = "https://example.com"
-  private val environmentName = "ENVIRONMENT"
-  private val bearer = "TestBearerToken"
-  private val apiKeyTest = UUID.randomUUID().toString
+class ApiDefinitionConnectorSpec
+  extends UnitSpec
+    with MockitoSugar
+    with WiremockSugar
+    with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
-    val mockHttpClient = mock[HttpClient]
-    val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val mockEnvironment = mock[Environment]
+    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+
     val mockAppConfig: AppConfig = mock[AppConfig]
+    when(mockAppConfig.apiDefinitionProductionBaseUrl).thenReturn(wireMockUrl)
 
-    when(mockEnvironment.toString).thenReturn(environmentName)
-    when(mockProxiedHttpClient.withHeaders(*, *)).thenReturn(mockProxiedHttpClient)
-
-    val connector = new ApiDefinitionConnector {
-      val httpClient = mockHttpClient
-      val proxiedHttpClient = mockProxiedHttpClient
-      val serviceBaseUrl = baseUrl
-      val useProxy = proxyEnabled
-      val bearerToken = bearer
-      val environment = mockEnvironment
-      val appConfig = mockAppConfig
-      val apiKey = apiKeyTest
-      implicit val ec = global
-    }
-
+    val connector = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
     val apiVersion1 = ApiVersion.random
   }
 
+  import model.APIDefinitionFormatters._
+
   "fetchAll" should {
-    val url = s"$baseUrl/api-definition"
+    val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
       val response = Seq(ApiDefinition(
@@ -74,73 +57,101 @@ class ApiDefinitionConnectorSpec extends UnitSpec with MockitoSugar with Argumen
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
         Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
-      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))( *, *, *)).thenReturn(Future.successful(response))
+      val payload = Json.toJson(response)
+
+      stubFor(
+          get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+            .withStatus(OK)
+            .withBody(payload.toString)
+          )
+        )
 
       await(connector.fetchPublic()) shouldBe response
     }
 
-    "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+    "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
+      stubFor(
+          get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+            .withStatus(INTERNAL_SERVER_ERROR)
+          )
+        )
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
     }
   }
 
   "fetchPrivate" should {
-    val url = s"$baseUrl/api-definition?type=private"
+    val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
       val response = Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None))
+        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
-      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
+      val payload = Json.toJson(response)
+
+      stubFor(
+        get(urlPathEqualTo(url))
+        .withQueryParam("type", equalTo("private"))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(payload.toString)
+        )
+      )
 
       await(connector.fetchPrivate()) shouldBe response
     }
 
-    "propagate FetchApiDefinitionsFailed exception" in new Setup {
-      when(mockHttpClient.GET[Seq[ApiDefinition]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+    "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
+      stubFor(
+        get(urlPathEqualTo(url))
+        .withQueryParam("type",equalTo("private"))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
     }
   }
 
   "fetchAPICategories" should {
-    val url = s"$baseUrl/api-categories"
+    val url = "/api-categories"
+
     "respond with 200 and convert body" in new Setup {
       val response = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"))
 
-      when(mockHttpClient.GET[List[APICategoryDetails]](eqTo(url))(*, *, *)).thenReturn(Future.successful(response))
+      val payload = Json.toJson(response)
+
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(payload.toString)
+        )
+      )
 
       await(connector.fetchAPICategories()) shouldBe response
     }
 
-    "propagate FetchApiCategoriesFailed exception" in new Setup {
-      when(mockHttpClient.GET[List[APICategory]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
+    "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
+      
       intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
-    }
-
-  }
-
-  "http" when {
-    "configured not to use the proxy" should {
-      "use the HttpClient" in new Setup(proxyEnabled = false) {
-        connector.http shouldBe mockHttpClient
-      }
-    }
-
-    "configured to use the proxy" should {
-      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
-        connector.http shouldBe mockProxiedHttpClient
-
-        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
-      }
     }
   }
 }
