@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[User], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[NewModel.RegisteredUser], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {

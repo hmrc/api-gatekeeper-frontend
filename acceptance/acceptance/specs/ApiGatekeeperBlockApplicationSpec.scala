@@ -18,7 +18,7 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
+import model.{NewModel, UserId}
 import play.api.http.Status._
 import acceptance.WebPage
 import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
@@ -27,7 +27,7 @@ import model.ApplicationId
 
 class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
+  val developers = List[NewModel.RegisteredUser](NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   feature("Block an application") {
     scenario("I can block an application") {

@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[Developer],
+@(users: Seq[NewModel.Developer],
 emails: String,
 apis: Map[String, Seq[VersionSummary]],
 filter: Option[String],
@@ -153,23 +153,23 @@ environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedI
             </thead>
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
-            <tr role="row">
-                <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
-                <td id="dev-fn-@index">@developer.firstName</td>
-                <td id="dev-sn-@index">@developer.lastName</td>
-                <td class="text--right hard--right" id="dev-status-@index">
-                    @defining(developer.status match {
-                    case VerifiedStatus => ("status status--verified", "verified")
-                    case UnverifiedStatus => ("status status--not-verified", "not yet verified")
-                    case UnregisteredStatus => ("status status--not-verified", "not registered")
-                    }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
-                </td>
-                <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">@(developer.mfaEnabled match {
-                    case true => "Yes"
-                    case false => "No"
-                    })</td>
-                <td id="dev-app-@index" class="text--right hard--right ">@developer.apps.map(a => a.name).mkString(",")</td>
-            </tr>
+              <tr role="row">
+                  <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(developer.email)}">@developer.email</a></td>
+                  <td id="dev-fn-@index">@developer.firstName</td>
+                  <td id="dev-sn-@index">@developer.lastName</td>
+                  <td class="text--right hard--right" id="dev-status-@index">
+                      @defining(developer.status match {
+                      case VerifiedStatus => ("status status--verified", "verified")
+                      case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                      case UnregisteredStatus => ("status status--not-verified", "not registered")
+                      }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+                  </td>
+                  <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">@(developer.mfaEnabled match {
+                      case true => "Yes"
+                      case false => "No"
+                      })</td>
+                  <td id="dev-app-@index" class="text--right hard--right ">@developer.applications.map(a => a.name).mkString(",")</td>
+              </tr>
             }
             </tbody>
         </table>

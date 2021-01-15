@@ -23,7 +23,7 @@ import acceptance.pages.DeveloperPage.StatusFilter._
 import acceptance.pages.{ApplicationsPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
+import model.NewModel
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
@@ -491,12 +491,6 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
     val developersList: String = developerListJsonGenerator(randomDevelopers).get
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(developersList).withStatus(OK)))
-  }
-
-  def stubDevelopers(developers: Option[List[User]]) = {
-    val developersJson = developers.map(userList => Json.toJson(userList)).map(Json.stringify).get
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(developersJson).withStatus(OK)))
   }
 
   private def assertCopyToClipboardButtonIsDisabled(button:String) = {

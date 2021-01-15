@@ -21,7 +21,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(apiVersions: Seq[DropDownValue],
-        users: Seq[User],
+        users: Seq[NewModel.RegisteredUser],
         emails: String,
         params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 

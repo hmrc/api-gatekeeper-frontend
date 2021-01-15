@@ -18,7 +18,7 @@ package views.developers
 
 import java.util.UUID
 
-import model.{LoggedInUser, _}
+import model.{LoggedInUser, NewModel, _}
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
@@ -37,9 +37,11 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
   trait Setup {
     implicit val request = FakeRequest()
 
+    val developer = NewModel.Developer(NewModel.RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), Seq())
+
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
-    def testDeveloperDetails(developer: Developer) = {
+    def testDeveloperDetails(developer: NewModel.Developer) = {
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
@@ -63,28 +65,26 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
   "developer details view" must {
     "show unregistered developer details when logged in as superuser" in new Setup {
-      val unregisteredDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
+      val unregisteredDeveloper = NewModel.Developer(NewModel.UnregisteredUser("email@example.com"), Seq())
       testDeveloperDetails(unregisteredDeveloper)
     }
 
     "show unverified developer details when logged in as superuser" in new Setup {
-      val unverifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(false), Seq())
+      val unverifiedDeveloper = NewModel.Developer(NewModel.RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), Seq())
       testDeveloperDetails(unverifiedDeveloper)
     }
 
     "show verified developer details when logged in as superuser" in new Setup {
-      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq())
+      val verifiedDeveloper = NewModel.Developer(NewModel.RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), Seq())
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper: Developer = Developer("email@example.com", "firstname", "lastName", Some(true), Seq(), Some("test organisation"))
+      val verifiedDeveloper = NewModel.Developer(NewModel.RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), Seq())
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with no applications when logged in as superuser" in new Setup {
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
@@ -99,9 +99,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       val testApplication1: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR)))
       val testApplication2: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER)))
 
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq(testApplication1, testApplication2))
+      val developerWithApps: NewModel.Developer = developer.copy(applications = Seq(testApplication1, testApplication2))
 
-      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developerWithApps, true, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -115,8 +115,6 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
@@ -127,8 +125,6 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details WITH delete button when logged in as non-superuser" in new Setup {
-      val developer: Developer = Developer("email@example.com", "firstname", "lastName", None, Seq())
-
       val result = developerDetails.render(developer, false, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)

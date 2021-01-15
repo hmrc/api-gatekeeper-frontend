@@ -129,10 +129,10 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   }
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/field/application/${clientId.urlEncode}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
+    s"$serviceBaseUrl/field/application/${clientId.value}/context/${apiContext.value}/version/${apiVersion.value}"
 
   private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/definition/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
+    s"$serviceBaseUrl/definition/context/${apiContext.value}/version/${apiVersion.value}"
 }
 
 object SubscriptionFieldsConnector {

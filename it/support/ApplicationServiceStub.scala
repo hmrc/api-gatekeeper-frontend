@@ -4,11 +4,12 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model.User
 import play.api.http.Status
 import play.api.libs.json.Json
+import model.NewModel
 
 trait ApplicationServiceStub {
   val collaboratorsUrl = "/collaborators?context=api1&version=1"
 
-  def primeApplicationServiceSuccessWithUsers(users: Seq[User]): Unit = {
+  def primeApplicationServiceSuccessWithUsers(users: Seq[NewModel.RegisteredUser]): Unit = {
 
     stubFor(get(urlEqualTo(collaboratorsUrl))
       .willReturn(

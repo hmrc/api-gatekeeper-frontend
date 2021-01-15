@@ -19,8 +19,9 @@ package acceptance.specs
 import acceptance.testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
+import model.NewModel
 import play.api.http.Status._
+import model.UserId
 
 class ApiGatekeeperApplicationReviewSpec
     extends ApiGatekeeperBaseSpec 
@@ -30,7 +31,7 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithHistoryTestData
     with utils.UrlEncoding {
 
-  val developers = List[User](new User("holly.golightly@example.com", "holly", "golightly", None, None, false))
+  val developers = List[NewModel.RegisteredUser](NewModel.RegisteredUser("holly.golightly@example.com", UserId.random, "holly", "golightly", false))
 
   val approveRequest =
     s"""
@@ -72,7 +73,7 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview(developers)
+      stubApplicationToReview()
       clickOnReview("review")
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       clickOnElement("approve-app")
@@ -109,7 +110,7 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview(developers)
+      stubApplicationToReview()
       clickOnReview("review")
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
@@ -143,7 +144,7 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview(developers)
+      stubApplicationToReview()
       clickOnReview("review")
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
@@ -159,7 +160,7 @@ class ApiGatekeeperApplicationReviewSpec
     }
   }
 
-  def stubApplicationToReview(developers: List[User]) = {
+  def stubApplicationToReview() = {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/$pendingApprovalApplicationId")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
   }
 }

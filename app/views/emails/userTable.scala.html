@@ -16,7 +16,7 @@
 
 @import model._
  
-@(users: Seq[User], emails: String)(implicit messages: Messages)
+@(users: Seq[NewModel.User], emails: String)(implicit messages: Messages)
 
 @if(users.nonEmpty) {
     <div class="form-group>">

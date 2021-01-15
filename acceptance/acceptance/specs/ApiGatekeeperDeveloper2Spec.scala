@@ -29,6 +29,8 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
+import model.NewModel
+import model.UserId
 
 class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
 
@@ -41,17 +43,19 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       val developers = List(
-        User(
+        NewModel.RegisteredUser(
           email = developer4,
+          userId = UserId.random,
           firstName = dev4FirstName,
           lastName = dev4LastName,
-          verified = Some(true)
-        ),
-        User(
+          verified = true
+          ),
+        NewModel.RegisteredUser(
           email = developer5,
+          userId = UserId.random,
           firstName = dev5FirstName,
           lastName = dev5LastName,
-          verified = Some(false)
+          verified = false
         )
       )
 
@@ -135,7 +139,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
+  private def stubApplicationsCollaborators(developers: Seq[NewModel.User]): Unit = {
     val developersJson = Json.toJson(developers.map(u => u.email)).toString
 
     stubFor(get(urlPathEqualTo("/collaborators"))
@@ -155,7 +159,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubDevelopersSearch(emailFilter: String, developers: Seq[User]): Unit = {
+  private def stubDevelopersSearch(emailFilter: String, developers: Seq[NewModel.RegisteredUser]): Unit = {
     val developersListJson: String = Json.toJson(developers).toString
 
     stubFor(
@@ -167,7 +171,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     )
   }
 
-  private def stubGetDevelopersByEmails(developers: Seq[User]): Unit = {
+  private def stubGetDevelopersByEmails(developers: Seq[NewModel.RegisteredUser]): Unit = {
     val emailsResponseJson = Json.toJson(developers).toString()
 
     stubFor(

@@ -16,6 +16,10 @@
 
 package model
 
+import akka.io.Tcp.Register
+import model.NewModel.RegisteredUser
+import model.NewModel.UnregisteredUser
+
 
 sealed trait ApiFilter[+A]
 case class Value[A](context: A, version: A) extends ApiFilter[A]

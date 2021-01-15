@@ -16,9 +16,10 @@
 
 package acceptance.specs
 
-import model.User
 import org.scalacheck.Gen
 import play.api.libs.json.Json
+import model.NewModel
+import model.UserId
 
 trait MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -483,15 +484,16 @@ trait MockDataSugar {
 
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
-  private val DeveloperGenerator: Gen[User] = for {
+  private val DeveloperGenerator: Gen[NewModel.RegisteredUser] = for {
     forename <- StringGenerator(5)
     surname <- StringGenerator(5)
+    id = UserId.random
     email = randomEmail
-    verified = Option(true)
+    verified = true
     registered = None
-  } yield User(email, forename, surname, verified)
+  } yield NewModel.RegisteredUser(email, id, forename, surname, verified)
 
-  def userListGenerator(number: Int): Gen[List[User]] = Gen.listOfN(number, DeveloperGenerator)
+  def userListGenerator(number: Int): Gen[List[NewModel.RegisteredUser]] = Gen.listOfN(number, DeveloperGenerator)
 
   def developerListJsonGenerator(number: Int): Option[String] =
     userListGenerator(number)

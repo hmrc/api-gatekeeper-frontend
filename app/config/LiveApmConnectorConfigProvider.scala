@@ -22,7 +22,6 @@ import com.google.inject.{Provider, Inject, Singleton}
 
 @Singleton
 class LiveApmConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApmConnector.Config] {
-//TODO: Add APM config to GK's app-config-base
   override def get(): ApmConnector.Config =
     ApmConnector.Config(
       serviceBaseUrl = config.baseUrl("api-platform-microservice")

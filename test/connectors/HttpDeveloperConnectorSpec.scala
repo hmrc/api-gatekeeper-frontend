@@ -75,14 +75,19 @@ class HttpDeveloperConnectorSpec
     val developerEmailWithSpecialCharacter = "developer2+test@example.com"
 
 
-    def aUserResponse(email: String) = User(email, "first", "last", verified = Some(false))
+    def aUserResponse(email: String, id: UserId = UserId.random) = NewModel.RegisteredUser(email, id, "first", "last", verified = false)
 
-    def verifyUserResponse(userResponse: User,
+    def verifyUserResponse(userResponse: NewModel.User,
                            expectedEmail: String,
                            expectedFirstName: String, expectedLastName: String) = {
       userResponse.email shouldBe expectedEmail
       userResponse.firstName shouldBe expectedFirstName
       userResponse.lastName shouldBe expectedLastName
+    }
+    def verifyUnregisteredUserResponse(userResponse: NewModel.User,
+                           expectedEmail: String) = {
+      userResponse.email shouldBe expectedEmail
+      userResponse shouldBe a[NewModel.UnregisteredUser]
     }
 
     "fetch developer by email" in new Setup {
@@ -93,7 +98,7 @@ class HttpDeveloperConnectorSpec
         get(urlPathEqualTo("/developer"))
         .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
         .willReturn(
-          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmail)).toString)
+          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmail, userId)).toString)
         )
       )
 
@@ -111,7 +116,7 @@ class HttpDeveloperConnectorSpec
         get(urlPathEqualTo("/developer"))
         .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
         .willReturn(
-          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmailWithSpecialCharacter)).toString)
+          aResponse().withStatus(OK).withBody(Json.toJson(aUserResponse(developerEmailWithSpecialCharacter, userId)).toString)
         )
       )
 
@@ -127,7 +132,7 @@ class HttpDeveloperConnectorSpec
         .withRequestBody(equalToJson(postBody.toString))
         .willReturn(
           aResponse().withStatus(OK).withBody(
-            Json.toJson(Seq(aUserResponse(developerEmail), aUserResponse(developerEmailWithSpecialCharacter))).toString()))
+            Json.toJson(Seq(aUserResponse(developerEmail, UserId.random), aUserResponse(developerEmailWithSpecialCharacter, UserId.random))).toString()))
       )
 
       val result = await(connector.fetchByEmails(Seq(developerEmail, developerEmailWithSpecialCharacter)))
@@ -139,7 +144,7 @@ class HttpDeveloperConnectorSpec
     "fetch all developers" in new Setup {
       stubFor(get(urlEqualTo("/developers/all")).willReturn(
         aResponse().withStatus(OK).withBody(
-          Json.toJson(Seq(aUserResponse(developerEmail), aUserResponse(developerEmailWithSpecialCharacter))).toString()))
+          Json.toJson(Seq(aUserResponse(developerEmail, UserId.random), aUserResponse(developerEmailWithSpecialCharacter, UserId.random))).toString()))
       )
 
       val result = await(connector.fetchAll())
@@ -170,7 +175,7 @@ class HttpDeveloperConnectorSpec
 
       val loggedInUser: String = "admin-user"
       val payload = Json.stringify(Json.toJson(RemoveMfaRequest(loggedInUser)))
-      val user: User = aUserResponse(developerEmail)
+      val user = aUserResponse(developerEmail, userId)
       
       stubFor(
         post(urlEqualTo(s"/developer/${userId.value}/mfa/remove"))
@@ -182,7 +187,7 @@ class HttpDeveloperConnectorSpec
         )
       )
 
-      val result: User = await(connector.removeMfa(developerEmail, loggedInUser))
+      val result = await(connector.removeMfa(developerEmail, loggedInUser))
 
       result shouldBe user
     }

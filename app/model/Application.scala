@@ -40,7 +40,7 @@ object ApplicationId {
 }
 
 case class ClientId(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
 }
 
 object ClientId {

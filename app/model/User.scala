@@ -28,19 +28,12 @@ case class User(email: String,
   extends BaseUser with Ordered[User] {
 
   override def compare(that: User): Int = this.sortField.compare(that.sortField)
-
-  def toDeveloper(apps: Seq[Application]) = Developer(email, firstName, lastName, verified, apps, mfaEnabled = mfaEnabled)
 }
 
 object User {
   implicit val format = Json.format[User]
   type UserStatus = StatusFilter
 }
-
-case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "n/a", verified = None)
-}
-
 
 case class Developer(email: String,
                      firstName: String,
@@ -53,18 +46,7 @@ case class Developer(email: String,
 
     override def compare(that: Developer): Int = this.sortField.compare(that.sortField)
 
-    def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation, mfaEnabled)
-
   }
-
-object Developer {
-  def createUnregisteredDeveloper(email: String, apps: Set[Application] = Set.empty) = {
-    Developer(email, "n/a", "n/a", None, apps.toSeq)
-  }
-
-  def createFromUser(user: User, apps: Seq[Application] = Seq.empty) =
-    Developer(user.email, user.firstName, user.lastName, user.verified, apps, user.organisation, user.mfaEnabled)
-}
 
 private [model] trait BaseUser {
   val firstName: String

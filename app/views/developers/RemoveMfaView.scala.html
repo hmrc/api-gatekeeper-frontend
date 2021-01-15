@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developer: Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developer: NewModel.Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove 2SV") {
 
@@ -34,15 +34,15 @@
     </nav>
 
     <header>
-        <h1>@developer.email</h1>
+        <h1>@developer.user.email</h1>
     </header>
 
-    @helper.form(action = routes.DevelopersController.removeMfaAction(developer.email), 'class -> "form") {
+    @helper.form(action = routes.DevelopersController.removeMfaAction(developer.user.email), 'class -> "form") {
     @helper.CSRF.formField
     <h2>Are you sure you want to remove 2SV for this developer?</h2>
     <div class="form-field form-field--submit">
         <button id="submit" class="button--alert" type="submit">Remove 2SV</button>
-        <a id="cancel" href="@routes.DevelopersController.developerPage(developer.email)" class="button--link">Cancel</a>
+        <a id="cancel" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button--link">Cancel</a>
     </div>
     }
 </article>

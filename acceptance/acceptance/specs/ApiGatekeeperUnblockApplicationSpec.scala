@@ -19,15 +19,16 @@ package acceptance.specs
 
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
+import model.NewModel
 import play.api.http.Status._
 import acceptance.WebPage
 import model.ApplicationId
 import acceptance.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
+import model.UserId
 
 class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 
-  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
+  val developers = List[NewModel.RegisteredUser](new NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   feature("Unblock an application") {
     scenario("I can unblock an application") {
