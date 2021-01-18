@@ -40,7 +40,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   Helpers.running(app) {
 
-    def aUser(email: String) = User(email, "first", "last", verified = Some(false))
+    def aUser(email: String) = RegisteredUser(email, UserId.random, "first", "last", verified = false)
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
@@ -70,7 +70,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => User(developer.email, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
         when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
@@ -87,7 +87,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         when(mockDeveloperService.deleteDeveloper(*, *)(*)).thenReturn(successful(result))
       }
 
-      def givenRemoveMfaReturns(user: Future[User]) = {
+      def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
         when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(user)
       }
     }

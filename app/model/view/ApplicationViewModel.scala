@@ -16,15 +16,15 @@
 
 package model.view
 
-import model.User
 import model.applications.NewApplication
 import model.ApiVersion
 import model.StateHistory
 import model.TermsOfUseAgreement
 import model.ApiStatus.ApiStatus
+import model.RegisteredUser
 
 case class ApplicationViewModel(
-  developers: List[User],
+  developers: List[RegisteredUser],
   application: NewApplication,
   subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
   subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, ApiStatus)])],

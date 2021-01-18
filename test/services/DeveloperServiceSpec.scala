@@ -18,8 +18,7 @@ package services
 
 import config.AppConfig
 import connectors._
-import model.Developer.createUnregisteredDeveloper
-import model.{DeveloperStatusFilter, _}
+import model._
 import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.mockito.invocation.InvocationOnMock
@@ -31,10 +30,19 @@ import scala.concurrent.Future
 
 class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar {
 
-  def aUser(name: String, verified: Boolean = true) = User(s"$name@example.com", "Fred", "Example", Some(verified))
+  def aUser(name: String, verified: Boolean = true) = RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", verified)
 
   def aDeveloper(name: String, apps: Seq[Application] = Seq.empty, verified: Boolean = true) =
-    Developer(s"$name@example.com", name, s"${name}son", Some(verified), apps)
+    Developer(
+      RegisteredUser(s"$name@example.com", UserId.random, name, s"${name}son", verified),
+      apps
+    )
+
+  def anUnregisteredDeveloper(name: String, apps: Seq[Application] = Seq.empty) =
+    Developer(
+      UnregisteredUser(s"$name@example.com" /*, UserId.random // TODO APIS-5153 */),
+      apps
+    )
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
     ApplicationResponse(ApplicationId.random, ClientId("clientId"), "gatewayId", name, deployedTo, None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
@@ -64,7 +72,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(developer: User, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
+    def fetchDeveloperWillReturn(developer: RegisteredUser, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
       when(mockDeveloperConnector.fetchByEmail(*)(*))
         .thenReturn(Future.successful(developer))
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
@@ -104,18 +112,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       }
     }
 
-    def removeMfaReturnWillReturn(user: User) = {
+    def removeMfaReturnWillReturn(user: RegisteredUser) = {
       when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(Future.successful(user))
     }
   }
-
-  def bob(apps: Seq[Application] = Seq.empty) = aDeveloper("Bob", apps)
-
-  def jim(apps: Seq[Application] = Seq.empty) = aDeveloper("Jim", apps)
-
-  def jacob(apps: Seq[Application] = Seq.empty) = aDeveloper("Jacob", apps)
-
-  def julia(apps: Set[Application]) = createUnregisteredDeveloper("Julia@example.com", apps)
 
   "developerService" should {
 
@@ -124,11 +124,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
         anApp("application1", Set(
           Collaborator("Bob@example.com", CollaboratorRole.ADMINISTRATOR),
           Collaborator("Jacob@example.com", CollaboratorRole.DEVELOPER))))
-      val users = Seq(bob(applications), jim(applications), jacob(applications))
 
+      val bob = aDeveloper("Bob", applications)
+      val jim = aDeveloper("Jim", applications)
+      val jacob = aDeveloper("Jacob", applications)
+
+      val users = Seq(bob,jim,jacob)
 
       val result = underTest.filterUsersBy(AllUsers, applications)(users)
-      result shouldBe Seq(bob(applications), jim(applications), jacob(applications))
+
+      result should contain allElementsOf Seq(bob, jim, jacob)
     }
 
     "filter all users (including unregistered collaborators)" in new Setup {
@@ -140,11 +145,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
           Collaborator("Julia@example.com", CollaboratorRole.ADMINISTRATOR),
           Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER))))
 
-      val users = Seq(bob(applications), jim(applications), jacob(applications))
+      val bob = aDeveloper("Bob", applications)
+      val jim = aDeveloper("Jim", applications)
+      val jacob = aDeveloper("Jacob", applications)
 
+      val users = Seq(bob, jim, jacob)
 
       val result = underTest.filterUsersBy(AllUsers, applications)(users)
-      result shouldBe Seq(bob(applications), jim(applications), jacob(applications), julia(applications.tail.toSet))
+      result should contain allElementsOf Seq(bob, jim, jacob, anUnregisteredDeveloper("Julia",applications.tail))
     }
 
     "filter users that have access to 1 or more applications" in new Setup {
@@ -156,11 +164,15 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
           Collaborator("Julia@example.com", CollaboratorRole.ADMINISTRATOR),
           Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER))))
 
-      val users = Seq(aDeveloper("Bob", applications), aDeveloper("Jim", applications), aDeveloper("Jacob", applications))
+      val bob = aDeveloper("Bob", applications)
+      val jim = aDeveloper("Jim", applications)
+      val jacob = aDeveloper("Jacob", applications)
+
+      val users = Seq(bob, jim, jacob)
 
 
       val result = underTest.filterUsersBy(OneOrMoreSubscriptions, applications)(users)
-      result shouldBe Seq(aDeveloper("Bob", applications), aDeveloper("Jim", applications), aDeveloper("Jacob", applications), julia(applications.tail.toSet))
+      result should contain allElementsOf Seq(bob, jim, jacob, anUnregisteredDeveloper("Julia",applications.tail))
     }
 
     "filter users that are not associated with any applications" in
@@ -172,32 +184,47 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
           anApp("application2", Set(
             Collaborator("Julia@example.com", CollaboratorRole.ADMINISTRATOR),
             Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER))))
-        val users = Seq(aDeveloper("Shirley", applications), aDeveloper("Gaia"), aDeveloper("Jimbob"))
 
+        val gaia = aDeveloper("Gaia")
+        val jimbob = aDeveloper("Jimbob")
+        val shirley = aDeveloper("Shirley")
+        val users = Seq(shirley, jimbob, gaia)
 
         val result = underTest.filterUsersBy(NoApplications, applications)(users)
-        result shouldBe Seq(aDeveloper("Gaia"), aDeveloper("Jimbob"))
+        result should contain allElementsOf Seq(gaia, jimbob)
       }
 
     "filter users who have no subscriptions" in new Setup {
-      val _allApplications = Seq(
+      val _allApplications = List(
         anApp("application1", Set(
           Collaborator("Bob@example.com", CollaboratorRole.ADMINISTRATOR),
-          Collaborator("Jacob@example.com", CollaboratorRole.DEVELOPER))),
+          Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER),
+          Collaborator("Jacob@example.com", CollaboratorRole.DEVELOPER)
+          )
+        ),
         anApp("application2", Set(
           Collaborator("Julia@example.com", CollaboratorRole.ADMINISTRATOR),
-          Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER))))
-      val users = Seq(aDeveloper("Shirley"), aDeveloper("Gaia"), aDeveloper("Jimbob"), aDeveloper("Jim", _allApplications))
+          Collaborator("Jim@example.com", CollaboratorRole.DEVELOPER)
+          )
+        )
+      )
+
+      val gaia = aDeveloper("Gaia")
+      val jimbob = aDeveloper("Jimbob")
+      val shirley = aDeveloper("Shirley")
+      val jim = aDeveloper("Jim", _allApplications)
+      val users = Seq(shirley, jimbob, gaia, jim)
 
       val result = underTest.filterUsersBy(NoSubscriptions, _allApplications)(users)
 
-
       result should have size 4
-
-      result shouldBe Seq(aDeveloper("Jim", _allApplications),
-        createUnregisteredDeveloper("Bob@example.com", Set(_allApplications.head)),
-        createUnregisteredDeveloper("Jacob@example.com", Set(_allApplications.head)),
-        createUnregisteredDeveloper("Julia@example.com", Set(_allApplications.tail.head)))
+      
+      result should contain allElementsOf Seq(
+        jim,
+        anUnregisteredDeveloper("Bob", Seq(_allApplications.head)),
+        anUnregisteredDeveloper("Jacob", Seq(_allApplications.head)),
+        anUnregisteredDeveloper("Julia", Seq(_allApplications.tail.head))
+      )
     }
 
     "filter by status does no filtering when any status" in new Setup {
@@ -207,15 +234,25 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     "filter by status only returns verified users when Verified status" in new Setup {
-      val users = Seq(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
+      val bob = aDeveloper("Bob", verified = false)
+      val brian = aDeveloper("Brian")
+      val sheila = aDeveloper("Sheila")
+      val users = Seq(bob, brian, sheila)
+
       val result = underTest.filterUsersBy(VerifiedStatus)(users)
-      result shouldBe Seq(aDeveloper("Brian"), aDeveloper("Sheila"))
+
+      result shouldBe Seq(brian, sheila)
     }
 
     "filter by status only returns unverified users when Unverified status" in new Setup {
-      val users = Seq(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
+      val bob = aDeveloper("Bob", verified = false)
+      val brian = aDeveloper("Brian")
+      val sheila = aDeveloper("Sheila")
+      val users = Seq(bob, brian, sheila)
+      
       val result = underTest.filterUsersBy(UnverifiedStatus)(users)
-      result shouldBe Seq(aDeveloper("Bob", verified = false))
+
+      result shouldBe Seq(bob)
     }
 
     "fetch the developer and the applications they are a team member on" in new Setup {
@@ -224,17 +261,17 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       fetchDeveloperWillReturn(developer, apps)
 
       val result = await(underTest.fetchDeveloper(developer.email))
-      result.toDeveloper shouldBe developer.toDeveloper(apps)
+      result shouldBe Developer(developer, apps)
       verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
     }
 
     "remove MFA" in new Setup {
-      val developer: User = aUser("Fred")
+      val developer = aUser("Fred")
       val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
-      val result: User = await(underTest.removeMfa(developer.email, loggedInUser))
+      val result = await(underTest.removeMfa(developer.email, loggedInUser))
 
       result shouldBe developer
       verify(mockDeveloperConnector).removeMfa(developer.email, loggedInUser)
@@ -473,9 +510,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     "find by developer status should sort users by email" in new Setup {
 
-      val firstInTheListUser = User("101@example.com", "alphaFirstName", "alphaLastName", Some(true))
-      val secondInTheListUser = User("lalala@example.com", "betaFirstName", "betaLastName", Some(false))
-      val thirdInTheListUser = User("zigzag@example.com", "thetaFirstName", "thetaLastName", Some(false))
+      val firstInTheListUser = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
+      val secondInTheListUser = RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
+      val thirdInTheListUser = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
 

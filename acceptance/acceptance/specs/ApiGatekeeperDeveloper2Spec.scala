@@ -22,13 +22,13 @@ import acceptance.pages.Developer2Page.APIFilter
 import acceptance.pages.{ApplicationsPage, Developer2Page}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
+import model._
 
 class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
 
@@ -41,17 +41,19 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       val developers = List(
-        User(
+        RegisteredUser(
           email = developer4,
+          userId = UserId.random,
           firstName = dev4FirstName,
           lastName = dev4LastName,
-          verified = Some(true)
-        ),
-        User(
+          verified = true
+          ),
+        RegisteredUser(
           email = developer5,
+          userId = UserId.random,
           firstName = dev5FirstName,
           lastName = dev5LastName,
-          verified = Some(false)
+          verified = false
         )
       )
 
@@ -155,7 +157,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubDevelopersSearch(emailFilter: String, developers: Seq[User]): Unit = {
+  private def stubDevelopersSearch(emailFilter: String, developers: Seq[RegisteredUser]): Unit = {
     val developersListJson: String = Json.toJson(developers).toString
 
     stubFor(
@@ -167,7 +169,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     )
   }
 
-  private def stubGetDevelopersByEmails(developers: Seq[User]): Unit = {
+  private def stubGetDevelopersByEmails(developers: Seq[RegisteredUser]): Unit = {
     val emailsResponseJson = Json.toJson(developers).toString()
 
     stubFor(

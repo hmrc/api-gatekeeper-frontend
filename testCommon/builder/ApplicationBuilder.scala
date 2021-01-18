@@ -84,11 +84,11 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def asSuperUser = applicationViewModel.copy(isAtLeastSuperUser = true)
     def asAdmin = applicationViewModel.copy(isAdmin = true)
     
-    def withDeveloper(developer: User) = {
+    def withDeveloper(developer: RegisteredUser) = {
       val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer.email)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
-    def withAdmin(developer: User) = {
+    def withAdmin(developer: RegisteredUser) = {
       val newAppWithDev = this.applicationViewModel.application.withAdmin(developer.email)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }

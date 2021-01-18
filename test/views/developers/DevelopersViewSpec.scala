@@ -16,7 +16,7 @@
 
 package views.developers
 
-import model.{LoggedInUser, _}
+import model._
 import play.api.test.FakeRequest
 import views.html.developers.DevelopersView
 import views.CommonViewSpec
@@ -30,10 +30,10 @@ class DevelopersViewSpec extends CommonViewSpec {
   }
 
   val users = Seq(
-    User("sample@example.com", "Sample", "Email", Some(false)),
-    User("another@example.com", "Sample2", "Email", Some(true)),
-    UnregisteredCollaborator("something@example.com"))
-  val devs = users.map(u => Developer.createFromUser(u, Seq.empty))
+    RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
+    RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
+    UnregisteredUser("something@example.com"))
+  val devs = users.map(u => Developer(u, Seq.empty))
 
   "Developers view" must {
 

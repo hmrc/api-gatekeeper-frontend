@@ -66,7 +66,7 @@
     </table>
     <h2>Associated applications</h2>
     <div>
-        @if(developer.apps.isEmpty) {
+        @if(developer.applications.isEmpty) {
         <p id="applications">None</p>
         } else {
         <table id="applications">
@@ -74,7 +74,7 @@
                 <col width="40%">
                 <col width="60%">
             </colgroup>
-            @for(app <- developer.apps) {
+            @for(app <- developer.applications) {
             <tr>
                 <td><a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a></td>
                 <td>@app.deployedTo.toLowerCase.capitalize</td>

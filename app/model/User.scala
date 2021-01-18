@@ -16,67 +16,88 @@
 
 package model
 
-import model.User.UserStatus
-import play.api.libs.json.Json
+import CollaboratorRole.CollaboratorRole
 
-case class User(email: String,
-                firstName: String,
-                lastName: String,
-                verified: Option[Boolean],
-                organisation: Option[String] = None,
-                mfaEnabled: Boolean = false)
-  extends BaseUser with Ordered[User] {
+case class CoreUserDetails(email: String, id: UserId)
 
-  override def compare(that: User): Int = this.sortField.compare(that.sortField)
+// case class Collaborator(emailAddress: String, userId: UserId, role: CollaboratorRole)
 
-  def toDeveloper(apps: Seq[Application]) = Developer(email, firstName, lastName, verified, apps, mfaEnabled = mfaEnabled)
+trait User {
+  def email: String
+  // def id: UserId     // Need to use newmodel collaborator which means all apps must have ids on collaborators  // TODO APIS-5153
+  def firstName: String
+  def lastName: String
+  lazy val sortField = User.asSortField(lastName, firstName)
+  lazy val fullName = s"${firstName} ${lastName}"
 }
 
 object User {
-  implicit val format = Json.format[User]
-  type UserStatus = StatusFilter
+  def asSortField(lastName: String, firstName: String): String = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
+  
+  def status(user: User): StatusFilter = user match {
+    case u : RegisteredUser if (u.verified) => VerifiedStatus
+    case u : RegisteredUser if (!u.verified) => UnverifiedStatus
+    case _ : UnregisteredUser => UnregisteredStatus
+  }
 }
 
-case object UnregisteredCollaborator {
-  def apply(email: String) = User(email, "n/a", "n/a", verified = None)
+case class RegisteredUser(
+  email: String,
+  userId: UserId,
+  firstName: String,
+  lastName: String,
+  verified: Boolean,
+  organisation: Option[String] = None,
+  mfaEnabled: Boolean = false) extends User {
 }
 
-
-case class Developer(email: String,
-                     firstName: String,
-                     lastName: String,
-                     verified: Option[Boolean],
-                     apps: Seq[Application],
-                     organisation: Option[String] = None,
-                     mfaEnabled: Boolean = false)
-  extends BaseUser with Ordered[Developer] {
-
-    override def compare(that: Developer): Int = this.sortField.compare(that.sortField)
-
-    def toDeveloper = Developer(email, firstName, lastName, verified, apps, organisation, mfaEnabled)
-
-  }
-
-object Developer {
-  def createUnregisteredDeveloper(email: String, apps: Set[Application] = Set.empty) = {
-    Developer(email, "n/a", "n/a", None, apps.toSeq)
-  }
-
-  def createFromUser(user: User, apps: Seq[Application] = Seq.empty) =
-    Developer(user.email, user.firstName, user.lastName, user.verified, apps, user.organisation, user.mfaEnabled)
+object RegisteredUser {
+  import UserId._
+  import play.api.libs.json._
+  
+  implicit val reads = Json.format[RegisteredUser]
 }
 
-private [model] trait BaseUser {
-  val firstName: String
-  val lastName: String
-  val verified: Option[Boolean]
+case class UnregisteredUser(email: String) extends User {
+  // val id: UserId     // Need to use newmodel collaborator which means all apps must have ids on collaborators // TODO APIS-5153
+  val firstName = "n/a"
+  val lastName = "n/a"
+}
 
-  val sortField = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
-  val fullName = s"$firstName $lastName"
-
-  lazy val status: UserStatus = verified match {
-    case Some(true) => VerifiedStatus
-    case Some(false) => UnverifiedStatus
-    case None => UnregisteredStatus
+case class Developer(user: User, applications: Seq[Application]) {
+  lazy val fullName = user.fullName
+  
+  lazy val email: String = user.email
+  
+  lazy val firstName: String = user match {
+    case UnregisteredUser(_) => "n/a"
+    case r : RegisteredUser => r.firstName
   }
+  
+  lazy val lastName: String = user match {
+    case UnregisteredUser(_) => "n/a"
+    case r : RegisteredUser => r.lastName
+  }
+  
+  lazy val organisation: Option[String] = user match {
+    case UnregisteredUser(_) => None
+    case r : RegisteredUser => r.organisation
+  }
+
+  lazy val verified: Boolean = user match {
+    case UnregisteredUser(_) => false
+    case r : RegisteredUser => r.verified
+  }
+
+  lazy val mfaEnabled: Boolean = user match {
+    case UnregisteredUser(_) => false
+    case r : RegisteredUser => r.mfaEnabled
+  }
+
+  lazy val sortField: String = user match {
+    case UnregisteredUser(_) => User.asSortField(lastName, firstName)
+    case r : RegisteredUser => r.sortField
+  }
+
+  lazy val status: StatusFilter = User.status(user)
 }

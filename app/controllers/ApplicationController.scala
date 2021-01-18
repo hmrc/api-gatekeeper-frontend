@@ -435,12 +435,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
 
-      def administrators(app: ApplicationWithHistory): Future[Seq[User]] = {
+      def administrators(app: ApplicationWithHistory): Future[Seq[RegisteredUser]] = {
         val emails: Set[String] = app.application.admins.map(_.emailAddress)
         developerService.fetchDevelopersByEmails(emails.toSeq)
       }
 
-      def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[User], submissionDetails: SubmissionDetails) = {
+      def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[RegisteredUser], submissionDetails: SubmissionDetails) = {
         val verified = app.state.name == State.PRODUCTION
         val details = applicationReviewDetails(app, submissionDetails)(request)
 

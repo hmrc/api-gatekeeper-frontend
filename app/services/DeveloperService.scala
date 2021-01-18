@@ -31,7 +31,6 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
 
-
     val unsortedResults: Future[Seq[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None) => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybeEmailFilter, Some(apiFilter)) => {
@@ -45,7 +44,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
 
     for {
-      results: Seq[User] <- unsortedResults
+      results <- unsortedResults
     } yield results.sortBy(_.email)
   }
 
@@ -69,7 +68,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
                    (users: Seq[Developer]): Seq[Developer] = {
 
-    val registeredEmails = users.map(_.email)
+    val registeredEmails = users.map(_.user.email)
 
     def linkAppsAndCollaborators(apps: Seq[Application]): Map[String, Set[Application]] = {
       apps.foldLeft(Map.empty[String, Set[Application]])((uMap, appResp) =>
@@ -83,11 +82,9 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       linkAppsAndCollaborators(apps).filterKeys(e => !registeredEmails.contains(e))
 
     lazy val unregistered: Set[Developer] =
-      unregisteredCollaborators.map { case (user, userApps) =>
-        Developer.createUnregisteredDeveloper(user, userApps)
-      } toSet
+      unregisteredCollaborators.map { case (email, userApps) => Developer(UnregisteredUser(email), userApps.toSeq) } toSet
 
-    lazy val (usersWithoutApps, usersWithApps) = users.partition(_.apps.isEmpty)
+    lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
 
     filter match {
       case AllUsers => users ++ unregistered
@@ -96,34 +93,28 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  def filterUsersBy(filter: StatusFilter)(users: Seq[Developer]): Seq[Developer] = {
+  def filterUsersBy(filter: StatusFilter)(developers: Seq[Developer]): Seq[Developer] = {
     filter match {
-      case AnyStatus => users
-      case _ => users.filter(u => u.status == filter)
+      case AnyStatus => developers
+      case _ => developers.filter(d => filter == User.status(d.user))
     }
-  }
-
-  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[Developer]): Seq[Developer] = filter match {
-    case AnyEnvironment => users
-    case ProductionEnvironment => users.filter(user => user.apps.exists(app => app.deployedTo == "PRODUCTION"))
-    case SandboxEnvironment => users
   }
 
   def getDevelopersWithApps(apps: Seq[Application], users: Seq[User]): Seq[Developer] = {
 
-    def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(c => c.emailAddress == user.email).isDefined
+    def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
     def collaboratingApps(user: User): Seq[Application] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
     users.map(u => {
-      Developer.createFromUser(u, collaboratingApps(u))
+      Developer(u, collaboratingApps(u))
     })
   }
 
-  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[User]] = {
-    developerConnector.fetchAll.map(_.sorted)
+  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
+    developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
   def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
@@ -132,17 +123,17 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Developer] = {
     for {
-      developer <- developerConnector.fetchByEmail(email)
+      user <- developerConnector.fetchByEmail(email)
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByEmail(email)
       productionApplications <- productionApplicationConnector.fetchApplicationsByEmail(email)
-    } yield Developer.createFromUser(developer, (sandboxApplications ++ productionApplications).distinct)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
   }
 
-  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(Seq(_)))
   }
 
@@ -155,7 +146,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   }
 
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[User] = {
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(email, loggedInUser)
   }
 
@@ -168,7 +159,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
         val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
         for {
           users <- fetchDevelopersByEmails(appAdmins)
-          verifiedUsers = users.filter(_.verified.contains(true))
+          verifiedUsers = users.filter(_.verified)
           adminsToEmail = verifiedUsers.map(_.email)
         } yield adminsToEmail
       }
@@ -184,7 +175,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
 
     fetchDeveloper(email).flatMap { developer =>
-      val (appsSoleAdminOn, appsTeamMemberOn) = developer.apps.partition(_.isSoleAdmin(email))
+      val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {
         for {

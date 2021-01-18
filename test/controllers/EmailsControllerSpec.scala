@@ -86,10 +86,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
-      val verifiedUser1: User = User("user1@hmrc.com", "verifiedUserA", "1", Some(true))
-      val verifiedUser2: User = User("user2@hmrc.com", "verifiedUserB", "2", Some(true))
-      val verifiedUser3: User = User("user3@hmrc.com", "verifiedUserC", "3", Some(true))
-      val unVerifiedUser1: User = User("user1@somecompany.com", "unVerifiedUserA", "1", Some(false))
+      val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "verifiedUserA", "1", true)
+      val verifiedUser2 = RegisteredUser("user2@hmrc.com", UserId.random, "verifiedUserB", "2", true)
+      val verifiedUser3 = RegisteredUser("user3@hmrc.com", UserId.random, "verifiedUserC", "3", true)
+      val unVerifiedUser1 = RegisteredUser("user1@somecompany.com", UserId.random, "unVerifiedUserA", "1", false)
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = Seq(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users = Seq(verifiedUser1, verifiedUser2)
@@ -111,15 +111,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersByEmailPreferences(users: Seq[User]) = {
+      def givenfetchDevelopersByEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[User]) = {
+      def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[APICategory])(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[User]) = {
+      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*,*, *)(*)).thenReturn(Future.successful(users))
       }
 
@@ -269,7 +269,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val eventualResult: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
-        val filteredUsers = users3Verified1Unverified.filter((u:User) => u.verified.contains(true))
+        val filteredUsers = users3Verified1Unverified.filter(_.verified)
         val expectedEmailString = filteredUsers.map(_.email).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(*, *, *)
         verifyAuthConnectorCalledForUser

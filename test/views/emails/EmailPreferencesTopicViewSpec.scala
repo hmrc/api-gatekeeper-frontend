@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{LoggedInUser, TopicOptionChoice, User}
+import model._
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -25,7 +25,6 @@ import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesTopicView
-
 class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
   trait Setup extends AppConfigMock {
@@ -36,8 +35,8 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
   "email preferences topic view" must {
 
-    val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
-    val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
+    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {

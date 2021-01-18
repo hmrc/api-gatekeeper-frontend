@@ -29,8 +29,7 @@ import play.api.http.Status._
 
 import scala.io.Source
 import play.api.libs.json.Json
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
-import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import acceptance.testdata.CommonTestData
 
 class ApiGatekeeperRemoveMfaSpec 
@@ -172,11 +171,11 @@ class ApiGatekeeperRemoveMfaSpec
 
   def stubDeveloper(): Unit = {
 
-    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(developer8)))
-    implicit val format = Json.writes[GetOrCreateUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(developer8)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
     
-    stubFor(post(urlEqualTo("/developers/user-id"))
+    stubFor(post(urlEqualTo("/developers/find-user-id"))
       .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 

@@ -2,7 +2,7 @@ package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.TopicOptionChoice._
-import model.{APICategory, APICategoryDetails, ApiDefinition, User}
+import model._
 import play.api.http.Status
 import play.api.libs.json.Json
 
@@ -11,7 +11,7 @@ trait DeveloperServiceStub {
   val allUrl = "/developers/all"
   val byEmails = "/developers/get-by-emails"
 
-  def primeDeveloperServiceAllSuccessWithUsers(users: Seq[User]): Unit = {
+  def primeDeveloperServiceAllSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {
 
     stubFor(get(urlEqualTo(allUrl))
       .willReturn(
@@ -20,7 +20,7 @@ trait DeveloperServiceStub {
           .withBody(Json.toJson(users).toString())))
   }
 
-  def primeDeveloperServiceGetByEmails(users: Seq[User]): Unit = {
+  def primeDeveloperServiceGetByEmails(users: Seq[RegisteredUser]): Unit = {
 
     stubFor(post(urlEqualTo(byEmails))
       .willReturn(
@@ -29,7 +29,7 @@ trait DeveloperServiceStub {
           .withBody(Json.toJson(users).toString())))
   }
  
-  def primeDeveloperServiceEmailPreferencesByTopic(users: Seq[User], topic: TopicOptionChoice): Unit = {
+  def primeDeveloperServiceEmailPreferencesByTopic(users: Seq[RegisteredUser], topic: TopicOptionChoice): Unit = {
     val emailpreferencesByTopicUrl = emailPreferencesUrl+"?topic="+topic.toString
     stubFor(get(urlEqualTo(emailpreferencesByTopicUrl))
       .willReturn(
@@ -38,7 +38,7 @@ trait DeveloperServiceStub {
           .withBody(Json.toJson(users).toString())))
   }
 
-    def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[User], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
+    def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
     val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl+"?topic="+topic.toString+"&regime="+category.category
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
@@ -48,7 +48,7 @@ trait DeveloperServiceStub {
   }
 
 
-    def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[User], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
+    def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
     val categories: Seq[APICategory] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
 
     val topicParam = s"topic=${topic.toString}"

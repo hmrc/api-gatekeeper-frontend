@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{ApiDefinition, LoggedInUser, TopicOptionChoice, User}
+import model._
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -38,8 +38,8 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
     val selectedApis: Seq[ApiDefinition] = Seq(simpleAPIDefinition("Api1ServiceName", "Api1Name", "context", None, "1"),
       simpleAPIDefinition("Api2ServiceName", "Api2Name", "context",  None, "1"))
-    val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
-    val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
+    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
     "show correct title and elements on initial load" in new Setup {

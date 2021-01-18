@@ -21,13 +21,12 @@ import java.net.URLEncoder
 import acceptance.pages._
 import acceptance.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
+import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 import scala.io.Source
 import play.api.libs.json.Json
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
-import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 
 class ApiGatekeeperDeveloperDetailsSpec 
     extends ApiGatekeeperBaseSpec 
@@ -40,7 +39,7 @@ class ApiGatekeeperDeveloperDetailsSpec
     with MockDataSugar 
     with utils.UrlEncoding {
 
-  val developers = List[User](new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
   info("I WANT to be able to view the applications an administrator/developer is on")
@@ -121,11 +120,11 @@ class ApiGatekeeperDeveloperDetailsSpec
 
   def stubDeveloper() = {
 
-    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(unverifiedUser.email)))
-    implicit val format = Json.writes[GetOrCreateUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(unverifiedUser.email)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
     
-    stubFor(post(urlEqualTo("/developers/user-id"))
+    stubFor(post(urlEqualTo("/developers/find-user-id"))
       .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 

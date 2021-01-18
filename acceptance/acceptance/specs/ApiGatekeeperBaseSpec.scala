@@ -22,15 +22,14 @@ import acceptance.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
 import acceptance.pages.{ApplicationsPage, DashboardPage}
 import acceptance.{BaseSpec, SignInSugar, WebPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
 import org.scalatest.{GivenWhenThen, Matchers}
 import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.io.Source
-import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import model.RegisteredUser
 
 class ApiGatekeeperBaseSpec 
     extends BaseSpec 
@@ -54,12 +53,12 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
-  def stubDevelopers(developers: List[User]) = {
+  def stubDevelopers(developers: List[RegisteredUser]) = {
     stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubApplication(application: String, developers: List[User], stateHistory: String, appId: String) = {
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: String) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
@@ -75,11 +74,11 @@ class ApiGatekeeperBaseSpec
   }
 
   protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
-    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
-    implicit val format = Json.writes[GetOrCreateUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
-    stubFor(post(urlEqualTo("/developers/user-id"))
+    stubFor(post(urlEqualTo("/developers/find-user-id"))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 
     stubFor(
@@ -107,7 +106,7 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
-  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[User]) = {
+  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 

@@ -1,8 +1,7 @@
 package acceptance.testdata
 
-import model.User
 import play.api.libs.json.Json
-import model.UserId
+import model._
 
 trait CommonTestData {
   val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
@@ -21,11 +20,12 @@ trait CommonTestData {
   val developerFirstName = "Purnima"
   val developerLastName = "Fakename"
 
-  val unverifiedUser = User(
+  val unverifiedUser = RegisteredUser(
     email = "Dixie.fakename@example.com",
+    userId = UserId.random,
     firstName = "Dixie",
     lastName = "Fakename",
-    verified = Some(false),
+    verified = false,
     mfaEnabled = true
   )
  

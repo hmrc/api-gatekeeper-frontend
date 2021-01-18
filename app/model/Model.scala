@@ -192,7 +192,7 @@ object ApplicationReviewDetails {
   implicit val format2 = Json.format[ApplicationReviewDetails]
 }
 
-case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[User], approvedBy: String, approvedOn: DateTime, verified: Boolean)
+case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[RegisteredUser], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 
 object  ApprovedApplication {
   implicit val format1 = Json.format[ApplicationReviewDetails]

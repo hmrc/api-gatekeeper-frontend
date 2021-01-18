@@ -50,9 +50,9 @@ case object DeveloperStatusFilter {
   case object VerifiedStatus extends DeveloperStatusFilter {
     val value = "VERIFIED"
 
-    override def isMatch(user: User): Boolean =  user.verified match {
-      case None => true
-      case Some(verified) => verified
+    override def isMatch(user: User): Boolean = user match {
+      case r : RegisteredUser => r.verified
+      case u : UnregisteredUser => true   // TODO - really true ??
     }
   }
 

@@ -24,7 +24,7 @@ import scala.util.Random
 import java.net.URLEncoder.encode
 
 case class ApiContext(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
 }
 
 object ApiContext {
@@ -36,7 +36,7 @@ object ApiContext {
 }
 
 case class ApiVersion(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
+  def urlEncode(encoding: String = "UTF-8") = encode(value, encoding)
 }
 
 object ApiVersion {

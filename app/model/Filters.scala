@@ -16,7 +16,6 @@
 
 package model
 
-
 sealed trait ApiFilter[+A]
 case class Value[A](context: A, version: A) extends ApiFilter[A]
 case object NoApplications extends ApiFilter[Nothing]

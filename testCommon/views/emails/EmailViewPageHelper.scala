@@ -19,7 +19,8 @@ package views.emails
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice._
-import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition, User}
+import model.RegisteredUser
+import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
 
@@ -73,7 +74,7 @@ trait EmailInformationViewHelper extends EmailUsersHelper {
 
 trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
-  def validateEmailAllUsersPage(document: Document, users: Seq[User]): Unit = {
+  def validateEmailAllUsersPage(document: Document, users: Seq[RegisteredUser]): Unit = {
     elementExistsByText(document, "h1", "Email all users") mustBe true
     elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
     //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
@@ -101,7 +102,7 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition], selectedApiName: String, users: Seq[User]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition], selectedApiName: String, users: Seq[RegisteredUser]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
 
     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
@@ -144,7 +145,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[User]) = {
+  def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
     isElementChecked(document, selectedTopic.toString)
@@ -199,7 +200,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
                                                      categories: List[APICategoryDetails],
                                                      mayBeSelectedCategory: Option[APICategoryDetails],
                                                      selectedTopic: TopicOptionChoice,
-                                                     users: Seq[User]) = {
+                                                     users: Seq[RegisteredUser]) = {
     validateStaticPageElements(document, categories)
 
     mayBeSelectedCategory.map{ selectedCategory =>
@@ -237,7 +238,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
   def validateEmailPreferencesSpecificAPIResults(document: Document,
                                                  selectedTopic: TopicOptionChoice,
                                                  selectedAPIs: Seq[ApiDefinition],
-                                                 users: Seq[User],
+                                                 users: Seq[RegisteredUser],
                                                  emailsString: String) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)

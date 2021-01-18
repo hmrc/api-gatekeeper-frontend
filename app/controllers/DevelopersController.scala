@@ -68,19 +68,19 @@ class DevelopersController @Inject()(developerService: DeveloperService,
           andThen developerService.filterUsersBy(statusFilter))
         devs = developerService.getDevelopersWithApps(apps, users)
         filteredUsers = filterOps(devs)
-        sortedUsers = filteredUsers.sortBy(_.email.toLowerCase)
-        emails = sortedUsers.map(_.email).mkString("; ")
-      } yield Ok(developersView(sortedUsers, emails, groupApisByStatus(apis), filter, status, environment))
+        sortedDevelopers = filteredUsers.sortBy(_.user.email.toLowerCase)
+        emails = sortedDevelopers.map(_.user.email).mkString("; ")
+      } yield Ok(developersView(sortedDevelopers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
   def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer.toDeveloper, isAtLeastSuperUser)))
+      developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
   }
 
   def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer.toDeveloper)))
+      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer)))
   }
 
   def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
@@ -96,7 +96,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
 
   def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer.toDeveloper)))
+      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {

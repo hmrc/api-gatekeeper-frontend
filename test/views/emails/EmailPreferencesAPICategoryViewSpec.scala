@@ -17,7 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{LoggedInUser, TopicOptionChoice, User}
+import model._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
@@ -27,7 +27,6 @@ import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesAPICategoryView
-import model.APICategoryDetails
 
 class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -56,8 +55,8 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences category view" must {
 
-    val user1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
-    val user2 = User("user2@hmrc.com", "userB", "2", verified = Some(true))
+    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
     val category1 = APICategoryDetails("VAT", "Vat")

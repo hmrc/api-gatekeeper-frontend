@@ -140,17 +140,17 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvid
                 <td id="dev-fn-@index">@user.firstName</td>
                 <td id="dev-sn-@index">@user.lastName</td>
                 <td class="text--right hard--right" id="dev-status-@index">
-                    @defining(user.status match {
+                    @defining(User.status(user) match {
                     case VerifiedStatus => ("status status--verified", "verified")
                     case UnverifiedStatus => ("status status--not-verified", "not yet verified")
                     case UnregisteredStatus => ("status status--not-verified", "not registered")
                     }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
                 </td>
                 <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
-                    @(user.mfaEnabled match {
-                    case true => "Yes"
-                    case false => "No"
-                    })
+                  @(user match {
+                    case r: RegisteredUser if(r.mfaEnabled) => "Yes"
+                    case _ => "No"
+                  })
                 </td>
             </tr>
             }

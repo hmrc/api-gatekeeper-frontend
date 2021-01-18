@@ -43,20 +43,20 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded")
 
-  val verifiedUser1 = User("user1@hmrc.com", "userA", "1", verified = Some(true))
-  val unverifiedUser1 = User("user2@hmrc.com", "userB", "2", verified = Some(false))
-  val verifiedUser2 = User("user3@hmrc.com", "userC", "3", verified = Some(true))
+  val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
+  val unverifiedUser1 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = false)
+  val verifiedUser2 = RegisteredUser("user3@hmrc.com", UserId.random, "userC", "3", verified = true)
 
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
 
-    val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None, "1")
-    val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")), "1")
-    val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")), "1")
-    val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None, "1")
-    val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
-    val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
-    val apis = Seq(api1, api2, api3)
+  val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None, "1")
+  val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")), "1")
+  val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")), "1")
+  val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None, "1")
+  val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
+  val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
+  val apis = Seq(api1, api2, api3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient

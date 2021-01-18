@@ -23,9 +23,9 @@ import model.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
 import play.api.libs.json.Json
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import connectors.DeveloperConnector.FindUserIdRequest
 import model.UserId
-import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with MockDataSugar with utils.UrlEncoding {
@@ -37,11 +37,11 @@ trait ApprovedBaseSpec extends BaseSpec
   }
 
   protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
-    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
-    implicit val format = Json.writes[GetOrCreateUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
-    stubFor(post(urlEqualTo("/developers/user-id"))
+    stubFor(post(urlEqualTo("/developers/find-user-id"))
       .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 

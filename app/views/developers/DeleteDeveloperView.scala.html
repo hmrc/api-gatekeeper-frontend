@@ -33,33 +33,33 @@
         </ul>
     </nav>
 
-    @defining(developer.apps.filter(_.isSoleAdmin(developer.email))) { applications =>
+    @defining(developer.applications.filter(_.isSoleAdmin(developer.user.email))) { applications =>
         @if(applications.isEmpty) {
             <header>
-                <h1>@developer.email</h1>
+                <h1>@developer.user.email</h1>
             </header>
 
-            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(developer.email), 'class -> "form") {
+            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(developer.user.email), 'class -> "form") {
             @helper.CSRF.formField
             <h2>Are you sure you want to delete this developer?</h2>
             <div class="form-field form-field--submit">
                 <button id="submit" class="button--alert" type="submit">Delete developer</button>
-                <a id="cancel" href="@routes.DevelopersController.developerPage(developer.email)" class="button--link">Cancel</a>
+                <a id="cancel" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button--link">Cancel</a>
             </div>
             }
         } else {
             <h1>You cannot delete this developer</h1>
             <div>
-                <p><strong>@developer.email</strong> is the only administrator for one or more applications.</p>
+                <p><strong>@developer.user.email</strong> is the only administrator for one or more applications.</p>
                 <p>Applications cannot exist without an administrator.</p>
-                <p>Delete the following applications or <a href="mailto:@{developer.email}">ask the administrator</a> to appoint a new
+                <p>Delete the following applications or <a href="mailto:@{developer.user.email}">ask the administrator</a> to appoint a new
                 administrator for them:</p>
 
                 @for(application <- applications) {
                     <p><a id="app-@{application.id.value}" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></p>
                 }
             </div>
-            <a id="finish" href="@routes.DevelopersController.developerPage(developer.email)" class="button">Finish</a>
+            <a id="finish" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button">Finish</a>
         }
     }
 </article>
