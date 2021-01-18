@@ -27,9 +27,8 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.io.Source
-import connectors.DeveloperConnector.GetOrCreateUserIdResponse
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
 import model.NewModel
 
 class ApiGatekeeperBaseSpec 
@@ -75,11 +74,11 @@ class ApiGatekeeperBaseSpec
   }
 
   protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
-    val requestJson = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
-    implicit val format = Json.writes[GetOrCreateUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(GetOrCreateUserIdResponse(userId)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
-    stubFor(post(urlEqualTo("/developers/user-id"))
+    stubFor(post(urlEqualTo("/developers/find-user-id"))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 
     stubFor(

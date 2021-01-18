@@ -50,11 +50,11 @@ trait DeveloperConnector {
 }
 
 object DeveloperConnector {
-  case class GetOrCreateUserIdRequest(email: String)
-  implicit val GetOrCreateUserIdRequestWrite = Json.writes[GetOrCreateUserIdRequest]
+  case class FindUserIdRequest(email: String)
+  implicit val FindUserIdRequestWrite = Json.writes[FindUserIdRequest]
 
-  case class GetOrCreateUserIdResponse(userId: UserId)
-  implicit val GetOrCreateUserIdResponseReads = Json.reads[GetOrCreateUserIdResponse]
+  case class FindUserIdResponse(userId: UserId)
+  implicit val FindUserIdResponseReads = Json.reads[FindUserIdResponse]
 
   case class RemoveMfaRequest(removedBy: String)
   implicit val RemoveMfaRequestWrites = Json.writes[RemoveMfaRequest]
@@ -68,14 +68,14 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
   import DeveloperConnector._
 
-  def getOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[NewModel.CoreUserDetails] = {
-    http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"${appConfig.developerBaseUrl}/developers/user-id", GetOrCreateUserIdRequest(email))
+  def fetchUserId(email: String)(implicit hc: HeaderCarrier): Future[NewModel.CoreUserDetails] = {
+    http.POST[FindUserIdRequest, FindUserIdResponse](s"${appConfig.developerBaseUrl}/developers/find-user-id", FindUserIdRequest(email))
     .map(response => NewModel.CoreUserDetails(email, response.userId))
   }
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[NewModel.User] = {
     for {
-      coreUserDetails <- getOrCreateUser(email)
+      coreUserDetails <- fetchUserId(email)
       // Beware !!!
       // This GET only looks at registered users and not unregistered users so we still need the _.getOrElse below.
       user <- http.GET[Option[NewModel.RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> coreUserDetails.id.value.toString))
@@ -115,7 +115,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
   def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[NewModel.RegisteredUser] = {
     for {
-      coreUserDetails <- getOrCreateUser(email)
+      coreUserDetails <- fetchUserId(email)
       user <- http.POST[RemoveMfaRequest, NewModel.RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${coreUserDetails.id.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
     } yield user
   }

@@ -31,7 +31,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import encryption.PayloadEncryption
-import connectors.DeveloperConnector.GetOrCreateUserIdRequest
+import connectors.DeveloperConnector.FindUserIdRequestWrite
 import connectors.DeveloperConnector.RemoveMfaRequest
 class HttpDeveloperConnectorSpec
   extends UnitSpec
@@ -55,17 +55,17 @@ class HttpDeveloperConnectorSpec
     val connector = new HttpDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
   }
 
-  def mockGetOrCreateUser(email: String, userId: UserId) = {
+  def mockFetchUserId(email: String, userId: UserId) = {
     import connectors.DeveloperConnector._
-    val payload: String = Json.stringify(Json.toJson(GetOrCreateUserIdRequest(email)))
-    implicit val writer = Json.writes[GetOrCreateUserIdResponse]
+    val payload: String = Json.stringify(Json.toJson(FindUserIdRequest(email)))
+    implicit val writer = Json.writes[FindUserIdResponse]
 
     stubFor(
-      post(urlEqualTo("/developers/user-id")).withRequestBody(equalToJson(payload))
+      post(urlEqualTo("/developers/find-user-id")).withRequestBody(equalToJson(payload))
       .willReturn(
         aResponse()
         .withStatus(OK)
-        .withBody(Json.toJson(GetOrCreateUserIdResponse(userId)).toString)
+        .withBody(Json.toJson(FindUserIdResponse(userId)).toString)
       )
     )
   }
@@ -84,15 +84,10 @@ class HttpDeveloperConnectorSpec
       userResponse.firstName shouldBe expectedFirstName
       userResponse.lastName shouldBe expectedLastName
     }
-    def verifyUnregisteredUserResponse(userResponse: NewModel.User,
-                           expectedEmail: String) = {
-      userResponse.email shouldBe expectedEmail
-      userResponse shouldBe a[NewModel.UnregisteredUser]
-    }
 
     "fetch developer by email" in new Setup {
       val userId = UserId.random
-      mockGetOrCreateUser(developerEmail, userId)
+      mockFetchUserId(developerEmail, userId)
 
       stubFor(
         get(urlPathEqualTo("/developer"))
@@ -110,7 +105,7 @@ class HttpDeveloperConnectorSpec
     "fetch developer by email when special characters in the email" in new Setup {
 
       val userId = UserId.random
-      mockGetOrCreateUser(developerEmailWithSpecialCharacter, userId)
+      mockFetchUserId(developerEmailWithSpecialCharacter, userId)
 
       stubFor(
         get(urlPathEqualTo("/developer"))
@@ -171,7 +166,7 @@ class HttpDeveloperConnectorSpec
 
     "remove MFA for a developer" in new Setup {
       val userId = UserId.random
-      mockGetOrCreateUser(developerEmail, userId)
+      mockFetchUserId(developerEmail, userId)
 
       val loggedInUser: String = "admin-user"
       val payload = Json.stringify(Json.toJson(RemoveMfaRequest(loggedInUser)))
