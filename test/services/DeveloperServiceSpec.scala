@@ -30,17 +30,17 @@ import scala.concurrent.Future
 
 class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar {
 
-  def aUser(name: String, verified: Boolean = true) = NewModel.RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", verified)
+  def aUser(name: String, verified: Boolean = true) = RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", verified)
 
   def aDeveloper(name: String, apps: Seq[Application] = Seq.empty, verified: Boolean = true) =
-    NewModel.Developer(
-      NewModel.RegisteredUser(s"$name@example.com", UserId.random, name, s"${name}son", verified),
+    Developer(
+      RegisteredUser(s"$name@example.com", UserId.random, name, s"${name}son", verified),
       apps
     )
 
   def anUnregisteredDeveloper(name: String, apps: Seq[Application] = Seq.empty) =
-    NewModel.Developer(
-      NewModel.UnregisteredUser(s"$name@example.com" /*, UserId.random // TODO APIS-5153 */),
+    Developer(
+      UnregisteredUser(s"$name@example.com" /*, UserId.random // TODO APIS-5153 */),
       apps
     )
 
@@ -72,7 +72,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(developer: NewModel.RegisteredUser, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
+    def fetchDeveloperWillReturn(developer: RegisteredUser, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
       when(mockDeveloperConnector.fetchByEmail(*)(*))
         .thenReturn(Future.successful(developer))
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
@@ -112,7 +112,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       }
     }
 
-    def removeMfaReturnWillReturn(user: NewModel.RegisteredUser) = {
+    def removeMfaReturnWillReturn(user: RegisteredUser) = {
       when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(Future.successful(user))
     }
   }
@@ -261,7 +261,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       fetchDeveloperWillReturn(developer, apps)
 
       val result = await(underTest.fetchDeveloper(developer.email))
-      result shouldBe NewModel.Developer(developer, apps)
+      result shouldBe Developer(developer, apps)
       verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
     }
@@ -510,9 +510,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     "find by developer status should sort users by email" in new Setup {
 
-      val firstInTheListUser = NewModel.RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
-      val secondInTheListUser = NewModel.RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
-      val thirdInTheListUser = NewModel.RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
+      val firstInTheListUser = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
+      val secondInTheListUser = RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
+      val thirdInTheListUser = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
 

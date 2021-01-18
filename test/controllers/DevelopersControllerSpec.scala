@@ -81,11 +81,11 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[NewModel.Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[Developer]): Unit = {
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => NewModel.RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
         when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
@@ -94,7 +94,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
       }
 
-      def givenFetchDeveloperReturns(developer: NewModel.Developer) = {
+      def givenFetchDeveloperReturns(developer: Developer) = {
         when(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).thenReturn(successful(developer))
       }
 
@@ -102,7 +102,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         when(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).thenReturn(successful(result))
       }
 
-      def givenRemoveMfaReturns(user: Future[NewModel.RegisteredUser]) = {
+      def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
         when(mockDeveloperService.removeMfa(any[String], any[String])(*)).thenReturn(user)
       }
     }
@@ -155,15 +155,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "list all developers when filtering off" in new Setup {
         val users = Seq(
-          NewModel.RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
-          NewModel.RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
-          NewModel.RegisteredUser("someone@example.com", UserId.random, "Sample3", "Email", true)
+          RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
+          RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
+          RegisteredUser("someone@example.com", UserId.random, "Sample3", "Email", true)
         )
         val collaborators = Set(
           Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
         val applications = Seq(ApplicationResponse(
           ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
-        val devs = users.map(NewModel.Developer(_, applications))
+        val devs = users.map(Developer(_, applications))
         givenTheUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, devs)
         val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
@@ -197,8 +197,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "allow a normal user to access the page" in new Setup {
         val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
           Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
-        val developer = NewModel.Developer(
-          NewModel.RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
+        val developer = Developer(
+          RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
           apps
         )
         givenTheUserIsAuthorisedAndIsANormalUser()
@@ -223,7 +223,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a normal user to access the page" in new Setup {
         givenTheUserIsAuthorisedAndIsANormalUser()
-        givenRemoveMfaReturns(successful(NewModel.RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)))
+        givenRemoveMfaReturns(successful(RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)))
 
         val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
 
@@ -246,8 +246,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       val emailAddress = "someone@example.com"
       val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR),
         Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR))))
-      val developer = NewModel.Developer(
-        NewModel.RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
+      val developer = Developer(
+        RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
         apps
       )
 

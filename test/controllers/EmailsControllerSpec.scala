@@ -86,10 +86,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       val mockDeveloperService: DeveloperService = mock[DeveloperService]
-      val verifiedUser1 = NewModel.RegisteredUser("user1@hmrc.com", UserId.random, "verifiedUserA", "1", true)
-      val verifiedUser2 = NewModel.RegisteredUser("user2@hmrc.com", UserId.random, "verifiedUserB", "2", true)
-      val verifiedUser3 = NewModel.RegisteredUser("user3@hmrc.com", UserId.random, "verifiedUserC", "3", true)
-      val unVerifiedUser1 = NewModel.RegisteredUser("user1@somecompany.com", UserId.random, "unVerifiedUserA", "1", false)
+      val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "verifiedUserA", "1", true)
+      val verifiedUser2 = RegisteredUser("user2@hmrc.com", UserId.random, "verifiedUserB", "2", true)
+      val verifiedUser3 = RegisteredUser("user3@hmrc.com", UserId.random, "verifiedUserC", "3", true)
+      val unVerifiedUser1 = RegisteredUser("user1@somecompany.com", UserId.random, "unVerifiedUserA", "1", false)
       val users = Seq(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = Seq(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users = Seq(verifiedUser1, verifiedUser2)
@@ -111,15 +111,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersByEmailPreferences(users: Seq[NewModel.RegisteredUser]) = {
+      def givenfetchDevelopersByEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[NewModel.RegisteredUser]) = {
+      def givenfetchDevelopersByAPICategoryEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[APICategory])(*)).thenReturn(Future.successful(users))
       }
 
-      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[NewModel.RegisteredUser]) = {
+      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: Seq[RegisteredUser]) = {
         when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*,*, *)(*)).thenReturn(Future.successful(users))
       }
 
@@ -478,7 +478,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   }
 
-  def verifyUserTable(responseBody: String, users: Seq[NewModel.User], showZeroUsers: Boolean = false) {
+  def verifyUserTable(responseBody: String, users: Seq[User], showZeroUsers: Boolean = false) {
     if (users.nonEmpty) {
       responseBody should include(s"<div>${users.size} results</div>")
 

@@ -36,8 +36,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.NewModel
-import model.NewModel.RegisteredUser
+import model.{User,RegisteredUser}
 
 @Singleton
 class EmailsController @Inject()(developerService: DeveloperService,
@@ -134,7 +133,7 @@ class EmailsController @Inject()(developerService: DeveloperService,
           filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.name)
           apiNames = filteredApis.map(_.serviceName)
           categories = filteredApis.flatMap(_.categories.getOrElse(Seq.empty))
-          users <- selectedTopic.fold(Future.successful(Seq.empty[NewModel.RegisteredUser]))(topic => {
+          users <- selectedTopic.fold(Future.successful(Seq.empty[RegisteredUser]))(topic => {
             developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified))
           })
         } yield Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis, selectedTopic))
@@ -190,7 +189,7 @@ class EmailsController @Inject()(developerService: DeveloperService,
   def emailAllUsersPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.fetchUsers
-        .map((users: Seq[NewModel.RegisteredUser]) => {
+        .map((users: Seq[RegisteredUser]) => {
           val filteredUsers = users.filter(_.verified)
           Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))
         })
@@ -205,7 +204,7 @@ class EmailsController @Inject()(developerService: DeveloperService,
       } yield apiDropDowns
 
       val filter = Developers2Filter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
-      val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(Seq.empty[NewModel.User]))(_ => developerService.searchDevelopers(filter))
+      val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(Seq.empty[User]))(_ => developerService.searchDevelopers(filter))
       for {
         registeredUsers <- fetchedUsers.map(users => users.collect {
           case r : RegisteredUser => r

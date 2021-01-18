@@ -20,18 +20,18 @@ import java.net.URLEncoder
 
 import acceptance.pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.{NewModel, UserId}
+import model.UserId
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import acceptance.pages.ApplicationPage
 import acceptance.testdata.{StateHistoryTestData, ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
-import model.NewModel
+import model.RegisteredUser
 import model.UserId
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 
-  val developers = List[NewModel.RegisteredUser](NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   feature("Application List for Search Functionality") {
     info("AS A Product Owner")

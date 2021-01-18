@@ -40,7 +40,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   Helpers.running(app) {
 
-    def aUser(email: String) = NewModel.RegisteredUser(email, UserId.random, "first", "last", verified = false)
+    def aUser(email: String) = RegisteredUser(email, UserId.random, "first", "last", verified = false)
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
@@ -66,11 +66,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: List[NewModel.Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: List[Developer]): Unit = {
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => NewModel.RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
         when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
@@ -79,7 +79,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
       }
 
-      def givenFetchDeveloperReturns(developer: NewModel.Developer) = {
+      def givenFetchDeveloperReturns(developer: Developer) = {
         when(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).thenReturn(successful(developer))
       }
 
@@ -87,7 +87,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         when(mockDeveloperService.deleteDeveloper(*, *)(*)).thenReturn(successful(result))
       }
 
-      def givenRemoveMfaReturns(user: Future[NewModel.RegisteredUser]) = {
+      def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
         when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(user)
       }
     }

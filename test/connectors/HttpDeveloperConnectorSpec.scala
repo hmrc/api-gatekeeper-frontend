@@ -75,9 +75,9 @@ class HttpDeveloperConnectorSpec
     val developerEmailWithSpecialCharacter = "developer2+test@example.com"
 
 
-    def aUserResponse(email: String, id: UserId = UserId.random) = NewModel.RegisteredUser(email, id, "first", "last", verified = false)
+    def aUserResponse(email: String, id: UserId = UserId.random) = RegisteredUser(email, id, "first", "last", verified = false)
 
-    def verifyUserResponse(userResponse: NewModel.User,
+    def verifyUserResponse(userResponse: User,
                            expectedEmail: String,
                            expectedFirstName: String, expectedLastName: String) = {
       userResponse.email shouldBe expectedEmail

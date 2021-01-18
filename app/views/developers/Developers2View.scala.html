@@ -20,7 +20,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[NewModel.User],
+@(users: Seq[User],
 emails: String,
 apiVersions : Seq[DropDownValue],
 params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
@@ -140,7 +140,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvid
                 <td id="dev-fn-@index">@user.firstName</td>
                 <td id="dev-sn-@index">@user.lastName</td>
                 <td class="text--right hard--right" id="dev-status-@index">
-                    @defining(NewModel.User.status(user) match {
+                    @defining(User.status(user) match {
                     case VerifiedStatus => ("status status--verified", "verified")
                     case UnverifiedStatus => ("status status--not-verified", "not yet verified")
                     case UnregisteredStatus => ("status status--not-verified", "not registered")
@@ -148,7 +148,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvid
                 </td>
                 <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
                   @(user match {
-                    case r: NewModel.RegisteredUser if(r.mfaEnabled) => "Yes"
+                    case r: RegisteredUser if(r.mfaEnabled) => "Yes"
                     case _ => "No"
                   })
                 </td>

@@ -28,8 +28,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
-import model.NewModel
-import model.UserId
+import model._
 
 class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
 
@@ -42,14 +41,14 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       val developers = List(
-        NewModel.RegisteredUser(
+        RegisteredUser(
           email = developer4,
           userId = UserId.random,
           firstName = dev4FirstName,
           lastName = dev4LastName,
           verified = true
           ),
-        NewModel.RegisteredUser(
+        RegisteredUser(
           email = developer5,
           userId = UserId.random,
           firstName = dev5FirstName,
@@ -138,7 +137,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubApplicationsCollaborators(developers: Seq[NewModel.User]): Unit = {
+  private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
     val developersJson = Json.toJson(developers.map(u => u.email)).toString
 
     stubFor(get(urlPathEqualTo("/collaborators"))
@@ -158,7 +157,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
         .withStatus(OK)))
   }
 
-  private def stubDevelopersSearch(emailFilter: String, developers: Seq[NewModel.RegisteredUser]): Unit = {
+  private def stubDevelopersSearch(emailFilter: String, developers: Seq[RegisteredUser]): Unit = {
     val developersListJson: String = Json.toJson(developers).toString
 
     stubFor(
@@ -170,7 +169,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
     )
   }
 
-  private def stubGetDevelopersByEmails(developers: Seq[NewModel.RegisteredUser]): Unit = {
+  private def stubGetDevelopersByEmails(developers: Seq[RegisteredUser]): Unit = {
     val emailsResponseJson = Json.toJson(developers).toString()
 
     stubFor(

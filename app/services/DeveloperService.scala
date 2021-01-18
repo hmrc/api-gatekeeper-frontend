@@ -29,9 +29,9 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
-  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[NewModel.User]] = {
+  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
 
-    val unsortedResults: Future[Seq[NewModel.User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+    val unsortedResults: Future[Seq[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None) => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybeEmailFilter, Some(apiFilter)) => {
         for {
@@ -66,7 +66,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   }
 
   def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
-                   (users: Seq[NewModel.Developer]): Seq[NewModel.Developer] = {
+                   (users: Seq[Developer]): Seq[Developer] = {
 
     val registeredEmails = users.map(_.user.email)
 
@@ -81,8 +81,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     lazy val unregisteredCollaborators: Map[String, Set[Application]] =
       linkAppsAndCollaborators(apps).filterKeys(e => !registeredEmails.contains(e))
 
-    lazy val unregistered: Set[NewModel.Developer] =
-      unregisteredCollaborators.map { case (email, userApps) => NewModel.Developer(NewModel.UnregisteredUser(email), userApps.toSeq) } toSet
+    lazy val unregistered: Set[Developer] =
+      unregisteredCollaborators.map { case (email, userApps) => Developer(UnregisteredUser(email), userApps.toSeq) } toSet
 
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
 
@@ -93,47 +93,47 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  def filterUsersBy(filter: StatusFilter)(developers: Seq[NewModel.Developer]): Seq[NewModel.Developer] = {
+  def filterUsersBy(filter: StatusFilter)(developers: Seq[Developer]): Seq[Developer] = {
     filter match {
       case AnyStatus => developers
-      case _ => developers.filter(d => filter == NewModel.User.status(d.user))
+      case _ => developers.filter(d => filter == User.status(d.user))
     }
   }
 
-  def getDevelopersWithApps(apps: Seq[Application], users: Seq[NewModel.User]): Seq[NewModel.Developer] = {
+  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User]): Seq[Developer] = {
 
-    def isACollaboratorForApp(user: NewModel.User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
+    def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
-    def collaboratingApps(user: NewModel.User): Seq[Application] = {
+    def collaboratingApps(user: User): Seq[Application] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
     users.map(u => {
-      NewModel.Developer(u, collaboratingApps(u))
+      Developer(u, collaboratingApps(u))
     })
   }
 
-  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[NewModel.RegisteredUser]] = {
+  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
     developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
-  def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[NewModel.User] = {
+  def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[NewModel.Developer] = {
+  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Developer] = {
     for {
       user <- developerConnector.fetchByEmail(email)
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByEmail(email)
       productionApplications <- productionApplicationConnector.fetchApplicationsByEmail(email)
-    } yield NewModel.Developer(user, (sandboxApplications ++ productionApplications).distinct)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
   }
 
-  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[NewModel.RegisteredUser]] = {
+  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[NewModel.RegisteredUser]] = {
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(Seq(_)))
   }
 
@@ -146,7 +146,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   }
 
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[NewModel.RegisteredUser] = {
+  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(email, loggedInUser)
   }
 

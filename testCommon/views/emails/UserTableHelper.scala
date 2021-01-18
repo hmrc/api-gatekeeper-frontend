@@ -17,13 +17,13 @@
 package views.emails
 
 import org.jsoup.nodes.Document
-import model.NewModel
+import model.RegisteredUser
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
 
 trait UserTableHelper extends MustMatchers  {
   
-    def verifyUserRow(document: Document, user: NewModel.RegisteredUser): Unit ={
+    def verifyUserRow(document: Document, user: RegisteredUser): Unit ={
       elementExistsByText(document, "td", user.email) mustBe true
       elementExistsByText(document, "td", user.firstName) mustBe true
       elementExistsByText(document, "td", user.lastName) mustBe true

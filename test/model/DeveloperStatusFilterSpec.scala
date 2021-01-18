@@ -20,8 +20,8 @@ import org.scalatest.{Matchers, WordSpec}
 
 class DeveloperStatusFilterSpec extends WordSpec with Matchers {
 
-  def aUser(name: String, verified: Option[Boolean]): NewModel.User = {
-    verified.fold[NewModel.User]( NewModel.UnregisteredUser(s"$name@example.com"))(v => NewModel.RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))
+  def aUser(name: String, verified: Option[Boolean]): User = {
+    verified.fold[User]( UnregisteredUser(s"$name@example.com"))(v => RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))
   } 
 
   "DeveloperStatusFilter parsing" should {

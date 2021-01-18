@@ -68,7 +68,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           for {
             users <- filteredUsers
             registeredUsers = users.collect {
-                                case r : NewModel.RegisteredUser => r
+                                case r : RegisteredUser => r
                               }
         verifiedUsers = registeredUsers.filter(_.verified)
             apiVersions <- apiDefinitionService.fetchAllApiDefinitions()

@@ -29,7 +29,7 @@ import play.api.libs.json.Json
 import scala.io.Source
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
-import model.NewModel
+import model.RegisteredUser
 
 class ApiGatekeeperBaseSpec 
     extends BaseSpec 
@@ -53,12 +53,12 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
-  def stubDevelopers(developers: List[NewModel.RegisteredUser]) = {
+  def stubDevelopers(developers: List[RegisteredUser]) = {
     stubFor(get(urlMatching(s"/developers")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubApplication(application: String, developers: List[NewModel.RegisteredUser], stateHistory: String, appId: String) = {
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: String) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
@@ -106,7 +106,7 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
-  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[NewModel.RegisteredUser]) = {
+  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubApplicationList()
 

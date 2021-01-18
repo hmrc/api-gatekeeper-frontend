@@ -21,7 +21,7 @@ import java.net.URLEncoder
 import acceptance.pages._
 import acceptance.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.{NewModel, UserId}
+import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 import scala.io.Source
@@ -39,7 +39,7 @@ class ApiGatekeeperDeveloperDetailsSpec
     with MockDataSugar 
     with utils.UrlEncoding {
 
-  val developers = List[NewModel.RegisteredUser](NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
   info("I WANT to be able to view the applications an administrator/developer is on")

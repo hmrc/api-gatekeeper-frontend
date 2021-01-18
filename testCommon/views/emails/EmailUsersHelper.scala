@@ -20,7 +20,7 @@ import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
 import model.{ApiDefinition, EmailPreferencesChoice, TopicOptionChoice}
-import model.NewModel
+import model.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.MustMatchers
 import utils.ViewHelpers._
@@ -54,7 +54,7 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
     })
   }
 
-  def validateCopyToClipboardLink(document: Document, users: Seq[NewModel.RegisteredUser] = Seq.empty) = {
+  def validateCopyToClipboardLink(document: Document, users: Seq[RegisteredUser] = Seq.empty) = {
     withClue(s"Copy to clipboard link validation failed") {
       elementExistsById(document, "copy-users-to-clip") mustBe users.nonEmpty
     }

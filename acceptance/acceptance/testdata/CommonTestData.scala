@@ -1,8 +1,7 @@
 package acceptance.testdata
 
 import play.api.libs.json.Json
-import model.UserId
-import model.NewModel
+import model._
 
 trait CommonTestData {
   val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
@@ -21,7 +20,7 @@ trait CommonTestData {
   val developerFirstName = "Purnima"
   val developerLastName = "Fakename"
 
-  val unverifiedUser = NewModel.RegisteredUser(
+  val unverifiedUser = RegisteredUser(
     email = "Dixie.fakename@example.com",
     userId = UserId.random,
     firstName = "Dixie",

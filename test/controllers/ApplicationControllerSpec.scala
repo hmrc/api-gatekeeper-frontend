@@ -95,8 +95,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
-      val developers = List[NewModel.RegisteredUser] {
-        new NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
+      val developers = List[RegisteredUser] {
+        new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
       }
 
       val underTest = new ApplicationController(

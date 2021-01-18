@@ -19,9 +19,8 @@ package acceptance.specs
 import acceptance.testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import acceptance.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.NewModel
 import play.api.http.Status._
-import model.UserId
+import model._
 
 class ApiGatekeeperApplicationReviewSpec
     extends ApiGatekeeperBaseSpec 
@@ -31,7 +30,7 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithHistoryTestData
     with utils.UrlEncoding {
 
-  val developers = List[NewModel.RegisteredUser](NewModel.RegisteredUser("holly.golightly@example.com", UserId.random, "holly", "golightly", false))
+  val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com", UserId.random, "holly", "golightly", false))
 
   val approveRequest =
     s"""

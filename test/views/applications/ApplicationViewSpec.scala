@@ -37,8 +37,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     implicit val request = FakeRequest()
     val applicationView = app.injector.instanceOf[ApplicationView]
 
-    val developers = List[NewModel.RegisteredUser] {
-      new NewModel.RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
+    val developers = List[RegisteredUser] {
+      new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
     }
 
     val clientId = ClientId("clientid")
@@ -321,7 +321,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information and click on associated developer" in new Setup {
-      val user = NewModel.RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
+      val user = RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
       val result = applicationView.render(
         DefaultApplicationViewModel.withDeveloper(user),
         request,

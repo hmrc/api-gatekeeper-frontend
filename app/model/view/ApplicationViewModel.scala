@@ -21,10 +21,10 @@ import model.ApiVersion
 import model.StateHistory
 import model.TermsOfUseAgreement
 import model.ApiStatus.ApiStatus
-import model.NewModel
+import model.RegisteredUser
 
 case class ApplicationViewModel(
-  developers: List[NewModel.RegisteredUser],
+  developers: List[RegisteredUser],
   application: NewApplication,
   subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
   subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
