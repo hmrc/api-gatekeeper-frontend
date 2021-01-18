@@ -63,10 +63,6 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
-      val developers = List[User] {
-        new User("joe.bloggs@example.co.uk", "joe", "bloggs", None, None, false)
-      }
-
       def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10

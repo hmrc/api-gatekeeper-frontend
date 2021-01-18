@@ -22,7 +22,6 @@ import acceptance.pages.Developer2Page.APIFilter
 import acceptance.pages.{ApplicationsPage, Developer2Page}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._

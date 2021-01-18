@@ -1,7 +1,6 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.User
 import play.api.http.Status
 import play.api.libs.json.Json
 import model.NewModel

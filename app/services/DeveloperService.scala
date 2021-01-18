@@ -100,12 +100,6 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  def filterUsersBy(filter: ApiSubscriptionInEnvironmentFilter, apps: Seq[Application])(users: Seq[Developer]): Seq[Developer] = filter match {
-    case AnyEnvironment => users
-    case ProductionEnvironment => users.filter(user => user.apps.exists(app => app.deployedTo == "PRODUCTION"))
-    case SandboxEnvironment => users
-  }
-
   def getDevelopersWithApps(apps: Seq[Application], users: Seq[NewModel.User]): Seq[NewModel.Developer] = {
 
     def isACollaboratorForApp(user: NewModel.User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
