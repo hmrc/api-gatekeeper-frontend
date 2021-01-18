@@ -23,11 +23,9 @@ import acceptance.pages.DeveloperPage.StatusFilter._
 import acceptance.pages.{ApplicationsPage, DeveloperPage}
 import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.NewModel
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
 import play.api.http.Status._
-import play.api.libs.json.Json
 
 import scala.collection.immutable.List
 
@@ -76,15 +74,16 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       on(DeveloperPage)
 
       Then("all developers are successfully displayed and sorted correctly")
-      val developers: Seq[(String, String, String,String)] = List((dev4FirstName,dev4LastName,developer4,statusVerified),
+      val developers: Seq[(String, String, String,String)] = List(
+        (dev4FirstName,dev4LastName,developer4,statusVerified),
         (dev8FirstName, dev8LastName, developer8,statusUnverified),
         (dev9name, dev9name, developer9,statusUnregistered),
         (dev2FirstName, dev2LastName, developer2,statusVerified),
         (dev5FirstName, dev5LastName, developer5,statusUnverified),
         (dev7FirstName, dev7LastName, developer7,statusVerified),
         (devFirstName, devLastName, developer,statusVerified),
-        (dev6FirstName, dev6LastName, developer6,statusVerified))
-
+        (dev6FirstName, dev6LastName, developer6,statusVerified)
+      )
 
       val allDevs: Seq[((String, String, String, String), Int)] = developers.zipWithIndex
 
