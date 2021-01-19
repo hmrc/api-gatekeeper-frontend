@@ -120,7 +120,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
      ) recover {
       case _ => FieldsDeleteFailureResult
     }
-  }
+  }     
 
   private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)
                                        (implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
@@ -129,13 +129,19 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   }
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/field/application/${clientId.value}/context/${apiContext.value}/version/${apiVersion.value}"
+    SubscriptionFieldsConnector.urlSubscriptionFieldValues(serviceBaseUrl)(clientId, apiContext, apiVersion)
 
   private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: ApiVersion) =
-    s"$serviceBaseUrl/definition/context/${apiContext.value}/version/${apiVersion.value}"
+    SubscriptionFieldsConnector.urlSubscriptionFieldDefinition(serviceBaseUrl)(apiContext, apiVersion)
 }
 
 object SubscriptionFieldsConnector {
+
+  def urlSubscriptionFieldValues(baseUrl: String)(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
+    s"$baseUrl/field/application/${clientId.urlEncode}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
+
+  def urlSubscriptionFieldDefinition(baseUrl: String)(apiContext: ApiContext, apiVersion: ApiVersion) =
+    s"$baseUrl/definition/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
   def toDomain(f: FieldDefinition): SubscriptionFieldDefinition = {
     SubscriptionFieldDefinition(
