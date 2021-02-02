@@ -65,10 +65,10 @@ class ModelSpec  extends UnitSpec with Matchers {
 
   "Application.isSoleAdmin" should {
     val emailAddress = "admin@example.com"
-    val admin = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR)
-    val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER)
-    val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR)
-    val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)
+    val admin = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random)
+    val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER, UserId.random)
+    val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+    val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
 
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(

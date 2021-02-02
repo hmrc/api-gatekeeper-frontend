@@ -21,7 +21,6 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import services.DeveloperService
 import utils.WithCSRFAddToken
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
@@ -40,7 +39,6 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
   Helpers.running(app) {
 
-    def aUser(email: String) = RegisteredUser(email, UserId.random, "first", "last", verified = false)
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
@@ -49,8 +47,6 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
-
-      val mockDeveloperService = mock[DeveloperService]
 
       val developersController = new Developers2Controller(
         mockAuthConnector,
@@ -94,7 +90,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
     "developersPage" should {
       "show no results when initially opened" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         val result = await(developersController.developersPage()(aLoggedInRequest))
@@ -105,7 +101,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "allow searching by email or partial email" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -124,7 +120,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "search by empty filters values doesn't filter by them" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val emailFilter = ""
@@ -139,7 +135,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "remember the search filter text on submit" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val searchFilter = "aFilter"
@@ -154,7 +150,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "allow me to copy all the email addresses" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
@@ -171,7 +167,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "show an api version filter dropdown with correct display text" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
@@ -187,7 +183,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         val apiContext = ApiContext.random
@@ -205,7 +201,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "search by api version" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -239,7 +235,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "show number of entries" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
@@ -257,7 +253,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "allow searching by developerStatusFilter" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -276,7 +272,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       }
 
       "allow searching by environmentFilter" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"

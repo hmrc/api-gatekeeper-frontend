@@ -70,19 +70,25 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
     val registeredEmails = users.map(_.user.email)
 
-    def linkAppsAndCollaborators(apps: Seq[Application]): Map[String, Set[Application]] = {
-      apps.foldLeft(Map.empty[String, Set[Application]])((uMap, appResp) =>
+    type KEY = Tuple2[String, UserId]
+    def asKey(collaborator: Collaborator): KEY = ((collaborator.emailAddress, collaborator.userId))
+    def asUnregisteredUser(c: KEY): UnregisteredUser = UnregisteredUser(c._1, c._2)
+
+    def linkAppsAndCollaborators(apps: Seq[Application]): Map[KEY, Set[Application]] = {
+      apps.foldLeft(Map.empty[KEY, Set[Application]])((uMap, appResp) =>
         appResp.collaborators.foldLeft(uMap)((m, c) => {
-          val userApps = m.getOrElse(c.emailAddress, Set.empty[Application]) + appResp
-          m + (c.emailAddress -> userApps)
+          val userApps = m.getOrElse(asKey(c), Set.empty[Application]) + appResp
+          m + (asKey(c) -> userApps)
         }))
     }
 
-    lazy val unregisteredCollaborators: Map[String, Set[Application]] =
-      linkAppsAndCollaborators(apps).filterKeys(e => !registeredEmails.contains(e))
+    lazy val unregisteredCollaborators: Map[KEY, Set[Application]] =
+      linkAppsAndCollaborators(apps).filterKeys(k => !registeredEmails.contains(k._1))
 
     lazy val unregistered: Set[Developer] =
-      unregisteredCollaborators.map { case (email, userApps) => Developer(UnregisteredUser(email), userApps.toSeq) } toSet
+      unregisteredCollaborators.map {
+        case (key,userApps) => Developer(asUnregisteredUser(key), userApps.toSeq)
+      }.toSet
 
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
 

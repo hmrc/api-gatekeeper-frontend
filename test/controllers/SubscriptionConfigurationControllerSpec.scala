@@ -90,7 +90,7 @@ class SubscriptionConfigurationControllerSpec
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheGKUserIsAuthorisedAndIsASuperUser()
       
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -116,7 +116,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheGKUserIsAuthorisedAndIsASuperUser()
 
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -128,7 +128,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as normal user renders forbidden page" in new Setup {
-      givenTheUserHasInsufficientEnrolments()
+      givenTheGKUserHasInsufficientEnrolments()
 
       val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
@@ -138,7 +138,7 @@ class SubscriptionConfigurationControllerSpec
 
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -164,7 +164,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
      "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheGKUserIsAuthorisedAndIsASuperUser()
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -177,7 +177,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as normal user renders forbidden page" in new Setup {
-      givenTheUserHasInsufficientEnrolments()
+      givenTheGKUserHasInsufficientEnrolments()
 
       val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
       status(result) shouldBe FORBIDDEN
@@ -187,7 +187,7 @@ class SubscriptionConfigurationControllerSpec
 
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -208,7 +208,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "save gives validation errors" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -229,7 +229,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as super saves the data" in new EditSaveFormData {
-      givenTheUserIsAuthorisedAndIsASuperUser()
+      givenTheGKUserIsAuthorisedAndIsASuperUser()
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -246,7 +246,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
-      givenTheUserHasInsufficientEnrolments()
+      givenTheGKUserHasInsufficientEnrolments()
       
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 

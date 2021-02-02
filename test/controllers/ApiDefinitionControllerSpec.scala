@@ -43,7 +43,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   
   "apis" should {
     "return a csv" in new Setup {
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
 
       val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.STABLE))
       val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
@@ -59,7 +59,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     }
 
     "Forbidden if not stride auth" in new Setup {
-      givenTheUserHasInsufficientEnrolments()
+      givenTheGKUserHasInsufficientEnrolments()
       
       val result = await(controller.apis()(aLoggedOutRequest))
 

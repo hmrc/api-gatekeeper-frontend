@@ -79,7 +79,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
       // Beware !!!
       // This GET only looks at registered users and not unregistered users so we still need the _.getOrElse below.
       user <- http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> coreUserDetails.id.value.toString))
-              .map(_.getOrElse(UnregisteredUser(email /*, coreUserDetails.id // TODO APIS-5153 */)))
+              .map(_.getOrElse(UnregisteredUser(email, coreUserDetails.id)))
     } yield user
   }
 
@@ -133,7 +133,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
 @Singleton
 class DummyDeveloperConnector extends DeveloperConnector {
-  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email /*, UserId.random // TODO APIS-5153 */))
+  def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email, UserId.random))
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier) = Future.successful(Seq.empty)
 

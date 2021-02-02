@@ -56,8 +56,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
     )
 
     val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     val applications = Seq[ApplicationResponse](
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),

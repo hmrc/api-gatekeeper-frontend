@@ -66,7 +66,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).willReturn(Future.successful(approvalSummaries))
 
       val result = await(underTest.pendingPage()(aLoggedInRequest))
@@ -98,7 +98,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val environment = SANDBOX
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
@@ -118,7 +118,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val environment = PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).willReturn(Future.successful(approvalSummary))
 
       val result = await(addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest))
@@ -148,7 +148,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val environment = SANDBOX
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
       given(mockDeploymentApprovalService.approveService(*, *)(*)).willReturn(Future.successful(()))
 
@@ -168,7 +168,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val environment = PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
       given(mockDeploymentApprovalService.approveService(*, *)(*)).willReturn(Future.successful(()))
 
@@ -187,7 +187,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     "return bad request if approval is not confirmed" in new Setup {
       val environment = PRODUCTION
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "No")
 
@@ -198,7 +198,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val environment = PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
-      givenTheUserIsAuthorisedAndIsANormalUser()
+      givenTheGKUserIsAuthorisedAndIsANormalUser()
       given(mockDeploymentApprovalService.fetchApprovalSummary(*, *)(*)).willReturn(Future.successful(approvalSummary))
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")

@@ -59,8 +59,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     implicit val hc = HeaderCarrier()
 
     val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     val stdApp1 = ApplicationResponse(
       ApplicationId.random, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
@@ -495,7 +495,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   }
 
   "createPrivOrROPCApp" should {
-    val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
+    val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
     val totpSecrets = Some(TotpSecrets("secret"))
     val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
 
@@ -596,11 +596,11 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
 
     "include correct set of admins to email" in new Setup {
-      val verifiedAdmin = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR)
-      val unverifiedAdmin = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR)
-      val adminToRemove = Collaborator(memberToRemove, CollaboratorRole.ADMINISTRATOR)
-      val adderAdmin = Collaborator(requestingUser, CollaboratorRole.ADMINISTRATOR)
-      val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER)
+      val verifiedAdmin = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+      val unverifiedAdmin = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+      val adminToRemove = Collaborator(memberToRemove, CollaboratorRole.ADMINISTRATOR, UserId.random)
+      val adderAdmin = Collaborator(requestingUser, CollaboratorRole.ADMINISTRATOR, UserId.random)
+      val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER, UserId.random)
       val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
       val nonAdderAdmins = Seq(
         RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),

@@ -26,7 +26,6 @@ import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import services.DeveloperService
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
@@ -85,7 +84,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .withCSRFToken
       }
 
-      val mockDeveloperService: DeveloperService = mock[DeveloperService]
       val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "verifiedUserA", "1", true)
       val verifiedUser2 = RegisteredUser("user2@hmrc.com", UserId.random, "verifiedUserB", "2", true)
       val verifiedUser3 = RegisteredUser("user3@hmrc.com", UserId.random, "verifiedUserC", "3", true)
@@ -168,7 +166,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email landing page" should {
       "on initial request with logged in user should display disabled options and checked email all options" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val eventualResult: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(eventualResult) shouldBe OK
        
@@ -180,7 +178,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "choose email option" should {
 
       "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_ALL_USERS)))
 
         status(result) shouldBe SEE_OTHER
@@ -188,7 +186,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
 
         val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(API_SUBSCRIPTION)))
 
@@ -197,7 +195,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result: Result = await(underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_PREFERENCES)))
 
         status(result) shouldBe SEE_OTHER
@@ -207,7 +205,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TOPIC)))
 
         status(result) shouldBe SEE_OTHER
@@ -215,7 +213,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API)))
 
         status(result) shouldBe SEE_OTHER
@@ -223,7 +221,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result: Result = await(underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TAX_REGIME)))
 
         status(result) shouldBe SEE_OTHER
@@ -233,7 +231,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email information page" should {
       "on request with 'all-users' in uri path should render correctly" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val eventualResult: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
@@ -242,7 +240,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val eventualResult: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
@@ -251,7 +249,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         val result = intercept[NotFoundException] {
           await(underTest.showEmailInformation("")(aLoggedInRequest))
         }
@@ -264,7 +262,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email all Users page" should {
       "on request should render correctly when 3 verified users are retrieved from developer service " in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         given3VerifiedDevelopers1Unverified()
         val eventualResult: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
@@ -276,7 +274,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenVerifiedDeveloper()
         val eventualResult: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
@@ -288,7 +286,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "on request should render correctly when no verified users are retrieved from the developer service" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoVerifiedDevelopers()
         val eventualResult: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
@@ -301,7 +299,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "email subscribers page" should {
 
       "render correctly (not display user table) when no filter provided" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis
         val eventualResult: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(eventualResult) shouldBe OK
@@ -311,7 +309,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render correctly and display users when api filter provided" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
         val eventualResult: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
@@ -326,7 +324,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email preferences select api page" should {
        "return ok on initial load" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
         val eventualResult: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
@@ -336,7 +334,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
      "return ok when filters provided" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
         val eventualResult: Future[Result] = underTest.selectSpecficApi(Some(Seq(api1.serviceName)))(FakeRequest())
@@ -348,7 +346,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email preferences specific api page" should {
       "redirect to select API page when no filter selected" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
         val eventualResult: Result = await(underTest.emailPreferencesSpecificApis(Seq.empty, None)(FakeRequest()))
@@ -360,7 +358,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
 
         val selectedAPIs = Seq(api1)
@@ -373,7 +371,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
         givenfetchDevelopersBySpecificAPIEmailPreferences(verified2Users)
 
@@ -395,7 +393,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email preferences topic page" should {
       "render the view correctly when no filter selected" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
 
         val request = createGetRequest("/emails/api-subscribers/email-preferences/by-topic")
         val eventualResult: Future[Result] = underTest.emailPreferencesTopic()(request)
@@ -405,7 +403,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view correctly when filter selected and no users returned" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
 
         givenfetchDevelopersByEmailPreferences(Seq.empty)
         val eventualResult: Result = await(underTest.emailPreferencesTopic(Some("TECHNICAL"))(FakeRequest()))
@@ -418,7 +416,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view correctly when filter selected and users returned" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
 
         givenfetchDevelopersByEmailPreferences(users)
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
@@ -436,7 +434,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "Email preferences API Category page" should {
       "render the view correctly when no filters selected" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
         val request = createGetRequest("/emails/email-preferences/by-api-category")
         val eventualResult: Future[Result] = underTest.emailPreferencesAPICategory()(request)
@@ -447,7 +445,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
 
       "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
         givenfetchDevelopersByAPICategoryEmailPreferences(Seq.empty)
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
@@ -460,7 +458,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
-        givenTheUserIsAuthorisedAndIsANormalUser()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
         givenfetchDevelopersByAPICategoryEmailPreferences(users)
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")

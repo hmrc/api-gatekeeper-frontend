@@ -162,7 +162,7 @@ object UpliftAction extends Enumeration {
   type UpliftAction = Value
   val APPROVE, REJECT = Value
 
-  def from(action: String) = UpliftAction.values.find(e => e.toString == action.toUpperCase)
+  def from(action: String): Option[Value] = UpliftAction.values.find(e => e.toString == action.toUpperCase)
 
   implicit val format = Json.formatEnum(UpliftAction)
 }

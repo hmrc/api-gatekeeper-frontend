@@ -40,7 +40,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         "application1",
         "PRODUCTION",
         None,
-        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)),
+        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)),
         DateTime.now(),
         DateTime.now(),
         Standard(),

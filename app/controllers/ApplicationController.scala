@@ -519,6 +519,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
               case Some(REJECT) =>
                 applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
                   _ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+
             }
           }
 
@@ -568,12 +569,15 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           def handleFormWithValidName: Future[Result] =
             form.accessType.flatMap(AccessType.from) match {
               case Some(accessType) =>
-                val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR))
-
-                applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq())) map { result =>
-                  val CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) = result
-                  Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
+                for {
+                  user <- developerService.fetchUser(form.adminEmail)
+                  collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
+                  result <- applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq()))
+                } yield result match {
+                  case CreatePrivOrROPCAppFailureResult => InternalServerError("Unexpected problems creating application")
+                  case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) => Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
                 }
+
               case None => Future.successful(badRequest("Cannot invoke this without a defined access type"))
             }
 
@@ -616,10 +620,16 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       withRestrictedApp(appId) { app =>
         def handleValidForm(form: AddTeamMemberForm) = {
-          applicationService.addTeamMember(app.application, Collaborator(form.email, CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)))
-            .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId))) recover {
-            case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
-          }
+          for {
+            user <- developerService.fetchUser(form.email)
+            role = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
+            collaborator = Collaborator(form.email, role, user.userId)
+            result <- applicationService.addTeamMember(app.application, collaborator)
+                      .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId)))
+                      .recover {
+                        case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
+                      }
+          } yield result
         }
 
         def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =

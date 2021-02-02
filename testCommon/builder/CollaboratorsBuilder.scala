@@ -18,11 +18,12 @@ package builder
 
 import model.Collaborator
 import model.CollaboratorRole
+import model.UserId
 
 trait CollaboratorsBuilder {
   def buildCollaborators(collaborators: Seq[(String, CollaboratorRole.Value)]): Set[Collaborator] = {
     collaborators.map(
-      n => Collaborator(n._1, n._2)
+      n => Collaborator(n._1, n._2, UserId.random)
     ).toSet
   }
 }

@@ -21,7 +21,7 @@ import config.AppConfig
 import model._
 import org.mockito.MockitoSugar
 import play.api.test.Helpers._
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.{UserId => HttpUserId, _}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -70,7 +70,7 @@ class ApplicationConnectorSpec
           .withStatus(NO_CONTENT)
         )
       )
-
+ 
       await(connector.updateRateLimitTier(applicationId, RateLimitTier.GOLD)) shouldBe ApplicationUpdateSuccessResult
     }
 
@@ -91,30 +91,6 @@ class ApplicationConnectorSpec
       }
     }
   }
-
-  // "fetchAllSubscribedApplications" should {
-  //   "retrieve all applications" in new Setup {
-  //     import model.APIDefinitionFormatters._
-
-  //     val url = "/application/subscriptions"
-  //     val apiContext = ApiContext.random
-  //     val response = Json.toJson(Seq(
-  //       SubscriptionResponse(
-  //         ApiIdentifier(apiContext, ApiVersion.random),
-  //         Seq("a97541e8-f93d-4d0a-ab0b-862e63204b7d", "4bf49df9-523a-4aa3-a446-683ff24b619f", "42695949-c7e8-4de9-a443-15c0da43143a")))).toString
-          
-  //     stubFor(
-  //       get(urlEqualTo(url))
-  //       .willReturn(
-  //         aResponse()
-  //         .withStatus(OK)
-  //         .withBody(response)
-  //       )
-  //     )
-
-  //     await(connector.fetchAllSubscriptions())
-  //   }
-  // }
 
   "approveUplift" should {
     val gatekeeperId = "loggedin.gatekeeper"
@@ -251,8 +227,8 @@ class ApplicationConnectorSpec
   "fetchAllApplications" should {
     val url = "/application"
     val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER))
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     "retrieve all applications" in new Setup {
       val applications = Seq( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()) )
@@ -288,8 +264,8 @@ class ApplicationConnectorSpec
   "fetchApplication" should {
     val url = s"/gatekeeper/application/${applicationId.value}"
     val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER)
+      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
       )
     val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
     val application = ApplicationResponse(
@@ -481,7 +457,7 @@ class ApplicationConnectorSpec
 
       val appName = "My new app"
       val appDescription = "An application description"
-      val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR))
+      val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
       val access = AppAccess(AccessType.PRIVILEGED, Seq())
       val totpSecrets = Some(TotpSecrets("secret"))
       val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
