@@ -30,10 +30,6 @@ import scala.io.Source
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
 import model.RegisteredUser
-import play.api.libs.json.Reads
-import model.Collaborator
-import model.CollaboratorRole
-import utils.UserIdTracker
 
 
 class ApiGatekeeperBaseSpec 
@@ -44,8 +40,7 @@ class ApiGatekeeperBaseSpec
     with GivenWhenThen
     with AllSubscribeableApisTestData 
     with ApiDefinitionTestData 
-    with utils.UrlEncoding
-    with UserIdTracker {
+    with utils.UrlEncoding {
 
   def stubNewApplication(application: String, appId: String) = {
     stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
@@ -74,101 +69,13 @@ class ApiGatekeeperBaseSpec
 
   }
 
-import model.{Application, ApplicationId, ClientId, Access, ApplicationState, RateLimitTier, CheckInformation, IpAllowlist}
-import model.RateLimitTier.RateLimitTier
-
-import CollaboratorRole.CollaboratorRole
-import org.joda.time.DateTime
-  
-
-case class MyCollaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
-case class MyApplicationResponse(id: ApplicationId,
-                               clientId: ClientId,
-                               gatewayId: String,
-                               name: String,
-                               deployedTo: String,
-                               description: Option[String] = None,
-                               collaborators: Set[MyCollaborator],
-                               createdOn: DateTime,
-                               lastAccess: DateTime,
-                               access: Access,
-                               state: ApplicationState,
-                               rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
-                               termsAndConditionsUrl: Option[String] = None,
-                               privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None,
-                               blocked: Boolean = false,
-                               ipAllowlist: IpAllowlist = IpAllowlist())
-
-  case class MyPaginatedApplicationResponse(applications: Seq[MyApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
-
   def stubApplicationsList() = {
-    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
-    // import play.api.libs.json._ 
-    // import play.api.libs.functional.syntax._   
-
-    // def build(emailAddress: String, role: CollaboratorRole): MyCollaborator = {
-    //   MyCollaborator(emailAddress, role, idOf(emailAddress))
-    // }
-
-    // implicit val collabReads: Reads[MyCollaborator] = (
-    //   (JsPath \ "emailAddress").read[String] and
-    //   (JsPath \ "role").read[CollaboratorRole]
-    // )(build _)
-
-    // implicit val collabWrites = Json.writes[MyCollaborator]
-
-    // import model._
-    // import model.RateLimitTier.RateLimitTier
-    // import play.api.libs.json.JodaReads._
-    // import play.api.libs.json.JodaWrites.JodaDateTimeNumberWrites
-
-    // implicit val xxx = JodaDateTimeNumberWrites
-
-    // implicit val format4 = Json.format[ApplicationState]
-
-    // import ApplicationResponse._
-
-    // implicit val reads1: Reads[MyApplicationResponse] = (
-    // (JsPath \ "id").read[ApplicationId] and
-    //   (JsPath \ "clientId").read[ClientId] and
-    //   (JsPath \ "gatewayId").read[String] and
-    //   (JsPath \ "name").read[String] and
-    //   (JsPath \ "deployedTo").read[String] and
-    //   (JsPath \ "description").readNullable[String] and
-    //   (JsPath \ "collaborators").read[Set[MyCollaborator]] and
-    //   (JsPath \ "createdOn").read[DateTime] and
-    //   (JsPath \ "lastAccess").read[DateTime] and
-    //   (JsPath \ "access").read[Access] and
-    //   (JsPath \ "state").read[ApplicationState] and
-    //   (JsPath \ "rateLimitTier").read[RateLimitTier] and
-    //   (JsPath \ "termsAndConditionsUrl").readNullable[String] and
-    //   (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
-    //   (JsPath \ "checkInformation").readNullable[CheckInformation] and
-    //   ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-    //   (JsPath \ "ipAllowlist").read[IpAllowlist]
-    // ) (MyApplicationResponse.apply _)
-
-    // implicit val writes1: OWrites[MyApplicationResponse] = Json.writes[MyApplicationResponse]
-
-    // implicit val format2 = Json.format[MyPaginatedApplicationResponse]
-
-    // // val response = Json.parse(paginatedApplications).as[MyPaginatedApplicationResponse]
-    // val response = Json.parse(applicationsList).as[List[MyApplicationResponse]]
-
-    // println("----------------")
-    // println("----------------")
-    // println(Json.prettyPrint(Json.toJson(response)))
-    // println("----------------")
-    // println("----------------")
-    // throw new RuntimeException()
-
-    applicationsList
+    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
   }
+
   def stubPaginatedApplicationList() = {
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
     
-
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))  
   }
 

@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import scala.io.Source
 import play.api.libs.json.Json
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 
@@ -52,7 +51,6 @@ class ApiGatekeeperDeveloperDetailsSpec
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       
-
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
         .withBody(stubApplicationsList()).withStatus(OK)))
       stubApplicationForEmail()
