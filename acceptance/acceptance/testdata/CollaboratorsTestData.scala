@@ -1,17 +1,17 @@
 package acceptance.testdata
 
 import model.Collaborator
-import model.CollaboratorRole
+import utils.CollaboratorTracker
 
-trait CollaboratorsTestData extends CommonTestData {
+trait CollaboratorsTestData extends CommonTestData with CollaboratorTracker {
   val collaboratorsAdminAndUnverifiedDev: Set[Collaborator] = Set(
-     Collaborator(administratorEmail, CollaboratorRole.ADMINISTRATOR),
-     Collaborator(developerEmail, CollaboratorRole.DEVELOPER),
-     Collaborator(unverifiedUser.email, CollaboratorRole.DEVELOPER)
+     administratorEmail.asAdministratorCollaborator,
+     developerEmail.asDeveloperCollaborator,
+     unverifiedUser.email.asDeveloperCollaborator
   )
   
   val collaboratorsDevAndUnverifiedAdmin: Set[Collaborator] = Set(
-     Collaborator(developerEmail, CollaboratorRole.DEVELOPER),
-     Collaborator(unverifiedUser.email, CollaboratorRole.ADMINISTRATOR)
+     developerEmail.asDeveloperCollaborator,
+     unverifiedUser.email.asAdministratorCollaborator
   )
 }

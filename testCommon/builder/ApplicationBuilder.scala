@@ -85,11 +85,11 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def asAdmin = applicationViewModel.copy(isAdmin = true)
     
     def withDeveloper(developer: RegisteredUser) = {
-      val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer.email)
+      val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
     def withAdmin(developer: RegisteredUser) = {
-      val newAppWithDev = this.applicationViewModel.application.withAdmin(developer.email)
+      val newAppWithDev = this.applicationViewModel.application.withAdmin(developer)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
   }
@@ -115,13 +115,13 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def withName(name: String) = app.copy(name = name)
     def withDescription(description: String) = app.copy(description = Some(description))
 
-    def withAdmin(email: String) = {
-      val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.ADMINISTRATOR))
+    def withAdmin(developer: RegisteredUser) = {
+      val app1 = app.withoutCollaborator(developer.email)
+      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR, developer.userId))
     }
-    def withDeveloper(email: String) = {
-      val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, CollaboratorRole.DEVELOPER))
+    def withDeveloper(developer: RegisteredUser) = {
+      val app1 = app.withoutCollaborator(developer.email)
+      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.DEVELOPER, developer.userId))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

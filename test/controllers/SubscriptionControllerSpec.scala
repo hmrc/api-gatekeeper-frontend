@@ -26,7 +26,6 @@ import play.filters.csrf.CSRF.TokenProvider
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FakeRequestCSRFSupport._
-import services.DeveloperService
 import services.SubscriptionFieldsService
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -60,7 +59,6 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       val ropcApplication = ApplicationWithHistory(
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
 
-      val mockDeveloperService = mock[DeveloperService]
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
       def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
@@ -91,7 +89,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       val apiContext = ApiContext.random
 
       "call the service to subscribe to the API when submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         when(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*))
@@ -107,7 +105,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments()
+        givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
@@ -122,7 +120,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       val apiContext = ApiContext.random
 
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
-        givenTheUserIsAuthorisedAndIsASuperUser()
+        givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
         when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*))
@@ -138,7 +136,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheUserHasInsufficientEnrolments()
+        givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
         val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
@@ -159,7 +157,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
           val apiContext = ApiContext("Api Context")
           val apiContextAndApiData = Map(apiContext -> apiData)
 
-          givenTheUserIsAuthorisedAndIsASuperUser()
+          givenTheGKUserIsAuthorisedAndIsASuperUser()
           fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
           fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
@@ -172,7 +170,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       "the user is not a superuser" should {
         "show 403 forbidden" in new Setup {
-          givenTheUserHasInsufficientEnrolments()
+          givenTheGKUserHasInsufficientEnrolments()
 
           val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
 

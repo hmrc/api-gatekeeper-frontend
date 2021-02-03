@@ -31,6 +31,7 @@ import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
 import model.RegisteredUser
 
+
 class ApiGatekeeperBaseSpec 
     extends BaseSpec 
     with SignInSugar 
@@ -68,8 +69,13 @@ class ApiGatekeeperBaseSpec
 
   }
 
-  def stubApplicationList() = {
+  def stubApplicationsList() = {
+    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+  }
+
+  def stubPaginatedApplicationList() = {
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
+    
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))  
   }
 
@@ -108,7 +114,7 @@ class ApiGatekeeperBaseSpec
 
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {
     Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList()
+    stubPaginatedApplicationList()
 
     stubApiDefinition()
 

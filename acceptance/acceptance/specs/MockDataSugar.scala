@@ -46,12 +46,12 @@ trait MockDataSugar {
   val dev2LastName = "Fakename"
 
   val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
-  val developer4Id =UserId.random.value
+  val developer4Id = UserId.random.value
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName = "Kassidyhmrcdevusercollaborato"
 
   val developer5 = "John.fakename@example.com"
-  val developer5Id = UserId.random.value
+  val developer5Id = "1fe7b18e-a460-4936-b99f-fb0269b829e6"
   val dev5FirstName = "John"
   val dev5LastName = "Fakename"
 
@@ -134,12 +134,12 @@ trait MockDataSugar {
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer",
-       |      "id": "$developerId",
+       |      "userId": "$developerId",
        |      "role": "ADMINISTRATOR"
        |    },
        |    {
-       |      "emailAddress": "fred@example.com",
-       |      "id": "${UserId.random.value}",
+       |      "emailAddress": "$developer9",
+       |      "userId": "$developer9Id",
        |      "role": "DEVELOPER"
        |    }
        |    ],
@@ -173,17 +173,17 @@ trait MockDataSugar {
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer2",
-       |      "id": "$developer2Id",
+       |      "userId": "$developer2Id",
        |      "role": "ADMINISTRATOR"
        |    },
        |    {
        |      "emailAddress": "$developer7",
-       |      "id": "$developer7Id",
+       |      "userId": "$developer7Id",
        |      "role": "DEVELOPER"
        |    },
        |    {
        |      "emailAddress": "$developer8",
-       |      "id": "$developer8Id",
+       |      "userId": "$developer8Id",
        |      "role": "DEVELOPER"
        |    }
        |    ],
@@ -221,10 +221,12 @@ trait MockDataSugar {
        |   "collaborators": [
        |    {
        |      "emailAddress": "$developer8",
+       |      "userId": "$developer8Id",
        |     "role": "ADMINISTRATOR"
        |    },
        |    {
-       |      "emailAddress": "fred@example.com",
+       |      "emailAddress": "$developer9",
+       |      "userId": "$developer9Id",
        |     "role": "DEVELOPER"
        |    }
        |    ],
@@ -293,21 +295,22 @@ trait MockDataSugar {
        |    "collaborators": [
        |      {
        |        "emailAddress": "$developer4",
-       |        "id": "$developer4Id",
+       |        "userId": "$developer4Id",
        |        "role": "ADMINISTRATOR"
        |      },
        |      {
        |        "emailAddress": "$developer5",
-       |        "id": "$developer5Id",
+       |        "userId": "$developer5Id",
        |        "role": "DEVELOPER"
        |      },
        |      {
        |        "emailAddress": "$developer6",
-       |        "id": "$developer6Id",
+       |        "userId": "$developer6Id",
        |        "role": "DEVELOPER"
        |      },
        |      {
-       |        "emailAddress": "peter.fakename@example.com",
+       |        "emailAddress": "$developer10",
+       |        "userId": "$developer10Id",
        |        "role": "DEVELOPER"
        |      }
        |    ],
@@ -534,7 +537,7 @@ trait MockDataSugar {
     s"""
        |{
        |"email": "$email",
-       |"id": "${UserId.random.value}",
+       |"userId": "${UserId.random.value}",
        |"firstName": "$firstName",
        |"lastName": "$lastName",
        |"registrationTime": 1458300873012,

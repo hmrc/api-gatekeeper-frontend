@@ -34,7 +34,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
                                     clientId: ClientId = ClientId("a-client-id"),
                                     deployedTo: String = "PRODUCTION") extends Application
 
-  def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR)
+  def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
 
   "delete developer view" should {
     implicit val request = FakeRequest().withCSRFToken

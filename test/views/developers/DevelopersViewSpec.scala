@@ -32,7 +32,7 @@ class DevelopersViewSpec extends CommonViewSpec {
   val users = Seq(
     RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
     RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
-    UnregisteredUser("something@example.com"))
+    UnregisteredUser("something@example.com", UserId.random))
   val devs = users.map(u => Developer(u, Seq.empty))
 
   "Developers view" must {

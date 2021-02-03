@@ -40,7 +40,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
 
     scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
+      stubPaginatedApplicationList()
       stubApiDefinition()
       signInGatekeeper()
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
@@ -51,7 +51,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   feature("Show applications information") {
     scenario("View a specific application") {
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
+      stubPaginatedApplicationList()
       stubApiDefinition()
       signInGatekeeper()
 
@@ -97,7 +97,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   feature("Show an applications developer information") {
     scenario("View a specific developer on an application") {
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
+      stubPaginatedApplicationList()
       stubApiDefinition()
       signInGatekeeper()
 

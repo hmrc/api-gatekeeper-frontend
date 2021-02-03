@@ -54,7 +54,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
 
   def navigateThroughDeleteApplication() = {
     Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList()
+    stubPaginatedApplicationList()
 
     stubApiDefinition()
 

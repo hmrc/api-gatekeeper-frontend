@@ -81,7 +81,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
-    stubApplicationList()
+    stubPaginatedApplicationList()
 
     stubApiDefinition()
 

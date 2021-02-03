@@ -20,11 +20,9 @@ import CollaboratorRole.CollaboratorRole
 
 case class CoreUserDetails(email: String, id: UserId)
 
-// case class Collaborator(emailAddress: String, userId: UserId, role: CollaboratorRole)
-
 trait User {
   def email: String
-  // def id: UserId     // Need to use newmodel collaborator which means all apps must have ids on collaborators  // TODO APIS-5153
+  def userId: UserId
   def firstName: String
   def lastName: String
   lazy val sortField = User.asSortField(lastName, firstName)
@@ -58,8 +56,7 @@ object RegisteredUser {
   implicit val reads = Json.format[RegisteredUser]
 }
 
-case class UnregisteredUser(email: String) extends User {
-  // val id: UserId     // Need to use newmodel collaborator which means all apps must have ids on collaborators // TODO APIS-5153
+case class UnregisteredUser(email: String, userId: UserId) extends User {
   val firstName = "n/a"
   val lastName = "n/a"
 }
@@ -70,32 +67,32 @@ case class Developer(user: User, applications: Seq[Application]) {
   lazy val email: String = user.email
   
   lazy val firstName: String = user match {
-    case UnregisteredUser(_) => "n/a"
+    case UnregisteredUser(_,_) => "n/a"
     case r : RegisteredUser => r.firstName
   }
   
   lazy val lastName: String = user match {
-    case UnregisteredUser(_) => "n/a"
+    case UnregisteredUser(_,_) => "n/a"
     case r : RegisteredUser => r.lastName
   }
   
   lazy val organisation: Option[String] = user match {
-    case UnregisteredUser(_) => None
+    case UnregisteredUser(_,_) => None
     case r : RegisteredUser => r.organisation
   }
 
   lazy val verified: Boolean = user match {
-    case UnregisteredUser(_) => false
+    case UnregisteredUser(_,_) => false
     case r : RegisteredUser => r.verified
   }
 
   lazy val mfaEnabled: Boolean = user match {
-    case UnregisteredUser(_) => false
+    case UnregisteredUser(_,_) => false
     case r : RegisteredUser => r.mfaEnabled
   }
 
   lazy val sortField: String = user match {
-    case UnregisteredUser(_) => User.asSortField(lastName, firstName)
+    case UnregisteredUser(_,_) => User.asSortField(lastName, firstName)
     case r : RegisteredUser => r.sortField
   }
 

@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import scala.io.Source
 import play.api.libs.json.Json
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 
@@ -50,11 +49,10 @@ class ApiGatekeeperDeveloperDetailsSpec
     scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
-
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(OK)))
+      stubPaginatedApplicationList()
+      
+      stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
+        .withBody(stubApplicationsList()).withStatus(OK)))
       stubApplicationForEmail()
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
