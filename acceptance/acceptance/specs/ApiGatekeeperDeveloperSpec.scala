@@ -139,8 +139,6 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
-      println(DeveloperPage.bodyText)
-
       When("I select one or more subscriptions from the filter drop down")
       DeveloperPage.selectBySubscription(ONEORMORESUBSCRIPTION)
       DeveloperPage.selectByStatus(ALL)
@@ -199,7 +197,6 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       ApplicationsPage.selectDevelopers()
       DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
-      Thread.sleep(2500)
 
       When("I select no subscription from the filter drop down")
       DeveloperPage.selectBySubscription(NOSUBSCRIPTION)
