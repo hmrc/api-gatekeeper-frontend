@@ -139,6 +139,8 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
 
+      println(DeveloperPage.bodyText)
+
       When("I select one or more subscriptions from the filter drop down")
       DeveloperPage.selectBySubscription(ONEORMORESUBSCRIPTION)
       DeveloperPage.selectByStatus(ALL)
@@ -166,7 +168,6 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
 
       assertDevelopersList(verifiedDevs)
 
-
       When("I select unverified from the status filter drop down")
       DeveloperPage.selectByStatus(UNVERIFIED)
 
@@ -182,7 +183,6 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       val developers4 = List((dev9name, dev9name, developer9, statusUnregistered))
       val unregisteredDev = developers4.zipWithIndex
       assertDevelopersList(unregisteredDev)
-
     }
 
     scenario("Ensure a user can view all developers who have no subscription to an API", Tag("NonSandboxTest")){
@@ -199,6 +199,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       ApplicationsPage.selectDevelopers()
       DeveloperPage.selectOldDevelopersPage()
       on(DeveloperPage)
+      Thread.sleep(2500)
 
       When("I select no subscription from the filter drop down")
       DeveloperPage.selectBySubscription(NOSUBSCRIPTION)

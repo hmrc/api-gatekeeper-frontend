@@ -330,6 +330,7 @@ object CollaboratorRole extends Enumeration {
 
 
 case class Collaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
+
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
                             verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)
 

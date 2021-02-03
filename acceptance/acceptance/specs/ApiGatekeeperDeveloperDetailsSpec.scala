@@ -50,11 +50,11 @@ class ApiGatekeeperDeveloperDetailsSpec
     scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList()
-      val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+      stubPaginatedApplicationList()
+      
 
-      stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse()
-        .withBody(applicationsList).withStatus(OK)))
+      stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
+        .withBody(stubApplicationsList()).withStatus(OK)))
       stubApplicationForEmail()
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()

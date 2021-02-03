@@ -34,7 +34,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
     scenario("Sign in with invalid auth token") {
 
-      stubApplicationList()
+      stubPaginatedApplicationList()
 
       stubFor(post(urlPathEqualTo("/auth/authorise"))
         .willReturn(aResponse()
@@ -48,7 +48,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
     scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
 
-      stubApplicationList()
+      stubPaginatedApplicationList()
 
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
         .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
@@ -92,7 +92,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
 
-      stubApplicationList()
+      stubPaginatedApplicationList()
 
       stubApiDefinition()
 

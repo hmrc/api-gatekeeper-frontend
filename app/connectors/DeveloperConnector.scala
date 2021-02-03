@@ -77,8 +77,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
     for {
       coreUserDetails <- fetchUserId(email)
       // Beware !!!
-      // This GET only looks at registered users and not unregistered users so we still need the _.getOrElse below.
-      user <- http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> coreUserDetails.id.value.toString))
+      // This GET only looks at registered users and not unregistered users so we still need the _.getOrElse below../
+      user: User <- http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> coreUserDetails.id.value.toString))
               .map(_.getOrElse(UnregisteredUser(email, coreUserDetails.id)))
     } yield user
   }
