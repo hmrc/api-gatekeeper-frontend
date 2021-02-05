@@ -815,7 +815,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenUserExists("sample@example.com")
+          givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
 
@@ -832,13 +832,12 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           assertIncludesOneError(result, "Provide an application name that does not already exist")
         }
 
-        "allow creation of a sandbox app if name already exists in production" in new Setup {
-
+        "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenUserExists(adminEmail)
+          givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
@@ -864,7 +863,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenUserExists(adminEmail)
+          givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
@@ -890,7 +889,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenUserExists(adminEmail)
+          givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
           given(mockApplicationService
@@ -912,7 +911,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         }
 
         "show the correct error message when app description is left empty" in new Setup {
-          givenUserExists("a@example.com")
+          givenSeekUserFindsRegisteredUser("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -929,7 +928,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         }
 
         "show the correct error message when admin email is left empty" in new Setup {
-          givenUserExists("a@example.com")
+          givenSeekUserFindsRegisteredUser("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -946,7 +945,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         }
 
         "show the correct error message when admin email is invalid" in new Setup {
-          givenUserExists("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -967,7 +965,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "but the user is not a superuser" should {
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
-            givenUserExists(email)
+            givenSeekUserFindsRegisteredUser(email)
             givenTheGKUserHasInsufficientEnrolments()
 
             val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -984,7 +982,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
-            givenUserExists("a@example.com")
+            givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
@@ -1014,7 +1012,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           }
 
           "show the success page for a priv app in sandbox" in new Setup {
-            givenUserExists("a@example.com")
+            givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
@@ -1043,7 +1041,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           }
 
           "show the success page for an ROPC app in production" in new Setup {
-            givenUserExists("a@example.com")
+            givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
@@ -1070,7 +1068,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
-            givenUserExists("a@example.com")
+            givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
             given(mockApplicationService
@@ -1126,501 +1124,6 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*)
         verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*, *, *)(*)
         verifyAuthConnectorCalledForUser
-      }
-    }
-
-    "manageTeamMembers" when {
-      "managing a privileged app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-
-            // The auth connector checks you are logged on. And the controller checks you are also a super user as it's a privileged app.
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-      }
-
-      "managing an ROPC app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-      }
-
-      "managing a standard app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned()
-
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-      }
-    }
-
-    "addTeamMember" when {
-      "managing a privileged app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-      }
-
-      "managing an ROPC app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-      }
-
-      "managing a standard app" when {
-        "the user is a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the user is not a superuser" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned()
-
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-      }
-    }
-
-    "addTeamMemberAction" when {
-      val email = "email@example.com"
-
-      "the user is a superuser" when {
-        "the form is valid" should {
-          val role = "DEVELOPER"
-
-          "call the service to add the team member" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            verify(mockApplicationService)
-              .addTeamMember(eqTo(application.application), eqTo(email.asDeveloperCollaborator))(*)
-            verifyAuthConnectorCalledForUser
-          }
-
-          "redirect back to manageTeamMembers when the service call is successful" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
-            verifyAuthConnectorCalledForUser
-          }
-
-          "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.failed(new TeamMemberAlreadyExists))
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe BAD_REQUEST
-          }
-        }
-
-        "the form is invalid" should {
-          "show 400 BadRequest when the email is invalid" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("email", "NOT AN EMAIL ADDRESS"),
-              ("role", "DEVELOPER"))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe BAD_REQUEST
-          }
-
-          "show 400 BadRequest when the role is invalid" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
-              ("role", ""))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe BAD_REQUEST
-          }
-        }
-      }
-
-      "the user is not a superuser" when {
-        "manging a privileged app" should {
-          "show 403 Forbidden" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
-              ("role", "DEVELOPER"))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "managing an ROPC app" should {
-          "show 403 Forbidden" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
-              ("role", "DEVELOPER"))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "managing a standard app" should {
-          "show 303 See Other when valid" in new Setup {
-            givenUserExists(email)
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned()
-
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
-              ("role", "DEVELOPER"))
-
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe SEE_OTHER
-            verifyAuthConnectorCalledForUser
-          }
-        }
-      }
-    }
-
-    "removeTeamMember" when {
-      val email = "email@example.com"
-
-      "the user is a superuser" when {
-        "the form is valid" should {
-          "show the remove team member page successfully with the provided email address" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
-
-            status(result) shouldBe OK
-            bodyOf(result) should include(email)
-            verifyAuthConnectorCalledForUser
-          }
-        }
-
-        "the form is invalid" should {
-          "show a 400 Bad Request" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
-
-            status(result) shouldBe BAD_REQUEST
-          }
-        }
-      }
-
-      "the user is not a superuser" when {
-        "managing a privileged app" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "managing an ROPC app" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "managing a standard app" should {
-          "show 200 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned()
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
-
-            status(result) shouldBe OK
-            verifyAuthConnectorCalledForUser
-          }
-        }
-      }
-    }
-
-    "removeTeamMemberAction" when {
-      val emailToRemove = "email@example.com"
-
-      "the user is a superuser" when {
-        "the form is valid" when {
-          "the action is not confirmed" should {
-            val confirm = "No"
-
-            "redirect back to the manageTeamMembers page" in new Setup {
-              givenTheGKUserIsAuthorisedAndIsASuperUser()
-              givenTheAppWillBeReturned()
-
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-              status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
-              verifyAuthConnectorCalledForUser
-            }
-          }
-
-          "the action is confirmed" should {
-            val confirm = "Yes"
-
-            "call the service with the correct params" in new Setup {
-              givenTheGKUserIsAuthorisedAndIsASuperUser()
-              givenTheAppWillBeReturned()
-
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-              status(result) shouldBe SEE_OTHER
-
-              verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(emailToRemove), eqTo("superUserName"))(*)
-              verifyAuthConnectorCalledForUser
-            }
-
-            "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
-              givenTheGKUserIsAuthorisedAndIsASuperUser()
-              givenTheAppWillBeReturned()
-
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.failed(new TeamMemberLastAdmin))
-
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-              status(result) shouldBe BAD_REQUEST
-            }
-
-            "redirect to the manageTeamMembers page when the service call is successful" in new Setup {
-              givenTheGKUserIsAuthorisedAndIsASuperUser()
-              givenTheAppWillBeReturned()
-
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-              status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
-              verifyAuthConnectorCalledForUser
-            }
-          }
-        }
-
-        "the form is invalid" should {
-          "show 400 Bad Request" in new Setup {
-            givenUserExists(emailToRemove)
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned()
-
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe BAD_REQUEST
-          }
-        }
-      }
-
-      "the user is not a superuser" when {
-        "when managing a privileged app" should {
-          "show 403 forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "when managing an ROPC app" should {
-          "show 403 Forbidden" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe FORBIDDEN
-          }
-        }
-
-        "when managing a standard app" should {
-          "show 303 OK" in new Setup {
-            givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned()
-            given(mockApplicationService.removeTeamMember(*, *, *)(*))
-              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
-
-            status(result) shouldBe SEE_OTHER
-          }
-        }
       }
     }
 

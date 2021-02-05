@@ -37,7 +37,8 @@ lazy val dependencies = Seq(
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "ch.qos.logback" % "logback-core" % logbackVersion,
   "com.typesafe.play" %% "play-json" % "2.8.1",
-  "com.typesafe.play" %% "play-json-joda" % "2.8.1"
+  "com.typesafe.play" %% "play-json-joda" % "2.8.1",
+  "org.typelevel" %% "cats-core" % "2.3.1"
 )
 
 lazy val testDependencies: Seq[ModuleID] = Seq(
@@ -85,7 +86,8 @@ lazy val microservice =  (project in file("."))
     pipelineStages in Assets := Seq(
       concat,
       uglify
-    )
+    ),
+    scalacOptions += "-Ypartial-unification"
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)

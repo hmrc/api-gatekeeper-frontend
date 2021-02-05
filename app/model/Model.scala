@@ -317,6 +317,15 @@ object CreatePrivOrROPCAppForm {
   def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("applicationName", "application.name.already.exists")
   }
+  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm]) = {
+    form.withError("adminEmail", "admin.email.is.not.registered")
+  }
+  def adminMustBeVerifiedEmailAddress(form: Form[CreatePrivOrROPCAppForm]) = {
+    form.withError("adminEmail", "admin.email.is.not.verified")
+  }
+  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm]) = {
+    form.withError("adminEmail", "admin.email.is.not.mfa.enabled")
+  }
 }
 
 sealed trait FieldsDeleteResult
