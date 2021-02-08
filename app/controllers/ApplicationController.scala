@@ -73,7 +73,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageTeamMembersView: ManageTeamMembersView,
                                       addTeamMemberView: AddTeamMemberView,
                                       removeTeamMemberView: RemoveTeamMemberView,
-                                      val apmService: ApmService,
+                                      val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
     extends FrontendController(mcc)
     with ErrorHelper 
