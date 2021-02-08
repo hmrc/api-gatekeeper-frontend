@@ -40,6 +40,7 @@ import views.html.review.ReviewView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import scala.concurrent.Future.successful
 import model.subscriptions.ApiData
 import model.ApiStatus.ApiStatus
 
@@ -72,9 +73,13 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageTeamMembersView: ManageTeamMembersView,
                                       addTeamMemberView: AddTeamMemberView,
                                       removeTeamMemberView: RemoveTeamMemberView,
-                                      val apmService: ApmService
-                                     )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+                                      val apmService: ApmService,
+                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with ErrorHelper 
+    with GatekeeperAuthWrapper 
+    with ActionBuilders 
+    with I18nSupport {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -401,16 +406,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     versions.groupBy(v => ApiStatus.displayedStatus(v.status))
   }
 
-  private def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_]) = {
-    withApp(appId) { app =>
-      app.application.access match {
-        case _: Standard => f(app)
-        case _ if isAtLeastSuperUser => f(app)
-        case _ => Future.successful(Forbidden(forbiddenView()))
-      }
-    }
-  }
-
   def reviewPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
     withApp(appId) { app =>
       redirectIfIsSandboxApp(app) {
@@ -565,114 +560,79 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           Future.successful(BadRequest(createApplicationView(form)))
         }
 
+        import cats.data._
+        import cats.implicits._
+        import cats.data.Validated._
+        
+        type FieldName = String
+        type ErrorCode = String
+        type ValidationResult[A] = ValidatedNec[(FieldName,ErrorCode), A]
+        type FieldValidationResult[A] = ValidatedNec[ErrorCode, A]
+
+        implicit class WithFieldSyntax[T](v: FieldValidationResult[T]) {
+          def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => ((fn, err))))
+        }
+
+        def validateApplicationName(environment: Environment.Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
+          val isValid = environment match {
+            case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == applicationName))
+            case _                      => true
+          }
+          if(isValid) applicationName.valid else "application.name.already.exists".invalidNec
+        }
+
+        def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {
+          case None                                            => "admin.email.is.not.registered".invalidNec
+          case Some(UnregisteredUser(_,_))                     => "admin.email.is.not.registered".invalidNec
+          case Some(user: RegisteredUser) if(!user.verified)   => "admin.email.is.not.verified".invalidNec
+          case Some(user: RegisteredUser) if(!user.mfaEnabled) => "admin.email.is.not.mfa.enabled".invalidNec
+          case Some(user: RegisteredUser)                      => user.validNec
+        }
+
         def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-          def handleFormWithValidName: Future[Result] =
-            form.accessType.flatMap(AccessType.from) match {
-              case Some(accessType) =>
-                for {
-                  user <- developerService.fetchUser(form.adminEmail)
-                  collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
-                  result <- applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq()))
-                } yield result match {
-                  case CreatePrivOrROPCAppFailureResult => InternalServerError("Unexpected problems creating application")
-                  case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) => Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
-                }
+          def createApp(user: User, accessType: AccessType.AccessType) = {
+            val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
 
-              case None => Future.successful(badRequest("Cannot invoke this without a defined access type"))
+            applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq()))
+            .map {
+              case CreatePrivOrROPCAppFailureResult => InternalServerError("Unexpected problems creating application")
+              case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) => Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
             }
-
-          def handleFormWithInvalidName: Future[Result] = {
-            val formWithErrors = CreatePrivOrROPCAppForm.invalidAppName(createPrivOrROPCAppForm.fill(form))
-            Future.successful(BadRequest(createApplicationView(formWithErrors)))
           }
 
-          def hasValidName(apps: Seq[ApplicationResponse]) = form.environment match {
-            case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == form.applicationName))
-            case _ => true
-          }
+          def validateValues(apps: Seq[ApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] = 
+            (
+              validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
+              validateUserSuitability(user).withField("adminEmail")
+            )
+            .mapN( (n,u) => ((n,u)))
+            
+          def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] = 
+            validateValues(apps, user)
+            .fold[Future[Result]](
+              errs => successful(viewWithFormErrors(errs)),
+              goodData => createApp(goodData._2, accessType)
+            )
 
+          def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivOrROPCAppForm] = 
+            errs.foldLeft(createPrivOrROPCAppForm.fill(form))( (f,e) => f.withError(e._1, e._2))
+
+          def viewWithFormErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Result = 
+            BadRequest(createApplicationView(formWithErrors(errs)))
+
+          val accessType = form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
+
+          val fApps = applicationService.fetchApplications
+          val fUser = developerService.seekUser(form.adminEmail)
           for {
-            appNameIsValid <- applicationService.fetchApplications.map(hasValidName)
-            result <- if (appNameIsValid) handleFormWithValidName else handleFormWithInvalidName
+            apps <- fApps
+            user <- fUser
+            result <- handleValues(apps, user, accessType)
           } yield result
         }
 
         createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
       }
     }
-  }
-
-  def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        Future.successful(Ok(manageTeamMembersView(app.application)))
-      }
-  }
-
-  def addTeamMember(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        Future.successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
-      }
-  }
-
-  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: AddTeamMemberForm) = {
-          for {
-            user <- developerService.fetchUser(form.email)
-            role = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
-            collaborator = Collaborator(form.email, role, user.userId)
-            result <- applicationService.addTeamMember(app.application, collaborator)
-                      .map(_ => Redirect(controllers.routes.ApplicationController.manageTeamMembers(appId)))
-                      .recover {
-                        case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
-                      }
-          } yield result
-        }
-
-        def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
-          Future.successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
-
-        AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-      }
-  }
-
-  def removeTeamMember(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: RemoveTeamMemberForm) =
-          Future.successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
-
-        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
-          val email = formWithErrors("email").value.getOrElse("")
-          Future.successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
-        }
-
-        RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-      }
-  }
-
-  def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-          form.confirm match {
-            case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
-              _ => Redirect(routes.ApplicationController.manageTeamMembers(appId))
-            } recover {
-              case _: TeamMemberLastAdmin =>
-                BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
-            }
-            case _ => Future.successful(Redirect(routes.ApplicationController.manageTeamMembers(appId)))
-          }
-        }
-
-        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
-          Future.successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
-
-        RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
-      }
   }
 }

@@ -74,8 +74,23 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   def aUser(email: String): User = RegisteredUser(email, idOf(email), "first", "last", verified = false)
  
   def givenAUnsuccessfulLogin(): Unit = {
-    given(mockAuthConnector.authorise(*, *)(*, *))
-      .willReturn(Future.failed(new InvalidBearerToken))
+    given(mockAuthConnector.authorise(*, *)(*, *)).willReturn(Future.failed(new InvalidBearerToken))
+  }
+
+  def givenSeekUserFindsRegisteredUser(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
+    given(mockDeveloperService.seekUser(eqTo(email))(*)).willReturn(Future.successful(Some(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled))))
+  }
+
+  def givenSeekUserFindsUnregisteredUser(email: String) = {
+    given(mockDeveloperService.seekUser(eqTo(email))(*)).willReturn(Future.successful(Some(UnregisteredUser(email, idOf(email)))))
+  }
+
+  def givenFetchOrCreateUserReturnsRegisteredUser(email: String, verified: Boolean = true, mfaEnabled: Boolean = true): Unit = {
+    given(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).willReturn(Future.successful(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled)))
+  }
+
+  def givenFetchOrCreateUserReturnsUnregisteredUser(email: String): Unit = {
+    given(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).willReturn(Future.successful(UnregisteredUser(email, idOf(email))))
   }
 
   def givenUserExists(email: String): Unit = {

@@ -16,8 +16,6 @@
 
 package model
 
-import CollaboratorRole.CollaboratorRole
-
 case class CoreUserDetails(email: String, id: UserId)
 
 trait User {

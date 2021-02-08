@@ -377,7 +377,7 @@
             </td>
             <td class="no-border">
                 @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
-                    <a id="manage-team-members" href="@{routes.ApplicationController.manageTeamMembers(applicationId)}" class="button--link" role="button">Manage</a>
+                    <a id="manage-team-members" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}" class="button--link" role="button">Manage</a>
                 }
             </td>
         </tr>

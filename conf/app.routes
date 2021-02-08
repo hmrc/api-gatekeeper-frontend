@@ -43,11 +43,11 @@ POST        /applications/:id/subscriptions-configuration/:context/:version   co
 GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: model.ApplicationId)
 POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: model.ApplicationId)
 
-GET         /applications/:id/team-members                                    controllers.ApplicationController.manageTeamMembers(id: model.ApplicationId)
-GET         /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMember(id: model.ApplicationId)
-POST        /applications/:id/team-members/add                                controllers.ApplicationController.addTeamMemberAction(id: model.ApplicationId)
-POST        /applications/:id/team-members/remove-confirmation                controllers.ApplicationController.removeTeamMember(id: model.ApplicationId)
-POST        /applications/:id/team-members/remove                             controllers.ApplicationController.removeTeamMemberAction(id: model.ApplicationId)
+GET         /applications/:id/team-members                                    controllers.TeamMembersController.manageTeamMembers(id: model.ApplicationId)
+GET         /applications/:id/team-members/add                                controllers.TeamMembersController.addTeamMember(id: model.ApplicationId)
+POST        /applications/:id/team-members/add                                controllers.TeamMembersController.addTeamMemberAction(id: model.ApplicationId)
+POST        /applications/:id/team-members/remove-confirmation                controllers.TeamMembersController.removeTeamMember(id: model.ApplicationId)
+POST        /applications/:id/team-members/remove                             controllers.TeamMembersController.removeTeamMemberAction(id: model.ApplicationId)
 
 ->          /template                                                         template.Routes
 

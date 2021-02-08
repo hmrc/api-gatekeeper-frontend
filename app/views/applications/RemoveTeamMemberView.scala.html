@@ -32,7 +32,7 @@
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.manageTeamMembers(application.id)}">Manage team members</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.TeamMembersController.manageTeamMembers(application.id)}">Manage team members</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
             <li class="breadcrumb-nav__item">Remove team member</li>
         </ul>
@@ -47,7 +47,7 @@
         <span>@email</span>
     </div>
 
-    @helper.form(action = controllers.routes.ApplicationController.removeTeamMemberAction(application.id)) {
+    @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id)) {
         @helper.CSRF.formField
         <input type="hidden" name="email" value="@email">
         <div class="form-group @if(form.errors("confirm").nonEmpty) {form-field--error}">
@@ -69,7 +69,7 @@
 
         <div class="form-field">
             <button id="submit" class="button button--padded" type="submit">Submit</button>
-            <a href="@routes.ApplicationController.manageTeamMembers(application.id)" class="secondary-button">Cancel</a>
+            <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="secondary-button">Cancel</a>
         </div>
     }
 

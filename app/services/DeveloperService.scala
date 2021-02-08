@@ -123,6 +123,14 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
+  def seekUser(email: String)(implicit hc: HeaderCarrier): Future[Option[User]] = {
+    developerConnector.seekUserByEmail(email)
+  }
+
+  def fetchOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+    developerConnector.fetchOrCreateUser(email)
+  }
+
   def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
     developerConnector.fetchByEmail(email)
   }

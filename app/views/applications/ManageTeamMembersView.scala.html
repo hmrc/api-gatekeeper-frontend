@@ -54,7 +54,7 @@
                     <td class="table--large">@teamMember.emailAddress</td>
                     <td class="table--large text--left hard--left">@CollaboratorRole.displayedRole(teamMember.role)</td>
                     <td class="text--right hard--right">
-                        @helper.form(action = controllers.routes.ApplicationController.removeTeamMember(application.id), 'class -> "form inline-controls") {
+                        @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), 'class -> "form inline-controls") {
                             @helper.CSRF.formField
                             <input id="email" name="email" class="form-control" hidden aria-hidden="true" type="text" value="@{teamMember.emailAddress}">
                             <input id="remove" class="button secondary-button button--link" type="submit" value="Remove">
@@ -65,7 +65,7 @@
             </tbody>
         </table>
         <br>
-        <a href="@routes.ApplicationController.addTeamMember(application.id)" class="button">Add a team member</a>
+        <a href="@routes.TeamMembersController.addTeamMember(application.id)" class="button">Add a team member</a>
         <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button">Cancel</a>
     </section>
 </div>
