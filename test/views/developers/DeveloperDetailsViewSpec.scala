@@ -60,7 +60,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         case VerifiedStatus => "verified"
         case _ => "unregistered"
       })
-      document.getElementById("userid").text mustBe developer.user.userId.value.toString
+      document.getElementById("userId").text mustBe developer.user.userId.value.toString
     }
   }
 
