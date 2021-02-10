@@ -87,7 +87,8 @@ lazy val microservice =  (project in file("."))
       concat,
       uglify
     ),
-    scalacOptions += "-Ypartial-unification"
+    scalacOptions += "-Ypartial-unification",
+    routesImport += "controllers.binders._"
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)

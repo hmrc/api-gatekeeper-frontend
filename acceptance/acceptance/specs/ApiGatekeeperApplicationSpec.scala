@@ -81,7 +81,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-collaborator-role", "Developer", 2)
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
-      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?email=admin%40example.com")
+      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?developerId=admin%40example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
@@ -131,7 +131,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   def stubApplicationForDeveloperEmail() = {
     val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
 
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
+    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("developerId", equalTo(encodedEmail))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 }

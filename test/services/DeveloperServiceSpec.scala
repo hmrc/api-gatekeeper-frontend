@@ -80,9 +80,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(developer: RegisteredUser, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
-      when(mockDeveloperConnector.fetchByEmail(*)(*))
+    def fetchDeveloperWillReturn(developer: RegisteredUser, productionApps: List[ApplicationResponse] = List.empty, sandboxApps: List[ApplicationResponse] = List.empty) = {
+      when(mockDeveloperConnector.fetchByEmail(eqTo(developer.email))(*))
         .thenReturn(Future.successful(developer))
+      when(mockDeveloperConnector.fetchByUserId(eqTo(developer.userId))(*))
+        .thenReturn(Future.successful(developer))
+      when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(developer.email)))(*))
+        .thenReturn(Future.successful(developer))
+      when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(developer.userId)))(*))
+        .thenReturn(Future.successful(developer))
+
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
         .thenReturn(Future.successful(productionApps))
       when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*)(*))
@@ -269,7 +276,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       val result = await(underTest.fetchDeveloper(developer.email))
       result shouldBe Developer(developer, apps)
-      verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(*)
+      verify(mockDeveloperConnector).fetchById(eqTo(EmailIdentifier(developer.email)))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
     }
 
@@ -282,6 +289,34 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       result shouldBe developer
       verify(mockDeveloperConnector).removeMfa(developer.email, loggedInUser)
+    }
+  }
+
+  "fetchDeveloper" should {
+    val user = aUser("Fred")
+
+    "fetch the developer when requested by email" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(user.email)) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by userId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by email as developerId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by userId as developerId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty)
     }
   }
 

@@ -106,7 +106,7 @@
 }
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
-    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(termsOfUseAgreement.emailAddress)}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(EmailIdentifier(termsOfUseAgreement.emailAddress))}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
 @renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
@@ -354,7 +354,7 @@
                     <tbody>
                     @for(collaborator <- application.collaborators) {
                     <tr>
-                        <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(collaborator.emailAddress)}">@collaborator.emailAddress</a></td>
+                        <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a></td>
                         <td data-collaborator-role>
                             @{
                                 if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
@@ -431,7 +431,7 @@
                     case Some(email) =>
                             <td>
                                 <p data-submitted-by-email="">
-                                    <a href={routes.DevelopersController.developerPage(email).url}>{email}</a>
+                                    <a href={routes.DevelopersController.developerPage(EmailIdentifier(email)).url}>{email}</a>
                                 </p>
                             </td>
                     case None => <td class="faded-text">N/A</td>

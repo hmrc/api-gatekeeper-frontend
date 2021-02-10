@@ -44,7 +44,7 @@
             <h2>Are you sure you want to delete this developer?</h2>
             <div class="form-field form-field--submit">
                 <button id="submit" class="button--alert" type="submit">Delete developer</button>
-                <a id="cancel" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button--link">Cancel</a>
+                <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button--link">Cancel</a>
             </div>
             }
         } else {
@@ -59,7 +59,7 @@
                     <p><a id="app-@{application.id.value}" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></p>
                 }
             </div>
-            <a id="finish" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button">Finish</a>
+            <a id="finish" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button">Finish</a>
         }
     }
 </article>

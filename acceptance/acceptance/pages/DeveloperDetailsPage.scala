@@ -22,10 +22,10 @@ import acceptance.specs.MockDataSugar
 
 object DeveloperDetailsPage extends WebPage with utils.UrlEncoding with CommonTestData {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?email=${encode({MockDataSugar.developer8})}"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?developerId="
 
   override def isCurrentPage: Boolean = {
-    currentUrl == url
+    currentUrl.startsWith(url)
   }
 
   def firstName() = {

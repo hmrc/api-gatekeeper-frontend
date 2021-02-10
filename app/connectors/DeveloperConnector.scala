@@ -39,6 +39,13 @@ trait DeveloperConnector {
 
   def fetchOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[User]
 
+  final def fetchById(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[User] = developerId match {
+    case EmailIdentifier(email) => fetchByEmail(email)
+    case UuidIdentifier(userId) => fetchByUserId(userId)
+  }
+
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User]
+
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User]
 
   def fetchByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]]
@@ -98,10 +105,16 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
     ).value
   }
 
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = {
+    for {
+      user            <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException("UserId was not found, unexpectedly"))
+    } yield user
+  }
+
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier): Future[User] = {
     for {
       optional        <- fetchUserId(email)
-      coreUserDetails = optional.getOrElse(throw new IllegalArgumentException("Email was not found unexpectedly"))
+      coreUserDetails = optional.getOrElse(throw new IllegalArgumentException("Email was not found, unexpectedly"))
       user            <- seekRegisteredUser(coreUserDetails.id).getOrElse(UnregisteredUser(email, coreUserDetails.id))
     } yield user
   }
@@ -167,6 +180,8 @@ class DummyDeveloperConnector extends DeveloperConnector {
   def seekUserByEmail(email: String)(implicit hc: HeaderCarrier): Future[Option[User]] = Future.successful(Some(UnregisteredUser(email, UserId.random)))
 
   def fetchOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredUser(email, UserId.random))
+
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = Future.successful(RegisteredUser("bob.smith@example.com", userId, "Bob", "Smith", true))
 
   def fetchByEmail(email: String)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email, UserId.random))
 

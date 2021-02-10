@@ -42,7 +42,7 @@
     <h2>Are you sure you want to remove 2SV for this developer?</h2>
     <div class="form-field form-field--submit">
         <button id="submit" class="button--alert" type="submit">Remove 2SV</button>
-        <a id="cancel" href="@routes.DevelopersController.developerPage(developer.user.email)" class="button--link">Cancel</a>
+        <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button--link">Cancel</a>
     </div>
     }
 </article>
