@@ -95,4 +95,6 @@ case class Developer(user: User, applications: Seq[Application]) {
   }
 
   lazy val status: StatusFilter = User.status(user)
+
+  lazy val id: String = user.userId.value.toString
 }
