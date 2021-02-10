@@ -7,7 +7,7 @@ POST        /update-rate-limit-tier                                           co
 GET         /developers                                                       controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
 
 GET         /developer                                                        controllers.DevelopersController.developerPage(developerIdentifier: model.DeveloperIdentifier)
-GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(email: String)
+GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(email: String)
 GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(email: String)
 POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(email: String)

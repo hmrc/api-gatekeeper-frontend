@@ -94,9 +94,9 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer)))
+      developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
   def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
