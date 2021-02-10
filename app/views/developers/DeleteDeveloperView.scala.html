@@ -39,7 +39,7 @@
                 <h1>@developer.user.email</h1>
             </header>
 
-            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(developer.user.email), 'class -> "form") {
+            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
             @helper.CSRF.formField
             <h2>Are you sure you want to delete this developer?</h2>
             <div class="form-field form-field--submit">

@@ -51,6 +51,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
     trait Setup extends ControllerSetupBase {
 
+      val emailAddress = "someone@example.com"
+      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
+      val developerId = UuidIdentifier(user.userId)
+
+      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
+        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
+      val developer = Developer( user, apps )
+
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
       val loggedInUser = "userName"
@@ -95,12 +103,12 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)))(*)).thenReturn(successful(developer))
       }
 
-      def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        when(mockDeveloperService.deleteDeveloper(any[String], any[String])(*)).thenReturn(successful(result))
+      def givenDeleteDeveloperReturns(developer: Developer, result: DeveloperDeleteResult) = {
+        when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful((result,developer)))
       }
 
       def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
-        when(mockDeveloperService.removeMfa(any[String], any[String])(*)).thenReturn(user)
+        when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(user)
       }
     }
 
@@ -183,12 +191,12 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "removeMfaPage" should {
-      val emailAddress = "someone@example.com"
-      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      val developerId = UuidIdentifier(user.userId)
-      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      val developer = Developer( user, apps )
+      // val emailAddress = "someone@example.com"
+      // val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
+      // val developerId = UuidIdentifier(user.userId)
+      // val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
+      //   Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
+      // val developer = Developer( user, apps )
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
@@ -210,12 +218,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "removeMfaAction" should {
-      val emailAddress = "someone@example.com"
-      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      val developerId = UuidIdentifier(user.userId)
-      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      val developer = Developer( user, apps )
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
@@ -245,14 +247,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "deleteDeveloperPage" should {
-      val emailAddress = "someone@example.com"
-      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      val developer = Developer(
-        RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
-        apps
-      )
-      val developerId = UuidIdentifier(developer.user.userId)
+      // val emailAddress = "someone@example.com"
+      // val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
+      //   Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
+      // val developer = Developer(
+      //   RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
+      //   apps
+      // )
+      // val developerId = UuidIdentifier(developer.user.userId)
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
@@ -271,27 +273,27 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "deleteDeveloperAction" should {
-      val emailAddress = "someone@example.com"
+      // val emailAddress = "someone@example.com"
 
       "not allow an unauthorised user to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result = await(developersController.deleteDeveloperAction(emailAddress)(aLoggedInRequest))
+        val result = await(developersController.deleteDeveloperAction(developerId)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenDeleteDeveloperReturns(DeveloperDeleteSuccessResult)
-        val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
+        givenDeleteDeveloperReturns(developer, DeveloperDeleteSuccessResult)
+        val result = await(developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest))
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(emailAddress), eqTo(superUserName))(*)
+        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo(superUserName))(*)
         verifyAuthConnectorCalledForSuperUser
       }
 
       "return an internal server error when the delete fails" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenDeleteDeveloperReturns(DeveloperDeleteFailureResult)
-        val result = await(developersController.deleteDeveloperAction(emailAddress)(aSuperUserLoggedInRequest))
+        givenDeleteDeveloperReturns(developer, DeveloperDeleteFailureResult)
+        val result = await(developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest))
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }

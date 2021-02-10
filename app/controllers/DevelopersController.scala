@@ -99,10 +99,10 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperAction(developerId: DeveloperIdentifier) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
-        case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
+      developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
+        case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
         case _ => technicalDifficulties
       }
   }

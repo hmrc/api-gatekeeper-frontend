@@ -8,7 +8,7 @@ GET         /developers                                                       co
 
 GET         /developer                                                        controllers.DevelopersController.developerPage(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: model.DeveloperIdentifier)
-POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(email: String)
+POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(email: String)
 POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(email: String)
 

@@ -168,9 +168,11 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.removeMfa(email, loggedInUser)
   }
 
-  def deleteDeveloper(email: String, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
+  // TODO : APIS-5159 - remove excessive use of email
+  //
+  def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(app: Application): Future[Seq[String]] = {
+    def fetchAdminsToEmail(email: String)(app: Application): Future[Seq[String]] = {
       if (app.deployedTo == "SANDBOX") {
         Future.successful(Seq.empty)
       } else {
@@ -183,25 +185,26 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       }
     }
 
-    def removeTeamMemberFromApp(app: Application) = {
+    def removeTeamMemberFromApp(email: String)(app: Application) = {
       val connector = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
 
       for {
-        adminsToEmail <- fetchAdminsToEmail(app)
+        adminsToEmail <- fetchAdminsToEmail(email)(app)
         result <- connector.removeCollaborator(app.id, email, gatekeeperUserId, adminsToEmail)
       } yield result
     }
 
-    fetchDeveloper(email).flatMap { developer =>
+    fetchDeveloper(developerId).flatMap { developer =>
+      val email = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {
         for {
-          _ <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp)
+          _ <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(email))
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
-        } yield result
+        } yield (result, developer)
       } else {
-        Future.successful(DeveloperDeleteFailureResult)
+        Future.successful((DeveloperDeleteFailureResult, developer))
       }
     }
   }
