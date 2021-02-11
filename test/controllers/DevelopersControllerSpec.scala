@@ -191,13 +191,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "removeMfaPage" should {
-      // val emailAddress = "someone@example.com"
-      // val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      // val developerId = UuidIdentifier(user.userId)
-      // val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-      //   Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      // val developer = Developer( user, apps )
-
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
         givenFetchDeveloperReturns(developer)
@@ -247,14 +240,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "deleteDeveloperPage" should {
-      // val emailAddress = "someone@example.com"
-      // val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-      //   Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      // val developer = Developer(
-      //   RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true),
-      //   apps
-      // )
-      // val developerId = UuidIdentifier(developer.user.userId)
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
@@ -273,7 +258,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     }
 
     "deleteDeveloperAction" should {
-      // val emailAddress = "someone@example.com"
 
       "not allow an unauthorised user to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
