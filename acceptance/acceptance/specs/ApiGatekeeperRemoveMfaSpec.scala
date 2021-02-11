@@ -31,6 +31,8 @@ import scala.io.Source
 import play.api.libs.json.Json
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import acceptance.testdata.CommonTestData
+import model.RegisteredUser
+import model.UserId
 
 class ApiGatekeeperRemoveMfaSpec 
     extends BaseSpec 
@@ -94,6 +96,7 @@ class ApiGatekeeperRemoveMfaSpec
 
       Then("I can see the button to remove MFA")
       assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
+      assert(DeveloperDetailsPage.removeMfaButton.get.isEnabled == true)
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -116,7 +119,7 @@ class ApiGatekeeperRemoveMfaSpec
   }
 
   def initStubs(): Unit = {
-    stubApplicationList()
+    stubFetchAllApplicationsList()
     stubApplicationForEmail()
     stubApiDefinition()
     stubDevelopers()
@@ -140,7 +143,7 @@ class ApiGatekeeperRemoveMfaSpec
     on(DeveloperDetailsPage)
   }
 
-  def stubApplicationList(): Unit = {
+  def stubFetchAllApplicationsList(): Unit = {
     val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
   }
@@ -173,23 +176,24 @@ class ApiGatekeeperRemoveMfaSpec
 
     val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(developer8)))
     implicit val format = Json.writes[FindUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
+    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(UserId(developer8Id))))
     
     stubFor(post(urlEqualTo("/developers/find-user-id"))
       .withRequestBody(equalToJson(requestJson))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 
+    val responseUser = Json.stringify(Json.toJson(RegisteredUser(developer8,UserId(developer8Id),"Bob","Smith",true,None,true)))
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+      .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
       .willReturn(
-        aResponse().withStatus(OK).withBody(user)
+        aResponse().withStatus(OK).withBody(responseUser)
       )
     )
   }
 
   def stubRemoveMfa(): Unit = {
-    stubFor(WireMock.post(urlEqualTo(s"""/developer/${userId.value}/mfa/remove"""))
+    stubFor(WireMock.post(urlEqualTo(s"/developer/${developer8Id}/mfa/remove"))
       .willReturn(aResponse().withStatus(OK).withBody(user)))
   }
 }

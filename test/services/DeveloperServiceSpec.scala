@@ -282,13 +282,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     "remove MFA" in new Setup {
       val developer = aUser("Fred")
+      val developerId = UuidIdentifier(developer.userId)
       val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
-      val result = await(underTest.removeMfa(developer.email, loggedInUser))
+      val result = await(underTest.removeMfa(developerId, loggedInUser))
 
       result shouldBe developer
-      verify(mockDeveloperConnector).removeMfa(developer.email, loggedInUser)
+      verify(mockDeveloperConnector).removeMfa(developerId, loggedInUser)
     }
   }
 

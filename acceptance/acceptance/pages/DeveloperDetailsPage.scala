@@ -18,11 +18,10 @@ package acceptance.pages
 
 import acceptance.WebPage
 import acceptance.testdata.CommonTestData
-import acceptance.specs.MockDataSugar
 
 object DeveloperDetailsPage extends WebPage with utils.UrlEncoding with CommonTestData {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer?developerId="
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer"
 
   override def isCurrentPage: Boolean = {
     currentUrl.startsWith(url)

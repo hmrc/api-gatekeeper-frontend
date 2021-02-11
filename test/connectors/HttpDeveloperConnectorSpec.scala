@@ -28,6 +28,7 @@ import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.WireMockSugar
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import encryption.PayloadEncryption
@@ -38,7 +39,7 @@ class HttpDeveloperConnectorSpec
     with MockitoSugar
     with ArgumentMatchersSugar
     with ScalaFutures
-    with WiremockSugar
+    with WireMockSugar
     with BeforeAndAfterEach
     with WithFakeApplication
     with utils.UrlEncoding {
@@ -57,15 +58,27 @@ class HttpDeveloperConnectorSpec
 
   def mockFetchUserId(email: String, userId: UserId) = {
     import connectors.DeveloperConnector._
-    val payload: String = Json.stringify(Json.toJson(FindUserIdRequest(email)))
     implicit val writer = Json.writes[FindUserIdResponse]
 
     stubFor(
-      post(urlEqualTo("/developers/find-user-id")).withRequestBody(equalToJson(payload))
+      post(urlEqualTo("/developers/find-user-id"))
+      .withJsonRequestBody(FindUserIdRequest(email))
       .willReturn(
         aResponse()
         .withStatus(OK)
-        .withBody(Json.toJson(FindUserIdResponse(userId)).toString)
+        .withJsonBody(FindUserIdResponse(userId))
+      )
+    )
+  }
+
+  def mockSeekRegisteredUser(user: RegisteredUser) = {
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .withQueryParam("developerId", equalTo(user.userId.value.toString))
+      .willReturn(
+        aResponse()
+        .withStatus(OK)
+        .withJsonBody(user)
       )
     )
   }
@@ -165,24 +178,24 @@ class HttpDeveloperConnectorSpec
     }
 
     "remove MFA for a developer" in new Setup {
-      val userId = UserId.random
-      mockFetchUserId(developerEmail, userId)
+      val emailAddress = "someone@example.com"
+      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
+      val developerId = UuidIdentifier(user.userId)
 
+      mockSeekRegisteredUser(user)
       val loggedInUser: String = "admin-user"
-      val payload = Json.stringify(Json.toJson(RemoveMfaRequest(loggedInUser)))
-      val user = aUserResponse(developerEmail, userId)
       
       stubFor(
-        post(urlEqualTo(s"/developer/${userId.value}/mfa/remove"))
-        .withRequestBody(equalToJson(payload))
+        post(urlEqualTo(s"/developer/${user.userId.value}/mfa/remove"))
+        .withJsonRequestBody(RemoveMfaRequest(loggedInUser))
         .willReturn(
           aResponse()
           .withStatus(OK)
-          .withBody(Json.toJson(user).toString())
+          .withJsonBody(user)
         )
       )
 
-      val result = await(connector.removeMfa(developerEmail, loggedInUser))
+      val result = await(connector.removeMfa(developerId, loggedInUser))
 
       result shouldBe user
     }

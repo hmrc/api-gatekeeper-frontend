@@ -164,8 +164,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   }
 
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
-    developerConnector.removeMfa(email, loggedInUser)
+  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
+    developerConnector.removeMfa(developerId, loggedInUser)
   }
 
   // TODO : APIS-5159 - remove excessive use of email

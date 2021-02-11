@@ -20,6 +20,8 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
+@* TODO - simplify Developer to Id *@
+
 @(developer: Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove 2SV") {
@@ -37,7 +39,7 @@
         <h1>@developer.user.email</h1>
     </header>
 
-    @helper.form(action = routes.DevelopersController.removeMfaAction(developer.user.email), 'class -> "form") {
+    @helper.form(action = routes.DevelopersController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
     @helper.CSRF.formField
     <h2>Are you sure you want to remove 2SV for this developer?</h2>
     <div class="form-field form-field--submit">

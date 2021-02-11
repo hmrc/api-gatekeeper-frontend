@@ -28,7 +28,6 @@ class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with Wiremo
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val email: String = "user@example.com"
   val loggedInUser: String = "admin-user"
-
   val underTest = new DummyDeveloperConnector
 
   "fetchByEmail" should {
@@ -62,8 +61,8 @@ class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with Wiremo
   }
 
   "removeMfa" should {
-    "return an UnregisteredCollaborator" in {
-      await(underTest.removeMfa(email, loggedInUser)) shouldBe a[RegisteredUser]
+    "return an RegisteredCollaborator" in {
+      await(underTest.removeMfa(UuidIdentifier(UserId.random), loggedInUser)) shouldBe a[RegisteredUser]
     }
   }
 }

@@ -45,6 +45,6 @@ object DeveloperIdentifier {
 
   def asText(id: DeveloperIdentifier) = id match {
     case EmailIdentifier(email) => Logger.warn("Still using emails as identifier"); email
-    case UuidIdentifier(id) => id.toString
+    case UuidIdentifier(id) => id.value.toString
   }
 }

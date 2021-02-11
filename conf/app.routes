@@ -9,8 +9,8 @@ GET         /developers                                                       co
 GET         /developer                                                        controllers.DevelopersController.developerPage(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(developerIdentifier: model.DeveloperIdentifier)
-GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(email: String)
-POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(email: String)
+GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(developerIdentifier: model.DeveloperIdentifier)
+POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(developerIdentifier: model.DeveloperIdentifier)
 
 GET         /developers2                                                      controllers.Developers2Controller.developersPage(emailFilter: Option[String], apiVersionFilter: Option[String], environmentFilter: Option[String], developerStatusFilter: Option[String])
 

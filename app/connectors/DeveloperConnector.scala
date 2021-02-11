@@ -58,7 +58,7 @@ trait DeveloperConnector {
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
+  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
 }
 
 object DeveloperConnector {
@@ -93,7 +93,8 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
     .map(userIdResponse => CoreUserDetails(email, userIdResponse.userId))
   }
 
-  private def seekRegisteredUser(id: UserId)(implicit hc: HeaderCarrier): OptionT[Future,RegisteredUser] = OptionT(http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> id.value.toString)))
+  private def seekRegisteredUser(id: UserId)(implicit hc: HeaderCarrier): OptionT[Future,RegisteredUser] = 
+    OptionT(http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> id.value.toString)))
   
   def seekUserByEmail(email: String)(implicit hc: HeaderCarrier): Future[Option[User]] = {
     import cats.implicits._
@@ -107,7 +108,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
   def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = {
     for {
-      user            <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException("UserId was not found, unexpectedly"))
+      user            <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"$userId was not found, unexpectedly"))
     } yield user
   }
 
@@ -156,12 +157,11 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
       }
   }
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
+  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     for {
-      optional <- fetchUserId(email)
-      coreUserDetails = optional.getOrElse(throw new IllegalArgumentException("Email was not found unexpectedly"))
-      user <- http.POST[RemoveMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${coreUserDetails.id.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
-    } yield user
+      user <- fetchById(developerId)
+      userResponse <- http.POST[RemoveMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${user.userId.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
+    } yield userResponse
   }
 
   def searchDevelopers(maybeEmail: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
@@ -194,7 +194,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
 
-  def removeMfa(email: String, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = Future.successful(RegisteredUser(email, UserId.random, "Bob", "Smith", true))
+  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = Future.successful(RegisteredUser("bob.smith@example.com", UserId.random, "Bob", "Smith", true))
 
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = Future.successful(Seq.empty)
 }

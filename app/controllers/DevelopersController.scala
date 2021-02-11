@@ -78,18 +78,18 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer)))
+      developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
-        Ok(removeMfaSuccessView(email))
+      developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
+        Ok(removeMfaSuccessView(user.email))
       } recover {
         case e: Exception =>
-          Logger.error(s"Failed to remove MFA for user: $email", e)
+          Logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
           technicalDifficulties
       }
   }

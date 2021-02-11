@@ -202,15 +202,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserHasInsufficientEnrolments()
         givenFetchDeveloperReturns(developer)
 
-        val result: Result = await(developersController.removeMfaPage(emailAddress)(aLoggedInRequest))
+        val result: Result = await(developersController.removeMfaPage(developerId)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a normal user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        when(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).thenReturn(successful(developer))
+        when(mockDeveloperService.fetchDeveloper(eqTo(developerId))(*)).thenReturn(successful(developer))
 
-        val result: Result = await(addToken(developersController.removeMfaPage(emailAddress))(aLoggedInRequest))
+        val result: Result = await(addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest))
 
         status(result) shouldBe OK
         verifyAuthConnectorCalledForUser
@@ -221,7 +221,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
+        val result: Result = await(developersController.removeMfaAction(developerId)(aLoggedInRequest))
         status(result) shouldBe FORBIDDEN
       }
 
@@ -229,10 +229,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenRemoveMfaReturns(successful(user))
 
-        val result: Result = await(developersController.removeMfaAction(emailAddress)(aLoggedInRequest))
+        val result: Result = await(developersController.removeMfaAction(developerId)(aLoggedInRequest))
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(emailAddress), eqTo(loggedInUser))(*)
+        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
         verifyAuthConnectorCalledForUser
       }
 
@@ -240,7 +240,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenRemoveMfaReturns(failed(new RuntimeException("Failed to remove MFA")))
 
-        val result: Result = await(developersController.removeMfaAction(emailAddress)(aSuperUserLoggedInRequest))
+        val result: Result = await(developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }

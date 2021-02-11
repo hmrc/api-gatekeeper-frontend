@@ -26,7 +26,6 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
