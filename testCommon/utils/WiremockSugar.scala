@@ -21,11 +21,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import com.github.tomakehurst.wiremock.client.MappingBuilder
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import org.scalatest.BeforeAndAfterAll
 
-trait WireMockSugar extends BeforeAndAfterEach with BeforeAndAfterAll {
+trait WireMockSugar extends BeforeAndAfterEach with BeforeAndAfterAll with WireMockExtensions {
   this: Suite =>
   val stubPort = sys.env.getOrElse("WIREMOCK", "22222").toInt
   val stubHost = "localhost"
@@ -50,24 +48,6 @@ trait WireMockSugar extends BeforeAndAfterEach with BeforeAndAfterAll {
   override def afterEach() {
     wireMockServer.resetMappings()
     super.afterEach()
-  }
-
-  implicit class withJsonRequestBodySyntax(bldr: MappingBuilder) {
-    import com.github.tomakehurst.wiremock.client.WireMock._
-    import play.api.libs.json._
-    
-    def withJsonRequestBody[T](t:T)(implicit writes: Writes[T]): MappingBuilder = {
-      bldr.withRequestBody(equalTo(Json.toJson(t).toString))
-    }
-  }
-
-  
-  implicit class withJsonBodySyntax(bldr: ResponseDefinitionBuilder) {
-    import play.api.libs.json._
-    
-    def withJsonBody[T](t:T)(implicit writes: Writes[T]): ResponseDefinitionBuilder = {
-      bldr.withBody(Json.toJson(t).toString)
-    }
   }
 }
 

@@ -30,11 +30,12 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import utils.WireMockSugar
 
 class ApiPublisherConnectorSpec 
   extends UnitSpec
     with MockitoSugar
-    with WiremockSugar
+    with WireMockSugar
     with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {

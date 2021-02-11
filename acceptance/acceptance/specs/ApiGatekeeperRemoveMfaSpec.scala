@@ -33,6 +33,7 @@ import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import acceptance.testdata.CommonTestData
 import model.RegisteredUser
 import model.UserId
+import utils.WireMockExtensions
 
 class ApiGatekeeperRemoveMfaSpec 
     extends BaseSpec 
@@ -44,7 +45,8 @@ class ApiGatekeeperRemoveMfaSpec
     with Assertions 
     with ApiDefinitionTestData
     with CommonTestData
-    with utils.UrlEncoding {
+    with utils.UrlEncoding 
+    with WireMockExtensions {
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")
@@ -174,20 +176,25 @@ class ApiGatekeeperRemoveMfaSpec
 
   def stubDeveloper(): Unit = {
 
-    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(developer8)))
     implicit val format = Json.writes[FindUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(UserId(developer8Id))))
     
-    stubFor(post(urlEqualTo("/developers/find-user-id"))
-      .withRequestBody(equalToJson(requestJson))
-      .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
+    stubFor(
+      post(urlEqualTo("/developers/find-user-id"))
+      .withJsonRequestBody(FindUserIdRequest(developer8))
+      .willReturn(
+        aResponse()
+        .withStatus(OK)
+        .withJsonBody(FindUserIdResponse(UserId(developer8Id)))
+      )
+    )
 
-    val responseUser = Json.stringify(Json.toJson(RegisteredUser(developer8,UserId(developer8Id),"Bob","Smith",true,None,true)))
     stubFor(
       get(urlPathEqualTo("/developer"))
       .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
       .willReturn(
-        aResponse().withStatus(OK).withBody(responseUser)
+        aResponse()
+        .withStatus(OK)
+        .withJsonBody(RegisteredUser(developer8,UserId(developer8Id),"Bob","Smith",true,None,true))
       )
     )
   }

@@ -32,12 +32,13 @@ import JsonFormatters._
 import uk.gov.hmrc.play.test.WithFakeApplication
 import play.api.libs.json.Json
 import org.mockito.MockitoSugar
+import utils.WireMockSugar
 
 class SubscriptionFieldsConnectorSpec 
     extends UnitSpec 
     with ScalaFutures 
     with MockitoSugar 
-    with WiremockSugar
+    with WireMockSugar
     with WithFakeApplication {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
