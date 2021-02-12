@@ -80,9 +80,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(developer: RegisteredUser, productionApps: List[ApplicationResponse], sandboxApps: List[ApplicationResponse] = List.empty) = {
-      when(mockDeveloperConnector.fetchByEmail(*)(*))
-        .thenReturn(Future.successful(developer))
+    def fetchDeveloperWillReturn(user: RegisteredUser, productionApps: List[ApplicationResponse] = List.empty, sandboxApps: List[ApplicationResponse] = List.empty) = {
+      when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*))
+        .thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*))
+        .thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*))
+        .thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*))
+        .thenReturn(Future.successful(user))
+
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
         .thenReturn(Future.successful(productionApps))
       when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*)(*))
@@ -269,42 +276,70 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       val result = await(underTest.fetchDeveloper(developer.email))
       result shouldBe Developer(developer, apps)
-      verify(mockDeveloperConnector).fetchByEmail(eqTo(developer.email))(*)
+      verify(mockDeveloperConnector).fetchById(eqTo(EmailIdentifier(developer.email)))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
     }
 
     "remove MFA" in new Setup {
       val developer = aUser("Fred")
+      val developerId = UuidIdentifier(developer.userId)
       val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
-      val result = await(underTest.removeMfa(developer.email, loggedInUser))
+      val result = await(underTest.removeMfa(developerId, loggedInUser))
 
       result shouldBe developer
-      verify(mockDeveloperConnector).removeMfa(developer.email, loggedInUser)
+      verify(mockDeveloperConnector).removeMfa(developerId, loggedInUser)
+    }
+  }
+
+  "fetchDeveloper" should {
+    val user = aUser("Fred")
+
+    "fetch the developer when requested by email" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(user.email)) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by userId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by email as developerId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty)
+    }
+
+    "fetch the developer when requested by userId as developerId" in new Setup {
+      fetchDeveloperWillReturn(user)
+
+      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty)
     }
   }
 
   "developerService.deleteDeveloper" should {
+    val gatekeeperUserId = "gate.keeper"
+    val user = aUser("Fred")
+    val developerId = UuidIdentifier(user.userId)
 
     "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
-      val gatekeeperUserId = "gate.keeper"
-      val developer = aUser("Fred")
   
-      fetchDeveloperWillReturn(developer, productionApps = List.empty, sandboxApps = List.empty)
+      fetchDeveloperWillReturn(user, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
 
-      val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, developer.email)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
       verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
       verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
-      val gatekeeperUserId = "gate.keeper"
-      val user = aUser("Fred")
       val app1 = aProdApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app2 = aProdApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aProdApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
@@ -313,7 +348,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
 
-      val result = await(underTest.deleteDeveloper(user.email, gatekeeperUserId))
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
       verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Seq(verifiedAdminCollaborator.emailAddress))
@@ -324,16 +359,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
-      val gatekeeperUserId = "gate.keeper"
-      val user = aUser("Fred")
-      val app1 = aSandboxApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+     val app1 = aSandboxApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app2 = aSandboxApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aSandboxApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
 
       fetchDeveloperWillReturn(user, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
 
-      val result = await(underTest.deleteDeveloper(user.email, gatekeeperUserId))
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
       verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
@@ -344,16 +377,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
-      val gatekeeperUserId = "gate.keeper"
-      val developer = aUser("Fred")
-      val productionApps = List(anApp("productionApplication", Set(developer.email.asAdministratorCollaborator)))
+      val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
       val sandboxApps = List(anApp(
         name = "sandboxApplication",
-        collaborators = Set(developer.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
       ))
-      fetchDeveloperWillReturn(developer, productionApps, sandboxApps)
+      fetchDeveloperWillReturn(user, productionApps, sandboxApps)
 
-      val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
@@ -362,16 +393,15 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
-      val gatekeeperUserId = "gate.keeper"
-      val developer = aUser("Fred")
       val productionApps = List(anApp(
         name = "productionApplication",
-        collaborators = Set(developer.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
       ))
-      val sandboxApps = List(anApp("sandboxApplication", Set(developer.email.asAdministratorCollaborator)))
-      fetchDeveloperWillReturn(developer, productionApps, sandboxApps)
+      val sandboxApps = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
 
-      val result = await(underTest.deleteDeveloper(developer.email, gatekeeperUserId))
+      fetchDeveloperWillReturn(user, productionApps, sandboxApps)
+
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)

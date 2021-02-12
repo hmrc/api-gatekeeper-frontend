@@ -28,11 +28,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.WithFakeApplication
 import org.mockito.MockitoSugar
+import utils.WireMockSugar
 
 class ApiScopeConnectorSpec
   extends UnitSpec
     with MockitoSugar
-    with WiremockSugar
+    with WireMockSugar
     with WithFakeApplication {
 
   class Setup(proxyEnabled: Boolean = false) {

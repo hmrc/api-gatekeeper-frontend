@@ -22,13 +22,13 @@ import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.WireMockSugar
 
-class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication with MockitoSugar with ArgumentMatchersSugar {
+class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with WireMockSugar with BeforeAndAfterEach with WithFakeApplication with MockitoSugar with ArgumentMatchersSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val email: String = "user@example.com"
   val loggedInUser: String = "admin-user"
-
   val underTest = new DummyDeveloperConnector
 
   "fetchByEmail" should {
@@ -62,8 +62,8 @@ class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with Wiremo
   }
 
   "removeMfa" should {
-    "return an UnregisteredCollaborator" in {
-      await(underTest.removeMfa(email, loggedInUser)) shouldBe a[RegisteredUser]
+    "return an RegisteredCollaborator" in {
+      await(underTest.removeMfa(UuidIdentifier(UserId.random), loggedInUser)) shouldBe a[RegisteredUser]
     }
   }
 }

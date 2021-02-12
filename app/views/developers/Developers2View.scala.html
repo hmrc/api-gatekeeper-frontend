@@ -136,7 +136,7 @@ params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvid
             @for((user, index) <- users.zipWithIndex) {
             <tr role="row">
                 <td id="dev-email-@index" width="45%"><a
-                        href="@{routes.DevelopersController.developerPage(user.email)}">@user.email</a></td>
+                        href="@{routes.DevelopersController.developerPage(UuidIdentifier(user.userId))}">@user.email</a></td>
                 <td id="dev-fn-@index">@user.firstName</td>
                 <td id="dev-sn-@index">@user.lastName</td>
                 <td class="text--right hard--right" id="dev-status-@index">

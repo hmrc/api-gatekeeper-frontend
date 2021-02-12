@@ -20,10 +20,10 @@ import acceptance.WebPage
 
 object RemoveMfaSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove?email=Dixie.fakename%40example.com"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove"
 
   override def isCurrentPage: Boolean = {
-    currentUrl == url
+    currentUrl.startsWith(url)
   }
 
   def finishButton: RemoveMfaSuccessPage.Element = {

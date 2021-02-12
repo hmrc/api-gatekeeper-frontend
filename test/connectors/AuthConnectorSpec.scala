@@ -23,8 +23,9 @@ import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.WireMockSugar
 
-class AuthConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with WiremockSugar with BeforeAndAfterEach with WithFakeApplication {
+class AuthConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with WireMockSugar with BeforeAndAfterEach with WithFakeApplication {
 
   trait Setup {
     implicit val hc = HeaderCarrier()

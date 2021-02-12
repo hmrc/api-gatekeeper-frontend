@@ -33,11 +33,12 @@ import model.subscriptions.VersionData
 import model.APIDefinitionFormatters._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import utils.WireMockSugar
 
 class ApmConnectorSpec 
     extends UnitSpec
     with MockitoSugar
-    with WiremockSugar
+    with WireMockSugar
     with WithFakeApplication
     with utils.UrlEncoding {
 

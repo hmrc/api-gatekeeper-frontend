@@ -91,9 +91,9 @@
         </table>
     </div>
     <br>
-      <a id="delete-developer" href="@{routes.DevelopersController.deleteDeveloperPage(developer.email)}" class="button--alert text--center flush--right">Delete developer</a>
+      <a id="delete-developer" href="@{routes.DevelopersController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}" class="button--alert text--center flush--right">Delete developer</a>
       @if(developer.mfaEnabled) {
-        <a id="remove-2SV" href="@{routes.DevelopersController.removeMfaPage(developer.email)}" class="button--alert text--center flush--right">Remove 2SV</a>
+        <a id="remove-2SV" href="@{routes.DevelopersController.removeMfaPage(UuidIdentifier(developer.user.userId))}" class="button--alert text--center flush--right">Remove 2SV</a>
       }
 </article>
 }

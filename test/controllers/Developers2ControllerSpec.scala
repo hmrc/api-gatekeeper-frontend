@@ -26,7 +26,6 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
@@ -75,19 +74,8 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
       }
 
-      def givenFetchDeveloperReturns(developer: Developer) = {
-        when(mockDeveloperService.fetchDeveloper(eqTo(developer.email))(*)).thenReturn(successful(developer))
-      }
-
-      def givenDeleteDeveloperReturns(result: DeveloperDeleteResult) = {
-        when(mockDeveloperService.deleteDeveloper(*, *)(*)).thenReturn(successful(result))
-      }
-
-      def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
-        when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(user)
-      }
     }
-
+    
     "developersPage" should {
       "show no results when initially opened" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()

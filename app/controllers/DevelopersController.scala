@@ -73,36 +73,36 @@ class DevelopersController @Inject()(developerService: DeveloperService,
       } yield Ok(developersView(sortedDevelopers, emails, groupApisByStatus(apis), filter, status, environment))
   }
 
-  def developerPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
+      developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
   }
 
-  def removeMfaPage(email: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(removeMfaView(developer)))
+      developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer)))
   }
 
-  def removeMfaAction(email:String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+  def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
-      developerService.removeMfa(email, loggedIn.userFullName.get) map { _ =>
-        Ok(removeMfaSuccessView(email))
+      developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
+        Ok(removeMfaSuccessView(user.email))
       } recover {
         case e: Exception =>
-          Logger.error(s"Failed to remove MFA for user: $email", e)
+          Logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
           technicalDifficulties
       }
   }
 
-  def deleteDeveloperPage(email: String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      developerService.fetchDeveloper(email).map(developer => Ok(deleteDeveloperView(developer)))
+      developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
-  def deleteDeveloperAction(email:String) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
+  def deleteDeveloperAction(developerId: DeveloperIdentifier) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      developerService.deleteDeveloper(email, loggedIn.userFullName.get).map {
-        case DeveloperDeleteSuccessResult => Ok(deleteDeveloperSuccessView(email))
+      developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
+        case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
         case _ => technicalDifficulties
       }
   }

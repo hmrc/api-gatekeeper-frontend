@@ -19,6 +19,9 @@ package controllers
 import play.api.mvc.PathBindable
 import model.{ApiContext, ApplicationId, ApiVersion}
 import play.api.mvc.QueryStringBindable
+import model.UserId
+import scala.util.Try
+import model.DeveloperIdentifier
 
 package object binders {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -100,4 +103,52 @@ package object binders {
       textBinder.unbind("version", version.value)
     }
   }
+
+  import java.{util => ju}
+  
+  private def eitherFromString(text: String): Either[String, UserId] = {
+    Try(ju.UUID.fromString(text))
+    .toOption
+    .toRight(s"Cannot accept $text as userId")
+    .map(UserId(_))
+  }
+
+  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+    override def bind(key: String, value: String): Either[String, UserId] = {
+      textBinder.bind(key, value).flatMap(eitherFromString)
+    }
+
+    override def unbind(key: String, userId: UserId): String = {
+      userId.value.toString()
+    }
+  }
+
+  implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
+    override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
+      for {
+        text <- textBinder.bind(key, value)
+        id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
+      } yield id
+    }
+
+    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
+      DeveloperIdentifier.asText(developerId)
+    }
+  }
+
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
+      for {
+        text <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
+      } yield text match {
+        case Right(idText) => DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
+        case _ => Left("Unable to bind a developer identifier")
+      }
+    }
+
+    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
+      textBinder.unbind("developerId", DeveloperIdentifier.asText(developerId))
+    }
+  }
+
 }
