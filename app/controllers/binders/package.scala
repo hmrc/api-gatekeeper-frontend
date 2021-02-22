@@ -124,9 +124,9 @@ package object binders {
     }
   }
 
-  private def warnOnEmailUser(id: DeveloperIdentifier): Unit = id match {
-    case EmailIdentifier(_) => Logger.warn("Still using emails as identifier")
-    case _ => ()
+    private def warnOnEmailId(id: DeveloperIdentifier): DeveloperIdentifier = id match {
+    case EmailIdentifier(_) => Logger.warn("Still using emails as identifier"); id
+    case _ => id
   }
 
   implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
@@ -134,12 +134,12 @@ package object binders {
       for {
         text <- textBinder.bind(key, value)
         id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
-        _ = warnOnEmailUser(id)
+        _ = warnOnEmailId(id)
       } yield id
     }
 
     override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      DeveloperIdentifier.asText(developerId)
+      DeveloperIdentifier.asText(warnOnEmailId(developerId))
     }
   }
 
@@ -151,15 +151,14 @@ package object binders {
         case Right(idText) =>
           for {
             id <- DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
-            _ = warnOnEmailUser(id)
+            _ = warnOnEmailId(id)
           } yield id
         case _ => Left("Unable to bind a developer identifier")
       }
     }
 
     override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      textBinder.unbind("developerId", DeveloperIdentifier.asText(developerId))
+      textBinder.unbind("developerId", DeveloperIdentifier.asText(warnOnEmailId(developerId)))
     }
   }
-
 }
