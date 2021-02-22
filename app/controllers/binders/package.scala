@@ -21,7 +21,8 @@ import model.{ApiContext, ApplicationId, ApiVersion}
 import play.api.mvc.QueryStringBindable
 import model.UserId
 import scala.util.Try
-import model.DeveloperIdentifier
+import model.{DeveloperIdentifier, EmailIdentifier}
+import play.api.Logger
 
 package object binders {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -123,11 +124,17 @@ package object binders {
     }
   }
 
+  private def warnOnEmailUser(id: DeveloperIdentifier): Unit = id match {
+    case EmailIdentifier(_) => Logger.warn("Still using emails as identifier")
+    case _ => ()
+  }
+
   implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
     override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
       for {
         text <- textBinder.bind(key, value)
         id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
+        _ = warnOnEmailUser(id)
       } yield id
     }
 
@@ -139,9 +146,13 @@ package object binders {
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
       for {
-        text <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
-      } yield text match {
-        case Right(idText) => DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
+        textOrBindError <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
+      } yield textOrBindError match {
+        case Right(idText) =>
+          for {
+            id <- DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
+            _ = warnOnEmailUser(id)
+          } yield id
         case _ => Left("Unable to bind a developer identifier")
       }
     }
