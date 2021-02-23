@@ -37,7 +37,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
   trait Setup {
     implicit val request = FakeRequest()
 
-    val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), Seq())
+    val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
 
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
@@ -66,22 +66,22 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
   "developer details view" must {
     "show unregistered developer details when logged in as superuser" in new Setup {
-      val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com", UserId.random), Seq())
+      val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com", UserId.random), List.empty)
       testDeveloperDetails(unregisteredDeveloper)
     }
 
     "show unverified developer details when logged in as superuser" in new Setup {
-      val unverifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), Seq())
+      val unverifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List.empty)
       testDeveloperDetails(unverifiedDeveloper)
     }
 
     "show verified developer details when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), Seq())
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), Seq())
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), List.empty)
       testDeveloperDetails(verifiedDeveloper)
     }
 
@@ -100,7 +100,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       val testApplication1: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
       val testApplication2: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
 
-      val developerWithApps: Developer = developer.copy(applications = Seq(testApplication1, testApplication2))
+      val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
       val result = developerDetails.render(developerWithApps, true, request, LoggedInUser(None), messagesProvider)
 

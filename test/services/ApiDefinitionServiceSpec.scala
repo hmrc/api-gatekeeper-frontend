@@ -41,13 +41,13 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
     val publicDefinition = ApiDefinition(
       "publicAPI", "http://localhost/",
       "publicAPI", "public api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
+      List(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
     )
 
     val privateDefinition = ApiDefinition(
       "privateAPI", "http://localhost/",
       "privateAPI", "private api.", ApiContext.random,
-      Seq(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
+      List(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
     )
 
 
@@ -61,8 +61,8 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
-      versions = Seq(version1),
-      categories = Some(Seq(APICategory("CUSTOMS")))
+      versions = List(version1),
+      categories = Some(List(APICategory("CUSTOMS")))
     )
 
     val customsDeclarations2 = ApiDefinition(serviceName = "customs-declarations",
@@ -71,8 +71,8 @@ class ApiDefinitionServiceSpec extends UnitSpec with MockitoSugar with ArgumentM
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
-      versions = Seq(version2.copy(), version3.copy()),
-      categories = Some(Seq(APICategory("CUSTOMS")))
+      versions = List(version2.copy(), version3.copy()),
+      categories = Some(List(APICategory("CUSTOMS")))
     )
   }
 

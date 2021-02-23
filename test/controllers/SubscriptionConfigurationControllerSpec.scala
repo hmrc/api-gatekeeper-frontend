@@ -59,9 +59,9 @@ class SubscriptionConfigurationControllerSpec
     val version = ApiVersion.random
     val context = ApiContext.random
     val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
-    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
+    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
-    val subscription = buildSubscription("My Subscription", Some(context), Seq(versionWithSubscriptionFields))
+    val subscription = buildSubscription("My Subscription", Some(context), List(versionWithSubscriptionFields))
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder with ApplicationBuilder {

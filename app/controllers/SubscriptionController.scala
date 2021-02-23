@@ -59,24 +59,24 @@ class SubscriptionController @Inject()(
     
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
-      def convertToVersionSubscription(apiData: ApiData, apiVersions: Seq[ApiVersion]): Seq[VersionSubscriptionWithoutFields] = {
+      def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersion]): List[VersionSubscriptionWithoutFields] = {
         apiData.versions.map {
           case (version, data) => 
             VersionSubscriptionWithoutFields(
               ApiVersionDefinition(version, data.status, Some(data.access)),
               apiVersions.contains(version)
             )
-        }.toSeq.sortWith(SortingHelper.descendingVersionWithoutFields)
+        }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)
       }
 
-      def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : Seq[ApiVersion] = {
-        subscriptions.filter(id => id.context == context).map(id => id.version).toSeq
+      def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : List[ApiVersion] = {
+        subscriptions.filter(id => id.context == context).map(id => id.version).toList
       }
 
-      def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): Seq[SubscriptionWithoutFields] = {
+      def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
         allPossibleSubs.map {
           case (context, data) => SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
-        }.toSeq
+        }.toList
       }
 
       withAppAndSubsData(appId) { appWithSubsData =>

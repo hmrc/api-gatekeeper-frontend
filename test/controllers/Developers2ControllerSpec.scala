@@ -58,16 +58,16 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
+        givenDelegateServicesSupply(List.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: List[Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
@@ -128,7 +128,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         private val searchFilter = "aFilter"
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(Seq.empty))
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List.empty))
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
 
@@ -214,7 +214,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition = Seq(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

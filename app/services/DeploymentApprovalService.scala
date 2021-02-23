@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeploymentApprovalService @Inject()(sandboxApiPublisherConnector: SandboxApiPublisherConnector,
                                           productionApiPublisherConnector: ProductionApiPublisherConnector)(implicit ec: ExecutionContext) {
 
-  def fetchUnapprovedServices()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
+  def fetchUnapprovedServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     val sandboxFuture = sandboxApiPublisherConnector.fetchUnapproved()
     val productionFuture = productionApiPublisherConnector.fetchUnapproved()
 

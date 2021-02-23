@@ -208,7 +208,7 @@ class ApplicationConnectorSpec
           .withBody("[]")
         )
       )
-      await(connector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe Seq.empty
+      await(connector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe List.empty
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
@@ -233,7 +233,7 @@ class ApplicationConnectorSpec
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     "retrieve all applications" in new Setup {
-      val applications = Seq( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()) )
+      val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()) )
       val payload = Json.toJson(applications).toString
 
       stubFor(
@@ -310,7 +310,7 @@ class ApplicationConnectorSpec
     "retrieve state history for app id" in new Setup {
       val url = s"/gatekeeper/application/${applicationId.value}/stateHistory"
       val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
-      val response = Json.toJson(Seq(applicationState)).toString
+      val response = Json.toJson(List(applicationState)).toString
 
       stubFor(
         get(urlEqualTo(url))
@@ -320,7 +320,7 @@ class ApplicationConnectorSpec
           .withBody(response)
         )
       )
-      compareByString(await(connector.fetchStateHistory(applicationId)), Seq(applicationState))
+      compareByString(await(connector.fetchStateHistory(applicationId)), List(applicationState))
     }
   }
 
@@ -459,10 +459,10 @@ class ApplicationConnectorSpec
 
       val appName = "My new app"
       val appDescription = "An application description"
-      val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
-      val access = AppAccess(AccessType.PRIVILEGED, Seq())
+      val admin = List(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
+      val access = AppAccess(AccessType.PRIVILEGED, List())
       val totpSecrets = Some(TotpSecrets("secret"))
-      val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
+      val appAccess = AppAccess(AccessType.PRIVILEGED, List())
 
       val createPrivOrROPCAppRequest = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
       val request = Json.toJson(createPrivOrROPCAppRequest).toString
@@ -486,7 +486,7 @@ class ApplicationConnectorSpec
   "removeCollaborator" should {
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
-    val adminsToEmail = Seq("admin1@example.com", "admin2@example.com")
+    val adminsToEmail = List("admin1@example.com", "admin2@example.com")
 
     val url = s"/application/${applicationId.value}/collaborator/$emailAddress"
 
@@ -538,7 +538,7 @@ class ApplicationConnectorSpec
   "searchApplications" should {
     val url = s"/applications"
     val params = Map("page" -> "1", "pageSize" -> "10")
-    val expectedResponse = PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0)
+    val expectedResponse = PaginatedApplicationResponse(List.empty, 0, 0, 0, 0)
     val response = Json.toJson(expectedResponse).toString
 
     "return the paginated application response when the call is successful" in new Setup {
@@ -579,7 +579,7 @@ class ApplicationConnectorSpec
 
     "return emails" in new Setup {
       val email = "user@example.com"
-      val response = Json.toJson(Seq(email)).toString
+      val response = Json.toJson(List(email)).toString
       
       stubFor(
         get(urlPathEqualTo(url))
@@ -591,12 +591,12 @@ class ApplicationConnectorSpec
           .withBody(response)
         )
       )
-      await(connector.searchCollaborators(apiContext, apiVersion1, None)) shouldBe Seq(email)
+      await(connector.searchCollaborators(apiContext, apiVersion1, None)) shouldBe List(email)
     }
 
     "return emails with emailFilter" in new Setup {
       val email = "user@example.com"
-      val response = Json.toJson(Seq(email)).toString
+      val response = Json.toJson(List(email)).toString
 
       stubFor(
         get(urlPathEqualTo(url))
@@ -610,7 +610,7 @@ class ApplicationConnectorSpec
         )
       )
 
-      await(connector.searchCollaborators(apiContext, apiVersion1, Some(email))) shouldBe Seq(email)
+      await(connector.searchCollaborators(apiContext, apiVersion1, Some(email))) shouldBe List(email)
     }
   }
 }

@@ -53,10 +53,10 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = Seq(ApiDefinition(
+      val response = List(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       val payload = Json.toJson(response)
 
@@ -89,10 +89,10 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = Seq(ApiDefinition(
+      val response = List(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        Seq(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
 
       val payload = Json.toJson(response)
 

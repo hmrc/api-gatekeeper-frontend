@@ -51,12 +51,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val allUsers = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
 
   val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None, "1")
-  val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(Seq("CATEGORY1", "VAT")), "1")
-  val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(Seq("TAX", "VAT")), "1")
+  val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(List("CATEGORY1", "VAT")), "1")
+  val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(List("TAX", "VAT")), "1")
   val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None, "1")
   val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
   val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
-  val apis = Seq(api1, api2, api3)
+  val apis = List(api1, api2, api3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient

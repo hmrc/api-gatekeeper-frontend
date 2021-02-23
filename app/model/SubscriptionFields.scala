@@ -50,7 +50,7 @@ object SubscriptionFields {
 
   def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl: _*)
 
-  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Seq[SubscriptionFieldValue])
+  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: List[SubscriptionFieldValue])
 
   case class SubscriptionFieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 

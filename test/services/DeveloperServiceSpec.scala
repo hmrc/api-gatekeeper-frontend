@@ -36,7 +36,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     RegisteredUser(email, idOf(email), "Fred", "Example", verified)
   }
 
-  def aDeveloper(name: String, apps: Seq[Application] = Seq.empty, verified: Boolean = true) = {
+  def aDeveloper(name: String, apps: List[Application] = List.empty, verified: Boolean = true) = {
     val email = s"$name@example.com"
     Developer(
       RegisteredUser(email, idOf(email), name, s"${name}son", verified),
@@ -44,7 +44,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       )
   }
       
-  def anUnregisteredDeveloper(name: String, apps: Seq[Application] = Seq.empty) = {
+  def anUnregisteredDeveloper(name: String, apps: List[Application] = List.empty) = {
     val email = s"$name@example.com"
     Developer(
       UnregisteredUser(email, idOf(email)),
@@ -74,7 +74,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     val unverifiedAdminCollaborator = unverifiedUser.email.asAdministratorCollaborator
     val developerUser = aUser("developer1")
     val developerCollaborator = developerUser.email.asDeveloperCollaborator
-    val commonUsers = Seq(verifiedAdminUser, unverifiedUser, developerUser)
+    val commonUsers = List(verifiedAdminUser, unverifiedUser, developerUser)
     val apiContext = ApiContext("api")
     val apiVersion = ApiVersion.random
 
@@ -115,7 +115,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     def verifyCollaboratorRemovedFromApp(app: Application,
                                        userToRemove: String,
                                        gatekeeperUserId: String,
-                                       adminsToEmail: Seq[String],
+                                       adminsToEmail: List[String],
                                        environment: String = "PRODUCTION") = {
       environment match {
         case "PRODUCTION" =>
@@ -135,7 +135,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
   "developerService" should {
 
     "filter all users (no unregistered collaborators)" in new Setup {
-      val applications = Seq(
+      val applications = List(
         anApp("application1", Set(
           "Bob@example.com".asAdministratorCollaborator,
           "Jacob@example.com".asDeveloperCollaborator)))
@@ -144,15 +144,15 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val jim = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
-      val users = Seq(bob,jim,jacob)
+      val users = List(bob,jim,jacob)
 
       val result = underTest.filterUsersBy(AllUsers, applications)(users)
 
-      result should contain allElementsOf Seq(bob, jim, jacob)
+      result should contain allElementsOf List(bob, jim, jacob)
     }
 
     "filter all users (including unregistered collaborators)" in new Setup {
-      val applications = Seq(
+      val applications = List(
         anApp("application1", Set(
           "Bob@example.com".asAdministratorCollaborator,
           "Jacob@example.com".asDeveloperCollaborator)),
@@ -164,14 +164,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val jim = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
-      val users = Seq(bob, jim, jacob)
+      val users = List(bob, jim, jacob)
 
       val result = underTest.filterUsersBy(AllUsers, applications)(users)
-      result should contain allElementsOf Seq(bob, jim, jacob, anUnregisteredDeveloper("Julia", applications.tail))
+      result should contain allElementsOf List(bob, jim, jacob, anUnregisteredDeveloper("Julia", applications.tail))
     }
 
     "filter users that have access to 1 or more applications" in new Setup {
-      val applications = Seq(
+      val applications = List(
         anApp("application1", Set(
           "Bob@example.com".asAdministratorCollaborator,
           "Jacob@example.com".asDeveloperCollaborator)),
@@ -183,15 +183,15 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val jim = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
-      val users = Seq(bob, jim, jacob)
+      val users = List(bob, jim, jacob)
 
       val result = underTest.filterUsersBy(OneOrMoreSubscriptions, applications)(users)
-      result should contain allElementsOf Seq(bob, jim, jacob, anUnregisteredDeveloper("Julia", applications.tail))
+      result should contain allElementsOf List(bob, jim, jacob, anUnregisteredDeveloper("Julia", applications.tail))
     }
 
     "filter users that are not associated with any applications" in
       new Setup {
-        val applications = Seq(
+        val applications = List(
           anApp("application1", Set(
             "Shirley@example.com".asAdministratorCollaborator,
             "Jacob@example.com".asDeveloperCollaborator)),
@@ -202,10 +202,10 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
         val gaia = aDeveloper("Gaia")
         val jimbob = aDeveloper("Jimbob")
         val shirley = aDeveloper("Shirley")
-        val users = Seq(shirley, jimbob, gaia)
+        val users = List(shirley, jimbob, gaia)
 
         val result = underTest.filterUsersBy(NoApplications, applications)(users)
-        result should contain allElementsOf Seq(gaia, jimbob)
+        result should contain allElementsOf List(gaia, jimbob)
       }
 
     "filter users who have no subscriptions" in new Setup {
@@ -227,22 +227,22 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val jimbob = aDeveloper("Jimbob")
       val shirley = aDeveloper("Shirley")
       val jim = aDeveloper("Jim", _allApplications)
-      val users = Seq(shirley, jimbob, gaia, jim)
+      val users = List(shirley, jimbob, gaia, jim)
 
       val result = underTest.filterUsersBy(NoSubscriptions, _allApplications)(users)
 
       result should have size 4
       
-      result should contain allElementsOf Seq(
+      result should contain allElementsOf List(
         jim,
-        anUnregisteredDeveloper("Bob", Seq(_allApplications.head)),
-        anUnregisteredDeveloper("Jacob", Seq(_allApplications.head)),
-        anUnregisteredDeveloper("Julia", Seq(_allApplications.tail.head))
+        anUnregisteredDeveloper("Bob", List(_allApplications.head)),
+        anUnregisteredDeveloper("Jacob", List(_allApplications.head)),
+        anUnregisteredDeveloper("Julia", List(_allApplications.tail.head))
       )
     }
 
     "filter by status does no filtering when any status" in new Setup {
-      val users = Seq(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
+      val users = List(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
       val result = underTest.filterUsersBy(AnyStatus)(users)
       result shouldBe users
     }
@@ -251,22 +251,22 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val bob = aDeveloper("Bob", verified = false)
       val brian = aDeveloper("Brian")
       val sheila = aDeveloper("Sheila")
-      val users = Seq(bob, brian, sheila)
+      val users = List(bob, brian, sheila)
 
       val result = underTest.filterUsersBy(VerifiedStatus)(users)
 
-      result shouldBe Seq(brian, sheila)
+      result shouldBe List(brian, sheila)
     }
 
     "filter by status only returns unverified users when Unverified status" in new Setup {
       val bob = aDeveloper("Bob", verified = false)
       val brian = aDeveloper("Brian")
       val sheila = aDeveloper("Sheila")
-      val users = Seq(bob, brian, sheila)
+      val users = List(bob, brian, sheila)
       
       val result = underTest.filterUsersBy(UnverifiedStatus)(users)
 
-      result shouldBe Seq(bob)
+      result shouldBe List(bob)
     }
 
     "fetch the developer and the applications they are a team member on" in new Setup {
@@ -351,9 +351,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Seq(verifiedAdminCollaborator.emailAddress))
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Seq.empty)
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Seq(verifiedAdminCollaborator.emailAddress))
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, List(verifiedAdminCollaborator.emailAddress))
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, List.empty)
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, List(verifiedAdminCollaborator.emailAddress))
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
@@ -369,9 +369,9 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Seq.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
@@ -438,7 +438,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(List(user2.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(List(user1, user2))
 
       val filter = Developers2Filter(environmentFilter = AnyEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -458,7 +458,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(List(user.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(Seq(user))
+      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(List(user))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -487,7 +487,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(List.empty[String])
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(Seq(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(List(user1, user2))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -533,7 +533,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
         .thenReturn(List.empty[String])
 
-      when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(Seq(user1, user2, user3))
+      when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(List(user1, user2, user3))
 
       val filter = Developers2Filter(maybeEmailFilter =
         Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
@@ -573,7 +573,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(List(sandboxUser.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(Seq(productionUser))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(List(productionUser))
 
       val filter = Developers2Filter(environmentFilter = ProductionEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -596,7 +596,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(List(sandboxUser.email))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(Seq(sandboxUser))
+      when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(List(sandboxUser))
 
       val filter = Developers2Filter(environmentFilter = SandboxEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -613,14 +613,14 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val sandboxUser = aUser("sandbox")
       val category1 = APICategory("category1")
       val category2 = APICategory("category2")
-      val categories = Seq(category1, category2)
+      val categories = List(category1, category2)
       val apiName1 = "apiName1"
       val apiName2 = "apiName2"
       val apiName3 = "apiName3"
-      val apis = Seq(apiName1, apiName2, apiName3)
+      val apis = List(apiName1, apiName2, apiName3)
 
      "call the connector correctly when only passed a topic" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(List(sandboxUser))
         val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
         
         result shouldBe List(sandboxUser)
@@ -629,16 +629,16 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
      }
 
       "call the connector correctly when only passed a topic and a category" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Seq(category1))))(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])).thenReturn(List(sandboxUser))
         val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
         
         result shouldBe List(sandboxUser)
         
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Seq(category1))))(any[HeaderCarrier])
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])
      }
 
      "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(Seq(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(List(sandboxUser))
         val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
         
         result shouldBe List(sandboxUser)

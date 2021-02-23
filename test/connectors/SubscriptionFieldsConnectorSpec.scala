@@ -94,9 +94,9 @@ class SubscriptionFieldsConnectorSpec
     val subscriptionFields =
       ApplicationApiFieldValues(clientId, apiContext, apiVersion, fieldsId, fields(subscriptionFieldValue.definition.name -> subscriptionFieldValue.value))
 
-    val expectedResults = Seq(subscriptionFieldValue)
+    val expectedResults = List(subscriptionFieldValue)
 
-    val prefetchedDefinitions = Map(apiIdentifier -> Seq(subscriptionDefinition))
+    val prefetchedDefinitions = Map(apiIdentifier -> List(subscriptionDefinition))
 
     "return subscription fields for an API" in new Setup {
       val payload = Json.toJson(subscriptionFields).toString
@@ -150,7 +150,7 @@ class SubscriptionFieldsConnectorSpec
 
     "return all field definitions" in new Setup {
 
-      private val validResponse = Json.toJson(AllApiFieldDefinitions(apis = Seq(ApiFieldDefinitions(apiContext, apiVersion, definitions)))).toString
+      private val validResponse = Json.toJson(AllApiFieldDefinitions(apis = List(ApiFieldDefinitions(apiContext, apiVersion, definitions)))).toString
 
       stubFor(
         get(urlEqualTo(url))

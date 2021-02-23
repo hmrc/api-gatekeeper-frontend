@@ -78,8 +78,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
     def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
 
-    def withSubscriptions(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+    def withSubscriptions(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
     
     def asSuperUser = applicationViewModel.copy(isAtLeastSuperUser = true)
     def asAdmin = applicationViewModel.copy(isAdmin = true)

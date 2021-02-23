@@ -22,7 +22,7 @@ trait APIDefinitionHelper {
   def simpleAPIDefinition(serviceName: String,
                           name: String,
                           context: String,
-                          categories: Option[Seq[String]],
+                          categories: Option[List[String]],
                           version: String): ApiDefinition =
-    ApiDefinition(serviceName, "url1", name, "desc", ApiContext(context), Seq(ApiVersionDefinition(ApiVersion(version), ApiStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
+    ApiDefinition(serviceName, "url1", name, "desc", ApiContext(context), List(ApiVersionDefinition(ApiVersion(version), ApiStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
 }

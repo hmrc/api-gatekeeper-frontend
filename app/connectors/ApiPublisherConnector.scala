@@ -34,8 +34,8 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 
   def http: HttpClient
 
-  def fetchUnapproved()(implicit hc: HeaderCarrier): Future[Seq[APIApprovalSummary]] = {
-    http.GET[Seq[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
+  def fetchUnapproved()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+    http.GET[List[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved").map(_.map(_.copy(environment = Some(environment))))
   }
 
   def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {

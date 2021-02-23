@@ -25,26 +25,26 @@ import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.ApplicationWithSubscriptionDataAndFieldDefinitions
 import model.ApiStatus
 
-case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: Seq[SubscriptionField])
+case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 
 object SubscriptionVersion {
-  def apply(subscriptionsWithFieldDefinitions: Seq[Subscription]): Seq[SubscriptionVersion] = {
+  def apply(subscriptionsWithFieldDefinitions: List[Subscription]): List[SubscriptionVersion] = {
     for {
       sub <- subscriptionsWithFieldDefinitions
       version <- sub.versions
     } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
   }
 
-  def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): Seq[SubscriptionVersion] = {
+  def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): List[SubscriptionVersion] = {
     app.apiDefinitions.flatMap(contextMap => {
       contextMap._2.map(versionMap => {
-        def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): Seq[SubscriptionField] = {
+        def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): List[SubscriptionField] = {
           fieldNames.map(fieldName => {
             val subscriptionFieldDefinition = fieldName._2
             val fieldValue = app.applicationWithSubscriptionData.subscriptionFieldValues(contextMap._1)(versionMap._1)(fieldName._1)
 
             SubscriptionField(fieldName._1, subscriptionFieldDefinition.shortDescription, subscriptionFieldDefinition.description, subscriptionFieldDefinition.hint, fieldValue)
-          }).toSeq
+          }).toList
         }
 
         SubscriptionVersion(
@@ -55,10 +55,10 @@ object SubscriptionVersion {
           toSubscriptionFields(versionMap._2)
         )
       })
-    }).toSeq
+    }).toList
   }
 
-  def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : Seq[SubscriptionField]) : SubscriptionVersion = {
+  def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : List[SubscriptionField]) : SubscriptionVersion = {
     SubscriptionVersion(
       subscription.name,
       subscription.context,
@@ -71,7 +71,7 @@ object SubscriptionVersion {
 case class SubscriptionField(name: FieldName, shortDescription: String, description: String, hint: String, value: FieldValue)
 
 object SubscriptionField {
-  def apply(fields : SubscriptionFieldsWrapper): Seq[SubscriptionField] = {
+  def apply(fields : SubscriptionFieldsWrapper): List[SubscriptionField] = {
     fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => {
         SubscriptionField(
           field.definition.name,

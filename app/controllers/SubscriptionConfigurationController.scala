@@ -63,7 +63,7 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
     implicit request =>
         withAppAndSubscriptionsAndFieldDefinitions(appId) {
           app => {
-            val subscriptionVersionsForApp: Seq[SubscriptionVersion] = SubscriptionVersion(app)
+            val subscriptionVersionsForApp: List[SubscriptionVersion] = SubscriptionVersion(app)
             val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
             val subscriptionFields = subscriptionFieldsForContextAndVersion.fields
 
@@ -86,11 +86,11 @@ class SubscriptionConfigurationController @Inject()(val applicationService: Appl
           }
 
           def validationErrorResult(fieldErrors: Map[String, String], form: EditApiMetadataForm) = {
-            val errors = fieldErrors.map(fe => data.FormError(fe._1, fe._2)).toSeq
+            val errors = fieldErrors.map(fe => data.FormError(fe._1, fe._2)).toList
 
             val errorForm = EditApiMetadataForm.form.fill(form).copy(errors = errors)
 
-            val subscriptionVersionsForApp: Seq[SubscriptionVersion] = SubscriptionVersion(app)
+            val subscriptionVersionsForApp: List[SubscriptionVersion] = SubscriptionVersion(app)
             val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
 
             val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, errorForm)

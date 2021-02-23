@@ -36,7 +36,7 @@ trait UserFunctionsWrapper {
     users.map(_.email).sorted.mkString("; ")
   }
 
-  def getApiVersionsDropDownValues(apiDefinitions: Seq[ApiDefinition]) = {
+  def getApiVersionsDropDownValues(apiDefinitions: List[ApiDefinition]) = {
     def toKeyValue(api: ApiDefinition, versionDefinition: ApiVersionDefinition) = {
       val value: String = ApiContextVersion(api.context, versionDefinition.version).toStringValue.trim
       val displayedStatus: String = ApiStatus.displayedStatus(versionDefinition.status).trim

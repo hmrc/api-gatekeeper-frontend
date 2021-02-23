@@ -17,7 +17,7 @@ trait CheckInformationTestData {
       providedPrivacyPolicyURL = true,
       providedTermsAndConditionsURL = true,
       applicationDetails = Some(""),
-      termsOfUseAgreements = Seq(
+      termsOfUseAgreements = List(
          TermsOfUseAgreement(
             emailAddress = "test@example.com",
             timeStamp = new DateTime(1459868573962L),

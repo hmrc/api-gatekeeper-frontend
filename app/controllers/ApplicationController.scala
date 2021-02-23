@@ -128,12 +128,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             (apiContext, filteredApiData)
           }
 
-          def asSeqOfSeq(data: ApiData): Seq[(String, Seq[(ApiVersion, ApiStatus)])] = {
+          def asListOfList(data: ApiData): List[(String, List[(ApiVersion, ApiStatus)])] = {
 
             if(data.versions.isEmpty) {
-              Seq.empty
+              List.empty
             } else {
-              Seq( (data.name, data.versions.toSeq.sortBy(v => v._1).map(v => (v._1, v._2.status))) )
+              List( (data.name, data.versions.toList.sortBy(v => v._1).map(v => (v._1, v._2.status))) )
             }
           }
 
@@ -144,9 +144,9 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             subscribedVersions = subscribedContexts.map(filterOutVersions)
             subscribedWithFields = subscribedVersions.map(filterForFields)
 
-            seqOfSubscriptions = subscribedVersions.values.toSeq.flatMap(asSeqOfSeq).sortWith(_._1 < _._1)
-            subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toSeq.flatMap(asSeqOfSeq).sortWith(_._1 < _._1)
-          } yield Ok(applicationView(ApplicationViewModel(collaborators.toList, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin)))
+            seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+            subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+          } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin)))
         }
   }
 
@@ -397,7 +397,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
-  private def groupApisByStatus(apis: Seq[ApiDefinition]): Map[String, Seq[VersionSummary]] = {
+  private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
     val versions = for {
       api <- apis
       version <- api.versions
@@ -430,12 +430,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
           .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
 
-      def administrators(app: ApplicationWithHistory): Future[Seq[RegisteredUser]] = {
+      def administrators(app: ApplicationWithHistory): Future[List[RegisteredUser]] = {
         val emails: Set[String] = app.application.admins.map(_.emailAddress)
-        developerService.fetchDevelopersByEmails(emails.toSeq)
+        developerService.fetchDevelopersByEmails(emails)
       }
 
-      def application(app: ApplicationResponse, approved: StateHistory, admins: Seq[RegisteredUser], submissionDetails: SubmissionDetails) = {
+      def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
         val verified = app.state.name == State.PRODUCTION
         val details = applicationReviewDetails(app, submissionDetails)(request)
 
@@ -591,9 +591,9 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
         def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
           def createApp(user: User, accessType: AccessType.AccessType) = {
-            val collaborators = Seq(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
+            val collaborators = List(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
 
-            applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, Seq()))
+            applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
             .map {
               case CreatePrivOrROPCAppFailureResult => InternalServerError("Unexpected problems creating application")
               case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) => Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))

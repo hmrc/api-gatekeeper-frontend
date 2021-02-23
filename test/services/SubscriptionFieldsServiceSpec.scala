@@ -91,7 +91,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       private val prefetchedDefinitions = mock[DefinitionsByApiVersion]
 
       when(mockProductionSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*[ClientId], *, *)(*))
-        .thenReturn(successful(Seq.empty[SubscriptionFieldValue]))
+        .thenReturn(successful(List.empty[SubscriptionFieldValue]))
 
       await (service.fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, prefetchedDefinitions))
 
@@ -131,10 +131,10 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     "When fetchFieldValues is called" should {
 
       "return return no field values when given no field definitions" in new Setup {
-        private val definitions = Seq.empty
+        private val definitions = List.empty
 
         when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
-          .thenReturn(Future.successful(Seq.empty))
+          .thenReturn(Future.successful(List.empty))
 
         await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
@@ -143,10 +143,10 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       }
 
       "return somme field values when given some field definitions" in new Setup {
-        private val definitions = Seq(buildSubscriptionFieldDefinition())
+        private val definitions = List(buildSubscriptionFieldDefinition())
 
         when(mockProductionSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
-          .thenReturn(Future.successful(Seq.empty))
+          .thenReturn(Future.successful(List.empty))
 
         await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
@@ -199,7 +199,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       private val prefetchedDefinitions = mock[DefinitionsByApiVersion]
 
       when(mockSandboxSubscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(*[ClientId], *, *)(*))
-        .thenReturn(successful(Seq.empty[SubscriptionFieldValue]))
+        .thenReturn(successful(List.empty[SubscriptionFieldValue]))
 
       await (service.fetchFieldsWithPrefetchedDefinitions(application, apiIdentifier, prefetchedDefinitions))
 
@@ -239,10 +239,10 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
     "When fetchFieldValues is called" should {
 
       "return return no field values when given no field definitions" in new Setup {
-        private val definitions = Seq.empty
+        private val definitions = List.empty
 
         when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
-          .thenReturn(Future.successful(Seq.empty))
+          .thenReturn(Future.successful(List.empty))
 
         await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 
@@ -251,10 +251,10 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       }
 
       "return somme field values when given some field definitions" in new Setup {
-        private val definitions = Seq(buildSubscriptionFieldDefinition())
+        private val definitions = List(buildSubscriptionFieldDefinition())
 
         when(mockSandboxSubscriptionFieldsConnector.fetchFieldValues(eqTo(application.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version))(*))
-          .thenReturn(Future.successful(Seq.empty))
+          .thenReturn(Future.successful(List.empty))
 
         await (service.fetchFieldsValues(application, definitions, ApiIdentifier(apiIdentifier.context, apiIdentifier.version)))
 

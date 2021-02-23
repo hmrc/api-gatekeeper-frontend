@@ -26,9 +26,9 @@ import model.RegisteredUser
 case class ApplicationViewModel(
   developers: List[RegisteredUser],
   application: NewApplication,
-  subscriptions: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
-  subscriptionsThatHaveFieldDefns: Seq[(String, Seq[(ApiVersion, ApiStatus)])],
-  stateHistory: Seq[StateHistory],
+  subscriptions: List[(String, List[(ApiVersion, ApiStatus)])],
+  subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersion, ApiStatus)])],
+  stateHistory: List[StateHistory],
   isAtLeastSuperUser: Boolean,
   isAdmin: Boolean
 ) {

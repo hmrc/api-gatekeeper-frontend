@@ -132,9 +132,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(Seq.empty)
+        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
         given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(applications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(Seq.empty[ApiDefinition])
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List.empty[ApiDefinition])
       }
 
     }
@@ -757,8 +757,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       val clientId = ClientId.random
       val totpSecret = "THISISATOTPSECRETFORPRODUCTION"
       val totp = Some(TotpSecrets(totpSecret))
-      val privAccess = AppAccess(AccessType.PRIVILEGED, Seq())
-      val ropcAccess = AppAccess(AccessType.ROPC, Seq())
+      val privAccess = AppAccess(AccessType.PRIVILEGED, List.empty)
+      val ropcAccess = AppAccess(AccessType.ROPC, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
@@ -817,7 +817,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
 
           val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -839,7 +839,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
@@ -865,7 +865,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
@@ -891,7 +891,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
             .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
@@ -984,7 +984,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for a priv app in production" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
@@ -1014,7 +1014,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for a priv app in sandbox" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
@@ -1043,7 +1043,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for an ROPC app in production" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
@@ -1070,7 +1070,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for an ROPC app in sandbox" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(Seq()))
+            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
               .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
@@ -1285,7 +1285,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
     }
 
-    def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
+    def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10
       PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
