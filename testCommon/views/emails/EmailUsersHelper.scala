@@ -22,33 +22,34 @@ import model.TopicOptionChoice.TopicOptionChoice
 import model.{ApiDefinition, EmailPreferencesChoice, TopicOptionChoice}
 import model.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
-import org.scalatest.MustMatchers
 import utils.ViewHelpers._
+import utils.HmrcSpec
 
-trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
+trait EmailUsersHelper extends APIDefinitionHelper {
+  self: HmrcSpec =>
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
     val maybeTitleText = getElementBySelector(document, "#pageTitle")
-    maybeTitleText.fold(fail("page title not present in page"))(_.text mustBe expectedTitle)
+    maybeTitleText.fold(fail("page title not present in page"))(_.text shouldBe expectedTitle)
   }
 
 
   def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit = {
     val checkedRadio = getElementBySelector(document, "input[checked]")
-    checkedRadio.isDefined mustBe true
-    checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) mustBe shouldBeChecked
+    checkedRadio.isDefined shouldBe true
+    checkedRadio.head.attr("value").equalsIgnoreCase(expectedValue) shouldBe shouldBeChecked
   }
 
   def noInputChecked(document: Document): Unit = {
     val checkedRadio = getElementBySelector(document, "input[checked]")
-    checkedRadio.isDefined mustBe false
+    checkedRadio.isDefined shouldBe false
   }
 
 
   def checkElementsExistById(document: Document, ids: Seq[String]): Unit = {
     ids.foreach(id => {
       withClue(s"$id element exists?:") {
-        elementExistsById(document, id) mustBe true
+        elementExistsById(document, id) shouldBe true
       }
       ()
     })
@@ -56,13 +57,13 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
 
   def validateCopyToClipboardLink(document: Document, users: Seq[RegisteredUser] = Seq.empty) = {
     withClue(s"Copy to clipboard link validation failed") {
-      elementExistsById(document, "copy-users-to-clip") mustBe users.nonEmpty
+      elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
     }
 
     if(users.nonEmpty) {
       val expectedValue = users.map(_.email).sorted.mkString("; ")
       getElementBySelector(document, "a#copy-users-to-clip")
-        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") mustBe expectedValue)
+        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") shouldBe expectedValue)
     }
   }
 
@@ -76,21 +77,21 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
   def validateNonSelectedDropDown(document: Document, jsoupSelector: String, dropdownItems: Seq[(String, String)], defaultOption: String) = {
 
     withClue(s"Expected Default Select Option: `$defaultOption` is not rendered") {
-      elementExistsByText(document, "option", defaultOption) mustBe true
+      elementExistsByText(document, "option", defaultOption) shouldBe true
     }
     elementExistsById(document, "selectedAPIs")
     val selectElement: Option[Element] = getElementBySelector(document, jsoupSelector)
     withClue(s"Expected select with id: `$jsoupSelector` is not present") {
 
-      selectElement.isDefined mustBe true
+      selectElement.isDefined shouldBe true
     }
 
     val dropdownsWithIndex: Seq[((String, String), Int)] = dropdownItems.zipWithIndex
 
     for ((dropdownItem, index) <- dropdownsWithIndex) {
       val optionItem: Element = selectElement.head.child(index)
-      optionItem.text mustBe dropdownItem._2
-      optionItem.attr("value") mustBe dropdownItem._1
+      optionItem.text shouldBe dropdownItem._2
+      optionItem.attr("value") shouldBe dropdownItem._1
     }
   }
 
@@ -99,28 +100,28 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
     val maybeForm = getElementBySelector(document, formSelector)
 
     withClue(s"Form with id $formId was not found") {
-      maybeForm.isDefined mustBe true
+      maybeForm.isDefined shouldBe true
     }
     withClue(s"Form destination url was not as expected") {
-      maybeForm.get.attr("action") mustBe expectedDestination
+      maybeForm.get.attr("action") shouldBe expectedDestination
     }
   }
 
   def validateButtonText(document: Document, buttonId: String, expectedButtonText: String) = {
     val maybeButtonElement = getElementBySelector(document, s"#$buttonId")
     withClue(s"button with id `$buttonId` was not found") {
-      maybeButtonElement.isDefined mustBe true
+      maybeButtonElement.isDefined shouldBe true
     }
     maybeButtonElement.head.tag().getName match {
-      case "input" => maybeButtonElement.head.attr("value") mustBe expectedButtonText
-      case "button" => maybeButtonElement.head.text mustBe expectedButtonText
+      case "input" => maybeButtonElement.head.attr("value") shouldBe expectedButtonText
+      case "button" => maybeButtonElement.head.text shouldBe expectedButtonText
     }
   }
 
   def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[ApiDefinition], numberOfSets: Int = 1) = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
-    elements.size mustBe selectedAPIs.size * numberOfSets
-    elements.map(_.attr("value")).toSet must contain allElementsOf selectedAPIs.map(_.serviceName)
+    elements.size shouldBe selectedAPIs.size * numberOfSets
+    elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
 
@@ -132,15 +133,15 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
   private def validateTopicEntry(document: Document, topic: TopicOptionChoice) = {
     val maybeRadioButton = getElementBySelector(document, s"input#$topic")
     maybeRadioButton.fold(fail(s"Topic $topic radio button is missing"))(radioButton => {
-      radioButton.attr("value") mustBe topic.toString
+      radioButton.attr("value") shouldBe topic.toString
     })
   }
 
   private def validateSelectedTopic(document: Document, selectedTopic: Option[TopicOptionChoice]) = {
     val selectedInput = getElementBySelector(document, "input[checked]")
-    selectedTopic.fold(selectedInput mustBe None)(topic => {
+    selectedTopic.fold(selectedInput shouldBe None)(topic => {
       withClue(s"selected topic was not as expected..") {
-        selectedInput.fold(fail("elements is missing"))(_.attr("value") mustBe topic.toString)
+        selectedInput.fold(fail("elements is missing"))(_.attr("value") shouldBe topic.toString)
       }
     })
   }
@@ -149,24 +150,24 @@ trait EmailUsersHelper extends MustMatchers with APIDefinitionHelper {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
 
-    hiddenApiInputs.size mustBe apis.size
-    hiddenApiInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
+    hiddenApiInputs.size shouldBe apis.size
+    hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
 
-    hiddenTopicInputs.size mustBe apis.size
-    hiddenTopicInputs.map(_.attr("value")) must contain allElementsOf apis.map(_.serviceName)
+    hiddenTopicInputs.size shouldBe apis.size
+    hiddenTopicInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
   }
 
   def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {
-    elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label", optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label", optionHint(option)) mustBe true
-    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
+    elementExistsById(document, option.toString) shouldBe true
+    elementExistsContainsText(document, "label", optionLabel(option)) shouldBe true
+    elementExistsContainsText(document, "label", optionHint(option)) shouldBe true
+    elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 
   def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit = {
-    elementExistsById(document, option.toString) mustBe true
-    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) mustBe true
-    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionHint(option)) mustBe true
-    elementExistsByIdWithAttr(document, option.toString, "disabled") mustBe isDisabled
+    elementExistsById(document, option.toString) shouldBe true
+    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) shouldBe true
+    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionHint(option)) shouldBe true
+    elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 }

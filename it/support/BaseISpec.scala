@@ -9,10 +9,10 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-
+import utils.AsyncHmrcSpec
 
 abstract class BaseISpec
-  extends PlaySpec with WireMockSupport  with MetricsTestSupport {
+  extends AsyncHmrcSpec with WireMockSupport with MetricsTestSupport {
 
   def app: Application
   protected def appBuilder: GuiceApplicationBuilder

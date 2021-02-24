@@ -23,6 +23,7 @@ import model.RegisteredUser
 import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
+import utils.HmrcSpec
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailInformationViewHelper
@@ -32,9 +33,12 @@ trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailPreferencesTopicViewHelper
  with EmailPreferencesAPICategoryViewHelper
  with EmailPreferencesSpecificAPIViewHelper
- with EmailPreferencesSelectAPIViewHelper with APIDefinitionHelper
+ with EmailPreferencesSelectAPIViewHelper with APIDefinitionHelper {
+     self: HmrcSpec =>
+ }
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
+  self: HmrcSpec =>
 
   def validateLandingPage(document: Document): Unit = {
     validatePageHeader(document, "Send emails to users based on")
@@ -42,7 +46,7 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
     verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = false)
     verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = false)
     verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
-    elementExistsByIdWithAttr(document, EMAIL_PREFERENCES.toString, "checked") mustBe true
+    elementExistsByIdWithAttr(document, EMAIL_PREFERENCES.toString, "checked") shouldBe true
 
     validateButtonText(document, "submit", "Continue")
   }
@@ -50,34 +54,36 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
 }
 
 trait EmailInformationViewHelper extends EmailUsersHelper {
+  self: HmrcSpec =>
 
   def validateApiSubcriptionInformationPage(document: Document): Unit = {
-    elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-    elementExistsByText(document, "h1", "Check you can send your email") mustBe true
-    elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") mustBe true
-    elementExistsByText(document, "li", "important notices and service updates") mustBe true
-    elementExistsByText(document, "li", "changes to any application they have") mustBe true
-    elementExistsByText(document, "li", "making their application accessible") mustBe true
+    elementExistsContainsText(document, "title", "Check you can send your email") shouldBe true
+    elementExistsByText(document, "h1", "Check you can send your email") shouldBe true
+    elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") shouldBe true
+    elementExistsByText(document, "li", "important notices and service updates") shouldBe true
+    elementExistsByText(document, "li", "changes to any application they have") shouldBe true
+    elementExistsByText(document, "li", "making their application accessible") shouldBe true
   }
 
   def validateAllUsersInformationPage(document: Document): Unit = {
-    elementExistsContainsText(document, "title", "Check you can send your email") mustBe true
-    elementExistsByText(document, "h2", "There is an error on the page") mustBe false
-    elementExistsByText(document, "h1", "Check you can email all users") mustBe true
-    elementExistsContainsText(document, "div", "You can only email all users if your message is about:") mustBe true
-    elementExistsByText(document, "li", "important notices and service updates") mustBe true
-    elementExistsByText(document, "li", "changes to any application they have") mustBe true
-    elementExistsByText(document, "li", "making their application accessible") mustBe true
+    elementExistsContainsText(document, "title", "Check you can send your email") shouldBe true
+    elementExistsByText(document, "h2", "There is an error on the page") shouldBe false
+    elementExistsByText(document, "h1", "Check you can email all users") shouldBe true
+    elementExistsContainsText(document, "div", "You can only email all users if your message is about:") shouldBe true
+    elementExistsByText(document, "li", "important notices and service updates") shouldBe true
+    elementExistsByText(document, "li", "changes to any application they have") shouldBe true
+    elementExistsByText(document, "li", "making their application accessible") shouldBe true
   }
 
 }
 
 trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
+  self: HmrcSpec =>
 
   def validateEmailAllUsersPage(document: Document, users: Seq[RegisteredUser]): Unit = {
-    elementExistsByText(document, "h1", "Email all users") mustBe true
-    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    elementExistsByText(document, "h1", "Email all users") shouldBe true
+    elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
@@ -85,44 +91,48 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 }
 
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
+  self: HmrcSpec =>
+  
   def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
-    elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
+    elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
     for (api: ApiDefinition <- apis) {
       for (version: ApiVersionDefinition <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}") {
-          versionOption.isDefined mustBe true
+          versionOption.isDefined shouldBe true
         }
       }
     }
     validateButtonText(document, "filter", "Filter")
     validateCopyToClipboardLink(document, Seq.empty)
-    //     elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    //     elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     verifyTableHeader(document, tableIsVisible = false)
   }
 
   def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition], selectedApiName: String, users: Seq[RegisteredUser]): Unit = {
-    elementExistsByText(document, "h1", "Email all users subscribed to an API") mustBe true
+    elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
-    getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue mustBe selectedApiName)
+    getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue shouldBe selectedApiName)
     validateButtonText(document, "filter", "Filter Again")
 
     for (api: ApiDefinition <- apis) {
       for (version: ApiVersionDefinition <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
-        versionOption.isDefined mustBe true
+        versionOption.isDefined shouldBe true
       }
     }
 
     validateCopyToClipboardLink(document, users)
-    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
   }
 }
 
 trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHelper { // Is UserTableHelper required here?
+  self: HmrcSpec =>
+
   def validateEmailPreferencesChoicePage(document: Document): Unit = {
     validatePageHeader(document, "Who do you want to email?")
 
@@ -133,25 +143,27 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
 }
 
 trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHelper {
+  self: HmrcSpec =>
+
   def validateEmailPreferencesTopicPage(document: Document) = {
-    elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+    elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
 
     validateButtonText(document, "filter", "Filter")
 
     validateCopyToClipboardLink(document)
-    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe false
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     noInputChecked(document)
     verifyTableHeader(document, tableIsVisible = false)
   }
 
   def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
-    elementExistsByText(document, "h1", "Email users interested in a topic") mustBe true
+    elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
-    elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     if (users.nonEmpty) {
       verifyTableHeader(document)
@@ -161,10 +173,12 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 }
 
 trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTableHelper {
+  self: HmrcSpec =>
+
   private def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
-        elementExistsByText(document, "option", category.name) mustBe true
+        elementExistsByText(document, "option", category.name) shouldBe true
       }
     }
   }
@@ -179,7 +193,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
-    getSelectedOptionValue(document) mustBe None
+    getSelectedOptionValue(document) shouldBe None
 
     verifyTableHeader(document, tableIsVisible = false)
   }
@@ -190,7 +204,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
-    getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+    getSelectedOptionValue(document) shouldBe Some(selectedCategory.category)
     noInputChecked(document)
 
     verifyTableHeader(document, tableIsVisible = false)
@@ -204,9 +218,9 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateStaticPageElements(document, categories)
 
     mayBeSelectedCategory.map{ selectedCategory =>
-      elementExistsContainsText(document, "div", s"${users.size} results") mustBe true
+      elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
       validateCopyToClipboardLink(document, users)
-      getSelectedOptionValue(document) mustBe Some(selectedCategory.category)
+      getSelectedOptionValue(document) shouldBe Some(selectedCategory.category)
       verifyTableHeader(document, tableIsVisible = users.nonEmpty)
       users.foreach(verifyUserRow(document, _))
     }
@@ -216,6 +230,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 }
 
 trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTableHelper {
+  self: HmrcSpec =>
+
   private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
@@ -248,12 +264,14 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 
     validateCopyToClipboardLink(document, users)
 
-    //    elementExistsByAttr(document, "a", "data-clip-text") mustBe users.nonEmpty
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     //    getElementBySelector(document, "a[data-clip-text]")
   }
 }
 
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
+  self: HmrcSpec =>
+
   private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[ApiDefinition]) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")

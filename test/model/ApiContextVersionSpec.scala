@@ -17,9 +17,9 @@
 package model
 
 import org.scalatest.Matchers
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class ApiContextVersionSpec extends UnitSpec with Matchers {
+class ApiContextVersionSpec extends AsyncHmrcSpec with Matchers {
 
   "ApiContextVersionFilter" when {
     "given an api context and version pattern" in {

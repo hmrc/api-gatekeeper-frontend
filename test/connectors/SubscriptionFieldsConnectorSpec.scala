@@ -23,23 +23,19 @@ import connectors.SubscriptionFieldsConnector._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.SubscriptionFields._
 import model._
-import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import JsonFormatters._
-import uk.gov.hmrc.play.test.WithFakeApplication
 import play.api.libs.json.Json
-import org.mockito.MockitoSugar
 import utils.WireMockSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class SubscriptionFieldsConnectorSpec 
-    extends UnitSpec 
-    with ScalaFutures 
-    with MockitoSugar 
+    extends AsyncHmrcSpec 
     with WireMockSugar
-    with WithFakeApplication {
+    with GuiceOneAppPerSuite {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -64,7 +60,7 @@ class SubscriptionFieldsConnectorSpec
   trait Setup {
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.subscriptionFieldsProductionBaseUrl).thenReturn(wireMockUrl)
 

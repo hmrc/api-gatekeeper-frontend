@@ -29,10 +29,13 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import utils.CollaboratorTracker
 
-class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar with CollaboratorTracker {
+class TeamMembersControllerSpec 
+    extends ControllerBaseSpec
+    with WithCSRFAddToken
+    with TitleChecker
+    with CollaboratorTracker {
 
   implicit val materializer = app.materializer
 
@@ -86,7 +89,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
 
@@ -100,7 +103,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -113,7 +116,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned(ropcApplication)
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
 
@@ -126,7 +129,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -139,7 +142,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -151,7 +154,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            val result = await(addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -167,7 +170,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -179,7 +182,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -192,7 +195,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned(ropcApplication)
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -204,7 +207,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -217,7 +220,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -229,7 +232,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            val result = await(addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest))
+            val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -270,7 +273,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               .willReturn(Future.successful(()))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
             redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
@@ -286,7 +289,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               .willReturn(Future.failed(new TeamMemberAlreadyExists))
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -302,7 +305,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               ("email", "NOT AN EMAIL ADDRESS"),
               ("role", "DEVELOPER"))
 
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -316,7 +319,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               ("email", email),
               ("role", ""))
 
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -334,7 +337,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               ("email", email),
               ("role", "DEVELOPER"))
 
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -350,7 +353,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               ("email", email),
               ("role", "DEVELOPER"))
 
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -369,7 +372,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               ("email", email),
               ("role", "DEVELOPER"))
 
-            val result = await(addToken(underTest.addTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
             verifyAuthConnectorCalledForUser
@@ -388,10 +391,10 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val result = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
-            bodyOf(result) should include(email)
+            contentAsString(result) should include(email)
             verifyAuthConnectorCalledForUser
           }
         }
@@ -402,7 +405,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val result = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -416,7 +419,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val result = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -428,7 +431,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val result = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -440,7 +443,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = await(addToken(underTest.removeTeamMember(applicationId))(request))
+            val result = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
             verifyAuthConnectorCalledForUser
@@ -462,7 +465,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               givenTheAppWillBeReturned()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
               redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
@@ -481,7 +484,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
 
@@ -497,7 +500,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
                 .willReturn(Future.failed(new TeamMemberLastAdmin))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe BAD_REQUEST
             }
@@ -510,7 +513,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
                 .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
               redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
@@ -526,7 +529,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -540,7 +543,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -552,7 +555,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenTheAppWillBeReturned(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -566,7 +569,7 @@ class TeamMembersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
               .willReturn(Future.successful(ApplicationUpdateSuccessResult))
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = await(addToken(underTest.removeTeamMemberAction(applicationId))(request))
+            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
           }

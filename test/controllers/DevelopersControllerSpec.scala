@@ -18,7 +18,6 @@ package controllers
 
 import model._
 import org.joda.time.DateTime
-import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -42,7 +41,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloperView]
   private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccessView]
 
-  Helpers.running(fakeApplication) {
+  Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
       ApplicationResponse(
@@ -92,7 +91,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
@@ -117,25 +116,25 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "default to page 1 with 100 items in table" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
-        bodyOf(result) should include("data-page-length=\"100\"")
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
+        contentAsString(result) should include("data-page-length=\"100\"")
         verifyAuthConnectorCalledForUser
       }
 
       "do something else if user is not authenticated" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result = await(developersController.developersPage(None, None, None)(aLoggedOutRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedOutRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "load successfully if user is authenticated and authorised" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
         status(result) shouldBe OK
-        bodyOf(result) should include("<h1>Developers Old</h1>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
+        contentAsString(result) should include("<h1>Developers Old</h1>")
+        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
         verifyAuthConnectorCalledForUser
       }
 
@@ -143,18 +142,18 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "load successfully if user is authenticated and authorised, but not show dashboard tab if external test" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
         status(result) shouldBe OK
-        bodyOf(result) should include("<h1>Developers Old</h1>")
-        bodyOf(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        bodyOf(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
+        contentAsString(result) should include("<h1>Developers Old</h1>")
+        contentAsString(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
+        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
+        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
         verifyAuthConnectorCalledForUser
       }
 
       "go to unauthorised page if user is not authorised" in new Setup {
         givenAUnsuccessfulLogin()
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
         status(result) shouldBe SEE_OTHER
       }
 
@@ -171,9 +170,9 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val devs = users.map(Developer(_, applications))
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, devs)
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
         status(result) shouldBe OK
-        collaborators.foreach(c => bodyOf(result) should include(c.emailAddress))
+        collaborators.foreach(c => contentAsString(result) should include(c.emailAddress))
         verifyAuthConnectorCalledForUser
       }
 
@@ -183,9 +182,9 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
           ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, noDevs)
-        val result = await(developersController.developersPage(None, None, None)(aLoggedInRequest))
+        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
         status(result) shouldBe OK
-        bodyOf(result) should include("No developers for your selected filter")
+        contentAsString(result) should include("No developers for your selected filter")
         verifyAuthConnectorCalledForUser
       }
     }
@@ -195,7 +194,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserHasInsufficientEnrolments()
         givenFetchDeveloperReturns(developer)
 
-        val result: Result = await(developersController.removeMfaPage(developerId)(aLoggedInRequest))
+        val result = developersController.removeMfaPage(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
@@ -203,7 +202,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         when(mockDeveloperService.fetchDeveloper(eqTo(developerId))(*)).thenReturn(successful(developer))
 
-        val result: Result = await(addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest))
+        val result = addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest)
 
         status(result) shouldBe OK
         verifyAuthConnectorCalledForUser
@@ -214,7 +213,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result: Result = await(developersController.removeMfaAction(developerId)(aLoggedInRequest))
+        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
@@ -222,7 +221,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenRemoveMfaReturns(successful(user))
 
-        val result: Result = await(developersController.removeMfaAction(developerId)(aLoggedInRequest))
+        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
 
         status(result) shouldBe OK
         verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
@@ -233,7 +232,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenRemoveMfaReturns(failed(new RuntimeException("Failed to remove MFA")))
 
-        val result: Result = await(developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest))
+        val result = developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
@@ -243,14 +242,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result = await(developersController.deleteDeveloperPage(developerId)(aLoggedInRequest))
+        val result = developersController.deleteDeveloperPage(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenFetchDeveloperReturns(developer)
-        val result = await(addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest))
+        val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(developerId))(*)
         verifyAuthConnectorCalledForSuperUser
@@ -261,14 +260,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "not allow an unauthorised user to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        val result = await(developersController.deleteDeveloperAction(developerId)(aLoggedInRequest))
+        val result = developersController.deleteDeveloperAction(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenDeleteDeveloperReturns(developer, DeveloperDeleteSuccessResult)
-        val result = await(developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest))
+        val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo(superUserName))(*)
         verifyAuthConnectorCalledForSuperUser
@@ -277,7 +276,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       "return an internal server error when the delete fails" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenDeleteDeveloperReturns(developer, DeveloperDeleteFailureResult)
-        val result = await(developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest))
+        val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }

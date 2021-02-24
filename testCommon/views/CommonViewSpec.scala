@@ -18,13 +18,12 @@ package views
 
 import java.util.Locale
 
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
+import utils.AsyncHmrcSpec
 
-trait CommonViewSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
+trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]
   val messagesApi = mcc.messagesApi
   implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)

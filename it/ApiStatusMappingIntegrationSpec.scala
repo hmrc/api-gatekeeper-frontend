@@ -22,10 +22,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import model.ApiContext
 
-class ApiStatusMappingIntegrationSpec extends UnitSpec with Matchers with GuiceOneAppPerSuite with WiremockSugarIt {
+class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with Matchers with GuiceOneAppPerSuite with WiremockSugarIt {
   val config = Configuration(
     "microservice.services.api-definition-production.host" -> stubHost,
     "microservice.services.api-definition-production.port" -> stubPort)

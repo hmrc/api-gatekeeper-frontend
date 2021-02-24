@@ -22,15 +22,13 @@ import connectors._
 import model.APIApprovalSummary
 import model.Environment._
 import org.mockito.BDDMockito.given
-import org.scalatest.concurrent.ScalaFutures
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
+class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   trait Setup {
     val serviceName = "ServiceName" + UUID.randomUUID
     val mockSandboxApiPublisherConnector = mock[SandboxApiPublisherConnector]

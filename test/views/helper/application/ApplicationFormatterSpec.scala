@@ -18,12 +18,12 @@ package views.helper.application
 
 import org.joda.time.{DateTime, DateTimeUtils}
 import org.scalatest.BeforeAndAfterAll
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import views.helper.application.ApplicationFormatter.{getCreatedOn, getLastAccess, initialLastAccessDate}
 import builder.ApplicationBuilder
 import model.ApplicationId
 
-class ApplicationFormatterSpec extends UnitSpec with BeforeAndAfterAll with ApplicationBuilder {
+class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApplicationBuilder {
   val FixedTimeNow: DateTime = new DateTime("2019-09-01T00:30:00.000")
   override def beforeAll(): Unit = {
     DateTimeUtils.setCurrentMillisFixed(FixedTimeNow.toDate.getTime)

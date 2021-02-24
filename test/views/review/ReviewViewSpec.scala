@@ -49,17 +49,17 @@ class ReviewViewSpec extends CommonViewSpec {
       )
   }
 
-  "review view" must {
+  "review view" should {
     "show review information with pass and fail options" in new Setup {
       val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails,request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "label", "Pass") mustBe true
-      elementExistsByText(document, "label", "Fail") mustBe true
-      elementExistsByText(document, "label", "Failure reason") mustBe true
-      elementExistsByText(document, "p", "Tell the submitter why the application failed the check. This text will appear in the email to them.") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "label", "Pass") shouldBe true
+      elementExistsByText(document, "label", "Fail") shouldBe true
+      elementExistsByText(document, "label", "Failure reason") shouldBe true
+      elementExistsByText(document, "p", "Tell the submitter why the application failed the check. This text will appear in the email to them.") shouldBe true
     }
   }
 }

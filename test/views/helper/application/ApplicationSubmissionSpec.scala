@@ -17,10 +17,10 @@
 package views.helper.application
 
 import model.State._
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import builder.ApplicationResponseBuilder
 
-class ApplicationSubmissionSpec extends UnitSpec with ApplicationResponseBuilder {
+class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {

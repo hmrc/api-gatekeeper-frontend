@@ -21,25 +21,23 @@ import config.AppConfig
 import model.{ApiScope, FetchApiDefinitionsFailed}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import play.api.http.Status._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.WithFakeApplication
-import org.mockito.MockitoSugar
 import utils.WireMockSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApiScopeConnectorSpec
-  extends UnitSpec
-    with MockitoSugar
+  extends AsyncHmrcSpec
     with WireMockSugar
-    with WithFakeApplication {
+    with GuiceOneAppPerSuite {
 
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiScopeProductionBaseUrl).thenReturn(wireMockUrl)

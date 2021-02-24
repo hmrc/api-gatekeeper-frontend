@@ -17,21 +17,22 @@
 package connectors
 
 import config.AppConfig
-import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.WireMockSugar
+import utils.AsyncHmrcSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class AuthConnectorSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with ScalaFutures with WireMockSugar with BeforeAndAfterEach with WithFakeApplication {
+class AuthConnectorSpec 
+    extends AsyncHmrcSpec 
+    with BeforeAndAfterEach 
+    with GuiceOneAppPerSuite {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
     val mockAppConfig = mock[AppConfig]
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     val connector = new AuthConnector(httpClient, mockAppConfig)
 
