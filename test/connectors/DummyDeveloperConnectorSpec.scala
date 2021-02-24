@@ -17,14 +17,15 @@
 package connectors
 
 import model._
-import org.scalatest.concurrent.ScalaFutures
-import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import utils.WireMockSugar
+import utils.AsyncHmrcSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class DummyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with WireMockSugar with BeforeAndAfterEach with WithFakeApplication with MockitoSugar with ArgumentMatchersSugar {
+class DummyDeveloperConnectorSpec 
+    extends AsyncHmrcSpec
+    with BeforeAndAfterEach 
+    with GuiceOneAppPerSuite {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val email: String = "user@example.com"

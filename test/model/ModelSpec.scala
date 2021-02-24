@@ -19,9 +19,9 @@ package model
 import model.AccessType._
 import org.joda.time.DateTime
 import org.scalatest.Matchers
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class ModelSpec  extends UnitSpec with Matchers {
+class ModelSpec  extends AsyncHmrcSpec with Matchers {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {

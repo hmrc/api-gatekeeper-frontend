@@ -19,13 +19,11 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model._
-import org.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.play.test.WithFakeApplication
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 import java.util.UUID
@@ -33,12 +31,12 @@ import utils.UrlEncoding
 import utils.WireMockSugar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApplicationConnectorSpec 
-    extends UnitSpec 
-    with MockitoSugar 
+    extends AsyncHmrcSpec 
     with WireMockSugar
-    with WithFakeApplication
+    with GuiceOneAppPerSuite
     with UrlEncoding {
 
   val apiVersion1 = ApiVersion.random

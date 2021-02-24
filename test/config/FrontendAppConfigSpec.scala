@@ -16,13 +16,12 @@
 
 package config
 
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class AppConfigSpec extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
+class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
 
   trait Setup {
     val appConfig = app.injector.instanceOf[AppConfig]

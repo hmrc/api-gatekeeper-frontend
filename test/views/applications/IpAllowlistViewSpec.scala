@@ -55,9 +55,9 @@ class IpAllowlistViewSpec extends CommonViewSpec {
 
       val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "View IP allow list") mustBe true
-      elementExistsByText(document, "p", "The IP allow list is mandatory for this application.") mustBe false
+      result.contentType should include("text/html")
+      elementExistsByText(document, "h1", "View IP allow list") shouldBe true
+      elementExistsByText(document, "p", "The IP allow list is mandatory for this application.") shouldBe false
     }
 
     "show IP allowlist information when the allowlist is required" in new Setup {
@@ -66,9 +66,9 @@ class IpAllowlistViewSpec extends CommonViewSpec {
 
       val document: Document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "h1", "View IP allow list") mustBe true
-      elementExistsByText(document, "p", "The IP allow list is mandatory for this application.") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "h1", "View IP allow list") shouldBe true
+      elementExistsByText(document, "p", "The IP allow list is mandatory for this application.") shouldBe true
     }
   }
 }

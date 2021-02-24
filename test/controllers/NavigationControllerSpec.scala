@@ -31,9 +31,9 @@ class NavigationControllerSpec extends ControllerBaseSpec {
 
     "navigationController" should {
       "render all nav links for standard site" in new Setup {
-        val result = await(underTest.navLinks()(aLoggedInRequest))
+        val result = underTest.navLinks()(aLoggedInRequest)
         status(result) shouldBe OK
-        bodyOf(result) shouldBe
+        contentAsString(result) shouldBe
         """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"Email","href":"/api-gatekeeper/emails"},{"label":"API Approvals","href":"/api-gatekeeper/pending"}]"""
       }
     }

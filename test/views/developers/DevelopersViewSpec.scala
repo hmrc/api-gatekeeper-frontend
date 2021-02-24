@@ -35,13 +35,13 @@ class DevelopersViewSpec extends CommonViewSpec {
     UnregisteredUser("something@example.com", UserId.random))
   val devs = users.map(u => Developer(u, List.empty))
 
-  "Developers view" must {
+  "Developers view" should {
 
     "list all developers" in new Setup {
 
       val result = developersView.render(devs, "", Map.empty, None, None, None, FakeRequest(), LoggedInUser(None), messagesProvider)
-      result.contentType must include( "text/html" )
-      users.foreach(user => result.body must include(user.email))
+      result.contentType should include( "text/html" )
+      users.foreach(user => result.body should include(user.email))
     }
   }
 }

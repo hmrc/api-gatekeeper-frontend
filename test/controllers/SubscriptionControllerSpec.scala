@@ -18,8 +18,6 @@ package controllers
 
 import utils.WithCSRFAddToken
 import utils.TitleChecker
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import model._
 import views.html._
 import play.filters.csrf.CSRF.TokenProvider
@@ -30,11 +28,16 @@ import services.SubscriptionFieldsService
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.Future.successful
 import builder.ApplicationBuilder
 import model.applications.ApplicationWithSubscriptionData
 import builder.ApiBuilder
 
-class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar {
+class SubscriptionControllerSpec 
+    extends ControllerBaseSpec 
+    with WithCSRFAddToken
+    with TitleChecker {
+      
   implicit val materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
@@ -79,8 +82,8 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
-        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(Future.successful(applications))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
+        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(applications))
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
       }
     }
 
@@ -95,7 +98,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         when(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*))
           .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
@@ -108,7 +111,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
+        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
@@ -126,7 +129,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*))
           .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
@@ -139,7 +142,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest))
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
@@ -161,7 +164,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
           fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
           fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
-          val result = await(addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest))
+          val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 
           status(result) shouldBe OK
           verifyAuthConnectorCalledForSuperUser
@@ -172,7 +175,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         "show 403 forbidden" in new Setup {
           givenTheGKUserHasInsufficientEnrolments()
 
-          val result = await(addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest))
+          val result = addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest)
 
           status(result) shouldBe FORBIDDEN
         }

@@ -18,20 +18,20 @@ package views.emails
 
 import org.jsoup.nodes.Document
 import model.RegisteredUser
-import org.scalatest.MustMatchers
 import utils.ViewHelpers._
+import org.scalatest.Matchers
 
-trait UserTableHelper extends MustMatchers  {
+trait UserTableHelper extends Matchers  {
   
     def verifyUserRow(document: Document, user: RegisteredUser): Unit ={
-      elementExistsByText(document, "td", user.email) mustBe true
-      elementExistsByText(document, "td", user.firstName) mustBe true
-      elementExistsByText(document, "td", user.lastName) mustBe true
+      elementExistsByText(document, "td", user.email) shouldBe true
+      elementExistsByText(document, "td", user.firstName) shouldBe true
+      elementExistsByText(document, "td", user.lastName) shouldBe true
     }
 
     def verifyTableHeader(document: Document, tableIsVisible: Boolean = true): Unit ={
-      elementExistsByText(document, "th", "Email") mustBe tableIsVisible
-      elementExistsByText(document, "th", "First name") mustBe tableIsVisible
-      elementExistsByText(document, "th", "Last name") mustBe tableIsVisible
+      elementExistsByText(document, "th", "Email") shouldBe tableIsVisible
+      elementExistsByText(document, "th", "First name") shouldBe tableIsVisible
+      elementExistsByText(document, "th", "Last name") shouldBe tableIsVisible
     }
 }

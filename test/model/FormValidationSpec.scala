@@ -17,10 +17,10 @@
 package model
 import model.Forms._
 import org.scalatest.Matchers
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
 
-class FormValidationSpec  extends UnitSpec with Matchers {
+class FormValidationSpec  extends AsyncHmrcSpec with Matchers {
 
   "AccessOverrideForm" should {
 

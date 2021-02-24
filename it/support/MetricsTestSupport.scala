@@ -6,10 +6,10 @@ import org.scalatest.Suite
 import play.api.Application
 
 import scala.collection.JavaConverters
-import org.scalatest.MustMatchers
+import org.scalatest.Matchers
 
 trait MetricsTestSupport {
-  self: Suite with MustMatchers =>
+  self: Suite with Matchers =>
 
   def app: Application
 
@@ -30,7 +30,7 @@ trait MetricsTestSupport {
     if (metrics == null) {
       throw new Exception(s"Metric [$metric] not found, try one of ${timers.keySet()}")
     }
-    metrics.getCount >= 1L mustBe true
+    metrics.getCount >= 1L shouldBe true
   }
 
 }

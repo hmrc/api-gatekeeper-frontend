@@ -18,9 +18,9 @@ package controllers
 
 import org.scalatest.Matchers
 import play.api.data.FormError
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class FormValidationSpec extends UnitSpec with Matchers {
+class FormValidationSpec extends AsyncHmrcSpec with Matchers {
   "HandleUpliftForm" should {
     val validHandleUpliftWithAcceptForm = Map("action" -> "APPROVE", "reason" -> "")
     val validHandleUpliftWithRejectForm = Map("action" -> "REJECT", "reason" -> "A similar name is already taken by another application")
