@@ -55,7 +55,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   trait WithSubscription extends Setup with SubscriptionsBuilder {
-    val subscription = buildSubscription("mySubscription", versions = Seq(
+    val subscription = buildSubscription("mySubscription", versions = List(
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
       buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     ))
@@ -69,13 +69,13 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
     val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
-    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, Seq(subscriptionFieldValue))
+    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
     val subscription1 = buildSubscription("Subscription1")
-    val subscription2 = buildSubscription("Subscription2", versions = Seq(version1Subscribed, version2NotSubscribed))
-    val subscription3 = buildSubscription("Subscription3", versions = Seq(version1Subscribed, version2NotSubscribed))
-    val subscription4 = buildSubscription("Subscription4", versions = Seq(version1Subscribed, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
+    val subscription2 = buildSubscription("Subscription2", versions = List(version1Subscribed, version2NotSubscribed))
+    val subscription3 = buildSubscription("Subscription3", versions = List(version1Subscribed, version2NotSubscribed))
+    val subscription4 = buildSubscription("Subscription4", versions = List(version1Subscribed, versionWithoutSubscriptionFields, versionWithSubscriptionFields))
   }
 
   trait AppWithSubscriptionDataSetup extends Setup with ApplicationBuilder {

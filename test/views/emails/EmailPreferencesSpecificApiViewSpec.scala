@@ -36,31 +36,31 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences specific api view" must {
     val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
-    val selectedApis: Seq[ApiDefinition] = Seq(simpleAPIDefinition("Api1ServiceName", "Api1Name", "context", None, "1"),
+    val selectedApis: List[ApiDefinition] = List(simpleAPIDefinition("Api1ServiceName", "Api1Name", "context", None, "1"),
       simpleAPIDefinition("Api2ServiceName", "Api2Name", "context",  None, "1"))
     val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
     val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
-    val users = Seq(user1, user2)
+    val users = List(user1, user2)
 
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, "", List.empty, None, request, LoggedInUser(None), messagesProvider)
 
-       validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), Seq.empty)
+       validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), List.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesSpecificApiView.render(Seq.empty, "", Seq.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+      emailPreferencesSpecificApiView.render(List.empty, "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body),  selectedTopic)
     }
 
     "show correct title and elements when topic filter provided and selectedApis" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(Seq.empty, "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, Seq.empty, "")
+      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, List.empty, "")
     }
 
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {

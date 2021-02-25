@@ -59,7 +59,7 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
   val lastName = "n/a"
 }
 
-case class Developer(user: User, applications: Seq[Application]) {
+case class Developer(user: User, applications: List[Application]) {
   lazy val fullName = user.fullName
   
   lazy val email: String = user.email

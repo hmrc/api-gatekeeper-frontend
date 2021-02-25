@@ -87,13 +87,13 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     val sandboxUnknownContext = ApiContext("sandbox-unknown-context")
     val sandboxSuperContext = ApiContext("sandbox-super-context")
     val subscriptionFieldDefinition = SubscriptionFieldDefinition(FieldName.random, "description", "hint", "String", "shortDescription")
-    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> Seq(subscriptionFieldDefinition))
-    val definitions = Seq(subscriptionFieldDefinition)
+    val prefetchedDefinitions : DefinitionsByApiVersion = Map(apiIdentifier -> List(subscriptionFieldDefinition))
+    val definitions = List(subscriptionFieldDefinition)
   }
 
   trait SubscriptionFieldsServiceSetup extends Setup {
 
-    def subscriptionFields : Seq[SubscriptionFieldValue]
+    def subscriptionFields : List[SubscriptionFieldValue]
 
     given(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).willReturn(prefetchedDefinitions)
     given(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
@@ -274,7 +274,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockProductionApplicationConnector.updateOverrides(*[ApplicationId], *)(*))
         .willReturn(Future.successful(UpdateOverridesSuccessResult))
       given(mockProductionApiScopeConnector.fetchAll()(*))
-        .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
+        .willReturn(Future.successful(List(ApiScope("test.key", "test name", "test description"))))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key")))))
 
@@ -286,7 +286,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "fail when called with invalid scopes" in new Setup {
       given(mockProductionApiScopeConnector.fetchAll()(*))
-        .willReturn(Future.successful(Seq(ApiScope("test.key", "test name", "test description"))))
+        .willReturn(Future.successful(List(ApiScope("test.key", "test name", "test description"))))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key", "invalid.key")))))
 
@@ -317,7 +317,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockProductionApplicationConnector.updateScopes(*[ApplicationId], *)(*))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
       given(mockProductionApiScopeConnector.fetchAll()(*))
-        .willReturn(Future.successful(Seq(
+        .willReturn(Future.successful(List(
           ApiScope("hello", "test name", "test description"),
           ApiScope("individual-benefits", "test name", "test description"))))
 
@@ -333,7 +333,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockProductionApplicationConnector.updateScopes(*[ApplicationId], *)(*))
         .willReturn(Future.successful(UpdateScopesSuccessResult))
       given(mockProductionApiScopeConnector.fetchAll()(*))
-        .willReturn(Future.successful(Seq(
+        .willReturn(Future.successful(List(
           ApiScope("hello", "test name", "test description"),
           ApiScope("individual-benefits", "test name", "test description"))))
 
@@ -347,7 +347,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "fail when called with invalid scopes" in new Setup {
       given(mockProductionApiScopeConnector.fetchAll()(*))
-        .willReturn(Future.successful(Seq(ApiScope("hello", "test name", "test description"))))
+        .willReturn(Future.successful(List(ApiScope("hello", "test name", "test description"))))
 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
 
@@ -397,7 +397,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.empty))
+      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.empty))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -421,7 +421,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
         .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.random))
+      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.random))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -447,7 +447,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       given(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .willReturn(Future.successful(definitions))
 
-      val subscriptionFieldValues = Seq(SubscriptionFieldValue(definitions.head, FieldValue.empty))
+      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.empty))
 
       given(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
         .willReturn(Future.successful(subscriptionFieldValues))
@@ -495,9 +495,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
   }
 
   "createPrivOrROPCApp" should {
-    val admin = Seq(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
+    val admin = List(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
     val totpSecrets = Some(TotpSecrets("secret"))
-    val appAccess = AppAccess(AccessType.PRIVILEGED, Seq())
+    val appAccess = AppAccess(AccessType.PRIVILEGED, List.empty)
 
     val name = "New app"
     val appId = ApplicationId.random
@@ -545,7 +545,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       val application = stdApp1
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(List.empty))
       given(mockProductionApplicationConnector.removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
         .willReturn(response)
 
@@ -559,7 +559,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       val application = privilegedApp
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(List.empty))
       given(mockProductionApplicationConnector.removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
         .willReturn(response)
 
@@ -573,7 +573,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       val application = ropcApp
       val response = ApplicationUpdateSuccessResult
 
-      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(List.empty))
       given(mockProductionApplicationConnector.removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
         .willReturn(response)
 
@@ -585,8 +585,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
 
     "propagate TeamMemberLastAdmin error from application connector" in new Setup {
 
-      given(mockDeveloperConnector.fetchByEmails(*)(*))
-        .willReturn(Future.successful(Seq.empty))
+      given(mockDeveloperConnector.fetchByEmails(*)(*)).willReturn(Future.successful(List.empty))
       given(mockProductionApplicationConnector.removeCollaborator(eqTo(stdApp1.id), eqTo(memberToRemove), eqTo(requestingUser), eqTo(Seq.empty))(*))
         .willReturn(Future.failed(new TeamMemberLastAdmin))
 
@@ -602,7 +601,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
       val adderAdmin = Collaborator(requestingUser, CollaboratorRole.ADMINISTRATOR, UserId.random)
       val verifiedDeveloper = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER, UserId.random)
       val application = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
-      val nonAdderAdmins = Seq(
+      val nonAdderAdmins = List(
         RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
         RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false)
       )
@@ -792,7 +791,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with ArgumentMat
     }
   }
 
-  private def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
+  private def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
     val page = 1
     val pageSize = 10
     PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)

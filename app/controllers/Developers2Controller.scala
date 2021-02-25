@@ -53,7 +53,7 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
           val queryParameters = getQueryParametersAsKeyValues(request)
 
           val filteredUsers = (maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) match {
-            case (None, None, None, None) => Future.successful(Seq.empty)
+            case (None, None, None, None) => Future.successful(List.empty)
             case _ => {
               val filter = Developers2Filter(
                 mapEmptyStringToNone(maybeEmailFilter),

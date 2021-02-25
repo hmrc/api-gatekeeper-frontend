@@ -65,26 +65,26 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     val DefaultApplicationViewModel = ApplicationViewModel(
       developers = developers,
       application = application,
-      subscriptions = Seq.empty,
-      subscriptionsThatHaveFieldDefns = Seq.empty,
-      stateHistory = Seq.empty,
+      subscriptions = List.empty,
+      subscriptionsThatHaveFieldDefns = List.empty,
+      stateHistory = List.empty,
       isAtLeastSuperUser = false,
       isAdmin = false
     )
   }
 
   trait SubscriptionsSetup extends Setup {
-      val subscriptionsViewData: Seq[(String, Seq[(ApiVersion, ApiStatus)])] = Seq(
+      val subscriptionsViewData: List[(String, List[(ApiVersion, ApiStatus)])] = List(
         (
           "My API Name", 
-          Seq(
+          List(
             (VersionOne, ApiStatus.STABLE), 
             (VersionTwo, ApiStatus.BETA)
           )
         ),
         (
           "My Other API Name", 
-          Seq(
+          List(
             (VersionOne, ApiStatus.STABLE) 
           )
         )
@@ -126,7 +126,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     "show application with check information and terms of use agreed" in new Setup {
       val termsOfUseVersion = "1.0"
       val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
-      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(termsOfUseAgreement))
+      val checkInformation = CheckInformation(termsOfUseAgreements = List(termsOfUseAgreement))
       val applicationWithTermsOfUse = application.withCheckInformation(checkInformation)
 
       val result = applicationView.render(
@@ -152,7 +152,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val oldTOUAgreement = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
       val newVersion = "1.1"
       val newTOUAgreement = TermsOfUseAgreement("test", DateTime.now(), newVersion)
-      val checkInformation = CheckInformation(termsOfUseAgreements = Seq(oldTOUAgreement, newTOUAgreement))
+      val checkInformation = CheckInformation(termsOfUseAgreements = List(oldTOUAgreement, newTOUAgreement))
       val applicationWithTermsOfUse = application.copy(checkInformation = Some(checkInformation))
 
       val result = applicationView.render(
@@ -389,7 +389,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "hide subscriptions configuration" in new Setup {
-      val subscriptions = Seq.empty
+      val subscriptions = List.empty
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withSubscriptions(subscriptions),

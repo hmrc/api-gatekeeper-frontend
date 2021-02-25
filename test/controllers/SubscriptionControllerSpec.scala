@@ -61,7 +61,7 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
-      def aPaginatedApplicationResponse(applications: Seq[ApplicationResponse]): PaginatedApplicationResponse = {
+      def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10
       PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
@@ -78,9 +78,9 @@ class SubscriptionControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(Seq.empty)
+        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
         when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(Future.successful(applications))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
       }
     }
 

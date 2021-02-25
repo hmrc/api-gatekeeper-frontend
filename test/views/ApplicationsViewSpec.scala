@@ -59,14 +59,14 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
-    val applications = Seq[ApplicationResponse](
+    val applications = List[ApplicationResponse](
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Requester Verification App", "PRODUCTION", Some("Pending Requester Verification App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Production App", "PRODUCTION", Some("Production App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
     )
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
-    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), apis, false, Map.empty)
+    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
+    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty)
     val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty)
     val applicationViewWithApplicationDocument = Jsoup.parse(applicationViewWithApplication().body)
   }
@@ -155,7 +155,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a superuser" should {
 
       "Display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, true, Map.empty)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, true, Map.empty)
         applicationView().body must include("""Add privileged or ROPC application""")
       }
     }
@@ -163,7 +163,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a non-superuser" should {
 
       "Not display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(Seq.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
         applicationView().body mustNot include("""Add privileged or ROPC application""")
       }
     }

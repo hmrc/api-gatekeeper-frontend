@@ -52,9 +52,9 @@ case class ApiDefinition(serviceName: String,
                          name: String,
                          description: String,
                          context: ApiContext,
-                         versions: Seq[ApiVersionDefinition],
+                         versions: List[ApiVersionDefinition],
                          requiresTrust: Option[Boolean],
-                         categories: Option[Seq[APICategory]]) {
+                         categories: Option[List[APICategory]]) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.value.toDouble > v2.version.version.value.toDouble
@@ -116,33 +116,33 @@ class FetchApiCategoriesFailed extends Throwable
 
 case class VersionSummary(name: String, status: ApiStatus, apiIdentifier: ApiIdentifier)
 
-case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: Seq[String])
+case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: List[String])
 
 case class Subscription(name: String,
                         serviceName: String,
                         context: ApiContext,
-                        versions: Seq[VersionSubscription]) {
+                        versions: List[VersionSubscription]) {
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
 case class SubscriptionWithoutFields(name: String,
                                      serviceName: String,
                                      context: ApiContext,
-                                     versions: Seq[VersionSubscriptionWithoutFields]) {
+                                     versions: List[VersionSubscriptionWithoutFields]) {
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
 case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
 
 object Subscription {
-  def subscriptionNumberLabel(versions: Seq[VersionSubscription]) = versions.count(_.subscribed) match {
+  def subscriptionNumberLabel(versions: List[VersionSubscription]) = versions.count(_.subscribed) match {
     case 1 => s"1 subscription"
     case number => s"$number subscriptions"
   }
 }
 
 object SubscriptionWithoutFields {
-  def subscriptionNumberLabel(versions: Seq[VersionSubscriptionWithoutFields]) = versions.count(_.subscribed) match {
+  def subscriptionNumberLabel(versions: List[VersionSubscriptionWithoutFields]) = versions.count(_.subscribed) match {
     case 1 => s"1 subscription"
     case number => s"$number subscriptions"
   }

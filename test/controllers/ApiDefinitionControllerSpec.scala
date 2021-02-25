@@ -49,7 +49,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
       
       given(mockApiDefinitionService.apis(*))
-        .willReturn(Seq((apiDefinition, PRODUCTION) ))
+        .willReturn(List((apiDefinition, PRODUCTION) ))
       
       val result = await(controller.apis()(aLoggedInRequest))
 

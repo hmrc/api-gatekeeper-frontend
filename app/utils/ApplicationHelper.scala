@@ -19,7 +19,7 @@ package utils
 import model._
 
 object ApplicationHelper {
-  def applicationsWithTeamMemberAsOnlyAdmin(applications: Seq[Application], emailAddress: String): Seq[Application] = {
+  def applicationsWithTeamMemberAsOnlyAdmin(applications: List[Application], emailAddress: String): List[Application] = {
     applications.filter(application => isTheOnlyAdmin(application, emailAddress))
   }
 

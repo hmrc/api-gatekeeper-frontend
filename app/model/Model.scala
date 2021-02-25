@@ -192,13 +192,13 @@ object ApplicationReviewDetails {
   implicit val format2 = Json.format[ApplicationReviewDetails]
 }
 
-case class ApprovedApplication(details: ApplicationReviewDetails, admins: Seq[RegisteredUser], approvedBy: String, approvedOn: DateTime, verified: Boolean)
+case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 
 object  ApprovedApplication {
   implicit val format1 = Json.format[ApplicationReviewDetails]
   implicit val format2 = Json.format[ApprovedApplication]
 }
-case class CategorisedApplications(pendingApproval: Seq[ApplicationWithUpliftRequest], approved: Seq[ApplicationWithUpliftRequest])
+case class CategorisedApplications(pendingApproval: List[ApplicationWithUpliftRequest], approved: List[ApplicationWithUpliftRequest])
 
 case class OverrideRequest(overrideType: OverrideType, scopes: Set[String] = Set.empty)
 
@@ -333,7 +333,7 @@ case object FieldsDeleteSuccessResult extends FieldsDeleteResult
 case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
 
-final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: Seq[Collaborator], access: AppAccess)
+final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 object CreatePrivOrROPCAppRequest {
   implicit val format1 = Json.formatEnum(AccessType)
   implicit val format2 = Json.formatEnum(CollaboratorRole)
@@ -343,7 +343,7 @@ object CreatePrivOrROPCAppRequest {
   implicit val format7 = Json.format[CreatePrivOrROPCAppRequest]
 }
 
-case class AppAccess(accessType: AccessType.AccessType, scopes: Seq[String])
+case class AppAccess(accessType: AccessType.AccessType, scopes: List[String])
 
 final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
 

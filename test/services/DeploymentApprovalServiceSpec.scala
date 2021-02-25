@@ -45,8 +45,8 @@ class DeploymentApprovalServiceSpec extends UnitSpec with ScalaFutures with Mock
   "fetchUnapprovedServices" should {
     "fetch the unapproved services" in new Setup {
 
-      val expectedProductionSummaries = Seq(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
-      val expectedSandboxSummaries = Seq(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
+      val expectedSandboxSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
 
       given(mockProductionApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedProductionSummaries))
       given(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedSandboxSummaries))

@@ -45,30 +45,30 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def http: HttpClient
 
   def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: ApiIdentifier, definitionsCache: DefinitionsByApiVersion)
-                                                (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+                                                (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
 
-    def getDefinitions() = Future.successful(definitionsCache.getOrElse(apiIdentifier, Seq.empty))
+    def getDefinitions(): Future[List[SubscriptionFieldDefinition]] = Future.successful(definitionsCache.getOrElse(apiIdentifier, List.empty))
 
     internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
   }
 
-  def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+  def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
 
     def getDefinitions() = fetchFieldDefinitions(apiContext, version)
 
     internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
 
-  private def internalFetchFieldValues(getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]])
+  private def internalFetchFieldValues(getDefinitions: () => Future[List[SubscriptionFieldDefinition]])
                                       (clientId: ClientId,
                                        apiIdentifier: ApiIdentifier)
-                                      (implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldValue]] = {
+                                      (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
 
-    def joinFieldValuesToDefinitions(defs: Seq[SubscriptionFieldDefinition], fieldValues: Fields.Alias): Seq[SubscriptionFieldValue] = {
+    def joinFieldValuesToDefinitions(defs: List[SubscriptionFieldDefinition], fieldValues: Fields.Alias): List[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, FieldValue.empty)))
     }
 
-    def ifDefinitionsGetValues(definitions: Seq[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
+    def ifDefinitionsGetValues(definitions: List[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
       if (definitions.isEmpty) {
         Future.successful(None)
       }
@@ -78,15 +78,15 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
 
     for {
-      definitions: Seq[SubscriptionFieldDefinition] <- getDefinitions()
+      definitions: List[SubscriptionFieldDefinition] <- getDefinitions()
       subscriptionFields <- ifDefinitionsGetValues(definitions)
       fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
     }  yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
-  def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
+  def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
-    http.GET[Option[ApiFieldDefinitions]](url).map(_.fold(Seq.empty[SubscriptionFieldDefinition])(_.fieldDefinitions.map(toDomain)))
+    http.GET[Option[ApiFieldDefinitions]](url).map(_.fold(List.empty[SubscriptionFieldDefinition])(_.fieldDefinitions.map(toDomain)))
   }
 
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
@@ -166,7 +166,7 @@ object SubscriptionFieldsConnector {
 
   private[connectors] case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: List[FieldDefinition])
 
-  private[connectors] case class AllApiFieldDefinitions(apis: Seq[ApiFieldDefinitions])
+  private[connectors] case class AllApiFieldDefinitions(apis: List[ApiFieldDefinitions])
 
   object JsonFormatters extends APIDefinitionFormatters {
     implicit val format: Format[ApplicationApiFieldValues] = Json.format[ApplicationApiFieldValues]

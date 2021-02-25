@@ -46,7 +46,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def fetchApplications(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     val sandboxApplicationsFuture = sandboxApplicationConnector.fetchAllApplications()
     val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()
 
@@ -56,7 +56,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[Seq[ApplicationResponse]] = {
+  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     val connectors: List[ApplicationConnector] = envFilter match {
       case ProductionEnvironment => List(productionApplicationConnector)
       case SandboxEnvironment => List(sandboxApplicationConnector)
@@ -156,7 +156,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     trait HasSucceeded
     object HasSucceeded extends HasSucceeded
 
-    def ensureEmptyValuesWhenNoneExists(fieldDefinitions: Seq[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
+    def ensureEmptyValuesWhenNoneExists(fieldDefinitions: List[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
       for {
         oldValues <- subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
         saveResponse <- subscriptionFieldsService.saveBlankFieldValues(application, context, version, oldValues)
@@ -168,7 +168,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       }
     }
 
-    def ensureSavedValuesForAnyDefinitions(defns: Seq[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
+    def ensureSavedValuesForAnyDefinitions(defns: List[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
       if (defns.nonEmpty){
         ensureEmptyValuesWhenNoneExists(defns)
       } else {
@@ -213,7 +213,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
   }
 
-  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: Seq[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: List[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     val req = CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access)
 
     appEnv match {
@@ -237,7 +237,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     } yield response
   }
 
-  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[List[String]] = {
     val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
 
     developerConnector.fetchByEmails(adminEmails).map(_.filter(_.verified).map(_.email))

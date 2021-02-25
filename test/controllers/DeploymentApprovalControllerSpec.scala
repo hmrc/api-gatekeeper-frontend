@@ -62,7 +62,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   "pendingPage" should {
     "render the deployment approval page for APIs in all environments" in new Setup {
-      val approvalSummaries = Seq(
+      val approvalSummaries = List(
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
 

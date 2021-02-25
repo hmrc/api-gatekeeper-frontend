@@ -55,7 +55,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
       val developerId = UuidIdentifier(user.userId)
 
-      val apps = Seq(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
+      val apps = List(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
         Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
       val developer = Developer( user, apps )
 
@@ -83,16 +83,16 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(Seq.empty[ApplicationResponse], noDevs)
+        givenDelegateServicesSupply(List.empty[ApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: Seq[ApplicationResponse], developers: Seq[Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
         val apiFilter = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(Seq.empty[ApiDefinition])
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
@@ -159,14 +159,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       }
 
       "list all developers when filtering off" in new Setup {
-        val users = Seq(
+        val users = List(
           RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
           RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
           RegisteredUser("someone@example.com", UserId.random, "Sample3", "Email", true)
         )
         val collaborators = Set(
           Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
-        val applications = Seq(ApplicationResponse(
+        val applications = List(ApplicationResponse(
           ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         val devs = users.map(Developer(_, applications))
         givenTheGKUserIsAuthorisedAndIsANormalUser()
@@ -179,7 +179,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "display message if no developers found by filter" in new Setup {
         val collaborators = Set[Collaborator]()
-        val applications = Seq(ApplicationResponse(
+        val applications = List(ApplicationResponse(
           ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenDelegateServicesSupply(applications, noDevs)

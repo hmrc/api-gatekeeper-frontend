@@ -29,9 +29,9 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
-  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
-    val unsortedResults: Future[Seq[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+    val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None) => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybeEmailFilter, Some(apiFilter)) => {
         for {
@@ -65,8 +65,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }
 
-  def filterUsersBy(filter: ApiFilter[String], apps: Seq[Application])
-                   (users: Seq[Developer]): Seq[Developer] = {
+  def filterUsersBy(filter: ApiFilter[String], apps: List[Application])
+                   (users: List[Developer]): List[Developer] = {
 
     val registeredEmails = users.map(_.user.email)
 
@@ -74,7 +74,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     def asKey(collaborator: Collaborator): KEY = ((collaborator.emailAddress, collaborator.userId))
     def asUnregisteredUser(c: KEY): UnregisteredUser = UnregisteredUser(c._1, c._2)
 
-    def linkAppsAndCollaborators(apps: Seq[Application]): Map[KEY, Set[Application]] = {
+    def linkAppsAndCollaborators(apps: List[Application]): Map[KEY, Set[Application]] = {
       apps.foldLeft(Map.empty[KEY, Set[Application]])((uMap, appResp) =>
         appResp.collaborators.foldLeft(uMap)((m, c) => {
           val userApps = m.getOrElse(asKey(c), Set.empty[Application]) + appResp
@@ -87,7 +87,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
     lazy val unregistered: Set[Developer] =
       unregisteredCollaborators.map {
-        case (key,userApps) => Developer(asUnregisteredUser(key), userApps.toSeq)
+        case (key,userApps) => Developer(asUnregisteredUser(key), userApps.toList)
       }.toSet
 
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
@@ -99,18 +99,18 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
   }
 
-  def filterUsersBy(filter: StatusFilter)(developers: Seq[Developer]): Seq[Developer] = {
+  def filterUsersBy(filter: StatusFilter)(developers: List[Developer]): List[Developer] = {
     filter match {
       case AnyStatus => developers
       case _ => developers.filter(d => filter == User.status(d.user))
     }
   }
 
-  def getDevelopersWithApps(apps: Seq[Application], users: Seq[User]): Seq[Developer] = {
+  def getDevelopersWithApps(apps: List[Application], users: List[User]): List[Developer] = {
 
     def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
-    def collaboratingApps(user: User): Seq[Application] = {
+    def collaboratingApps(user: User): List[Application] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
@@ -119,7 +119,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     })
   }
 
-  def fetchUsers(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
+  def fetchUsers(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
@@ -147,19 +147,19 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       productionApplications <- productionApplicationConnector.fetchApplicationsByEmail(user.email)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
 
-  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
+  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[Seq[RegisteredUser]] = {
-    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(Seq(_)))
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
   def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: APICategory)(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }
 
-  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: Seq[APICategory], apiNames: Seq[String])(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: List[APICategory], apiNames: List[String])(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct))
   }
 
@@ -172,9 +172,9 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   //
   def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(email: String)(app: Application): Future[Seq[String]] = {
+    def fetchAdminsToEmail(email: String)(app: Application): Future[List[String]] = {
       if (app.deployedTo == "SANDBOX") {
-        Future.successful(Seq.empty)
+        Future.successful(List.empty)
       } else {
         val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
         for {

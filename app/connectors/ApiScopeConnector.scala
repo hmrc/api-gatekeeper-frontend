@@ -39,8 +39,8 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
     case e: UpstreamErrorResponse if(is5xx(e.statusCode)) => throw ex 
   }
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[Seq[ApiScope]] = {
-    http.GET[Seq[ApiScope]](s"$serviceBaseUrl/scope")
+  def fetchAll()(implicit hc: HeaderCarrier): Future[List[ApiScope]] = {
+    http.GET[List[ApiScope]](s"$serviceBaseUrl/scope")
     .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
   }
 }

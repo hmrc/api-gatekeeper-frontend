@@ -175,6 +175,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     })
   }
 
+  // TODO - APIS-4925 - email address removal from URLs.
   def removeCollaborator(applicationId: ApplicationId, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/collaborator/$emailAddress?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}")
     .map(_ match {

@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
                                      productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {
 
-  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[Seq[ApiDefinition]] = {
+  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val connectors = environment match {
       case Some(PRODUCTION) => List(productionApiDefinitionConnector)
       case Some(SANDBOX) => List(sandboxApiDefinitionConnector)
@@ -42,25 +42,25 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     } yield (publicApis ++ privateApis).distinct
   }
 
-  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[Seq[ApiDefinition]] = {
-    fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toSeq)
+  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+    fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toList)
   }
 
-  def apis(implicit hc: HeaderCarrier) : Future[Seq[(ApiDefinition, Environment)]] = {
+  def apis(implicit hc: HeaderCarrier) : Future[List[(ApiDefinition, Environment)]] = {
     
-    def getApisFromConnector(connector: ApiDefinitionConnector) : Future[Seq[(ApiDefinition, Environment)]] = {
-      def addEnvironmentToApis(result: Future[Seq[ApiDefinition]]) : Future[Seq[(ApiDefinition, Environment)]] =
+    def getApisFromConnector(connector: ApiDefinitionConnector) : Future[List[(ApiDefinition, Environment)]] = {
+      def addEnvironmentToApis(result: Future[List[ApiDefinition]]) : Future[List[(ApiDefinition, Environment)]] =
         result.map(apis => apis.map(api => (api, connector.environment)))
 
       Future.sequence(
-        Seq(
+        List(
           connector.fetchPublic(),
           connector.fetchPrivate()
         ).map(addEnvironmentToApis)
       ).map(_.flatten)
     }
 
-    val connectors = Seq(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+    val connectors = List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
 
     Future.sequence(connectors
       .map(getApisFromConnector))

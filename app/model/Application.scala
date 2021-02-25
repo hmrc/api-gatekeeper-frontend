@@ -77,7 +77,7 @@ case class CheckInformation(contactDetails: Option[ContactDetails] = None,
                             providedPrivacyPolicyURL: Boolean = false,
                             providedTermsAndConditionsURL: Boolean = false,
                             applicationDetails: Option[String] = None,
-                            termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty) {
+                            termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty) {
 
   def latestTOUAgreement: Option[TermsOfUseAgreement] = {
     implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
@@ -250,7 +250,7 @@ object ApplicationResponse {
   implicit val format6 = Json.format[TermsOfUseAgreement]
 }
 
-case class PaginatedApplicationResponse(applications: Seq[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
 
 object PaginatedApplicationResponse {
   implicit val format = Json.format[PaginatedApplicationResponse]
