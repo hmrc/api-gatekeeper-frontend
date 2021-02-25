@@ -18,13 +18,13 @@ package views
 
 import java.util.Locale
 
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
 import views.emails.EmailLandingViewHelper
+import utils.AsyncHmrcSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-trait CommonEmailViewSpec extends PlaySpec with GuiceOneAppPerSuite with EmailLandingViewHelper{
+trait CommonEmailViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with EmailLandingViewHelper {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]
   val messagesApi = mcc.messagesApi
   implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)

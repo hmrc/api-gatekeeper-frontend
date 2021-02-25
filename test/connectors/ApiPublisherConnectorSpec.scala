@@ -23,25 +23,24 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model.Environment._
 import model._
-import org.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import utils.WireMockSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApiPublisherConnectorSpec 
-  extends UnitSpec
-    with MockitoSugar
+  extends AsyncHmrcSpec
     with WireMockSugar
-    with WithFakeApplication {
+    with GuiceOneAppPerSuite {
 
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc = HeaderCarrier()
 
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiPublisherProductionBaseUrl).thenReturn(wireMockUrl)

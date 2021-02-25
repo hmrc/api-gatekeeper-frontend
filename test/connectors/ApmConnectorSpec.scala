@@ -16,8 +16,7 @@
 
 package connectors
 
-import org.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.applications.ApplicationWithSubscriptionData
@@ -27,25 +26,24 @@ import builder.{ApplicationBuilder, ApiBuilder}
 import model._
 import model.subscriptions.ApiData
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 import play.api.libs.json.Json
 import model.subscriptions.VersionData
 import model.APIDefinitionFormatters._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import utils.WireMockSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApmConnectorSpec 
-    extends UnitSpec
-    with MockitoSugar
+    extends AsyncHmrcSpec
     with WireMockSugar
-    with WithFakeApplication
+    with GuiceOneAppPerSuite
     with utils.UrlEncoding {
 
   trait Setup extends ApplicationBuilder with ApiBuilder {
     implicit val hc = HeaderCarrier()
 
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)

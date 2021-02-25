@@ -41,7 +41,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
   def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
-        elementExistsByText(document, "option", category.name) mustBe true
+        elementExistsByText(document, "option", category.name) shouldBe true
       }
     }
   }
@@ -53,7 +53,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
       TopicOptionChoice.TECHNICAL.toString, TopicOptionChoice.RELEASE_SCHEDULES.toString, TopicOptionChoice.EVENT_INVITES.toString))
   }
 
-  "email preferences category view" must {
+  "email preferences category view" should {
 
     val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
     val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)

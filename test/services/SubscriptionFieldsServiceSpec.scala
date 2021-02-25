@@ -19,11 +19,9 @@ package services
 import connectors._
 import model.SubscriptionFields._
 import model.{ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
-import org.scalatest.concurrent.ScalaFutures
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
 import builder.SubscriptionsBuilder
 
@@ -32,7 +30,7 @@ import scala.concurrent.Future.successful
 import model.applications.NewApplication
 import model.Environment
 
-class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with MockitoSugar with ArgumentMatchersSugar {
+class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends SubscriptionsBuilder {
     val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
@@ -78,7 +76,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
       when(mockProductionSubscriptionFieldsConnector.fetchFieldDefinitions(*[ApiContext], *[ApiVersion])(*))
-        .thenReturn(subscriptionFieldDefinitions)
+        .thenReturn(successful(subscriptionFieldDefinitions))
 
       await(service.fetchFieldDefinitions(application.deployedTo, apiIdentifier))
 
@@ -186,7 +184,7 @@ class SubscriptionFieldsServiceSpec extends UnitSpec with ScalaFutures with Mock
       val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
       when(mockSandboxSubscriptionFieldsConnector.fetchFieldDefinitions(*[ApiContext], *[ApiVersion])(*))
-        .thenReturn(subscriptionFieldDefinitions)
+        .thenReturn(successful(subscriptionFieldDefinitions))
 
       await(service.fetchFieldDefinitions(application.deployedTo, apiIdentifier))
 

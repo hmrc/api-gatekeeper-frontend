@@ -20,16 +20,15 @@ import config.AppConfig
 import connectors._
 import model._
 import org.joda.time.DateTime
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.Future.successful
 import utils.CollaboratorTracker
 
-class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatchersSugar with CollaboratorTracker {
+class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aUser(name: String, verified: Boolean = true) = {
     val email = s"$name@example.com"
@@ -82,34 +81,34 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
     def fetchDeveloperWillReturn(user: RegisteredUser, productionApps: List[ApplicationResponse] = List.empty, sandboxApps: List[ApplicationResponse] = List.empty) = {
       when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*))
-        .thenReturn(Future.successful(user))
+        .thenReturn(successful(user))
       when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*))
-        .thenReturn(Future.successful(user))
+        .thenReturn(successful(user))
       when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*))
-        .thenReturn(Future.successful(user))
+        .thenReturn(successful(user))
       when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*))
-        .thenReturn(Future.successful(user))
+        .thenReturn(successful(user))
 
       when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
-        .thenReturn(Future.successful(productionApps))
+        .thenReturn(successful(productionApps))
       when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*)(*))
-        .thenReturn(Future.successful(sandboxApps))
+        .thenReturn(successful(sandboxApps))
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenAnswer((invocationOnMock: InvocationOnMock) => {
           val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[String]].toSet
-          Future.successful(commonUsers.filter(user => developersRequested.contains(user.email)))
+          successful(commonUsers.filter(user => developersRequested.contains(user.email)))
       })
     }
 
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
-        .thenReturn(Future.successful(DeveloperDeleteSuccessResult))
+        .thenReturn(successful(DeveloperDeleteSuccessResult))
       when(mockProductionApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
-        .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+        .thenReturn(successful(ApplicationUpdateSuccessResult))
       when(mockSandboxApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
-        .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+        .thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     def verifyCollaboratorRemovedFromApp(app: Application,
@@ -128,7 +127,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
     }
 
     def removeMfaReturnWillReturn(user: RegisteredUser) = {
-      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(Future.successful(user))
+      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
     }
   }
 
@@ -415,7 +414,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val user = aUser("fred")
       private val emailFilter = "example"
 
-      when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(List(user))
+      when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(successful(List(user)))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
 
@@ -434,11 +433,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email2 = user2.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(user1.email))
+        .thenReturn(successful(List(user1.email)))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(user2.email))
+        .thenReturn(successful(List(user2.email)))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(List(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(successful(List(user1, user2)))
 
       val filter = Developers2Filter(environmentFilter = AnyEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -454,11 +453,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val user = aUser("user")
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(user.email))
+        .thenReturn(successful(List(user.email)))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(user.email))
+        .thenReturn(successful(List(user.email)))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(List(user))
+      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(successful(List(user)))
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -481,13 +480,13 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockProductionApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(List(email1, email2, email3))
+        .thenReturn(successful(List(email1, email2, email3)))
 
       when(mockSandboxApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(List.empty[String])
+        .thenReturn(successful(List.empty[String]))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(List(user1, user2))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(successful(List(user1, user2)))
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -502,7 +501,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
 
-      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus)).thenReturn(List(user1))
+      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus)).thenReturn(successful(List(user1)))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -527,13 +526,13 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       when(mockProductionApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(List(email1, email2, email3, email4))
+        .thenReturn(successful(List(email1, email2, email3, email4)))
 
       when(mockSandboxApplicationConnector
         .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(List.empty[String])
+        .thenReturn(successful(List.empty[String]))
 
-      when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(List(user1, user2, user3))
+      when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(successful(List(user1, user2, user3)))
 
       val filter = Developers2Filter(maybeEmailFilter =
         Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
@@ -553,7 +552,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
 
-      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.AllStatus)).thenReturn(List(thirdInTheListUser, firstInTheListUser, secondInTheListUser))
+      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.AllStatus)).thenReturn(successful(List(thirdInTheListUser, firstInTheListUser, secondInTheListUser)))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -569,11 +568,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email1 = productionUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(productionUser.email))
+        .thenReturn(successful(List(productionUser.email)))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(sandboxUser.email))
+        .thenReturn(successful(List(sandboxUser.email)))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(List(productionUser))
+      when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(successful(List(productionUser)))
 
       val filter = Developers2Filter(environmentFilter = ProductionEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -592,11 +591,11 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       private val email2 = sandboxUser.email
 
       when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(productionUser.email))
+        .thenReturn(successful(List(productionUser.email)))
       when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(List(sandboxUser.email))
+        .thenReturn(successful(List(sandboxUser.email)))
 
-      when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(List(sandboxUser))
+      when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(successful(List(sandboxUser)))
 
       val filter = Developers2Filter(environmentFilter = SandboxEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -620,7 +619,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
       val apis = List(apiName1, apiName2, apiName3)
 
      "call the connector correctly when only passed a topic" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(List(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
         
         result shouldBe List(sandboxUser)
@@ -629,7 +628,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
      }
 
       "call the connector correctly when only passed a topic and a category" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])).thenReturn(List(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
         
         result shouldBe List(sandboxUser)
@@ -638,7 +637,7 @@ class DeveloperServiceSpec extends UnitSpec with MockitoSugar with ArgumentMatch
      }
 
      "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(List(sandboxUser))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
         
         result shouldBe List(sandboxUser)

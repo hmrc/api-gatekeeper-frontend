@@ -61,8 +61,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "button", "Delete application") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "button", "Delete application") shouldBe true
       elementExistsByText(document, "td", "PRODUCTION")
     }
 
@@ -73,8 +73,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "a", "Delete application") mustBe false
+      result.contentType should include("text/html")
+      elementExistsByText(document, "a", "Delete application") shouldBe false
     }
 
     "show error message when no collaborator is chosen" in new Setup {
@@ -85,8 +85,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "p", "Choose an administrator") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "p", "Choose an administrator") shouldBe true
     }
 
     "show error message when the application name doesn't match" in new Setup {
@@ -98,8 +98,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
-      elementExistsByText(document, "p", "The application name doesn't match") mustBe true
+      result.contentType should include("text/html")
+      elementExistsByText(document, "p", "The application name doesn't match") shouldBe true
     }
   }
 }

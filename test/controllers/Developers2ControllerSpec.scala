@@ -18,9 +18,9 @@ package controllers
 
 import model._
 import model.DeveloperStatusFilter.VerifiedStatus
-import play.api.mvc.Result
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
+import play.api.test.Helpers._
 import utils.WithCSRFAddToken
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
@@ -67,7 +67,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List.empty[ApiDefinition])
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
@@ -81,9 +81,9 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenNoDataSuppliedDelegateServices()
 
-        val result = await(developersController.developersPage()(aLoggedInRequest))
+        val result = developersController.developersPage()(aLoggedInRequest)
 
-        bodyOf(result) should include("Developers")
+        contentAsString(result) should include("Developers")
 
         verifyAuthConnectorCalledForUser
       }
@@ -97,11 +97,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(List(user))
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
 
-        val result: Result = await(developersController.developersPage(Some(partialEmailAddress))(aLoggedInRequest))
+        val result = developersController.developersPage(Some(partialEmailAddress))(aLoggedInRequest)
 
-        bodyOf(result) should include(emailAddress)
+        contentAsString(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(Some(partialEmailAddress))
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
@@ -114,7 +114,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val emailFilter = ""
         private val apiVersionFilter = ""
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(List())
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List()))
 
         await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
 
@@ -132,9 +132,9 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
 
-        val result: Result = await(developersController.developersPage(Some(searchFilter))(request))
+        val result = developersController.developersPage(Some(searchFilter))(request)
 
-        bodyOf(result) should include(s"""value="$searchFilter"""")
+        contentAsString(result) should include(s"""value="$searchFilter"""")
       }
 
       "allow me to copy all the email addresses" in new Setup {
@@ -145,13 +145,13 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val email2 = "b@example.com"
         val users = List(aUser(email1), aUser(email2))
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(users)
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users))
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
-        val result: Result = await(developersController.developersPage(Some(""))(request))
+        val result = developersController.developersPage(Some(""))(request)
 
-        bodyOf(result) should include(s"$email1; $email2")
+        contentAsString(result) should include(s"$email1; $email2")
       }
 
       "show an api version filter dropdown with correct display text" in new Setup {
@@ -160,12 +160,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List(apiDefinition))
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List(apiDefinition)))
 
-        val result = await(developersController.developersPage()(aLoggedInRequest))
+        val result = developersController.developersPage()(aLoggedInRequest)
 
-        bodyOf(result) should include(s"MyApi (${apiVersion1.value}) (Alpha)")
-        bodyOf(result) should include(s"MyApi (${apiVersion2.value}) (Stable)")
+        contentAsString(result) should include(s"MyApi (${apiVersion1.value}) (Alpha)")
+        contentAsString(result) should include(s"MyApi (${apiVersion2.value}) (Stable)")
 
         verifyAuthConnectorCalledForUser
       }
@@ -178,12 +178,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(List(apiDefinition))
+        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List(apiDefinition)))
 
-        val result = await(developersController.developersPage()(aLoggedInRequest))
+        val result = developersController.developersPage()(aLoggedInRequest)
 
-        bodyOf(result) should include(s"${apiContext.value}__${apiVersion1.value}")
-        bodyOf(result) should include(s"${apiContext.value}__${apiVersion2.value}")
+        contentAsString(result) should include(s"${apiContext.value}__${apiVersion1.value}")
+        contentAsString(result) should include(s"${apiContext.value}__${apiVersion2.value}")
 
         verifyAuthConnectorCalledForUser
       }
@@ -197,11 +197,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val apiDefinitionValueFromDropDown = "api-definition__1.0"
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(List(user))
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
 
-        val result: Result = await(developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest))
+        val result = developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest)
 
-        bodyOf(result) should include(emailAddress)
+        contentAsString(result) should include(emailAddress)
 
         val filter = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
         val expectedFilter = Developers2Filter(maybeApiFilter = Some(filter))
@@ -231,13 +231,13 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val users = List(aUser(email1), aUser(email2))
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(users)
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users))
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
-        val result: Result = await(developersController.developersPage(Some(""))(request))
+        val result = developersController.developersPage(Some(""))(request)
 
-        bodyOf(result) should include("Showing 2 entries")
+        contentAsString(result) should include("Showing 2 entries")
       }
 
       "allow searching by developerStatusFilter" in new Setup {
@@ -249,11 +249,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(List(user))
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
 
-        val result: Result = await(developersController.developersPage(maybeDeveloperStatusFilter = Some(statusFilter))(aLoggedInRequest))
+        val result = developersController.developersPage(maybeDeveloperStatusFilter = Some(statusFilter))(aLoggedInRequest)
 
-        bodyOf(result) should include(emailAddress)
+        contentAsString(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(developerStatusFilter = VerifiedStatus)
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
@@ -268,11 +268,11 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val environmentFilter = "PRODUCTION"
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(List(user))
+        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
 
-        val result: Result = await(developersController.developersPage(maybeEnvironmentFilter = Some(environmentFilter))(aLoggedInRequest))
+        val result = developersController.developersPage(maybeEnvironmentFilter = Some(environmentFilter))(aLoggedInRequest)
 
-        bodyOf(result) should include(emailAddress)
+        contentAsString(result) should include(emailAddress)
 
         val expectedFilter = Developers2Filter(environmentFilter = ProductionEnvironment)
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)

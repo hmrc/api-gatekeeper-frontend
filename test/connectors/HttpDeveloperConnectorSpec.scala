@@ -20,28 +20,24 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify}
 import config.AppConfig
 import model._
-import org.scalatest.concurrent.ScalaFutures
-import org.mockito.{MockitoSugar, ArgumentMatchersSugar}
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.AsyncHmrcSpec
 import utils.WireMockSugar
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import encryption.PayloadEncryption
 import connectors.DeveloperConnector.FindUserIdRequestWrite
 import connectors.DeveloperConnector.RemoveMfaRequest
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 class HttpDeveloperConnectorSpec
-  extends UnitSpec
-    with MockitoSugar
-    with ArgumentMatchersSugar
-    with ScalaFutures
+  extends AsyncHmrcSpec
     with WireMockSugar
     with BeforeAndAfterEach
-    with WithFakeApplication
+    with GuiceOneAppPerSuite
     with utils.UrlEncoding {
 
   trait Setup {
@@ -49,7 +45,7 @@ class HttpDeveloperConnectorSpec
 
     val mockAppConfig = mock[AppConfig]
     val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
 

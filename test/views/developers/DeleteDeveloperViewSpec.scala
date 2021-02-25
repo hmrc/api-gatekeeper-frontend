@@ -48,9 +48,9 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
       val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
-      elementExistsById(document, "submit") mustBe true
-      elementExistsById(document, "cancel") mustBe true
-      elementExistsById(document, "finish") mustBe false
+      elementExistsById(document, "submit") shouldBe true
+      elementExistsById(document, "cancel") shouldBe true
+      elementExistsById(document, "finish") shouldBe false
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
@@ -58,9 +58,9 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
       val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
-      elementExistsById(document, "submit") mustBe false
-      elementExistsById(document, "cancel") mustBe false
-      elementExistsById(document, "finish") mustBe true
+      elementExistsById(document, "submit") shouldBe false
+      elementExistsById(document, "cancel") shouldBe false
+      elementExistsById(document, "finish") shouldBe true
     }
   }
 }

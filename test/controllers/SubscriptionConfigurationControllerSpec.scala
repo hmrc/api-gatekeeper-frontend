@@ -19,7 +19,6 @@ package controllers
 import builder.SubscriptionsBuilder
 import mocks.service.SubscriptionFieldsServiceMock
 import model.{ApiContext, ApiVersion, FieldName, FieldValue}
-import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import utils.{TitleChecker, WithCSRFAddToken}
@@ -96,12 +95,12 @@ class SubscriptionConfigurationControllerSpec
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
-      val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
+      val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
       status(result) shouldBe OK
 
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
 
-      val responseBody = Helpers.contentAsString(result)
+      val responseBody = contentAsString(result)
       responseBody should include("<h1>Subscription configuration</h1>")
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
@@ -122,7 +121,7 @@ class SubscriptionConfigurationControllerSpec
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result : Result = await(controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest))
+      val result = controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest)
       status(result) shouldBe OK
       verifyAuthConnectorCalledForSuperUser
     }
@@ -130,7 +129,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as normal user renders forbidden page" in new Setup {
       givenTheGKUserHasInsufficientEnrolments()
 
-      val result : Result = await(controller.listConfigurations(applicationId)(aLoggedInRequest))
+      val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
     }
@@ -143,7 +142,7 @@ class SubscriptionConfigurationControllerSpec
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
-      val result : Result = await(addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest))
+      val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest)
 
       status(result) shouldBe OK
 
@@ -169,7 +168,7 @@ class SubscriptionConfigurationControllerSpec
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result : Result = await(addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aSuperUserLoggedInRequest))
+      val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aSuperUserLoggedInRequest)
 
       status(result) shouldBe OK
 
@@ -179,7 +178,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as normal user renders forbidden page" in new Setup {
       givenTheGKUserHasInsufficientEnrolments()
 
-      val result : Result = await(controller.editConfigurations(applicationId, context, version)(aLoggedInRequest))
+      val result = controller.editConfigurations(applicationId, context, version)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
     }
@@ -197,7 +196,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(fields.head._1 , newValue)(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request))
+      val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
@@ -220,7 +219,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(fields.head._1 , FieldValue.random)(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request))
+      val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
       status(result) shouldBe BAD_REQUEST
 
@@ -239,7 +238,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aSuperUserLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
 
       status(result) shouldBe SEE_OTHER
       verifyAuthConnectorCalledForSuperUser
@@ -250,7 +249,7 @@ class SubscriptionConfigurationControllerSpec
       
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
-      val result = await(addToken(controller.saveConfigurations(applicationId, context, version))(request))
+      val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
       status(result) shouldBe FORBIDDEN
       verifyAuthConnectorCalledForSuperUser
     }

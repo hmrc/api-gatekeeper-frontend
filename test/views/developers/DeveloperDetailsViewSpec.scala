@@ -46,25 +46,25 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
+      result.contentType should include("text/html")
 
-      elementExistsByText(document, "h1", developer.email) mustBe true
-      document.getElementById("first-name").text mustBe developer.firstName
-      document.getElementById("last-name").text mustBe developer.lastName
-      document.getElementById("organisation").text mustBe (developer.organisation match {
+      elementExistsByText(document, "h1", developer.email) shouldBe true
+      document.getElementById("first-name").text shouldBe developer.firstName
+      document.getElementById("last-name").text shouldBe developer.lastName
+      document.getElementById("organisation").text shouldBe (developer.organisation match {
         case Some(text) => text
         case None => ""
       })
-      document.getElementById("status").text mustBe (developer.status match {
+      document.getElementById("status").text shouldBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
         case VerifiedStatus => "verified"
         case _ => "unregistered"
       })
-      document.getElementById("userId").text mustBe developer.user.userId.value.toString
+      document.getElementById("userId").text shouldBe developer.user.userId.value.toString
     }
   }
 
-  "developer details view" must {
+  "developer details view" should {
     "show unregistered developer details when logged in as superuser" in new Setup {
       val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com", UserId.random), List.empty)
       testDeveloperDetails(unregisteredDeveloper)
@@ -90,10 +90,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
+      result.contentType should include("text/html")
 
-      elementExistsByText(document, "h2", "Associated applications") mustBe true
-      document.getElementById("applications").text mustBe "None"
+      elementExistsByText(document, "h2", "Associated applications") shouldBe true
+      document.getElementById("applications").text shouldBe "None"
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
@@ -106,13 +106,13 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
+      result.contentType should include("text/html")
 
-      elementExistsByText(document, "h2", "Associated applications") mustBe true
-      elementExistsByText(document, "a", "appName1") mustBe true
-      elementExistsByText(document, "td", "Admin") mustBe true
-      elementExistsByText(document, "a", "appName2") mustBe true
-      elementExistsByText(document, "td", "Developer") mustBe true
+      elementExistsByText(document, "h2", "Associated applications") shouldBe true
+      elementExistsByText(document, "a", "appName1") shouldBe true
+      elementExistsByText(document, "td", "Admin") shouldBe true
+      elementExistsByText(document, "a", "appName2") shouldBe true
+      elementExistsByText(document, "td", "Developer") shouldBe true
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {
@@ -120,9 +120,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
+      result.contentType should include("text/html")
 
-      elementExistsByText(document, "a", "Delete developer") mustBe true
+      elementExistsByText(document, "a", "Delete developer") shouldBe true
     }
 
     "show developer details WITH delete button when logged in as non-superuser" in new Setup {
@@ -130,9 +130,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val document = Jsoup.parse(result.body)
 
-      result.contentType must include("text/html")
+      result.contentType should include("text/html")
 
-      elementExistsByText(document, "a", "Delete developer") mustBe true
+      elementExistsByText(document, "a", "Delete developer") shouldBe true
     }
   }
 }

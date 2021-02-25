@@ -42,12 +42,18 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import scala.concurrent.Future.successful
+
 import model.applications.ApplicationWithSubscriptionData
 import builder.{ApiBuilder, ApplicationBuilder}
 import utils.CollaboratorTracker
+import org.mockito.captor.ArgCaptor
 
-class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker with MockitoSugar with ArgumentMatchersSugar with CollaboratorTracker {
+class ApplicationControllerSpec 
+    extends ControllerBaseSpec 
+    with WithCSRFAddToken 
+    with TitleChecker 
+    with CollaboratorTracker {
 
   implicit val materializer = app.materializer
 
@@ -133,8 +139,8 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
       def givenThePaginatedApplicationsWillBeReturned = {
         val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
-        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(Future.successful(applications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(List.empty[ApiDefinition])
+        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(successful(applications))
+        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(successful(List.empty[ApiDefinition]))
       }
 
     }
@@ -198,7 +204,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "status" -> "CREATED",
           "termsOfUse" -> "ACCEPTED",
           "accessType" -> "STANDARD")
-        val result = await(underTest.applicationsPage()(aLoggedInRequestWithParams))
+        val result = underTest.applicationsPage()(aLoggedInRequestWithParams)
 
         status(result) shouldBe OK
 
@@ -208,7 +214,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
       "redirect to the login page if the user is not logged in" in new Setup {
         givenAUnsuccessfulLogin()
 
-        val result = await(underTest.applicationsPage()(aLoggedInRequest))
+        val result = underTest.applicationsPage()(aLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe
@@ -221,10 +227,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenThePaginatedApplicationsWillBeReturned
 
-        val result = await(underTest.applicationsPage()(aSuperUserLoggedInRequest))
+        val result = underTest.applicationsPage()(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
 
-        val body = bodyOf(result)
+        val body = contentAsString(result)
 
         body should include("Add privileged or ROPC application")
 
@@ -235,10 +241,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenThePaginatedApplicationsWillBeReturned
         
-        val result = await(underTest.applicationsPage()(aLoggedInRequest))
+        val result = underTest.applicationsPage()(aLoggedInRequest)
         status(result) shouldBe OK
 
-        val body = bodyOf(result)
+        val body = contentAsString(result)
 
         body shouldNot include("Add privileged or ROPC application")
 
@@ -251,16 +257,18 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
 
-        val appCaptor = ArgumentCaptor.forClass(classOf[Application])
-        val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(mockApplicationService.resendVerification(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
-          .willReturn(Future.successful(ResendVerificationSuccessful))
+        // TODO - new mockito flavour
+        val appCaptor = ArgCaptor[Application]
+        val gatekeeperIdCaptor = ArgCaptor[String]
+        given(mockApplicationService.resendVerification(*,*)(*)).willReturn(successful(ResendVerificationSuccessful))
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
-        appCaptor.getValue shouldBe basicApplication
-        gatekeeperIdCaptor.getValue shouldBe userName
         verifyAuthConnectorCalledForUser
+        verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(*)
+        appCaptor hasCaptured basicApplication
+        gatekeeperIdCaptor hasCaptured userName
+
       }
     }
 
@@ -269,7 +277,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(privilegedApplication)
 
-        val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
         verifyAuthConnectorCalledForSuperUser
@@ -279,7 +287,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(ropcApplication)
 
-        val result = await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
         verifyAuthConnectorCalledForSuperUser
@@ -299,7 +307,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageScopes(applicationId))(aLoggedInRequest))
+        val result = addToken(underTest.manageScopes(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
       }
@@ -311,10 +319,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateScopes(*, *)(*))
-          .willReturn(Future.successful(UpdateScopesSuccessResult))
+          .willReturn(successful(UpdateScopesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
-        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+        val result = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -330,7 +338,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
-        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+        val result = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
@@ -343,10 +351,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateScopes(*, *)(*))
-          .willReturn(Future.successful(UpdateScopesInvalidScopesResult))
+          .willReturn(successful(UpdateScopesInvalidScopesResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
-        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+        val result = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
       }
@@ -356,7 +364,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody()
-        val result = await(addToken(underTest.updateScopes(applicationId))(request))
+        val result = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -369,10 +377,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.viewIpAllowlistPage(applicationId)(aLoggedInRequest))
+        val result = underTest.viewIpAllowlistPage(applicationId)(aLoggedInRequest)
 
         status(result) shouldBe OK
-        bodyOf(result) should include("View IP allow list")
+        contentAsString(result) should include("View IP allow list")
       }
     }
 
@@ -381,30 +389,30 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageIpAllowlistPage(applicationId)(anAdminLoggedInRequest))
+        val result = underTest.manageIpAllowlistPage(applicationId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        bodyOf(result) should include("Manage IP allow list")
+        contentAsString(result) should include("Manage IP allow list")
       }
 
       "return the manage IP allowlist page for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageIpAllowlistPage(applicationId)(aSuperUserLoggedInRequest))
+        val result = underTest.manageIpAllowlistPage(applicationId)(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        bodyOf(result) should include("Manage IP allow list")
+        contentAsString(result) should include("Manage IP allow list")
       }
 
       "return the forbidden page for a normal user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned()
 
-        val result = await(underTest.manageIpAllowlistPage(applicationId)(aLoggedInRequest))
+        val result = underTest.manageIpAllowlistPage(applicationId)(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        bodyOf(result) should include("You do not have permission")
+        contentAsString(result) should include("You do not have permission")
       }
     }
 
@@ -416,10 +424,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+          .willReturn(successful(UpdateIpAllowlistSuccessResult))
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+        val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -430,10 +438,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+          .willReturn(successful(UpdateIpAllowlistSuccessResult))
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+        val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -444,10 +452,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+          .willReturn(successful(UpdateIpAllowlistSuccessResult))
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> "")
 
-        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+        val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -458,13 +466,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
         given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(Future.successful(UpdateIpAllowlistSuccessResult))
+          .willReturn(successful(UpdateIpAllowlistSuccessResult))
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> "true", "allowlistedIps" -> "")
 
-        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+        val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("The IP allow list is mandatory for this application")
+        contentAsString(result) should include("The IP allow list is mandatory for this application")
         verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
       }
 
@@ -487,7 +495,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenTheAppWillBeReturned()
           val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
 
-          val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+          val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
           verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
@@ -499,10 +507,10 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
         val request = aLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
-        val result = await(underTest.manageIpAllowlistAction(applicationId)(request))
+        val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe FORBIDDEN
-        bodyOf(result) should include("You do not have permission")
+        contentAsString(result) should include("You do not have permission")
       }
     }
 
@@ -511,7 +519,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
         verifyAuthConnectorCalledForSuperUser
@@ -521,7 +529,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(ropcApplication)
 
-        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -529,7 +537,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned(privilegedApplication)
 
-        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -537,7 +545,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest))
+        val result = addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
       }
@@ -549,7 +557,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateOverrides(*, *)(*))
-          .willReturn(Future.successful(UpdateOverridesSuccessResult))
+          .willReturn(successful(UpdateOverridesSuccessResult))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "persistLoginEnabled" -> "true",
@@ -558,7 +566,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "suppressIvForOrganisationsEnabled" -> "true", "suppressIvForOrganisationsScopes" -> "address, openid:mdtp",
           "suppressIvForIndividualsEnabled" -> "true", "suppressIvForIndividualsScopes" -> "email, openid:hmrc-enrolments")
 
-        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+        val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -584,7 +592,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "persistLoginEnabled" -> "true",
           "grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "")
 
-        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+        val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
@@ -599,7 +607,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
 
-        val result = await(addToken(underTest.updateAccessOverrides(applicationId))(request))
+        val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -613,7 +621,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest))
+        val result = addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -625,7 +633,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -636,7 +644,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest))
+        val result = addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -649,11 +657,11 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.updateRateLimitTier(*, *)(*))
-          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+          .willReturn(successful(ApplicationUpdateSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
 
-        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+        val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
@@ -669,7 +677,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
-        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+        val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
@@ -683,7 +691,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
 
-        val result = await(addToken(underTest.updateRateLimitTier(applicationId))(request))
+        val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -701,7 +709,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
         given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
-          .willReturn(Future.successful(ApproveUpliftSuccessful))
+          .willReturn(successful(ApproveUpliftSuccessful))
         await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -722,9 +730,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
         given(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
-          .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+          .willReturn(successful(ApplicationUpdateSuccessResult))
 
-        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString))))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
 
         appCaptor.getValue shouldBe basicApplication
@@ -739,7 +747,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned(application)
 
-        val result = await(underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD"))))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
@@ -764,13 +772,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "show the correct error message when no environment is chosen" in new Setup {
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", ""),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -780,13 +788,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "show the correct error message when no access type is chosen" in new Setup {
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", ""),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -796,13 +804,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "show the correct error message when the app name is left empty" in new Setup {
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -817,15 +825,15 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -839,22 +847,22 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.SANDBOX.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe OK
 
-          bodyOf(result) should include("Application added")
+          contentAsString(result) should include("Application added")
           verifyAuthConnectorCalledForSuperUser
         }
 
@@ -865,22 +873,22 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.SANDBOX.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe OK
 
-          bodyOf(result) should include("Application added")
+          contentAsString(result) should include("Application added")
           verifyAuthConnectorCalledForSuperUser
         }
 
@@ -891,22 +899,22 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
           givenSeekUserFindsRegisteredUser(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List(existingApp)))
+          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
           given(mockApplicationService
             .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
+            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe OK
 
-          bodyOf(result) should include("Application added")
+          contentAsString(result) should include("Application added")
           verifyAuthConnectorCalledForSuperUser
         }
 
@@ -914,13 +922,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenSeekUserFindsRegisteredUser("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", ""),
-              ("adminEmail", adminEmail))))
+              ("adminEmail", adminEmail)))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -931,13 +939,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           givenSeekUserFindsRegisteredUser("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", ""))))
+              ("adminEmail", "")))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -947,13 +955,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         "show the correct error message when admin email is invalid" in new Setup {
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-          val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", "notAValidEmailAddress"))))
+              ("adminEmail", "notAValidEmailAddress")))
 
           status(result) shouldBe BAD_REQUEST
 
@@ -968,13 +976,13 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
             givenSeekUserFindsRegisteredUser(email)
             givenTheGKUserHasInsufficientEnrolments()
 
-            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
                 ("applicationDescription", description),
-                ("adminEmail", email))))
+                ("adminEmail", email)))
 
             status(result) shouldBe FORBIDDEN
           }
@@ -984,29 +992,29 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for a priv app in production" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
+            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
+              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
 
-            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
                 ("applicationDescription", description),
-                ("adminEmail", "a@example.com"))))
+                ("adminEmail", "a@example.com")))
 
             status(result) shouldBe OK
 
-            bodyOf(result) should include(appName)
-            bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP.")
-            bodyOf(result) should include(applicationId.value)
-            bodyOf(result) should include("Production")
-            bodyOf(result) should include("Privileged")
-            bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientId.value)
+            contentAsString(result) should include(appName)
+            contentAsString(result) should include("Application added")
+            contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
+            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include("Production")
+            contentAsString(result) should include("Privileged")
+            contentAsString(result) should include(totpSecret)
+            contentAsString(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
 
           }
@@ -1014,83 +1022,83 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
           "show the success page for a priv app in sandbox" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
+            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
+              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
 
-            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.SANDBOX.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
                 ("applicationDescription", description),
-                ("adminEmail", "a@example.com"))))
+                ("adminEmail", "a@example.com")))
 
             status(result) shouldBe OK
 
-            bodyOf(result) should include(appName)
-            bodyOf(result) should include("Application added")
-            bodyOf(result) should include("This is your only chance to copy and save this application's TOTP.")
-            bodyOf(result) should include(applicationId.value)
-            bodyOf(result) should include("Sandbox")
-            bodyOf(result) should include("Privileged")
-            bodyOf(result) should include(totpSecret)
-            bodyOf(result) should include(clientId.value)
+            contentAsString(result) should include(appName)
+            contentAsString(result) should include("Application added")
+            contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
+            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include("Sandbox")
+            contentAsString(result) should include("Privileged")
+            contentAsString(result) should include(totpSecret)
+            contentAsString(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
           }
 
           "show the success page for an ROPC app in production" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
+            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
+              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
 
-            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", ropcAccessType.toString),
                 ("applicationName", appName),
                 ("applicationDescription", description),
-                ("adminEmail", "a@example.com"))))
+                ("adminEmail", "a@example.com")))
 
             status(result) shouldBe OK
 
-            bodyOf(result) should include(appName)
-            bodyOf(result) should include("Application added")
-            bodyOf(result) should include(applicationId.value)
-            bodyOf(result) should include("Production")
-            bodyOf(result) should include("ROPC")
-            bodyOf(result) should include(clientId.value)
+            contentAsString(result) should include(appName)
+            contentAsString(result) should include("Application added")
+            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include("Production")
+            contentAsString(result) should include("ROPC")
+            contentAsString(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
             givenSeekUserFindsRegisteredUser("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(Future.successful(List.empty))
+            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
             given(mockApplicationService
               .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(Future.successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
+              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
 
-            val result = await(addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.SANDBOX.toString),
                 ("accessType", ropcAccessType.toString),
                 ("applicationName", appName),
                 ("applicationDescription", description),
-                ("adminEmail", "a@example.com"))))
+                ("adminEmail", "a@example.com")))
 
             status(result) shouldBe OK
 
-            bodyOf(result) should include(appName)
-            bodyOf(result) should include("Application added")
-            bodyOf(result) should include(applicationId.value)
-            bodyOf(result) should include("Sandbox")
-            bodyOf(result) should include("ROPC")
-            bodyOf(result) should include(clientId.value)
+            contentAsString(result) should include(appName)
+            contentAsString(result) should include("Application added")
+            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include("Sandbox")
+            contentAsString(result) should include("ROPC")
+            contentAsString(result) should include(clientId.value)
             verifyAuthConnectorCalledForSuperUser
 
           }
@@ -1115,9 +1123,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         fetchStateHistoryReturns(List(buildStateHistory(application2.id, State.PRODUCTION)))
 
         given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
-          .willReturn(developers)
+          .willReturn(successful(developers))
 
-        val result = await(addToken(underTest.applicationPage(applicationId))(aLoggedInRequest))
+        val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe OK
 
@@ -1133,7 +1141,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest))
+        val result = addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -1145,7 +1153,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -1159,11 +1167,11 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.blockApplication(*, *)(*))
-          .willReturn(Future.successful(ApplicationBlockSuccessResult))
+          .willReturn(successful(ApplicationBlockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
-        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe OK
 
@@ -1178,7 +1186,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
-        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
@@ -1192,7 +1200,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
-        val result = await(addToken(underTest.blockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -1208,7 +1216,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest))
+        val result = addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -1220,7 +1228,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheGKUserHasInsufficientEnrolments()
         givenTheAppWillBeReturned(application)
 
-        val result = await(addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest))
+        val result = addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
         verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
@@ -1234,11 +1242,11 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         givenTheAppWillBeReturned()
 
         given(mockApplicationService.unblockApplication(*, *)(*))
-          .willReturn(Future.successful(ApplicationUnblockSuccessResult))
+          .willReturn(successful(ApplicationUnblockSuccessResult))
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
-        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe OK
 
@@ -1253,7 +1261,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
-        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
@@ -1267,7 +1275,7 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
-        val result = await(addToken(underTest.unblockApplicationAction(applicationId))(request))
+        val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -1277,9 +1285,9 @@ class ApplicationControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
     }
 
-    def assertIncludesOneError(result: Result, message: String) = {
+    def assertIncludesOneError(result: Future[Result], message: String) = {
 
-      val body = bodyOf(result)
+      val body = contentAsString(result)
 
       body should include(message)
       assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)

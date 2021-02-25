@@ -16,20 +16,11 @@
 
 package utils
 
-import akka.stream.Materializer
-import play.api.mvc.Result
-import scala.concurrent.Future
-import play.api.test.Helpers._
-trait TitleChecker extends AsyncHmrcSpec {
+import org.scalatest.{Matchers, OptionValues, WordSpec}
+import org.scalatestplus.play.WsScalaTestClient
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-  implicit val materializer: Materializer
+abstract class HmrcSpec extends WordSpec with Matchers with OptionValues with WsScalaTestClient with MockitoSugar with ArgumentMatchersSugar
 
-  def titleOf(result: Future[Result]): String = {
-    val titleRegEx = """<title[^>]*>(.*)</title>""".r
-    val title = titleRegEx.findFirstMatchIn(contentAsString(result)).map(_.group(1))
-    title.isDefined shouldBe true
-    title.get
-  }
-
-  def titleOf(result: Result): String = titleOf(Future.successful(result))
-}
+abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits {}

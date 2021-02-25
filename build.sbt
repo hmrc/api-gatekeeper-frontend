@@ -16,7 +16,6 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val slf4jVersion = "1.7.23"
 lazy val logbackVersion = "1.1.10"
-lazy val hmrctestVersion = "3.9.0-play-26"
 lazy val jsoupVersion = "1.12.1"
 lazy val scalaCheckVersion = "1.14.0"
 
@@ -46,7 +45,6 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % testScope,
   "org.jsoup" % "jsoup" % jsoupVersion % testScope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % testScope,
-  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % testScope,
   "com.github.tomakehurst" % "wiremock" % "1.58" % testScope,
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % testScope,
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % testScope,
@@ -59,7 +57,6 @@ lazy val acceptanceTestDependencies: Seq[ModuleID] = Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
   "org.jsoup" % "jsoup" % jsoupVersion % "acceptance",
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "uk.gov.hmrc" %% "hmrctest" % hmrctestVersion % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",

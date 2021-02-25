@@ -95,14 +95,14 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     "fetch application" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
       fetchApplicationReturns(application)
 
-      val result: Result = await(underTest.withApp(applicationId)(_ => {
+      val result = underTest.withApp(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
-      }))
-
-      verifyFetchApplication(applicationId)
+      })
 
       status(result) shouldBe OK
-      bodyOf(result) shouldBe expectedResult
+      contentAsString(result) shouldBe expectedResult
+
+      verifyFetchApplication(applicationId)
     }
   }
 
@@ -111,14 +111,14 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
 
-      val result: Result = await(underTest.withAppAndSubsData(applicationId)(_ => {
+      val result = underTest.withAppAndSubsData(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
-      }))
+      })
 
       verifyFetchApplicationById(applicationId)
 
       status(result) shouldBe OK
-      bodyOf(result) shouldBe expectedResult
+      contentAsString(result) shouldBe expectedResult
     }
 
   }
@@ -132,18 +132,18 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
-      val result: Result = await(underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
+      val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions.nonEmpty shouldBe true
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions(apiContext).keySet.contains(apiVersion) shouldBe true
         
         Future.successful(Ok(expectedResult))
-      }))
+      })
+
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedResult
 
       verifyFetchApplicationById(applicationId)
       verifyGetAllFieldDefinitionsReturns(model.Environment.SANDBOX)
-
-      status(result) shouldBe OK
-      bodyOf(result) shouldBe expectedResult
     }
   }
 
@@ -152,15 +152,15 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
       fetchStateHistoryReturns(List(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION)))
 
-      val result = await(underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>
+      val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>
         Future.successful(Ok(expectedResult))
-      ))
+      )
+
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedResult
 
       verifyFetchApplicationById(applicationId)
       verifyFetchStateHistory(applicationId)
-
-      status(result) shouldBe OK
-      bodyOf(result) shouldBe expectedResult
     }
   }
 }

@@ -17,9 +17,9 @@
 package model
 
 import play.api.libs.json.{JsError, JsObject, JsString, JsSuccess}
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class JsonFormattersSpec extends UnitSpec {
+class JsonFormattersSpec extends AsyncHmrcSpec {
 
   trait Setup {
     val underTest = ApiStatusJson.apiStatusReads(ApiStatus)

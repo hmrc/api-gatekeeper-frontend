@@ -17,9 +17,9 @@
 package model
 
 import org.scalatest.Matchers
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.AsyncHmrcSpec
 
-class FiltersSpec  extends UnitSpec with Matchers {
+class FiltersSpec  extends AsyncHmrcSpec with Matchers {
 
   "ApiFilter" when {
     "given an api id pattern" should {

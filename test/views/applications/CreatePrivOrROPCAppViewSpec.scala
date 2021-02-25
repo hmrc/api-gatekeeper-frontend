@@ -38,41 +38,41 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
   "CreatePrivOrROPCApp page" should {
     "with no fields filled" should {
       "have the correct content type" in new Setup {
-        page().contentType must include("text/html")
+        page().contentType should include("text/html")
       }
 
       "render the correct heading" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "h1", "Add privileged or ROPC application") mustBe true
+        elementExistsByText(document, "h1", "Add privileged or ROPC application") shouldBe true
       }
 
       "render unchecked accesstype buttons" in new Setup {
         val document = Jsoup.parse(page().body)
-        document.getElementById("accessTypePrivileged").hasAttr("checked") mustBe false
-        document.getElementById("accessTypeROPC").hasAttr("checked") mustBe false
+        document.getElementById("accessTypePrivileged").hasAttr("checked") shouldBe false
+        document.getElementById("accessTypeROPC").hasAttr("checked") shouldBe false
       }
 
       "render an empty application name" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Application name") mustBe true
-        document.getElementById("applicationName").attr("value") mustBe ""
+        elementExistsByText(document, "label", "Application name") shouldBe true
+        document.getElementById("applicationName").attr("value") shouldBe ""
       }
 
       "render an empty description" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Application description") mustBe true
-        document.getElementById("applicationDescription").text mustBe ""
+        elementExistsByText(document, "label", "Application description") shouldBe true
+        document.getElementById("applicationDescription").text shouldBe ""
       }
 
       "render an empty email address" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "label", "Administrator email address") mustBe true
-        document.getElementById("adminEmail").attr("value") mustBe ""
+        elementExistsByText(document, "label", "Administrator email address") shouldBe true
+        document.getElementById("adminEmail").attr("value") shouldBe ""
       }
 
       "renders with no errors" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByAttr(document, "class", "form-field--error") mustBe false
+        elementExistsByAttr(document, "class", "form-field--error") shouldBe false
       }
     }
 
@@ -86,10 +86,10 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
       )
 
       val document = Jsoup.parse(page().body)
-      document.body.toString.contains("This is an error about access type") mustBe true
-      document.body.toString.contains("This is an error about application name") mustBe true
-      document.body.toString.contains("This is an error about application description") mustBe true
-      document.body.toString.contains("This is an error about admin email") mustBe true
+      document.body.toString.contains("This is an error about access type") shouldBe true
+      document.body.toString.contains("This is an error about application name") shouldBe true
+      document.body.toString.contains("This is an error about application description") shouldBe true
+      document.body.toString.contains("This is an error about admin email") shouldBe true
     }
   }
 }

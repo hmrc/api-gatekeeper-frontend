@@ -25,9 +25,10 @@ import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.{ErrorTemplate, ForbiddenView}
-
+import play.api.test.Helpers._
+import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
-
+import scala.concurrent.Future.successful
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()
@@ -49,11 +50,11 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
       
       given(mockApiDefinitionService.apis(*))
-        .willReturn(List((apiDefinition, PRODUCTION) ))
+        .willReturn(successful(List((apiDefinition, PRODUCTION) )))
       
-      val result = await(controller.apis()(aLoggedInRequest))
+      val result = controller.apis()(aLoggedInRequest)
 
-      bodyOf(result) shouldBe """name,version,status,access,isTrial,environment
+      contentAsString(result) shouldBe """name,version,status,access,isTrial,environment
                                 |MyApi,1.0,Alpha,PUBLIC,false,PRODUCTION
                                 |MyApi,2.0,Stable,PUBLIC,false,PRODUCTION""".stripMargin
     }
@@ -61,7 +62,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     "Forbidden if not stride auth" in new Setup {
       givenTheGKUserHasInsufficientEnrolments()
       
-      val result = await(controller.apis()(aLoggedOutRequest))
+      val result = controller.apis()(aLoggedOutRequest)
 
       status(result) shouldBe FORBIDDEN
     }
