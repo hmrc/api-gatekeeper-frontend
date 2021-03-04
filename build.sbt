@@ -14,58 +14,6 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import bloop.integrations.sbt.BloopDefaults
 
-lazy val slf4jVersion = "1.7.23"
-lazy val logbackVersion = "1.1.10"
-lazy val jsoupVersion = "1.12.1"
-lazy val scalaCheckVersion = "1.14.0"
-
-lazy val dependencies = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.16.0",
-  "uk.gov.hmrc" %% "time" % "3.11.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.55.0-play-26",
-  "uk.gov.hmrc" %% "play-ui" % "8.11.0-play-26",
-  "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.2.0-play-26",
-  "uk.gov.hmrc" %% "json-encryption" % "4.8.0-play-26",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
-  "uk.gov.hmrc" %% "emailaddress" % "3.4.0",
-  "commons-net" % "commons-net" % "3.6",
-  "org.slf4j" % "slf4j-api" % slf4jVersion,
-  "org.slf4j" % "jcl-over-slf4j" % slf4jVersion,
-  "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
-  "org.slf4j" % "jul-to-slf4j" % slf4jVersion,
-  "ch.qos.logback" % "logback-classic" % logbackVersion,
-  "ch.qos.logback" % "logback-core" % logbackVersion,
-  "com.typesafe.play" %% "play-json" % "2.8.1",
-  "com.typesafe.play" %% "play-json-joda" % "2.8.1",
-  "org.typelevel" %% "cats-core" % "2.3.1"
-)
-
-lazy val testDependencies: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % testScope,
-  "org.pegdown" % "pegdown" % "1.6.0" % testScope,
-  "org.jsoup" % "jsoup" % jsoupVersion % testScope,
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % testScope,
-  "com.github.tomakehurst" % "wiremock" % "1.58" % testScope,
-  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % testScope,
-  "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % testScope,
-  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % testScope,
-  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % testScope
-)
-
-lazy val acceptanceTestDependencies: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % "acceptance",
-  "org.pegdown" % "pegdown" % "1.6.0" % "acceptance",
-  "org.jsoup" % "jsoup" % jsoupVersion % "acceptance",
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
-  "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
-  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % "acceptance",
-  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "acceptance"
-)
-
-lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies ++ acceptanceTestDependencies
-
 lazy val microservice =  (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
@@ -92,25 +40,25 @@ lazy val microservice =  (project in file("."))
   .settings(SilencerSettings(): _*)
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.11",
+    scalaVersion := "2.12.12",
     name:= appName,
-    libraryDependencies ++= appDependencies,
+    libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
     routesImport += "controllers.binders._",
-    Test / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
-    Test / unmanagedSourceDirectories += baseDirectory(_ / "test").value  
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
     IntegrationTest / Keys.fork := false,
     IntegrationTest / parallelExecution := false,
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value  
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"  
   )
   .configs(AcceptanceTest)
   .settings(
@@ -122,8 +70,8 @@ lazy val microservice =  (project in file("."))
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
     AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
-    AcceptanceTest / unmanagedSourceDirectories += baseDirectory(_ / "testCommon").value,
-    AcceptanceTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
+    AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
+    AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
   )
   .configs(SandboxTest)
   .settings(
@@ -146,18 +94,19 @@ lazy val microservice =  (project in file("."))
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
 
 
-lazy val TemplateTest = config("tt") extend Test
-lazy val TemplateItTest = config("tit") extend IntegrationTest
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
-
  
 lazy val appName = "api-gatekeeper-frontend"
 
-lazy val testScope = "test,it"
-lazy val allPhases = "tt->test;test->test;test->compile;compile->compile"
-lazy val allItPhases = "tit->it;it->it;it->compile;compile->compile"
-
 coverageMinimum := 85
 coverageFailOnMinimum := true
-coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"
+coverageExcludedPackages := Seq(
+  "<empty>",
+  "com.kenshoo.play.metrics",
+  ".*definition.*",
+  "prod",
+  "testOnlyDoNotUseInAppConf",
+  "app",
+  "uk.gov.hmrc.BuildInfo"
+).mkString(";")
