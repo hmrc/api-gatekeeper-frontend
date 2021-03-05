@@ -19,7 +19,6 @@ package controllers
 import akka.stream.Materializer
 import model.Environment.PRODUCTION
 import model._
-import org.mockito.BDDMockito._
 import play.api.http.Status._
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
@@ -28,7 +27,6 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
 import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()
@@ -49,8 +47,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.STABLE))
       val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
       
-      given(mockApiDefinitionService.apis(*))
-        .willReturn(successful(List((apiDefinition, PRODUCTION) )))
+      Apis.returns((apiDefinition, PRODUCTION))
       
       val result = controller.apis()(aLoggedInRequest)
 
@@ -68,3 +65,4 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     }
   }
 }
+

@@ -24,7 +24,6 @@ import play.filters.csrf.CSRF.TokenProvider
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FakeRequestCSRFSupport._
-import services.SubscriptionFieldsService
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -62,8 +61,6 @@ class SubscriptionControllerSpec
       val ropcApplication = ApplicationWithHistory(
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
 
-      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-
       def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10
@@ -83,7 +80,7 @@ class SubscriptionControllerSpec
       def givenThePaginatedApplicationsWillBeReturned = {
         val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
         when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(applications))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
+        FetchAllApiDefinitions.forAny.returns()
       }
     }
 
@@ -161,7 +158,7 @@ class SubscriptionControllerSpec
           val apiContextAndApiData = Map(apiContext -> apiData)
 
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+          FetchApplicationById.returns(applicationWithSubscriptionData)
           fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)

@@ -17,18 +17,15 @@
 package controllers
 
 import model._
-import org.mockito.BDDMockito._
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import play.filters.csrf.CSRF.TokenProvider
-import services.SubscriptionFieldsService
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications._
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import utils.CollaboratorTracker
 
 class TeamMembersControllerSpec 
@@ -62,7 +59,6 @@ class TeamMembersControllerSpec
 
       val ropcApplication = ApplicationWithHistory(
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
-      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
@@ -253,8 +249,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
+            givenAddTeamMemberSucceeds()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -269,8 +264,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
+            givenAddTeamMemberSucceeds()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
@@ -285,8 +279,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.failed(new TeamMemberAlreadyExists))
+            givenAddTeamMemberFailsDueToExistingAlready()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
@@ -365,8 +358,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            given(mockApplicationService.addTeamMember(*, *)(*))
-              .willReturn(Future.successful(()))
+            givenAddTeamMemberSucceeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
@@ -480,9 +472,8 @@ class TeamMembersControllerSpec
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
-
+              givenRemoveTeamMemberSucceeds()
+              
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
@@ -496,8 +487,7 @@ class TeamMembersControllerSpec
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.failed(new TeamMemberLastAdmin))
+              givenRemoveTeamMemberFailsDueToBeingLastAdmin()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -509,8 +499,7 @@ class TeamMembersControllerSpec
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
 
-              given(mockApplicationService.removeTeamMember(*, *, *)(*))
-                .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+              givenRemoveTeamMemberSucceeds()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -565,8 +554,7 @@ class TeamMembersControllerSpec
           "show 303 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
-            given(mockApplicationService.removeTeamMember(*, *, *)(*))
-              .willReturn(Future.successful(ApplicationUpdateSuccessResult))
+            givenRemoveTeamMemberSucceeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
             val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)

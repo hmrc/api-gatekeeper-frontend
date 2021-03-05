@@ -17,22 +17,21 @@
 package mocks.config
 
 import config.AppConfig
-import mocks.TestRoles
-import org.mockito.BDDMockito.`given`
-import org.scalatestplus.mockito.MockitoSugar
+import mocks.TestRoles._
+import org.mockito.MockitoSugar
 
-trait AppConfigMock extends MockitoSugar with TestRoles {
+trait AppConfigMock extends MockitoSugar {
   implicit val mockConfig = mock[AppConfig]
 
-  given(mockConfig.title).willReturn("Unit Test Title")
+  when(mockConfig.title).thenReturn("Unit Test Title")
 
-  given(mockConfig.userRole).willReturn(userRole)
-  given(mockConfig.adminRole).willReturn(adminRole)
-  given(mockConfig.superUserRole).willReturn(superUserRole)
-  given(mockConfig.superUsers).willReturn(Seq("superUserName"))
+  when(mockConfig.userRole).thenReturn(userRole)
+  when(mockConfig.adminRole).thenReturn(adminRole)
+  when(mockConfig.superUserRole).thenReturn(superUserRole)
+  when(mockConfig.superUsers).thenReturn(Seq("superUserName"))
 
-  given(mockConfig.gatekeeperSuccessUrl).willReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
-  given(mockConfig.strideLoginUrl).willReturn("https://loginUri")
-  given(mockConfig.appName).willReturn("Gatekeeper app name")
+  when(mockConfig.gatekeeperSuccessUrl).thenReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
+  when(mockConfig.strideLoginUrl).thenReturn("https://loginUri")
+  when(mockConfig.appName).thenReturn("Gatekeeper app name")
 
 }

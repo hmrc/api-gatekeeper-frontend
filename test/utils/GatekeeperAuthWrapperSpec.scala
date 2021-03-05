@@ -19,7 +19,6 @@ package utils
 import connectors.AuthConnector
 import mocks.config.AppConfigMock
 import model.{GatekeeperRole, GatekeeperSessionKeys, LoggedInRequest}
-import org.mockito.BDDMockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -28,9 +27,10 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import views.html.{ErrorTemplate, ForbiddenView}
+import mocks.TestRoles._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   trait Setup extends AppConfigMock {
@@ -54,13 +54,13 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     val aSuperUserLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("superUserName"), Enrolments(Set(Enrolment(superUserRole))), FakeRequest())
     val anAdminLoggedInRequest = LoggedInRequest[AnyContentAsEmpty.type](Some("adminName"), Enrolments(Set(Enrolment(adminRole))), FakeRequest())
 
-    given(mockConfig.superUsers).willReturn(Seq("superUserName"))
-    given(mockConfig.adminRole).willReturn(adminRole)
-    given(mockConfig.superUserRole).willReturn(superUserRole)
-    given(mockConfig.userRole).willReturn(userRole)
-    given(mockConfig.strideLoginUrl).willReturn("https://aUrl")
-    given(mockConfig.appName).willReturn("appName123")
-    given(mockConfig.gatekeeperSuccessUrl).willReturn("successUrl_not_checked")
+    when(mockConfig.superUsers).thenReturn(Seq("superUserName"))
+    when(mockConfig.adminRole).thenReturn(adminRole)
+    when(mockConfig.superUserRole).thenReturn(superUserRole)
+    when(mockConfig.userRole).thenReturn(userRole)
+    when(mockConfig.strideLoginUrl).thenReturn("https://aUrl")
+    when(mockConfig.appName).thenReturn("appName123")
+    when(mockConfig.gatekeeperSuccessUrl).thenReturn("successUrl_not_checked")
 
   }
 
@@ -68,8 +68,8 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     "execute body if user is logged in" in new Setup {
       val response = Future.successful(new ~(Name(Some("Full Name"), None), Enrolments(Set(Enrolment(userRole)))))
 
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
-        .willReturn(response)
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+        .thenReturn(response)
 
       val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
@@ -77,8 +77,8 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     }
 
     "redirect to login page if user is not logged in" in new Setup {
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
-        .willReturn(Future.failed(new SessionRecordNotFound))
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+        .thenReturn(Future.failed(new SessionRecordNotFound))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 
@@ -86,8 +86,8 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     }
 
     "return 401 FORBIDDEN if user is logged in and has insufficient enrolments" in new Setup {
-      given(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, any[ExecutionContext]))
-        .willReturn(Future.failed(new InsufficientEnrolments))
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+        .thenReturn(Future.failed(new InsufficientEnrolments))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
 

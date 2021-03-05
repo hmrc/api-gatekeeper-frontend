@@ -18,24 +18,23 @@ package mocks.service
 
 import model.{ApiContext, ApiVersion}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
-import org.mockito.BDDMockito.`given`
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
 
-import scala.concurrent.Future
+import scala.concurrent.Future.{failed,successful}
 import model.applications.NewApplication
 
 trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
   
   def givenSaveSubscriptionFieldsSuccess() = {
-    given(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .willReturn(Future.successful(SaveSubscriptionFieldsSuccessResponse))
+    when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
   }
 
   def givenSaveSubscriptionFieldsFailure(fieldErrors : Map[String, String]) = {
-    given(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .willReturn(Future.successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
+    when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+        .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
   }
 
   def verifySaveSubscriptionFields(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) = {

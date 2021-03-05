@@ -21,7 +21,6 @@ import java.util.UUID
 import connectors._
 import model.APIApprovalSummary
 import model.Environment._
-import org.mockito.BDDMockito.given
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
@@ -46,8 +45,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
       val expectedSandboxSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
 
-      given(mockProductionApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedProductionSummaries))
-      given(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedSandboxSummaries))
+      when(mockProductionApiPublisherConnector.fetchUnapproved()(*)).thenReturn(Future.successful(expectedProductionSummaries))
+      when(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).thenReturn(Future.successful(expectedSandboxSummaries))
 
       val result = await(underTest.fetchUnapprovedServices())
 
@@ -62,7 +61,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX))
 
-      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
+      when(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(*)).thenReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, SANDBOX))
 
@@ -76,7 +75,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
 
-      given(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
+      when(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(*)).thenReturn(Future.successful(expectedSummary))
 
       val result = await(underTest.fetchApprovalSummary(serviceName, PRODUCTION))
 
@@ -91,7 +90,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   "approveService" should {
     "approve the service in sandbox" in new Setup {
 
-      given(mockSandboxApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
+      when(mockSandboxApiPublisherConnector.approveService(*)(*)).thenReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, SANDBOX))
 
@@ -101,7 +100,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
     "approve the service in production" in new Setup {
 
-      given(mockProductionApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
+      when(mockProductionApiPublisherConnector.approveService(*)(*)).thenReturn(Future.successful(()))
 
       await(underTest.approveService(serviceName, PRODUCTION))
 

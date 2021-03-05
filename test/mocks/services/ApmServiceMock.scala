@@ -17,7 +17,6 @@
 package mocks.service
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.mockito.BDDMockito.`given`
 import services.ApmService
 import model.ApplicationId
 import model.applications.ApplicationWithSubscriptionData
@@ -26,23 +25,30 @@ import model.ApiContext
 import model.subscriptions.ApiData
 import model.ApiDefinitions
 import model.Environment.Environment
+import scala.concurrent.Future.{failed,successful}
 
 trait ApmServiceMock extends MockitoSugar with ArgumentMatchersSugar {
   val mockApmService = mock[ApmService]
 
-  def fetchApplicationByIdReturns(returns: Option[ApplicationWithSubscriptionData]) = {
-    given(mockApmService.fetchApplicationById(*[ApplicationId])(*))
-      .willReturn(Future.successful(returns))
+  object FetchApplicationById {
+    private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
+
+    def returns(app: ApplicationWithSubscriptionData) = 
+      whenClause.thenReturn(successful(Some(app)))
+    def returnsNone(app: ApplicationWithSubscriptionData) = 
+      whenClause.thenReturn(successful(None))
+    def failsWith(throwable: Throwable) =
+      whenClause.thenReturn(failed(throwable))
   }
 
   def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
-    given(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
-      .willReturn(Future.successful(returns))
+    when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
+      .thenReturn(Future.successful(returns))
   }
 
   def getAllFieldDefinitionsReturns(returns: ApiDefinitions.Alias) = {
-    given(mockApmService.getAllFieldDefinitions(*[Environment])(*))
-      .willReturn(Future.successful(returns))
+    when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
+      .thenReturn(Future.successful(returns))
   }
 
   def verifyFetchApplicationById(applicationId: ApplicationId) = {

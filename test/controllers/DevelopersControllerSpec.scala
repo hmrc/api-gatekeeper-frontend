@@ -91,7 +91,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
+        FetchAllApiDefinitions.forAny.returns()
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)

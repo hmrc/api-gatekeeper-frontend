@@ -109,7 +109,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   "withAppAndSubsData" should {
     "fetch Application with Subscription Data" in new AppWithSubscriptionDataSetup {
 
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
 
       val result = underTest.withAppAndSubsData(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
@@ -128,7 +128,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
         val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val apiContextAndApiData = Map(apiContext -> apiData)
 
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
@@ -149,7 +149,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
   "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       fetchStateHistoryReturns(List(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION)))
 
       val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>

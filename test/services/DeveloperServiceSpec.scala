@@ -27,6 +27,9 @@ import utils.AsyncHmrcSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 import utils.CollaboratorTracker
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
+import mocks.connectors.ApplicationConnectorMock
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -59,9 +62,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
-  trait Setup {
-    val mockProductionApplicationConnector = mock[ProductionApplicationConnector]
-    val mockSandboxApplicationConnector = mock[SandboxApplicationConnector]
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMock {
     val mockDeveloperConnector = mock[DeveloperConnector]
     val mockAppConfig = mock[AppConfig]
 
@@ -89,10 +90,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*))
         .thenReturn(successful(user))
 
-      when(mockProductionApplicationConnector.fetchApplicationsByEmail(*)(*))
-        .thenReturn(successful(productionApps))
-      when(mockSandboxApplicationConnector.fetchApplicationsByEmail(*)(*))
-        .thenReturn(successful(sandboxApps))
+      Prod.FetchApplicationsByEmail.returns(productionApps: _*)
+      Sandbox.FetchApplicationsByEmail.returns(sandboxApps: _*)
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
@@ -105,10 +104,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
-      when(mockProductionApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
-      when(mockSandboxApplicationConnector.removeCollaborator(*[ApplicationId], *, *, *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      Prod.RemoveCollaborator.succeeds()
+      Sandbox.RemoveCollaborator.succeeds()
     }
 
     def verifyCollaboratorRemovedFromApp(app: Application,
@@ -432,10 +429,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       private val email1 = user1.email
       private val email2 = user2.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(user1.email)))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(user2.email)))
+      Prod.SearchCollaborators.returns(email1)
+      Sandbox.SearchCollaborators.returns(email2)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(successful(List(user1, user2)))
 
@@ -452,10 +447,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(user.email)))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(user.email)))
+      Prod.SearchCollaborators.returns(user.email)
+      Sandbox.SearchCollaborators.returns(user.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(successful(List(user)))
 
@@ -567,10 +560,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       private val email1 = productionUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(productionUser.email)))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(sandboxUser.email)))
+      Prod.SearchCollaborators.returns(productionUser.email)
+      Sandbox.SearchCollaborators.returns(sandboxUser.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(successful(List(productionUser)))
 
@@ -590,10 +581,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       private val email2 = sandboxUser.email
 
-      when(mockProductionApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(productionUser.email)))
-      when(mockSandboxApplicationConnector.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(List(sandboxUser.email)))
+      Prod.SearchCollaborators.returns(productionUser.email)
+      Sandbox.SearchCollaborators.returns(sandboxUser.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(successful(List(sandboxUser)))
 
@@ -619,30 +608,30 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val apis = List(apiName1, apiName2, apiName3)
 
      "call the connector correctly when only passed a topic" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(*)).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
         
         result shouldBe List(sandboxUser)
         
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *)(any[HeaderCarrier])
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *)(*)
      }
 
       "call the connector correctly when only passed a topic and a category" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(*)).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
         
         result shouldBe List(sandboxUser)
         
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(any[HeaderCarrier])
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(*)
      }
 
      "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])).thenReturn(successful(List(sandboxUser)))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(*)).thenReturn(successful(List(sandboxUser)))
         val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
         
         result shouldBe List(sandboxUser)
         
-        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(any[HeaderCarrier])
+        verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(*)
      }
 
 

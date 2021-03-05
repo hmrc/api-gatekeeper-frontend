@@ -19,7 +19,6 @@ package services
 import connectors._
 import model.Environment._
 import model._
-import org.mockito.BDDMockito._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
@@ -32,8 +31,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
     val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
     val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
 
-    given(mockSandboxApiDefinitionConnector.environment).willReturn(Environment.SANDBOX)
-    given(mockProductionApiDefinitionConnector.environment).willReturn(Environment.PRODUCTION)
+    when(mockSandboxApiDefinitionConnector.environment).thenReturn(Environment.SANDBOX)
+    when(mockProductionApiDefinitionConnector.environment).thenReturn(Environment.PRODUCTION)
 
     val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
@@ -83,10 +82,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List.empty))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List.empty))
+        when(mockProductionApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition)))
+        when(mockProductionApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition)))
+        when(mockSandboxApiDefinitionConnector.fetchPublic()).thenReturn(Future(List.empty))
+        when(mockSandboxApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List.empty))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -97,10 +96,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefinitions = Seq(customsDeclarations1)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(customsDeclarations1)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(customsDeclarations2)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(customsDeclarations1)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(customsDeclarations2)))
+        when(mockProductionApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(customsDeclarations1)))
+        when(mockProductionApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(customsDeclarations2)))
+        when(mockSandboxApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(customsDeclarations1)))
+        when(mockSandboxApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(customsDeclarations2)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllDistinctApisIgnoreVersions(None)
 
@@ -111,8 +110,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
+        when(mockSandboxApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition)))
+        when(mockSandboxApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(SANDBOX))
 
@@ -128,8 +127,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
+        when(mockProductionApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition)))
+        when(mockProductionApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(PRODUCTION))
 
@@ -143,10 +142,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
       "Include no duplicates" in new Setup {
 
-        given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition, publicDefinition)))
-        given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition, privateDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition, publicDefinition)))
-        given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition, privateDefinition)))
+        when(mockProductionApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition, publicDefinition)))
+        when(mockProductionApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition, privateDefinition)))
+        when(mockSandboxApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition, publicDefinition)))
+        when(mockSandboxApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition, privateDefinition)))
 
         val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -161,10 +160,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       val publicSandbox = publicDefinition.copy(name="sandbox-public")
       val privateSandbox = privateDefinition.copy(name="sandbox-private")
 
-      given(mockProductionApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicDefinition)))
-      given(mockProductionApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateDefinition)))
-      given(mockSandboxApiDefinitionConnector.fetchPublic()).willReturn(Future(List(publicSandbox)))
-      given(mockSandboxApiDefinitionConnector.fetchPrivate()).willReturn(Future(List(privateSandbox)))
+      when(mockProductionApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicDefinition)))
+      when(mockProductionApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateDefinition)))
+      when(mockSandboxApiDefinitionConnector.fetchPublic()).thenReturn(Future(List(publicSandbox)))
+      when(mockSandboxApiDefinitionConnector.fetchPrivate()).thenReturn(Future(List(privateSandbox)))
 
       val allDefinitions: Seq[(ApiDefinition, Environment)] = await(definitionService.apis)
 
@@ -183,8 +182,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       val sandboxCategories = List(APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"), APICategoryDetails("AGENTS", "Agents"))
       val allCategories = (prodCategories ++ sandboxCategories).distinct
       
-      given(mockProductionApiDefinitionConnector.fetchAPICategories()).willReturn(Future(prodCategories))
-      given(mockSandboxApiDefinitionConnector.fetchAPICategories()).willReturn(Future(sandboxCategories))
+      when(mockProductionApiDefinitionConnector.fetchAPICategories()).thenReturn(Future(prodCategories))
+      when(mockSandboxApiDefinitionConnector.fetchAPICategories()).thenReturn(Future(sandboxCategories))
 
       val response: List[APICategoryDetails] = await(definitionService.apiCategories)
       response should contain only (allCategories:_*)

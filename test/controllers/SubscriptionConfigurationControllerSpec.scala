@@ -91,7 +91,7 @@ class SubscriptionConfigurationControllerSpec
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
       
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
@@ -117,7 +117,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
@@ -138,7 +138,7 @@ class SubscriptionConfigurationControllerSpec
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
@@ -164,7 +164,7 @@ class SubscriptionConfigurationControllerSpec
 
      "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
@@ -187,7 +187,7 @@ class SubscriptionConfigurationControllerSpec
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       givenSaveSubscriptionFieldsSuccess
@@ -208,7 +208,7 @@ class SubscriptionConfigurationControllerSpec
 
     "save gives validation errors" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
@@ -229,7 +229,7 @@ class SubscriptionConfigurationControllerSpec
 
     "When logged in as super saves the data" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+      FetchApplicationById.returns(applicationWithSubscriptionData)
       getAllFieldDefinitionsReturns(allFieldDefinitions)
       fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
