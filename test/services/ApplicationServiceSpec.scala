@@ -22,7 +22,6 @@ import model.SubscriptionFields._
 import model._
 import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
-import play.api.http.Status.NOT_FOUND
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
@@ -33,11 +32,14 @@ import org.mockito.scalatest.ResetMocksAfterEachTest
 import model.applications.NewApplication
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
-import mocks.connectors.ApplicationConnectorMock
+import mocks.connectors.ApplicationConnectorMockProvider
+import mocks.services.ApplicationServiceMock
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMock {
+  trait Setup 
+      extends MockitoSugar with ArgumentMatchersSugar 
+      with ApplicationConnectorMockProvider {
     val mockSandboxApiScopeConnector = mock[SandboxApiScopeConnector]
     val mockProductionApiScopeConnector = mock[ProductionApiScopeConnector]
     val mockApmConnector = mock[ApmConnector]
@@ -101,7 +103,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "searchApplications" should {
 
     "list all subscribed applications from production when PRODUCTION environment is specified" in new Setup {
-      Prod.SearchApplications.returns(allProductionApplications: _*)
+      ApplicationConnectorMock.Prod.SearchApplications.returns(allProductionApplications: _*)
 
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(PRODUCTION), Map.empty))
 
@@ -115,9 +117,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "list all subscribed applications from sandbox when SANDBOX environment is specified" in new Setup {
-      when(mockSandboxApplicationConnector.searchApplications(*)(*))
-        .thenReturn(successful(aPaginatedApplicationResponse(allSandboxApplications)))
-
+      ApplicationConnectorMock.Sandbox.SearchApplications.returns(allSandboxApplications: _*)
+      
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(SANDBOX), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
@@ -130,8 +131,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
-      when(mockSandboxApplicationConnector.searchApplications(*)(*))
-        .thenReturn(successful(aPaginatedApplicationResponse(allSandboxApplications)))
+      ApplicationConnectorMock.Sandbox.SearchApplications.returns(allSandboxApplications: _*)
 
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(None, Map.empty))
 
@@ -166,8 +166,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "fetchApplications" should {
 
     "list all applications from sandbox and production when filtering not provided" in new Setup {
-      Prod.FetchAllApplications.returns(allProductionApplications: _*)
-      Sandbox.FetchAllApplications.returns(allProductionApplications: _*)
+      ApplicationConnectorMock.Prod.FetchAllApplications.returns(allProductionApplications: _*)
+      ApplicationConnectorMock.Sandbox.FetchAllApplications.returns(allProductionApplications: _*)
 
       val result: Seq[ApplicationResponse] = await(underTest.fetchApplications)
       result shouldEqual allProductionApplications
@@ -179,8 +179,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list filtered applications from sandbox and production when specific subscription filtering is provided" in new Setup {
       val filteredApplications = List(stdApp1, privilegedApp)
 
-      Prod.FetchAllApplicationsBySubscription.returns(filteredApplications: _*)
-      Sandbox.FetchAllApplicationsBySubscription.returns(filteredApplications: _*)
+      ApplicationConnectorMock.Prod.FetchAllApplicationsBySubscription.returns(filteredApplications: _*)
+      ApplicationConnectorMock.Sandbox.FetchAllApplicationsBySubscription.returns(filteredApplications: _*)
 
       val result = await(underTest.fetchApplications(Value("subscription", "version"), AnyEnvironment))
       result shouldBe filteredApplications
@@ -194,10 +194,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val subscriptions = List(stdApp2, ropcApp)
 
       val allApps = noSubscriptions ++ subscriptions
-      Prod.FetchAllApplications.returns(allApps: _*)
-      Prod.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
-      Sandbox.FetchAllApplications.returns(allApps: _*)
-      Sandbox.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
+      ApplicationConnectorMock.Prod.FetchAllApplications.returns(allApps: _*)
+      ApplicationConnectorMock.Prod.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
+      ApplicationConnectorMock.Sandbox.FetchAllApplications.returns(allApps: _*)
+      ApplicationConnectorMock.Sandbox.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
 
       val result = await(underTest.fetchApplications(OneOrMoreSubscriptions, AnyEnvironment))
       result shouldBe subscriptions
@@ -211,8 +211,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list filtered applications from sandbox and production when OneOrMoreApplications filtering is provided" in new Setup {
       val allApps = List(stdApp1, privilegedApp)
 
-      Prod.FetchAllApplications.returns(allApps: _*)
-      Sandbox.FetchAllApplications.returns()
+      ApplicationConnectorMock.Prod.FetchAllApplications.returns(allApps: _*)
+      ApplicationConnectorMock.Sandbox.FetchAllApplications.returns()
 
       val result = await(underTest.fetchApplications(OneOrMoreApplications, AnyEnvironment))
       result shouldBe allApps
@@ -224,8 +224,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list distinct filtered applications from sandbox and production when NoSubscriptions filtering is provided" in new Setup {
       val noSubscriptions = List(stdApp1, privilegedApp)
 
-     Prod.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
-     Sandbox.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
+     ApplicationConnectorMock.Prod.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
+     ApplicationConnectorMock.Sandbox.FetchAllApplicationsWithNoSubscriptions.returns(noSubscriptions: _*)
 
       val result = await(underTest.fetchApplications(NoSubscriptions, AnyEnvironment))
       result shouldBe noSubscriptions
@@ -237,8 +237,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "fetchApplication" should {
     "return the app when found in production" in new Setup {
-      Prod.FetchApplication.returns(applicationWithHistory)
-      Sandbox.FetchApplication.failsNotFound()
+      ApplicationConnectorMock.Prod.FetchApplication.returns(applicationWithHistory)
+      ApplicationConnectorMock.Sandbox.FetchApplication.failsNotFound()
 
       val result = await(underTest.fetchApplication(stdApp1.id))
 
@@ -249,8 +249,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "return the the app in sandbox when not found in production" in new Setup {
-      Prod.FetchApplication.failsNotFound()
-      Sandbox.FetchApplication.returns(applicationWithHistory)
+      ApplicationConnectorMock.Prod.FetchApplication.failsNotFound()
+      ApplicationConnectorMock.Sandbox.FetchApplication.returns(applicationWithHistory)
 
       await(underTest.fetchApplication(stdApp1.id))
 
@@ -304,7 +304,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "updateScopes" should {
     "call the service to update the scopes for an app with Privileged access" in new Setup {
-      Prod.UpdateScopes.succeeds()
+      ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
       when(mockProductionApiScopeConnector.fetchAll()(*))
         .thenReturn(successful(List(
           ApiScope("hello", "test name", "test description"),
@@ -319,7 +319,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "call the service to update the scopes for an app with ROPC access" in new Setup {
-      Prod.UpdateScopes.succeeds()
+      ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
       when(mockProductionApiScopeConnector.fetchAll()(*))
         .thenReturn(successful(List(
           ApiScope("hello", "test name", "test description"),
@@ -358,7 +358,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val existingIpAllowlist = IpAllowlist(required = false, Set("192.168.1.0/24"))
       val app: ApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
       val newIpAllowlist = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
-      Prod.UpdateIpAllowlist.succeeds()
+      ApplicationConnectorMock.Prod.UpdateIpAllowlist.succeeds()
 
       val result: UpdateIpAllowlistResult = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist))
 
@@ -367,7 +367,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate connector errors" in new Setup {
-      Prod.UpdateIpAllowlist.failsWithISE()
+      ApplicationConnectorMock.Prod.UpdateIpAllowlist.failsWithISE()
 
       intercept[UpstreamErrorResponse] {
         await(underTest.manageIpAllowlist(stdApp1, false, Set("192.168.1.0/24")))
@@ -493,32 +493,26 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the production connector to create a new app in production" in new Setup {
       val environment = Environment.PRODUCTION
 
-      when(mockProductionApplicationConnector.createPrivOrROPCApp(*)(*))
-        .thenReturn(successful(CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess)))
-
+      ApplicationConnectorMock.Prod.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess))
 
       val result = await(underTest.createPrivOrROPCApp(environment, name, description, admin, appAccess))
 
       result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess)
 
-      verify(mockProductionApplicationConnector)
-        .createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
+      verify(mockProductionApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
       verify(mockSandboxApplicationConnector, never).createPrivOrROPCApp(*)(*)
     }
 
     "call the sandbox connector to create a new app in sandbox" in new Setup {
       val environment = Environment.SANDBOX
 
-      when(mockSandboxApplicationConnector.createPrivOrROPCApp(*)(*))
-        .thenReturn(successful(CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess)))
-
+      ApplicationConnectorMock.Sandbox.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess))
 
       val result = await(underTest.createPrivOrROPCApp(environment, name, description, admin, appAccess))
 
       result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment.toString, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector)
-        .createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
+      verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
       verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
     }
   }
@@ -531,7 +525,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
+      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
 
@@ -543,7 +537,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = privilegedApp
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
+      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
       
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
 
@@ -555,7 +549,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = ropcApp
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
+      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
 
       await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
 
@@ -566,7 +560,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "propagate TeamMemberLastAdmin error from application connector" in new Setup {
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      Prod.RemoveCollaborator.failsWithLastAdminFor(stdApp1.id, memberToRemove, requestingUser)
+      ApplicationConnectorMock.Prod.RemoveCollaborator.failsWithLastAdminFor(stdApp1.id, memberToRemove, requestingUser)
 
       intercept[TeamMemberLastAdmin] {
         await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
@@ -589,7 +583,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
         .thenReturn(successful(nonAdderAdmins))
-        Prod.RemoveCollaborator.succeeds()
+        ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
 
       await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response
 
@@ -637,7 +631,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "PRODUCTION")
       val deleteApplicationRequest = DeleteApplicationRequest(gatekeeperUserId, emailAddress)
 
-      Prod.DeleteApplication.succeeds()
+      ApplicationConnectorMock.Prod.DeleteApplication.succeeds()
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
 
@@ -652,8 +646,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "SANDBOX")
       val deleteApplicationRequest = DeleteApplicationRequest(gatekeeperUserId, emailAddress)
 
-      when(mockSandboxApplicationConnector.deleteApplication(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApplicationDeleteFailureResult))
+      ApplicationConnectorMock.Sandbox.DeleteApplication.fails()
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
 
@@ -669,7 +662,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "PRODUCTION")
       val blockApplicationRequest = BlockApplicationRequest(gatekeeperUserId)
 
-      Prod.BlockApplication.succeeds()
+      ApplicationConnectorMock.Prod.BlockApplication.succeeds()
 
       val result = await(underTest.blockApplication(application, gatekeeperUserId))
 
@@ -684,7 +677,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "SANDBOX")
       val blockApplicationRequest = BlockApplicationRequest(gatekeeperUserId)
 
-      Sandbox.BlockApplication.fails()
+      ApplicationConnectorMock.Sandbox.BlockApplication.fails()
 
       val result = await(underTest.blockApplication(application, gatekeeperUserId))
 
@@ -701,7 +694,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "PRODUCTION")
       val unblockApplicationRequest = UnblockApplicationRequest(gatekeeperUserId)
 
-      Prod.UnblockApplication.succeeds()
+      ApplicationConnectorMock.Prod.UnblockApplication.succeeds()
 
       val result = await(underTest.unblockApplication(application, gatekeeperUserId))
 
@@ -716,7 +709,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val application = stdApp1.copy(deployedTo = "SANDBOX")
       val unblockApplicationRequest = UnblockApplicationRequest(gatekeeperUserId)
 
-      Sandbox.UnblockApplication.fails()
+      ApplicationConnectorMock.Sandbox.UnblockApplication.fails()
 
       val result = await(underTest.unblockApplication(application, gatekeeperUserId))
 
@@ -762,11 +755,5 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       result shouldBe mockSandboxApiScopeConnector
     }
-  }
-
-  private def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-    val page = 1
-    val pageSize = 10
-    PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
   }
 }

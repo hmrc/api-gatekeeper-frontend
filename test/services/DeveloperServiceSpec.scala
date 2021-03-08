@@ -29,7 +29,7 @@ import scala.concurrent.Future.successful
 import utils.CollaboratorTracker
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import mocks.connectors.ApplicationConnectorMock
+import mocks.connectors.ApplicationConnectorMockProvider
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -62,7 +62,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMock {
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider {
     val mockDeveloperConnector = mock[DeveloperConnector]
     val mockAppConfig = mock[AppConfig]
 
@@ -90,8 +90,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*))
         .thenReturn(successful(user))
 
-      Prod.FetchApplicationsByEmail.returns(productionApps: _*)
-      Sandbox.FetchApplicationsByEmail.returns(sandboxApps: _*)
+      ApplicationConnectorMock.Prod.FetchApplicationsByEmail.returns(productionApps: _*)
+      ApplicationConnectorMock.Sandbox.FetchApplicationsByEmail.returns(sandboxApps: _*)
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
@@ -104,8 +104,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
-      Prod.RemoveCollaborator.succeeds()
-      Sandbox.RemoveCollaborator.succeeds()
+      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
+      ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
     }
 
     def verifyCollaboratorRemovedFromApp(app: Application,
@@ -429,8 +429,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       private val email1 = user1.email
       private val email2 = user2.email
 
-      Prod.SearchCollaborators.returns(email1)
-      Sandbox.SearchCollaborators.returns(email2)
+      ApplicationConnectorMock.Prod.SearchCollaborators.returns(email1)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(email2)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(successful(List(user1, user2)))
 
@@ -447,8 +447,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "find by api context and version where same email in production and sandbox" in new Setup {
       val user = aUser("user")
 
-      Prod.SearchCollaborators.returns(user.email)
-      Sandbox.SearchCollaborators.returns(user.email)
+      ApplicationConnectorMock.Prod.SearchCollaborators.returns(user.email)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(user.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(successful(List(user)))
 
@@ -560,8 +560,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       private val email1 = productionUser.email
 
-      Prod.SearchCollaborators.returns(productionUser.email)
-      Sandbox.SearchCollaborators.returns(sandboxUser.email)
+      ApplicationConnectorMock.Prod.SearchCollaborators.returns(productionUser.email)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(sandboxUser.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(successful(List(productionUser)))
 
@@ -581,8 +581,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       private val email2 = sandboxUser.email
 
-      Prod.SearchCollaborators.returns(productionUser.email)
-      Sandbox.SearchCollaborators.returns(sandboxUser.email)
+      ApplicationConnectorMock.Prod.SearchCollaborators.returns(productionUser.email)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(sandboxUser.email)
 
       when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(successful(List(sandboxUser)))
 

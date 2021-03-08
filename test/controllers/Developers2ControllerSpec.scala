@@ -67,7 +67,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-       FetchAllApiDefinitions.forAny.returns()
+       FetchAllApiDefinitions.inAny.returns()
         when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
         when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
@@ -160,7 +160,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
-        FetchAllApiDefinitions.forAny.returns(apiDefinition)
+        FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
 
@@ -178,7 +178,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
-        FetchAllApiDefinitions.forAny.returns(apiDefinition)
+        FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
 

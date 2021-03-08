@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mocks.service
+package mocks.services
 
 import model.{ApiContext, ApiVersion}
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}

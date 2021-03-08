@@ -20,19 +20,20 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.{failed, successful}
 import model._
-import mocks.PaginatedApplicationResponseBuilder 
 import connectors.{ApplicationConnector,SandboxApplicationConnector,ProductionApplicationConnector}
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-trait ApplicationConnectorMock {
+trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
   
   val mockProductionApplicationConnector = mock[ProductionApplicationConnector]
   val mockSandboxApplicationConnector = mock[SandboxApplicationConnector]
 
-  trait AppConn extends PaginatedApplicationResponseBuilder {
+  trait ApplicationConnectorMock {
     def mock: ApplicationConnector
+
+    import mocks.PaginatedApplicationResponseBuilder._
 
     object SearchApplications{
       def returns(apps: ApplicationResponse*) = when(mock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
@@ -99,16 +100,21 @@ trait ApplicationConnectorMock {
 
     object DeleteApplication {
       def succeeds() = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationDeleteSuccessResult))
+      def fails() = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationDeleteFailureResult))
+    }
 
+    object CreatePrivOrROPCApp {
+      def returns(result: CreatePrivOrROPCAppResult) = when(mock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
     }
   }
 
-  object Prod extends AppConn {
-    val mock = mockProductionApplicationConnector
-  }
+  object ApplicationConnectorMock {
+    object Prod extends ApplicationConnectorMock {
+      val mock = mockProductionApplicationConnector
+    }
 
-  object Sandbox extends AppConn {
-    val mock = mockSandboxApplicationConnector
+    object Sandbox extends ApplicationConnectorMock {
+      val mock = mockSandboxApplicationConnector
+    }
   }
-
 }

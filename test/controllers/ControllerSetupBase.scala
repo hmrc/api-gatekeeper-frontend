@@ -16,20 +16,16 @@
 
 package controllers
 
-
-import mocks.service.{ApplicationServiceMock, ApmServiceMock}
-import model._
 import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
-import mocks.service.ApiDefinitionServiceMock
+import mocks.services._
 import scala.concurrent.Future
 import utils.CollaboratorTracker
-import mocks.service.DeveloperServiceMock
-import mocks.service.DeploymentApprovalServiceMock
-import mocks.connector.AuthConnectorMock
+import mocks.connectors._
 import org.mockito.stubbing.ScalaOngoingStubbing
 import connectors.DeveloperConnector
+import model._
 
 trait ControllerSetupBase 
     extends MockitoSugar 
@@ -37,7 +33,7 @@ trait ControllerSetupBase
     with AuthConnectorMock
     with ApiDefinitionServiceMock
     with DeveloperServiceMock 
-    with ApplicationServiceMock 
+    with ApplicationServiceMock
     with ApmServiceMock 
     with DeploymentApprovalServiceMock
     with CollaboratorTracker {

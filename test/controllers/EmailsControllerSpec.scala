@@ -105,8 +105,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
       val twoApis = List(api1, api2)
       def givenApiDefinition2Apis() = {
-        FetchAllDistinctApisIgnoreVersions.forAny.returns(twoApis: _*)
-        FetchAllApiDefinitions.forAny.returns(twoApis: _*)
+        FetchAllDistinctApisIgnoreVersions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
       }
 
       def givenApiDefinition3Categories() = {

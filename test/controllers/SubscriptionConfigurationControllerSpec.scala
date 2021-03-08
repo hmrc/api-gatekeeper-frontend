@@ -17,7 +17,7 @@
 package controllers
 
 import builder.SubscriptionsBuilder
-import mocks.service.SubscriptionFieldsServiceMock
+import mocks.services.SubscriptionFieldsServiceMock
 import model.{ApiContext, ApiVersion, FieldName, FieldValue}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}

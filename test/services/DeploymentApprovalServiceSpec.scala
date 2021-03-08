@@ -26,12 +26,13 @@ import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import org.mockito.MockitoSugar
+import mocks.connectors.ApiPublisherConnectorMockProvider
+import org.mockito.ArgumentMatchersSugar
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
-  trait Setup {
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPublisherConnectorMockProvider {
     val serviceName = "ServiceName" + UUID.randomUUID
-    val mockSandboxApiPublisherConnector = mock[SandboxApiPublisherConnector]
-    val mockProductionApiPublisherConnector = mock[ProductionApiPublisherConnector]
 
     implicit val hc = HeaderCarrier()
 
@@ -45,8 +46,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
       val expectedSandboxSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
 
-      when(mockProductionApiPublisherConnector.fetchUnapproved()(*)).thenReturn(Future.successful(expectedProductionSummaries))
-      when(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).thenReturn(Future.successful(expectedSandboxSummaries))
+      ApiPublisherConnectorMock.Prod.FetchUnapproved.returns(expectedProductionSummaries: _*)
+      ApiPublisherConnectorMock.Sandbox.FetchUnapproved.returns(expectedSandboxSummaries: _*)
 
       val result = await(underTest.fetchUnapprovedServices())
 

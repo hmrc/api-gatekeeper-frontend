@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mocks.service
+package mocks.services
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar

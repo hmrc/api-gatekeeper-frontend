@@ -19,7 +19,7 @@ package mocks
 import model.PaginatedApplicationResponse
 import model.ApplicationResponse
 
-trait PaginatedApplicationResponseBuilder {
+object PaginatedApplicationResponseBuilder {
     def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10

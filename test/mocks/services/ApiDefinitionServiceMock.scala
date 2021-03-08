@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mocks.service
+package mocks.services
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
@@ -34,7 +34,7 @@ trait ApiDefinitionServiceMock {
     def inProd = Calling(Some(Environment.PRODUCTION))
     def inSandbox = Calling(Some(Environment.SANDBOX))
     def inBoth = Calling(None)
-    def forAny = Calling()
+    def inAny = Calling()
 
     class Calling private(cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
@@ -55,7 +55,7 @@ trait ApiDefinitionServiceMock {
     def inProd = Calling(Some(Environment.PRODUCTION))
     def inSandbox = Calling(Some(Environment.SANDBOX))
     def inBoth = Calling(None)
-    def forAny = Calling()
+    def inAny = Calling()
     
     class Calling[T] private(cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))

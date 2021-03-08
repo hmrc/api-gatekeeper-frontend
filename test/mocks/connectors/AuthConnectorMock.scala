@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mocks.connector
+package mocks.connectors
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
@@ -25,10 +25,9 @@ import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 import mocks.TestRoles
 
 trait AuthConnectorMock {
-  
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  import TestRoles._
+  import mocks.TestRoles._
   
   val userName = "userName"
   val superUserName = "superUserName"

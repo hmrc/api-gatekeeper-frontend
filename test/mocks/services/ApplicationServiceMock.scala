@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package mocks.service
+package mocks.services
 
-import mocks.PaginatedApplicationResponseBuilder
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
 
@@ -25,11 +24,56 @@ import model._
 import org.mockito.stubbing.ScalaOngoingStubbing
 import scala.concurrent.Future
 
-trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar with PaginatedApplicationResponseBuilder {
+trait ApplicationServiceMock {
+  self: MockitoSugar with ArgumentMatchersSugar =>
+
+  import mocks.PaginatedApplicationResponseBuilder._
+
   val mockApplicationService = mock[ApplicationService]
+
+
+
+  object FetchApplications {
+    def returns(apps: ApplicationResponse*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
+    def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: ApplicationResponse*) =
+        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(*)).thenReturn(successful(apps.toList))
+  }
+
+  object CreatePrivOrROPCApp {
+    def returns(result: CreatePrivOrROPCAppResult) = when(mockApplicationService.createPrivOrROPCApp(*, *, *, *, *)(*)).thenReturn(successful(result))
+  }
 
   object SearchApplications {
     def returns(apps: ApplicationResponse*) = when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+  }
+
+  object UpdateScopes {
+    def succeeds() = when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
+    def failsWithInvalidScopes() =  when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesInvalidScopesResult)) 
+  }
+
+  object ManageIpAllowlist {
+    def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *)(*)).thenReturn(successful(UpdateIpAllowlistSuccessResult))
+  }
+
+  object UpdateOverrides {
+    def succeeds() = when(mockApplicationService.updateOverrides(*, *)(*)).thenReturn(successful(UpdateOverridesSuccessResult))
+  }
+
+  object UpdateRateLimitTier {
+    def succeeds() = when(mockApplicationService.updateRateLimitTier(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+  }
+  
+  object UnblockApplication {
+    def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
+  }
+
+  object SubscribeToApi {
+    def succeeds() = when(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+  }
+
+  object UnsubscribeFromApi {
+    def succeeds() = when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
   }
 
   def fetchApplicationReturns(returns: ApplicationWithHistory) = {
@@ -69,4 +113,5 @@ trait ApplicationServiceMock extends MockitoSugar with ArgumentMatchersSugar wit
   def givenTheAppWillBeReturned(application: ApplicationWithHistory): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = {
     when(mockApplicationService.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(application))
   }
+
 }

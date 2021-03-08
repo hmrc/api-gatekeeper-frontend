@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mocks.service
+package mocks.services
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApmService
@@ -27,7 +27,9 @@ import model.ApiDefinitions
 import model.Environment.Environment
 import scala.concurrent.Future.{failed,successful}
 
-trait ApmServiceMock extends MockitoSugar with ArgumentMatchersSugar {
+trait ApmServiceMock {
+  self: MockitoSugar with ArgumentMatchersSugar =>
+
   val mockApmService = mock[ApmService]
 
   object FetchApplicationById {
