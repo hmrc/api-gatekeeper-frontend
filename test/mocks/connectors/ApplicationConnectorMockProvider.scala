@@ -41,6 +41,10 @@ trait ApplicationConnectorMockProvider {
 
     object SearchCollaborators {
       def returns(emails: String*) = when(mock.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)).thenReturn(successful(emails.toList))
+
+      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(collaborators: String*) = 
+        when(mock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(partialEmailMatch))(*))
+        .thenReturn(successful(collaborators.toList))
     }
 
     object FetchAllApplications {
@@ -55,6 +59,12 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
 
     }
+
+    object UnsubscribeFromApi {
+      def succeeds() = when(mock.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
+        .thenReturn(successful(ApplicationUpdateSuccessResult))
+    }
+          
 
     object FetchApplication {
       def returns(app: ApplicationWithHistory) = when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))

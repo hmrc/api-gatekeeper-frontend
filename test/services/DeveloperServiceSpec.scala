@@ -29,7 +29,7 @@ import scala.concurrent.Future.successful
 import utils.CollaboratorTracker
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import mocks.connectors.ApplicationConnectorMockProvider
+import mocks.connectors._
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -62,8 +62,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider {
-    val mockDeveloperConnector = mock[DeveloperConnector]
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider with DeveloperConnectorMockProvider {
     val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(mockAppConfig, mockDeveloperConnector, mockSandboxApplicationConnector, mockProductionApplicationConnector)
@@ -81,14 +80,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     implicit val hc = HeaderCarrier()
 
     def fetchDeveloperWillReturn(user: RegisteredUser, productionApps: List[ApplicationResponse] = List.empty, sandboxApps: List[ApplicationResponse] = List.empty) = {
-      when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*))
-        .thenReturn(successful(user))
-      when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*))
-        .thenReturn(successful(user))
-      when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*))
-        .thenReturn(successful(user))
-      when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*))
-        .thenReturn(successful(user))
+      DeveloperConnectorMock.FetchByEmail.handles(user)
+      DeveloperConnectorMock.FetchByUserId.handles(user)
+      DeveloperConnectorMock.FetchById.handles(user)
 
       ApplicationConnectorMock.Prod.FetchApplicationsByEmail.returns(productionApps: _*)
       ApplicationConnectorMock.Sandbox.FetchApplicationsByEmail.returns(sandboxApps: _*)
@@ -410,8 +404,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "find users" in new Setup {
       private val user = aUser("fred")
       private val emailFilter = "example"
-
-      when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(successful(List(user)))
+      DeveloperConnectorMock.SearchDevelopers.returns(user)
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter))
 
@@ -431,8 +424,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       ApplicationConnectorMock.Prod.SearchCollaborators.returns(email1)
       ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(email2)
-
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2))).thenReturn(successful(List(user1, user2)))
+      DeveloperConnectorMock.FetchByEmails.returnsFor(Set(email1, email2))(user1, user2)
 
       val filter = Developers2Filter(environmentFilter = AnyEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -449,8 +441,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       ApplicationConnectorMock.Prod.SearchCollaborators.returns(user.email)
       ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(user.email)
-
-      when(mockDeveloperConnector.fetchByEmails(Set(user.email))).thenReturn(successful(List(user)))
+      DeveloperConnectorMock.FetchByEmails.returnsFor(Set(user.email))(user)
 
       val filter = Developers2Filter(maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -471,15 +462,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       val emailFilter = "emailFilter"
 
-      when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(successful(List(email1, email2, email3)))
-
-      when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(successful(List.empty[String]))
-
-      when(mockDeveloperConnector.fetchByEmails(Set(email1, email2, email3))).thenReturn(successful(List(user1, user2)))
+      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))(email1, email2, email3)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))()
+      DeveloperConnectorMock.FetchByEmails.returnsFor(Set(email1, email2, email3))(user1,user2)
 
       val filter = Developers2Filter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -489,13 +474,10 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     "find by developer status" in new Setup {
-
       val user1 = aUser("user1")
-
+      DeveloperConnectorMock.SearchDevelopers.returnsFor(None, DeveloperStatusFilter.VerifiedStatus)(user1)
+      
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
-
-      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.VerifiedStatus)).thenReturn(successful(List(user1)))
-
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(user1)
@@ -517,15 +499,10 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       val emailFilter = "emailFilter"
 
-      when(mockProductionApplicationConnector
-        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(successful(List(email1, email2, email3, email4)))
+      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))(email1, email2, email3, email4)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))()
 
-      when(mockSandboxApplicationConnector
-        .searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(Some(emailFilter)))(*))
-        .thenReturn(successful(List.empty[String]))
-
-      when(mockDeveloperConnector.fetchByEmails(*) (*)).thenReturn(successful(List(user1, user2, user3)))
+      DeveloperConnectorMock.FetchByEmails.returns(user1, user2, user3)
 
       val filter = Developers2Filter(maybeEmailFilter =
         Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
@@ -542,11 +519,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val firstInTheListUser = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
       val secondInTheListUser = RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
       val thirdInTheListUser = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
+      DeveloperConnectorMock.SearchDevelopers.returnsFor(None, DeveloperStatusFilter.AllStatus)(thirdInTheListUser, firstInTheListUser, secondInTheListUser)
 
       val filter = Developers2Filter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
-
-      when(mockDeveloperConnector.searchDevelopers(None, DeveloperStatusFilter.AllStatus)).thenReturn(successful(List(thirdInTheListUser, firstInTheListUser, secondInTheListUser)))
-
       val result = await(underTest.searchDevelopers(filter))
 
       result shouldBe List(firstInTheListUser, secondInTheListUser, thirdInTheListUser)
@@ -562,8 +537,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       ApplicationConnectorMock.Prod.SearchCollaborators.returns(productionUser.email)
       ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(sandboxUser.email)
-
-      when(mockDeveloperConnector.fetchByEmails(Set(email1))).thenReturn(successful(List(productionUser)))
+      DeveloperConnectorMock.FetchByEmails.returnsFor(Set(email1))(productionUser)
 
       val filter = Developers2Filter(environmentFilter = ProductionEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -583,8 +557,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       ApplicationConnectorMock.Prod.SearchCollaborators.returns(productionUser.email)
       ApplicationConnectorMock.Sandbox.SearchCollaborators.returns(sandboxUser.email)
-
-      when(mockDeveloperConnector.fetchByEmails(Set(email2))).thenReturn(successful(List(sandboxUser)))
+      DeveloperConnectorMock.FetchByEmails.returnsFor(Set(email2))(sandboxUser)
 
       val filter = Developers2Filter(environmentFilter = SandboxEnvironment, maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
@@ -608,7 +581,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val apis = List(apiName1, apiName2, apiName3)
 
      "call the connector correctly when only passed a topic" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, *)(*)).thenReturn(successful(List(sandboxUser)))
+        DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, None)(sandboxUser)
+
         val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
         
         result shouldBe List(sandboxUser)
@@ -617,7 +591,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
      }
 
       "call the connector correctly when only passed a topic and a category" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(*)).thenReturn(successful(List(sandboxUser)))
+        DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)))(sandboxUser)
+
         val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
         
         result shouldBe List(sandboxUser)
@@ -626,7 +601,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
      }
 
      "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(*)).thenReturn(successful(List(sandboxUser)))
+        DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories))(sandboxUser)
+
         val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
         
         result shouldBe List(sandboxUser)

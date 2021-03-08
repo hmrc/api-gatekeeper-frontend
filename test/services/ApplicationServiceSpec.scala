@@ -33,16 +33,16 @@ import model.applications.NewApplication
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
 import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.ApplicationServiceMock
+import mocks.connectors.ApmConnectorMockProvider
+import mocks.services.ApiScopeConnectorMockProvider
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
   trait Setup 
       extends MockitoSugar with ArgumentMatchersSugar 
-      with ApplicationConnectorMockProvider {
-    val mockSandboxApiScopeConnector = mock[SandboxApiScopeConnector]
-    val mockProductionApiScopeConnector = mock[ProductionApiScopeConnector]
-    val mockApmConnector = mock[ApmConnector]
+      with ApplicationConnectorMockProvider
+      with ApmConnectorMockProvider
+      with ApiScopeConnectorMockProvider {
     val mockDeveloperConnector = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
@@ -262,8 +262,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the service to update the overrides for an app with Standard access" in new Setup {
       when(mockProductionApplicationConnector.updateOverrides(*[ApplicationId], *)(*))
         .thenReturn(successful(UpdateOverridesSuccessResult))
-      when(mockProductionApiScopeConnector.fetchAll()(*))
-        .thenReturn(successful(List(ApiScope("test.key", "test name", "test description"))))
+      ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key")))))
 
@@ -274,8 +273,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "fail when called with invalid scopes" in new Setup {
-      when(mockProductionApiScopeConnector.fetchAll()(*))
-        .thenReturn(successful(List(ApiScope("test.key", "test name", "test description"))))
+      ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
       val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key", "invalid.key")))))
 
@@ -304,10 +302,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "updateScopes" should {
     "call the service to update the scopes for an app with Privileged access" in new Setup {
       ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
-      when(mockProductionApiScopeConnector.fetchAll()(*))
-        .thenReturn(successful(List(
-          ApiScope("hello", "test name", "test description"),
-          ApiScope("individual-benefits", "test name", "test description"))))
+      ApiScopeConnectorMock.Prod.FetchAll.returns(
+        ApiScope("hello", "test name", "test description"),
+        ApiScope("individual-benefits", "test name", "test description")
+      )
 
       val result = await(underTest.updateScopes(privilegedApp, Set("hello", "individual-benefits")))
 
@@ -319,10 +317,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     "call the service to update the scopes for an app with ROPC access" in new Setup {
       ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
-      when(mockProductionApiScopeConnector.fetchAll()(*))
-        .thenReturn(successful(List(
-          ApiScope("hello", "test name", "test description"),
-          ApiScope("individual-benefits", "test name", "test description"))))
+      ApiScopeConnectorMock.Prod.FetchAll.returns(
+        ApiScope("hello", "test name", "test description"),
+        ApiScope("individual-benefits", "test name", "test description")
+      )
 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
 
@@ -333,8 +331,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "fail when called with invalid scopes" in new Setup {
-      when(mockProductionApiScopeConnector.fetchAll()(*))
-        .thenReturn(successful(List(ApiScope("hello", "test name", "test description"))))
+      ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("hello", "test name", "test description"))
 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
 
@@ -376,8 +373,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "subscribeToApi" should {
     "field definitions with empty values will persist empty values" in new Setup {
-      when(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      ApmConnectorMock.SubscribeToApi.succeeds()
 
       when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .thenReturn(successful(definitions))
@@ -400,8 +396,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "field definitions with non-empty values will not persist anything" in new Setup {
-      when(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      ApmConnectorMock.SubscribeToApi.succeeds()
 
       when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
         .thenReturn(successful(definitions))
@@ -426,8 +421,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "with field definitions but fails to save subscription fields throws error" in new Setup {
-      when(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      ApmConnectorMock.SubscribeToApi.succeeds()
 
       when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
           .thenReturn(successful(definitions))
@@ -454,8 +448,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "unsubscribeFromApi" should {
     "call the service to unsubscribe from the API and delete the field values" in new Setup {
 
-      when(mockProductionApplicationConnector.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      ApplicationConnectorMock.Prod.UnsubscribeFromApi.succeeds()
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))
 
