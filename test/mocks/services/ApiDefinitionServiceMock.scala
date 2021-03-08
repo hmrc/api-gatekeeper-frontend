@@ -40,7 +40,7 @@ trait ApiDefinitionServiceMock {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def failsWith(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+      def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
     }
     object Calling {
       def apply() = new Calling(*)
@@ -61,7 +61,7 @@ trait ApiDefinitionServiceMock {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def failsWith(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+      def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
     }
     object Calling {
       def apply() = new Calling(*)
@@ -74,13 +74,13 @@ trait ApiDefinitionServiceMock {
     private val whenClause =  when(mockApiDefinitionService.apis(*))
 
     def returns(results: (ApiDefinition, Environment.Value)*) = whenClause.thenReturn(successful(results.toList))
-    def failsWith(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+    def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
   }
   
   object ApiCategories {
     private val whenClause = when(mockApiDefinitionService.apiCategories()(*))
 
     def returns(details: APICategoryDetails*) = whenClause.thenReturn(successful(details.toList))
-    def failsWith(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+    def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
   }
 }

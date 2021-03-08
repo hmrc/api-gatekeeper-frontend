@@ -93,13 +93,13 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val category2 = APICategoryDetails("VAT", "Vat")
       val category3 = APICategoryDetails("AGENTS", "Agents")
  
-      def givenVerifiedDeveloper() = givenRegisteredUsers(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
-      def given3VerifiedDevelopers1Unverified() = givenRegisteredUsers(users3Verified1Unverified: _*)
+      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
 
-      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = givenSearchDevelopersFinds(users: _*)
+      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
 
-      def givenNoVerifiedDevelopers() = givenRegisteredUsers(unVerifiedUser1)
+      def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
       val api1 = ApiDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), List(ApiVersionDefinition(ApiVersion("1"), ApiStatus.BETA)), None, categories = Some(List(category1.toAPICategory)))
       val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
@@ -344,7 +344,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
-        givenFetchDevelopersBySpecificAPIEmailPreferences(verified2Users)
+        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users:_*)
 
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
 
@@ -375,8 +375,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and no users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns()
 
-        givenFetchDevelopersByEmailPreferences()
         val result = underTest.emailPreferencesTopic(Some("TECHNICAL"))(FakeRequest())
         status(result) shouldBe OK
 
@@ -388,8 +388,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
 
-        givenFetchDevelopersByEmailPreferences(users: _*)
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
         val result: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
         status(result) shouldBe OK
@@ -418,7 +418,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
-        givenFetchDevelopersByAPICategoryEmailPreferences(List.empty)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
+
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
         val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
@@ -431,7 +432,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
-        givenFetchDevelopersByAPICategoryEmailPreferences(users)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users:_*)
+
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
         val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
@@ -439,12 +441,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody = Helpers.contentAsString(result)
 
         verifyUserTable(responseBody, users)
-
-
       }
-
     }
-
   }
 
   def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {

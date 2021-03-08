@@ -180,8 +180,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       val sandboxCategories = List(APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"), APICategoryDetails("AGENTS", "Agents"))
       val allCategories = (prodCategories ++ sandboxCategories).distinct
       
-      when(mockProductionApiDefinitionConnector.fetchAPICategories()).thenReturn(Future(prodCategories))
-      when(mockSandboxApiDefinitionConnector.fetchAPICategories()).thenReturn(Future(sandboxCategories))
+      ApiDefinitionConnectorMock.Prod.FetchAPICategories.returns(prodCategories: _*)
+      ApiDefinitionConnectorMock.Sandbox.FetchAPICategories.returns(sandboxCategories: _*)
 
       val response: List[APICategoryDetails] = await(definitionService.apiCategories)
       response should contain only (allCategories:_*)

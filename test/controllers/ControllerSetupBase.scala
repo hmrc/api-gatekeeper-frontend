@@ -32,7 +32,7 @@ trait ControllerSetupBase
     with ArgumentMatchersSugar 
     with AuthConnectorMock
     with ApiDefinitionServiceMock
-    with DeveloperServiceMock 
+    with DeveloperServiceMockProvider
     with ApplicationServiceMock
     with ApmServiceMock 
     with DeploymentApprovalServiceMock

@@ -245,7 +245,7 @@ class TeamMembersControllerSpec
           val role = "DEVELOPER"
 
           "call the service to add the team member when existing registered" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
@@ -260,7 +260,7 @@ class TeamMembersControllerSpec
           }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
@@ -275,7 +275,7 @@ class TeamMembersControllerSpec
           }
 
           "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
@@ -290,7 +290,7 @@ class TeamMembersControllerSpec
 
         "the form is invalid" should {
           "show 400 BadRequest when the email is invalid" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
@@ -304,7 +304,7 @@ class TeamMembersControllerSpec
           }
 
           "show 400 BadRequest when the role is invalid" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
@@ -322,7 +322,7 @@ class TeamMembersControllerSpec
       "the user is not a superuser" when {
         "manging a privileged app" should {
           "show 403 Forbidden" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(privilegedApplication)
 
@@ -338,7 +338,7 @@ class TeamMembersControllerSpec
 
         "managing an ROPC app" should {
           "show 403 Forbidden" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned(ropcApplication)
 
@@ -354,7 +354,7 @@ class TeamMembersControllerSpec
 
         "managing a standard app" should {
           "show 303 See Other when valid" in new Setup {
-            givenFetchOrCreateUserReturnsRegisteredUser(email)
+            DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
@@ -513,7 +513,7 @@ class TeamMembersControllerSpec
 
         "the form is invalid" should {
           "show 400 Bad Request" in new Setup {
-            givenUserExists(emailToRemove)
+            DeveloperServiceMock.userExists(emailToRemove)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 

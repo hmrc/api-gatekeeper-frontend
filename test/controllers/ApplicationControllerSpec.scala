@@ -815,7 +815,7 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           FetchApplications.returns(existingApp)
           
@@ -838,7 +838,7 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           FetchApplications.returns(existingApp)
           CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
@@ -862,7 +862,7 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           FetchApplications.returns(existingApp)
           CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
@@ -886,7 +886,7 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
           FetchApplications.returns(existingApp)
           CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess))
@@ -906,7 +906,7 @@ class ApplicationControllerSpec
         }
 
         "show the correct error message when app description is left empty" in new Setup {
-          givenSeekUserFindsRegisteredUser("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -923,7 +923,7 @@ class ApplicationControllerSpec
         }
 
         "show the correct error message when admin email is left empty" in new Setup {
-          givenSeekUserFindsRegisteredUser("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -960,7 +960,7 @@ class ApplicationControllerSpec
         "but the user is not a superuser" should {
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
-            givenSeekUserFindsRegisteredUser(email)
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor(email)
             givenTheGKUserHasInsufficientEnrolments()
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -977,7 +977,7 @@ class ApplicationControllerSpec
 
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             FetchApplications.returns()
             CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess))
@@ -1005,7 +1005,7 @@ class ApplicationControllerSpec
           }
 
           "show the success page for a priv app in sandbox" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             FetchApplications.returns()
             CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess))
@@ -1032,7 +1032,7 @@ class ApplicationControllerSpec
           }
 
           "show the success page for an ROPC app in production" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             FetchApplications.returns()
             CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess))
@@ -1057,7 +1057,7 @@ class ApplicationControllerSpec
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             FetchApplications.returns()
             CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess))
@@ -1101,8 +1101,8 @@ class ApplicationControllerSpec
         fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
         fetchStateHistoryReturns(List(buildStateHistory(application2.id, State.PRODUCTION)))
 
-        when(mockDeveloperService.fetchDevelopersByEmails(*)(*))
-          .thenReturn(successful(developers))
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers:_*)
+
 
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
@@ -1145,8 +1145,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        when(mockApplicationService.blockApplication(*, *)(*))
-          .thenReturn(successful(ApplicationBlockSuccessResult))
+        BlockApplication.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 

@@ -153,7 +153,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val gatekeeperIdCaptor = ArgCaptor[String]
       val appIdCaptor = ArgCaptor[ApplicationId]
 
-
       when(mockProductionApplicationConnector.resendVerification(appIdCaptor, gatekeeperIdCaptor)(*))
         .thenReturn(successful(ResendVerificationSuccessful))
 

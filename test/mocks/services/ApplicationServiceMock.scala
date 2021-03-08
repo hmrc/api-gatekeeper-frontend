@@ -39,6 +39,10 @@ trait ApplicationServiceMock {
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(*)).thenReturn(successful(apps.toList))
   }
 
+  object BlockApplication {
+    def succeeds() = when(mockApplicationService.blockApplication(*,*)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
+  }
+  
   object CreatePrivOrROPCApp {
     def returns(result: CreatePrivOrROPCAppResult) = when(mockApplicationService.createPrivOrROPCApp(*, *, *, *, *)(*)).thenReturn(successful(result))
   }

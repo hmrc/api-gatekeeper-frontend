@@ -66,12 +66,12 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-       FetchAllApiDefinitions.inAny.returns()
-        when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
-        when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
-        when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
-        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
+        FetchApplications.returnsFor(apiFilter,environmentFilter, apps:_*)
+        FetchAllApiDefinitions.inAny.returns()
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter,apps:_*)(developers:_*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps:_*)(users:_*)(developers:_*)
+        DeveloperServiceMock.FetchUsers.returns(users:_*)
       }
 
     }
@@ -97,7 +97,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
+        DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val result = developersController.developersPage(Some(partialEmailAddress))(aLoggedInRequest)
 
@@ -114,7 +114,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val emailFilter = ""
         private val apiVersionFilter = ""
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List()))
+        DeveloperServiceMock.SearchDevelopers.returns()
 
         await(developersController.developersPage(Some(emailFilter), Some(apiVersionFilter))(aLoggedInRequest))
 
@@ -128,7 +128,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         private val searchFilter = "aFilter"
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List.empty))
+        DeveloperServiceMock.SearchDevelopers.returns()
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=$searchFilter").withSession(csrfToken, authToken, userToken)
 
@@ -143,9 +143,8 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
 
         private val email1 = "a@example.com"
         private val email2 = "b@example.com"
-        val users = List(aUser(email1), aUser(email2))
 
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users))
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1), aUser(email2))
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
@@ -197,7 +196,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val apiDefinitionValueFromDropDown = "api-definition__1.0"
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
+        DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val result = developersController.developersPage(maybeApiVersionFilter = Some(apiDefinitionValueFromDropDown))(aLoggedInRequest)
 
@@ -229,9 +228,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val email1 = "a@example.com"
         private val email2 = "b@example.com"
 
-        val users = List(aUser(email1), aUser(email2))
-
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users))
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1), aUser(email2))
 
         implicit val request = FakeRequest("GET", s"/developers2?emailFilter=").withSession(csrfToken, authToken, userToken)
 
@@ -249,7 +246,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val user = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
+        DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val result = developersController.developersPage(maybeDeveloperStatusFilter = Some(statusFilter))(aLoggedInRequest)
 
@@ -268,7 +265,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         private val environmentFilter = "PRODUCTION"
 
         // Note: Developers is both users and collaborators
-        when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(List(user)))
+        DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val result = developersController.developersPage(maybeEnvironmentFilter = Some(environmentFilter))(aLoggedInRequest)
 

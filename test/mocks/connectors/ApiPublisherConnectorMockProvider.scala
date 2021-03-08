@@ -34,6 +34,14 @@ trait ApiPublisherConnectorMockProvider {
     object FetchUnapproved {
       def returns(summaries: APIApprovalSummary*) = when(mock.fetchUnapproved()(*)).thenReturn(successful(summaries.toList))
     }
+
+    object FetchApprovalSummary {
+      def returns(summary: APIApprovalSummary) = when(mock.fetchApprovalSummary(*)(*)).thenReturn(successful(summary))
+    }
+
+    object ApproveService {
+      def succeeds() = when(mock.approveService(*)(*)).thenReturn(successful(()))
+    }
   }
 
   object ApiPublisherConnectorMock {
