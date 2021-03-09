@@ -60,12 +60,11 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   "pendingPage" should {
     "render the deployment approval page for APIs in all environments" in new Setup {
-      val approvalSummaries = List(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
-
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      givenFetchUnapprovedServicesReturns(approvalSummaries: _*)
+      DeploymentApprovalServiceMock.FetchUnapprovedServices.returns(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
+      )
 
       val result =  underTest.pendingPage()(aLoggedInRequest)
 
@@ -98,7 +97,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
 
-      givenApprovalSummaryForEnv(environment, approvalSummary)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
       val result =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
 
@@ -118,7 +117,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      givenApprovalSummaryForEnv(environment, approvalSummary)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
       val result =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
 
@@ -148,8 +147,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      givenApprovalSummaryForEnv(environment, approvalSummary)
-      givenApproveServiceSucceeds()
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
+      DeploymentApprovalServiceMock.ApproveService.succeeds()
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -168,8 +167,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      givenApprovalSummaryForEnv(environment, approvalSummary)
-      givenApproveServiceSucceeds()
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
+      DeploymentApprovalServiceMock.ApproveService.succeeds()
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
 
@@ -200,7 +199,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      givenApprovalSummaryForEnv(environment, approvalSummary)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
 

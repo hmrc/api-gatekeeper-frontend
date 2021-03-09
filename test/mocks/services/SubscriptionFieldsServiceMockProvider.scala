@@ -24,20 +24,23 @@ import services.SubscriptionFieldsService
 import scala.concurrent.Future.{failed,successful}
 import model.applications.NewApplication
 
-trait SubscriptionFieldsServiceMock extends MockitoSugar with ArgumentMatchersSugar {
+trait SubscriptionFieldsServiceMockProvider {
+  self: MockitoSugar with ArgumentMatchersSugar =>
+
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
   
-  def givenSaveSubscriptionFieldsSuccess() = {
-    when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+  object SubscriptionFieldsServiceMock {
+    object SaveFieldValues {
+      def succeeds() =  
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
-  }
 
-  def givenSaveSubscriptionFieldsFailure(fieldErrors : Map[String, String]) = {
-    when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+      def failsWithFieldErrors(fieldErrors: Map[String, String]) =
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
-  }
 
-  def verifySaveSubscriptionFields(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) = {
-    verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
+      def verifyParams(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) =
+        verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
+    }
   }
 }

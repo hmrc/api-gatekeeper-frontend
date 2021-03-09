@@ -31,11 +31,11 @@ trait ControllerSetupBase
     extends MockitoSugar 
     with ArgumentMatchersSugar 
     with AuthConnectorMock
-    with ApiDefinitionServiceMock
+    with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
-    with ApplicationServiceMock
-    with ApmServiceMock 
-    with DeploymentApprovalServiceMock
+    with ApplicationServiceMockProvider
+    with ApmServiceMockProvider
+    with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker {
 
   val mockDeveloperConnector = mock[DeveloperConnector]

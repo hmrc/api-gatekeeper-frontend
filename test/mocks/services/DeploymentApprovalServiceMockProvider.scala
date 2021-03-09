@@ -22,18 +22,25 @@ import model._
 import scala.concurrent.Future.{failed, successful}
 import services.DeploymentApprovalService
 
-trait DeploymentApprovalServiceMock {
+trait DeploymentApprovalServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
-  def givenFetchUnapprovedServicesReturns(approvalSummaries: APIApprovalSummary*) =
-    when(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).thenReturn(successful(approvalSummaries.toList))
+  object DeploymentApprovalServiceMock {
+    object FetchUnapprovedServices {
+      def returns(approvalSummaries: APIApprovalSummary*) =
+        when(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).thenReturn(successful(approvalSummaries.toList))
+    }
 
-  def givenApprovalSummaryForEnv(environment: Environment.Value, approvalSummary: APIApprovalSummary) =
-    when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
+    object FetchApprovalSummary {
+      def returnsForEnv(environment: Environment.Value)(approvalSummary: APIApprovalSummary) =
+        when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
+    }
 
-  def givenApproveServiceSucceeds() =
-    when(mockDeploymentApprovalService.approveService(*, *)(*)).thenReturn(successful(()))
-
+    object ApproveService {
+      def succeeds() =
+        when(mockDeploymentApprovalService.approveService(*, *)(*)).thenReturn(successful(()))
+    }
+  }
 }

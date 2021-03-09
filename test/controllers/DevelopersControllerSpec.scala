@@ -91,7 +91,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
         FetchAllApiDefinitions.inAny.returns()
         DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps:_*)(developers:_*)
         DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)

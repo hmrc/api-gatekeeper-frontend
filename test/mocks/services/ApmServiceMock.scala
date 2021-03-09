@@ -27,42 +27,43 @@ import model.ApiDefinitions
 import model.Environment.Environment
 import scala.concurrent.Future.{failed,successful}
 
-trait ApmServiceMock {
+trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val mockApmService = mock[ApmService]
 
-  object FetchApplicationById {
-    private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
+  object ApmServiceMock {
+    object FetchApplicationById {
+      private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
 
-    def returns(app: ApplicationWithSubscriptionData) = 
-      whenClause.thenReturn(successful(Some(app)))
-    def returnsNone(app: ApplicationWithSubscriptionData) = 
-      whenClause.thenReturn(successful(None))
-    def failsWith(throwable: Throwable) =
-      whenClause.thenReturn(failed(throwable))
+      def returns(app: ApplicationWithSubscriptionData) = 
+        whenClause.thenReturn(successful(Some(app)))
+      def returnsNone(app: ApplicationWithSubscriptionData) = 
+        whenClause.thenReturn(successful(None))
+      def failsWith(throwable: Throwable) =
+        whenClause.thenReturn(failed(throwable))
+    }
+
+    def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
+      when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
+        .thenReturn(Future.successful(returns))
+    }
+
+    def getAllFieldDefinitionsReturns(returns: ApiDefinitions.Alias) = {
+      when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
+        .thenReturn(Future.successful(returns))
+    }
+
+    def verifyFetchApplicationById(applicationId: ApplicationId) = {
+      verify(mockApmService).fetchApplicationById(eqTo(applicationId))(*)
+    }
+
+    def verifyAllPossibleSubscriptions(applicationId: ApplicationId) = {
+      verify(mockApmService).fetchAllPossibleSubscriptions(eqTo(applicationId))(*)
+    }
+
+    def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
+      verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
+    }
   }
-
-  def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
-    when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
-      .thenReturn(Future.successful(returns))
-  }
-
-  def getAllFieldDefinitionsReturns(returns: ApiDefinitions.Alias) = {
-    when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
-      .thenReturn(Future.successful(returns))
-  }
-
-  def verifyFetchApplicationById(applicationId: ApplicationId) = {
-    verify(mockApmService).fetchApplicationById(eqTo(applicationId))(*)
-  }
-
-  def verifyAllPossibleSubscriptions(applicationId: ApplicationId) = {
-    verify(mockApmService).fetchAllPossibleSubscriptions(eqTo(applicationId))(*)
-  }
-
-  def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
-    verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
-  }
-
 }

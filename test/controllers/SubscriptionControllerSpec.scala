@@ -78,7 +78,7 @@ class SubscriptionControllerSpec
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        SearchApplications.returns()
+        ApplicationServiceMock.SearchApplications.returns()
         FetchAllApiDefinitions.inAny.returns()
       }
     }
@@ -91,7 +91,7 @@ class SubscriptionControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        SubscribeToApi.succeeds()
+        ApplicationServiceMock.SubscribeToApi.succeeds()
 
         val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
@@ -121,7 +121,7 @@ class SubscriptionControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        UnsubscribeFromApi.succeeds()
+        ApplicationServiceMock.UnsubscribeFromApi.succeeds()
 
         val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
@@ -155,8 +155,8 @@ class SubscriptionControllerSpec
           val apiContextAndApiData = Map(apiContext -> apiData)
 
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          FetchApplicationById.returns(applicationWithSubscriptionData)
-          fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+          ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+          ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 

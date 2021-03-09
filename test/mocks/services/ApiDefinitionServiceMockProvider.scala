@@ -24,7 +24,7 @@ import model.ApiDefinition
 import scala.concurrent.Future.{failed, successful}
 import model.APICategoryDetails
 
-trait ApiDefinitionServiceMock {
+trait ApiDefinitionServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val mockApiDefinitionService = mock[ApiDefinitionService]

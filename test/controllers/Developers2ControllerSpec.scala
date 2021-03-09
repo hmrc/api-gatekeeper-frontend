@@ -26,7 +26,6 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
 
 class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -66,7 +65,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec with WithCSRFAddToken
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        FetchApplications.returnsFor(apiFilter,environmentFilter, apps:_*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter,environmentFilter, apps:_*)
         FetchAllApiDefinitions.inAny.returns()
         DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter,apps:_*)(developers:_*)
         DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
