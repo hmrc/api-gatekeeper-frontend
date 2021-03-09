@@ -21,7 +21,6 @@ import services.ApplicationService
 
 import scala.concurrent.Future.{failed,successful}
 import model._
-import org.mockito.stubbing.ScalaOngoingStubbing
 import scala.concurrent.Future
 
 trait ApplicationServiceMockProvider {
