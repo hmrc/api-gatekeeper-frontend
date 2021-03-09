@@ -275,7 +275,7 @@ class ApplicationControllerSpec
     "manageScopes" should {
       "fetch an app with Privileged access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(privilegedApplication)
+        ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
@@ -285,7 +285,7 @@ class ApplicationControllerSpec
 
       "fetch an app with ROPC access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(ropcApplication)
+        ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
@@ -295,7 +295,7 @@ class ApplicationControllerSpec
 
       "return an error for a Standard app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         intercept[RuntimeException] {
           await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
@@ -305,7 +305,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageScopes(applicationId))(aLoggedInRequest)
 
@@ -511,7 +511,7 @@ class ApplicationControllerSpec
     "manageOverrides" should {
       "fetch an app with Standard access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
 
@@ -521,7 +521,7 @@ class ApplicationControllerSpec
 
       "return an error for a ROPC app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(ropcApplication)
+        ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
@@ -529,7 +529,7 @@ class ApplicationControllerSpec
 
       "return an error for a Privileged app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(privilegedApplication)
+        ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
@@ -537,7 +537,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest)
 
@@ -612,7 +612,7 @@ class ApplicationControllerSpec
     "manageRateLimitTier" should {
       "fetch the app and return the page for an admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest)
 
@@ -624,7 +624,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest)
 
@@ -635,7 +635,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest)
 
@@ -715,7 +715,7 @@ class ApplicationControllerSpec
 
       "change the rate limit for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
@@ -737,7 +737,7 @@ class ApplicationControllerSpec
 
       "not call the application connector for a normal user " in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
@@ -1118,7 +1118,7 @@ class ApplicationControllerSpec
 
       "return the page for block app if admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
@@ -1130,7 +1130,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-admin" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
@@ -1192,7 +1192,7 @@ class ApplicationControllerSpec
 
       "return the page for unblock app if admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
@@ -1204,7 +1204,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-admin" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 

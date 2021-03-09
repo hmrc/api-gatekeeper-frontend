@@ -65,5 +65,5 @@ trait ControllerSetupBase
   val aLoggedOutRequest = FakeRequest().withSession()
   val noDevs = List.empty[Developer]
 
-  def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = givenTheAppWillBeReturned(application)
+  def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = ApplicationServiceMock.FetchApplication.returns(application)
 }

@@ -95,27 +95,23 @@ trait ApplicationServiceMockProvider {
       def verifyParams(applicationId: ApplicationId) =
         verify(mockApplicationService).fetchStateHistory(eqTo(applicationId))(*)
     }
+
+    object AddTeamMember {
+      def succeeds() = when(mockApplicationService.addTeamMember(*, *)(*)).thenReturn(successful(()))
+
+      def failsDueToExistingAlready() = 
+        when(mockApplicationService.addTeamMember(*, *)(*))
+        .thenReturn(failed(new TeamMemberAlreadyExists))
+    }
+
+    object RemoveTeamMember {
+      def succeeds() = 
+        when(mockApplicationService.removeTeamMember(*, *, *)(*))
+      .thenReturn(successful(ApplicationUpdateSuccessResult))
+
+      def failsDueToLastAdmin() =
+        when(mockApplicationService.removeTeamMember(*, *, *)(*))
+        .thenReturn(failed(new TeamMemberLastAdmin))
+    }
   }
-  
-
-  def givenAddTeamMemberSucceeds() = 
-    when(mockApplicationService.addTeamMember(*, *)(*))
-    .thenReturn(successful(()))
-
-  def givenAddTeamMemberFailsDueToExistingAlready() =
-    when(mockApplicationService.addTeamMember(*, *)(*))
-    .thenReturn(failed(new TeamMemberAlreadyExists))
-
-  def givenRemoveTeamMemberSucceeds() =
-    when(mockApplicationService.removeTeamMember(*, *, *)(*))
-    .thenReturn(successful(ApplicationUpdateSuccessResult))
-
-  def givenRemoveTeamMemberFailsDueToBeingLastAdmin() =
-    when(mockApplicationService.removeTeamMember(*, *, *)(*))
-    .thenReturn(failed(new TeamMemberLastAdmin))
-
-  def givenTheAppWillBeReturned(application: ApplicationWithHistory): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = {
-    when(mockApplicationService.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(application))
-  }
-
 }

@@ -83,7 +83,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -97,7 +97,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
@@ -110,7 +110,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -123,7 +123,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
@@ -164,7 +164,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
@@ -176,7 +176,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
@@ -189,7 +189,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
@@ -201,7 +201,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
@@ -249,7 +249,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            givenAddTeamMemberSucceeds()
+            ApplicationServiceMock.AddTeamMember.succeeds()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
@@ -264,7 +264,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
 
-            givenAddTeamMemberSucceeds()
+            ApplicationServiceMock.AddTeamMember.succeeds()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
@@ -278,8 +278,7 @@ class TeamMembersControllerSpec
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsASuperUser()
             givenTheAppWillBeReturned()
-
-            givenAddTeamMemberFailsDueToExistingAlready()
+            ApplicationServiceMock.AddTeamMember.failsDueToExistingAlready()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
@@ -324,7 +323,7 @@ class TeamMembersControllerSpec
           "show 403 Forbidden" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
@@ -340,7 +339,7 @@ class TeamMembersControllerSpec
           "show 403 Forbidden" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
@@ -358,7 +357,7 @@ class TeamMembersControllerSpec
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
 
-            givenAddTeamMemberSucceeds()
+            ApplicationServiceMock.AddTeamMember.succeeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
@@ -408,7 +407,7 @@ class TeamMembersControllerSpec
         "managing a privileged app" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = addToken(underTest.removeTeamMember(applicationId))(request)
@@ -420,7 +419,7 @@ class TeamMembersControllerSpec
         "managing an ROPC app" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(ropcApplication)
+            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
             val result = addToken(underTest.removeTeamMember(applicationId))(request)
@@ -471,8 +470,7 @@ class TeamMembersControllerSpec
             "call the service with the correct params" in new Setup {
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
-
-              givenRemoveTeamMemberSucceeds()
+              ApplicationServiceMock.RemoveTeamMember.succeeds()
               
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -486,8 +484,7 @@ class TeamMembersControllerSpec
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
-
-              givenRemoveTeamMemberFailsDueToBeingLastAdmin()
+              ApplicationServiceMock.RemoveTeamMember.failsDueToLastAdmin()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -498,8 +495,7 @@ class TeamMembersControllerSpec
             "redirect to the manageTeamMembers page when the service call is successful" in new Setup {
               givenTheGKUserIsAuthorisedAndIsASuperUser()
               givenTheAppWillBeReturned()
-
-              givenRemoveTeamMemberSucceeds()
+              ApplicationServiceMock.RemoveTeamMember.succeeds()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -529,7 +525,7 @@ class TeamMembersControllerSpec
         "when managing a privileged app" should {
           "show 403 forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
             val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -541,7 +537,7 @@ class TeamMembersControllerSpec
         "when managing an ROPC app" should {
           "show 403 Forbidden" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
-            givenTheAppWillBeReturned(privilegedApplication)
+            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
             val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -554,7 +550,7 @@ class TeamMembersControllerSpec
           "show 303 OK" in new Setup {
             givenTheGKUserIsAuthorisedAndIsANormalUser()
             givenTheAppWillBeReturned()
-            givenRemoveTeamMemberSucceeds()
+            ApplicationServiceMock.RemoveTeamMember.succeeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
             val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
