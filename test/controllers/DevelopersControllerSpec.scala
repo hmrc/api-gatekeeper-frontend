@@ -28,6 +28,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
+import _root_.mocks.services.DeveloperServiceMockProvider
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -90,25 +91,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(environmentFilter))(*)).thenReturn(successful(apps))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
-        when(mockDeveloperService.filterUsersBy(apiFilter, apps)(developers)).thenReturn(developers)
-        when(mockDeveloperService.filterUsersBy(statusFilter)(developers)).thenReturn(developers)
-        when(mockDeveloperService.getDevelopersWithApps(eqTo(apps), eqTo(users))).thenReturn(developers)
-        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
+        FetchAllApiDefinitions.inAny.returns()
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps:_*)(developers:_*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps:_*)(users:_*)(developers:_*)
+        DeveloperServiceMock.FetchUsers.returns(users:_*)
       }
 
-      def givenFetchDeveloperReturns(developer: Developer) = {
-        when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)))(*)).thenReturn(successful(developer))
-      }
-
-      def givenDeleteDeveloperReturns(developer: Developer, result: DeveloperDeleteResult) = {
-        when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful((result,developer)))
-      }
-
-      def givenRemoveMfaReturns(user: Future[RegisteredUser]) = {
-        when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(user)
-      }
+      DeveloperServiceMock.RemoveMfa.returns(user)
     }
 
     "developersPage" should {
@@ -192,7 +183,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     "removeMfaPage" should {
       "not allow a user with insufficient enrolments to access the page" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenFetchDeveloperReturns(developer)
+        DeveloperServiceMock.FetchDeveloper.handles(developer)
 
         val result = developersController.removeMfaPage(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
@@ -200,7 +191,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a normal user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        when(mockDeveloperService.fetchDeveloper(eqTo(developerId))(*)).thenReturn(successful(developer))
+        DeveloperServiceMock.FetchDeveloper.handles(developer)
 
         val result = addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest)
 
@@ -219,7 +210,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a normal user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenRemoveMfaReturns(successful(user))
+        DeveloperServiceMock.RemoveMfa.returns(user)
 
         val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
 
@@ -230,7 +221,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "return an internal server error when it fails to remove MFA" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenRemoveMfaReturns(failed(new RuntimeException("Failed to remove MFA")))
+        DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
         val result = developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest)
 
@@ -248,7 +239,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a super user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenFetchDeveloperReturns(developer)
+        DeveloperServiceMock.FetchDeveloper.handles(developer)
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(developerId))(*)
@@ -266,7 +257,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "allow a super user to access the page" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenDeleteDeveloperReturns(developer, DeveloperDeleteSuccessResult)
+        DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteSuccessResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo(superUserName))(*)
@@ -275,7 +266,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       "return an internal server error when the delete fails" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenDeleteDeveloperReturns(developer, DeveloperDeleteFailureResult)
+        DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteFailureResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }

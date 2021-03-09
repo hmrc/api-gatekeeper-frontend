@@ -16,10 +16,13 @@
 
 package mocks
 
-import java.util.UUID
+import model.PaginatedApplicationResponse
+import model.ApplicationResponse
 
-object TestRoles {
-  val userRole = s"userRole${UUID.randomUUID}"
-  val adminRole = s"adminRole${UUID.randomUUID}"
-  val superUserRole = s"superUserRole${UUID.randomUUID}"
+object PaginatedApplicationResponseBuilder {
+    def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
+      val page = 1
+      val pageSize = 10
+      PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+    }
 }

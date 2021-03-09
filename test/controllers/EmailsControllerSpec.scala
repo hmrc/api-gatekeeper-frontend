@@ -19,14 +19,11 @@ package controllers
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
-import model.Environment.Environment
-import model.TopicOptionChoice.TopicOptionChoice
 import model._
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.emails._
@@ -34,7 +31,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
+import uk.gov.hmrc.http.NotFoundException
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -96,51 +93,24 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val category2 = APICategoryDetails("VAT", "Vat")
       val category3 = APICategoryDetails("AGENTS", "Agents")
  
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
-      def givenVerifiedDeveloper(): Unit = {
-    
-        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(verified2Users))
-      }
+      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
 
-      def given3VerifiedDevelopers1Unverified(): Unit = {
-        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users3Verified1Unverified))
-      }
+      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
 
-      def given3VerifiedDevelopers1UnverifiedSearchDevelopers(): Unit = {
-        when(mockDeveloperService.searchDevelopers(any[Developers2Filter])(*)).thenReturn(successful(users))
-      }
+      def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      def givenfetchDevelopersByEmailPreferences(users: List[RegisteredUser]) = {
-        when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(successful(users))
-      }
-
-      def givenfetchDevelopersByAPICategoryEmailPreferences(users: List[RegisteredUser]) = {
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(any[TopicOptionChoice], any[APICategory])(*)).thenReturn(successful(users))
-      }
-
-      def givenfetchDevelopersBySpecificAPIEmailPreferences(users: List[RegisteredUser]) = {
-        when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*,*, *)(*)).thenReturn(successful(users))
-      }
-
-      def givenNoVerifiedDevelopers(): Unit = {
-        val users = List(unVerifiedUser1)
-        when(mockDeveloperService.fetchUsers(*)).thenReturn(successful(users))
-      }
-
-        val api1 = ApiDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), List(ApiVersionDefinition(ApiVersion("1"), ApiStatus.BETA)), None, categories = Some(List(category1.toAPICategory)))
-        val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
-        val twoApis = List(api1, api2)
-        def givenApiDefinition2Apis() = {
-          when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(any[Option[Environment]])(*))
-          .thenReturn(successful(twoApis))
-          when(mockApiDefinitionService.fetchAllApiDefinitions(any[Option[Environment]])(*))
-            .thenReturn(successful(twoApis))
+      val api1 = ApiDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), List(ApiVersionDefinition(ApiVersion("1"), ApiStatus.BETA)), None, categories = Some(List(category1.toAPICategory)))
+      val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
+      val twoApis = List(api1, api2)
+      def givenApiDefinition2Apis() = {
+        FetchAllDistinctApisIgnoreVersions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
       }
 
       def givenApiDefinition3Categories() = {
-
-        when(mockApiDefinitionService.apiCategories()(any[HeaderCarrier]))
-          .thenReturn(successful(List(category1, category2, category3)))
+        ApiCategories.returns(category1, category2, category3)
       }
 
       val underTest = new EmailsController(
@@ -374,7 +344,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition2Apis()
-        givenfetchDevelopersBySpecificAPIEmailPreferences(verified2Users)
+        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users:_*)
 
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
 
@@ -405,8 +375,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and no users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns()
 
-        givenfetchDevelopersByEmailPreferences(List.empty)
         val result = underTest.emailPreferencesTopic(Some("TECHNICAL"))(FakeRequest())
         status(result) shouldBe OK
 
@@ -418,8 +388,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
 
-        givenfetchDevelopersByEmailPreferences(users)
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
         val result: Future[Result] = underTest.emailPreferencesTopic(Some("TECHNICAL"))(request)
         status(result) shouldBe OK
@@ -448,7 +418,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
-        givenfetchDevelopersByAPICategoryEmailPreferences(List.empty)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
+
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
         val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
@@ -461,7 +432,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenApiDefinition3Categories()
-        givenfetchDevelopersByAPICategoryEmailPreferences(users)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users:_*)
+
         val request = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
         val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
@@ -469,12 +441,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody = Helpers.contentAsString(result)
 
         verifyUserTable(responseBody, users)
-
-
       }
-
     }
-
   }
 
   def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {

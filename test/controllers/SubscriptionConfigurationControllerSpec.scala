@@ -17,7 +17,7 @@
 package controllers
 
 import builder.SubscriptionsBuilder
-import mocks.service.SubscriptionFieldsServiceMock
+import mocks.services.SubscriptionFieldsServiceMockProvider
 import model.{ApiContext, ApiVersion, FieldName, FieldValue}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -42,7 +42,9 @@ class SubscriptionConfigurationControllerSpec
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]
   private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfigurationView]
 
-  trait Setup extends ControllerSetupBase with SubscriptionsBuilder with SubscriptionFieldsServiceMock {
+  trait Setup extends ControllerSetupBase 
+      with SubscriptionsBuilder 
+      with SubscriptionFieldsServiceMockProvider {
     lazy val controller = new SubscriptionConfigurationController (
       mockApplicationService,
       mockSubscriptionFieldsService,
@@ -91,9 +93,9 @@ class SubscriptionConfigurationControllerSpec
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
       
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
       val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
       status(result) shouldBe OK
@@ -108,18 +110,18 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
       responseBody should include(fields.head._2.value)
 
-      verifyFetchApplicationById(applicationId)
-      verifyAllPossibleSubscriptions(applicationId)
-      verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyFetchApplicationById(applicationId)
+      ApmServiceMock.verifyAllPossibleSubscriptions(applicationId)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
 
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
 
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
       val result = controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest)
       status(result) shouldBe OK
@@ -138,9 +140,9 @@ class SubscriptionConfigurationControllerSpec
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
       val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest)
 
@@ -157,16 +159,16 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
       responseBody should include(fields.head._2.value)
 
-      verifyFetchApplicationById(applicationId)
-      verifyAllPossibleSubscriptions(applicationId)
-      verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyFetchApplicationById(applicationId)
+      ApmServiceMock.verifyAllPossibleSubscriptions(applicationId)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
 
      "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
       val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aSuperUserLoggedInRequest)
 
@@ -187,10 +189,10 @@ class SubscriptionConfigurationControllerSpec
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
-      givenSaveSubscriptionFieldsSuccess
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      SubscriptionFieldsServiceMock.SaveFieldValues.succeeds()
 
       val newValue = FieldValue.random
 
@@ -203,19 +205,19 @@ class SubscriptionConfigurationControllerSpec
     
       val expectedFields = Map(fields.head._1 -> newValue)
 
-      verifySaveSubscriptionFields(applicationWithSubscriptionData.application, apiContext, apiVersion, expectedFields)
+      SubscriptionFieldsServiceMock.SaveFieldValues.verifyParams(applicationWithSubscriptionData.application, apiContext, apiVersion, expectedFields)
     }
 
     "save gives validation errors" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       
       val validationMessage = "My validation error"
       val errors = Map(fields.head._1.value -> validationMessage)
 
-      givenSaveSubscriptionFieldsFailure(errors)
+      SubscriptionFieldsServiceMock.SaveFieldValues.failsWithFieldErrors(errors)
 
       val request = requestWithFormData(fields.head._1 , FieldValue.random)(aLoggedInRequest)
 
@@ -229,12 +231,11 @@ class SubscriptionConfigurationControllerSpec
 
     "When logged in as super saves the data" in new EditSaveFormData {
       givenTheGKUserIsAuthorisedAndIsASuperUser()
-      fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-      getAllFieldDefinitionsReturns(allFieldDefinitions)
-      fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      // givenTheSubscriptionsWillBeReturned(application.application, true, Seq(subscription))
-      givenSaveSubscriptionFieldsSuccess
+      SubscriptionFieldsServiceMock.SaveFieldValues.succeeds()
 
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aSuperUserLoggedInRequest)
 

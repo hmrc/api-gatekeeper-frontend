@@ -16,32 +16,29 @@
 
 package controllers
 
-
-import connectors.{ApplicationConnector, AuthConnector, DeveloperConnector}
-import mocks.service.{ApplicationServiceMock, ApmServiceMock}
-import mocks.TestRoles._
-import model._
 import org.joda.time.DateTime
-import org.mockito.BDDMockito._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
-import services.{ApiDefinitionService, DeploymentApprovalService}
-import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
-import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
-
+import mocks.services._
 import scala.concurrent.Future
-import services.DeveloperService
 import utils.CollaboratorTracker
+import mocks.connectors._
+import org.mockito.stubbing.ScalaOngoingStubbing
+import connectors.DeveloperConnector
+import model._
 
-trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with ApmServiceMock with ArgumentMatchersSugar with CollaboratorTracker {
+trait ControllerSetupBase 
+    extends MockitoSugar 
+    with ArgumentMatchersSugar 
+    with AuthConnectorMock
+    with ApiDefinitionServiceMockProvider
+    with DeveloperServiceMockProvider
+    with ApplicationServiceMockProvider
+    with ApmServiceMockProvider
+    with DeploymentApprovalServiceMockProvider
+    with CollaboratorTracker {
 
-  val mockAuthConnector = mock[AuthConnector]
-  val mockApiDefinitionService = mock[ApiDefinitionService]
-  val mockApplicationConnector = mock[ApplicationConnector]
   val mockDeveloperConnector = mock[DeveloperConnector]
-  val mockDeploymentApprovalService = mock[DeploymentApprovalService]
-
-  val mockDeveloperService = mock[DeveloperService]
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,
@@ -58,9 +55,6 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val application = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId = application.application.id
 
-  val userName = "userName"
-  val superUserName = "superUserName"
-  val adminName = "adminName"
   val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
   val userToken = GatekeeperSessionKeys.LoggedInUser -> userName
   val superUserToken = GatekeeperSessionKeys.LoggedInUser -> superUserName
@@ -71,74 +65,5 @@ trait ControllerSetupBase extends MockitoSugar with ApplicationServiceMock with 
   val aLoggedOutRequest = FakeRequest().withSession()
   val noDevs = List.empty[Developer]
 
-  def aUser(email: String): User = RegisteredUser(email, idOf(email), "first", "last", verified = false)
- 
-  def givenAUnsuccessfulLogin(): Unit = {
-    given(mockAuthConnector.authorise(*, *)(*, *)).willReturn(Future.failed(new InvalidBearerToken))
-  }
-
-  def givenSeekUserFindsRegisteredUser(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
-    given(mockDeveloperService.seekUser(eqTo(email))(*)).willReturn(Future.successful(Some(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled))))
-  }
-
-  def givenSeekUserFindsUnregisteredUser(email: String) = {
-    given(mockDeveloperService.seekUser(eqTo(email))(*)).willReturn(Future.successful(Some(UnregisteredUser(email, idOf(email)))))
-  }
-
-  def givenFetchOrCreateUserReturnsRegisteredUser(email: String, verified: Boolean = true, mfaEnabled: Boolean = true): Unit = {
-    given(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).willReturn(Future.successful(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled)))
-  }
-
-  def givenFetchOrCreateUserReturnsUnregisteredUser(email: String): Unit = {
-    given(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).willReturn(Future.successful(UnregisteredUser(email, idOf(email))))
-  }
-
-  def givenUserExists(email: String): Unit = {
-    given(mockDeveloperService.fetchUser(eqTo(email))(*)).willReturn(Future.successful(aUser(email)))
-  }
-
-  def givenTheGKUserIsAuthorisedAndIsANormalUser(): Unit = {
-    val response = Future.successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
-
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
-      .willReturn(response)
-  }
-
-  def givenTheGKUserHasInsufficientEnrolments(): Unit = {
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
-      .willReturn(Future.failed(new InsufficientEnrolments))
-  }
-
-  def givenTheGKUserIsAuthorisedAndIsASuperUser(): Unit = {
-    val response = Future.successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
-
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
-      .willReturn(response)
-  }
-
-  def givenTheGKUserIsAuthorisedAndIsAnAdmin(): Unit = {
-    val response = Future.successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))
-
-    given(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
-      .willReturn(response)
-  }
-
-  def givenTheAppWillBeReturned(application: ApplicationWithHistory = application) = {
-    given(mockApplicationService.fetchApplication(*[ApplicationId])(*)).willReturn(Future.successful(application))
-  }
-
-  def verifyAuthConnectorCalledForUser = {
-    verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole)), *[Retrieval[Any]])(*, *)
-  }
-
-  def verifyAuthConnectorCalledForSuperUser = {
-    verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), *[Retrieval[Any]])(*, *)
-  }
-
-  def verifyAuthConnectorCalledForAdmin = {
-    verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
-  }
+  def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = ApplicationServiceMock.FetchApplication.returns(application)
 }

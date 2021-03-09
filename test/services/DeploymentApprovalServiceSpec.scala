@@ -21,18 +21,17 @@ import java.util.UUID
 import connectors._
 import model.APIApprovalSummary
 import model.Environment._
-import org.mockito.BDDMockito.given
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import mocks.connectors.ApiPublisherConnectorMockProvider
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
-  trait Setup {
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPublisherConnectorMockProvider {
     val serviceName = "ServiceName" + UUID.randomUUID
-    val mockSandboxApiPublisherConnector = mock[SandboxApiPublisherConnector]
-    val mockProductionApiPublisherConnector = mock[ProductionApiPublisherConnector]
 
     implicit val hc = HeaderCarrier()
 
@@ -42,12 +41,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchUnapprovedServices" should {
     "fetch the unapproved services" in new Setup {
-
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
       val expectedSandboxSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
-
-      given(mockProductionApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedProductionSummaries))
-      given(mockSandboxApiPublisherConnector.fetchUnapproved()(*)).willReturn(Future.successful(expectedSandboxSummaries))
+      ApiPublisherConnectorMock.Prod.FetchUnapproved.returns(expectedProductionSummaries: _*)
+      ApiPublisherConnectorMock.Sandbox.FetchUnapproved.returns(expectedSandboxSummaries: _*)
 
       val result = await(underTest.fetchUnapprovedServices())
 
@@ -59,10 +56,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchApiDefinitionSummary" should {
     "fetch the Api definition summary for sandbox" in new Setup {
-
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX))
-
-      given(mockSandboxApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
+      ApiPublisherConnectorMock.Sandbox.FetchApprovalSummary.returns(expectedSummary)
 
       val result = await(underTest.fetchApprovalSummary(serviceName, SANDBOX))
 
@@ -73,10 +68,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "fetch the Api definition summary for production" in new Setup {
-
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
-
-      given(mockProductionApiPublisherConnector.fetchApprovalSummary(*)(*)).willReturn(Future.successful(expectedSummary))
+      ApiPublisherConnectorMock.Prod.FetchApprovalSummary.returns(expectedSummary)
 
       val result = await(underTest.fetchApprovalSummary(serviceName, PRODUCTION))
 
@@ -90,8 +83,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "approveService" should {
     "approve the service in sandbox" in new Setup {
-
-      given(mockSandboxApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
+      ApiPublisherConnectorMock.Sandbox.ApproveService.succeeds()
 
       await(underTest.approveService(serviceName, SANDBOX))
 
@@ -100,8 +92,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "approve the service in production" in new Setup {
-
-      given(mockProductionApiPublisherConnector.approveService(*)(*)).willReturn(Future.successful(()))
+      ApiPublisherConnectorMock.Prod.ApproveService.succeeds()
 
       await(underTest.approveService(serviceName, PRODUCTION))
 

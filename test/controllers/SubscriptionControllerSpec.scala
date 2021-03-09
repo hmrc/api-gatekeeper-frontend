@@ -24,7 +24,6 @@ import play.filters.csrf.CSRF.TokenProvider
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FakeRequestCSRFSupport._
-import services.SubscriptionFieldsService
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -62,8 +61,6 @@ class SubscriptionControllerSpec
       val ropcApplication = ApplicationWithHistory(
         basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
 
-      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-
       def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
       val page = 1
       val pageSize = 10
@@ -81,9 +78,8 @@ class SubscriptionControllerSpec
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
-        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(applications))
-        when(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).thenReturn(successful(List.empty[ApiDefinition]))
+        ApplicationServiceMock.SearchApplications.returns()
+        FetchAllApiDefinitions.inAny.returns()
       }
     }
 
@@ -95,8 +91,7 @@ class SubscriptionControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        when(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*))
-          .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+        ApplicationServiceMock.SubscribeToApi.succeeds()
 
         val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
@@ -126,8 +121,7 @@ class SubscriptionControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*))
-          .thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+        ApplicationServiceMock.UnsubscribeFromApi.succeeds()
 
         val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
@@ -161,8 +155,8 @@ class SubscriptionControllerSpec
           val apiContextAndApiData = Map(apiContext -> apiData)
 
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
-          fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+          ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+          ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 

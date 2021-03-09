@@ -18,14 +18,12 @@ package controllers
 
 import java.net.URLEncoder
 
-import mocks.TestRoles._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito._
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -39,15 +37,18 @@ import views.html.applications._
 import views.html.approvedApplication.ApprovedView
 import views.html.review.ReviewView
 import views.html.{ErrorTemplate, ForbiddenView}
-
+import mocks.TestRoles._
+  
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 import model.applications.ApplicationWithSubscriptionData
+import mocks.services.ApplicationServiceMockProvider
 import builder.{ApiBuilder, ApplicationBuilder}
 import utils.CollaboratorTracker
 import org.mockito.captor.ArgCaptor
+import mocks.connectors.ApplicationConnectorMockProvider
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 
@@ -84,7 +85,7 @@ class ApplicationControllerSpec
  
   running(app) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider { 
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -138,9 +139,8 @@ class ApplicationControllerSpec
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
-        val applications: PaginatedApplicationResponse = aPaginatedApplicationResponse(List.empty)
-        given(mockApplicationService.searchApplications(*, *)(*)).willReturn(successful(applications))
-        given(mockApiDefinitionService.fetchAllApiDefinitions(*)(*)).willReturn(successful(List.empty[ApiDefinition]))
+        ApplicationServiceMock.SearchApplications.returns()
+        FetchAllApiDefinitions.inAny.returns()
       }
 
     }
@@ -260,7 +260,7 @@ class ApplicationControllerSpec
         // TODO - new mockito flavour
         val appCaptor = ArgCaptor[Application]
         val gatekeeperIdCaptor = ArgCaptor[String]
-        given(mockApplicationService.resendVerification(*,*)(*)).willReturn(successful(ResendVerificationSuccessful))
+        when(mockApplicationService.resendVerification(*,*)(*)).thenReturn(successful(ResendVerificationSuccessful))
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
@@ -275,7 +275,7 @@ class ApplicationControllerSpec
     "manageScopes" should {
       "fetch an app with Privileged access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(privilegedApplication)
+        ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
@@ -285,7 +285,7 @@ class ApplicationControllerSpec
 
       "fetch an app with ROPC access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(ropcApplication)
+        ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
@@ -295,7 +295,7 @@ class ApplicationControllerSpec
 
       "return an error for a Standard app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         intercept[RuntimeException] {
           await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
@@ -305,7 +305,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageScopes(applicationId))(aLoggedInRequest)
 
@@ -318,8 +318,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateScopes(*, *)(*))
-          .willReturn(successful(UpdateScopesSuccessResult))
+        ApplicationServiceMock.UpdateScopes.succeeds()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
         val result = addToken(underTest.updateScopes(applicationId))(request)
@@ -350,8 +349,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateScopes(*, *)(*))
-          .willReturn(successful(UpdateScopesInvalidScopesResult))
+        ApplicationServiceMock.UpdateScopes.failsWithInvalidScopes()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
         val result = addToken(underTest.updateScopes(applicationId))(request)
@@ -423,8 +421,7 @@ class ApplicationControllerSpec
       "manage the IP allowlist using the app service for an admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(successful(UpdateIpAllowlistSuccessResult))
+        ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
@@ -437,8 +434,7 @@ class ApplicationControllerSpec
       "manage the IP allowlist using the app service for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(successful(UpdateIpAllowlistSuccessResult))
+        ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
@@ -451,8 +447,7 @@ class ApplicationControllerSpec
       "clear the IP allowlist when allowlistedIps is empty" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(successful(UpdateIpAllowlistSuccessResult))
+        ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
@@ -465,8 +460,7 @@ class ApplicationControllerSpec
       "fail validation when clearing a required IP allowlist" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
-        given(mockApplicationService.manageIpAllowlist(*, *, *)(*))
-          .willReturn(successful(UpdateIpAllowlistSuccessResult))
+        ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> "true", "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
@@ -517,7 +511,7 @@ class ApplicationControllerSpec
     "manageOverrides" should {
       "fetch an app with Standard access for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
 
@@ -527,7 +521,7 @@ class ApplicationControllerSpec
 
       "return an error for a ROPC app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(ropcApplication)
+        ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
@@ -535,7 +529,7 @@ class ApplicationControllerSpec
 
       "return an error for a Privileged app" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(privilegedApplication)
+        ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
         status(result) shouldBe BAD_REQUEST
@@ -543,7 +537,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest)
 
@@ -556,8 +550,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsASuperUser()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateOverrides(*, *)(*))
-          .willReturn(successful(UpdateOverridesSuccessResult))
+        ApplicationServiceMock.UpdateOverrides.succeeds()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "persistLoginEnabled" -> "true",
@@ -619,7 +612,7 @@ class ApplicationControllerSpec
     "manageRateLimitTier" should {
       "fetch the app and return the page for an admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest)
 
@@ -631,7 +624,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a super user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest)
 
@@ -642,7 +635,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a user" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest)
 
@@ -656,8 +649,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.updateRateLimitTier(*, *)(*))
-          .willReturn(successful(ApplicationUpdateSuccessResult))
+        ApplicationServiceMock.UpdateRateLimitTier.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
 
@@ -708,8 +700,8 @@ class ApplicationControllerSpec
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        given(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
-          .willReturn(successful(ApproveUpliftSuccessful))
+        when(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
+          .thenReturn(successful(ApproveUpliftSuccessful))
         await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
         gatekeeperIdCaptor.getValue shouldBe userName
@@ -723,14 +715,14 @@ class ApplicationControllerSpec
 
       "change the rate limit for a super user" in new Setup {
         givenTheGKUserIsAuthorisedAndIsASuperUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-        given(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
-          .willReturn(successful(ApplicationUpdateSuccessResult))
+        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+          .thenReturn(successful(ApplicationUpdateSuccessResult))
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
@@ -745,7 +737,7 @@ class ApplicationControllerSpec
 
       "not call the application connector for a normal user " in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
@@ -823,9 +815,10 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
+          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -845,12 +838,10 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
-          given(mockApplicationService
-            .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -871,12 +862,10 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
-          given(mockApplicationService
-            .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess)))
+          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -897,12 +886,10 @@ class ApplicationControllerSpec
           val existingApp = ApplicationResponse(
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
 
-          givenSeekUserFindsRegisteredUser(adminEmail)
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
-          given(mockApplicationService.fetchApplications(*)).willReturn(successful(List(existingApp)))
-          given(mockApplicationService
-            .createPrivOrROPCApp(*, *, *, *, *)(*))
-            .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess)))
+          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -919,7 +906,7 @@ class ApplicationControllerSpec
         }
 
         "show the correct error message when app description is left empty" in new Setup {
-          givenSeekUserFindsRegisteredUser("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -936,7 +923,7 @@ class ApplicationControllerSpec
         }
 
         "show the correct error message when admin email is left empty" in new Setup {
-          givenSeekUserFindsRegisteredUser("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
           givenTheGKUserIsAuthorisedAndIsASuperUser()
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -973,7 +960,7 @@ class ApplicationControllerSpec
         "but the user is not a superuser" should {
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
-            givenSeekUserFindsRegisteredUser(email)
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor(email)
             givenTheGKUserHasInsufficientEnrolments()
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -990,12 +977,10 @@ class ApplicationControllerSpec
 
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
-            given(mockApplicationService
-              .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess)))
+            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1020,12 +1005,10 @@ class ApplicationControllerSpec
           }
 
           "show the success page for a priv app in sandbox" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
-            given(mockApplicationService
-              .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess)))
+            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1049,12 +1032,10 @@ class ApplicationControllerSpec
           }
 
           "show the success page for an ROPC app in production" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
-            given(mockApplicationService
-              .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess)))
+            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1076,12 +1057,10 @@ class ApplicationControllerSpec
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
-            givenSeekUserFindsRegisteredUser("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
             givenTheGKUserIsAuthorisedAndIsASuperUser()
-            given(mockApplicationService.fetchApplications(*)).willReturn(successful(List.empty))
-            given(mockApplicationService
-              .createPrivOrROPCApp(*, *, *, *, *)(*))
-              .willReturn(successful(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess)))
+            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1117,13 +1096,13 @@ class ApplicationControllerSpec
         val apiContextAndApiData = Map(apiContext -> apiData)
 
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        fetchApplicationByIdReturns(Some(applicationWithSubscriptionData))
+        ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
 
-        fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
-        fetchStateHistoryReturns(List(buildStateHistory(application2.id, State.PRODUCTION)))
+        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+        ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
 
-        given(mockDeveloperService.fetchDevelopersByEmails(*)(*))
-          .willReturn(successful(developers))
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers:_*)
+
 
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
@@ -1139,7 +1118,7 @@ class ApplicationControllerSpec
 
       "return the page for block app if admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
@@ -1151,7 +1130,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-admin" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
@@ -1166,8 +1145,7 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.blockApplication(*, *)(*))
-          .willReturn(successful(ApplicationBlockSuccessResult))
+        ApplicationServiceMock.BlockApplication.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
@@ -1214,7 +1192,7 @@ class ApplicationControllerSpec
 
       "return the page for unblock app if admin" in new Setup {
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
@@ -1226,7 +1204,7 @@ class ApplicationControllerSpec
 
       "return forbidden for a non-admin" in new Setup {
         givenTheGKUserHasInsufficientEnrolments()
-        givenTheAppWillBeReturned(application)
+        ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
@@ -1241,8 +1219,8 @@ class ApplicationControllerSpec
         givenTheGKUserIsAuthorisedAndIsAnAdmin()
         givenTheAppWillBeReturned()
 
-        given(mockApplicationService.unblockApplication(*, *)(*))
-          .willReturn(successful(ApplicationUnblockSuccessResult))
+        ApplicationServiceMock.UnblockApplication.succeeds()
+
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
@@ -1251,7 +1229,7 @@ class ApplicationControllerSpec
         status(result) shouldBe OK
 
         verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyAuthConnectorCalledForAdmin
       }
 
@@ -1291,12 +1269,6 @@ class ApplicationControllerSpec
 
       body should include(message)
       assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
-    }
-
-    def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-      val page = 1
-      val pageSize = 10
-      PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
     }
   }
 }
