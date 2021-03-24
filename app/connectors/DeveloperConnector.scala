@@ -108,7 +108,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
   def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = {
     for {
-      user            <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"$userId was not found, unexpectedly"))
+      user            <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"${userId.value} was not found, unexpectedly"))
     } yield user
   }
 

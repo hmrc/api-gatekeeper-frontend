@@ -28,7 +28,9 @@ import model.UserId
 import connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
 trait ApprovedBaseSpec extends BaseSpec
-  with SignInSugar with Matchers with CustomMatchers with MockDataSugar with utils.UrlEncoding {
+  with SignInSugar with Matchers with CustomMatchers with utils.UrlEncoding {
+
+  import MockDataSugar._
 
   protected def stubRateLimitTier(applicationId: String, tier: String) = {
     stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))

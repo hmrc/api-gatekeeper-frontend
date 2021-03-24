@@ -2,6 +2,7 @@ package acceptance.testdata
 
 import play.api.libs.json.Json
 import model._
+import acceptance.specs.MockDataSugar
 
 trait CommonTestData {
   val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
@@ -15,16 +16,16 @@ trait CommonTestData {
 
   val administratorEmail = "admin@example.com"
 
-  val userId = UserId.random
+  // val userId = UserId.random
   val developerEmail = "purnima.fakename@example.com"
   val developerFirstName = "Purnima"
   val developerLastName = "Fakename"
 
   val unverifiedUser = RegisteredUser(
-    email = "Dixie.fakename@example.com",
-    userId = UserId.random,
-    firstName = "Dixie",
-    lastName = "Fakename",
+    email = MockDataSugar.developer8,
+    userId = UserId(MockDataSugar.developer8Id),
+    firstName = MockDataSugar.dev8FirstName,
+    lastName = MockDataSugar.dev8LastName,
     verified = false,
     mfaEnabled = true
   )

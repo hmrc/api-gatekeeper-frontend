@@ -62,7 +62,9 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
 case class Developer(user: User, applications: List[Application]) {
   lazy val fullName = user.fullName
   
-  lazy val email: String = user.email
+  lazy val email = user.email
+
+  lazy val userId = user.userId
   
   lazy val firstName: String = user match {
     case UnregisteredUser(_,_) => "n/a"

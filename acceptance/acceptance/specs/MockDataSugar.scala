@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 import model.RegisteredUser
 import model.UserId
 
-trait MockDataSugar {
+object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
   val approvedApp2 = "a4b47c82-5888-41fd-aa83-da2bbd4679d1"
   val approvedApp3 = "9688ad02-230e-42b7-8f9a-be593565bfdc"
@@ -673,5 +673,3 @@ trait MockDataSugar {
        |]
    """.stripMargin
 }
-
-object MockDataSugar extends MockDataSugar

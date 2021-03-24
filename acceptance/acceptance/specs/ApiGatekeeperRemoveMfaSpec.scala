@@ -40,13 +40,15 @@ class ApiGatekeeperRemoveMfaSpec
     with SignInSugar 
     with Matchers 
     with CustomMatchers 
-    with MockDataSugar 
     with GivenWhenThen 
     with Assertions 
     with ApiDefinitionTestData
     with CommonTestData
     with utils.UrlEncoding 
     with WireMockExtensions {
+
+      
+  import MockDataSugar._      
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")
