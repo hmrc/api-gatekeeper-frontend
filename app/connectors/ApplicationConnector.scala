@@ -26,7 +26,7 @@ import model._
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import model.ApiContext
+import model.{ApiContext, UserId}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -88,9 +88,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
   }
 
-  // TODO APIS-4925 - blocked by not all Collaborators having IDs
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/applications", Seq("emailAddress" -> email))
+  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.asText}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }

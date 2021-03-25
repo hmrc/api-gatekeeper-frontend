@@ -18,7 +18,9 @@ package model
 
 import java.util.UUID
 
-case class UserId(value: UUID) extends AnyVal
+case class UserId(value: UUID) extends AnyVal {
+  def asText = value.toString
+}
 
 object UserId {
   import play.api.libs.json.Json

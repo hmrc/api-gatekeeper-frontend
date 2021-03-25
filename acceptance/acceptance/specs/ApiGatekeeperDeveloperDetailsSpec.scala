@@ -24,9 +24,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import play.api.libs.json.Json
-import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
-import acceptance.specs.MockDataSugar
 
 class ApiGatekeeperDeveloperDetailsSpec 
     extends ApiGatekeeperBaseSpec 
@@ -37,8 +34,6 @@ class ApiGatekeeperDeveloperDetailsSpec
     with CommonTestData 
     with ApiDefinitionTestData 
     with utils.UrlEncoding {
-
-  import MockDataSugar._
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
@@ -55,7 +50,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
         .withBody(stubApplicationsList()).withStatus(OK)))
-      stubApplicationForEmail()
+      stubApplicationForDeveloper(unverifiedUser.userId)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
@@ -92,10 +87,9 @@ class ApiGatekeeperDeveloperDetailsSpec
     }
   }
 
-  def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
-
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
+  def stubApplicationForDeveloper(userId: UserId) = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 

@@ -1,7 +1,6 @@
 package support
 
 import akka.stream.Materializer
-import org.scalatestplus.play.PlaySpec
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder

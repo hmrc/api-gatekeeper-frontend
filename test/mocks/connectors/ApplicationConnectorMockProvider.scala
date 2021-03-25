@@ -73,8 +73,8 @@ trait ApplicationConnectorMockProvider {
         when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not Found",NOT_FOUND)))
     }
 
-    object FetchApplicationsByEmail {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsByEmail(*)(*)).thenReturn(successful(apps.toList))
+    object FetchApplicationsByUserId {
+      def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
     object RemoveCollaborator {
