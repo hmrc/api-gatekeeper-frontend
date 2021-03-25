@@ -16,21 +16,18 @@
 
 package acceptance.specs
 
-import acceptance.matchers.CustomMatchers
-import acceptance.testdata.ApiDefinitionTestData
 import acceptance.pages.Developer2Page.APIFilter
 import acceptance.pages.{ApplicationsPage, Developer2Page}
-import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
-import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.collection.immutable.List
 import model._
 
-class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with Assertions with ApiDefinitionTestData {
+class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions {
 
   import MockDataSugar._
 
@@ -62,6 +59,7 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubApplicationsCollaborators(developers)
       stubApiDefinition()
       stubRandomDevelopers(100)
@@ -122,14 +120,6 @@ class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matcher
       .willReturn(aResponse()
       .withBody(applicationResponse)
         .withStatus(OK)))
-  }
-
-  private def stubApiDefinition(): Unit = {
-    stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
   private def stubApplicationSubscription(): Unit = {

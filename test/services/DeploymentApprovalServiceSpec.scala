@@ -18,7 +18,6 @@ package services
 
 import java.util.UUID
 
-import connectors._
 import model.APIApprovalSummary
 import model.Environment._
 import uk.gov.hmrc.http.HeaderCarrier

@@ -16,8 +16,6 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.UserId
@@ -109,11 +107,34 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
+      stubDeveloper()
+      stubApplicationForDeveloper(unverifiedUser.userId)
+
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the developer details page")
       on(DeveloperDetailsPage)
+
+      println("*****************************************")
+      println(DeveloperDetailsPage.bodyText)
     }
+  }
+
+  def stubDeveloper() = {
+    println(s"**** ${unverifiedUser.userId.value}")
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      // .withQueryParam("developerId", matching(".*"))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(unverifiedUserJson)
+      )
+    )
+  }
+
+  def stubApplicationForDeveloper(userId: UserId) = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
+      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 }

@@ -19,8 +19,7 @@ package acceptance
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.selenium.WebBrowser
-import org.scalatest.selenium.WebBrowser.{go => goo}
+import org.scalatestplus.selenium.WebBrowser
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{Assertions, Matchers}
 
@@ -34,16 +33,27 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
   }
 
   def go(page: WebLink)(implicit webDriver: WebDriver) = {
-    goo to page
+    WebBrowser.go.to(page)
   }
 
-  def on(page: WebPage)(implicit webDriver: WebDriver) = {
-    eventually {
+  private def onPage(page: WebPage)(implicit webDriver: WebDriver) = {
+    val element = eventually {
       webDriver.findElement(By.tagName("body"))
     }
     withClue(s"Currently in page: $currentUrl " + find(tagName("h1")).map(_.text).fold(" - ")(h1 => s", with title '$h1' - ")) {
       assert(page.isCurrentPage, s"Page was not loaded: ${page.url}")
     }
+    element
+  }
+
+  def onTechDifficultiesFor(page: WebPage)(implicit webDriver: WebDriver) = {
+    val element = onPage(page)
+    assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
+  }
+
+  def on(page: WebPage)(implicit webDriver: WebDriver) = {
+    val element = onPage(page)
+    assert(!element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded with server error: ${page.url}")
   }
 
   def loadPage()(implicit webDriver: WebDriver) = {

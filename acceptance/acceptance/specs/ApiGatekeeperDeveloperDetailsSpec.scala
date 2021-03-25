@@ -16,8 +16,6 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages._
 import acceptance.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._

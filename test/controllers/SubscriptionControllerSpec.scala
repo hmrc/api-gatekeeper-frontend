@@ -26,8 +26,6 @@ import play.api.test.Helpers._
 import utils.FakeRequestCSRFSupport._
 import views.html.applications.ManageSubscriptionsView
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.Future.successful
 import builder.ApplicationBuilder
 import model.applications.ApplicationWithSubscriptionData
 import builder.ApiBuilder

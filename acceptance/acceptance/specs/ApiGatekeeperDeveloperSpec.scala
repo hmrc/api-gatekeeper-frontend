@@ -16,20 +16,17 @@
 
 package acceptance.specs
 
-import acceptance.matchers.CustomMatchers
-import acceptance.testdata.ApiDefinitionTestData
 import acceptance.pages.DeveloperPage.APIFilter._
 import acceptance.pages.DeveloperPage.StatusFilter._
 import acceptance.pages.{ApplicationsPage, DeveloperPage}
-import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
-import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 
 import scala.collection.immutable.List
 
-class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with Assertions with ApiDefinitionTestData {
+class ApiGatekeeperDeveloperSpec extends ApiGatekeeperBaseSpec with Assertions {
 
   import MockDataSugar._      
 
@@ -44,6 +41,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       Given("I have successfully logged in to the API Gatekeeper")
       stubApplicationList()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubApiDefinition()
       stubRandomDevelopers(100)
 
@@ -65,6 +63,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
@@ -129,6 +128,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubAPISubscription("employers-paye")
@@ -191,6 +191,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubNoAPISubscription()
@@ -248,6 +249,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
@@ -303,6 +305,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
@@ -355,6 +358,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       stubAPISubscription("employers-paye")
@@ -412,6 +416,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationListWithNoDevelopers()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubRandomDevelopers(24)
       signInGatekeeper()
       on(ApplicationsPage)
@@ -431,6 +436,7 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       stubApplicationList()
       stubApiDefinition()
       stubApplicationSubscription()
+      stubPaginatedApplicationList()
       stubFor(get(urlEqualTo("/developers/all"))
         .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
       signInGatekeeper()
@@ -447,9 +453,9 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
   }
 
   def stubApplicationList() = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
+    stubFor(get(urlPathEqualTo("/gatekeeper/applications"))
       .willReturn(aResponse().withBody(approvedApplications).withStatus(OK)))
-
+      
     stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
       .withBody(applicationResponse).withStatus(OK)))
   }
@@ -473,18 +479,9 @@ class ApiGatekeeperDeveloperSpec extends BaseSpec with SignInSugar with Matchers
       .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(OK)))
   }
 
-  def stubApiDefinition() = {
-    stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-  }
-
   def stubApplicationSubscription() = {
     stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
   }
-
 
   def stubRandomDevelopers(randomDevelopers: Int) = {
     val developersList: String = developerListJsonGenerator(randomDevelopers).get

@@ -19,7 +19,7 @@ package acceptance
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest._
-import org.scalatest.selenium.{Page, WebBrowser}
+import org.scalatestplus.selenium.{Page, WebBrowser}
 
 case class Link(href: String, text: String)
 
