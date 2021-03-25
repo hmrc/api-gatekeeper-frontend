@@ -135,16 +135,13 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmail(email)
   }
 
-  @deprecated("Change to userId or DeveloperIdentifier variant")
-  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(EmailIdentifier(email))
-
   def fetchDeveloper(userId: UserId)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId))
 
   def fetchDeveloper(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Developer] =
     for {
       user <- developerConnector.fetchById(developerId)
-      sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByEmail(user.email)
-      productionApplications <- productionApplicationConnector.fetchApplicationsByEmail(user.email)
+      sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
+      productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {

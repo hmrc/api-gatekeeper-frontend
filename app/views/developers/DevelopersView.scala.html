@@ -154,7 +154,7 @@ environment: Option[String])(implicit request: Request[_], loggedInUser: LoggedI
             <tbody>
             @for((developer, index) <- users.zipWithIndex) {
               <tr role="row">
-                  <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(EmailIdentifier(developer.email))}">@developer.email</a></td>
+                  <td id="dev-email-@index" width="45%"><a href="@{routes.DevelopersController.developerPage(UuidIdentifier(developer.userId))}">@developer.email</a></td>
                   <td id="dev-fn-@index">@developer.firstName</td>
                   <td id="dev-sn-@index">@developer.lastName</td>
                   <td class="text--right hard--right" id="dev-status-@index">

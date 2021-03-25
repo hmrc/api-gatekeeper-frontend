@@ -30,7 +30,9 @@ import play.api.libs.json.Json
 import scala.collection.immutable.List
 import model._
 
-class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with MockDataSugar with GivenWhenThen with Assertions with ApiDefinitionTestData {
+class ApiGatekeeperDeveloper2Spec extends BaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with Assertions with ApiDefinitionTestData {
+
+  import MockDataSugar._
 
   info("AS A Product Owner")
   info("I WANT The SDST (Software Developer Support Team) to be able to select developers with an interest in a particular API")

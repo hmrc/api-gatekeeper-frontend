@@ -106,7 +106,7 @@
 }
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
-    v@termsOfUseAgreement.version agreed by <a href="@{routes.DevelopersController.developerPage(EmailIdentifier(termsOfUseAgreement.emailAddress))}">@termsOfUseAgreement.emailAddress</a> on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+    v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
 @renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
@@ -431,7 +431,7 @@
                     case Some(email) =>
                             <td>
                                 <p data-submitted-by-email="">
-                                    <a href={routes.DevelopersController.developerPage(EmailIdentifier(email)).url}>{email}</a>
+                                    {email}
                                 </p>
                             </td>
                     case None => <td class="faded-text">N/A</td>

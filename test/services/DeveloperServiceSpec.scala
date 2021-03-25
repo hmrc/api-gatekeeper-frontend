@@ -84,8 +84,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
 
-      ApplicationConnectorMock.Prod.FetchApplicationsByEmail.returns(productionApps: _*)
-      ApplicationConnectorMock.Sandbox.FetchApplicationsByEmail.returns(sandboxApps: _*)
+      ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
+      ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
@@ -264,10 +264,10 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val apps = List(anApp("application", Set(developer.email.asAdministratorCollaborator)))
       fetchDeveloperWillReturn(developer, apps)
 
-      val result = await(underTest.fetchDeveloper(developer.email))
+      val result = await(underTest.fetchDeveloper(developer.userId))
       result shouldBe Developer(developer, apps)
-      verify(mockDeveloperConnector).fetchById(eqTo(EmailIdentifier(developer.email)))(*)
-      verify(mockProductionApplicationConnector).fetchApplicationsByEmail(eqTo(developer.email))(*)
+      verify(mockDeveloperConnector).fetchById(eqTo(UuidIdentifier(developer.userId)))(*)
+      verify(mockProductionApplicationConnector).fetchApplicationsByUserId(eqTo(developer.userId))(*)
     }
 
     "remove MFA" in new Setup {
@@ -285,12 +285,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   "fetchDeveloper" should {
     val user = aUser("Fred")
-
-    "fetch the developer when requested by email" in new Setup {
-      fetchDeveloperWillReturn(user)
-
-      await(underTest.fetchDeveloper(user.email)) shouldBe Developer(user, List.empty)
-    }
 
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user)

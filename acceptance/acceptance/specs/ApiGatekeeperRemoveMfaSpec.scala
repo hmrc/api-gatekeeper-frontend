@@ -40,13 +40,15 @@ class ApiGatekeeperRemoveMfaSpec
     with SignInSugar 
     with Matchers 
     with CustomMatchers 
-    with MockDataSugar 
     with GivenWhenThen 
     with Assertions 
     with ApiDefinitionTestData
     with CommonTestData
     with utils.UrlEncoding 
     with WireMockExtensions {
+
+      
+  import MockDataSugar._      
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")
@@ -122,7 +124,7 @@ class ApiGatekeeperRemoveMfaSpec
 
   def initStubs(): Unit = {
     stubFetchAllApplicationsList()
-    stubApplicationForEmail()
+    stubApplicationForDeveloper()
     stubApiDefinition()
     stubDevelopers()
     stubDeveloper()
@@ -150,11 +152,15 @@ class ApiGatekeeperRemoveMfaSpec
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
   }
 
-  def stubApplicationForEmail(): Unit = {
-    val encodedEmail = URLEncoder.encode(developer8, "UTF-8")
-
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
-      .willReturn(aResponse().withBody(applicationResponseForEmail).withStatus(OK)))
+  def stubApplicationForDeveloper(): Unit = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
+      .willReturn(
+        aResponse()
+        .withBody(applicationResponseForEmail)
+        .withStatus(OK)
+      )
+    )
   }
 
   def stubApiDefinition(): Unit = {

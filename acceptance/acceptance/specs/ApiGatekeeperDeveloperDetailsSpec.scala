@@ -24,8 +24,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import play.api.libs.json.Json
-import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 
 class ApiGatekeeperDeveloperDetailsSpec 
     extends ApiGatekeeperBaseSpec 
@@ -35,7 +33,6 @@ class ApiGatekeeperDeveloperDetailsSpec
     with Assertions 
     with CommonTestData 
     with ApiDefinitionTestData 
-    with MockDataSugar 
     with utils.UrlEncoding {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
@@ -53,11 +50,11 @@ class ApiGatekeeperDeveloperDetailsSpec
       
       stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
         .withBody(stubApplicationsList()).withStatus(OK)))
-      stubApplicationForEmail()
+      stubApplicationForDeveloper(unverifiedUser.userId)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
-      stubDeveloper()
+      stubDeveloper(unverifiedUser)
       stubApplicationSubscription()
 
       signInGatekeeper()
@@ -90,45 +87,35 @@ class ApiGatekeeperDeveloperDetailsSpec
     }
   }
 
-  def stubApplicationForEmail() = {
-    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
-
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("emailAddress", equalTo(encodedEmail))
+  def stubApplicationForDeveloper(userId: UserId) = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 
   def stubAPISubscription(apiContext: String) = {
     stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
+      .willReturn(aResponse().withBody(MockDataSugar.applicationResponse).withStatus(OK)))
   }
 
   def stubNoAPISubscription() = {
     stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(applicationResponsewithNoSubscription).withStatus(OK)))
+      .willReturn(aResponse().withBody(MockDataSugar.applicationResponsewithNoSubscription).withStatus(OK)))
   }
 
   def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
+    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(MockDataSugar.applicationSubscription).withStatus(OK)))
   }
 
   def stubDevelopers() = {
     stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
+      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
   }
 
-  def stubDeveloper() = {
-
-    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(unverifiedUser.email)))
-    implicit val format = Json.writes[FindUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
-    
-    stubFor(post(urlEqualTo("/developers/find-user-id"))
-      .withRequestBody(equalToJson(requestJson))
-      .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
-
+  def stubDeveloper(user: RegisteredUser) = {
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+      .withQueryParam("developerId", equalTo(user.userId.value.toString))
       .willReturn(
         aResponse().withStatus(OK).withBody(unverifiedUserJson)
       )
