@@ -16,7 +16,6 @@ trait CommonTestData {
 
   val administratorEmail = "admin@example.com"
 
-  // val userId = UserId.random
   val developerEmail = "purnima.fakename@example.com"
   val developerFirstName = "Purnima"
   val developerLastName = "Fakename"
