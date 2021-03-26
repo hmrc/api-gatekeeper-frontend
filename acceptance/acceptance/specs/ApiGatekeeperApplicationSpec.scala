@@ -16,8 +16,6 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
 import acceptance.pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.UserId
@@ -81,7 +79,6 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-collaborator-role", "Developer", 2)
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")
-      webDriver.findElement(By.cssSelector("p[data-submitted-by-email=''] > a")).getAttribute("href") should endWith("/developer?developerId=admin%40example.com")
       verifyText("data-submission-contact-name", "Holly Golightly")
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
@@ -111,7 +108,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       on(ApplicationPage)
 
       stubDeveloper()
-      stubApplicationForDeveloperEmail()
+      stubApplicationForDeveloper(unverifiedUser.userId)
 
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
@@ -122,16 +119,17 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   }
 
   def stubDeveloper() = {
-    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
-
-    stubFor(get(urlEqualTo(s"""/developer?email=$encodedEmail"""))
-      .willReturn(aResponse().withStatus(OK).withBody(unverifiedUserJson)))
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+      .willReturn(
+        aResponse().withStatus(OK).withBody(unverifiedUserJson)
+      )
+    )
   }
 
-  def stubApplicationForDeveloperEmail() = {
-    val encodedEmail = URLEncoder.encode(unverifiedUser.email, "UTF-8")
-
-    stubFor(get(urlPathEqualTo("/developer/applications")).withQueryParam("developerId", equalTo(encodedEmail))
+  def stubApplicationForDeveloper(userId: UserId) = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 }

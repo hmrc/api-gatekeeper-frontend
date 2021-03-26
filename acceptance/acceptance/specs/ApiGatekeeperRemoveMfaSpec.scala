@@ -16,15 +16,10 @@
 
 package acceptance.specs
 
-import java.net.URLEncoder
-
-import acceptance.matchers.CustomMatchers
-import acceptance.testdata.ApiDefinitionTestData
 import acceptance.pages._
-import acceptance.{BaseSpec, SignInSugar}
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{Assertions, GivenWhenThen, Matchers, Tag}
+import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 
 import scala.io.Source
@@ -36,17 +31,10 @@ import model.UserId
 import utils.WireMockExtensions
 
 class ApiGatekeeperRemoveMfaSpec 
-    extends BaseSpec 
-    with SignInSugar 
-    with Matchers 
-    with CustomMatchers 
-    with GivenWhenThen 
+    extends ApiGatekeeperBaseSpec 
     with Assertions 
-    with ApiDefinitionTestData
     with CommonTestData
-    with utils.UrlEncoding 
     with WireMockExtensions {
-
       
   import MockDataSugar._      
 
@@ -124,6 +112,7 @@ class ApiGatekeeperRemoveMfaSpec
 
   def initStubs(): Unit = {
     stubFetchAllApplicationsList()
+    stubPaginatedApplicationList()
     stubApplicationForDeveloper()
     stubApiDefinition()
     stubDevelopers()
@@ -161,14 +150,6 @@ class ApiGatekeeperRemoveMfaSpec
         .withStatus(OK)
       )
     )
-  }
-
-  def stubApiDefinition(): Unit = {
-    stubFor(get(urlEqualTo("/api-definition"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-
-    stubFor(get(urlEqualTo("/api-definition?type=private"))
-      .willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
   def stubApplicationSubscription(): Unit = {

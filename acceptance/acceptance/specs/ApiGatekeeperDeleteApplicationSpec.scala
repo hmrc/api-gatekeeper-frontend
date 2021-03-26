@@ -47,7 +47,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
       navigateThroughDeleteApplication()
 
       Then("I am successfully navigated to the Delete Application technical difficulties page")
-      on(DeleteApplicationSuccessPage)
+      onTechDifficultiesFor(DeleteApplicationSuccessPage)
       assert(DeleteApplicationSuccessPage.bodyText.contains("Technical difficulties"))
     }
   }

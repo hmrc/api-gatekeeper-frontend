@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.{successful, failed}
+import scala.concurrent.Future.successful
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import model.applications.NewApplication
 import uk.gov.hmrc.http.UpstreamErrorResponse

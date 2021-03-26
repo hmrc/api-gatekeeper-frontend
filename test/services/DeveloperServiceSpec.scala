@@ -17,7 +17,6 @@
 package services
 
 import config.AppConfig
-import connectors._
 import model._
 import org.joda.time.DateTime
 import org.mockito.invocation.InvocationOnMock

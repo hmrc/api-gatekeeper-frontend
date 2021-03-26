@@ -26,9 +26,6 @@ import views.html.developers._
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
-import _root_.mocks.services.DeveloperServiceMockProvider
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
