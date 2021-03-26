@@ -115,17 +115,12 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
 
       Then("I am successfully navigated to the developer details page")
       on(DeveloperDetailsPage)
-
-      println("*****************************************")
-      println(DeveloperDetailsPage.bodyText)
     }
   }
 
   def stubDeveloper() = {
-    println(s"**** ${unverifiedUser.userId.value}")
     stubFor(
       get(urlPathEqualTo("/developer"))
-      // .withQueryParam("developerId", matching(".*"))
       .willReturn(
         aResponse().withStatus(OK).withBody(unverifiedUserJson)
       )

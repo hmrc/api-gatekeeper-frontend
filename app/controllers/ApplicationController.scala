@@ -89,10 +89,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
         val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
-        Logger.warn("POMEGRANATE - before")
         for {
           par <- applicationService.searchApplications(env, params)
-          _ = Logger.warn("POMEGRANATE - here")
           apis <- apiDefinitionService.fetchAllApiDefinitions(env)
         } yield Ok(applicationsView(par, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
