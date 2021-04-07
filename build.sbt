@@ -61,27 +61,24 @@ lazy val microservice =  (project in file("."))
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"  
   )
   .configs(AcceptanceTest)
-  .settings(
-    inConfig(AcceptanceTest)(Defaults.testSettings): _*
-  )
+  .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
   .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
   .settings(
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
-    AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
+    AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("common.AfterHook").newInstance),
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
   )
   .configs(SandboxTest)
-  .settings(
-    inConfig(SandboxTest)(Defaults.testSettings): _*
-  )
+  .settings(inConfig(SandboxTest)(Defaults.testSettings): _*)
+  .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
   .settings(
     SandboxTest / Keys.fork := false,
     SandboxTest / parallelExecution := false,
     SandboxTest / testOptions := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT")),
-    SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("acceptance.AfterHook").newInstance),
+    SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("common.AfterHook").newInstance),
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(
