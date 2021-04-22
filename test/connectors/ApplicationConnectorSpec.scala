@@ -267,11 +267,12 @@ class ApplicationConnectorSpec
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
       )
-    val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
+    val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
+    val applicationState = ApplicationState(State.TESTING, None, None, DateTime.now)
     val application = ApplicationResponse(
-      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()
-      )
-    val appWithHistory = ApplicationWithHistory(application, List(applicationState))
+      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), applicationState
+    )
+    val appWithHistory = ApplicationWithHistory(application, List(stateHistory))
     val response = Json.toJson(appWithHistory).toString
 
     "retrieve an application" in new Setup {
@@ -307,8 +308,8 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url = s"/gatekeeper/application/${applicationId.value}/stateHistory"
-      val applicationState = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString))
-      val response = Json.toJson(List(applicationState)).toString
+      val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
+      val response = Json.toJson(List(stateHistory)).toString
 
       stubFor(
         get(urlEqualTo(url))
@@ -318,7 +319,7 @@ class ApplicationConnectorSpec
           .withBody(response)
         )
       )
-      compareByString(await(connector.fetchStateHistory(applicationId)), List(applicationState))
+      compareByString(await(connector.fetchStateHistory(applicationId)), List(stateHistory))
     }
   }
 
