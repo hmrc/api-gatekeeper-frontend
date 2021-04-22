@@ -82,10 +82,8 @@ lazy val microservice =  (project in file("."))
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
+    resolvers ++= Seq(
+      Resolver.typesafeRepo("releases")
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
