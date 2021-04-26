@@ -38,7 +38,22 @@ trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEac
 
   override def newAppForTest(testData: TestData): Application = {
     GuiceApplicationBuilder()
-      .configure("run.mode" -> "Stub")
+      .configure(
+        "microservice.services.auth.host" -> stubHost,
+        "microservice.services.auth.port" -> stubPort,
+        "microservice.services.third-party-application-sandbox.host" -> stubHost,
+        "microservice.services.third-party-application-sandbox.port" -> stubPort,
+        "microservice.services.third-party-application-production.host" -> stubHost,
+        "microservice.services.third-party-application-production.port" -> stubPort,
+        "microservice.services.api-definition-sandbox.host" -> stubHost,
+        "microservice.services.api-definition-sandbox.port" -> stubPort,
+        "microservice.services.api-definition-production.host" -> stubHost,
+        "microservice.services.api-definition-production.port" -> stubPort,
+        "microservice.services.api-platform-microservice.host" -> stubHost,
+        "microservice.services.api-platform-microservice.port" -> stubPort,
+        "microservice.services.third-party-developer.host" -> stubHost,
+        "microservice.services.third-party-developer.port" -> stubPort,
+      )
       .in(Mode.Prod)
       .build()
   }
