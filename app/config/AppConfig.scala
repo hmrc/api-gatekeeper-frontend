@@ -79,14 +79,11 @@ class AppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
 
   def title = "HMRC API Gatekeeper"
 
-  val env = runMode.env
-
   def getConfigDefaulted[A](key: String, default: A)(implicit loader: ConfigLoader[A]) = config.getOptional[A](key)(loader).getOrElse(default)
 
   def superUsers: Seq[String] = {
     config
-      .getOptional[Seq[String]](s"$env.superUsers")
-      .orElse(config.getOptional[Seq[String]]("superUsers"))
+      .getOptional[Seq[String]]("superUsers")
       .getOrElse(Seq.empty)
   }
 
