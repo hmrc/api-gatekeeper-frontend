@@ -20,7 +20,6 @@ import scala.util.matching.Regex
 import java.util.UUID
 import scala.util.Try
 import play.api.libs.json.Json
-import play.api.Logger
 
 trait DeveloperIdentifier {
   def asText: String = DeveloperIdentifier.asText(this)
