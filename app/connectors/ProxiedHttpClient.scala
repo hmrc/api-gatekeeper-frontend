@@ -39,7 +39,6 @@ class ProxiedHttpClient @Inject()(config: Configuration,
 
   val authorization: Option[Authorization] = None
   val apiKeyHeader: Option[(String, String)] = None
-  private val env = runMode.env
 
   def withHeaders(bearerToken: String, apiKey: String = ""): ProxiedHttpClient = {
     new ProxiedHttpClient(config, httpAuditing, wsClient, environment, actorSystem, runMode) {
@@ -48,7 +47,7 @@ class ProxiedHttpClient @Inject()(config: Configuration,
     }
   }
 
-  override def wsProxyServer: Option[WSProxyServer] = WSProxyConfiguration(s"$env.proxy", config)
+  override def wsProxyServer: Option[WSProxyServer] = WSProxyConfiguration("proxy", config)
 
   override def buildRequest[A](url: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): WSRequest = {
     val extraHeaders = hc.extraHeaders :+ (ACCEPT -> "application/hmrc.vnd.1.0+json")
