@@ -17,7 +17,6 @@
 package views.applications
 
 import model.{LoggedInUser, _}
-import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.test.FakeRequest
@@ -25,6 +24,7 @@ import play.twirl.api.HtmlFormat.Appendable
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.IpAllowlistView
+import org.joda.time.DateTime
 
 class IpAllowlistViewSpec extends CommonViewSpec {
 

@@ -18,7 +18,6 @@ package views.applications
 
 import model.{LoggedInUser, _}
 import model.Forms._
-import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
@@ -26,6 +25,7 @@ import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.html.applications.DeleteApplicationView
 import views.CommonViewSpec
+import org.joda.time.DateTime
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 

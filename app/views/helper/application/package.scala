@@ -22,7 +22,6 @@ import org.joda.time.Days.daysBetween
 import org.joda.time.Months.monthsBetween
 import org.joda.time.Seconds.secondsBetween
 import org.joda.time.format.DateTimeFormat
-import uk.gov.hmrc.time.DateTimeUtils.now
 import model.applications.NewApplication
 
 object ApplicationPublicDescription {
@@ -48,7 +47,7 @@ object ApplicationFormatter {
     } else if (daysBetween(initialLastAccessDate.toLocalDate, app.lastAccess.toLocalDate).getDays > 0) {
       dateFormatter.print(app.lastAccess)
     } else {
-      s"More than ${monthsBetween(app.lastAccess, now).getMonths} months ago"
+      s"More than ${monthsBetween(app.lastAccess, DateTime.now()).getMonths} months ago"
     }
   }
 }

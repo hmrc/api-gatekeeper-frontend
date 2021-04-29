@@ -21,7 +21,7 @@ import mocks.config.AppConfigMock
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
-import uk.gov.hmrc.time.DateTimeUtils
+import org.joda.time.DateTime
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
@@ -40,7 +40,7 @@ class ReviewViewSpec extends CommonViewSpec {
         "Test Application",
         "Test Application",
         None,
-        SubmissionDetails("Test Name", "test@example.com", DateTimeUtils.now),
+        SubmissionDetails("Test Name", "test@example.com", DateTime.now()),
         None,
         None,
         None,

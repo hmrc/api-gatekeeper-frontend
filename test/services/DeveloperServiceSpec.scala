@@ -18,7 +18,6 @@ package services
 
 import config.AppConfig
 import model._
-import org.joda.time.DateTime
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
@@ -29,6 +28,7 @@ import utils.CollaboratorTracker
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors._
+import org.joda.time.DateTime
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 

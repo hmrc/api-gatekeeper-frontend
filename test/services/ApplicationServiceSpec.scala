@@ -20,7 +20,6 @@ import connectors._
 import model.Environment._
 import model.SubscriptionFields._
 import model._
-import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,6 +34,7 @@ import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.connectors.ApmConnectorMockProvider
 import mocks.services.ApiScopeConnectorMockProvider
+import org.joda.time.DateTime
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 

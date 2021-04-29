@@ -18,7 +18,6 @@ package views.applications
 
 import builder.SubscriptionsBuilder
 import model.{LoggedInUser, _}
-import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
@@ -31,6 +30,7 @@ import model.applications.NewApplication
 import builder.ApplicationBuilder
 import builder.ApiBuilder
 import model.ApiStatus._
+import org.joda.time.DateTime
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {
