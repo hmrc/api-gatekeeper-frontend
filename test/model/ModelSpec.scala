@@ -17,9 +17,9 @@
 package model
 
 import model.AccessType._
-import org.joda.time.DateTime
 import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
+import org.joda.time.DateTime
 
 class ModelSpec  extends AsyncHmrcSpec with Matchers {
 

@@ -30,7 +30,19 @@ import model.{ApiContext, UserId}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+
+object ApplicationConnector {
+  import play.api.libs.json.Json
+  import model.APIDefinitionFormatters._
+
+  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
+
+  implicit val writes = Json.writes[SearchCollaboratorsRequest]
+}
+
 abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
+  import ApplicationConnector._
+
   protected val httpClient: HttpClient
   val environment: Environment
   val serviceBaseUrl: String
@@ -201,18 +213,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[String]] = {
-    val queryParameters = List(
-      "context" -> apiContext.value,
-      "version" -> apiVersion.value
-    )
+    val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
-    val withOptionalQueryParameters = partialEmailMatch match {
-      // TODO: APIS4925 - encrypt param
-      case Some(email) => queryParameters ++ List(("partialEmailMatch", email))
-      case None => queryParameters
-    }
-
-    http.GET[List[String]](s"$serviceBaseUrl/collaborators", withOptionalQueryParameters)
+    http.POST[SearchCollaboratorsRequest,List[String]](s"$serviceBaseUrl/collaborators", request)
   }
 }
 

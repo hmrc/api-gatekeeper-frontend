@@ -22,10 +22,10 @@ import model.State._
 import model._
 import model.RateLimitTier.RateLimitTier
 import org.joda.time.DateTime
-import uk.gov.hmrc.time.DateTimeUtils
+import org.joda.time.DateTime
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
-    def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
+    def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
 
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
@@ -61,7 +61,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
-  def anApplicationResponse(createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now): ApplicationResponse = {
+  def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
     ApplicationResponse(ApplicationId(randomUUID().toString), ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
       lastAccess, Privileged(), ApplicationState(), RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
@@ -76,7 +76,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       applicationDetails = Some("application details"))
   }
 
-  def aStateHistory(state: State, changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+  def aStateHistory(state: State, changedAt: DateTime = DateTime.now()): StateHistory = {
     StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
   }
 

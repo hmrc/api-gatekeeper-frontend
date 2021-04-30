@@ -25,13 +25,14 @@ import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.Json
-import org.joda.time.DateTime
+
 import java.util.UUID
 import utils.UrlEncoding
 import utils.WireMockSugar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.joda.time.DateTime
 
 class ApplicationConnectorSpec 
     extends AsyncHmrcSpec 
@@ -579,11 +580,11 @@ class ApplicationConnectorSpec
     "return emails" in new Setup {
       val email = "user@example.com"
       val response = Json.toJson(List(email)).toString
-      
+      val request = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, None)
+
       stubFor(
-        get(urlPathEqualTo(url))
-        .withQueryParam("context", equalTo(encode(apiContext.value)))
-        .withQueryParam("version", equalTo(encode(apiVersion1.value)))
+        post(urlPathEqualTo(url))
+        .withJsonRequestBody(request)
         .willReturn(
           aResponse()
           .withStatus(OK)
@@ -596,12 +597,11 @@ class ApplicationConnectorSpec
     "return emails with emailFilter" in new Setup {
       val email = "user@example.com"
       val response = Json.toJson(List(email)).toString
+      val request = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(email))
 
       stubFor(
-        get(urlPathEqualTo(url))
-        .withQueryParam("context", equalTo(encode(apiContext.value)))
-        .withQueryParam("version", equalTo(encode(apiVersion1.value)))
-        .withQueryParam("partialEmailMatch", equalTo(encode(email)))
+        post(urlPathEqualTo(url))
+        .withJsonRequestBody(request)
         .willReturn(
           aResponse()
           .withStatus(OK)

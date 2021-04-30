@@ -20,13 +20,13 @@ package views.helper.application
 import model.State._
 import org.joda.time.format.DateTimeFormat
 import utils.AsyncHmrcSpec
-import uk.gov.hmrc.time.DateTimeUtils
+import org.joda.time.DateTime
 import builder.ApplicationResponseBuilder
 
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
-      val now = DateTimeUtils.now
+      val now = DateTime.now()
       val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
       val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
       val appResponse = anApplicationResponseWith(aCheckInformation())

@@ -49,6 +49,7 @@ lazy val microservice =  (project in file("."))
     shellPrompt := (_ => "> "),
     majorVersion := 0,
     routesImport += "controllers.binders._",
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
@@ -57,6 +58,7 @@ lazy val microservice =  (project in file("."))
     Defaults.itSettings,
     IntegrationTest / Keys.fork := false,
     IntegrationTest / parallelExecution := false,
+    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"  
   )

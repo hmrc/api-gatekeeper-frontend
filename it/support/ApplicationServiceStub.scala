@@ -2,19 +2,24 @@ package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
-import play.api.libs.json.Json
 import model.RegisteredUser
+import connectors.ApplicationConnector
+import model.ApiContext
+import model.ApiVersion
+import utils.WireMockExtensions
 
-trait ApplicationServiceStub {
-  val collaboratorsUrl = "/collaborators?context=api1&version=1"
-
+trait ApplicationServiceStub extends WireMockExtensions {
   def primeApplicationServiceSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {
-
-    stubFor(get(urlEqualTo(collaboratorsUrl))
+    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("api1"), ApiVersion("1"), None)
+   
+    stubFor(post(urlEqualTo("/collaborators"))
+      .withJsonRequestBody(request)
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
-          .withBody(Json.toJson(users.map(_.email)).toString())))
+          .withJsonBody(users.map(_.email))
+      )
+    )
   }
 
  

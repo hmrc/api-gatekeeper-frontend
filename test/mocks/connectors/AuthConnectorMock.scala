@@ -22,7 +22,6 @@ import scala.concurrent.Future.{failed, successful}
 import connectors.AuthConnector
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
-import mocks.TestRoles
 
 trait AuthConnectorMock {
   self: MockitoSugar with ArgumentMatchersSugar =>

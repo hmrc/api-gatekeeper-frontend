@@ -16,7 +16,6 @@
 
 package controllers
 
-import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
 import mocks.services._
@@ -26,6 +25,7 @@ import mocks.connectors._
 import org.mockito.stubbing.ScalaOngoingStubbing
 import connectors.DeveloperConnector
 import model._
+import org.joda.time.DateTime
 
 trait ControllerSetupBase 
     extends MockitoSugar 

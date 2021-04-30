@@ -2,7 +2,7 @@ package testdata
 
 import model.ApplicationState
 import model.State
-import org.joda.time.DateTime
+import org.joda.time._
 
 trait ApplicationStateTestData extends CommonTestData {
   val productionState: ApplicationState = ApplicationState(

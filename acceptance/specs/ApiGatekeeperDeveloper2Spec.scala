@@ -26,8 +26,10 @@ import play.api.libs.json.Json
 
 import scala.collection.immutable.List
 import model._
+import connectors.ApplicationConnector
+import utils.WireMockExtensions
 
-class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions {
+class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 
   import MockDataSugar._
 
@@ -130,14 +132,13 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
   }
 
   private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
-    val developersJson = Json.toJson(developers.map(u => u.email)).toString
-
-    stubFor(get(urlPathEqualTo("/collaborators"))
-      .withQueryParam("context", equalTo("employers-paye"))
-      .withQueryParam("version", equalTo("1.0"))
-      .withQueryParam("partialEmailMatch", equalTo("partialEmail"))
+    val developersJson = developers.map(u => u.email)
+    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersion("1.0"), Some("partialEmail"))
+    
+    stubFor(post(urlEqualTo("/collaborators"))
+      .withJsonRequestBody(request)
       .willReturn(aResponse()
-        .withBody(developersJson)
+        .withJsonBody(developersJson)
         .withStatus(OK)))
   }
 

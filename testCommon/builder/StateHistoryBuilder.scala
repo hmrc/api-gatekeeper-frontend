@@ -20,11 +20,10 @@ import model.ApplicationId
 import model.State.State
 import model.Actor
 import org.joda.time.DateTime
-import uk.gov.hmrc.time.DateTimeUtils
 import model.StateHistory
 
 trait StateHistoryBuilder {
-  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTimeUtils.now): StateHistory = {
+  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTime.now()): StateHistory = {
     StateHistory(applicationId, state, actor, None, changedAt)
   }
 }

@@ -26,7 +26,6 @@ import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
-import uk.gov.hmrc.time.DateTimeUtils
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
@@ -332,7 +331,7 @@ object CollaboratorRole extends Enumeration {
 case class Collaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
-                            verificationCode: Option[String] = None, updatedOn: DateTime = DateTimeUtils.now)
+                            verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now())
 
 object RateLimitTier extends Enumeration {
   type RateLimitTier = Value
