@@ -73,7 +73,7 @@ class ApiGatekeeperRemoveMfaSpec
       RemoveMfaSuccessPage.finish()
       
       Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      on(Developer2Page)
     }
 
     scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
@@ -106,7 +106,7 @@ class ApiGatekeeperRemoveMfaSpec
       RemoveMfaSuccessPage.finish()
 
       Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      on(Developer2Page)
     }
   }
 
