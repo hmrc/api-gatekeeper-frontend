@@ -100,6 +100,6 @@ trait DeveloperServiceMockProvider {
     }
   }
   
-  def aUser(email: String): User = RegisteredUser(email, idOf(email), "first", "last", verified = false)
+  def aUser(email: String, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
 
 }

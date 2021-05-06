@@ -12,7 +12,8 @@ POST        /developer/delete                                                 co
 GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(developerIdentifier: model.DeveloperIdentifier)
 
-GET         /developers2                                                      controllers.Developers2Controller.developersPage(emailFilter: Option[String], apiVersionFilter: Option[String], environmentFilter: Option[String], developerStatusFilter: Option[String])
+GET         /developers2                                                      controllers.Developers2Controller.blankDevelopersPage
+POST        /developers2                                                      controllers.Developers2Controller.developersPage
 
 GET         /applications                                                     controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 
