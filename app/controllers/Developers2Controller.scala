@@ -29,6 +29,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc._
+import play.api.Logger
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
@@ -39,30 +40,33 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developersView: Developers2View,
                                       override val errorTemplate: ErrorTemplate
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with UserFunctionsWrapper with I18nSupport {
+    extends FrontendController(mcc) 
+    with ErrorHelper 
+    with GatekeeperAuthWrapper 
+    with UserFunctionsWrapper 
+    with I18nSupport {
 
   def blankDevelopersPage() = requiresAtLeast(GatekeeperRole.USER) { 
     implicit request =>
       combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-  def pomegranate(msg: String) = println("POMEGRANATE "+msg)
-
   def developersPage() = requiresAtLeast(GatekeeperRole.USER) { 
       implicit request =>
+      println("POME "+request.body)
       DevelopersSearchForm.form.bindFromRequest.fold(
         formWithErrors => {
-              pomegranate("Errors")
+            Logger.warn("Errors found trying to bind request for developers search")
             // binding failure, you retrieve the form containing errors:
             Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
         },
         searchParams => {
-          val registeredUsers = searchParams match {
+          val allFoundUsers = searchParams match {
             case DevelopersSearchForm(None, None, None, None) => 
-              pomegranate("Blank")
+              Logger.info("Not performing a query for empty parameters")
               Future.successful(List.empty)
             case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
-              pomegranate("Searching "+searchParams)
+              Logger.info("Searching developers")
               val filters = 
               Developers2Filter(
                 mapEmptyStringToNone(maybeEmailFilter),
@@ -70,30 +74,22 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                     ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
                     DeveloperStatusFilter(maybeDeveloperStatusFilter)
                   )
-                applyFiltersToUsers(filters)
+                  developerService.searchDevelopers(filters)
           }
-          combineUsersIntoPage(registeredUsers, searchParams)
+          combineUsersIntoPage(allFoundUsers, searchParams)
         }
       )
     }
 
-  def applyFiltersToUsers(filters: Developers2Filter)(implicit request: LoggedInRequest[_]): Future[List[RegisteredUser]] = {
+  def combineUsersIntoPage(allFoundUsers: Future[List[User]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
     for {
-      users <- developerService.searchDevelopers(filters)
+      users <- allFoundUsers
       registeredUsers = users.collect {
                           case r : RegisteredUser => r
                         }
       verifiedUsers = registeredUsers.filter(_.verified)
-    } yield verifiedUsers
-  }
-
-  def combineUsersIntoPage(registeredUsers: Future[List[RegisteredUser]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
-    for {
-      users <- registeredUsers
-      _ = pomegranate("QryXXXX "+searchParams)
       apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
       form = DevelopersSearchForm.form.fill(searchParams)
-      _ = pomegranate(form.toString())
-    } yield Ok(developersView(users, usersToEmailCopyText(users), getApiVersionsDropDownValues(apiVersions), form))
+    } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
   }
 }

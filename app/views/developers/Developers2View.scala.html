@@ -39,7 +39,6 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
 
     @helper.form(action = controllers.routes.Developers2Controller.developersPage) {
       @helper.CSRF.formField
-
       <input type="hidden" name="page" value="1"/>
       <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
 
