@@ -39,9 +39,9 @@ trait AuthConnectorMock {
   }
 
   def givenTheGKUserIsAuthorisedAndIsANormalUser(): Unit = {
-    val response = successful(new ~(Name(Some(userName), None), Enrolments(Set(Enrolment(userRole)))))
+    val response = successful(new ~(Some(Name(Some(userName), None)), Enrolments(Set(Enrolment(userRole)))))
 
-    when(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
+    when(mockAuthConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
       .thenReturn(response)
   }
 
@@ -51,31 +51,31 @@ trait AuthConnectorMock {
   }
 
   def givenTheGKUserIsAuthorisedAndIsASuperUser(): Unit = {
-    val response = successful(new ~(Name(Some(superUserName), None), Enrolments(Set(Enrolment(superUserRole)))))
+    val response = successful(new ~(Some(Name(Some(superUserName), None)), Enrolments(Set(Enrolment(superUserRole)))))
 
-    when(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
+    when(mockAuthConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
       .thenReturn(response)
   }
 
   def givenTheGKUserIsAuthorisedAndIsAnAdmin(): Unit = {
-    val response = successful(new ~(Name(Some(adminName), None), Enrolments(Set(Enrolment(adminRole)))))
+    val response = successful(new ~(Some(Name(Some(adminName), None)), Enrolments(Set(Enrolment(adminRole)))))
 
-    when(mockAuthConnector.authorise(*, *[Retrieval[Any]])(*, *))
+    when(mockAuthConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
       .thenReturn(response)
   }
 
   def verifyAuthConnectorCalledForUser = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole)), *[Retrieval[Any]])(*, *)
+      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole)), any[Retrieval[~[Option[Name], Enrolments]]])(*, *)
   }
 
   def verifyAuthConnectorCalledForSuperUser = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), *[Retrieval[Any]])(*, *)
+      .authorise(eqTo(Enrolment(adminRole) or Enrolment(superUserRole)), any[Retrieval[~[Option[Name], Enrolments]]])(*, *)
   }
 
   def verifyAuthConnectorCalledForAdmin = {
     verify(mockAuthConnector)
-      .authorise(eqTo(Enrolment(adminRole)), *[Retrieval[Any]])(*, *)
+      .authorise(eqTo(Enrolment(adminRole)), any[Retrieval[~[Option[Name], Enrolments]]])(*, *)
   }
 }

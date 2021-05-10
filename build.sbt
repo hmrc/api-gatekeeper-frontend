@@ -107,3 +107,4 @@ coverageExcludedPackages := Seq(
   "app",
   "uk.gov.hmrc.BuildInfo"
 ).mkString(";")
+  
