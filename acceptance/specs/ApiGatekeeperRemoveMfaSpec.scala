@@ -116,6 +116,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubApplicationForDeveloper()
     stubApiDefinition()
     stubDevelopers()
+    stubDevelopersSearch()
     stubDeveloper()
     stubApplicationSubscription()
     stubRemoveMfa()
@@ -124,13 +125,13 @@ class ApiGatekeeperRemoveMfaSpec
   def navigateToDeveloperDetails(): Unit ={
     When("I select to navigate to the Developers page")
     ApplicationsPage.selectDevelopers()
-    DeveloperPage.selectOldDevelopersPage()
 
     Then("I am successfully navigated to the Developers page")
-    on(DeveloperPage)
+    on(Developer2Page)
 
     When("I select a developer email")
-    DeveloperPage.selectByDeveloperEmail(developer8)
+    Developer2Page.searchByPartialEmail(developer8)
+    Developer2Page.selectByDeveloperEmail(developer8)
 
     Then("I am successfully navigated to the Developer Details page")
     on(DeveloperDetailsPage)
@@ -158,6 +159,11 @@ class ApiGatekeeperRemoveMfaSpec
 
   def stubDevelopers(): Unit = {
     stubFor(get(urlEqualTo("/developers/all"))
+      .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
+  }
+
+  def stubDevelopersSearch(): Unit = {
+    stubFor(post(urlEqualTo("/developers/search"))
       .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
   }
 

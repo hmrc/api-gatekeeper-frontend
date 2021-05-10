@@ -33,10 +33,6 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
         <h1>Developers</h1>
     </header>
 
-    <p>
-        <a href="@{routes.DevelopersController.developersPage(None, None, None)}">Old developer search</a>
-    </p>
-
     @helper.form(action = controllers.routes.Developers2Controller.developersPage) {
       @helper.CSRF.formField
       <input type="hidden" name="page" value="1"/>

@@ -16,11 +16,11 @@
 
 package pages
 
-import common.WebPage
+import common.{NavigationSugar, WebPage}
 import pages.ApplicationsPage.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
 
-object ApplicationsPage extends WebPage {
+object ApplicationsPage extends WebPage with NavigationSugar {
 
   override val url: String = s"http://localhost:$port/api-gatekeeper/applications"
 
@@ -74,6 +74,7 @@ object ApplicationsPage extends WebPage {
 
   def selectDevelopers() = {
     click on developersNavLink
+    on(Developer2Page)
   }
 
 

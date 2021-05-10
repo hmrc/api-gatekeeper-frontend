@@ -4,8 +4,6 @@ GET         /review                                                           co
 
 POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: model.ApplicationId)
 
-GET         /developers                                                       controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
-
 GET         /developer                                                        controllers.DevelopersController.developerPage(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(developerIdentifier: model.DeveloperIdentifier)

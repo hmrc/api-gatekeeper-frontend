@@ -153,7 +153,7 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
     val body = java.net.URLEncoder.encode("emailFilter="+emailFilter, "UTF-8")
     stubFor(
       get(urlPathEqualTo("/developers"))
-        // .withRequestBody(equalTo(body))
+        .withRequestBody(equalTo(body))
         .willReturn(aResponse()
           .withBody(developersListJson)
           .withStatus(OK))

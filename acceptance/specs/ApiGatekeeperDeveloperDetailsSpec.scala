@@ -52,6 +52,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
+      stubDevelopersSearch()
       stubDeveloper(unverifiedUser)
       stubApplicationSubscription()
 
@@ -60,13 +61,13 @@ class ApiGatekeeperDeveloperDetailsSpec
 
       When("I select to navigate to the Developers page")
       ApplicationsPage.selectDevelopers()
-      DeveloperPage.selectOldDevelopersPage()
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
-      on(DeveloperPage)
+      on(Developer2Page)
 
       When("I select a developer email")
-      DeveloperPage.selectByDeveloperEmail(unverifiedUser.email)
+      Developer2Page.searchByPartialEmail(unverifiedUser.email)
+      Developer2Page.selectByDeveloperEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)
@@ -107,6 +108,11 @@ class ApiGatekeeperDeveloperDetailsSpec
 
   def stubDevelopers() = {
     stubFor(get(urlEqualTo("/developers/all"))
+      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
+  }
+
+  def stubDevelopersSearch(): Unit = {
+    stubFor(post(urlEqualTo("/developers/search"))
       .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
   }
 

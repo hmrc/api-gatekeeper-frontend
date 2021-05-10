@@ -32,7 +32,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   implicit val materializer = app.materializer
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
-  private lazy val developersView = app.injector.instanceOf[DevelopersView]
   private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetailsView]
   private lazy val removeMfaView = app.injector.instanceOf[RemoveMfaView]
   private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccessView]
@@ -69,7 +68,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         mockApiDefinitionService,
         mockAuthConnector,
         mcc,
-        developersView,
         developerDetailsView,
         removeMfaView,
         removeMfaSuccessView,
@@ -97,84 +95,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       }
 
       DeveloperServiceMock.RemoveMfa.returns(user)
-    }
-
-    "developersPage" should {
-
-      "default to page 1 with 100 items in table" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenNoDataSuppliedDelegateServices()
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        contentAsString(result) should include("data-page-length=\"100\"")
-        verifyAuthConnectorCalledForUser
-      }
-
-      "do something else if user is not authenticated" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
-        val result = developersController.developersPage(None, None, None)(aLoggedOutRequest)
-        status(result) shouldBe FORBIDDEN
-      }
-
-      "load successfully if user is authenticated and authorised" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenNoDataSuppliedDelegateServices()
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        status(result) shouldBe OK
-        contentAsString(result) should include("<h1>Developers Old</h1>")
-        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
-        verifyAuthConnectorCalledForUser
-      }
-
-
-      "load successfully if user is authenticated and authorised, but not show dashboard tab if external test" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenNoDataSuppliedDelegateServices()
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        status(result) shouldBe OK
-        contentAsString(result) should include("<h1>Developers Old</h1>")
-        contentAsString(result) shouldNot include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/dashboard\">Dashboard</a>")
-        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        contentAsString(result) should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
-        verifyAuthConnectorCalledForUser
-      }
-
-      "go to unauthorised page if user is not authorised" in new Setup {
-        givenAUnsuccessfulLogin()
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        status(result) shouldBe SEE_OTHER
-      }
-
-      "list all developers when filtering off" in new Setup {
-        val users = List(
-          RegisteredUser("sample@example.com", UserId.random, "Sample", "Email", false),
-          RegisteredUser("another@example.com", UserId.random, "Sample2", "Email", true),
-          RegisteredUser("someone@example.com", UserId.random, "Sample3", "Email", true)
-        )
-        val collaborators = Set(
-          Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
-        val applications = List(ApplicationResponse(
-          ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
-        val devs = users.map(Developer(_, applications))
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenDelegateServicesSupply(applications, devs)
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        status(result) shouldBe OK
-        collaborators.foreach(c => contentAsString(result) should include(c.emailAddress))
-        verifyAuthConnectorCalledForUser
-      }
-
-      "display message if no developers found by filter" in new Setup {
-        val collaborators = Set[Collaborator]()
-        val applications = List(ApplicationResponse(
-          ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()))
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenDelegateServicesSupply(applications, noDevs)
-        val result = developersController.developersPage(None, None, None)(aLoggedInRequest)
-        status(result) shouldBe OK
-        contentAsString(result) should include("No developers for your selected filter")
-        verifyAuthConnectorCalledForUser
-      }
     }
 
     "removeMfaPage" should {
