@@ -30,7 +30,7 @@ object Developer2Page extends WebPage {
 
   private def searchBox = textField("emailFilter")
 
-  private def submitButton = singleSel(id("submit"))
+  private def submitButton = find(id("submit")).get
 
   private def filterBySubscription = singleSel(id("apiVersionFilter"))
 

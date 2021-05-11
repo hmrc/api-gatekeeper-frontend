@@ -27,8 +27,9 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
-
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc._
+import play.api.Logger
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,
@@ -39,43 +40,56 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
                                       developersView: Developers2View,
                                       override val errorTemplate: ErrorTemplate
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with UserFunctionsWrapper with I18nSupport {
+    extends FrontendController(mcc) 
+    with ErrorHelper 
+    with GatekeeperAuthWrapper 
+    with UserFunctionsWrapper 
+    with I18nSupport {
 
-  def developersPage(maybeEmailFilter: Option[String] = None,
-                     maybeApiVersionFilter: Option[String] = None,
-                     maybeEnvironmentFilter: Option[String] = None,
-                     maybeDeveloperStatusFilter: Option[String] = None) = {
-
-    requiresAtLeast(GatekeeperRole.USER) {
-
-      implicit request => {
-
-          val queryParameters = getQueryParametersAsKeyValues(request)
-
-          val filteredUsers = (maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) match {
-            case (None, None, None, None) => Future.successful(List.empty)
-            case _ => {
-              val filter = Developers2Filter(
-                mapEmptyStringToNone(maybeEmailFilter),
-                ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
-                ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
-                DeveloperStatusFilter(maybeDeveloperStatusFilter))
-
-              developerService.searchDevelopers(filter)
-            }
-          }
-
-          for {
-            users <- filteredUsers
-            registeredUsers = users.collect {
-                                case r : RegisteredUser => r
-                              }
-        verifiedUsers = registeredUsers.filter(_.verified)
-            apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
-          } yield Ok(developersView(users, usersToEmailCopyText(registeredUsers), getApiVersionsDropDownValues(apiVersions), queryParameters))
-        }
-    }
+  def blankDevelopersPage() = requiresAtLeast(GatekeeperRole.USER) { 
+    implicit request =>
+      combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-}
+  def developersPage() = requiresAtLeast(GatekeeperRole.USER) { 
+      implicit request =>
+      println("POME "+request.body)
+      DevelopersSearchForm.form.bindFromRequest.fold(
+        formWithErrors => {
+            Logger.warn("Errors found trying to bind request for developers search")
+            // binding failure, you retrieve the form containing errors:
+            Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
+        },
+        searchParams => {
+          val allFoundUsers = searchParams match {
+            case DevelopersSearchForm(None, None, None, None) => 
+              Logger.info("Not performing a query for empty parameters")
+              Future.successful(List.empty)
+            case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
+              Logger.info("Searching developers")
+              val filters = 
+              Developers2Filter(
+                mapEmptyStringToNone(maybeEmailFilter),
+                    ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                    ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
+                    DeveloperStatusFilter(maybeDeveloperStatusFilter)
+                  )
+                  developerService.searchDevelopers(filters)
+          }
+          combineUsersIntoPage(allFoundUsers, searchParams)
+        }
+      )
+    }
 
+  def combineUsersIntoPage(allFoundUsers: Future[List[User]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
+    for {
+      users <- allFoundUsers
+      registeredUsers = users.collect {
+                          case r : RegisteredUser => r
+                        }
+      verifiedUsers = registeredUsers.filter(_.verified)
+      apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
+      form = DevelopersSearchForm.form.fill(searchParams)
+    } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
+  }
+}

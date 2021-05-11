@@ -4,15 +4,14 @@ GET         /review                                                           co
 
 POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: model.ApplicationId)
 
-GET         /developers                                                       controllers.DevelopersController.developersPage(filter: Option[String], status: Option[String], environment: Option[String])
-
 GET         /developer                                                        controllers.DevelopersController.developerPage(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/delete                                                 controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/delete                                                 controllers.DevelopersController.deleteDeveloperAction(developerIdentifier: model.DeveloperIdentifier)
 GET         /developer/mfa/remove                                             controllers.DevelopersController.removeMfaPage(developerIdentifier: model.DeveloperIdentifier)
 POST        /developer/mfa/remove                                             controllers.DevelopersController.removeMfaAction(developerIdentifier: model.DeveloperIdentifier)
 
-GET         /developers2                                                      controllers.Developers2Controller.developersPage(emailFilter: Option[String], apiVersionFilter: Option[String], environmentFilter: Option[String], developerStatusFilter: Option[String])
+GET         /developers2                                                      controllers.Developers2Controller.blankDevelopersPage
+POST        /developers2                                                      controllers.Developers2Controller.developersPage
 
 GET         /applications                                                     controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 

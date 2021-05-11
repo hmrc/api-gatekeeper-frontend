@@ -39,6 +39,28 @@ object HandleUpliftForm {
   )
 }
 
+case class DevelopersSearchForm(
+  maybeEmailFilter: Option[String] = None,
+  maybeApiVersionFilter: Option[String] = None,
+  maybeEnvironmentFilter: Option[String] = None,
+  maybeDeveloperStatusFilter: Option[String] = None
+)
+
+object DevelopersSearchForm {
+  // def apply(e: Option[String], a: Option[String], env: Option[String], d: Option[String]): DevelopersSearchForm = new DevelopersSearchForm(e,a,env,d)
+
+  // def unapply(form: DevelopersSearchForm): Option[(Option[String], Option[String], Option[String], Option[String])] = Some((form.maybeEmailFilter, form.maybeApiVersionFilter, form.maybeEnvironmentFilter, form.maybeDeveloperStatusFilter))
+  
+  lazy val form = Form(
+    mapping(
+      "emailFilter" -> optional(nonEmptyText),
+      "apiVersionFilter" -> optional(nonEmptyText),
+      "environmentFilter" -> optional(nonEmptyText),
+      "developerStatusFilter" -> optional(nonEmptyText)
+    )(DevelopersSearchForm.apply)(DevelopersSearchForm.unapply)
+  )
+}
+
 case class UpdateRateLimitForm(tier: String)
 
 object UpdateRateLimitForm {

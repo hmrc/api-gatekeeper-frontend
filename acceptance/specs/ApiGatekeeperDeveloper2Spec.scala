@@ -96,20 +96,17 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
       Then("I see a list of filtered developers")
 
-      val expectedDeveloper: Seq[(String, String, String, String)] = List(
+      val expectedDeveloper2: Seq[(String, String, String, String)] = List(
         (dev4FirstName, dev4LastName, developer4, statusVerified))
 
-      val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper.zipWithIndex
+      val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper2.zipWithIndex
+
+      println(webDriver.getPageSource())
 
       assertDevelopersList(allDevs)
 
-      assertDeveloperAtRowDoesNotExist(1)
+      assertThereAreNoMoreThanNDevelopers(1)
     }
-  }
-
-  private def assertDeveloperAtRowDoesNotExist(rowIndex: Int) = {
-    val elements = webDriver.findElements(By.id(s"dev-fn-$rowIndex"))
-    elements.size() shouldBe 0
   }
 
   private def stubApplicationList(): Unit = {
@@ -153,9 +150,10 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
   private def stubDevelopersSearch(emailFilter: String, developers: Seq[RegisteredUser]): Unit = {
     val developersListJson: String = Json.toJson(developers).toString
 
+    val body = java.net.URLEncoder.encode("emailFilter="+emailFilter, "UTF-8")
     stubFor(
       get(urlPathEqualTo("/developers"))
-        .withQueryParam("emailFilter", equalTo(emailFilter))
+        .withRequestBody(equalTo(body))
         .willReturn(aResponse()
           .withBody(developersListJson)
           .withStatus(OK))
@@ -175,10 +173,18 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
   private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
     for ((dev, index) <- devList) {
-      val fn = webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
-      val sn = webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
-      val em = webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
-      val st = webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
+      webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
+      webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
+      webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
+      webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
     }
   }
+
+  private def assertThereAreNoMoreThanNDevelopers(count: Int) = assertDeveloperAtRowDoesNotExist(count)
+  
+  private def assertDeveloperAtRowDoesNotExist(rowIndex: Int) = {
+    val elements = webDriver.findElements(By.id(s"dev-fn-$rowIndex"))
+    elements.size() shouldBe 0
+  }
+
 }

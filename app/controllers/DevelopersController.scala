@@ -38,7 +38,6 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      apiDefinitionService: ApiDefinitionService,
                                      override val authConnector: AuthConnector,
                                      mcc: MessagesControllerComponents,
-                                     developersView: DevelopersView,
                                      developerDetailsView: DeveloperDetailsView,
                                      removeMfaView: RemoveMfaView,
                                      removeMfaSuccessView: RemoveMfaSuccessView,
@@ -49,29 +48,29 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
-  def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
+  // def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
+  //   implicit request =>
 
-      val apiFilter = ApiFilter(filter)
-      val statusFilter = StatusFilter(status)
-      val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
+  //     val apiFilter = ApiFilter(filter)
+  //     val statusFilter = StatusFilter(status)
+  //     val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
 
-      val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
-      val apisF = apiDefinitionService.fetchAllApiDefinitions()
-      val usersF = developerService.fetchUsers
+  //     val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
+  //     val apisF = apiDefinitionService.fetchAllApiDefinitions()
+  //     val usersF = developerService.fetchUsers
 
-      for {
-        apps <- appsF
-        apis <- apisF
-        users <- usersF
-        filterOps = (developerService.filterUsersBy(apiFilter, apps) _
-          andThen developerService.filterUsersBy(statusFilter))
-        devs = developerService.getDevelopersWithApps(apps, users)
-        filteredUsers = filterOps(devs)
-        sortedDevelopers = filteredUsers.sortBy(_.user.email.toLowerCase)
-        emails = sortedDevelopers.map(_.user.email).mkString("; ")
-      } yield Ok(developersView(sortedDevelopers, emails, groupApisByStatus(apis), filter, status, environment))
-  }
+  //     for {
+  //       apps <- appsF
+  //       apis <- apisF
+  //       users <- usersF
+  //       filterOps = (developerService.filterUsersBy(apiFilter, apps) _
+  //         andThen developerService.filterUsersBy(statusFilter))
+  //       devs = developerService.getDevelopersWithApps(apps, users)
+  //       filteredUsers = filterOps(devs)
+  //       sortedDevelopers = filteredUsers.sortBy(_.user.email.toLowerCase)
+  //       emails = sortedDevelopers.map(_.user.email).mkString("; ")
+  //     } yield Ok(developersView(sortedDevelopers, emails, groupApisByStatus(apis), filter, status, environment))
+  // }
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
