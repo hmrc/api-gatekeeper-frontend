@@ -46,17 +46,11 @@ trait GatekeeperAuthWrapper extends I18nSupport{
       val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
       authConnector.authorise(predicate, retrieval) flatMap {
-        case Some(name) ~ authorisedEnrolments =>
-          body(LoggedInRequest(name.name, authorisedEnrolments, request))
-        case None ~ authorisedEnrolments =>
-          println("POMEGRANATE")
-          Future.successful(Forbidden(forbiddenView()))   // ??? TODO
+        case Some(name) ~ authorisedEnrolments => body(LoggedInRequest(name.name, authorisedEnrolments, request))
+        case None ~ authorisedEnrolments       => Future.successful(Forbidden(forbiddenView()))
       } recoverWith {
-        case _: NoActiveSession =>
-          request.secure
-          Future.successful(toStrideLogin)
-        case _: InsufficientEnrolments =>
-          Future.successful(Forbidden(forbiddenView()))
+        case _: NoActiveSession                => Future.successful(toStrideLogin)
+        case _: InsufficientEnrolments         => Future.successful(Forbidden(forbiddenView()))
       }
   }
 
