@@ -101,8 +101,6 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
       val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper2.zipWithIndex
 
-      println(webDriver.getPageSource())
-
       assertDevelopersList(allDevs)
 
       assertThereAreNoMoreThanNDevelopers(1)
