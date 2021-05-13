@@ -19,42 +19,39 @@ package connectors
 import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.http.HeaderNames.ACCEPT
 import play.api.libs.ws.{WSClient, WSProxyServer, WSRequest => PlayWSRequest}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.http.ws.{WSProxy, WSProxyConfiguration}
+import play.api.http.HeaderNames
 
 @Singleton
 class ProxiedHttpClient @Inject()(config: Configuration,
                                   httpAuditing: HttpAuditing,
                                   wsClient: WSClient,
                                   environment: play.api.Environment,
-                                  actorSystem: ActorSystem,
-                                  runMode: RunMode)
+                                  actorSystem: ActorSystem)
   extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem) with WSProxy {
 
   val authorization: Option[Authorization] = None
-  val apiKeyHeader: Option[(String, String)] = None
+  val apiKeyHeader: Option[String] = None
 
   def withHeaders(bearerToken: String, apiKey: String = ""): ProxiedHttpClient = {
-    new ProxiedHttpClient(config, httpAuditing, wsClient, environment, actorSystem, runMode) {
+    new ProxiedHttpClient(config, httpAuditing, wsClient, environment, actorSystem) {
       override val authorization = Some(Authorization(s"Bearer $bearerToken"))
-      override val apiKeyHeader: Option[(String, String)] = if ("" == apiKey) None else Some("x-api-key" -> apiKey)
+      override val apiKeyHeader = if (apiKey.isEmpty) None else Some(apiKey)
     }
   }
 
   override def wsProxyServer: Option[WSProxyServer] = WSProxyConfiguration("proxy", config)
 
   override def buildRequest[A](url: String, headers: Seq[(String, String)]): PlayWSRequest = {
-    val extraHeaders = Seq((ACCEPT -> "application/hmrc.vnd.1.0+json"))
-    val extraHeadersWithMaybeApiKeyHeader =
-      if (apiKeyHeader.isDefined) extraHeaders :+ apiKeyHeader.get
-      else extraHeaders
+    val extraHeaders: Seq[(String,String)] = headers ++ 
+      authorization.map(v => (HeaderNames.AUTHORIZATION -> v.value)).toSeq ++
+      apiKeyHeader.map(v => "x-api-key" -> v).toSeq ++
+      Seq(HeaderNames.ACCEPT -> "application/hmrc.vnd.1.0+json")
 
-    super.buildRequest(url, headers ++ extraHeadersWithMaybeApiKeyHeader)
+    super.buildRequest(url, extraHeaders)
   }
 }

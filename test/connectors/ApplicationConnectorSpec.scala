@@ -46,7 +46,7 @@ class ApplicationConnectorSpec
     val authToken = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient = fakeApplication.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
 
