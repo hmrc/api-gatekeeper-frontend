@@ -61,10 +61,9 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
                   id="developerStatusFilter"
                   name="developerStatusFilter"
                   style="margin-top: 5px">
-                      <option value="" @if(developerStatusFilterValue==None) {selected}></option>
-                      <option value="ALL" @if(developerStatusFilterValue==Some("ALL")) {selected}>All</option>
-                      <option value="VERIFIED" @if(developerStatusFilterValue==Some("VERIFIED")) {selected}>Verified</option>
-                      <option value="UNVERIFIED" @if(developerStatusFilterValue==Some("UNVERIFIED")) {selected}>Not
+                      <option value="ALL" @if(developerStatusFilterValue.getOrElse("ALL") == Some("ALL")) {selected}>All</option>
+                      <option value="VERIFIED" @if(developerStatusFilterValue == Some("VERIFIED")) {selected}>Verified</option>
+                      <option value="UNVERIFIED" @if(developerStatusFilterValue == Some("UNVERIFIED")) {selected}>Not
                       verified
                       </option>
                   </select>
@@ -80,7 +79,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
               <select class="environment-filter-disable form-control input-select input-select--large"
                       id="apiVersionFilter"
                       name="apiVersionFilter">
-                  <option value="" @if(apiVersionFilterValue == None) {selected}></option>
+                  <option value=""></option>
                   @for(apiVersion <- apiVersions){
                     <option @if(apiVersionFilterValue == Some(apiVersion.value)) {selected} value="@apiVersion.value">
                         @apiVersion.description
@@ -101,7 +100,6 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
               id="environmentFilter"
               name="environmentFilter"
               disabled>
-                  <option value="" @if(environmentFilterValue==None) {selected}></option>
                   <option value="ALL" @if(environmentFilterValue==Some("ALL")) {selected}>All</option>
                   <option value="SANDBOX" @if(environmentFilterValue==Some("SANDBOX")) {selected}>Sandbox</option>
                   <option value="PRODUCTION" @if(environmentFilterValue==Some("PRODUCTION")) {selected}>Production</option>
