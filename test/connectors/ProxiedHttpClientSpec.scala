@@ -44,7 +44,7 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
     when(mockEnvironment.mode).thenReturn(Mode.Test)
     when(mockWsClient.url(url)).thenReturn(mock[WSRequest])
 
-    val underTest = new ProxiedHttpClient(mockConfig, mockHttpAuditing, mockWsClient, mockEnvironment, actorSystem, mockRunMode)
+    val underTest = new ProxiedHttpClient(mockConfig, mockHttpAuditing, mockWsClient, mockEnvironment, actorSystem)
   }
 
   "withHeaders" should {
@@ -54,7 +54,7 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
       private val result = underTest.withHeaders(bearerToken, apiKey)
 
       result.authorization shouldBe Some(Authorization(s"Bearer $bearerToken"))
-      result.apiKeyHeader shouldBe Some("x-api-key" -> apiKey)
+      result.apiKeyHeader shouldBe Some(apiKey)
     }
 
     "when apiKey is empty String, apiKey header is None" in new Setup {
