@@ -53,7 +53,6 @@ class Developers2Controller @Inject()(val authConnector: AuthConnector,
 
   def developersPage() = requiresAtLeast(GatekeeperRole.USER) { 
       implicit request =>
-      println("POME "+request.body)
       DevelopersSearchForm.form.bindFromRequest.fold(
         formWithErrors => {
             Logger.warn("Errors found trying to bind request for developers search")
