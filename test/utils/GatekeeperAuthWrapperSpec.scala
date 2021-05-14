@@ -24,13 +24,14 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.{ Name, ~ }
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import views.html.{ErrorTemplate, ForbiddenView}
 import mocks.TestRoles._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
 
 class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   trait Setup extends AppConfigMock {
@@ -66,9 +67,9 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   "requiresRole" should {
     "execute body if user is logged in" in new Setup {
-      val response = Future.successful(new ~(Name(Some("Full Name"), None), Enrolments(Set(Enrolment(userRole)))))
+      val response = Future.successful(new ~(Some(Name(Some("Full Name"), None)), Enrolments(Set(Enrolment(userRole)))))
 
-      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
         .thenReturn(response)
 
       val result = underTest.requiresAtLeast(GatekeeperRole.USER)(actionReturns200Body).apply(aUserLoggedInRequest)
@@ -77,7 +78,7 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     }
 
     "redirect to login page if user is not logged in" in new Setup {
-      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
         .thenReturn(Future.failed(new SessionRecordNotFound))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)
@@ -86,7 +87,7 @@ class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
     }
 
     "return 401 FORBIDDEN if user is logged in and has insufficient enrolments" in new Setup {
-      when(underTest.authConnector.authorise(*, any[Retrieval[~[Name, Enrolments]]])(*, *))
+      when(underTest.authConnector.authorise(*, any[Retrieval[~[Option[Name], Enrolments]]])(*, *))
         .thenReturn(Future.failed(new InsufficientEnrolments))
 
       val result = underTest.requiresAtLeast(GatekeeperRole.SUPERUSER)(actionReturns200Body).apply(aUserLoggedInRequest)

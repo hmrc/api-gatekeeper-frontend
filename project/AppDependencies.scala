@@ -11,7 +11,7 @@ object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
-    "uk.gov.hmrc"       %%  "bootstrap-play-26"             % "1.16.0",
+    "uk.gov.hmrc"       %%  "bootstrap-play-26"             % "4.0.0",
     "uk.gov.hmrc"       %%  "time"                          % "3.11.0",
     "uk.gov.hmrc"       %%  "govuk-template"                % "5.55.0-play-26",
     "uk.gov.hmrc"       %%  "play-ui"                       % "8.21.0-play-26",

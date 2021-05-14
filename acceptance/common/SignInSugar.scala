@@ -51,7 +51,7 @@ trait SignInSugar extends NavigationSugar {
       |    }
       |  ],
       |  "retrieve": [
-      |    "name",
+      |    "optionalName",
       |    "authorisedEnrolments"
       |  ]
       |}
@@ -77,7 +77,7 @@ trait SignInSugar extends NavigationSugar {
       |    }
       |  ],
       |  "retrieve": [
-      |    "name",
+      |    "optionalName",
       |    "authorisedEnrolments"
       |  ]
       |}
@@ -94,7 +94,7 @@ trait SignInSugar extends NavigationSugar {
       |     }
       |  ],
       |  "retrieve": [
-      |    "name",
+      |    "optionalName",
       |    "authorisedEnrolments"
       |  ]
       |}
@@ -105,7 +105,7 @@ trait SignInSugar extends NavigationSugar {
 
     val responseJson =
       s"""{
-         |  "name": {"name":"$gatekeeperId","lastName":"Smith"},
+         |  "optionalName": {"name":"$gatekeeperId","lastName":"Smith"},
          |  "authorisedEnrolments": [{"key": "user-role"}]
          |}""".stripMargin
 
@@ -119,7 +119,7 @@ trait SignInSugar extends NavigationSugar {
 
     val responseJson =
       s"""{
-         |  "name": {"name":"$superUserGatekeeperId","lastName":"Smith"},
+         |  "optionalName": {"name":"$superUserGatekeeperId","lastName":"Smith"},
          |  "authorisedEnrolments": [{"key": "super-user-role"}]
          |}""".stripMargin
 
@@ -134,7 +134,7 @@ trait SignInSugar extends NavigationSugar {
 
     val responseJson =
       s"""{
-         |  "name": {"name":"$adminUserGatekeeperId","lastName":"Smith"},
+         |  "optionalName": {"name":"$adminUserGatekeeperId","lastName":"Smith"},
          |  "authorisedEnrolments": [{"key": "admin-role"}]
          |}""".stripMargin
 

@@ -24,7 +24,8 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{~, _}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import views.html.ForbiddenView
 
@@ -42,17 +43,14 @@ trait GatekeeperAuthWrapper extends I18nSupport{
     implicit request: Request[AnyContent] =>
 
       val predicate = authPredicate(minimumRoleRequired)
-      val retrieval: Retrieval[Name ~ Enrolments] = Retrievals.name and Retrievals.authorisedEnrolments
+      val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
       authConnector.authorise(predicate, retrieval) flatMap {
-        case name ~ authorisedEnrolments =>
-          body(LoggedInRequest(name.name, authorisedEnrolments, request))
+        case Some(name) ~ authorisedEnrolments => body(LoggedInRequest(name.name, authorisedEnrolments, request))
+        case None ~ authorisedEnrolments       => Future.successful(Forbidden(forbiddenView()))
       } recoverWith {
-        case _: NoActiveSession =>
-          request.secure
-          Future.successful(toStrideLogin)
-        case _: InsufficientEnrolments =>
-          Future.successful(Forbidden(forbiddenView()))
+        case _: NoActiveSession                => Future.successful(toStrideLogin)
+        case _: InsufficientEnrolments         => Future.successful(Forbidden(forbiddenView()))
       }
   }
 
