@@ -49,9 +49,15 @@ class ProxiedHttpClient @Inject()(config: Configuration,
   override def buildRequest[A](url: String, headers: Seq[(String, String)]): PlayWSRequest = {
     val extraHeaders: Seq[(String,String)] = headers ++ 
       authorization.map(v => (HeaderNames.AUTHORIZATION -> v.value)).toSeq ++
-      apiKeyHeader.map(v => "x-api-key" -> v).toSeq ++
-      Seq(HeaderNames.ACCEPT -> "application/hmrc.vnd.1.0+json")
+      apiKeyHeader.map(v => ProxiedHttpClient.API_KEY_HEADER_NAME -> v).toSeq ++
+      Seq(ProxiedHttpClient.ACCEPT_HMRC_JSON_HEADER)
 
     super.buildRequest(url, extraHeaders)
   }
+}
+
+object ProxiedHttpClient {
+  val API_KEY_HEADER_NAME = "x-api-key"
+
+  val ACCEPT_HMRC_JSON_HEADER = HeaderNames.ACCEPT -> "application/hmrc.vnd.1.0+json"
 }
