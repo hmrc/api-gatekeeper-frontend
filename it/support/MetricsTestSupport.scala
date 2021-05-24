@@ -1,19 +1,19 @@
 package support
 
+import scala.collection.JavaConverters
+
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import org.scalatest.Suite
-import play.api.Application
+import org.scalatest.{Matchers, Suite}
 
-import scala.collection.JavaConverters
-import org.scalatest.Matchers
+import play.api.Application
 
 trait MetricsTestSupport {
   self: Suite with Matchers =>
 
   def app: Application
 
-  private var metricsRegistry: MetricRegistry = _
+  private var metricsRegistry: MetricRegistry = _ // scalafix:ok
 
   def givenCleanMetricRegistry(): Unit = {
     val registry = app.injector.instanceOf[Metrics].defaultRegistry
@@ -27,7 +27,7 @@ trait MetricsTestSupport {
   def verifyTimerExistsAndBeenUpdated(metric: String): Unit = {
     val timers = metricsRegistry.getTimers
     val metrics = timers.get(s"Timer-$metric")
-    if (metrics == null) {
+    if (metrics == null) { // scalafix:ok
       throw new Exception(s"Metric [$metric] not found, try one of ${timers.keySet()}")
     }
     metrics.getCount >= 1L shouldBe true

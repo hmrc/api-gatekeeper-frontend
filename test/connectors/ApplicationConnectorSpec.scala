@@ -16,23 +16,20 @@
 
 package connectors
 
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model._
-import play.api.test.Helpers._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.AsyncHmrcSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.json.Json
-
-import java.util.UUID
-import utils.UrlEncoding
-import utils.WireMockSugar
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.{AsyncHmrcSpec, UrlEncoding, WireMockSugar}
+
+import play.api.libs.json.Json
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 class ApplicationConnectorSpec 
     extends AsyncHmrcSpec 

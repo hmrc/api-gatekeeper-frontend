@@ -16,18 +16,19 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.{Inject, Singleton}
-import model._
 import model.Environment._
-import play.api.mvc.MessagesControllerComponents
+import model._
 import services.ApiDefinitionService
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 
-import scala.concurrent.ExecutionContext
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 case class ApiDefinitionView(apiName: String, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
 

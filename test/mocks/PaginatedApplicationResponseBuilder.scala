@@ -16,8 +16,7 @@
 
 package mocks
 
-import model.PaginatedApplicationResponse
-import model.ApplicationResponse
+import model.{ApplicationResponse, PaginatedApplicationResponse}
 
 object PaginatedApplicationResponseBuilder {
     def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {

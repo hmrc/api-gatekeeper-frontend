@@ -17,22 +17,21 @@
 package connectors
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 import config.AppConfig
-import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import model._
-import play.api.http.Status._
-import play.api.libs.json.{Format, Json, JsSuccess}
 import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.http.Status._
+import play.api.libs.json.{Format, JsSuccess, Json}
 import uk.gov.hmrc.http.HttpErrorFunctions._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient

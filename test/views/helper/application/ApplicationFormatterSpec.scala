@@ -16,12 +16,12 @@
 
 package views.helper.application
 
+import builder.ApplicationBuilder
+import model.ApplicationId
 import org.joda.time.{DateTime, DateTimeUtils}
 import org.scalatest.BeforeAndAfterAll
 import utils.AsyncHmrcSpec
 import views.helper.application.ApplicationFormatter.{getCreatedOn, getLastAccess, initialLastAccessDate}
-import builder.ApplicationBuilder
-import model.ApplicationId
 
 class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApplicationBuilder {
   val FixedTimeNow: DateTime = new DateTime("2019-09-01T00:30:00.000")

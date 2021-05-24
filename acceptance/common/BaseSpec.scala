@@ -21,9 +21,10 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
 import org.scalatest._
+import org.scalatestplus.play.guice.GuiceOneServerPerTest
+
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Mode}
-import org.scalatestplus.play.guice.GuiceOneServerPerTest
 
 trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with GuiceOneServerPerTest {
 

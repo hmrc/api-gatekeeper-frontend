@@ -17,20 +17,21 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.OptionT
+import com.google.inject.name.Named
 import config.AppConfig
-import model.DeveloperStatusFilter.DeveloperStatusFilter
-import model._
-import model.TopicOptionChoice.TopicOptionChoice
 import encryption._
+import model.DeveloperStatusFilter.DeveloperStatusFilter
+import model.TopicOptionChoice.TopicOptionChoice
+import model.{UserId, _}
+
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import model.UserId
-import scala.concurrent.{ExecutionContext, Future}
-import com.google.inject.name.Named
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import cats.data.OptionT
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]

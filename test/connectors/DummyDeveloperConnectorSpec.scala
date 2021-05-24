@@ -18,9 +18,10 @@ package connectors
 
 import model._
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.AsyncHmrcSpec
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DummyDeveloperConnectorSpec 
     extends AsyncHmrcSpec

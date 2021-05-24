@@ -17,9 +17,10 @@
 package encryption
 
 import com.google.inject.name.Names
-import play.api.{Configuration, Environment}
-import play.api.inject.Module
 import com.google.inject.{Inject, Provider, Singleton}
+
+import play.api.inject.Module
+import play.api.{Configuration, Environment}
 
 class PayloadEncryptionModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration) = {

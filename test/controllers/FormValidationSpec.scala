@@ -17,8 +17,9 @@
 package controllers
 
 import org.scalatest.Matchers
-import play.api.data.FormError
 import utils.AsyncHmrcSpec
+
+import play.api.data.FormError
 
 class FormValidationSpec extends AsyncHmrcSpec with Matchers {
   "HandleUpliftForm" should {

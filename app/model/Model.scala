@@ -20,21 +20,22 @@ import java.util.UUID
 
 import model.EmailOptionChoice.EmailOptionChoice
 import model.EmailPreferencesChoice.EmailPreferencesChoice
+import model.Environment._
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
-import model.Environment._
 import model.State.State
+import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.applications.ApplicationWithSubscriptionData
+import model.subscriptions.ApiData
 import org.joda.time.DateTime
+
 import play.api.data.Form
+import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
-import model.applications.ApplicationWithSubscriptionData
-import model.SubscriptionFields.SubscriptionFieldDefinition
-import model.subscriptions.ApiData
 
 object GatekeeperRole extends Enumeration {
   type GatekeeperRole = Value

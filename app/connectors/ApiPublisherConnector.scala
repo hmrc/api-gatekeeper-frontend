@@ -16,16 +16,16 @@
 
 package connectors
 
-import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import model.Environment.Environment
-import model._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-
 import scala.concurrent.{ExecutionContext, Future}
 
+import config.AppConfig
+import model.Environment.Environment
+import model._
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient

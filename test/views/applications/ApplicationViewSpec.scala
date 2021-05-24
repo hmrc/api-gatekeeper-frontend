@@ -16,21 +16,20 @@
 
 package views.applications
 
-import builder.SubscriptionsBuilder
+import builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
+import model.ApiStatus._
+import model.applications.NewApplication
+import model.view.ApplicationViewModel
 import model.{LoggedInUser, _}
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
-import play.api.mvc.Flash
-import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.ApplicationView
-import model.view.ApplicationViewModel
-import model.applications.NewApplication
-import builder.ApplicationBuilder
-import builder.ApiBuilder
-import model.ApiStatus._
-import org.joda.time.DateTime
+
+import play.api.mvc.Flash
+import play.api.test.FakeRequest
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {

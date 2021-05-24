@@ -1,12 +1,11 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.Status
-import model.RegisteredUser
 import connectors.ApplicationConnector
-import model.ApiContext
-import model.ApiVersion
+import model.{ApiContext, ApiVersion, RegisteredUser}
 import utils.WireMockExtensions
+
+import play.api.http.Status
 
 trait ApplicationServiceStub extends WireMockExtensions {
   def primeApplicationServiceSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {

@@ -19,12 +19,13 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.{EmailOptionChoice, LoggedInUser}
 import org.jsoup.Jsoup
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import views.CommonViewSpec
 import views.html.emails.EmailInformationView
+
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import play.twirl.api.HtmlFormat
 
 class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewHelper {
 

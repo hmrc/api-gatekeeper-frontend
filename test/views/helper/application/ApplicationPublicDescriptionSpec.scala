@@ -16,9 +16,8 @@
 
 package views.helper.application
 
+import builder.{ApplicationBuilder, ApplicationResponseBuilder}
 import utils.AsyncHmrcSpec
-import builder.ApplicationResponseBuilder
-import builder.ApplicationBuilder
 
 class ApplicationPublicDescriptionSpec extends AsyncHmrcSpec with ApplicationBuilder with ApplicationResponseBuilder {
   "ApplicationsPublicDescription" when {

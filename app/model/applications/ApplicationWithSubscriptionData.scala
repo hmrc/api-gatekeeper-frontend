@@ -16,10 +16,8 @@
 
 package model.applications
 
-import model.ApiContext
-import model.ApiVersion
-import model.ApiIdentifier
 import model.SubscriptionFields.Fields
+import model.{ApiContext, ApiIdentifier, ApiVersion}
 
 case class ApplicationWithSubscriptionData(
     application: NewApplication,

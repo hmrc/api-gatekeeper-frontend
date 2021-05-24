@@ -16,17 +16,17 @@
 
 package controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import model._
-import play.api.test.Helpers._
-import play.api.test.FakeRequest
-import play.filters.csrf.CSRF.TokenProvider
 import utils.FakeRequestCSRFSupport._
-import utils.{TitleChecker, WithCSRFAddToken}
+import utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import views.html.applications._
 import views.html.{ErrorTemplate, ForbiddenView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import utils.CollaboratorTracker
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import play.filters.csrf.CSRF.TokenProvider
 
 class TeamMembersControllerSpec 
     extends ControllerBaseSpec

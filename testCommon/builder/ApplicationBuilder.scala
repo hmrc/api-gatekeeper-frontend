@@ -16,16 +16,13 @@
 
 package builder
 
-import model.applications.NewApplication
-import model._
-import org.joda.time.DateTime
-import model.applications.ApplicationWithSubscriptionData
-import model.SubscriptionFields.Fields
-import org.joda.time.DateTime
-
-import model.view.ApplicationViewModel
 import model.ApiStatus._
 import model.RateLimitTier.RateLimitTier
+import model.SubscriptionFields.Fields
+import model._
+import model.applications.{ApplicationWithSubscriptionData, NewApplication}
+import model.view.ApplicationViewModel
+import org.joda.time.DateTime
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {

@@ -17,6 +17,7 @@
 package utils
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.filters.csrf.CSRFAddToken
 
 trait WithCSRFAddToken  {

@@ -16,10 +16,14 @@
 
 package utils
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import connectors.AuthConnector
-import model.{GatekeeperRole, LoggedInRequest, LoggedInUser}
 import model.GatekeeperRole.GatekeeperRole
+import model.{GatekeeperRole, LoggedInRequest, LoggedInUser}
+import views.html.ForbiddenView
+
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.auth.core._
@@ -27,9 +31,6 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import views.html.ForbiddenView
-
-import scala.concurrent.{ExecutionContext, Future}
 
 trait GatekeeperAuthWrapper extends I18nSupport{
   self: FrontendBaseController =>

@@ -16,15 +16,15 @@
 
 package utils
 
-import model._
+import scala.concurrent.{ExecutionContext, Future}
+
+import model.applications.ApplicationWithSubscriptionData
+import model.{ApiContext, _}
+import services.{ApmService, ApplicationService}
+
 import play.api.i18n.Messages
 import play.api.mvc.Result
-import services.{ApmService, ApplicationService}
 import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.{ExecutionContext, Future}
-import model.ApiContext
-import model.applications.ApplicationWithSubscriptionData
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService

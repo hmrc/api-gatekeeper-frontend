@@ -16,19 +16,19 @@
 
 package controllers
 
-import utils.WithCSRFAddToken
-import utils.TitleChecker
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import builder.{ApiBuilder, ApplicationBuilder}
 import model._
+import model.applications.ApplicationWithSubscriptionData
+import utils.FakeRequestCSRFSupport._
+import utils.{TitleChecker, WithCSRFAddToken}
 import views.html._
-import play.filters.csrf.CSRF.TokenProvider
+import views.html.applications.ManageSubscriptionsView
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.FakeRequestCSRFSupport._
-import views.html.applications.ManageSubscriptionsView
-import scala.concurrent.ExecutionContext.Implicits.global
-import builder.ApplicationBuilder
-import model.applications.ApplicationWithSubscriptionData
-import builder.ApiBuilder
+import play.filters.csrf.CSRF.TokenProvider
 
 class SubscriptionControllerSpec 
     extends ControllerBaseSpec 

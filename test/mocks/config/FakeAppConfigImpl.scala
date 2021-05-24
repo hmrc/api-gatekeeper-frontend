@@ -16,10 +16,12 @@
 
 package mocks.config
 
+import javax.inject.Inject
+
 import com.google.inject.Singleton
 import config.AppConfigImpl
-import javax.inject.Inject
 import mocks.TestRoles
+
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.RunMode
 

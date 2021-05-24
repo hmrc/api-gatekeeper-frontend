@@ -1,7 +1,6 @@
 package testdata
 
-import model.ApplicationState
-import model.State
+import model.{ApplicationState, State}
 import org.joda.time._
 
 trait ApplicationStateTestData extends CommonTestData {

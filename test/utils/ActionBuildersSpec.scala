@@ -16,24 +16,22 @@
 
 package utils
 
-import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import mocks.TestRoles
-import model.{ ApiVersion, LoggedInRequest}
+import model.{ApiVersion, FieldName, LoggedInRequest, State}
+import services.{ApmService, ApplicationService}
+import views.html.ErrorTemplate
+
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.ApplicationService
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.ErrorTemplate
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import model.FieldName
-import services.ApmService
-import model.State
 
 class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {

@@ -16,14 +16,15 @@
 
 package controllers
 
-import model._
-import play.api.test.{FakeRequest, Helpers}
-import utils.FakeRequestCSRFSupport._
-import play.api.test.Helpers._
-import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.developers.Developers2View
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import model._
+import utils.FakeRequestCSRFSupport._
+import views.html.developers.Developers2View
+import views.html.{ErrorTemplate, ForbiddenView}
+
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 
 class Developers2ControllerSpec extends ControllerBaseSpec {
 

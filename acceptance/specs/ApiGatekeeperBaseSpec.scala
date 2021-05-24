@@ -17,19 +17,19 @@
 package specs
 
 
-import matchers.CustomMatchers
-import testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
-import pages.{ApplicationsPage, DashboardPage}
-import common.{BaseSpec, SignInSugar, WebPage}
+import scala.io.Source
+
 import com.github.tomakehurst.wiremock.client.WireMock._
+import common.{BaseSpec, SignInSugar, WebPage}
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import matchers.CustomMatchers
+import model.{RegisteredUser, UserId}
 import org.scalatest.{GivenWhenThen, Matchers}
+import pages.{ApplicationsPage, DashboardPage}
+import testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
+
 import play.api.http.Status._
 import play.api.libs.json.Json
-
-import scala.io.Source
-import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
-import model.UserId
-import model.RegisteredUser
 
 
 class ApiGatekeeperBaseSpec 

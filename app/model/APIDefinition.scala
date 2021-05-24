@@ -16,12 +16,13 @@
 
 package model
 
+import java.net.URLEncoder.encode
+import scala.util.Random
+
 import model.ApiStatus.ApiStatus
 import model.SubscriptionFields._
-import play.api.libs.json.Json
 
-import scala.util.Random
-import java.net.URLEncoder.encode
+import play.api.libs.json.Json
 
 case class ApiContext(value: String) extends AnyVal {
   def urlEncode = encode(value, "UTF-8")

@@ -16,17 +16,18 @@
 
 package connectors
 
-import play.api.libs.json.Json
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import model._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.{AsyncHmrcSpec, WireMockSugar}
+
 import play.api.http.Status._
+import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import utils.{AsyncHmrcSpec, WireMockSugar}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApiDefinitionConnectorSpec
   extends AsyncHmrcSpec

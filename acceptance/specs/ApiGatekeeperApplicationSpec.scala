@@ -16,16 +16,14 @@
 
 package specs
 
-import pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.UserId
+import model.{RegisteredUser, UserId}
 import org.openqa.selenium.By
 import org.scalatest.Tag
+import pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
+import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+
 import play.api.http.Status._
-import pages.ApplicationPage
-import testdata.{StateHistoryTestData, ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
-import model.RegisteredUser
-import model.UserId
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 

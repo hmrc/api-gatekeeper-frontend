@@ -16,14 +16,15 @@
 
 package services
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import connectors._
-import javax.inject.Inject
-import model._
 import model.TopicOptionChoice._
-import uk.gov.hmrc.http.HeaderCarrier
+import model._
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,

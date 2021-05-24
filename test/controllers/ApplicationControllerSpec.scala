@@ -17,39 +17,36 @@
 package controllers
 
 import java.net.URLEncoder
-
-import model.Environment._
-import model.RateLimitTier.RateLimitTier
-import model._
-import org.joda.time.DateTime
-import org.jsoup.Jsoup
-import org.mockito.ArgumentCaptor
-import play.api.mvc.Result
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
-import services.SubscriptionFieldsService
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.FakeRequestCSRFSupport._
-import utils.{TitleChecker, WithCSRFAddToken}
-import views.html.applications._
-import views.html.approvedApplication.ApprovedView
-import views.html.review.ReviewView
-import views.html.{ErrorTemplate, ForbiddenView}
-import mocks.TestRoles._
-  
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import model.applications.ApplicationWithSubscriptionData
-import mocks.services.ApplicationServiceMockProvider
 import builder.{ApiBuilder, ApplicationBuilder}
-import utils.CollaboratorTracker
-import org.mockito.captor.ArgCaptor
+import mocks.TestRoles._
 import mocks.connectors.ApplicationConnectorMockProvider
+import mocks.services.ApplicationServiceMockProvider
+import model.Environment._
+import model.RateLimitTier.RateLimitTier
+import model._
+import model.applications.ApplicationWithSubscriptionData
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
+import org.mockito.ArgumentCaptor
+import org.mockito.captor.ArgCaptor
+import services.SubscriptionFieldsService
+import utils.FakeRequestCSRFSupport._
+import utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
+import views.html.applications._
+import views.html.approvedApplication.ApprovedView
+import views.html.review.ReviewView
+import views.html.{ErrorTemplate, ForbiddenView}
+
+import play.api.mvc.Result
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
+import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 

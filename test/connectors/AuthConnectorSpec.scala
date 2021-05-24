@@ -18,10 +18,11 @@ package connectors
 
 import config.AppConfig
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.AsyncHmrcSpec
+
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.AsyncHmrcSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class AuthConnectorSpec 
     extends AsyncHmrcSpec 

@@ -16,12 +16,13 @@
 
 package specs
 
-import matchers.CustomMatchers
-import pages.ApplicationsPage
-import common.SignInSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
+import common.SignInSugar
+import matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import pages.ApplicationsPage
+
 import play.api.http.Status._
 
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
@@ -81,15 +82,13 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       signInGatekeeper
 
       val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
-      var actualApplicationTitle = webDriver.getTitle
       on(ApplicationsPage)
 
       Then("the application name is API Gatekeeper")
       actualApplicationName shouldBe "HMRC API Gatekeeper"
 
       And("the browser window title is HMRC API Gatekeeper - Applications")
-      actualApplicationTitle = webDriver.getTitle
-      actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
+      webDriver.getTitle shouldBe "HMRC API Gatekeeper - Applications"
     }
 
     scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {

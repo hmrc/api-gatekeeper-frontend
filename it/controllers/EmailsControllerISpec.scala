@@ -4,13 +4,14 @@ import model._
 import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
+import support._
+import utils.UserFunctionsWrapper
+import views.emails.EmailsPagesHelper
+
 import play.api.http.HeaderNames.{CONTENT_TYPE, LOCATION}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
-import support._
-import utils.UserFunctionsWrapper
-import views.emails.EmailsPagesHelper
 
 
 

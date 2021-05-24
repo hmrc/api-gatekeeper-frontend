@@ -16,13 +16,11 @@
 
 package mocks.services
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import services.ApiDefinitionService
-import model.Environment
-import model.ApiDefinition
 import scala.concurrent.Future.{failed, successful}
-import model.APICategoryDetails
+
+import model.{APICategoryDetails, ApiDefinition, Environment}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import services.ApiDefinitionService
 
 trait ApiDefinitionServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

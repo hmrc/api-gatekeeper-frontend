@@ -16,13 +16,14 @@
 
 package services
 
-import connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+import connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import model.Environment._
 import model.{APICategoryDetails, ApiDefinition}
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
                                      productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {

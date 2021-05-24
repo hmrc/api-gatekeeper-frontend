@@ -20,13 +20,14 @@ import mocks.config.AppConfigMock
 import model._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.emails.EmailPreferencesAPICategoryView
+
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import play.twirl.api.HtmlFormat
 
 class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 

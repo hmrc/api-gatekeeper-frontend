@@ -1,6 +1,7 @@
 package testdata
 
 import model.applications.ApplicationWithSubscriptionData
+
 import play.api.libs.json.Json
 
 trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {

@@ -16,11 +16,9 @@
 
 package builder
 
-import model.ApplicationId
 import model.State.State
-import model.Actor
+import model.{Actor, ApplicationId, StateHistory}
 import org.joda.time.DateTime
-import model.StateHistory
 
 trait StateHistoryBuilder {
   def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actor("actor id"), changedAt: DateTime = DateTime.now()): StateHistory = {

@@ -17,12 +17,13 @@
 package services
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import model.APIApprovalSummary
 import model.Environment._
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DeploymentApprovalService @Inject()(sandboxApiPublisherConnector: SandboxApiPublisherConnector,
                                           productionApiPublisherConnector: ProductionApiPublisherConnector)(implicit ec: ExecutionContext) {

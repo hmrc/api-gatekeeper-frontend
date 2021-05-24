@@ -18,8 +18,9 @@ package common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
-import play.api.http.Status.OK
 import pages.ApplicationsPage
+
+import play.api.http.Status.OK
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"

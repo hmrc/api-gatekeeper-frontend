@@ -16,9 +16,8 @@
 
 package connectors
 
-import model.ApiStatusJson
-import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
+import model.{APIDefinitionFormatters, ApiStatusJson}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 

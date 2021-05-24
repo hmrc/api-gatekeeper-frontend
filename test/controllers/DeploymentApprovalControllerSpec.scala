@@ -18,17 +18,17 @@ package controllers
 
 import java.net.URLEncoder
 import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import model.Environment._
 import model._
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import play.filters.csrf.CSRF.TokenProvider
 import utils.WithCSRFAddToken
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import views.html.{ErrorTemplate, ForbiddenView}
+
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.filters.csrf.CSRF.TokenProvider
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer = app.materializer

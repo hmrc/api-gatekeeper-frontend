@@ -16,20 +16,21 @@
 
 package model
 
+import scala.util.{Failure, Try}
+
 import model.EmailOptionChoice._
 import model.EmailPreferencesChoice._
 import model.Environment._
 import model.Forms.FormFields._
 import model.OverrideType._
 import org.apache.commons.net.util.SubnetUtils
+import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
+
 import play.api.data.Forms._
 import play.api.data.format.Formatter
 import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
-
-import scala.util.{Failure, Try}
 
 object Forms {
 

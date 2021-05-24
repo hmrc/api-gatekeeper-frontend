@@ -16,11 +16,12 @@
 
 package specs
 
-import testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.Status._
 import model._
+import pages._
+import testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+
+import play.api.http.Status._
 
 class ApiGatekeeperApplicationReviewSpec
     extends ApiGatekeeperBaseSpec 

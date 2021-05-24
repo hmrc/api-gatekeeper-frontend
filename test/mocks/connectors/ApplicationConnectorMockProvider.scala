@@ -16,11 +16,12 @@
 
 package mocks.connectors
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.{failed, successful}
+
+import connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import model._
-import connectors.{ApplicationConnector,SandboxApplicationConnector,ProductionApplicationConnector}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 

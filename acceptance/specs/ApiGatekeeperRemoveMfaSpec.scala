@@ -16,19 +16,19 @@
 
 package specs
 
-import pages._
+import scala.io.Source
+
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{Assertions, Tag}
-import play.api.http.Status._
-
-import scala.io.Source
-import play.api.libs.json.Json
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import model.{RegisteredUser, UserId}
+import org.scalatest.{Assertions, Tag}
+import pages._
 import testdata.CommonTestData
-import model.RegisteredUser
-import model.UserId
 import utils.WireMockExtensions
+
+import play.api.http.Status._
+import play.api.libs.json.Json
 
 class ApiGatekeeperRemoveMfaSpec 
     extends ApiGatekeeperBaseSpec 

@@ -17,9 +17,10 @@
 package config
 
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import utils.AsyncHmrcSpec
+
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import utils.AsyncHmrcSpec
 
 class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
 

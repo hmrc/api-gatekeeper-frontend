@@ -16,19 +16,18 @@
 
 package services
 
-import connectors._
-import model.SubscriptionFields._
-import model.{ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldsDeleteResult}
-import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.AsyncHmrcSpec
-
-import builder.SubscriptionsBuilder
-
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+
+import builder.SubscriptionsBuilder
+import connectors._
+import model.SubscriptionFields._
+import model._
 import model.applications.NewApplication
-import model.Environment
+import services.SubscriptionFieldsService.DefinitionsByApiVersion
+import utils.AsyncHmrcSpec
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 

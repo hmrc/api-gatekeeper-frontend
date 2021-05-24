@@ -16,25 +16,24 @@
 
 package services
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
+
 import connectors._
+import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
+import mocks.services.ApiScopeConnectorMockProvider
 import model.Environment._
 import model.SubscriptionFields._
 import model._
+import model.applications.NewApplication
+import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
+import org.mockito.scalatest.ResetMocksAfterEachTest
+import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
 import services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
-import org.mockito.scalatest.ResetMocksAfterEachTest
-import model.applications.NewApplication
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.connectors.ApmConnectorMockProvider
-import mocks.services.ApiScopeConnectorMockProvider
-import org.joda.time.DateTime
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 

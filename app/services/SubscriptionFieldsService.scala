@@ -17,13 +17,14 @@
 package services
 
 import javax.inject.{Inject, Named, Singleton}
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIDefinitionFormatters, ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldName, FieldValue, FieldsDeleteResult}
-import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.Future
+
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
+import model._
 import model.applications.NewApplication
+import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,

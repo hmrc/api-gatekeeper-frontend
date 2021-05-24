@@ -19,12 +19,13 @@ package views.emails
 import mocks.config.AppConfigMock
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import play.twirl.api.Html
 import utils.FakeRequestCSRFSupport._
 import views.CommonEmailViewSpec
 import views.html.emails.EmailLandingView
+
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import play.twirl.api.Html
 
 class EmailLandingViewSpec extends CommonEmailViewSpec with EmailLandingViewHelper {
 

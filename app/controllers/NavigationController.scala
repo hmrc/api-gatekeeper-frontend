@@ -17,13 +17,14 @@
 package controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import model.StaticNavLinks
+
 import play.api.libs.json._
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class NavigationController @Inject()(mcc: MessagesControllerComponents)

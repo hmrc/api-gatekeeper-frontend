@@ -19,9 +19,9 @@ package common
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest.concurrent.Eventually
-import org.scalatestplus.selenium.WebBrowser
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{Assertions, Matchers}
+import org.scalatestplus.selenium.WebBrowser
 
 trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 

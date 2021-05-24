@@ -16,8 +16,7 @@
 
 package model.view
 
-import model.ApplicationId
-import model.SubscriptionWithoutFields
+import model.{ApplicationId, SubscriptionWithoutFields}
 
 case class SubscriptionViewModel(
   applicationId: ApplicationId, 

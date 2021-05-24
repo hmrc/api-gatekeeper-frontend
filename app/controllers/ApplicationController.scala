@@ -16,33 +16,34 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
+
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.{Inject, Singleton}
-import model._
+import model.ApiStatus.ApiStatus
 import model.Forms._
 import model.SubscriptionFields.Fields.Alias
-import model.view.ApplicationViewModel
 import model.UpliftAction.{APPROVE, REJECT}
+import model._
+import model.subscriptions.ApiData
+import model.view.ApplicationViewModel
 import org.joda.time.DateTime
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import views.html.applications._
+import views.html.approvedApplication.ApprovedView
+import views.html.review.ReviewView
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.applications._
-import views.html.approvedApplication.ApprovedView
-import views.html.review.ReviewView
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
-import scala.concurrent.Future.successful
-import model.subscriptions.ApiData
-import model.ApiStatus.ApiStatus
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -169,6 +170,9 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         }
   }
 
+  @SuppressWarnings(Array(
+    "scalafix:DisableSyntax.var"
+  ))
   def updateAccessOverrides(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {
     implicit request =>
         withApp(appId) { app =>

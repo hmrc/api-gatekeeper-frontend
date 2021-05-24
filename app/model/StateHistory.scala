@@ -16,11 +16,12 @@
 
 package model
 
-import org.joda.time.DateTime
-import play.api.libs.json.Json
 import model.State.State
+import org.joda.time.DateTime
+
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+import play.api.libs.json.Json
 
 case class Actor(id: String)
 

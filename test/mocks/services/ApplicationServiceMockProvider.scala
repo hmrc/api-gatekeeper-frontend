@@ -16,12 +16,12 @@
 
 package mocks.services
 
+import scala.concurrent.Future
+import scala.concurrent.Future.{failed,successful}
+
+import model._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApplicationService
-
-import scala.concurrent.Future.{failed,successful}
-import model._
-import scala.concurrent.Future
 
 trait ApplicationServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

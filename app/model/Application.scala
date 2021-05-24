@@ -16,18 +16,19 @@
 
 package model
 
-import java.util.UUID
 import java.net.URLEncoder.encode
+import java.util.UUID
 
 import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
+
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+import play.api.libs.json._
+import uk.gov.hmrc.play.json.Union
 
 case class ApplicationId(value: String) extends AnyVal
 

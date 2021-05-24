@@ -17,16 +17,15 @@
 package services
 
 import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 
+import mocks.connectors.ApiPublisherConnectorMockProvider
 import model.APIApprovalSummary
 import model.Environment._
-import uk.gov.hmrc.http.HeaderCarrier
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import utils.AsyncHmrcSpec
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import mocks.connectors.ApiPublisherConnectorMockProvider
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPublisherConnectorMockProvider {

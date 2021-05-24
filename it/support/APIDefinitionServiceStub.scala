@@ -3,6 +3,7 @@ package support
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.APIDefinitionFormatters._
 import model.{APICategoryDetails, ApiDefinition}
+
 import play.api.http.Status
 import play.api.libs.json.Json
 

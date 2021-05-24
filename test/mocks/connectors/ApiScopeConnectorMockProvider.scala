@@ -16,10 +16,11 @@
 
 package mocks.services
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import scala.concurrent.Future.{failed,successful}
+
 import connectors._
 import model.ApiScope
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 trait ApiScopeConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

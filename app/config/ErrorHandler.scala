@@ -17,11 +17,13 @@
 package config
 
 import javax.inject.Inject
+
+import views.html.ErrorTemplate
+
 import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
-import views.html.ErrorTemplate
 
 class ErrorHandler @Inject()(val messagesApi: MessagesApi,
                              val configuration: Configuration,

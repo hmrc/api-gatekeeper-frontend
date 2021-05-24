@@ -17,11 +17,11 @@
 package views.helper.application
 
 
+import builder.ApplicationResponseBuilder
 import model.State._
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import utils.AsyncHmrcSpec
-import org.joda.time.DateTime
-import builder.ApplicationResponseBuilder
 
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {

@@ -16,10 +16,10 @@
 
 package specs
 
+import model.{RegisteredUser, UserId}
 import org.scalacheck.Gen
+
 import play.api.libs.json.Json
-import model.RegisteredUser
-import model.UserId
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"

@@ -19,11 +19,12 @@ package controllers
 import config.AppConfig
 import mocks.config.FakeAppConfigImpl
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.AsyncHmrcSpec
+
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
-import utils.AsyncHmrcSpec
-import play.api.inject.bind
 
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 

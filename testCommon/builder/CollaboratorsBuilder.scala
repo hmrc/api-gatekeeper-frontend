@@ -16,9 +16,7 @@
 
 package builder
 
-import model.Collaborator
-import model.CollaboratorRole
-import model.UserId
+import model.{Collaborator, CollaboratorRole, UserId}
 
 trait CollaboratorsBuilder {
   def buildCollaborators(collaborators: Seq[(String, CollaboratorRole.Value)]): Set[Collaborator] = {

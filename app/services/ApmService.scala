@@ -16,16 +16,16 @@
 
 package services
 
-import connectors.ApmConnector
-import model.ApplicationId
-import model.ApiDefinitions
-import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
+import scala.concurrent.Future
+
+import connectors.ApmConnector
+import model.Environment.Environment
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions._
-import model.ApiContext
-import model.Environment.Environment
+import model.{ApiContext, ApiDefinitions, ApplicationId}
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
 

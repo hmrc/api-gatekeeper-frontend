@@ -16,14 +16,13 @@
 
 package views.applications
 
-import model.{AccessType, LoggedInUser, TotpSecrets}
+import model.{AccessType, ApplicationId, ClientId, LoggedInUser, TotpSecrets}
 import org.jsoup.Jsoup
-import play.twirl.api.HtmlFormat
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.CreateApplicationSuccessView
-import model.ApplicationId
-import model.ClientId
+
+import play.twirl.api.HtmlFormat
 
 class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 

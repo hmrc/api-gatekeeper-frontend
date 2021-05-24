@@ -16,10 +16,11 @@
 
 package utils
 
-import play.api.i18n.MessagesProvider
-import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.{BadRequest, InternalServerError, NotFound}
 import views.html.ErrorTemplate
+
+import play.api.i18n.MessagesProvider
+import play.api.mvc.Results.{BadRequest, InternalServerError, NotFound}
+import play.api.mvc.{Request, Result}
 
 trait ErrorHelper {
   val errorTemplate: ErrorTemplate

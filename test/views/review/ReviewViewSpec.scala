@@ -19,13 +19,14 @@ package views.review
 import controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
 import model.{LoggedInUser, _}
-import org.jsoup.Jsoup
-import play.api.test.FakeRequest
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.review.ReviewView
+
+import play.api.test.FakeRequest
 
 class ReviewViewSpec extends CommonViewSpec {
 
