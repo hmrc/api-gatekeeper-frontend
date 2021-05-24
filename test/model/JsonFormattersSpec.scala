@@ -16,8 +16,9 @@
 
 package model
 
-import play.api.libs.json.{JsError, JsObject, JsString, JsSuccess}
 import utils.AsyncHmrcSpec
+
+import play.api.libs.json.{JsError, JsObject, JsString, JsSuccess}
 
 class JsonFormattersSpec extends AsyncHmrcSpec {
 

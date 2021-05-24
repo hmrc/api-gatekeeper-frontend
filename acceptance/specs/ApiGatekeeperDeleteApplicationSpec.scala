@@ -16,11 +16,12 @@
 
 package specs
 
-import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
+import pages._
+import testdata.{ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+
 import play.api.http.Status._
-import testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithHistoryTestData}
 
 class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 

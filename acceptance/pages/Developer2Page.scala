@@ -17,8 +17,8 @@
 package pages
 
 import common.WebPage
-import pages.Developer2Page.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
+import pages.Developer2Page.APIFilter.APIFilterList
 
 object Developer2Page extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/developers2"

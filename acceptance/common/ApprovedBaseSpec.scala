@@ -16,17 +16,17 @@
 
 package common
 
-import matchers.CustomMatchers
-import specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
+import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import matchers.CustomMatchers
 import model.RateLimitTier.BRONZE
+import model.UserId
 import org.openqa.selenium.{By, NoSuchElementException}
 import org.scalatest._
-import play.api.libs.json.Json
-import connectors.DeveloperConnector.FindUserIdRequest
-import model.UserId
-import connectors.DeveloperConnector.FindUserIdResponse
+import specs.MockDataSugar
+
 import play.api.http.Status._
+import play.api.libs.json.Json
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with utils.UrlEncoding {
 

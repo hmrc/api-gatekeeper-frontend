@@ -18,13 +18,13 @@ package connectors
 
 import java.util.UUID
 
-import uk.gov.hmrc.http.Authorization
-import utils.AsyncHmrcSpec
-import play.api.http.HeaderNames
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import utils.AsyncHmrcSpec
+
+import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.Application
-import play.api.Configuration
+import play.api.{Application, Configuration}
+import uk.gov.hmrc.http.Authorization
 
 class ProxiedHttpClientSpec extends AsyncHmrcSpec with GuiceOneServerPerSuite {
 

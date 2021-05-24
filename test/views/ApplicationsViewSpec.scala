@@ -35,10 +35,11 @@ package views
 import config.AppConfig
 import model.ApiStatus._
 import model.{LoggedInUser, _}
-import org.jsoup.Jsoup
-import play.twirl.api.HtmlFormat
-import views.html.applications.ApplicationsView
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
+import views.html.applications.ApplicationsView
+
+import play.twirl.api.HtmlFormat
 
 class ApplicationsViewSpec extends CommonViewSpec {
 

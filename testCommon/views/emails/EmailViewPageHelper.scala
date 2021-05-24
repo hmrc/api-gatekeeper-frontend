@@ -19,11 +19,10 @@ package views.emails
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice._
-import model.RegisteredUser
-import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
+import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition, RegisteredUser}
 import org.jsoup.nodes.Document
-import utils.ViewHelpers._
 import utils.HmrcSpec
+import utils.ViewHelpers._
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailInformationViewHelper

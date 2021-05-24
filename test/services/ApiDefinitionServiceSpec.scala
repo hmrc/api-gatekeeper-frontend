@@ -16,16 +16,16 @@
 
 package services
 
-import model.Environment._
-import model._
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.AsyncHmrcSpec
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
+
 import mocks.connectors.ApiDefinitionConnectorMockProvider
+import model.Environment._
+import model._
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import utils.AsyncHmrcSpec
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiDefinitionConnectorMockProvider {

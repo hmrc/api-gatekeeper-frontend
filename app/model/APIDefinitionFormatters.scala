@@ -17,6 +17,7 @@
 package model
 
 import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+
 import play.api.libs.json.{JsSuccess, Json, KeyReads, KeyWrites}
 
 trait APIDefinitionFormatters {

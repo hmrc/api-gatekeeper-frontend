@@ -1,10 +1,10 @@
 package testdata
 
 import builder.ApplicationResponseBuilder
-import model.{ApplicationId, ClientId, RateLimitTier}
+import model.{ApplicationId, ApplicationResponse, ClientId, RateLimitTier}
 import org.joda.time.DateTime
+
 import play.api.libs.json.Json
-import model.ApplicationResponse
 
 trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 

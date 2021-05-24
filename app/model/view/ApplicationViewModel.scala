@@ -16,12 +16,9 @@
 
 package model.view
 
-import model.applications.NewApplication
-import model.ApiVersion
-import model.StateHistory
-import model.TermsOfUseAgreement
 import model.ApiStatus.ApiStatus
-import model.RegisteredUser
+import model.applications.NewApplication
+import model.{ApiVersion, RegisteredUser, StateHistory, TermsOfUseAgreement}
 
 case class ApplicationViewModel(
   developers: List[RegisteredUser],

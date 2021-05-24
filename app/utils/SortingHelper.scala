@@ -16,10 +16,9 @@
 
 package utils
 
-import model.ApiVersionDefinition
-import model.VersionSubscriptionWithoutFields
-import model.VersionSubscription
 import scala.util.Try
+
+import model.{ApiVersionDefinition, VersionSubscription, VersionSubscriptionWithoutFields}
 
 object SortingHelper {
   

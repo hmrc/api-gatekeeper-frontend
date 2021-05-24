@@ -1,6 +1,7 @@
 package testdata
 
 import model.ApplicationWithHistory
+
 import play.api.libs.json.Json
 
 trait ApplicationWithHistoryTestData extends ApplicationResponseTestData with StateHistoryTestData {

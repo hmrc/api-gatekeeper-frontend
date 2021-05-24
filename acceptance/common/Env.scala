@@ -17,13 +17,12 @@
 package common
 
 import java.net.URL
+import scala.util.{Properties, Try}
 
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
 import org.openqa.selenium.remote.{DesiredCapabilities, RemoteWebDriver}
 import org.openqa.selenium.{Dimension, WebDriver}
-
-import scala.util.{Properties, Try}
 
 trait Env {
   val driver: WebDriver = createWebDriver

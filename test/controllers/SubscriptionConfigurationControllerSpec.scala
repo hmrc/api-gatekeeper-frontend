@@ -16,20 +16,17 @@
 
 package controllers
 
-import builder.SubscriptionsBuilder
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import mocks.services.SubscriptionFieldsServiceMockProvider
-import model.{ApiContext, ApiVersion, FieldName, FieldValue}
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
+import model._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import views.html.{ErrorTemplate, ForbiddenView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import builder.{ApiBuilder, SubscriptionsBuilder, ApplicationBuilder}
-import builder.FieldDefinitionsBuilder
-import model.ApiStatus
-import model.Environment
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

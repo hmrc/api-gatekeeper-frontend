@@ -17,9 +17,10 @@
 package controllers
 
 import model.UpliftAction
+import uk.gov.voa.play.form.ConditionalMappings._
+
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.voa.play.form.ConditionalMappings._
 
 class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 

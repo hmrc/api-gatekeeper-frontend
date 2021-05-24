@@ -18,9 +18,10 @@ package config
 
 import com.google.inject.name.Names
 import connectors._
-import play.api.{Configuration, Environment}
-import play.api.inject.Module
 import services.SubscriptionFieldsService.SubscriptionFieldsConnector
+
+import play.api.inject.Module
+import play.api.{Configuration, Environment}
 
 class ConfigurationModule extends Module {
 

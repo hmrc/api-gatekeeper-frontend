@@ -17,18 +17,17 @@
 package connectors
 
 import java.net.URLEncoder.encode
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 import config.AppConfig
-import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
 import model.RateLimitTier.RateLimitTier
-import model._
+import model.{ApiContext, UserId, _}
+
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import model.{ApiContext, UserId}
-
-import scala.concurrent.{ExecutionContext, Future}
 
 
 object ApplicationConnector {

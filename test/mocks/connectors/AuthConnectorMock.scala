@@ -16,12 +16,13 @@
 
 package mocks.connectors
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.{failed, successful}
+
 import connectors.AuthConnector
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
-import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 
 trait AuthConnectorMock {
   self: MockitoSugar with ArgumentMatchersSugar =>

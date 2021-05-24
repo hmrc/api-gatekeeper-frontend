@@ -16,16 +16,15 @@
 
 package mocks.services
 
+import scala.concurrent.Future
+import scala.concurrent.Future.{failed,successful}
+
+import model.Environment.Environment
+import model.applications.ApplicationWithSubscriptionData
+import model.subscriptions.ApiData
+import model.{ApiContext, ApiDefinitions, ApplicationId}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.ApmService
-import model.ApplicationId
-import model.applications.ApplicationWithSubscriptionData
-import scala.concurrent.Future
-import model.ApiContext
-import model.subscriptions.ApiData
-import model.ApiDefinitions
-import model.Environment.Environment
-import scala.concurrent.Future.{failed,successful}
 
 trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

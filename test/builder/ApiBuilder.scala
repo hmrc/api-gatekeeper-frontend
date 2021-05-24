@@ -16,14 +16,10 @@
 
 package builder
 
-import model.APIAccessType
 import model.APIAccessType._
-import model.ApiAccess
-import model.ApiStatus
 import model.ApiStatus._
-import model.subscriptions.VersionData
-import model.subscriptions.ApiData
-import model.ApiVersion
+import model.subscriptions.{ApiData, VersionData}
+import model.{APIAccessType, ApiAccess, ApiStatus, ApiVersion}
 
 trait ApiBuilder {
 

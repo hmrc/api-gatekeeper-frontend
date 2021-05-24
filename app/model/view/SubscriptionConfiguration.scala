@@ -16,14 +16,11 @@
 
 package model.view
 
-import model.{ApiContext, ApiVersion, FieldName, FieldValue, Subscription, SubscriptionFields, VersionSubscription}
-import model.SubscriptionFields.SubscriptionFieldsWrapper
+import model.SubscriptionFields.{Fields, SubscriptionFieldDefinition, SubscriptionFieldsWrapper}
+import model._
+
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
-import model.SubscriptionFields.Fields
-import model.SubscriptionFields.SubscriptionFieldDefinition
-import model.ApplicationWithSubscriptionDataAndFieldDefinitions
-import model.ApiStatus
 
 case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 

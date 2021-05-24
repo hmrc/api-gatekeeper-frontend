@@ -16,9 +16,9 @@
 
 package utils
 
-import org.jsoup.nodes.{Document, Element}
-
 import scala.collection.JavaConverters._
+
+import org.jsoup.nodes.{Document, Element}
 
 object ViewHelpers {
 

@@ -16,23 +16,22 @@
 
 package connectors
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify}
 import config.AppConfig
+import connectors.DeveloperConnector.{FindUserIdRequestWrite, RemoveMfaRequest}
+import encryption.PayloadEncryption
 import model._
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.{AsyncHmrcSpec, WireMockSugar}
+
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.AsyncHmrcSpec
-import utils.WireMockSugar
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import encryption.PayloadEncryption
-import connectors.DeveloperConnector.FindUserIdRequestWrite
-import connectors.DeveloperConnector.RemoveMfaRequest
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 class HttpDeveloperConnectorSpec
   extends AsyncHmrcSpec
     with WireMockSugar

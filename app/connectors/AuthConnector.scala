@@ -19,6 +19,7 @@ package connectors
 import javax.inject.{Inject, Singleton}
 
 import config.AppConfig
+
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 

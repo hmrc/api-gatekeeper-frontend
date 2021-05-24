@@ -19,9 +19,10 @@ package views
 import java.util.Locale
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.AsyncHmrcSpec
+
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
-import utils.AsyncHmrcSpec
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]

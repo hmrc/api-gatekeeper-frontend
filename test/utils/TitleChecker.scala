@@ -16,9 +16,11 @@
 
 package utils
 
-import akka.stream.Materializer
-import play.api.mvc.Result
 import scala.concurrent.Future
+
+import akka.stream.Materializer
+
+import play.api.mvc.Result
 import play.api.test.Helpers._
 trait TitleChecker extends AsyncHmrcSpec {
 

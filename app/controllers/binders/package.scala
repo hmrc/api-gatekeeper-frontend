@@ -16,13 +16,12 @@
 
 package controllers
 
-import play.api.mvc.PathBindable
-import model.{ApiContext, ApplicationId, ApiVersion}
-import play.api.mvc.QueryStringBindable
-import model.UserId
 import scala.util.Try
-import model.{DeveloperIdentifier, EmailIdentifier}
+
+import model._
+
 import play.api.Logger
+import play.api.mvc.{PathBindable, QueryStringBindable}
 
 package object binders {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {

@@ -16,13 +16,13 @@
 
 package mocks.services
 
-import model.{ApiContext, ApiVersion}
+import scala.concurrent.Future.{failed,successful}
+
 import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
+import model.applications.NewApplication
+import model.{ApiContext, ApiVersion}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
-
-import scala.concurrent.Future.{failed,successful}
-import model.applications.NewApplication
 
 trait SubscriptionFieldsServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

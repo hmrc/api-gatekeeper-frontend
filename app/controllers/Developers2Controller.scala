@@ -16,20 +16,21 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.{Inject, Singleton}
 import model._
-import play.api.i18n.I18nSupport
-import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc._
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.Logger
+import play.api.i18n.I18nSupport
+import play.api.mvc.{MessagesControllerComponents, _}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 @Singleton
 class Developers2Controller @Inject()(val authConnector: AuthConnector,

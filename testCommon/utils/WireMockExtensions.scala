@@ -16,8 +16,7 @@
 
 package utils
 
-import com.github.tomakehurst.wiremock.client.MappingBuilder
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
+import com.github.tomakehurst.wiremock.client.{MappingBuilder, ResponseDefinitionBuilder}
 
 trait WireMockExtensions {
   implicit class withJsonRequestBodySyntax(bldr: MappingBuilder) {

@@ -16,13 +16,13 @@
 
 package mocks.services
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import services.DeveloperService
 import scala.concurrent.Future.{failed,successful}
-import model._
-import utils.UserIdTracker
+
 import model.TopicOptionChoice.TopicOptionChoice
+import model._
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import services.DeveloperService
+import utils.UserIdTracker
 
 trait DeveloperServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar with UserIdTracker =>

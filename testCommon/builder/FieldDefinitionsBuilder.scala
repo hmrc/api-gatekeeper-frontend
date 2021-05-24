@@ -16,11 +16,8 @@
 
 package builder
 
-import model.ApiContext
-import model.ApiDefinitions
-import model.ApiVersion
-import model.FieldName
 import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.{ApiContext, ApiDefinitions, ApiVersion, FieldName}
 
 trait FieldDefinitionsBuilder {
   

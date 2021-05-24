@@ -17,9 +17,9 @@
 package utils
 
 import scala.collection.mutable
-import model.UserId
-import model.Collaborator
+
 import model.CollaboratorRole._
+import model.{Collaborator, UserId}
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[String, UserId]()

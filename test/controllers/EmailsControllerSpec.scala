@@ -16,21 +16,22 @@
 
 package controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import model._
-import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
 import views.html.emails._
 import views.html.{ErrorTemplate, ForbiddenView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
+import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {

@@ -17,8 +17,8 @@
 package pages
 
 import common.{NavigationSugar, WebPage}
-import pages.ApplicationsPage.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
+import pages.ApplicationsPage.APIFilter.APIFilterList
 
 object ApplicationsPage extends WebPage with NavigationSugar {
 

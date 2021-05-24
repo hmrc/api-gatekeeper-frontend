@@ -16,8 +16,10 @@
 
 package config
 
-import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
+
+import com.google.inject.{ImplementedBy, Singleton}
+
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 

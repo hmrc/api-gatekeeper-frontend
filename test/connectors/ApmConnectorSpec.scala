@@ -16,23 +16,21 @@
 
 package connectors
 
-import utils.AsyncHmrcSpec
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
-import model.applications.ApplicationWithSubscriptionData
-import model.ApplicationId
-import uk.gov.hmrc.http.HeaderCarrier
-import builder.{ApplicationBuilder, ApiBuilder}
-import model._
-import model.subscriptions.ApiData
-import play.api.test.Helpers._
-import play.api.libs.json.Json
-import model.subscriptions.VersionData
-import model.APIDefinitionFormatters._
+
+import builder.{ApiBuilder, ApplicationBuilder}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import utils.WireMockSugar
+import model.APIDefinitionFormatters._
+import model.applications.ApplicationWithSubscriptionData
+import model.subscriptions.{ApiData, VersionData}
+import model.{ApplicationId, _}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import utils.{AsyncHmrcSpec, WireMockSugar}
+
+import play.api.libs.json.Json
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 class ApmConnectorSpec 
     extends AsyncHmrcSpec

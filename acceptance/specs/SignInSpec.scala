@@ -16,12 +16,13 @@
 
 package specs
 
-import matchers.CustomMatchers
-import pages.ApplicationsPage
-import common.SignInSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
+import common.SignInSugar
+import matchers.CustomMatchers
 import org.openqa.selenium.By
 import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import pages.ApplicationsPage
+
 import play.api.http.Status._
 
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {

@@ -14,6 +14,16 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import bloop.integrations.sbt.BloopDefaults
 
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+
+inThisBuild(
+  List(
+    scalaVersion := "2.12.12",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
+
 lazy val microservice =  (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
@@ -55,6 +65,7 @@ lazy val microservice =  (project in file("."))
   )
   .configs(IntegrationTest)
   .settings(
+    inConfig(IntegrationTest)(scalafixConfigSettings(IntegrationTest)),
     Defaults.itSettings,
     IntegrationTest / Keys.fork := false,
     IntegrationTest / parallelExecution := false,
@@ -66,6 +77,7 @@ lazy val microservice =  (project in file("."))
   .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
   .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
   .settings(
+    inConfig(AcceptanceTest)(scalafixConfigSettings(AcceptanceTest)),
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),

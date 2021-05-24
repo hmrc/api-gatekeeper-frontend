@@ -16,13 +16,10 @@
 
 package builder
 
-import model.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
-import model.{ApiStatus, ApiVersionDefinition, Subscription, VersionSubscription}
-import model.{ApiContext, ApiVersion, ClientId, ApplicationId}
-import model.FieldName
-import model.FieldValue
 import scala.util.Random
-import model.ApiIdentifier
+
+import model.SubscriptionFields.SubscriptionFieldDefinition.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import model._
 
 trait SubscriptionsBuilder {
 

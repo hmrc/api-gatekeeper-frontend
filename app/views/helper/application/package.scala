@@ -17,12 +17,12 @@
 package views.helper.application
 
 import model._
+import model.applications.NewApplication
 import org.joda.time.DateTime
 import org.joda.time.Days.daysBetween
 import org.joda.time.Months.monthsBetween
 import org.joda.time.Seconds.secondsBetween
 import org.joda.time.format.DateTimeFormat
-import model.applications.NewApplication
 
 object ApplicationPublicDescription {
   def apply(application: NewApplication): Option[String] = {

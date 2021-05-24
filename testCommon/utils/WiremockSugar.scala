@@ -20,8 +20,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatest.{BeforeAndAfterEach, Suite}
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 
 trait WireMockSugar extends BeforeAndAfterEach with BeforeAndAfterAll with WireMockExtensions {
   this: Suite =>

@@ -16,22 +16,22 @@
 
 package utils
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import connectors.AuthConnector
+import mocks.TestRoles._
 import mocks.config.AppConfigMock
 import model.{GatekeeperRole, GatekeeperSessionKeys, LoggedInRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{ Name, ~ }
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrieval, ~}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import views.html.{ErrorTemplate, ForbiddenView}
-import mocks.TestRoles._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
 
 class GatekeeperAuthWrapperSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   trait Setup extends AppConfigMock {

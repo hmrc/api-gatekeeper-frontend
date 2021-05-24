@@ -16,13 +16,12 @@
 
 package mocks.connectors
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
-import model._
-import model.TopicOptionChoice.TopicOptionChoice
 
 import connectors._
+import model.TopicOptionChoice.TopicOptionChoice
+import model._
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 trait DeveloperConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -16,10 +16,10 @@
 
 package views.emails
 
-import org.jsoup.nodes.Document
 import model.RegisteredUser
-import utils.ViewHelpers._
+import org.jsoup.nodes.Document
 import org.scalatest.Matchers
+import utils.ViewHelpers._
 
 trait UserTableHelper extends Matchers  {
   

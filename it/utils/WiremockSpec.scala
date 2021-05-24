@@ -1,11 +1,10 @@
 package utils
 
 import connectors.WiremockSugarIt
+import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import org.scalatest.WordSpec
-import org.scalatest.Matchers
-import play.api.test.FutureAwaits
-import play.api.test.DefaultAwaitTimeout
+
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 trait WiremockSpec
   extends WordSpec

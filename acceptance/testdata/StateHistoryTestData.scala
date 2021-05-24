@@ -1,9 +1,10 @@
 package testdata
 
+import builder.StateHistoryBuilder
 import model.{Actor, ApplicationId, State, StateHistory}
 import org.joda.time.DateTime
+
 import play.api.libs.json.Json
-import builder.StateHistoryBuilder
 
 trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
   val stateHistories = List(

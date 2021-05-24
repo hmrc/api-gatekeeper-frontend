@@ -16,21 +16,22 @@
 
 package controllers
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.Inject
 import model._
+import services.DeploymentApprovalService
+import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import views.html.deploymentApproval._
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.deploymentApproval._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              val forbiddenView: ForbiddenView,

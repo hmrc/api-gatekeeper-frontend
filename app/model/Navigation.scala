@@ -17,6 +17,7 @@
 package model
 
 import controllers.routes
+
 import play.api.libs.json.Json
 
 case class NavLink(label: String, href: Option[String])

@@ -1,8 +1,9 @@
 package testdata
 
-import play.api.libs.json.Json
 import model._
 import specs.MockDataSugar
+
+import play.api.libs.json.Json
 
 trait CommonTestData {
   val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"

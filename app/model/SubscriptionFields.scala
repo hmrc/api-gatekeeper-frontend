@@ -16,8 +16,9 @@
 
 package model
 
-import play.api.libs.json.{Format, Json}
 import scala.util.Random
+
+import play.api.libs.json.{Format, Json}
 
 case class FieldName(value: String) extends AnyVal
 

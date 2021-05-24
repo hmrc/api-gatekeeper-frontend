@@ -1,8 +1,9 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.Status._
 import model.ApplicationId
+
+import play.api.http.Status._
 
 trait ApmConnectorMock {
     self: WiremockSugarIt =>

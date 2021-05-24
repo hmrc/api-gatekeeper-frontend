@@ -16,11 +16,11 @@
 
 package mocks.connectors
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.{failed, successful}
+
+import connectors.{ApiPublisherConnector, ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import model._
-import connectors.{ApiPublisherConnector,SandboxApiPublisherConnector,ProductionApiPublisherConnector}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 trait ApiPublisherConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

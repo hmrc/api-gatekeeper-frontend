@@ -18,10 +18,9 @@ package builder
 
 import java.util.UUID._
 
+import model.RateLimitTier.RateLimitTier
 import model.State._
 import model._
-import model.RateLimitTier.RateLimitTier
-import org.joda.time.DateTime
 import org.joda.time.DateTime
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {

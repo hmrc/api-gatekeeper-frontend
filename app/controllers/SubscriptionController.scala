@@ -16,32 +16,21 @@
 
 package controllers
 
-import model.ApplicationId
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import model.GatekeeperRole
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import play.api.mvc.MessagesControllerComponents
-import model.ApiContext
-import model.ApiVersion
-import utils.ActionBuilders
-import utils.GatekeeperAuthWrapper
-import config.AppConfig
 import scala.concurrent.ExecutionContext
-import views.html.applications.ManageSubscriptionsView
-import services.ApmService
-import services.ApplicationService
-import views.html.ErrorTemplate
-import views.html.ForbiddenView
+
+import com.google.inject.{Inject, Singleton}
+import config.AppConfig
 import connectors.AuthConnector
-import com.google.inject.{Singleton, Inject}
-import model.view.SubscriptionViewModel
-import model.ApiIdentifier
+import model._
 import model.subscriptions.ApiData
-import utils.SortingHelper
-import model.SubscriptionWithoutFields
-import model.VersionSubscriptionWithoutFields
-import model.ApiVersionDefinition
+import model.view.SubscriptionViewModel
+import services.{ApmService, ApplicationService}
+import utils.{ActionBuilders, GatekeeperAuthWrapper, SortingHelper}
+import views.html.applications.ManageSubscriptionsView
+import views.html.{ErrorTemplate, ForbiddenView}
+
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 @Singleton
 class SubscriptionController @Inject()(

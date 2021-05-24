@@ -27,6 +27,7 @@ dist
 .ensime
 .ensime_cache
 .bloop
+.bsp
 .metals
 .vscode
 .ionide

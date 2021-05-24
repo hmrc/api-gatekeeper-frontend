@@ -16,16 +16,17 @@
 
 package services
 
-import connectors._
 import javax.inject.Inject
-import model.SubscriptionFields._
+import scala.concurrent.{ExecutionContext, Future}
+
+import connectors._
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
+import model.SubscriptionFields._
 import model._
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+
 import play.api.http.Status.NOT_FOUND
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse}
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,

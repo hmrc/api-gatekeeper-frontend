@@ -1,12 +1,12 @@
 package support
 
+import scala.collection.JavaConverters
+
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import org.scalatest.Suite
-import play.api.Application
+import org.scalatest.{Matchers, Suite}
 
-import scala.collection.JavaConverters
-import org.scalatest.Matchers
+import play.api.Application
 
 trait MetricsTestSupport {
   self: Suite with Matchers =>

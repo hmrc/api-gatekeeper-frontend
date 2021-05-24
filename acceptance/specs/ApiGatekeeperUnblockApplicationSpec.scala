@@ -17,14 +17,13 @@
 
 package specs
 
-import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.RegisteredUser
-import play.api.http.Status._
 import common.WebPage
-import model.ApplicationId
-import testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
-import model.UserId
+import model.{ApplicationId, RegisteredUser, UserId}
+import pages._
+import testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+
+import play.api.http.Status._
 
 class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithHistoryTestData {
 

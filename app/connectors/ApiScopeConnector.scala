@@ -16,17 +16,17 @@
 
 package connectors
 
-import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import model._
-import model.Environment.Environment
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+
+import config.AppConfig
+import model.Environment.Environment
+import model._
+
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient

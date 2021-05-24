@@ -16,17 +16,18 @@
 
 package controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.stream.Materializer
 import model.Environment.PRODUCTION
 import model._
-import play.api.http.Status._
+import views.html.{ErrorTemplate, ForbiddenView}
+
+import play.api.http.Status.{FORBIDDEN, _}
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
-import views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
-import play.api.http.Status.FORBIDDEN
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.HeaderCarrier
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()

@@ -16,24 +16,25 @@
 
 package controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.AppConfig
 import connectors.AuthConnector
-import javax.inject.{Inject, Singleton}
+import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import model._
 import model.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.joda.time.DateTime
+import services.{ApmService, ApplicationService, SubscriptionFieldsService}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import views.html.applications.subscriptionConfiguration._
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.data
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{ApplicationService, SubscriptionFieldsService, ApmService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.applications.subscriptionConfiguration._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubscriptionConfigurationController @Inject()(val applicationService: ApplicationService,

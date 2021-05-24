@@ -16,19 +16,18 @@
 
 package services
 
-import config.AppConfig
-import model._
-import org.mockito.invocation.InvocationOnMock
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.AsyncHmrcSpec
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-import utils.CollaboratorTracker
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
+
+import config.AppConfig
 import mocks.connectors._
+import model._
 import org.joda.time.DateTime
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import utils.{AsyncHmrcSpec, CollaboratorTracker}
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 

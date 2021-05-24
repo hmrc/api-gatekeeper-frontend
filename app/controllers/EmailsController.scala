@@ -16,27 +16,27 @@
 
 package controllers
 
-import config.AppConfig
-import model.Forms._
-import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import config.AppConfig
+import connectors.AuthConnector
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
+import model.Forms._
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APICategory, ApiDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice}
+import model._
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
+import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
+import views.html.emails._
+import views.html.{ErrorTemplate, ForbiddenView}
+
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
-import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
-
-import scala.concurrent.{ExecutionContext, Future}
-import model.{User,RegisteredUser}
 
 @Singleton
 class EmailsController @Inject()(developerService: DeveloperService,

@@ -16,16 +16,17 @@
 
 package controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import model._
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
+import org.joda.time.DateTime
 import utils.WithCSRFAddToken
 import views.html.developers._
 import views.html.{ErrorTemplate, ForbiddenView}
-import org.joda.time.DateTime
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
+import play.filters.csrf.CSRF.TokenProvider
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 

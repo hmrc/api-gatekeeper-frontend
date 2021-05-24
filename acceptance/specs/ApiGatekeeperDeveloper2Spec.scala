@@ -16,18 +16,19 @@
 
 package specs
 
-import pages.Developer2Page.APIFilter
-import pages.{ApplicationsPage, Developer2Page}
+import scala.collection.immutable.List
+
 import com.github.tomakehurst.wiremock.client.WireMock._
+import connectors.ApplicationConnector
+import model._
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, Tag}
+import pages.Developer2Page.APIFilter
+import pages.{ApplicationsPage, Developer2Page}
+import utils.WireMockExtensions
+
 import play.api.http.Status._
 import play.api.libs.json.Json
-
-import scala.collection.immutable.List
-import model._
-import connectors.ApplicationConnector
-import utils.WireMockExtensions
 
 class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 

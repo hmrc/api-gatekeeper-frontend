@@ -16,9 +16,9 @@
 
 package views.helper.application
 
+import builder.ApplicationResponseBuilder
 import model.State._
 import utils.AsyncHmrcSpec
-import builder.ApplicationResponseBuilder
 
 class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsSubmission" when {

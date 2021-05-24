@@ -19,12 +19,13 @@ package views.applications
 import model.Forms._
 import model.LoggedInUser
 import org.jsoup.Jsoup
-import play.api.test.FakeRequest
-import play.twirl.api.HtmlFormat
 import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.CreateApplicationView
+
+import play.api.test.FakeRequest
+import play.twirl.api.HtmlFormat
 
 class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
   trait Setup {

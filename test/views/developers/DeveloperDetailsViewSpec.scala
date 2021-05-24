@@ -20,10 +20,11 @@ import java.util.UUID
 
 import model.{LoggedInUser, _}
 import org.jsoup.Jsoup
-import play.api.test.FakeRequest
 import utils.ViewHelpers._
-import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
+import views.html.developers.DeveloperDetailsView
+
+import play.api.test.FakeRequest
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 

@@ -16,9 +16,10 @@
 
 package config
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import com.google.inject.{Inject, Provider, Singleton}
 import connectors.ApmConnector
-import com.google.inject.{Provider, Inject, Singleton}
+
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class LiveApmConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApmConnector.Config] {

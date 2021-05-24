@@ -19,11 +19,10 @@ package views.emails
 import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{ApiDefinition, EmailPreferencesChoice, TopicOptionChoice}
-import model.RegisteredUser
+import model.{ApiDefinition, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice}
 import org.jsoup.nodes.{Document, Element}
-import utils.ViewHelpers._
 import utils.HmrcSpec
+import utils.ViewHelpers._
 
 trait EmailUsersHelper extends APIDefinitionHelper {
   self: HmrcSpec =>
