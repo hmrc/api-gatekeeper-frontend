@@ -554,7 +554,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       ApplicationConnectorMock.Prod.RemoveCollaborator.failsWithLastAdminFor(stdApp1.id, memberToRemove, requestingUser)
 
-      intercept[TeamMemberLastAdmin] {
+      intercept[TeamMemberLastAdmin.type] {
         await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
       }
     }
@@ -571,7 +571,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false)
       )
       val response = ApplicationUpdateSuccessResult
-      val expectedAdminsToEmail = Seq(verifiedAdmin.emailAddress)
+      val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress)
 
       when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
         .thenReturn(successful(nonAdderAdmins))

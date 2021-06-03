@@ -178,7 +178,7 @@ class ApmConnectorSpec
         )
       )
 
-      intercept[TeamMemberAlreadyExists] {
+      intercept[TeamMemberAlreadyExists.type] {
         await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
       }
     }
@@ -194,7 +194,7 @@ class ApmConnectorSpec
         )
       )
 
-      intercept[ApplicationNotFound] {
+      intercept[ApplicationNotFound.type] {
         await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
       }
     }

@@ -48,30 +48,6 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
 
-  // def developersPage(filter: Option[String], status: Option[String], environment: Option[String]) = requiresAtLeast(GatekeeperRole.USER) {
-  //   implicit request =>
-
-  //     val apiFilter = ApiFilter(filter)
-  //     val statusFilter = StatusFilter(status)
-  //     val apiSubscriptionInEnvironmentFilter = ApiSubscriptionInEnvironmentFilter(environment)
-
-  //     val appsF = applicationService.fetchApplications(apiFilter, apiSubscriptionInEnvironmentFilter)
-  //     val apisF = apiDefinitionService.fetchAllApiDefinitions()
-  //     val usersF = developerService.fetchUsers
-
-  //     for {
-  //       apps <- appsF
-  //       apis <- apisF
-  //       users <- usersF
-  //       filterOps = (developerService.filterUsersBy(apiFilter, apps) _
-  //         andThen developerService.filterUsersBy(statusFilter))
-  //       devs = developerService.getDevelopersWithApps(apps, users)
-  //       filteredUsers = filterOps(devs)
-  //       sortedDevelopers = filteredUsers.sortBy(_.user.email.toLowerCase)
-  //       emails = sortedDevelopers.map(_.user.email).mkString("; ")
-  //     } yield Ok(developersView(sortedDevelopers, emails, groupApisByStatus(apis), filter, status, environment))
-  // }
-
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
       developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
@@ -104,14 +80,5 @@ class DevelopersController @Inject()(developerService: DeveloperService,
         case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
         case _ => technicalDifficulties
       }
-  }
-
-  private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
-    val versions = for {
-      api <- apis
-      version <- api.versions
-    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
-
-    versions.groupBy(v => ApiStatus.displayedStatus(v.status))
   }
 }

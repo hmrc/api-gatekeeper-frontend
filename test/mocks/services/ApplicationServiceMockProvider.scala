@@ -100,7 +100,7 @@ trait ApplicationServiceMockProvider {
 
       def failsDueToExistingAlready() = 
         when(mockApplicationService.addTeamMember(*, *)(*))
-        .thenReturn(failed(new TeamMemberAlreadyExists))
+        .thenReturn(failed(TeamMemberAlreadyExists))
     }
 
     object RemoveTeamMember {
@@ -110,7 +110,7 @@ trait ApplicationServiceMockProvider {
 
       def failsDueToLastAdmin() =
         when(mockApplicationService.removeTeamMember(*, *, *)(*))
-        .thenReturn(failed(new TeamMemberLastAdmin))
+        .thenReturn(failed(TeamMemberLastAdmin))
     }
   }
 }

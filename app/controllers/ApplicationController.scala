@@ -19,7 +19,6 @@ package controllers
 import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
-import model._
 import model.Forms._
 import model.SubscriptionFields.Fields.Alias
 import model.view.ApplicationViewModel
@@ -43,6 +42,7 @@ import scala.util.Try
 import scala.concurrent.Future.successful
 import model.subscriptions.ApiData
 import model.ApiStatus.ApiStatus
+import model._
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -500,8 +500,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
             fetchApplicationReviewDetails(appId) map (details => BadRequest(reviewView(errors, details)))
 
           def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
-            case e: PreconditionFailed => {
-              Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", e)
+            case PreconditionFailedException => {
+              Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", PreconditionFailedException)
               Redirect(routes.ApplicationController.applicationsPage(None))
             }
           }

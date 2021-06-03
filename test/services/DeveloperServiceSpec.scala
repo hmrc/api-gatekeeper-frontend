@@ -104,7 +104,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     def verifyCollaboratorRemovedFromApp(app: Application,
                                        userToRemove: String,
                                        gatekeeperUserId: String,
-                                       adminsToEmail: List[String],
+                                       adminsToEmail: Set[String],
                                        environment: String = "PRODUCTION") = {
       environment match {
         case "PRODUCTION" =>
@@ -334,9 +334,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, List(verifiedAdminCollaborator.emailAddress))
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, List.empty)
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, List(verifiedAdminCollaborator.emailAddress))
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
@@ -352,9 +352,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, List.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
     }
