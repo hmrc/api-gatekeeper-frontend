@@ -18,22 +18,23 @@ package model
 
 import java.util.UUID
 
-import model.EmailOptionChoice.EmailOptionChoice
-import model.EmailPreferencesChoice.EmailPreferencesChoice
-import model.OverrideType.OverrideType
-import model.RateLimitTier._
-import model.Environment._
-import model.State.State
 import org.joda.time.DateTime
-import play.api.data.Form
-import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
+
+import play.api.data.Form
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
-import model.applications.ApplicationWithSubscriptionData
+import play.api.libs.json._
+import model.EmailOptionChoice.EmailOptionChoice
+import model.EmailPreferencesChoice.EmailPreferencesChoice
+import model.Environment._
+import model.OverrideType.OverrideType
+import model.RateLimitTier._
+import model.State.State
 import model.SubscriptionFields.SubscriptionFieldDefinition
+import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions.ApiData
 
 object GatekeeperRole extends Enumeration {
@@ -113,19 +114,19 @@ object ApplicationWithUpliftRequest {
   val compareBySubmittedOn = (a: ApplicationWithUpliftRequest, b: ApplicationWithUpliftRequest) => a.submittedOn.isBefore(b.submittedOn)
 }
 
-class PreconditionFailed extends Throwable
+object PreconditionFailedException extends Throwable
 
 class FetchApplicationsFailed(cause: Throwable) extends Throwable(cause)
 
-class FetchApplicationSubscriptionsFailed extends Throwable
+object FetchApplicationSubscriptionsFailed extends Throwable
 
 class InconsistentDataState(message: String) extends RuntimeException(message)
 
-class TeamMemberAlreadyExists extends Throwable
+object TeamMemberAlreadyExists extends Throwable
 
-class TeamMemberLastAdmin extends Throwable
+object TeamMemberLastAdmin extends Throwable
 
-class ApplicationNotFound extends Throwable
+object ApplicationNotFound extends Throwable
 
 case class ApproveUpliftRequest(gatekeeperUserId: String)
 
@@ -240,6 +241,7 @@ sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult
 case object ApplicationUpdateFailureResult extends ApplicationUpdateResult
 
+
 sealed trait ApplicationDeleteResult
 case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult
 case object ApplicationDeleteFailureResult extends ApplicationDeleteResult
@@ -304,6 +306,16 @@ object BlockApplicationRequest {
 final case class UnblockApplicationRequest(gatekeeperUserId: String)
 object UnblockApplicationRequest {
   implicit val format = Json.format[UnblockApplicationRequest]
+}
+
+case class DeleteCollaboratorRequest(
+  email: String,
+  adminsToEmail: Set[String],
+  notifyCollaborator: Boolean
+)
+
+object DeleteCollaboratorRequest {
+  implicit val writesDeleteCollaboratorRequest = Json.writes[DeleteCollaboratorRequest]
 }
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)

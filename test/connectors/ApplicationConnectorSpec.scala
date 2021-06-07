@@ -121,7 +121,7 @@ class ApplicationConnectorSpec
         )
       )
 
-      intercept[PreconditionFailed] {
+      intercept[PreconditionFailedException.type] {
         await(connector.approveUplift(applicationId, gatekeeperId))
       }
     }
@@ -156,7 +156,7 @@ class ApplicationConnectorSpec
         )
       )
 
-      intercept[PreconditionFailed] {
+      intercept[PreconditionFailedException.type] {
         await(connector.rejectUplift(applicationId, gatekeeperId, rejectionReason))
       }
     }
@@ -189,7 +189,7 @@ class ApplicationConnectorSpec
           .withStatus(PRECONDITION_FAILED)
         )
       )
-      intercept[PreconditionFailed] {
+      intercept[PreconditionFailedException.type] {
         await(connector.resendVerification(applicationId, gatekeeperId))
       }
     }
@@ -486,15 +486,14 @@ class ApplicationConnectorSpec
   "removeCollaborator" should {
     val emailAddress = "toRemove@example.com"
     val gatekeeperUserId = "maxpower"
-    val adminsToEmail = List("admin1@example.com", "admin2@example.com")
+    val adminsToEmail = Set("admin1@example.com", "admin2@example.com")
 
-    val url = s"/application/${applicationId.value}/collaborator/$emailAddress"
+    val url = s"/application/${applicationId.value}/collaborator/delete"
 
     "send a DELETE request to the service with the correct params" in new Setup {
       stubFor(
-        delete(urlPathEqualTo(url))
-        .withQueryParam("admin", equalTo(encode(gatekeeperUserId)))
-        .withQueryParam("adminsToEmail", equalTo(encode(adminsToEmail.mkString(","))))
+        post(urlPathEqualTo(url))
+        .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress,adminsToEmail,true))
         .willReturn(
           aResponse()
           .withStatus(OK)
@@ -505,24 +504,22 @@ class ApplicationConnectorSpec
 
     "throw TeamMemberLastAdmin when the service responds with 403" in new Setup {
       stubFor(
-        delete(urlPathEqualTo(url))
-        .withQueryParam("admin", equalTo(encode(gatekeeperUserId)))
-        .withQueryParam("adminsToEmail", equalTo(encode(adminsToEmail.mkString(","))))
+        post(urlPathEqualTo(url))
+        .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress,adminsToEmail,true))
         .willReturn(
           aResponse()
           .withStatus(FORBIDDEN)
         )
       )
-      intercept[TeamMemberLastAdmin] {
+      intercept[TeamMemberLastAdmin.type] {
         await(connector.removeCollaborator(applicationId, emailAddress, gatekeeperUserId, adminsToEmail))
       }
     }
 
     "throw the error when the service returns any other error" in new Setup {
       stubFor(
-        delete(urlPathEqualTo(url))
-        .withQueryParam("admin", equalTo(encode(gatekeeperUserId)))
-        .withQueryParam("adminsToEmail", equalTo(encode(adminsToEmail.mkString(","))))
+        post(urlPathEqualTo(url))
+        .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress,adminsToEmail,true))
         .willReturn(
           aResponse()
           .withStatus(INTERNAL_SERVER_ERROR)

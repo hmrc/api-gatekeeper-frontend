@@ -16,20 +16,19 @@
 
 package connectors
 
-import java.net.URLEncoder.encode
-
-import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import model.Environment.Environment
-import model.RateLimitTier.RateLimitTier
-import model._
-import play.api.http.Status._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import model.{ApiContext, UserId}
-
 import scala.concurrent.{ExecutionContext, Future}
 
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+
+import play.api.http.Status._
+import config.AppConfig
+import model.Environment.Environment
+import model.RateLimitTier.RateLimitTier
+import model.{ApiContext, UserId, _}
+
+import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -67,7 +66,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.POST[ApproveUpliftRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/approve-uplift", ApproveUpliftRequest(gatekeeperUserId))
     .map(_ match {
       case Right(_) => ApproveUpliftSuccessful
-      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw new PreconditionFailed
+      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
       case Left(err) => throw err
     })
   }
@@ -77,7 +76,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.POST[RejectUpliftRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/reject-uplift", RejectUpliftRequest(gatekeeperUserId, rejectionReason))
     .map(_ match {
       case Right(_) => RejectUpliftSuccessful
-      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw new PreconditionFailed
+      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
       case Left(err) => throw err
     })
   }
@@ -87,7 +86,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.POST[ResendVerificationRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/resend-verification", ResendVerificationRequest(gatekeeperUserId))
     .map(_ match {
       case Right(_) => ResendVerificationSuccessful
-      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw new PreconditionFailed
+      case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
       case Left(err) => throw err
     })
   }
@@ -186,13 +185,16 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     })
   }
 
-  // TODO - APIS-4925 - email address removal from URLs.
-  def removeCollaborator(applicationId: ApplicationId, emailAddress: String, gatekeeperUserId: String, adminsToEmail: Seq[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/collaborator/$emailAddress?admin=${urlEncode(gatekeeperUserId)}&adminsToEmail=${urlEncode(adminsToEmail.mkString(","))}")
-    .map(_ match {
-      case Right(_) => ApplicationUpdateSuccessResult
-      case Left(UpstreamErrorResponse(_, FORBIDDEN, _, _)) => throw new TeamMemberLastAdmin
-      case Left(err) => throw err 
+  def removeCollaborator(applicationId: ApplicationId, teamMemberToDelete: String, gatekeeperUserId: String, adminsToEmail: Set[String])(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val url = s"${baseApplicationUrl(applicationId)}/collaborator/delete"
+    val request = DeleteCollaboratorRequest(teamMemberToDelete, adminsToEmail, true)
+
+    http.POST[DeleteCollaboratorRequest, Either[UpstreamErrorResponse, Unit]](url, request)
+    .flatMap(_ match {
+      case Right(_)                                               => successful(ApplicationUpdateSuccessResult)
+      case Left(UpstreamErrorResponse(_, FORBIDDEN, _, _))        => failed(TeamMemberLastAdmin)
+      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _))        => failed(ApplicationNotFound)
+      case Left(err)                       => failed(err)
     })
   }
 
@@ -206,10 +208,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
     http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
-  }
-
-  private def urlEncode(str: String, encoding: String = "UTF-8") = {
-    encode(str, encoding)
   }
 
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[String]] = {

@@ -86,7 +86,7 @@ trait ApplicationConnectorMockProvider {
 
       def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) = 
         when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
-        .thenReturn(failed(new TeamMemberLastAdmin))
+        .thenReturn(failed(TeamMemberLastAdmin))
     }
 
     object UpdateScopes {

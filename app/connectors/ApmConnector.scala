@@ -60,8 +60,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
     .map( _ match {
       case Right(()) => ()
-      case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw new TeamMemberAlreadyExists
-      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw new ApplicationNotFound
+      case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw TeamMemberAlreadyExists
+      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
       case Left(err) => throw err
     })
   }

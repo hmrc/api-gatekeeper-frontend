@@ -1,6 +1,6 @@
+.*
+!.gitignore
 
-.cache-main
-.cache-tests
 bin/
 logs
 project/project
@@ -9,24 +9,9 @@ project/metals.sbt
 target
 lib_managed
 tmp
-.history
-.cache-main
-.cache-tests
 dist
-/.idea
 /*.iml
 /*.ipr
 /out
-/.idea_modules
-/.classpath
-/.project
 /RUNNING_PID
-/.settings
 *.iws
-.DS_Store
-.ensime
-.ensime_cache
-.bloop
-.metals
-.vscode
-.ionide

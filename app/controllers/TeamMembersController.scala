@@ -97,7 +97,7 @@ class TeamMembersController @Inject()(
             result <- applicationService.addTeamMember(app.application, collaborator)
                       .map(_ => Redirect(controllers.routes.TeamMembersController.manageTeamMembers(appId)))
                       .recover {
-                        case _: TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
+                        case _ @ TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
                       }
           } yield result
         }
@@ -132,7 +132,7 @@ class TeamMembersController @Inject()(
             case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
               _ => Redirect(routes.TeamMembersController.manageTeamMembers(appId))
             } recover {
-              case _: TeamMemberLastAdmin =>
+              case _ @ TeamMemberLastAdmin =>
                 BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
             }
             case _ => successful(Redirect(routes.TeamMembersController.manageTeamMembers(appId)))

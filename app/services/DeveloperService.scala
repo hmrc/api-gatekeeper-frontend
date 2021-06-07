@@ -165,18 +165,16 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.removeMfa(developerId, loggedInUser)
   }
 
-  // TODO : APIS-5159 - remove excessive use of email
-  //
   def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(email: String)(app: Application): Future[List[String]] = {
+    def fetchAdminsToEmail(email: String)(app: Application): Future[Set[String]] = {
       if (app.deployedTo == "SANDBOX") {
-        Future.successful(List.empty)
+        Future.successful(Set.empty)
       } else {
         val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
         for {
           users <- fetchDevelopersByEmails(appAdmins)
-          verifiedUsers = users.filter(_.verified)
+          verifiedUsers = users.toSet.filter(_.verified)
           adminsToEmail = verifiedUsers.map(_.email)
         } yield adminsToEmail
       }
