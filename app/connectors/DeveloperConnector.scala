@@ -25,7 +25,7 @@ import encryption._
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import model.UserId
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.name.Named

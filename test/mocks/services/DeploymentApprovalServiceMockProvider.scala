@@ -19,7 +19,7 @@ package mocks.services
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import model._
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 import services.DeploymentApprovalService
 
 trait DeploymentApprovalServiceMockProvider {

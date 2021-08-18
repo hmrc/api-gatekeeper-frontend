@@ -21,11 +21,10 @@ import config.AppConfigImpl
 import javax.inject.Inject
 import mocks.TestRoles
 import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.RunMode
 
 @Singleton
-class FakeAppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
-  extends AppConfigImpl(config, runMode) {
+class FakeAppConfigImpl @Inject()(config: Configuration)
+  extends AppConfigImpl(config) {
 
   override def title = "Unit Test Title"
 

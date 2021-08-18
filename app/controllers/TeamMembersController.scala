@@ -25,16 +25,15 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import services.{ApplicationService, ApmService, DeveloperService}
-
 
 trait WithRestrictedApp {
   self: FrontendBaseController with ActionBuilders with GatekeeperAuthWrapper =>

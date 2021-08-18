@@ -17,7 +17,7 @@
 package mocks.services
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import scala.concurrent.Future.{failed,successful}
+import scala.concurrent.Future.successful
 import connectors._
 import model.ApiScope
 

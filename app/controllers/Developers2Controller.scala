@@ -23,7 +23,7 @@ import model._
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View

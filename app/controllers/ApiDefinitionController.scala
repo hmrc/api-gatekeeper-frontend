@@ -23,7 +23,7 @@ import model._
 import model.Environment._
 import play.api.mvc.MessagesControllerComponents
 import services.ApiDefinitionService
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 
