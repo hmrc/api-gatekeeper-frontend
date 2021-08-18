@@ -19,7 +19,7 @@ package config
 import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
 import play.api.{ConfigLoader, Configuration}
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
@@ -73,9 +73,7 @@ trait AppConfig {
 }
 
 @Singleton
-class AppConfigImpl @Inject()(config: Configuration, runMode: RunMode)
-  extends ServicesConfig(config, runMode)
-  with AppConfig {
+class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(config) with AppConfig {
 
   def title = "HMRC API Gatekeeper"
 

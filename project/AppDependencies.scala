@@ -11,7 +11,7 @@ object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
-    "uk.gov.hmrc"       %%  "bootstrap-play-26"             % "4.0.0",
+    "uk.gov.hmrc"       %%  "bootstrap-frontend-play-26"    % "5.12.0",
     "uk.gov.hmrc"       %%  "time"                          % "3.11.0",
     "uk.gov.hmrc"       %%  "govuk-template"                % "5.55.0-play-26",
     "uk.gov.hmrc"       %%  "play-ui"                       % "8.21.0-play-26",
@@ -31,6 +31,8 @@ object AppDependencies {
     "org.typelevel"     %%  "cats-core"                     % "2.3.1"
   )
 
+  lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
+
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "org.scalatestplus.play"  %%  "scalatestplus-play"        % "3.1.3",
     "org.pegdown"             %   "pegdown"                   % "1.6.0",
@@ -41,5 +43,5 @@ object AppDependencies {
     "org.seleniumhq.selenium" %   "selenium-htmlunit-driver"  % "2.52.0",
     "org.mockito"             %%  "mockito-scala-scalatest"   % "1.7.1",
     "org.scalacheck"          %%  "scalacheck"                % scalaCheckVersion
-  ).map (m => m % "test,it,acceptance")
+  ).map (_ % testScopes)
 }

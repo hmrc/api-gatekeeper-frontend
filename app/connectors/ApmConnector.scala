@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import model.applications._
 import scala.concurrent.Future
 
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext
 import model.subscriptions.ApiData

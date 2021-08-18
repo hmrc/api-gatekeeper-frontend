@@ -20,7 +20,7 @@ import model.ApplicationId
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import model.GatekeeperRole
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.mvc.MessagesControllerComponents
 import model.ApiContext
 import model.ApiVersion

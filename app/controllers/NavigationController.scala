@@ -21,7 +21,7 @@ import config.AppConfig
 import model.StaticNavLinks
 import play.api.libs.json._
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 

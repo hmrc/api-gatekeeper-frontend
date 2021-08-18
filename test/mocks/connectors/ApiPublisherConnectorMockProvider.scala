@@ -18,7 +18,7 @@ package mocks.connectors
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 import model._
 import connectors.{ApiPublisherConnector,SandboxApiPublisherConnector,ProductionApiPublisherConnector}
 

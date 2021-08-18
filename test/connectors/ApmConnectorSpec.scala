@@ -17,7 +17,7 @@
 package connectors
 
 import utils.AsyncHmrcSpec
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.applications.ApplicationWithSubscriptionData
 import model.ApplicationId

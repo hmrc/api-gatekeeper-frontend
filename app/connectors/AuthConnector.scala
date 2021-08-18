@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import config.AppConfig
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 @Singleton
 class AuthConnector @Inject()(val http: HttpClient, appConfig: AppConfig) extends PlayAuthConnector {

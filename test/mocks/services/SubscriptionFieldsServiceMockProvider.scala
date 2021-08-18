@@ -21,7 +21,7 @@ import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.SubscriptionFieldsService
 
-import scala.concurrent.Future.{failed,successful}
+import scala.concurrent.Future.successful
 import model.applications.NewApplication
 
 trait SubscriptionFieldsServiceMockProvider {
