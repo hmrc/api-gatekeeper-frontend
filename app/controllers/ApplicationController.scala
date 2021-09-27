@@ -73,6 +73,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       manageTeamMembersView: ManageTeamMembersView,
                                       addTeamMemberView: AddTeamMemberView,
                                       removeTeamMemberView: RemoveTeamMemberView,
+                                      manageGrantLengthView: ManageGrantLengthView,
                                       val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
     extends FrontendController(mcc)
@@ -298,6 +299,31 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
           UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
         }
+  }
+
+  def manageGrantLength(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      withApp(appId) { app =>
+        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength.toString))
+        Future.successful(Ok(manageGrantLengthView(app.application, form)))
+      }
+  }
+
+  def updateGrantLength(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.ADMIN) {
+    implicit request =>
+      withApp(appId) { app =>
+        def handleValidForm(form: UpdateGrantLengthForm) = {
+          applicationService.updateGrantLength(app.application, GrantLength.withName(form.grantLength)).map { _ =>
+            Redirect(routes.ApplicationController.applicationPage(appId))
+          }
+        }
+
+        def handleFormError(form: Form[UpdateGrantLengthForm]) = {
+          Future.successful(BadRequest(manageGrantLengthView(app.application, form)))
+        }
+
+        UpdateGrantLengthForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      }
   }
 
   def deleteApplicationPage(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.SUPERUSER) {

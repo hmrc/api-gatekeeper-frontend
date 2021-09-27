@@ -17,12 +17,10 @@
 package model
 
 import java.util.UUID
-
 import org.joda.time.DateTime
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
-
 import play.api.data.Form
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
@@ -30,6 +28,7 @@ import play.api.libs.json._
 import model.EmailOptionChoice.EmailOptionChoice
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.Environment._
+import model.GrantLength.GrantLength
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
 import model.State.State
@@ -101,6 +100,12 @@ case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
 
 object UpdateRateLimitTierRequest {
   implicit val format = Json.format[UpdateRateLimitTierRequest]
+}
+
+case class UpdateGrantLengthRequest(grantLength: GrantLength)
+
+object UpdateGrantLengthRequest {
+  implicit val format = Json.format[UpdateGrantLengthRequest]
 }
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)

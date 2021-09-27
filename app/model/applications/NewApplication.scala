@@ -19,6 +19,7 @@ package model.applications
 import model.{Access, AccessType, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, IpAllowlist, Privileged, Ropc, Standard, TotpIds}
 import org.joda.time.DateTime
 import model.Environment.Environment
+import model.GrantLength.GrantLength
 import uk.gov.hmrc.play.json.Union
 import model.RateLimitTier.RateLimitTier
 
@@ -38,7 +39,8 @@ case class NewApplication(
     rateLimitTier: RateLimitTier,
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
-    ipAllowlist: IpAllowlist = IpAllowlist()
+    ipAllowlist: IpAllowlist = IpAllowlist(),
+    grantLength: GrantLength
 )
 
 object NewApplication {
@@ -61,6 +63,7 @@ object NewApplication {
   implicit val formatCollaborator = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
   implicit val formatRateLimitTier = Json.formatEnum(model.RateLimitTier)
+  implicit val formatGrantLength = Json.formatEnum(model.GrantLength)
   implicit val applicationFormat = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)

@@ -17,13 +17,16 @@
 package services
 
 import connectors._
+
 import javax.inject.Inject
 import model.SubscriptionFields._
 import model.Environment._
+import model.GrantLength.GrantLength
 import model.RateLimitTier.RateLimitTier
 import model._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import play.api.http.Status.NOT_FOUND
+
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
@@ -186,6 +189,10 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
       applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
+  }
+
+  def updateGrantLength(application: Application, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    applicationConnectorFor(application).updateGrantLength(application.id, grantLength)
   }
 
   def updateRateLimitTier(application: Application, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

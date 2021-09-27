@@ -198,7 +198,8 @@ case class ApplicationResponse(id: ApplicationId,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
                                blocked: Boolean = false,
-                               ipAllowlist: IpAllowlist = IpAllowlist())
+                               ipAllowlist: IpAllowlist = IpAllowlist(),
+                               grantLength: Int)
   extends Application
 
 object ApplicationResponse {
@@ -240,7 +241,8 @@ object ApplicationResponse {
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "ipAllowlist").read[IpAllowlist]
+      (JsPath \ "ipAllowlist").read[IpAllowlist] and
+      (JsPath \ "grantLength").read[Int]
     ) (ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {
@@ -351,4 +353,24 @@ object RateLimitTier extends Enumeration {
   lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
 
   implicit val format = Json.formatEnum(RateLimitTier)
+}
+
+object GrantLength extends Enumeration {
+  type GrantLength = Value
+
+  val ONE_MONTH, THREE_MONTHS, EIGHTEEN_MONTHS, FIVE_YEARS, INDEFINITE = Value
+
+  def from(grantLength: String) = GrantLength.values.find(e => e.toString == grantLength.toUpperCase)
+
+  def displayedGrantLength: GrantLength => String = {
+    case ONE_MONTH => "1 month"
+    case THREE_MONTHS => "3 months"
+    case EIGHTEEN_MONTHS => "18 months"
+    case FIVE_YEARS => "5 years"
+    case INDEFINITE => "10 years"
+  }
+
+  lazy val asOrderedList: List[GrantLength] = GrantLength.values.toList.sorted
+
+  implicit val format = Json.formatEnum(GrantLength)
 }

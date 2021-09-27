@@ -204,6 +204,13 @@
                 }</td>
         </tr>
         <tr>
+            <th><h3>Variable Grant Length</h3></th>
+            <td grant-length>@GrantLength.displayedGrantLength(application.grantLength)</td>
+            <td>@if(model.isAdmin) {
+                <a id="manage-grant-length" href="@{routes.ApplicationController.manageGrantLength(applicationId)}" class="button--link" role="button">Manage</a>
+                }</td>
+        </tr>
+        <tr>
             <th><h3>Terms of Use</h3></th>
             <td>
                 <div data-terms>
