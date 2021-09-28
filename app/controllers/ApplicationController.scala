@@ -304,7 +304,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def manageGrantLength(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
       withApp(appId) { app =>
-        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength.toString))
+        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength))
         Future.successful(Ok(manageGrantLengthView(app.application, form)))
       }
   }
@@ -313,7 +313,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       withApp(appId) { app =>
         def handleValidForm(form: UpdateGrantLengthForm) = {
-          applicationService.updateGrantLength(app.application, GrantLength.withName(form.grantLength)).map { _ =>
+          applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength).get).map { _ =>
             Redirect(routes.ApplicationController.applicationPage(appId))
           }
         }

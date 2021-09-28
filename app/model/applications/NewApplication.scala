@@ -40,7 +40,7 @@ case class NewApplication(
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    grantLength: GrantLength
+    grantLength: Int
 )
 
 object NewApplication {

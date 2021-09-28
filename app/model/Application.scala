@@ -18,11 +18,12 @@ package model
 
 import java.util.UUID
 import java.net.URLEncoder.encode
-
 import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
+import play.api.Logger
+import play.api.Logger.logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
@@ -357,20 +358,33 @@ object RateLimitTier extends Enumeration {
 
 object GrantLength extends Enumeration {
   type GrantLength = Value
+  val thirtyDays = 30
+  val sixtyDays = 60
+  val fiveHundredFortySevenDays = 547
+  val oneThousandEightHundredAndTwentyFiveDays = 1825
+  val threeThousandSixHundredAndFiftyDays = 3650
 
-  val ONE_MONTH, THREE_MONTHS, EIGHTEEN_MONTHS, FIVE_YEARS, INDEFINITE = Value
+  val ONE_MONTH = Value(thirtyDays)
+  val THREE_MONTHS = Value(sixtyDays)
+  val EIGHTEEN_MONTHS = Value(fiveHundredFortySevenDays)
+  val FIVE_YEARS = Value(oneThousandEightHundredAndTwentyFiveDays)
+  val INDEFINITE = Value(threeThousandSixHundredAndFiftyDays)
 
-  def from(grantLength: String) = GrantLength.values.find(e => e.toString == grantLength.toUpperCase)
+  def from(grantLength: Int) = GrantLength.values.find(e => e.id == grantLength)
 
-  def displayedGrantLength: GrantLength => String = {
-    case ONE_MONTH => "1 month"
-    case THREE_MONTHS => "3 months"
-    case EIGHTEEN_MONTHS => "18 months"
-    case FIVE_YEARS => "5 years"
-    case INDEFINITE => "10 years"
+  def displayedGrantLength(grantLength: Int): String = {
+    Logger.info(s"******grantLength:$grantLength")
+    GrantLength.from(grantLength)
+    match {
+      case Some(ONE_MONTH) => "1 month"
+      case Some(THREE_MONTHS) => "3 months"
+      case Some(EIGHTEEN_MONTHS) => "18 months"
+      case Some(FIVE_YEARS) => "5 years"
+      case Some(INDEFINITE) => "10 years"
+    }
   }
 
-  lazy val asOrderedList: List[GrantLength] = GrantLength.values.toList.sorted
+  lazy val asOrderedList: List[Int] = GrantLength.values.map(value => value.id).toList.sorted
 
   implicit val format = Json.formatEnum(GrantLength)
 }
