@@ -102,7 +102,7 @@ object UpdateRateLimitTierRequest {
   implicit val format = Json.format[UpdateRateLimitTierRequest]
 }
 
-case class UpdateGrantLengthRequest(grantLength: GrantLength)
+case class UpdateGrantLengthRequest(grantLengthInDays: Int)
 
 object UpdateGrantLengthRequest {
   implicit val format = Json.format[UpdateGrantLengthRequest]

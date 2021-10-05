@@ -23,7 +23,7 @@
 
 @main(title = s"${applicationConfig.title} - Manage grant length") {
 
-<div class="">
+<div class="govuk-grid-column-two-thirds">
 
     <nav class="breadcrumb-nav">
         <ul>
@@ -34,16 +34,15 @@
             <li class="breadcrumb-nav__item">Manage grant length</li>
         </ul>
     </nav>
-    <h1>Manage grant length</h1>
+    <h1>Manage application grant length</h1>
 
-    <div class="notice">
-        <i class="icon icon-important">
-            <span class="visually-hidden">Warning</span>
-        </i>
-        <strong class="bold-small">
-            Tell the application's administrators that any existing user tokens are not affected when we change the grant length.
-        </strong>
-    </div>
+    <p>
+        The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
+    </p>
+    <p>The current application grant length is <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength)</strong></p>
+    <p><strong class="bold">Choose a new application grant length</strong></p>
+    <p>A change you make now does not affect existing grant lengths.</p>
+
     <br>
 
     @helper.form(action = routes.ApplicationController.updateGrantLength(application.id), 'class -> "form") {
@@ -51,11 +50,15 @@
         @helper.CSRF.formField
 
         @for(g <- GrantLength.asOrderedList) {
-        <fieldset class="inline">
-            <label class="block-label" style="width: 100%;">
-                <input type="radio" id="@g" name="grantLength" value=@g @if(application.grantLength == g) {checked}>
-                @GrantLength.displayedGrantLength(g)
-            </label>
+        <fieldset class="govuk-fieldset">
+            <div class="govuk-radios">
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" type="radio" id="@g" name="grantLength" value="@g">
+                    <label class="govuk-label govuk-radios__label" for="@g">
+                        @GrantLength.displayedGrantLength(g)
+                    </label>
+                </div>
+            </div>
         </fieldset>
         }
     </div>

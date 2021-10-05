@@ -359,16 +359,24 @@ object RateLimitTier extends Enumeration {
 object GrantLength extends Enumeration {
   type GrantLength = Value
   val thirtyDays = 30
-  val sixtyDays = 60
-  val fiveHundredFortySevenDays = 547
+  val ninetyDays = 90
+  val oneHundredAndEightyDays = 180
+  val threeSixtyFiveDays = 365
+  val fiveHundredAndFortySevenDays = 547
+  val oneThousandNinetyFiveDays = 1095
   val oneThousandEightHundredAndTwentyFiveDays = 1825
   val threeThousandSixHundredAndFiftyDays = 3650
+  val thirtySixThousandFiveHundredDays = 36500
 
   val ONE_MONTH = Value(thirtyDays)
-  val THREE_MONTHS = Value(sixtyDays)
-  val EIGHTEEN_MONTHS = Value(fiveHundredFortySevenDays)
+  val THREE_MONTHS = Value(ninetyDays)
+  val SIX_MONTHS = Value(oneHundredAndEightyDays)
+  val ONE_YEAR = Value(threeSixtyFiveDays)
+  val EIGHTEEN_MONTHS = Value(fiveHundredAndFortySevenDays)
+  val THREE_YEARS = Value(oneThousandNinetyFiveDays)
   val FIVE_YEARS = Value(oneThousandEightHundredAndTwentyFiveDays)
-  val INDEFINITE = Value(threeThousandSixHundredAndFiftyDays)
+  val TEN_YEARS = Value(threeThousandSixHundredAndFiftyDays)
+  val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
 
   def from(grantLength: Int) = GrantLength.values.find(e => e.id == grantLength)
 
@@ -378,9 +386,13 @@ object GrantLength extends Enumeration {
     match {
       case Some(ONE_MONTH) => "1 month"
       case Some(THREE_MONTHS) => "3 months"
+      case Some(SIX_MONTHS) => "6 months"
+      case Some(ONE_YEAR) => "1 year"
       case Some(EIGHTEEN_MONTHS) => "18 months"
+      case Some(THREE_YEARS) => "3 years"
       case Some(FIVE_YEARS) => "5 years"
-      case Some(INDEFINITE) => "10 years"
+      case Some(TEN_YEARS) => "10 years"
+      case Some(ONE_HUNDRED_YEARS) => "100 years"
     }
   }
 

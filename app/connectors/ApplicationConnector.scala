@@ -62,7 +62,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def updateGrantLength(applicationId: ApplicationId, grantLength: GrantLength)
                          (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[UpdateGrantLengthRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/grant-length", UpdateGrantLengthRequest(grantLength))
+    http.PUT[UpdateGrantLengthRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/grantlength", UpdateGrantLengthRequest(grantLength.id))
       .map(_ match {
         case Right(_) => ApplicationUpdateSuccessResult
         case Left(err) => throw err
