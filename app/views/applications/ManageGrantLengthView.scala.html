@@ -41,7 +41,9 @@
     </p>
     <p>The current application grant length is <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength)</strong></p>
     <p><strong class="bold">Choose a new application grant length</strong></p>
-    <p>A change you make now does not affect existing grant lengths.</p>
+    <div id="change-name-hint" class="govuk-hint govuk-!-margin-bottom-4">
+        A change you make now does not affect existing grant lengths.
+    </div>
 
     <br>
 
@@ -49,21 +51,21 @@
     <div>
         @helper.CSRF.formField
 
-        @for(g <- GrantLength.asOrderedList) {
         <fieldset class="govuk-fieldset">
-            <div class="govuk-radios">
-                <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" type="radio" id="@g" name="grantLength" value="@g">
-                    <label class="govuk-label govuk-radios__label" for="@g">
-                        @GrantLength.displayedGrantLength(g)
-                    </label>
+            @for(g <- GrantLength.asOrderedList) {
+                <div class="govuk-radios">
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" type="radio" id="@g" name="grantLength" value="@g">
+                        <label class="govuk-label govuk-radios__label" for="@g">
+                            @GrantLength.displayedGrantLength(g)
+                        </label>
+                    </div>
                 </div>
-            </div>
+            }
         </fieldset>
-        }
     </div>
     <div class="form-field form-field--submit">
-        <button id="submit" class="button" type="submit">Save and return</button>
+        <button id="submit" class="button" type="submit">Change grant length</button>
         <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
     </div>
     }
