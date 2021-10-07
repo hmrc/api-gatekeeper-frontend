@@ -82,7 +82,8 @@ class ApplicationControllerSpec
   private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
   private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
   private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
-      
+  private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
+
  
   running(app) {
 
@@ -136,6 +137,7 @@ class ApplicationControllerSpec
         manageTeamMembersView,
         addTeamMemberView,
         removeTeamMemberView,
+        manageGrantLengthView,
         mockApmService
       )
 
@@ -760,6 +762,7 @@ class ApplicationControllerSpec
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, List.empty)
       val ropcAccess = AppAccess(AccessType.ROPC, List.empty)
+      val grantLength: Int = 547
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
@@ -814,7 +817,7 @@ class ApplicationControllerSpec
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -837,7 +840,7 @@ class ApplicationControllerSpec
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -860,8 +863,9 @@ class ApplicationControllerSpec
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
+
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -885,7 +889,7 @@ class ApplicationControllerSpec
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()

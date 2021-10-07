@@ -194,13 +194,13 @@ case class ApplicationResponse(id: ApplicationId,
                                lastAccess: DateTime,
                                access: Access,
                                state: ApplicationState,
+                               grantLength: Int,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
                                checkInformation: Option[CheckInformation] = None,
                                blocked: Boolean = false,
-                               ipAllowlist: IpAllowlist = IpAllowlist(),
-                               grantLength: Int)
+                               ipAllowlist: IpAllowlist = IpAllowlist())
   extends Application
 
 object ApplicationResponse {
@@ -237,13 +237,13 @@ object ApplicationResponse {
       (JsPath \ "lastAccess").read[DateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
+      (JsPath \ "grantLength").read[Int] and
       (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "ipAllowlist").read[IpAllowlist] and
-      (JsPath \ "grantLength").read[Int]
+      (JsPath \ "ipAllowlist").read[IpAllowlist]
     ) (ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {

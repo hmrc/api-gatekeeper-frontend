@@ -232,7 +232,9 @@ class ApplicationConnectorSpec
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     "retrieve all applications" in new Setup {
-      val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()) )
+      val grantLength: Int = 547
+
+      val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength) )
       val payload = Json.toJson(applications).toString
 
       stubFor(
@@ -264,6 +266,8 @@ class ApplicationConnectorSpec
 
   "fetchApplication" should {
     val url = s"/gatekeeper/application/${applicationId.value}"
+    val grantLength: Int = 547
+
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
@@ -271,7 +275,7 @@ class ApplicationConnectorSpec
     val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
     val applicationState = ApplicationState(State.TESTING, None, None, DateTime.now)
     val application = ApplicationResponse(
-      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), applicationState
+      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), applicationState, grantLength
     )
     val appWithHistory = ApplicationWithHistory(application, List(stateHistory))
     val response = Json.toJson(appWithHistory).toString

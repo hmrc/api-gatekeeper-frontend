@@ -19,7 +19,6 @@ package model.applications
 import model.{Access, AccessType, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, IpAllowlist, Privileged, Ropc, Standard, TotpIds}
 import org.joda.time.DateTime
 import model.Environment.Environment
-import model.GrantLength.GrantLength
 import uk.gov.hmrc.play.json.Union
 import model.RateLimitTier.RateLimitTier
 

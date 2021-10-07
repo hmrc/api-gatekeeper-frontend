@@ -34,6 +34,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages = messagesProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
+    val grantLength: Int = 547
 
     val application =
       ApplicationResponse(
@@ -47,7 +48,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         DateTime.now(),
         DateTime.now(),
         Standard(),
-        ApplicationState()
+        ApplicationState(),
+        grantLength
       )
 
     val applicationWithHistory = ApplicationWithHistory(application, List.empty)

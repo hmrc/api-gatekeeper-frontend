@@ -28,7 +28,6 @@ import play.api.libs.json._
 import model.EmailOptionChoice.EmailOptionChoice
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.Environment._
-import model.GrantLength.GrantLength
 import model.OverrideType.OverrideType
 import model.RateLimitTier._
 import model.State.State
