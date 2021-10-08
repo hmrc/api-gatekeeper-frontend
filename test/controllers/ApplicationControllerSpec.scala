@@ -762,7 +762,6 @@ class ApplicationControllerSpec
       val totp = Some(TotpSecrets(totpSecret))
       val privAccess = AppAccess(AccessType.PRIVILEGED, List.empty)
       val ropcAccess = AppAccess(AccessType.ROPC, List.empty)
-      val grantLength: Int = 547
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {

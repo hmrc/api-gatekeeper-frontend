@@ -23,7 +23,6 @@ import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.Logger.logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union

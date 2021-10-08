@@ -23,7 +23,7 @@
 
 @main(title = s"${applicationConfig.title} - Manage grant length") {
 
-<div class="govuk-grid-column-two-thirds">
+<div id="content">
 
     <nav class="breadcrumb-nav">
         <ul>
@@ -34,12 +34,12 @@
             <li class="breadcrumb-nav__item">Manage grant length</li>
         </ul>
     </nav>
-    <h1 class="govuk-heading-xl">Manage application grant length</h1>
+    <h1 class="heading-large">Manage application grant length</h1>
 
     <p>
         The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
     </p>
-    <p>The current application grant length is <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength)</strong></p>
+    <p>The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength)</strong></p>
     <p><strong class="bold">Choose a new application grant length</strong></p>
     <div id="change-name-hint" class="govuk-hint govuk-!-margin-bottom-4">
         A change you make now does not affect existing grant lengths.
