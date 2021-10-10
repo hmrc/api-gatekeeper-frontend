@@ -380,7 +380,6 @@ object GrantLength extends Enumeration {
   def from(grantLength: Int) = GrantLength.values.find(e => e.id == grantLength)
 
   def displayedGrantLength(grantLength: Int): String = {
-    Logger.info(s"******grantLength:$grantLength")
     GrantLength.from(grantLength)
     match {
       case Some(ONE_MONTH) => "1 month"

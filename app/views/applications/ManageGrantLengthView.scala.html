@@ -51,15 +51,13 @@
     <div>
         @helper.CSRF.formField
 
-        <fieldset class="govuk-fieldset">
+        <fieldset>
             @for(g <- GrantLength.asOrderedList) {
-                <div class="govuk-radios">
-                    <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" type="radio" id="@g" name="grantLength" value="@g">
-                        <label class="govuk-label govuk-radios__label" for="@g">
-                            @GrantLength.displayedGrantLength(g)
-                        </label>
-                    </div>
+                <div class="multiple-choice">
+                    <input type="radio" id="@g" name="grantLength" value="@g">
+                    <label for="@g">
+                        @GrantLength.displayedGrantLength(g)
+                    </label>
                 </div>
             }
         </fieldset>
