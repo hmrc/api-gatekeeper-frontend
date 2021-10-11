@@ -52,7 +52,7 @@
         @helper.CSRF.formField
 
         <fieldset>
-            @for(g <- GrantLength.asOrderedList) {
+            @for(g <- GrantLength.asOrderedIdList) {
                 <div class="multiple-choice">
                     <input type="radio" id="@g" name="grantLength" value="@g">
                     <label for="@g">

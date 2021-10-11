@@ -394,7 +394,7 @@ object GrantLength extends Enumeration {
     }
   }
 
-  lazy val asOrderedList: List[Int] = GrantLength.values.map(value => value.id).toList.sorted
+  lazy val asOrderedIdList: List[Int] = GrantLength.values.map(value => value.id).toList.sorted
 
   implicit val format = Json.formatEnum(GrantLength)
 }
