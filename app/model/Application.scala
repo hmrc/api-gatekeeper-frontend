@@ -28,6 +28,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+import java.time.Period
 
 case class ApplicationId(value: String) extends AnyVal
 
@@ -193,7 +194,7 @@ case class ApplicationResponse(id: ApplicationId,
                                lastAccess: DateTime,
                                access: Access,
                                state: ApplicationState,
-                               grantLength: Int,
+                               grantLength: Period,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
@@ -236,7 +237,7 @@ object ApplicationResponse {
       (JsPath \ "lastAccess").read[DateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
-      (JsPath \ "grantLength").read[Int] and
+      (JsPath \ "grantLength").read[Period] and
       (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and

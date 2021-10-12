@@ -26,12 +26,14 @@ import views.CommonViewSpec
 import views.html.applications.IpAllowlistView
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class IpAllowlistViewSpec extends CommonViewSpec {
 
   trait Setup {
     val request = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(

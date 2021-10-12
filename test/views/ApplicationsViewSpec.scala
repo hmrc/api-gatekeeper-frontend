@@ -40,6 +40,8 @@ import play.twirl.api.HtmlFormat
 import views.html.applications.ApplicationsView
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class ApplicationsViewSpec extends CommonViewSpec {
 
   trait Setup {
@@ -59,7 +61,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
     val applications = List[ApplicationResponse](
     ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength),
       ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength),

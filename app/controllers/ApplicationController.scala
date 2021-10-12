@@ -304,7 +304,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def manageGrantLength(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
       withApp(appId) { app =>
-        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength))
+        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength.getDays))
         Future.successful(Ok(manageGrantLengthView(app.application, form)))
       }
   }

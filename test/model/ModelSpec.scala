@@ -21,6 +21,8 @@ import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class ModelSpec  extends AsyncHmrcSpec with Matchers {
 
   "UpliftAction" should {
@@ -69,7 +71,7 @@ class ModelSpec  extends AsyncHmrcSpec with Matchers {
     val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER, UserId.random)
     val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
     val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(
         ApplicationId.random, ClientId("clientid"), "gatewayId", "application", "PRODUCTION", None, teamMembers, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)

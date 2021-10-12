@@ -27,6 +27,8 @@ import views.html.applications.DeleteApplicationView
 import views.CommonViewSpec
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
   trait Setup {
@@ -34,7 +36,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages = messagesProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
 
     val application =
       ApplicationResponse(

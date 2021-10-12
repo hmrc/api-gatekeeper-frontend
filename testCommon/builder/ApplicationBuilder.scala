@@ -22,16 +22,17 @@ import org.joda.time.DateTime
 import model.applications.ApplicationWithSubscriptionData
 import model.SubscriptionFields.Fields
 import org.joda.time.DateTime
-
 import model.view.ApplicationViewModel
 import model.ApiStatus._
 import model.RateLimitTier.RateLimitTier
+
+import java.time.Period
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
     val ipAllowlist = IpAllowlist()
 
     NewApplication(

@@ -30,11 +30,13 @@ import scala.concurrent.Future.successful
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import model.applications.NewApplication
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.mockito.{ArgumentMatchersSugar,MockitoSugar}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.connectors.ApmConnectorMockProvider
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
+
+import java.time.Period
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -62,7 +64,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
     val stdApp1 = ApplicationResponse(
       ApplicationId.random, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
     val stdApp2 = ApplicationResponse(

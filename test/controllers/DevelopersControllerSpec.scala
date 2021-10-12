@@ -25,6 +25,7 @@ import views.html.developers._
 import views.html.{ErrorTemplate, ForbiddenView}
 import org.joda.time.DateTime
 
+import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
@@ -41,7 +42,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
-      val grantLength: Int = 547
+      val grantLength: Period = Period.ofDays(547)
       ApplicationResponse(
         ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
     }
