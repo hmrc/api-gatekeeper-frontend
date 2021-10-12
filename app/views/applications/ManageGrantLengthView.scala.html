@@ -39,7 +39,7 @@
     <p>
         The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
     </p>
-    <p>The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength)</strong></p>
+    <p>The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong></p>
     <p><strong class="bold">Choose a new application grant length</strong></p>
     <div id="change-name-hint" class="govuk-hint govuk-!-margin-bottom-4">
         A change you make now does not affect existing grant lengths.

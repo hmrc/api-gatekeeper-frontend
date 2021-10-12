@@ -30,6 +30,8 @@ import org.mockito.ArgumentMatchersSugar
 import mocks.connectors._
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aUser(name: String, verified: Boolean = true) = {
@@ -54,7 +56,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
     ApplicationResponse(ApplicationId.random, ClientId("clientId"), "gatewayId", name, deployedTo, None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
   }
 

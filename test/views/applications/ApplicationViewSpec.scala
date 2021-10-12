@@ -32,6 +32,8 @@ import builder.ApiBuilder
 import model.ApiStatus._
 import org.joda.time.DateTime
 
+import java.time.Period
+
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {
     implicit val request = FakeRequest()
@@ -42,7 +44,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     val clientId = ClientId("clientid")
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
 
     val application = NewApplication(
       id = ApplicationId.random,

@@ -17,15 +17,16 @@
 package builder
 
 import java.util.UUID._
-
 import model.State._
 import model._
 import model.RateLimitTier.RateLimitTier
 import org.joda.time.DateTime
 import org.joda.time.DateTime
 
+import java.time.Period
+
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
-  val grantLength: Int = 547
+  val grantLength: Period = Period.ofDays(547)
 
   def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
 

@@ -268,7 +268,7 @@
         </tr>
         <tr>
             <th><h3>Application grant Length</h3></th>
-            <td grant-length>@GrantLength.displayedGrantLength(application.grantLength)</td>
+            <td grant-length>@GrantLength.displayedGrantLength(application.grantLength.getDays)</td>
             <td>@if(model.isAdmin) {
                 <a id="manage-grant-length" href="@{routes.ApplicationController.manageGrantLength(applicationId)}" class="button--link" role="button">Manage</a>
                 }</td>

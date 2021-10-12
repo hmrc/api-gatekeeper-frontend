@@ -22,6 +22,8 @@ import model.Environment.Environment
 import uk.gov.hmrc.play.json.Union
 import model.RateLimitTier.RateLimitTier
 
+import java.time.Period
+
 case class NewApplication(
     id: ApplicationId,
     clientId: ClientId,
@@ -39,7 +41,7 @@ case class NewApplication(
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    grantLength: Int
+    grantLength: Period
 )
 
 object NewApplication {

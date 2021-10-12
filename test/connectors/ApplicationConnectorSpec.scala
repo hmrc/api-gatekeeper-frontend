@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
+import java.time.Period
 
 class ApplicationConnectorSpec 
     extends AsyncHmrcSpec 
@@ -268,7 +269,7 @@ class ApplicationConnectorSpec
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     "retrieve all applications" in new Setup {
-      val grantLength: Int = 547
+      val grantLength: Period = Period.ofDays(547)
 
       val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength) )
       val payload = Json.toJson(applications).toString
@@ -302,7 +303,7 @@ class ApplicationConnectorSpec
 
   "fetchApplication" should {
     val url = s"/gatekeeper/application/${applicationId.value}"
-    val grantLength: Int = 547
+    val grantLength: Period = Period.ofDays(547)
 
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),

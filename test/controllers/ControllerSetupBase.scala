@@ -19,6 +19,7 @@ package controllers
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
 import mocks.services._
+
 import scala.concurrent.Future
 import utils.CollaboratorTracker
 import mocks.connectors._
@@ -26,6 +27,8 @@ import org.mockito.stubbing.ScalaOngoingStubbing
 import connectors.DeveloperConnector
 import model._
 import org.joda.time.DateTime
+
+import java.time.Period
 
 trait ControllerSetupBase 
     extends MockitoSugar 
@@ -39,7 +42,7 @@ trait ControllerSetupBase
     with CollaboratorTracker {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
-  val grantLength: Int = 547
+  val grantLength: Period = Period.ofDays(547)
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,
