@@ -18,13 +18,12 @@ package connectors
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpClient
-
 import play.api.http.Status._
 import config.AppConfig
 import model.Environment.Environment
+import model.GrantLength.GrantLength
 import model.RateLimitTier.RateLimitTier
 import model.{ApiContext, UserId, _}
 
@@ -59,6 +58,15 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       case Right(_) => ApplicationUpdateSuccessResult
       case Left(err) => throw err
     })
+  }
+
+  def updateGrantLength(applicationId: ApplicationId, grantLength: GrantLength)
+                         (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.PUT[UpdateGrantLengthRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/grantlength", UpdateGrantLengthRequest(grantLength.id))
+      .map(_ match {
+        case Right(_) => ApplicationUpdateSuccessResult
+        case Left(err) => throw err
+      })
   }
 
   def approveUplift(applicationId: ApplicationId, gatekeeperUserId: String)

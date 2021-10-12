@@ -18,11 +18,11 @@ package model
 
 import java.util.UUID
 import java.net.URLEncoder.encode
-
 import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
+import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
@@ -193,6 +193,7 @@ case class ApplicationResponse(id: ApplicationId,
                                lastAccess: DateTime,
                                access: Access,
                                state: ApplicationState,
+                               grantLength: Int,
                                rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
                                termsAndConditionsUrl: Option[String] = None,
                                privacyPolicyUrl: Option[String] = None,
@@ -235,6 +236,7 @@ object ApplicationResponse {
       (JsPath \ "lastAccess").read[DateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
+      (JsPath \ "grantLength").read[Int] and
       (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
@@ -351,4 +353,48 @@ object RateLimitTier extends Enumeration {
   lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
 
   implicit val format = Json.formatEnum(RateLimitTier)
+}
+
+object GrantLength extends Enumeration {
+  type GrantLength = Value
+  val thirtyDays = 30
+  val ninetyDays = 90
+  val oneHundredAndEightyDays = 180
+  val threeSixtyFiveDays = 365
+  val fiveHundredAndFortySevenDays = 547
+  val oneThousandNinetyFiveDays = 1095
+  val oneThousandEightHundredAndTwentyFiveDays = 1825
+  val threeThousandSixHundredAndFiftyDays = 3650
+  val thirtySixThousandFiveHundredDays = 36500
+
+  val ONE_MONTH = Value(thirtyDays)
+  val THREE_MONTHS = Value(ninetyDays)
+  val SIX_MONTHS = Value(oneHundredAndEightyDays)
+  val ONE_YEAR = Value(threeSixtyFiveDays)
+  val EIGHTEEN_MONTHS = Value(fiveHundredAndFortySevenDays)
+  val THREE_YEARS = Value(oneThousandNinetyFiveDays)
+  val FIVE_YEARS = Value(oneThousandEightHundredAndTwentyFiveDays)
+  val TEN_YEARS = Value(threeThousandSixHundredAndFiftyDays)
+  val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
+
+  def from(grantLength: Int) = GrantLength.values.find(e => e.id == grantLength)
+
+  def displayedGrantLength(grantLength: Int): String = {
+    GrantLength.from(grantLength)
+    match {
+      case Some(ONE_MONTH) => "1 month"
+      case Some(THREE_MONTHS) => "3 months"
+      case Some(SIX_MONTHS) => "6 months"
+      case Some(ONE_YEAR) => "1 year"
+      case Some(EIGHTEEN_MONTHS) => "18 months"
+      case Some(THREE_YEARS) => "3 years"
+      case Some(FIVE_YEARS) => "5 years"
+      case Some(TEN_YEARS) => "10 years"
+      case Some(ONE_HUNDRED_YEARS) => "100 years"
+    }
+  }
+
+  lazy val asOrderedIdList: List[Int] = GrantLength.values.map(value => value.id).toList.sorted
+
+  implicit val format = Json.formatEnum(GrantLength)
 }

@@ -42,6 +42,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     val clientId = ClientId("clientid")
+    val grantLength: Int = 547
 
     val application = NewApplication(
       id = ApplicationId.random,
@@ -59,7 +60,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
       checkInformation = None,
-      ipAllowlist = IpAllowlist()
+      ipAllowlist = IpAllowlist(),
+      grantLength
     )
 
     val DefaultApplicationViewModel = ApplicationViewModel(

@@ -59,11 +59,12 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
+    val grantLength: Int = 547
     val applications = List[ApplicationResponse](
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Requester Verification App", "PRODUCTION", Some("Pending Requester Verification App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Production App", "PRODUCTION", Some("Production App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+    ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Requester Verification App", "PRODUCTION", Some("Pending Requester Verification App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength),
+      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Production App", "PRODUCTION", Some("Production App"), collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
     )
     val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty)
     val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty)

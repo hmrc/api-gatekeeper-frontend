@@ -71,6 +71,16 @@ object UpdateRateLimitForm {
   )
 }
 
+case class UpdateGrantLengthForm(grantLength: Int)
+
+object UpdateGrantLengthForm {
+  val form: Form[UpdateGrantLengthForm] = Form(
+    mapping(
+      "grantLength" -> number
+    )(UpdateGrantLengthForm.apply)(UpdateGrantLengthForm.unapply)
+  )
+}
+
 case class HandleApprovalForm(approval_confirmation: String)
 
 object HandleApprovalForm {

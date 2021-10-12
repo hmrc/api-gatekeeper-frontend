@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
+import play.api.Logger
 
 trait ActionBuilders extends ErrorHelper {
   val applicationService: ApplicationService
@@ -55,6 +56,7 @@ trait ActionBuilders extends ErrorHelper {
                                          (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
+        Logger.info(s"FETCHED VALUE - $value")
         applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       case None => Future.successful(notFound("Application not found"))
     }

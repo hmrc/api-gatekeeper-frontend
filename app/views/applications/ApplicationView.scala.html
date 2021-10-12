@@ -267,6 +267,13 @@
             <td></td>
         </tr>
         <tr>
+            <th><h3>Application grant Length</h3></th>
+            <td grant-length>@GrantLength.displayedGrantLength(application.grantLength)</td>
+            <td>@if(model.isAdmin) {
+                <a id="manage-grant-length" href="@{routes.ApplicationController.manageGrantLength(applicationId)}" class="button--link" role="button">Manage</a>
+                }</td>
+        </tr>
+        <tr>
             <th><h3>Access type</h3></th>
             <td data-access-type>@AccessType.displayedType(access.accessType)</td>
             <td></td>

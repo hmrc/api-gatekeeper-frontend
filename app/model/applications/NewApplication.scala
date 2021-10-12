@@ -38,7 +38,8 @@ case class NewApplication(
     rateLimitTier: RateLimitTier,
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
-    ipAllowlist: IpAllowlist = IpAllowlist()
+    ipAllowlist: IpAllowlist = IpAllowlist(),
+    grantLength: Int
 )
 
 object NewApplication {
@@ -61,6 +62,7 @@ object NewApplication {
   implicit val formatCollaborator = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
   implicit val formatRateLimitTier = Json.formatEnum(model.RateLimitTier)
+  implicit val formatGrantLength = Json.formatEnum(model.GrantLength)
   implicit val applicationFormat = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)

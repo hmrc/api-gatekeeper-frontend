@@ -39,6 +39,7 @@ trait ControllerSetupBase
     with CollaboratorTracker {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
+  val grantLength: Int = 547
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,
@@ -51,7 +52,8 @@ trait ControllerSetupBase
     DateTime.now(),
     DateTime.now(),
     Standard(),
-    ApplicationState())
+    ApplicationState(),
+    grantLength)
   val application = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId = application.application.id
 

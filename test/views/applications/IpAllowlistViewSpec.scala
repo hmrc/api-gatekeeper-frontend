@@ -31,6 +31,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
   trait Setup {
     val request = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
+    val grantLength: Int = 547
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -45,6 +46,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         DateTime.now(),
         Standard(),
         ApplicationState(),
+        grantLength,
         ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
       )
   }

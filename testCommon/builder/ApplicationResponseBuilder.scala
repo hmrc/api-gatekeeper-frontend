@@ -25,10 +25,12 @@ import org.joda.time.DateTime
 import org.joda.time.DateTime
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
-    def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
+  val grantLength: Int = 547
 
-    val clientId = ClientId.random
-    val appOwnerEmail = "a@b.com"
+  def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
+
+      val clientId = ClientId.random
+      val appOwnerEmail = "a@b.com"
 
     ApplicationResponse(
       id = appId,
@@ -45,6 +47,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       state = ApplicationState(State.PRODUCTION),
+      grantLength,
       rateLimitTier = RateLimitTier.BRONZE,
       termsAndConditionsUrl = Some("http://tnc-url.com"),
       privacyPolicyUrl = Some("http://privacy-policy-url.com"),
@@ -63,7 +66,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
     ApplicationResponse(ApplicationId(randomUUID().toString), ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
-      lastAccess, Privileged(), ApplicationState(), RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
+      lastAccess, Privileged(), ApplicationState(), grantLength, RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
 
   def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {

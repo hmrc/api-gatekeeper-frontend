@@ -31,6 +31,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
+    val grantLength: Int = 547
+    val ipAllowlist = IpAllowlist()
 
     NewApplication(
       id = appId,
@@ -50,7 +52,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
-      checkInformation = checkInformation
+      checkInformation = checkInformation,
+      ipAllowlist = ipAllowlist,
+      grantLength = grantLength
     )
   }
 

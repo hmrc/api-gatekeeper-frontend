@@ -57,6 +57,42 @@ class ApplicationConnectorSpec
   // To solve issue with DateTime serialisation without a timezone id.
   private def compareByString[A](a1:A, a2:A) = a1.toString shouldBe a2.toString
 
+  "updateGrantLength" should {
+    val url = s"/application/${applicationId.value}/grantlength"
+
+    "send Authorisation and return OK if the grant length update was successful on the backend" in new Setup {
+      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
+
+      stubFor(
+        put(urlEqualTo(url))
+          .withRequestBody(equalTo(body))
+          .willReturn(
+            aResponse()
+              .withStatus(NO_CONTENT)
+          )
+      )
+
+      await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS)) shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "handle 5xx errors" in new Setup {
+      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withRequestBody(equalTo(body))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS))
+      }
+    }
+  }
+
   "updateRateLimitTier" should {
     val url = s"/application/${applicationId.value}/rate-limit-tier"
 
@@ -232,7 +268,9 @@ class ApplicationConnectorSpec
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
 
     "retrieve all applications" in new Setup {
-      val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState()) )
+      val grantLength: Int = 547
+
+      val applications = List( ApplicationResponse(applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength) )
       val payload = Json.toJson(applications).toString
 
       stubFor(
@@ -264,6 +302,8 @@ class ApplicationConnectorSpec
 
   "fetchApplication" should {
     val url = s"/gatekeeper/application/${applicationId.value}"
+    val grantLength: Int = 547
+
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
@@ -271,7 +311,7 @@ class ApplicationConnectorSpec
     val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
     val applicationState = ApplicationState(State.TESTING, None, None, DateTime.now)
     val application = ApplicationResponse(
-      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), applicationState
+      applicationId, ClientId("clientid1"), "gatewayId1", "application1", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), applicationState, grantLength
     )
     val appWithHistory = ApplicationWithHistory(application, List(stateHistory))
     val response = Json.toJson(appWithHistory).toString

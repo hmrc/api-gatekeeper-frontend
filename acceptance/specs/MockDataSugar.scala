@@ -161,7 +161,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
@@ -205,7 +206,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  }]
     """.stripMargin
 
@@ -247,7 +249,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  }]
     """.stripMargin
 
@@ -279,7 +282,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  }]
     """.stripMargin
 
@@ -332,7 +336,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  }]
     """.stripMargin
 
@@ -485,7 +490,8 @@ object MockDataSugar {
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
-       |    }
+       |    },
+       |    "grantLength": 547
        |  },
        |  "history": [
        |      {

@@ -41,8 +41,9 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
+      val grantLength: Int = 547
       ApplicationResponse(
-        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState())
+        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
     }
 
     trait Setup extends ControllerSetupBase {
