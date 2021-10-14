@@ -26,3 +26,4 @@ team.member.error.email.already.exists=This user is already a team member on thi
 team.member.error.email.last.admin=You cannot delete the last administrator for this application
 team.member.error.role.invalid=Choose a role
 team.member.error.confirmation.no.choice.field=Tell us if you want to delete this team member
+grantLength.required=You must choose a new application grant length
