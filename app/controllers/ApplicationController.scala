@@ -74,6 +74,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       addTeamMemberView: AddTeamMemberView,
                                       removeTeamMemberView: RemoveTeamMemberView,
                                       manageGrantLengthView: ManageGrantLengthView,
+                                      manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
                                       val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
     extends FrontendController(mcc)
@@ -314,7 +315,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       withApp(appId) { app =>
         def handleValidForm(form: UpdateGrantLengthForm) = {
           applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get).get).map { _ =>
-            Redirect(routes.ApplicationController.applicationPage(appId))
+            Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
           }
         }
 
