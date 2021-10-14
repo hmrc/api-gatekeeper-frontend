@@ -66,7 +66,11 @@ trait ApplicationServiceMockProvider {
     object UpdateRateLimitTier {
       def succeeds() = when(mockApplicationService.updateRateLimitTier(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
-    
+
+    object UpdateGrantLength {
+      def succeeds() = when(mockApplicationService.updateGrantLength(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+    }
+
     object UnblockApplication {
       def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
     }

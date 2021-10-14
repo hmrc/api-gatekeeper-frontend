@@ -16,6 +16,7 @@
 
 package controllers
 
+import model.Forms.UpdateGrantLengthForm
 import org.scalatest.Matchers
 import play.api.data.FormError
 import utils.AsyncHmrcSpec
@@ -67,6 +68,21 @@ class FormValidationSpec extends AsyncHmrcSpec with Matchers {
     "validate a valid empty form" in {
       val boundForm = UpdateRateLimitForm.form.bind(Map("tier" -> ""))
       boundForm.errors shouldBe List(FormError("tier", List("error.required")))
+      boundForm.globalErrors shouldBe List()
+    }
+  }
+
+  "UpdateGrantLengthForm" should {
+
+    "validate a properly filled form" in {
+      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> "547"))
+      boundForm.errors shouldBe List()
+      boundForm.globalErrors shouldBe List()
+    }
+
+    "validate an empty form" in {
+      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> ""))
+      boundForm.errors shouldBe List(FormError("grantLength", List("grantLength.required")))
       boundForm.globalErrors shouldBe List()
     }
   }
