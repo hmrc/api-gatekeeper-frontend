@@ -48,8 +48,9 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
     
   }
 
-  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, String]] = {
-    handleResult[String](http.POSTEmpty[String](s"${appConfig.serviceBaseUrl}/publish-all", Seq.empty))
+  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] = {
+    implicit val f = PublishAllResponse.formatPublishAllResponse
+    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/publish-all", Seq.empty))
     
   }
 
@@ -66,9 +67,14 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
 object ApiCataloguePublishConnector {
 
   case class PublishResponse(id: String, publisherReference: String, platformType: String)
+  case class PublishAllResponse(message: String)
 
   object PublishResponse {
     implicit val formatPublishResponse = Json.format[PublishResponse]
+  
+  }
+  object PublishAllResponse {
+    implicit val formatPublishAllResponse = Json.format[PublishAllResponse]
   }
 
   case class Config(serviceBaseUrl: String)

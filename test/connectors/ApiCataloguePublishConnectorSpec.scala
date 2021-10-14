@@ -51,7 +51,17 @@ class ApiCataloguePublishConnectorSpec
 
     val underTest = new ApiCataloguePublishConnector(mockApiCataloguePublishConnectorConfig, httpClient)
 
-    def primePost(url: String, status: Int, response: String) = {
+    def primePost(url: String, status: Int) = {
+      stubFor(
+        post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(status)
+        )
+      )   
+    }
+  
+    def primePostWithBody(url: String, status: Int, response: String) = {
       stubFor(
         post(urlEqualTo(url))
         .willReturn(
@@ -73,7 +83,7 @@ class ApiCataloguePublishConnectorSpec
         val expectedPublishResponse = PublishResponse("id", "publishReference", "platformType")
         val responseAsJsonString = Json.toJson(expectedPublishResponse).toString
 
-        primePost(url, OK, responseAsJsonString)
+        primePostWithBody(url, OK, responseAsJsonString)
 
         val result = await(underTest.publishByServiceName(serviceName))
         result match {
@@ -84,12 +94,12 @@ class ApiCataloguePublishConnectorSpec
         }
       }
 
-      "return UpstreamErrorResponse if there is an error in the backend" in new Setup {
+      "return Left if there is an error in the backend" in new Setup {
         val serviceName = "Hello-World"
 
         val url = s"/publish/${serviceName}"
 
-        primePost(url, INTERNAL_SERVER_ERROR, "")
+        primePost(url, INTERNAL_SERVER_ERROR)
 
         val result = await(underTest.publishByServiceName(serviceName))
         result match {
@@ -104,16 +114,30 @@ class ApiCataloguePublishConnectorSpec
       "return Right" in new Setup {
 
         val url = s"/publish-all"
-        val expectedResponse = "Publish all called and is working in the background, check application logs for progress"
+        val expectedResponse = PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress")
+        val expectedResponseAsString = Json.toJson(expectedResponse).toString
 
-        primePost(url, OK, expectedResponse)
+        primePostWithBody(url, OK, expectedResponseAsString)
 
         val result = await(underTest.publishAll)
         result match {
-          case Right(response: String) => response shouldBe expectedResponse
+          case Right(response: PublishAllResponse) => response shouldBe expectedResponse
           case Left(e: Throwable) => 
               println(e.getMessage)
               fail()
+        }
+      }
+
+      "rreturn Left if there is an error in the backend" in new Setup {
+
+        val url = s"/publish-all"
+
+        primePost(url, INTERNAL_SERVER_ERROR)
+
+        val result = await(underTest.publishAll)
+        result match {
+          case Left(e: Upstream5xxResponse) => succeed
+          case _ => fail
         }
       }
     }
