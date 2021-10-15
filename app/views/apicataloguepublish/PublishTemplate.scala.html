@@ -16,21 +16,22 @@
 
 @import include._
 @import config.AppConfig
+@import model._
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messagesProvider: MessagesProvider)
+@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = pageTitle) {
-  <h1>@heading</h1>
-  <p>@message</p>
+  <h1 id="heading">@heading</h1>
+  <p id="message">@message</p>
 
   <div class="content-body">
     <section class="hard--top flush--bottom">
       <!-- publish one-->
-  @helper.form(action = controllers.routes.ApiCataloguePublishController.publishAll()) {
+  @helper.form(action = controllers.routes.ApiCataloguePublishController.publishAll(), 'id -> "publish-all-form") {
     @helper.CSRF.formField
-    <button id="submit" class="button button--padded govuk-button" type="submit">Publish All Apis</button>
+    <button id="publish-all-button" class="button" type="submit">Publish All Apis</button>
 
   }
 <br/>
@@ -38,15 +39,13 @@
 <div class="form-group">
 
 
-<form>
+<form id="publish-one-form">
   <div class="form-field">
-    <label for="publish-one"><strong class="bold">Enter the service name of the api you with to publish to the Api Catalogue</strong>
-       
-    </label>
-    <input id="publish-one" type="text" name="publish-one" value="">
+    <label id="publish-one-label" for="publish-one-input" class="form-label-bold">Enter the service name of the api you with to publish to the Api Catalogue</label>
+    <input id="publish-one-input" type="text" name="publish-one" value="">
     
 </div>
-<button id="submit" class="button button--padded govuk-button" type="submit">Publish</button>
+<button id="publish-one-button" class="button" type="submit">Publish</button>
   </form>
 </div>
 </section>

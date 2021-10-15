@@ -40,12 +40,12 @@ class ApiCataloguePublishController @Inject()(connector: ApiCataloguePublishConn
                                             publishTemplate: PublishTemplate)
  (implicit ec: ExecutionContext, implicit val appConfig: AppConfig)  extends FrontendController(mcc) with GatekeeperAuthWrapper  with I18nSupport  {
   
-    def start() = requiresAtLeast(GatekeeperRole.USER) { implicit request => 
+    def start() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request => 
         Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))
     }
 
 
-    def publishAll() = requiresAtLeast(GatekeeperRole.USER) { implicit request => 
+    def publishAll() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request => 
         connector.publishAll()
         .map(result => 
             result match {

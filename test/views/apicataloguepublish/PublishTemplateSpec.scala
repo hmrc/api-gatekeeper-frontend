@@ -36,21 +36,26 @@ class PublishTemplateSpec extends CommonViewSpec {
 
   def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
 
-  "delete developer view" should {
+  "Publish Template" should {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
     val publishTemplate = app.injector.instanceOf[PublishTemplate]
 
-    "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
-      val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
+    "show the publish all and publish one buttons" in {
 
-      val document = Jsoup.parse(deleteDeveloper(developer).body)
-      elementExistsById(document, "submit") shouldBe true
-      elementExistsById(document, "cancel") shouldBe true
-      elementExistsById(document, "finish") shouldBe false
+      val document = Jsoup.parse(publishTemplate("page title", "heading", "message").body)
+
+      document.getElementById("heading").text() shouldBe "heading"
+      document.getElementById("message").text() shouldBe "message"
+      document.getElementById("publish-all-form").attr("action") shouldBe "/api-gatekeeper/apicatalogue/publishall"
+      document.getElementById("publish-all-form").attr("button") 
+      elementExistsById(document, "publish-all-button") shouldBe true
+      elementExistsById(document, "publish-one-button") shouldBe true
+      elementExistsById(document, "publish-one-label") shouldBe true
+      elementExistsById(document, "publish-one-input") shouldBe true
+
     }
-  }
+}
 }

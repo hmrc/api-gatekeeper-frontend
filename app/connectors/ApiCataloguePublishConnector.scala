@@ -44,13 +44,13 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
 
   def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] = {
     implicit val f = PublishResponse.formatPublishResponse
-    handleResult(http.POST[String, PublishResponse](s"${appConfig.serviceBaseUrl}/publish/$serviceName", ""))
+    handleResult(http.POST[String, PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName", ""))
     
   }
 
   def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] = {
     implicit val f = PublishAllResponse.formatPublishAllResponse
-    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/publish-all", Seq.empty))
+    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish-all", Seq.empty))
     
   }
 
