@@ -19,16 +19,9 @@ package connectors
 import utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
-import model.applications.ApplicationWithSubscriptionData
-import model.ApplicationId
 import uk.gov.hmrc.http.HeaderCarrier
-import builder.{ApplicationBuilder, ApiBuilder}
-import model._
-import model.subscriptions.ApiData
 import play.api.test.Helpers._
 import play.api.libs.json.Json
-import model.subscriptions.VersionData
-import model.APIDefinitionFormatters._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.http.Upstream5xxResponse
 import utils.WireMockSugar
@@ -111,13 +104,13 @@ class ApiCataloguePublishConnectorSpec
     }
 
     "publishAll" should {
+       val publishAllUrl = s"/publish-all"
       "return Right" in new Setup {
-
-        val url = s"/publish-all"
+       
         val expectedResponse = PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress")
         val expectedResponseAsString = Json.toJson(expectedResponse).toString
 
-        primePostWithBody(url, OK, expectedResponseAsString)
+        primePostWithBody(publishAllUrl, OK, expectedResponseAsString)
 
         val result = await(underTest.publishAll)
         result match {
@@ -130,9 +123,7 @@ class ApiCataloguePublishConnectorSpec
 
       "rreturn Left if there is an error in the backend" in new Setup {
 
-        val url = s"/publish-all"
-
-        primePost(url, INTERNAL_SERVER_ERROR)
+        primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
 
         val result = await(underTest.publishAll)
         result match {

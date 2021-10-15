@@ -1,0 +1,54 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import include._
+@import config.AppConfig
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messagesProvider: MessagesProvider)
+
+@main(title = pageTitle) {
+  <h1>@heading</h1>
+  <p>@message</p>
+
+  <div class="content-body">
+    <section class="hard--top flush--bottom">
+      <!-- publish one-->
+  @helper.form(action = controllers.routes.ApiCataloguePublishController.publishAll()) {
+    @helper.CSRF.formField
+    <button id="submit" class="button button--padded govuk-button" type="submit">Publish All Apis</button>
+
+  }
+<br/>
+  <!-- publish one form-->
+<div class="form-group">
+
+
+<form>
+  <div class="form-field">
+    <label for="publish-one"><strong class="bold">Enter the service name of the api you with to publish to the Api Catalogue</strong>
+       
+    </label>
+    <input id="publish-one" type="text" name="publish-one" value="">
+    
+</div>
+<button id="submit" class="button button--padded govuk-button" type="submit">Publish</button>
+  </form>
+</div>
+</section>
+</div>
+}
