@@ -24,18 +24,28 @@ import views.html.ErrorTemplate
 import views.html.apicataloguepublish.PublishTemplate
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+import utils.GatekeeperAuthWrapper
+import play.api.i18n.I18nSupport
+import model.GatekeeperRole
+import config.AppConfig
+import views.html.ForbiddenView
+import connectors.AuthConnector
 
 @Singleton
 class ApiCataloguePublishController @Inject()(connector: ApiCataloguePublishConnector,
- mcc: MessagesControllerComponents,  errorTemplate: ErrorTemplate, publishTemplate: PublishTemplate)
- (implicit ec: ExecutionContext)  extends FrontendController(mcc) {
+                                             val forbiddenView: ForbiddenView,
+                                            override val authConnector: AuthConnector,
+                                            mcc: MessagesControllerComponents,
+                                            errorTemplate: ErrorTemplate,
+                                            publishTemplate: PublishTemplate)
+ (implicit ec: ExecutionContext, implicit val appConfig: AppConfig)  extends FrontendController(mcc) with GatekeeperAuthWrapper  with I18nSupport  {
   
-    def start() = Action.async { implicit request => 
+    def start() = requiresAtLeast(GatekeeperRole.USER) { implicit request => 
         Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))
     }
 
 
-    def publishAll() = Action.async { implicit request => 
+    def publishAll() = requiresAtLeast(GatekeeperRole.USER) { implicit request => 
         connector.publishAll()
         .map(result => 
             result match {
