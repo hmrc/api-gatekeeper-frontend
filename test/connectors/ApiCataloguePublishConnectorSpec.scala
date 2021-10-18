@@ -35,26 +35,26 @@ class ApiCataloguePublishConnectorSpec
     with utils.UrlEncoding {
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
     val mockApiCataloguePublishConnectorConfig: ApiCataloguePublishConnector.Config = mock[ApiCataloguePublishConnector.Config]
     when(mockApiCataloguePublishConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
     val underTest = new ApiCataloguePublishConnector(mockApiCataloguePublishConnectorConfig, httpClient)
 
-    def primePost(url: String, status: Int) = {
+    def primePost(url: String, status: Int): Unit = {
       stubFor(
         post(urlEqualTo(url))
         .willReturn(
           aResponse()
           .withStatus(status)
         )
-      )   
+      )
     }
   
-    def primePostWithBody(url: String, status: Int, response: String) = {
+    def primePostWithBody(url: String, status: Int, response: String): Unit = {
       stubFor(
         post(urlEqualTo(url))
         .willReturn(
@@ -62,41 +62,37 @@ class ApiCataloguePublishConnectorSpec
           .withStatus(status)
           .withBody(response)
         )
-      )   
+      )
     }
   }
 
   "ApiCataloguePublishConnector" when {
 
     "publishByServiceName" should {
-      "return Right(PublishResponse)" in new Setup {
-        val serviceName = "Hello-World"
 
-        val url = s"/publish/${serviceName}"
-        val expectedPublishResponse = PublishResponse("id", "publishReference", "platformType")
-        val responseAsJsonString = Json.toJson(expectedPublishResponse).toString
+      val serviceName = "Hello-World"
+      val url = s"/api-platform-api-catalogue-publish/publish/$serviceName"
+
+      "return Right(PublishResponse)" in new Setup {
+
+        val expectedPublishResponse: PublishResponse = PublishResponse("id", "publishReference", "platformType")
+        val responseAsJsonString: String = Json.toJson(expectedPublishResponse).toString
 
         primePostWithBody(url, OK, responseAsJsonString)
-
-        val result = await(underTest.publishByServiceName(serviceName))
+        val result: Either[Throwable, PublishResponse] = await(underTest.publishByServiceName(serviceName))
         result match {
           case Right(response: PublishResponse) => response shouldBe expectedPublishResponse
-          case Left(e: Throwable) => 
-              println(e.getMessage)
-              fail()
+          case Left(_: Throwable) => fail()
         }
       }
 
       "return Left if there is an error in the backend" in new Setup {
-        val serviceName = "Hello-World"
-
-        val url = s"/publish/${serviceName}"
 
         primePost(url, INTERNAL_SERVER_ERROR)
 
-        val result = await(underTest.publishByServiceName(serviceName))
+        val result: Either[Throwable, PublishResponse] = await(underTest.publishByServiceName(serviceName))
         result match {
-          case Left(e: Upstream5xxResponse) => succeed
+          case Left(_: Upstream5xxResponse) => succeed
           case _ => fail
         }
 
@@ -104,30 +100,28 @@ class ApiCataloguePublishConnectorSpec
     }
 
     "publishAll" should {
-       val publishAllUrl = s"/publish-all"
+       val publishAllUrl = "/api-platform-api-catalogue-publish/publish-all"
+
       "return Right" in new Setup {
        
-        val expectedResponse = PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress")
-        val expectedResponseAsString = Json.toJson(expectedResponse).toString
+        val expectedResponse: PublishAllResponse =
+          PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress")
+        val expectedResponseAsString: String = Json.toJson(expectedResponse).toString
 
         primePostWithBody(publishAllUrl, OK, expectedResponseAsString)
 
-        val result = await(underTest.publishAll)
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
         result match {
           case Right(response: PublishAllResponse) => response shouldBe expectedResponse
-          case Left(e: Throwable) => 
-              println(e.getMessage)
-              fail()
+          case Left(_: Throwable) => fail()
         }
       }
 
-      "rreturn Left if there is an error in the backend" in new Setup {
-
+      "return Left if there is an error in the backend" in new Setup {
         primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
-
-        val result = await(underTest.publishAll)
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
         result match {
-          case Left(e: Upstream5xxResponse) => succeed
+          case Left(_: Upstream5xxResponse) => succeed
           case _ => fail
         }
       }
