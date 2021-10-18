@@ -22,6 +22,8 @@ import connectors.ApiCataloguePublishConnector
 import connectors.ApiCataloguePublishConnector._
 import uk.gov.hmrc.http.Upstream5xxResponse
 import scala.concurrent.Future.successful
+import model.{PublishAllResponse, PublishResponse}
+import model.ApiCataloguePublishResponse._
 
 trait ApiCataloguePublishConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

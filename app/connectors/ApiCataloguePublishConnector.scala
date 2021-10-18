@@ -33,6 +33,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import cats.data.OptionT
 import scala.util.control.NonFatal
 import play.api.Logger
+import model.{PublishAllResponse, PublishResponse}
+import model.ApiCataloguePublishResponse._
 
 
 
@@ -42,17 +44,12 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
 
   import ApiCataloguePublishConnector._
 
-  def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] = {
-    implicit val f = PublishResponse.formatPublishResponse
+  def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
     handleResult(http.POST[String, PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName", ""))
     
-  }
 
-  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] = {
-    implicit val f = PublishAllResponse.formatPublishAllResponse
+  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] = 
     handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish-all", Seq.empty))
-    
-  }
 
   private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] ={
     result.map(x=> Right(x))
@@ -65,17 +62,5 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
 }
 
 object ApiCataloguePublishConnector {
-
-  case class PublishResponse(id: String, publisherReference: String, platformType: String)
-  case class PublishAllResponse(message: String)
-
-  object PublishResponse {
-    implicit val formatPublishResponse = Json.format[PublishResponse]
-  
-  }
-  object PublishAllResponse {
-    implicit val formatPublishAllResponse = Json.format[PublishAllResponse]
-  }
-
   case class Config(serviceBaseUrl: String)
 }

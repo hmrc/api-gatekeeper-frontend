@@ -277,6 +277,17 @@ object CreatePrivOrROPCAppSuccessResult {
 }
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 
+// API Catalogue Publish
+case class PublishResponse(id: String, publisherReference: String, platformType: String)
+case class PublishAllResponse(message: String)
+
+object ApiCataloguePublishResponse {
+  implicit val formatPublishResponse = Json.format[PublishResponse]
+  implicit val formatPublishAllResponse = Json.format[PublishAllResponse]
+}
+
+
+
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 object ApiScope {
   implicit val formats = Json.format[ApiScope]

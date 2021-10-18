@@ -31,6 +31,8 @@ import config.AppConfig
 import views.html.ForbiddenView
 import connectors.AuthConnector
 import play.api.libs.json.Json
+import model.{PublishAllResponse, PublishResponse}
+import model.ApiCataloguePublishResponse._
 
 @Singleton
 class ApiCataloguePublishController @Inject() (
@@ -54,7 +56,7 @@ class ApiCataloguePublishController @Inject() (
     connector.publishAll()
       .map(result =>
         result match {
-          case Right(response: ApiCataloguePublishConnector.PublishAllResponse) =>
+          case Right(response: PublishAllResponse) =>
             Ok(publishTemplate("Publish Page", "Publish Page", s"Publish All Called ok - ${response.message}"))
           case Left(_)                                                          => Ok(publishTemplate("Publish all Failed", "Publish All Failed", "Something went wrong with publish all"))
         }
@@ -65,7 +67,7 @@ class ApiCataloguePublishController @Inject() (
     connector.publishByServiceName(serviceName)
       .map(result =>
         result match {
-          case Right(response: ApiCataloguePublishConnector.PublishResponse) =>
+          case Right(response: PublishResponse) =>
             Ok(publishTemplate("Publish Page", "Publish Page", s"Publish by servcieName called ok $serviceName - ${Json.toJson(response).toString}"))
           case Left(_)                                                          => Ok(publishTemplate("Publish by ServiceName Failed", "Publish by ServiceName failed", s"Something went wrong with publish by serviceName $serviceName"))
         }
