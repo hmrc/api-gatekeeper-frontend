@@ -30,29 +30,45 @@ import model.GatekeeperRole
 import config.AppConfig
 import views.html.ForbiddenView
 import connectors.AuthConnector
+import play.api.libs.json.Json
 
 @Singleton
-class ApiCataloguePublishController @Inject()(connector: ApiCataloguePublishConnector,
-                                             val forbiddenView: ForbiddenView,
-                                            override val authConnector: AuthConnector,
-                                            mcc: MessagesControllerComponents,
-                                            errorTemplate: ErrorTemplate,
-                                            publishTemplate: PublishTemplate)
- (implicit ec: ExecutionContext, implicit val appConfig: AppConfig)  extends FrontendController(mcc) with GatekeeperAuthWrapper  with I18nSupport  {
-  
-    def start() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request => 
-        Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))
-    }
+class ApiCataloguePublishController @Inject() (
+    connector: ApiCataloguePublishConnector,
+    val forbiddenView: ForbiddenView,
+    override val authConnector: AuthConnector,
+    mcc: MessagesControllerComponents,
+    errorTemplate: ErrorTemplate,
+    publishTemplate: PublishTemplate
+  )(implicit ec: ExecutionContext,
+    implicit val appConfig: AppConfig)
+    extends FrontendController(mcc)
+    with GatekeeperAuthWrapper
+    with I18nSupport {
 
+  def start() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+    Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))
+  }
 
-    def publishAll() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request => 
-        connector.publishAll()
-        .map(result => 
-            result match {
-                case Right(response: ApiCataloguePublishConnector.PublishAllResponse) => 
-                    Ok(publishTemplate("Publish Page", "Publish Page", s"Publish All Called ok - ${response.message}"))
-                case Left(_) => Ok(publishTemplate("Publish all Failed", "Publish All Failed", "Something went wrong with publish all"))
-            })
-          
-    }
+  def publishAll() = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+    connector.publishAll()
+      .map(result =>
+        result match {
+          case Right(response: ApiCataloguePublishConnector.PublishAllResponse) =>
+            Ok(publishTemplate("Publish Page", "Publish Page", s"Publish All Called ok - ${response.message}"))
+          case Left(_)                                                          => Ok(publishTemplate("Publish all Failed", "Publish All Failed", "Something went wrong with publish all"))
+        }
+      )
+  }
+
+    def publishByServiceName(serviceName: String) = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+    connector.publishByServiceName(serviceName)
+      .map(result =>
+        result match {
+          case Right(response: ApiCataloguePublishConnector.PublishResponse) =>
+            Ok(publishTemplate("Publish Page", "Publish Page", s"Publish by servcieName called ok $serviceName - ${Json.toJson(response).toString}"))
+          case Left(_)                                                          => Ok(publishTemplate("Publish by ServiceName Failed", "Publish by ServiceName failed", s"Something went wrong with publish by serviceName $serviceName"))
+        }
+      )
+  }
 }

@@ -50,7 +50,7 @@ class PublishTemplateSpec extends CommonViewSpec {
       document.getElementById("heading").text() shouldBe "heading"
       document.getElementById("message").text() shouldBe "message"
       document.getElementById("publish-all-form").attr("action") shouldBe "/api-gatekeeper/apicatalogue/publishall"
-      document.getElementById("publish-all-form").attr("button") 
+      document.getElementById("publish-one-form").attr("action") shouldBe "/api-gatekeeper/apicatalogue/publish?serviceName="
       elementExistsById(document, "publish-all-button") shouldBe true
       elementExistsById(document, "publish-one-button") shouldBe true
       elementExistsById(document, "publish-one-label") shouldBe true
@@ -58,4 +58,5 @@ class PublishTemplateSpec extends CommonViewSpec {
 
     }
 }
+
 }

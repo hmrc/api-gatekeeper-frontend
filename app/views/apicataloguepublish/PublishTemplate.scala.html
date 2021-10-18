@@ -39,14 +39,14 @@
 <div class="form-group">
 
 
-<form id="publish-one-form">
-  <div class="form-field">
-    <label id="publish-one-label" for="publish-one-input" class="form-label-bold">Enter the service name of the api you with to publish to the Api Catalogue</label>
-    <input id="publish-one-input" type="text" name="publish-one" value="">
-    
-</div>
-<button id="publish-one-button" class="button" type="submit">Publish</button>
-  </form>
+  @helper.form(action = controllers.routes.ApiCataloguePublishController.publishByServiceName(""), 'id -> "publish-one-form") {
+        <div class="form-field">
+          <label id="publish-one-label" for="publish-one-input" class="form-label-bold">Enter the service name of the api you with to publish to the Api Catalogue</label>
+          <input id="publish-one-input" type="text" name="serviceName" value="">
+          
+      </div>
+      <button id="publish-one-button" class="button" type="submit">Publish</button>
+  }
 </div>
 </section>
 </div>

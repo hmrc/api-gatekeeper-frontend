@@ -81,6 +81,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
         contentAsString(result)
 
         verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verifyZeroInteractions(mockApiCataloguePublishConnector)
       }
     }
 
@@ -93,6 +94,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
         contentAsString(result)
 
         verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verifyZeroInteractions(mockApiCataloguePublishConnector)
       }
 
       "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
@@ -122,6 +124,49 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
         verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
+    }
+
+    "/apicatalogue/publish?serviceName=" should {
+      "return forbidden page when logged in as normal user " in new Setup {
+
+        givenTheGKUserHasInsufficientEnrolments()
+        val result = controller.publishByServiceName("serviceName")(aLoggedInRequest)
+        status(result) shouldBe FORBIDDEN
+        contentAsString(result)
+
+        verifyZeroInteractions(mockApiCataloguePublishConnector)
+        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+      }
+
+      "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight
+        val result = controller.publishByServiceName("serviceName")(anAdminLoggedInRequest)
+        status(result) shouldBe OK
+
+        val document = Jsoup.parse(contentAsString(result))
+        document.getElementById("heading").text() shouldBe "Publish Page"
+        document.getElementById("message").text() shouldBe """Publish by servcieName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
+
+        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)
+
+      }
+
+      "return publish template with failure message when logged in as Admin and connector returns a Left" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        ApiCataloguePublishConnectorMock.PublishByServiceName.returnLeft
+        val result = controller.publishByServiceName("serviceName")(anAdminLoggedInRequest)
+        status(result) shouldBe OK
+
+        val document = Jsoup.parse(contentAsString(result))
+        document.getElementById("heading").text() shouldBe "Publish by ServiceName failed"
+        document.getElementById("message").text() shouldBe """Something went wrong with publish by serviceName serviceName"""
+
+        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)
+
+      }
     }
 
   }

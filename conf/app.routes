@@ -94,3 +94,4 @@ GET         /emails/email-preferences/by-specific-api                           
 # api catalogue publish routes
 GET         /apicatalogue/start                                                 controllers.ApiCataloguePublishController.start()
 POST        /apicatalogue/publishall                                            controllers.ApiCataloguePublishController.publishAll()
+GET         /apicatalogue/publish                                               controllers.ApiCataloguePublishController.publishByServiceName(serviceName: String)

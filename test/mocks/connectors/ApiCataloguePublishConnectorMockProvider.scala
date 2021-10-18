@@ -34,6 +34,12 @@ trait ApiCataloguePublishConnectorMockProvider {
       
       def returnLeft() = when(mockApiCataloguePublishConnector.publishAll()(*)).thenReturn(successful(Left(Upstream5xxResponse("error", 500, 500, Map.empty))))
     }
+
+    object PublishByServiceName {
+      def returnRight() = when(mockApiCataloguePublishConnector.publishByServiceName(*)(*)).thenReturn(successful(Right(PublishResponse(id ="id", publisherReference = "publisherReference", platformType = "platformType"))))
+      
+      def returnLeft() = when(mockApiCataloguePublishConnector.publishByServiceName(*)(*)).thenReturn(successful(Left(Upstream5xxResponse("error", 500, 500, Map.empty))))
+    }
   }
 
 }
