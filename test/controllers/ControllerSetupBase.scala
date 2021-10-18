@@ -37,6 +37,7 @@ trait ControllerSetupBase
     with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
     with ApplicationServiceMockProvider
+    with ApiCataloguePublishConnectorMockProvider
     with ApmServiceMockProvider
     with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker {
