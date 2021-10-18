@@ -19,18 +19,21 @@ package mocks.connectors
 import org.mockito.ArgumentMatchersSugar
 import org.mockito.MockitoSugar
 import connectors.ApiCataloguePublishConnector
+import connectors.ApiCataloguePublishConnector._
+import uk.gov.hmrc.http.Upstream5xxResponse
+import scala.concurrent.Future.successful
 
 trait ApiCataloguePublishConnectorMockProvider {
-    self: MockitoSugar with ArgumentMatchersSugar =>
-   val mockApiCataloguePublishConnector = mock[ApiCataloguePublishConnector]
+  self: MockitoSugar with ArgumentMatchersSugar =>
+  val mockApiCataloguePublishConnector = mock[ApiCataloguePublishConnector]
 
-     trait ApiCataloguePublishConnectorMock {
-        def mock: ApiCataloguePublishConnector
+  object ApiCataloguePublishConnectorMock {
 
-
+    object PublishAll {
+      def returnRight() = when(mockApiCataloguePublishConnector.publishAll()(*)).thenReturn(successful(Right(PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress"))))
+      
+      def returnLeft() = when(mockApiCataloguePublishConnector.publishAll()(*)).thenReturn(successful(Left(Upstream5xxResponse("error", 500, 500, Map.empty))))
     }
-
-
-
+  }
 
 }
