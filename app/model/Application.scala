@@ -378,20 +378,24 @@ object GrantLength extends Enumeration {
   val TEN_YEARS = Value(threeThousandSixHundredAndFiftyDays)
   val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
 
-  def from(grantLength: Int) = GrantLength.values.find(e => e.id == grantLength)
+  def from(grantLength: Int) = {
+    lazy val errorMsg: String = "It should only be one of ('1 month', '3 months', '6 months', '1 year', '18 months', " +
+      "'3 years', '5 years', '10 years', '100 years') represented in days"
+    GrantLength.values.find(e => e.id == grantLength).getOrElse(throw new IllegalStateException(s"$grantLength is not an expected value. $errorMsg"))
+  }
 
   def displayedGrantLength(grantLength: Int): String = {
     GrantLength.from(grantLength)
     match {
-      case Some(ONE_MONTH) => "1 month"
-      case Some(THREE_MONTHS) => "3 months"
-      case Some(SIX_MONTHS) => "6 months"
-      case Some(ONE_YEAR) => "1 year"
-      case Some(EIGHTEEN_MONTHS) => "18 months"
-      case Some(THREE_YEARS) => "3 years"
-      case Some(FIVE_YEARS) => "5 years"
-      case Some(TEN_YEARS) => "10 years"
-      case Some(ONE_HUNDRED_YEARS) => "100 years"
+      case ONE_MONTH => "1 month"
+      case THREE_MONTHS => "3 months"
+      case SIX_MONTHS => "6 months"
+      case ONE_YEAR => "1 year"
+      case EIGHTEEN_MONTHS => "18 months"
+      case THREE_YEARS => "3 years"
+      case FIVE_YEARS => "5 years"
+      case TEN_YEARS => "10 years"
+      case ONE_HUNDRED_YEARS => "100 years"
     }
   }
 
