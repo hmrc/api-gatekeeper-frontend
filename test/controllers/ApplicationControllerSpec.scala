@@ -83,6 +83,7 @@ class ApplicationControllerSpec
   private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
   private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
   private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
+  private lazy val manageGrantLengthSuccessView = app.injector.instanceOf[ManageGrantLengthSuccessView]
 
  
   running(app) {
@@ -138,6 +139,7 @@ class ApplicationControllerSpec
         addTeamMemberView,
         removeTeamMemberView,
         manageGrantLengthView,
+        manageGrantLengthSuccessView,
         mockApmService
       )
 
@@ -382,6 +384,85 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
         contentAsString(result) should include("View IP allow list")
+      }
+    }
+
+    "manageGrantLengthPage" should {
+      "return the manage grant length page for an admin" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageGrantLength(applicationId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Manage application grant length")
+      }
+
+      "return the manage grant length page for a super user" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageGrantLength(applicationId)(aSuperUserLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Manage application grant length")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        givenTheGKUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageGrantLength(applicationId)(aLoggedInRequest)
+
+        status(result) shouldBe FORBIDDEN
+        contentAsString(result) should include("You do not have permission")
+      }
+    }
+
+    "updateGrantLength" should {
+      "call the service to update the grant length when a valid form is submitted for an admin" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        ApplicationServiceMock.UpdateGrantLength.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> "547")
+
+        val result = addToken(underTest.updateGrantLength(applicationId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), eqTo(GrantLength.EIGHTEEN_MONTHS))(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        verifyAuthConnectorCalledForAdmin
+      }
+
+      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        givenTheAppWillBeReturned()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = addToken(underTest.updateGrantLength(applicationId))(request)
+
+        status(result) shouldBe BAD_REQUEST
+
+        verify(mockApplicationService, never).updateGrantLength(*, *)(*)
+        verifyAuthConnectorCalledForAdmin
+      }
+
+      "return forbidden when a form is submitted for a non-admin user" in new Setup {
+        givenTheGKUserHasInsufficientEnrolments()
+        givenTheAppWillBeReturned()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> "547")
+
+        val result = addToken(underTest.updateGrantLength(applicationId))(request)
+
+        status(result) shouldBe FORBIDDEN
+
+        verify(mockApplicationService, never).updateGrantLength(*, *)(*)
+        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 

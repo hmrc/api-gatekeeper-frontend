@@ -74,6 +74,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
                                       addTeamMemberView: AddTeamMemberView,
                                       removeTeamMemberView: RemoveTeamMemberView,
                                       manageGrantLengthView: ManageGrantLengthView,
+                                      manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
                                       val apmService: ApmService
                                      )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
     extends FrontendController(mcc)
@@ -304,7 +305,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
   def manageGrantLength(appId: ApplicationId) = requiresAtLeast(GatekeeperRole.ADMIN) {
     implicit request =>
       withApp(appId) { app =>
-        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(app.application.grantLength.getDays))
+        val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays)))
         Future.successful(Ok(manageGrantLengthView(app.application, form)))
       }
   }
@@ -313,8 +314,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       withApp(appId) { app =>
         def handleValidForm(form: UpdateGrantLengthForm) = {
-          applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength).get).map { _ =>
-            Redirect(routes.ApplicationController.applicationPage(appId))
+          applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get).get).map { _ =>
+            Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
           }
         }
 

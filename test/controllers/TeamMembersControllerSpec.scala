@@ -159,6 +159,35 @@ class TeamMembersControllerSpec
       }
     }
 
+    "update grant length" when {
+      "managing a standard app" when {
+        "the user is a superuser" should {
+          "show 200 OK" in new Setup {
+            givenTheGKUserIsAuthorisedAndIsASuperUser()
+            givenTheAppWillBeReturned()
+
+            val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
+
+            status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
+          }
+        }
+
+        "the user is not a superuser" should {
+          "show 200 OK" in new Setup {
+            givenTheGKUserIsAuthorisedAndIsANormalUser()
+            givenTheAppWillBeReturned()
+
+            val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
+
+            status(result) shouldBe OK
+            verifyAuthConnectorCalledForUser
+          }
+        }
+      }
+    }
+
+
     "addTeamMember" when {
       "managing a privileged app" when {
         "the user is a superuser" should {

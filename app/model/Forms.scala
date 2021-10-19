@@ -139,8 +139,8 @@ object Forms {
     def fromSetOfScopes(scopes: Set[String]) = Some(scopes.mkString(", "))
   }
 
-  val scopesForm: Form[Set[String]] = Form (
-    mapping (
+  val scopesForm: Form[Set[String]] = Form(
+    mapping(
       "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes))
 
@@ -192,7 +192,9 @@ object Forms {
     }
 
     def toSetOfAllowlistedIps(allowlistedIps: String): Set[String] = allowlistedIps.split("""\s+""").map(_.trim).toSet.filterNot(_.isEmpty)
+
     def toForm(required: Boolean, allowlistedIps: String): IpAllowlistForm = IpAllowlistForm(required, toSetOfAllowlistedIps(allowlistedIps))
+
     def fromForm(form: IpAllowlistForm): Option[(Boolean, String)] = Some((form.required, form.allowlist.mkString("\n")))
 
     val form: Form[IpAllowlistForm] = Form(mapping(
@@ -275,12 +277,12 @@ object Forms {
     )
   }
 
-object SendEmailChoiceForm {
-  val form: Form[SendEmailChoice] = Form(
-    mapping(
-      sendEmailChoice -> of[EmailOptionChoice]
-    )(SendEmailChoice.apply)(SendEmailChoice.unapply))
-}
+  object SendEmailChoiceForm {
+    val form: Form[SendEmailChoice] = Form(
+      mapping(
+        sendEmailChoice -> of[EmailOptionChoice]
+      )(SendEmailChoice.apply)(SendEmailChoice.unapply))
+  }
 
   implicit def emailOptionChoiceFormat: Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
     override def bind(key: String, data: Map[String, String]) =
@@ -292,12 +294,12 @@ object SendEmailChoiceForm {
   }
 
 
-object SendEmailPrefencesChoiceForm {
-  val form: Form[SendEmailPreferencesChoice] = Form(
-    mapping(
-      sendEmailPreferences -> of[EmailPreferencesChoice]
-    )(SendEmailPreferencesChoice.apply)(SendEmailPreferencesChoice.unapply))
-}
+  object SendEmailPrefencesChoiceForm {
+    val form: Form[SendEmailPreferencesChoice] = Form(
+      mapping(
+        sendEmailPreferences -> of[EmailPreferencesChoice]
+      )(SendEmailPreferencesChoice.apply)(SendEmailPreferencesChoice.unapply))
+  }
 
   implicit def emailPreferencesChoiceFormat: Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
     override def bind(key: String, data: Map[String, String]) =
@@ -307,5 +309,14 @@ object SendEmailPrefencesChoiceForm {
 
     override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
   }
-}
 
+  final case class UpdateGrantLengthForm(grantLength: Option[Int])
+
+  object UpdateGrantLengthForm {
+    val form: Form[UpdateGrantLengthForm] = Form(
+      mapping(
+        "grantLength" -> optional(number).verifying("grantLength.required", _.isDefined)
+      )(UpdateGrantLengthForm.apply)(UpdateGrantLengthForm.unapply)
+    )
+  }
+}
