@@ -42,7 +42,9 @@ class ConfigurationModule extends Module {
         .qualifiedWith(Names.named("PRODUCTION"))
         .to(classOf[ProductionSubscriptionFieldsConnector]),
       bind(classOf[ApmConnector.Config])
-      .toProvider(classOf[LiveApmConnectorConfigProvider])
+      .toProvider(classOf[LiveApmConnectorConfigProvider]),
+      bind(classOf[ApiCataloguePublishConnector.Config])
+      .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider])
     )
   }
 }

@@ -277,6 +277,8 @@ object CreatePrivOrROPCAppSuccessResult {
 }
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 
+
+
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
