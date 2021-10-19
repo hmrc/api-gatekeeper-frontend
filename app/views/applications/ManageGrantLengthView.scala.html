@@ -50,7 +50,9 @@
             A change you make now does not affect existing grant lengths.
         </span>
     </div>
-    <br>
+    @if(form.errors("grantLength").nonEmpty) {
+        <br>
+    }
     @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     <div>
         @helper.CSRF.formField
