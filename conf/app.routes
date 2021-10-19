@@ -1,5 +1,8 @@
 # microservice specific routes
 
+->          /apicatalogue             apicataloguepublish.Routes
+
+
 GET         /review                                                           controllers.ApplicationController.reviewPage(id: model.ApplicationId)
 
 POST        /update-rate-limit-tier                                           controllers.ApplicationController.handleUpdateRateLimitTier(id: model.ApplicationId)
@@ -90,8 +93,3 @@ GET         /emails/email-preferences/by-topic                                  
 GET         /emails/email-preferences/by-api-category                           controllers.EmailsController.emailPreferencesAPICategory(selectedTopic: Option[String], selectedCategory:Option[String])
 GET         /emails/email-preferences/select-api                                controllers.EmailsController.selectSpecficApi(selectedAPIs: Option[List[String]])
 GET         /emails/email-preferences/by-specific-api                           controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
-
-# api catalogue publish routes
-GET         /apicatalogue/start                                                 controllers.ApiCataloguePublishController.start()
-POST        /apicatalogue/publishall                                            controllers.ApiCataloguePublishController.publishAll()
-GET         /apicatalogue/publish                                               controllers.ApiCataloguePublishController.publishByServiceName(serviceName: String)

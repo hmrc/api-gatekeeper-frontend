@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.apicataloguepublish
 
 import views.html.ForbiddenView
-import views.html.ErrorTemplate
 import views.html.apicataloguepublish.PublishTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,6 +28,8 @@ import play.filters.csrf.CSRF
 import utils.WithCSRFAddToken
 import uk.gov.hmrc.auth.core.Enrolment
 import mocks.TestRoles._
+import controllers.ControllerBaseSpec
+import controllers.ControllerSetupBase
 
 class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -43,8 +44,6 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
     private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
-    private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
-
     private lazy val publishTemplateView: PublishTemplate = app.injector.instanceOf[PublishTemplate]
 
     val controller = new ApiCataloguePublishController(
@@ -52,7 +51,6 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
       forbiddenView,
       mockAuthConnector,
       mcc,
-      errorTemplateView,
       publishTemplateView
     )
   }
@@ -146,7 +144,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish Page"
-        document.getElementById("message").text() shouldBe """Publish by servcieName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
+        document.getElementById("message").text() shouldBe """Publish by serviceName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
 
         verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)

@@ -16,40 +16,26 @@
 
 package connectors
 
-import javax.inject.{Inject, Singleton}
-import config.AppConfig
-import model.DeveloperStatusFilter.DeveloperStatusFilter
-import model._
-import model.TopicOptionChoice.TopicOptionChoice
-import encryption._
-import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
-import uk.gov.hmrc.http.HttpClient
-import model.UserId
-import scala.concurrent.{ExecutionContext, Future}
-import com.google.inject.name.Named
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import cats.data.OptionT
-import scala.util.control.NonFatal
+import connectors.ApiCataloguePublishConnector._
 import play.api.Logger
-import model.{PublishAllResponse, PublishResponse}
-import model.ApiCataloguePublishResponse._
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 
 @Singleton
 class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConnector.Config, http: HttpClient)
     (implicit ec: ExecutionContext) {
 
-  import ApiCataloguePublishConnector._
-
   def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
-    handleResult(http.POST[String, PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName", ""))
-    
+    handleResult(http.POSTEmpty[PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName"))
 
-  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] = 
-    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish-all", Seq.empty))
+  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] =
+    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish-all"))
 
   private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] ={
     result.map(x=> Right(x))
@@ -63,4 +49,10 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
 
 object ApiCataloguePublishConnector {
   case class Config(serviceBaseUrl: String)
+  // API Catalogue Publish
+  case class PublishResponse(id: String, publisherReference: String, platformType: String)
+  case class PublishAllResponse(message: String)
+  implicit val formatPublishResponse: OFormat[PublishResponse] = Json.format[PublishResponse]
+  implicit val formatPublishAllResponse: OFormat[PublishAllResponse] = Json.format[PublishAllResponse]
 }
+

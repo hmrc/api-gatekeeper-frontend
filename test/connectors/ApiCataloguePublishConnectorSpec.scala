@@ -27,8 +27,6 @@ import uk.gov.hmrc.http.Upstream5xxResponse
 import utils.WireMockSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import ApiCataloguePublishConnector._
-import model.{PublishAllResponse, PublishResponse}
-import model.ApiCataloguePublishResponse._
 
 class ApiCataloguePublishConnectorSpec
     extends AsyncHmrcSpec
