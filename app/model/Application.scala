@@ -379,8 +379,8 @@ object GrantLength extends Enumeration {
   val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
 
   def from(grantLength: Int) = {
-    val errorMsg: String = s"It should only be one of ('1 month', '3 months', '6 months', '1 year', '18 months', " +
-      s"'3 years', '5 years', '10 years', '100 years') represented in days"
+    lazy val errorMsg: String = "It should only be one of ('1 month', '3 months', '6 months', '1 year', '18 months', " +
+      "'3 years', '5 years', '10 years', '100 years') represented in days"
     GrantLength.values.find(e => e.id == grantLength).getOrElse(throw new IllegalStateException(s"$grantLength is not an expected value. $errorMsg"))
   }
 
