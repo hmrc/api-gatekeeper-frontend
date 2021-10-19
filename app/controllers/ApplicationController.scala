@@ -314,7 +314,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     implicit request =>
       withApp(appId) { app =>
         def handleValidForm(form: UpdateGrantLengthForm) = {
-          applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get).get).map { _ =>
+          applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get)) map { _ =>
             Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
           }
         }

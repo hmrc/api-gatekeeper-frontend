@@ -44,13 +44,13 @@
         The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
     </p>
     <p>The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
-    <p><strong class="bold">Choose a new application grant length</strong>
-        </br>
+    <legend><strong class="bold">Choose a new application grant length</strong></legend>
+    <div>
         <span id="changed-name-hint" class="faded-text">
             A change you make now does not affect existing grant lengths.
         </span>
-    </p>
-
+    </div>
+    <br>
     @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     <div>
         @helper.CSRF.formField
