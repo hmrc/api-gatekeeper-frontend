@@ -56,10 +56,17 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
       def errors(errors: Form[HandleApprovalForm]) =
         fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
 
+      def doCalls(serviceName: String, environment: String): Future[Unit]={
+            deploymentApprovalService.approveService(serviceName, Environment.withName(environment))
+           
+            // only call publish api to catalogue when PROD app and approval successful
+      }
+
+
       def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
         validForm.approval_confirmation match {
           case "Yes" =>
-            deploymentApprovalService.approveService(serviceName, Environment.withName(environment)) map {
+            doCalls(serviceName,environment) map {
               _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
             }
           case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
