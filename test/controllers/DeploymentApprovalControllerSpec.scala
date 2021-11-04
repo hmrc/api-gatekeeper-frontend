@@ -16,22 +16,25 @@
 
 package controllers
 
-import java.net.URLEncoder
-import java.util.UUID
-
+import akka.stream.Materializer
 import model.Environment._
 import model._
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.WithCSRFAddToken
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import views.html.{ErrorTemplate, ForbiddenView}
-import play.api.test.Helpers._
+
+import java.net.URLEncoder
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
@@ -39,19 +42,20 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase {
-    val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
+    val csrfToken: (String, String) = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
 
-    override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
+    override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, userToken)
 
-    val serviceName = "ServiceName" + UUID.randomUUID()
-    val redirectLoginUrl = "https://loginUri" +
-      s"?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-      s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
+    val serviceName: String = "ServiceName" + UUID.randomUUID()
+    val mockedURl: String = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
+    val redirectLoginUrl: String = "https://loginUri" +
+      s"?successURL=$mockedURl&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
 
     val underTest = new DeploymentApprovalController(
       mockAuthConnector,
       forbiddenView,
       mockDeploymentApprovalService,
+      mockApiCataloguePublishConnector,
       mcc,
       deploymentApprovalView,
       deploymentReviewView,
@@ -66,7 +70,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
       )
 
-      val result =  underTest.pendingPage()(aLoggedInRequest)
+      val result: Future[Result] =  underTest.pendingPage()(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -82,7 +86,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     "redirect to the login page if the user is not logged in" in new Setup {
       givenAUnsuccessfulLogin()
 
-      val result =  underTest.pendingPage()(aLoggedInRequest)
+      val result: Future[Result] =  underTest.pendingPage()(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
 
@@ -92,14 +96,14 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   "reviewPage" should {
     "render the deployment review page for a sandbox API" in new Setup {
-      val environment = SANDBOX
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+      val environment: model.Environment.Value = SANDBOX
+      val approvalSummary: APIApprovalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
-      val result =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
+      val result: Future[Result] =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -113,13 +117,13 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "render the deployment review page for a production API" in new Setup {
-      val environment = PRODUCTION
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+      val environment: model.Environment.Value = PRODUCTION
+      val approvalSummary: APIApprovalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
-      val result =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
+      val result: Future[Result] =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -135,7 +139,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     "redirect to the login page if the user is not logged in" in new Setup {
       givenAUnsuccessfulLogin()
 
-      val result =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
+      val result: Future[Result] =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(redirectLoginUrl)
@@ -143,16 +147,15 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   }
   "handleApproval" should {
     "call the approveService and redirect if form contains confirmation for a sandbox API" in new Setup {
-      val environment = SANDBOX
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+      val environment: model.Environment.Value = SANDBOX
+      val approvalSummary: APIApprovalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
       DeploymentApprovalServiceMock.ApproveService.succeeds()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
-
-      val result =  addToken(underTest.handleApproval(serviceName, environment.toString))(request)
+      val result: Future[Result] =  addToken(underTest.handleApproval(serviceName, environment.toString)
+      )(aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes"))
 
       status(result) shouldBe SEE_OTHER
 
@@ -160,19 +163,20 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
     "call the approveService and redirect if form contains confirmation for a production API" in new Setup {
-      val environment = PRODUCTION
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+      val environment: model.Environment.Value = PRODUCTION
+      val approvalSummary: APIApprovalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
+      ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
       DeploymentApprovalServiceMock.ApproveService.succeeds()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes")
-
-      val result =  addToken(underTest.handleApproval(serviceName, environment.toString))(request)
+      val result: Future[Result] =  addToken(underTest.handleApproval(serviceName, environment.toString)
+      )(aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "Yes"))
 
       status(result) shouldBe SEE_OTHER
 
@@ -180,30 +184,29 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
+      verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo(serviceName))(*)
     }
 
     "return bad request if approval is not confirmed" in new Setup {
-      val environment = PRODUCTION
+      val environment: model.Environment.Value = PRODUCTION
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "No")
-
       intercept[UnsupportedOperationException](
-        await(addToken(underTest.handleApproval(serviceName, environment.toString))(request))
+        await(addToken(underTest.handleApproval(serviceName, environment.toString)
+        )(aLoggedInRequest.withFormUrlEncodedBody("approval_confirmation" -> "No")))
       )
     }
 
     "return bad request if invalid form" in new Setup {
-      val environment = PRODUCTION
-      val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
+      val environment: model.Environment.Value = PRODUCTION
+      val approvalSummary: APIApprovalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used")
-
-      val result =  addToken(underTest.handleApproval(serviceName, environment.toString))(request)
+      val result: Future[Result] =  addToken(underTest.handleApproval(serviceName, environment.toString)
+      )(aLoggedInRequest.withFormUrlEncodedBody("notAValidField" -> "not_used"))
 
       status(result) shouldBe BAD_REQUEST
     }
@@ -211,7 +214,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     "redirect to the login page if the user is not logged in" in new Setup {
       givenAUnsuccessfulLogin()
 
-      val result =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
+      val result: Future[Result] =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(redirectLoginUrl)
