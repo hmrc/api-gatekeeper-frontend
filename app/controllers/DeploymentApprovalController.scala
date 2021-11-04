@@ -18,9 +18,6 @@ package controllers
 
 import config.AppConfig
 import connectors.{ApiCataloguePublishConnector, AuthConnector}
-import model.Environment.SANDBOX
-
-import javax.inject.Inject
 import model._
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -29,9 +26,10 @@ import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.deploymentApproval._
+import views.html.{ErrorTemplate, ForbiddenView}
 
+import javax.inject.Inject
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
