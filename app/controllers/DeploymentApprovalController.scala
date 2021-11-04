@@ -17,8 +17,7 @@
 package controllers
 
 import config.AppConfig
-import connectors.AuthConnector
-import javax.inject.Inject
+import connectors.{ApiCataloguePublishConnector, AuthConnector}
 import model._
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -27,14 +26,17 @@ import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{ErrorHelper, GatekeeperAuthWrapper}
-import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.deploymentApproval._
+import views.html.{ErrorTemplate, ForbiddenView}
 
+import javax.inject.Inject
+import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
                                              val forbiddenView: ForbiddenView,
                                              deploymentApprovalService: DeploymentApprovalService,
+                                             apiCataloguePublishConnector: ApiCataloguePublishConnector,
                                              mcc: MessagesControllerComponents,
                                              deploymentApproval: DeploymentApprovalView,
                                              deploymentReview: DeploymentReviewView,
@@ -43,30 +45,39 @@ class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
   extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
 
   def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
-      deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
+    deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
   def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
-      fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
+    fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
   def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
-      val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
+    val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
-      def errors(errors: Form[HandleApprovalForm]) =
-        fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
+    def errors(errors: Form[HandleApprovalForm]) =
+      fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
 
-      def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
-        validForm.approval_confirmation match {
-          case "Yes" =>
-            deploymentApprovalService.approveService(serviceName, Environment.withName(environment)) map {
-              _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
-            }
-          case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
-        }
+    def doCalls(serviceName: String, environment: Environment.Value): Future[Unit] = {
+      deploymentApprovalService.approveService(serviceName, environment)
+        .flatMap(_ => environment match {
+            case Environment.PRODUCTION => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
+            case _ => successful(())
+          })
+    }
+
+
+    def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
+      validForm.approval_confirmation match {
+        case "Yes" =>
+          doCalls(serviceName, Environment.withName(environment)) map {
+            _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
+          }
+        case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
       }
+    }
 
-      requestForm.fold(errors, approveApplicationWithValidForm)
+    requestForm.fold(errors, approveApplicationWithValidForm)
   }
 
   private def fetchApiDefinitionSummary(serviceName: String, environment: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {

@@ -16,9 +16,6 @@
 
 package controllers
 
-import java.net.URLEncoder
-import java.util.UUID
-
 import model.Environment._
 import model._
 import play.api.test.FakeRequest
@@ -27,7 +24,9 @@ import play.filters.csrf.CSRF.TokenProvider
 import utils.WithCSRFAddToken
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import views.html.{ErrorTemplate, ForbiddenView}
-import play.api.test.Helpers._
+
+import java.net.URLEncoder
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
@@ -44,14 +43,15 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
     val serviceName = "ServiceName" + UUID.randomUUID()
+    val mockedURl = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
     val redirectLoginUrl = "https://loginUri" +
-      s"?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
-      s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
+      s"?successURL=$mockedURl&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
 
     val underTest = new DeploymentApprovalController(
       mockAuthConnector,
       forbiddenView,
       mockDeploymentApprovalService,
+      mockApiCataloguePublishConnector,
       mcc,
       deploymentApprovalView,
       deploymentReviewView,
@@ -119,7 +119,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
 
-      val result =  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
+      val result=  addToken(underTest.reviewPage(serviceName, environment.toString))(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -160,12 +160,14 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
     "call the approveService and redirect if form contains confirmation for a production API" in new Setup {
       val environment = PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
+      ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(environment)(approvalSummary)
       DeploymentApprovalServiceMock.ApproveService.succeeds()
@@ -180,6 +182,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
       verifyAuthConnectorCalledForUser
+      verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo(serviceName))(*)
     }
 
     "return bad request if approval is not confirmed" in new Setup {
