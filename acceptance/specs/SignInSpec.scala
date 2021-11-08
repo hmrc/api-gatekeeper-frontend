@@ -91,7 +91,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
     }
 
-    Scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
+    ignore("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
       stubPaginatedApplicationList()
 
       stubApiDefinition()
