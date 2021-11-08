@@ -26,8 +26,8 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
-  feature("Delete an application") {
-    scenario("I can delete an application") {
+  Feature("Delete an application") {
+    Scenario("I can delete an application") {
 
       stubApplicationForDeleteSuccess()
 
@@ -39,7 +39,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
       assert(DeleteApplicationSuccessPage.bodyText.contains("Application deleted"))
     }
 
-    scenario("I cannot delete an application") {
+    Scenario("I cannot delete an application") {
 
       stubApplicationForDeleteFailure()
 

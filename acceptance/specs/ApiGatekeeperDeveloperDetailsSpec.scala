@@ -39,9 +39,9 @@ class ApiGatekeeperDeveloperDetailsSpec
   info("I WANT to be able to view the applications an administrator/developer is on")
   info("SO THAT I can follow the correct process before deleting the administrator/developer")
 
-  feature("Developer details page") {
+  Feature("Developer details page") {
 
-    scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()

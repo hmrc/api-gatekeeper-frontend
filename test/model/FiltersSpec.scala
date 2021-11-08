@@ -16,10 +16,9 @@
 
 package model
 
-import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
 
-class FiltersSpec  extends AsyncHmrcSpec with Matchers {
+class FiltersSpec  extends AsyncHmrcSpec {
 
   "ApiFilter" when {
     "given an api id pattern" should {

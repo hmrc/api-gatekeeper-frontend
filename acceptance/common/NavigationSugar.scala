@@ -21,7 +21,8 @@ import org.openqa.selenium.{By, WebDriver, WebElement}
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.selenium.WebBrowser
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{Assertions, Matchers}
+import org.scalatest.Assertions
+import org.scalatest.matchers.should.Matchers
 
 trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 

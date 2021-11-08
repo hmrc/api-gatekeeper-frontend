@@ -20,7 +20,6 @@ import config.AppConfig
 import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
@@ -28,6 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers._
+import utils.ApplicationLogger
 
 import scala.concurrent.ExecutionContext
 
@@ -46,7 +46,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
                                      override val errorTemplate: ErrorTemplate,
                                      val apmService: ApmService
                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport {
+  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with ActionBuilders with I18nSupport with ApplicationLogger {
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
@@ -64,7 +64,7 @@ class DevelopersController @Inject()(developerService: DeveloperService,
         Ok(removeMfaSuccessView(user.email))
       } recover {
         case e: Exception =>
-          Logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
+          logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
           technicalDifficulties
       }
   }

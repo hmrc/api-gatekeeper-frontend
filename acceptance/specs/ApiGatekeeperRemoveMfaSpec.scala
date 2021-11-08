@@ -42,9 +42,9 @@ class ApiGatekeeperRemoveMfaSpec
   info("I WANT to be able to remove MFA for a developer")
   info("SO THAT they can reset MFA if they lost their secret")
 
-  feature("Remove MFA") {
+  Feature("Remove MFA") {
 
-    scenario("Ensure a super user can remove MFA from a developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a super user can remove MFA from a developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
@@ -76,7 +76,7 @@ class ApiGatekeeperRemoveMfaSpec
       on(Developer2Page)
     }
 
-    scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()

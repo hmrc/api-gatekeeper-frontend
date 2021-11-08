@@ -35,16 +35,16 @@ class ConfigurationModule extends Module {
     Seq(
       developerConnectorBinding,
 
-      bind(classOf[SubscriptionFieldsConnector])
+      bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("SANDBOX"))
         .to(classOf[SandboxSubscriptionFieldsConnector]),
-      bind(classOf[SubscriptionFieldsConnector])
+      bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("PRODUCTION"))
         .to(classOf[ProductionSubscriptionFieldsConnector]),
-      bind(classOf[ApmConnector.Config])
-      .toProvider(classOf[LiveApmConnectorConfigProvider]),
-      bind(classOf[ApiCataloguePublishConnector.Config])
-      .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider])
+      bind[ApmConnector.Config]
+        .toProvider(classOf[LiveApmConnectorConfigProvider]),
+      bind[ApiCataloguePublishConnector.Config]
+        .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider])
     )
   }
 }

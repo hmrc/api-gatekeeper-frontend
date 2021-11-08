@@ -17,11 +17,10 @@
 package controllers
 
 import model.Forms.UpdateGrantLengthForm
-import org.scalatest.Matchers
 import play.api.data.FormError
 import utils.AsyncHmrcSpec
 
-class FormValidationSpec extends AsyncHmrcSpec with Matchers {
+class FormValidationSpec extends AsyncHmrcSpec {
   "HandleUpliftForm" should {
     val validHandleUpliftWithAcceptForm = Map("action" -> "APPROVE", "reason" -> "")
     val validHandleUpliftWithRejectForm = Map("action" -> "REJECT", "reason" -> "A similar name is already taken by another application")

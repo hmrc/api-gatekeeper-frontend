@@ -31,12 +31,12 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
-  feature("Application List for Search Functionality") {
+  Feature("Application List for Search Functionality") {
     info("AS A Product Owner")
     info("I WANT The SDST (Software Developer Support Team) to be able to search for applications")
     info("SO THAT The SDST can review the status of the applications")
 
-    scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
@@ -46,8 +46,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
     }
   }
 
-  feature("Show applications information") {
-    scenario("View a specific application") {
+  Feature("Show applications information") {
+    Scenario("View a specific application") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
@@ -91,8 +91,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
     }
   }
 
-  feature("Show an applications developer information") {
-    scenario("View a specific developer on an application") {
+  Feature("Show an applications developer information") {
+    Scenario("View a specific developer on an application") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()

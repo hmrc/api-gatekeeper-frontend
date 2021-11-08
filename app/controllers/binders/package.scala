@@ -22,9 +22,9 @@ import play.api.mvc.QueryStringBindable
 import model.UserId
 import scala.util.Try
 import model.{DeveloperIdentifier, EmailIdentifier}
-import play.api.Logger
+import utils.ApplicationLogger
 
-package object binders {
+package object binders extends ApplicationLogger {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
       textBinder.bind(key, value).map(ApplicationId(_))
@@ -125,7 +125,7 @@ package object binders {
   }
 
     private def warnOnEmailId(source: String)(id: DeveloperIdentifier): DeveloperIdentifier = id match {
-    case EmailIdentifier(_) => Logger.warn(s"Still using emails as identifier - source:$source"); id
+    case EmailIdentifier(_) => logger.warn(s"Still using emails as identifier - source:$source"); id
     case _ => id
   }
 

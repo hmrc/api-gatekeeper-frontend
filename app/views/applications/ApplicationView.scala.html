@@ -82,7 +82,7 @@
             <table>
                 <thead><tr><th>Override</th><th>Scopes</th></tr></thead>
                 @overrides.toList.map(or => or match {
-                    case or: PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+                    case or@ PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
                     case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
                     case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
                     case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}

@@ -16,10 +16,9 @@
 
 package model
 
-import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
 
-class ApiContextVersionSpec extends AsyncHmrcSpec with Matchers {
+class ApiContextVersionSpec extends AsyncHmrcSpec {
 
   "ApiContextVersionFilter" when {
     "given an api context and version pattern" in {
