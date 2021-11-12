@@ -96,7 +96,7 @@ class ApplicationControllerSpec
       override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin()))), List.empty)
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))), List.empty)
 
       val privilegedApplication = ApplicationWithHistory(
         basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), List.empty)
@@ -651,7 +651,7 @@ class ApplicationControllerSpec
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
           eqTo(Set(
-            PersistLogin(),
+            PersistLogin,
             GrantWithoutConsent(Set("hello", "individual-benefits")),
             SuppressIvForAgents(Set("openid", "email")),
             SuppressIvForOrganisations(Set("address", "openid:mdtp")),

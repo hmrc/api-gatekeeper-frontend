@@ -17,7 +17,6 @@
 package connectors
 
 import connectors.ApiCataloguePublishConnector._
-import play.api.Logger
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -25,11 +24,11 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-
+import utils.ApplicationLogger
 
 @Singleton
 class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConnector.Config, http: HttpClient)
-    (implicit ec: ExecutionContext) {
+    (implicit ec: ExecutionContext) extends ApplicationLogger {
 
   def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
     handleResult(http.POSTEmpty[PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName"))
@@ -40,7 +39,7 @@ class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConne
   private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] ={
     result.map(x=> Right(x))
       .recover {
-        case NonFatal(e) => Logger.error(e.getMessage)
+        case NonFatal(e) => logger.error(e.getMessage)
           Left(e)
       }
     }

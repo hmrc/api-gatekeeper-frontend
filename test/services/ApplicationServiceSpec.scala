@@ -267,18 +267,18 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         .thenReturn(successful(UpdateOverridesSuccessResult))
       ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
-      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key")))))
+      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin, SuppressIvForAgents(Set("test.key")))))
 
       result shouldBe UpdateOverridesSuccessResult
 
       verify(mockProductionApplicationConnector).updateOverrides(eqTo(stdApp1.id),
-        eqTo(UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("test.key"))))))(*)
+        eqTo(UpdateOverridesRequest(Set(PersistLogin, SuppressIvForAgents(Set("test.key"))))))(*)
     }
 
     "fail when called with invalid scopes" in new Setup {
       ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
-      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin(), SuppressIvForAgents(Set("test.key", "invalid.key")))))
+      val result = await(underTest.updateOverrides(stdApp1, Set(PersistLogin, SuppressIvForAgents(Set("test.key", "invalid.key")))))
 
       result shouldBe UpdateOverridesFailureResult(Set(SuppressIvForAgents(Set("test.key", "invalid.key"))))
 
@@ -287,7 +287,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     "fail when called for an app with Privileged access" in new Setup {
       intercept[RuntimeException] {
-        await(underTest.updateOverrides(privilegedApp, Set(PersistLogin(), SuppressIvForAgents(Set("hello")))))
+        await(underTest.updateOverrides(privilegedApp, Set(PersistLogin, SuppressIvForAgents(Set("hello")))))
       }
 
       verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *)(*)
@@ -295,7 +295,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     "fail when called for an app with ROPC access" in new Setup {
       intercept[RuntimeException] {
-        await(underTest.updateOverrides(ropcApp, Set(PersistLogin(), SuppressIvForAgents(Set("hello")))))
+        await(underTest.updateOverrides(ropcApp, Set(PersistLogin, SuppressIvForAgents(Set("hello")))))
       }
 
       verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *)(*)

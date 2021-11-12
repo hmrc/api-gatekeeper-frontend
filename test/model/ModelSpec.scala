@@ -17,13 +17,12 @@
 package model
 
 import model.AccessType._
-import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
 import org.joda.time.DateTime
 
 import java.time.Period
 
-class ModelSpec  extends AsyncHmrcSpec with Matchers {
+class ModelSpec  extends AsyncHmrcSpec {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {

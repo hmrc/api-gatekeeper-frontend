@@ -366,7 +366,7 @@ class ApplicationConnectorSpec
   }
 
   "updateOverrides" should {
-    val overridesRequest = UpdateOverridesRequest(Set(PersistLogin(), SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
+    val overridesRequest = UpdateOverridesRequest(Set(PersistLogin, SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
     val url = s"/application/${applicationId.value}/access/overrides"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {

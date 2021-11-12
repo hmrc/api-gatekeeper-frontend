@@ -24,7 +24,7 @@ import com.google.inject.{Inject, Provider, Singleton}
 class PayloadEncryptionModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration) = {
     Seq(
-      bind(classOf[PayloadEncryption]).qualifiedWith(Names.named("ThirdPartyDeveloper")).toProvider(classOf[ThirdPartyDeveloperPayloadEncryptionProvider])
+      bind[PayloadEncryption].qualifiedWith(Names.named("ThirdPartyDeveloper")).toProvider(classOf[ThirdPartyDeveloperPayloadEncryptionProvider])
     )
   }
 }

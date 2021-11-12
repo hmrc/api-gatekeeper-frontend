@@ -15,12 +15,12 @@
  */
 
 package model
+
 import model.Forms._
-import org.scalatest.Matchers
 import utils.AsyncHmrcSpec
 
 
-class FormValidationSpec  extends AsyncHmrcSpec with Matchers {
+class FormValidationSpec  extends AsyncHmrcSpec {
 
   "AccessOverrideForm" should {
 

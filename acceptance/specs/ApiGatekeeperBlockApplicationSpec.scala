@@ -29,8 +29,8 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
-  feature("Block an application") {
-    scenario("I can block an application") {
+  Feature("Block an application") {
+    Scenario("I can block an application") {
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(applicationId)).toJsonString, applicationId)
       stubApplicationForBlockSuccess()
 
@@ -45,7 +45,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
       assert(BlockApplicationSuccessPage.bodyText.contains("Application blocked"))
     }
 
-    scenario("I cannot block an application that is already blocked") {
+    Scenario("I cannot block an application that is already blocked") {
       stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
 
       When("I navigate to the application page")

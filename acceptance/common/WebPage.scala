@@ -18,18 +18,21 @@ package common
 
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatest._
 import org.scalatestplus.selenium.{Page, WebBrowser}
+import org.scalatest.matchers.should.Matchers
 
 case class Link(href: String, text: String)
 
-trait WebLink extends Page with WebBrowser with Matchers {
+trait WebLink extends Page with WebBrowser {
+  self : Matchers =>
+
   implicit val webDriver: WebDriver = Env.driver
 
   override def toString = this.getClass.getSimpleName
 }
 
-trait WebPage extends WebLink {
+trait WebPage extends WebLink with Matchers {
+
   lazy val port = Env.port
 
   def isCurrentPage: Boolean

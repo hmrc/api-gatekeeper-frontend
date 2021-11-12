@@ -48,8 +48,8 @@ class ApiGatekeeperApplicationReviewSpec
      """.stripMargin
 
 
-  feature("Approve a request to uplift an application") {
-    scenario("I see the review page and I am able to approve the uplift request") {
+  Feature("Approve a request to uplift an application") {
+    Scenario("I see the review page and I am able to approve the uplift request") {
       
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
@@ -86,8 +86,8 @@ class ApiGatekeeperApplicationReviewSpec
     }
   }
 
-  feature("Reject a request to uplift an application when no action was selected") {
-    scenario("I see the review page and I cannot submit without choosing an action") {
+  Feature("Reject a request to uplift an application when no action was selected") {
+    Scenario("I see the review page and I cannot submit without choosing an action") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
 
@@ -120,8 +120,8 @@ class ApiGatekeeperApplicationReviewSpec
     }
   }
 
-  feature("Reject a request to uplift an application") {
-    scenario("I see the review page and I am able to reject the uplift request with a reason") {
+  Feature("Reject a request to uplift an application") {
+    Scenario("I see the review page and I am able to reject the uplift request with a reason") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
 

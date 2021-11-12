@@ -16,9 +16,9 @@
 
 package model
 
-import org.scalatest.{Matchers, WordSpec}
+import utils.HmrcSpec
 
-class DeveloperStatusFilterSpec extends WordSpec with Matchers {
+class DeveloperStatusFilterSpec extends HmrcSpec {
 
   def aUser(name: String, verified: Option[Boolean]): User = {
     verified.fold[User]( UnregisteredUser(s"$name@example.com", UserId.random))(v => RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))

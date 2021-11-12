@@ -22,7 +22,6 @@ import model.CollaboratorRole.CollaboratorRole
 import model.RateLimitTier.RateLimitTier
 import model.State.State
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
@@ -123,17 +122,19 @@ sealed trait OverrideFlag {
 }
 
 object OverrideFlag {
-  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
-  private implicit val formatPersistLogin = Format[PersistLogin](
-    Reads { _ => JsSuccess(PersistLogin()) },
-    Writes { _ => Json.obj() })
-  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
-  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals = Json.format[SuppressIvForIndividuals]
+  private implicit val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
+  private implicit val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
+    Reads { _ => JsSuccess(PersistLogin) },
+    OWrites[PersistLogin.type] { _ => Json.obj() }
+  )
+
+  private implicit val formatSuppressIvForAgents: OFormat[SuppressIvForAgents] = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
+  private implicit val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals] = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
-    .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
+    .and[PersistLogin.type](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
     .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
     .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
     .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
@@ -144,7 +145,7 @@ sealed trait OverrideFlagWithScopes extends OverrideFlag {
   val scopes: Set[String]
 }
 
-case class PersistLogin() extends OverrideFlag {
+case object PersistLogin extends OverrideFlag {
   val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
 }
 

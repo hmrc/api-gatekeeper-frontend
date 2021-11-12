@@ -19,10 +19,11 @@ package views.emails
 import org.jsoup.nodes.Document
 import model.RegisteredUser
 import utils.ViewHelpers._
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
-trait UserTableHelper extends Matchers  {
-  
+trait UserTableHelper {
+  self: Matchers =>
+
     def verifyUserRow(document: Document, user: RegisteredUser): Unit ={
       elementExistsByText(document, "td", user.email) shouldBe true
       elementExistsByText(document, "td", user.firstName) shouldBe true

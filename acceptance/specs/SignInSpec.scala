@@ -21,21 +21,21 @@ import pages.ApplicationsPage
 import common.SignInSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Matchers, Tag}
+import org.scalatest.{GivenWhenThen, Tag}
 import play.api.http.Status._
+import org.scalatest.matchers.should.Matchers
 
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
 
   import MockDataSugar._
 
-  feature("Gatekeeper Sign in") {
+  Feature("Gatekeeper Sign in") {
 
     info("In order to manage uplift application requests")
     info("As a gatekeeper")
     info("I would like to sign in")
 
-    scenario("Sign in with invalid auth token") {
-
+    Scenario("Sign in with invalid auth token") {
       stubPaginatedApplicationList()
 
       stubFor(post(urlPathEqualTo("/auth/authorise"))
@@ -48,8 +48,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       ApplicationsPage.isForbidden shouldBe true
     }
 
-    scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
-
+    Scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
       stubPaginatedApplicationList()
 
       stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
@@ -92,8 +91,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
     }
 
-    scenario("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
-
+    ignore("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
       stubPaginatedApplicationList()
 
       stubApiDefinition()

@@ -24,7 +24,6 @@ import model.SubscriptionFields.Fields.Alias
 import model.view.ApplicationViewModel
 import model.UpliftAction.{APPROVE, REJECT}
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -43,6 +42,7 @@ import scala.concurrent.Future.successful
 import model.subscriptions.ApiData
 import model.ApiStatus.ApiStatus
 import model._
+import utils.ApplicationLogger
 
 @Singleton
 class ApplicationController @Inject()(val applicationService: ApplicationService,
@@ -81,7 +81,8 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     with ErrorHelper 
     with GatekeeperAuthWrapper 
     with ActionBuilders 
-    with I18nSupport {
+    with I18nSupport
+    with ApplicationLogger {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
@@ -528,7 +529,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
           def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
             case PreconditionFailedException => {
-              Logger.warn("Rejecting the uplift failed as the application might have already been rejected.", PreconditionFailedException)
+              logger.warn("Rejecting the uplift failed as the application might have already been rejected.", PreconditionFailedException)
               Redirect(routes.ApplicationController.applicationsPage(None))
             }
           }

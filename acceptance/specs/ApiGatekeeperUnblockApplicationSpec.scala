@@ -30,8 +30,8 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
 
   val developers = List[RegisteredUser](new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
-  feature("Unblock an application") {
-    scenario("I can unblock an application") {
+  Feature("Unblock an application") {
+    Scenario("I can unblock an application") {
       stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
       stubApplicationForUnblockSuccess()
 
@@ -45,7 +45,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
       on(UnblockApplicationSuccessPage)
     }
 
-    scenario("I cannot unblock an application that is already unblocked") {
+    Scenario("I cannot unblock an application that is already unblocked") {
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)

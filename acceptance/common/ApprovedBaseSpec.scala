@@ -21,12 +21,12 @@ import specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
-import org.scalatest._
 import play.api.libs.json.Json
 import connectors.DeveloperConnector.FindUserIdRequest
 import model.UserId
 import connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
+import org.scalatest.matchers.should.Matchers
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with utils.UrlEncoding {
 

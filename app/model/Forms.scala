@@ -87,7 +87,7 @@ object Forms {
         else None
       }
 
-      val persistLogin = if(persistLoginEnabled) Some(PersistLogin()) else None
+      val persistLogin = if(persistLoginEnabled) Some(PersistLogin) else None
       val grantWithoutConsent = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, GrantWithoutConsent)
       val suppressIvForAgents = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, SuppressIvForAgents)
       val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, SuppressIvForOrganisations)

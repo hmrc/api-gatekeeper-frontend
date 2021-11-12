@@ -37,9 +37,9 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
   info("I WANT The SDST (Software Developer Support Team) to be able to select developers with an interest in a particular API")
   info("SO THAT The SDST can create and send email communications to selected developers")
 
-  feature("API Filter for Email Recipients") {
+  Feature("API Filter for Email Recipients") {
 
-    scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
 
       val developers = List(
         RegisteredUser(
