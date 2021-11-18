@@ -421,6 +421,33 @@
     <table>
         <tr>
             <td>
+                <h3 class="heading--font-reset">State History</h3>
+            </td>
+            <td>
+                <table class="table-plain">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>State</th>
+                            <th>Actor</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(stateHistory <- model.stateHistory) {
+                            <tr>
+                                <td>@{stateHistory.changedAt}</td>
+                                <td>@{stateHistory.state.toString}</td>
+                                <td>@{stateHistory.actor.id}</td>
+                                <td>@{stateHistory.notes}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <h3 class="heading--font-reset">Submitted on</h3>
             </td>
             @{ ApplicationSubmission.getSubmittedOn(model.stateHistory) match {
