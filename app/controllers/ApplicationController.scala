@@ -98,6 +98,40 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         } yield Ok(applicationsView(par, groupApisByStatus(apis), isAtLeastSuperUser, params))
   }
 
+  def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+        val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+        val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+        val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+
+        for {
+          par <- applicationService.searchApplications(env, params)
+        } yield toCsvContent(par) 
+  }
+
+  private def toCsvContent(paginatedApplicationResponse : PaginatedApplicationResponse) = {
+    val columnDefinitions : Seq[(String, ApplicationResponse => String)] = Seq(
+      ("Name", ((app: ApplicationResponse) => app.name)),
+      ("Environment", ((app: ApplicationResponse) => app.deployedTo)),
+      ("Status", ((app: ApplicationResponse) => State.displayedState(app.state.name))),
+      ("Rate limit tier", ((app: ApplicationResponse) => app.rateLimitTier.toString())),
+      ("Access type", ((app: ApplicationResponse) => app.access.accessType.toString())),
+      ("Last API call ", ((app: ApplicationResponse) => app.lastAccess.toString()))
+    )
+
+    val headerRow = columnDefinitions.map(columns => columns._1).mkString(",")
+
+    val csvRows = paginatedApplicationResponse.applications
+       .map((applicationResponse : ApplicationResponse) =>
+          columnDefinitions
+            .map((definition => definition._2(applicationResponse)))
+            .mkString(",")
+       )
+    
+    val headerAndApplicationRows = headerRow +: csvRows
+    Ok(headerAndApplicationRows.mkString(System.lineSeparator()))
+  }
+
   def applicationPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
     implicit request =>
         withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
@@ -579,43 +613,6 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
       }
     }
-  }
-
-  def csv(page: Int, pageSize: Int) = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
-
-    val columnDefinitions : Seq[(String, ApplicationResponse => String)] = Seq(
-      ("Name", ((app: ApplicationResponse) => app.name)),
-      ("Environment", ((app: ApplicationResponse) => app.deployedTo)),
-      ("Status", ((app: ApplicationResponse) => app.state.name.toString())),
-      ("Rate limit tier", ((app: ApplicationResponse) => app.rateLimitTier.toString())),
-      ("Access type", ((app: ApplicationResponse) => app.access.accessType.toString())),
-      ("Last API call ", ((app: ApplicationResponse) => app.lastAccess.toString())),
-      // ("subscriptions", ((app: ApplicationResponse) => app.subscriptions)),
-    )
-
-    val headerRow = columnDefinitions.map(c => c._1).mkString(",")
-
-    // TODO : Both environments? One at a time?
-    // TODO : PAgination
-
-    def rowsFromResponse(paginatedApplicationResponse : PaginatedApplicationResponse) : Seq[String] = {
-       paginatedApplicationResponse.applications
-       .map((applicationResponse : ApplicationResponse) =>
-          columnDefinitions
-            .map((definition => definition._2(applicationResponse)))
-            .mkString(",")
-       )
-    }
-
-    val pageParams : Map[String,String]= Map("page" -> page.toString, "pageSize" -> pageSize.toString)
-
-    for{
-      productionResponse <- applicationService.searchApplications(Some(Environment.PRODUCTION),pageParams) 
-      sandboxResponse <- applicationService.searchApplications(Some(Environment.SANDBOX), pageParams)
-      productionRows = rowsFromResponse(productionResponse)
-      sandboxRows = rowsFromResponse(sandboxResponse)
-      headerAndApplicationRows = (headerRow +: (productionRows ++ sandboxRows))
-    } yield (Ok(headerAndApplicationRows.mkString(System.lineSeparator())))
   }
 
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
