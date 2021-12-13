@@ -147,17 +147,17 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         </label>
                     </div>
                 </div>
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
+                <div class="appsearch-buttons">
                     
                     <input type="hidden" value="@showExport" name="showExport"/>
 
                     @if(showExport==Some("true")){
-                        <input type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button text--center float--right flush--right"/>
+                        <input type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button"/>
                     }
                     
-                    <input type="submit" value="Submit" name="main-submit" class="button text--center float--right flush--right" />
+                    <input type="submit" value="Submit" name="main-submit" class="button plain-button"/>
                 </div>
-
+                <br/>
                 <table id="applications-table" class="no-footer application-list" width="100%">
                     <thead>
                         <tr role="row">

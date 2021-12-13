@@ -169,3 +169,12 @@ p.error-notification {
   display: inline-block;
   width: 80%;
 }
+
+.plain-button {
+  margin: 0 !important;
+}
+
+.appsearch-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
