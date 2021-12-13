@@ -581,6 +581,43 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     }
   }
 
+  def csv(page: Int, pageSize: Int) = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+
+    val columnDefinitions : Seq[(String, ApplicationResponse => String)] = Seq(
+      ("Name", ((app: ApplicationResponse) => app.name)),
+      ("Environment", ((app: ApplicationResponse) => app.deployedTo)),
+      ("Status", ((app: ApplicationResponse) => app.state.name.toString())),
+      ("Rate limit tier", ((app: ApplicationResponse) => app.rateLimitTier.toString())),
+      ("Access type", ((app: ApplicationResponse) => app.access.accessType.toString())),
+      ("Last API call ", ((app: ApplicationResponse) => app.lastAccess.toString())),
+      // ("subscriptions", ((app: ApplicationResponse) => app.subscriptions)),
+    )
+
+    val headerRow = columnDefinitions.map(c => c._1).mkString(",")
+
+    // TODO : Both environments? One at a time?
+    // TODO : PAgination
+
+    def rowsFromResponse(paginatedApplicationResponse : PaginatedApplicationResponse) : Seq[String] = {
+       paginatedApplicationResponse.applications
+       .map((applicationResponse : ApplicationResponse) =>
+          columnDefinitions
+            .map((definition => definition._2(applicationResponse)))
+            .mkString(",")
+       )
+    }
+
+    val pageParams : Map[String,String]= Map("page" -> page.toString, "pageSize" -> pageSize.toString)
+
+    for{
+      productionResponse <- applicationService.searchApplications(Some(Environment.PRODUCTION),pageParams) 
+      sandboxResponse <- applicationService.searchApplications(Some(Environment.SANDBOX), pageParams)
+      productionRows = rowsFromResponse(productionResponse)
+      sandboxRows = rowsFromResponse(sandboxResponse)
+      headerAndApplicationRows = (headerRow +: (productionRows ++ sandboxRows))
+    } yield (Ok(headerAndApplicationRows.mkString(System.lineSeparator())))
+  }
+
   def createPrivOrROPCApplicationAction(): Action[AnyContent] = {
     requiresAtLeast(GatekeeperRole.SUPERUSER) {
       implicit request => {
