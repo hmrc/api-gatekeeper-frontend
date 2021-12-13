@@ -17,7 +17,7 @@ GET         /developers2                                                      co
 POST        /developers2                                                      controllers.Developers2Controller.developersPage
 
 GET         /applications                                                     controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
-GET         /applications/csv                                                 controllers.ApplicationController.csv(page: Integer, pageSize: Integer)
+GET         /applications/csv                                                 controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
 
 GET         /applications/:id                                                 controllers.ApplicationController.applicationPage(id: model.ApplicationId)
 
