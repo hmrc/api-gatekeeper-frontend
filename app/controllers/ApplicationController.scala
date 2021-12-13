@@ -111,12 +111,17 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
 
   private def toCsvContent(paginatedApplicationResponse : PaginatedApplicationResponse) = {
     val columnDefinitions : Seq[(String, ApplicationResponse => String)] = Seq(
-      ("Name", ((app: ApplicationResponse) => app.name)),
-      ("Environment", ((app: ApplicationResponse) => app.deployedTo)),
-      ("Status", ((app: ApplicationResponse) => State.displayedState(app.state.name))),
-      ("Rate limit tier", ((app: ApplicationResponse) => app.rateLimitTier.toString())),
-      ("Access type", ((app: ApplicationResponse) => app.access.accessType.toString())),
-      ("Last API call ", ((app: ApplicationResponse) => app.lastAccess.toString()))
+      ("Name",                  (app => app.name)),
+      ("App ID",                (app => app.id.value)),
+      ("Client ID",             (app => app.clientId.value)),
+      ("Environment",           (app => app.deployedTo)),
+      ("Status",                (app => State.displayedState(app.state.name))),
+      ("Rate limit tier",       (app => app.rateLimitTier.toString())),
+      ("Access type",           (app => app.access.accessType.toString())),
+      ("Blocked",               (app => app.blocked.toString())),
+      ("Has IP Allow List",     (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
+      ("Submitted/Created on",  (app => app.createdOn.toString())),
+      ("Last API call ",        (app => app.lastAccess.toString()))
     )
 
     val headerRow = columnDefinitions.map(columns => columns._1).mkString(",")
