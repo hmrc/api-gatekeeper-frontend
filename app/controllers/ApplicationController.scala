@@ -130,11 +130,12 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
     def getCsvRowValues(applicationResponse: ApplicationResponse) = {
       csvColumnDefinitions.map(_.getValue(applicationResponse)).mkString(csvSperator)
     }
-
+    
+    val pagingRow =  s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results" 
     val headerRow = csvColumnDefinitions.map(columns => columns.name).mkString(csvSperator)
     val csvRows = paginatedApplicationResponse.applications.map(getCsvRowValues)
     
-    val headerAndApplicationRows = headerRow +: csvRows
+    val headerAndApplicationRows = pagingRow +: headerRow +: csvRows
     headerAndApplicationRows.mkString(System.lineSeparator())
   }
 

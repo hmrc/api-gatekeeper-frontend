@@ -38,8 +38,7 @@
 }
 
 @maxPage = @{
-    val add =  if (matching % pageSize == 0) 0 else 1
-    Math.ceil(matching / pageSize).toInt + add
+    utils.PaginationHelper.maxPage(matching, pageSize)
 }
 
 @defining((page - 1) * pageSize + 1) { start =>
