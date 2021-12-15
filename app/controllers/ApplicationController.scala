@@ -121,7 +121,7 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
       ("Blocked",               (app => app.blocked.toString())),
       ("Has IP Allow List",     (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
       ("Submitted/Created on",  (app => app.createdOn.toString())),
-      ("Last API call ",        (app => app.lastAccess.toString()))
+      ("Last API call",         (app => app.lastAccess.toString()))
     )
 
     val headerRow = columnDefinitions.map(columns => columns._1).mkString(",")

@@ -257,12 +257,45 @@ class ApplicationControllerSpec
       }
     }
 
+    "applicationsPageExportCsv" should {
+      "return csv data" in new Setup {
+        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        
+        val applicationResponse = ApplicationResponse(
+            ApplicationId("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e"),
+            ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
+            "gatewayId",
+            "App Name",
+            deployedTo = "SANDBOX",
+            description = None,
+            collaborators = Set.empty,
+            createdOn = DateTime.parse("2001-02-03T12:01:02Z"),
+            lastAccess = DateTime.parse("2002-02-03T12:01:02Z"),
+            Standard(),
+            ApplicationState(),
+            grantLength)
+
+        ApplicationServiceMock.SearchApplications.returns(applicationResponse)
+
+        val eventualResult: Future[Result] = underTest.applicationsPageCsv()(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+        
+        val expectedCsvContent = """Name,App ID,Client ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z"""
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody shouldBe expectedCsvContent
+        
+        verifyAuthConnectorCalledForUser
+      }
+    }
+
     "resendVerification" should {
       "call backend with correct application id and gatekeeper id when resend verification is invoked" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         givenTheAppWillBeReturned()
 
-        // TODO - new mockito flavour
         val appCaptor = ArgCaptor[Application]
         val gatekeeperIdCaptor = ArgCaptor[String]
         when(mockApplicationService.resendVerification(*,*)(*)).thenReturn(successful(ResendVerificationSuccessful))
