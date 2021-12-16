@@ -253,7 +253,9 @@ object ApplicationResponse {
   implicit val format6 = Json.format[TermsOfUseAgreement]
 }
 
-case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int)
+case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
+  val maxPage = utils.PaginationHelper.maxPage(matching, pageSize)
+}
 
 object PaginatedApplicationResponse {
   implicit val format = Json.format[PaginatedApplicationResponse]

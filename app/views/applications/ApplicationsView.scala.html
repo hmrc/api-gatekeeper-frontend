@@ -56,7 +56,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
             </a>
             }
 
-            @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: _ =>
+            @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort", "showExport").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: showExport :: _ =>
             <form name="application-filters"
                   action="@routes.ApplicationController.applicationsPage(None).url"
                   method="get">
@@ -147,10 +147,17 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         </label>
                     </div>
                 </div>
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="submitButton" type="submit" value="Submit" name="main-submit" class="button text--center float--right flush--right" />
-                </div>
+                <div class="appsearch-buttons">
+                    
+                    <input type="hidden" value="@showExport" name="showExport"/>
 
+                    @if(showExport==Some("true")){
+                        <input id="submitButton" type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button"/>
+                    }
+                    
+                    <input type="submit" value="Submit" name="main-submit" class="button plain-button"/>
+                </div>
+                <br/>
                 <table id="applications-table" class="no-footer application-list" width="100%">
                     <thead>
                         <tr role="row">
@@ -201,6 +208,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         @pagination(page, pageSize, matching, total, numDocs, routes.ApplicationController.applicationsPage(None).url, params)
                     }
                 }
+
             </form>
             }
 

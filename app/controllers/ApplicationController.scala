@@ -93,9 +93,50 @@ class ApplicationController @Inject()(val applicationService: ApplicationService
         val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
         for {
-          par <- applicationService.searchApplications(env, params)
+          paginatedApplicationResponse <- applicationService.searchApplications(env, params)
           apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-        } yield Ok(applicationsView(par, groupApisByStatus(apis), isAtLeastSuperUser, params))
+        } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), isAtLeastSuperUser, params))
+  }
+
+  def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
+    implicit request =>
+        val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+        val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+        val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+
+        applicationService.searchApplications(env, params)
+          .map(applicationResponse => Ok(toCsvContent(applicationResponse)))
+  }
+
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse) : String = {
+    case class ColumnDefinition(name: String, getValue : ApplicationResponse => String)
+    
+    val csvColumnDefinitions = Seq(
+      ColumnDefinition("Name",                  (app => app.name)),
+      ColumnDefinition("App ID",                (app => app.id.value)),
+      ColumnDefinition("Client ID",             (app => app.clientId.value)),
+      ColumnDefinition("Environment",           (app => app.deployedTo)),
+      ColumnDefinition("Status",                (app => State.displayedState(app.state.name))),
+      ColumnDefinition("Rate limit tier",       (app => app.rateLimitTier.toString())),
+      ColumnDefinition("Access type",           (app => app.access.accessType.toString())),
+      ColumnDefinition("Blocked",               (app => app.blocked.toString())),
+      ColumnDefinition("Has IP Allow List",     (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
+      ColumnDefinition("Submitted/Created on",  (app => app.createdOn.toString())),
+      ColumnDefinition("Last API call",         (app => app.lastAccess.toString()))
+    )
+
+    val csvSperator = ","
+
+    def getCsvRowValues(applicationResponse: ApplicationResponse) = {
+      csvColumnDefinitions.map(_.getValue(applicationResponse)).mkString(csvSperator)
+    }
+    
+    val pagingRow =  s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results" 
+    val headerRow = csvColumnDefinitions.map(columns => columns.name).mkString(csvSperator)
+    val csvRows = paginatedApplicationResponse.applications.map(getCsvRowValues)
+    
+    val headerAndApplicationRows = pagingRow +: headerRow +: csvRows
+    headerAndApplicationRows.mkString(System.lineSeparator())
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
