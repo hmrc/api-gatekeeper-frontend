@@ -17,30 +17,36 @@
 package controllers
 
 import config.AppConfig
-import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Environment._
 import play.api.mvc.MessagesControllerComponents
 import services.ApiDefinitionService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import utils.ErrorHelper
 import views.html.{ErrorTemplate, ForbiddenView}
+
+import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.ExecutionContext
 
 case class ApiDefinitionView(apiName: String, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
 
 @Singleton
-class ApiDefinitionController @Inject()(apiDefinitionService: ApiDefinitionService,
-                                        override val authConnector: AuthConnector,
-                                        val forbiddenView: ForbiddenView,
-                                        mcc: MessagesControllerComponents,
-                                        override val errorTemplate: ErrorTemplate)
-                                       (implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper {
+class ApiDefinitionController @Inject()(
+  apiDefinitionService: ApiDefinitionService,
+  val forbiddenView: ForbiddenView,
+  mcc: MessagesControllerComponents,
+  override val errorTemplate: ErrorTemplate,
+  strideAuthConfig: StrideAuthConfig,
+  authConnector: AuthConnector,
+  forbiddenHandler: ForbiddenHandler
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ErrorHelper {
     
-  def apis() = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+  def apis() = anyStrideUserAction { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {

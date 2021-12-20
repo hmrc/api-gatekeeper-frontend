@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package model
+package uk.gov.hmrc.modules.stride.connectors
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.Enrolments
+import javax.inject.{Inject, Singleton}
 
-case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+
+@Singleton
+class AuthConnector @Inject()(val http: HttpClient, strideAuthConfig: StrideAuthConfig) extends PlayAuthConnector {
+  lazy val serviceUrl = strideAuthConfig.authBaseUrl
+}
+

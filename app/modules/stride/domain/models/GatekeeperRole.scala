@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package model
+package uk.gov.hmrc.modules.stride.domain.models
 
-case class LoggedInUser(userFullName: Option[String])
+object GatekeeperRole extends Enumeration {
+  type GatekeeperRole = Value
+  val USER, SUPERUSER, ADMIN = Value
+}

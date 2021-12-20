@@ -16,29 +16,32 @@
 
 package controllers
 
-import config.AppConfig
-import connectors.AuthConnector
+import config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
 import model._
 import model.Forms._
 import play.api.data.Form
-import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ActionBuilders, ErrorHelper, GatekeeperAuthWrapper}
+import utils.ErrorHelper
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
+import controllers.actions.ActionBuilders
+
+import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful
 import services.{ApplicationService, ApmService, DeveloperService}
 
 trait WithRestrictedApp {
-  self: FrontendBaseController with ActionBuilders with GatekeeperAuthWrapper =>
+  self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier, appConfig: AppConfig) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier, strideAuthConfig: StrideAuthConfig) = {
     withApp(appId) { app =>
       app.application.access match {
         case _: Standard => f(app)
@@ -60,88 +63,85 @@ class TeamMembersController @Inject()(
   val apmService: ApmService,
   val errorTemplate: ErrorTemplate,
   val forbiddenView: ForbiddenView,
-  val authConnector: AuthConnector
-)(  implicit val appConfig: AppConfig, 
-    val ec: ExecutionContext
-) 
-    extends FrontendController(mcc) 
+  val errorHandler: ErrorHandler,
+  strideAuthConfig: StrideAuthConfig,
+  authConnector: AuthConnector,
+  forbiddenHandler: ForbiddenHandler
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
     with ErrorHelper 
-    with GatekeeperAuthWrapper 
     with ActionBuilders 
-    with I18nSupport
     with WithRestrictedApp {
 
-  def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        successful(Ok(manageTeamMembersView(app.application)))
-      }
+  // TODO - Find better way of passing strid auth config to helper functions like isAtLeastSuperUser
+  implicit val authConfig = strideAuthConfig
+
+  def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withRestrictedApp(appId) { app =>
+      successful(Ok(manageTeamMembersView(app.application)))
+    }
   }
 
-  def addTeamMember(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
-      }
+  def addTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withRestrictedApp(appId) { app =>
+      successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
+    }
   }
 
-  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: AddTeamMemberForm) = {
-          for {
-            user <- developerService.fetchOrCreateUser(form.email)
-            role = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
-            collaborator = Collaborator(form.email, role, user.userId)
-            result <- applicationService.addTeamMember(app.application, collaborator)
-                      .map(_ => Redirect(controllers.routes.TeamMembersController.manageTeamMembers(appId)))
-                      .recover {
-                        case _ @ TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
-                      }
-          } yield result
-        }
-
-        def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
-          successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
-
-        AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withRestrictedApp(appId) { app =>
+      def handleValidForm(form: AddTeamMemberForm) = {
+        for {
+          user <- developerService.fetchOrCreateUser(form.email)
+          role = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
+          collaborator = Collaborator(form.email, role, user.userId)
+          result <- applicationService.addTeamMember(app.application, collaborator)
+                    .map(_ => Redirect(controllers.routes.TeamMembersController.manageTeamMembers(appId)))
+                    .recover {
+                      case _ @ TeamMemberAlreadyExists => BadRequest(addTeamMemberView(app.application, AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))))
+                    }
+        } yield result
       }
+
+      def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
+        successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
+
+      AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    }
   }
 
-  def removeTeamMember(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: RemoveTeamMemberForm) =
-          successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
+  def removeTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withRestrictedApp(appId) { app =>
+      def handleValidForm(form: RemoveTeamMemberForm) =
+        successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
 
-        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
-          val email = formWithErrors("email").value.getOrElse("")
-          successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
-        }
-
-        RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
+        val email = formWithErrors("email").value.getOrElse("")
+        successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
       }
+
+      RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    }
   }
 
-  def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) {
-    implicit request =>
-      withRestrictedApp(appId) { app =>
-        def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-          form.confirm match {
-            case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
-              _ => Redirect(routes.TeamMembersController.manageTeamMembers(appId))
-            } recover {
-              case _ @ TeamMemberLastAdmin =>
-                BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
-            }
-            case _ => successful(Redirect(routes.TeamMembersController.manageTeamMembers(appId)))
+  def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withRestrictedApp(appId) { app =>
+      def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
+        form.confirm match {
+          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
+            _ => Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+          } recover {
+            case _ @ TeamMemberLastAdmin =>
+              BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")), form.email))
           }
+          case _ => successful(Redirect(routes.TeamMembersController.manageTeamMembers(appId)))
         }
-
-        def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
-          successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
-
-        RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
       }
+
+      def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
+        successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
+
+      RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    }
   }
 }

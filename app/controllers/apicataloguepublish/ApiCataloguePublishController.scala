@@ -18,43 +18,43 @@ package controllers.apicataloguepublish
 
 import cats.data.EitherT
 import config.AppConfig
-import connectors.{ApiCataloguePublishConnector, AuthConnector}
-import model.GatekeeperRole
-import play.api.i18n.I18nSupport
+import connectors.ApiCataloguePublishConnector
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.GatekeeperAuthWrapper
 import views.html.ForbiddenView
 import views.html.apicataloguepublish.PublishTemplate
+
+import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApiCataloguePublishController @Inject()(
-                                               connector: ApiCataloguePublishConnector,
-                                               val forbiddenView: ForbiddenView,
-                                               override val authConnector: AuthConnector,
-                                               mcc: MessagesControllerComponents,
-                                               publishTemplate: PublishTemplate
-                                             )(implicit ec: ExecutionContext,
-                                               implicit val appConfig: AppConfig)
-  extends FrontendController(mcc)
-    with GatekeeperAuthWrapper
-    with I18nSupport {
+  connector: ApiCataloguePublishConnector,
+  val forbiddenView: ForbiddenView,
+  mcc: MessagesControllerComponents,
+  publishTemplate: PublishTemplate,
+  strideAuthConfig: StrideAuthConfig,
+  authConnector: AuthConnector,
+  forbiddenHandler: ForbiddenHandler
+)(implicit ec: ExecutionContext, implicit val appConfig: AppConfig)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) {
 
-  def start(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+  def start(): Action[AnyContent] = adminOnlyAction { implicit request =>
     Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))
   }
 
-  def publishAll(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+  def publishAll(): Action[AnyContent] = adminOnlyAction { implicit request =>
     EitherT(connector.publishAll())
       .fold(_ => Ok(publishTemplate("Publish all Failed", "Publish All Failed", "Something went wrong with publish all")),
         response => Ok(publishTemplate("Publish Page", "Publish Page", s"Publish All Called ok - ${response.message}")))
   }
 
-  def publishByServiceName(serviceName: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.ADMIN) { implicit request =>
+  def publishByServiceName(serviceName: String): Action[AnyContent] = adminOnlyAction { implicit request =>
     EitherT(connector.publishByServiceName(serviceName))
       .fold(_ => Ok(publishTemplate("Publish by ServiceName Failed", "Publish by ServiceName failed", s"Something went wrong with publish by serviceName $serviceName")),
         response => Ok(publishTemplate("Publish Page", "Publish Page", s"Publish by serviceName called ok $serviceName - ${Json.toJson(response).toString}")))

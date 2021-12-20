@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package utils
+package controllers.actions
 
 import model._
-import play.api.i18n.Messages
-import play.api.mvc.Result
 import services.{ApmService, ApplicationService}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.ApplicationLogger
+import config.ErrorHandler
+
+import play.api.i18n.Messages
+import play.api.mvc.Result
+import play.api.mvc.Results.{BadRequest, NotFound}
+
+import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext
 import model.applications.ApplicationWithSubscriptionData
 
-trait ActionBuilders extends ErrorHelper with ApplicationLogger {
-  val applicationService: ApplicationService
-  val apmService: ApmService
+trait ActionBuilders extends ApplicationLogger {
+  def errorHandler: ErrorHandler
+  def applicationService: ApplicationService
+  def apmService: ApmService
 
   def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])
              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
@@ -39,7 +46,7 @@ trait ActionBuilders extends ErrorHelper with ApplicationLogger {
              (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(appWithHistory => appWithHistory.application.access match {
       case access : Standard => f(appWithHistory, access)
-      case _ => Future.successful(badRequest("Application must have standard access for this call"))
+      case _ => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
     })
   }
 
@@ -47,7 +54,7 @@ trait ActionBuilders extends ErrorHelper with ApplicationLogger {
              (implicit request: LoggedInRequest[_], messages: Messages, ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(appWithSubsData) => f(appWithSubsData)
-      case None => Future.successful(notFound("Application not found"))
+      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 
@@ -57,7 +64,7 @@ trait ActionBuilders extends ErrorHelper with ApplicationLogger {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
         applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
-      case None => Future.successful(notFound("Application not found"))
+      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 
@@ -85,7 +92,7 @@ trait ActionBuilders extends ErrorHelper with ApplicationLogger {
 
         applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
-      case None => Future.successful(notFound("Application not found"))
+      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 }

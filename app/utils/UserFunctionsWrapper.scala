@@ -17,10 +17,9 @@
 package utils
 
 import model._
+import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 
 trait UserFunctionsWrapper {
-
-
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
     filter match {
       case None | Some("")  => None

@@ -22,6 +22,9 @@ import play.api.{Configuration, Environment}
 import play.api.inject.Module
 import services.SubscriptionFieldsService.SubscriptionFieldsConnector
 
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import controllers.HandleForbiddenWithView
+
 class ConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
@@ -44,7 +47,8 @@ class ConfigurationModule extends Module {
       bind[ApmConnector.Config]
         .toProvider(classOf[LiveApmConnectorConfigProvider]),
       bind[ApiCataloguePublishConnector.Config]
-        .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider])
+        .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider]),
+      bind(classOf[ForbiddenHandler]).to(classOf[HandleForbiddenWithView])
     )
   }
 }
