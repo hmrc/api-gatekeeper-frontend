@@ -17,7 +17,7 @@
 package views.applications
 
 import builder.SubscriptionsBuilder
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
@@ -31,8 +31,8 @@ import builder.ApplicationBuilder
 import builder.ApiBuilder
 import model.ApiStatus._
 import org.joda.time.DateTime
-
 import java.time.Period
+import model._
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {

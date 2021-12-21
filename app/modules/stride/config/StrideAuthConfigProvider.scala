@@ -23,6 +23,7 @@ import com.typesafe.config.Config
 case class StrideAuthConfig(
   authBaseUrl: String,
   strideLoginUrl: String,
+  successUrl: String,
   origin: String,
   adminRole: String,
   superUserRole: String,
@@ -51,11 +52,12 @@ class StrideAuthConfigProvider @Inject()(configuration: Configuration) extends P
     val strideLoginUrl = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
     
     val strideConfig = configuration.underlying.getConfig("stride")
+    val successUrl = strideConfig.getString("success-url")
     val origin = strideConfig.getString("origin")
     val adminRole = strideConfig.getString("roles.admin")
     val superUserRole = strideConfig.getString("roles.super-user")
     val userRole = strideConfig.getString("roles.user")
 
-    StrideAuthConfig(authBaseUrl, strideLoginUrl, origin, adminRole, superUserRole, userRole)
+    StrideAuthConfig(authBaseUrl, strideLoginUrl, successUrl, origin, adminRole, superUserRole, userRole)
   }
 }

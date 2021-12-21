@@ -18,12 +18,13 @@ package views.developers
 
 import java.util.UUID
 
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
+import model._
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 

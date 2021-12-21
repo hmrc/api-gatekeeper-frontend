@@ -37,7 +37,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase {
-    val controller = new ApiDefinitionController(mockApiDefinitionService, mockAuthConnector, forbiddenView, mcc, errorTemplateView)
+    val controller = new ApiDefinitionController(mockApiDefinitionService, forbiddenView, mcc, errorTemplateView, strideAuthConfig, mockAuthConnector, forbiddenHandler)
   }
   
   "apis" should {

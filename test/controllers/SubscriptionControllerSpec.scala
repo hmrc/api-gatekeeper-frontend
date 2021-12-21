@@ -29,6 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import builder.ApplicationBuilder
 import model.applications.ApplicationWithSubscriptionData
 import builder.ApiBuilder
+import config.ErrorHandler
 
 class SubscriptionControllerSpec 
     extends ControllerBaseSpec 
@@ -40,6 +41,7 @@ class SubscriptionControllerSpec
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
+  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
@@ -69,10 +71,13 @@ class SubscriptionControllerSpec
         manageSubscriptionsView,
         mcc,
         forbiddenView,
-        mockAuthConnector,
         errorTemplateView,
         mockApplicationService,
-        mockApmService
+        mockApmService,
+        errorHandler,
+        strideAuthConfig,
+        mockAuthConnector,
+        forbiddenHandler
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {

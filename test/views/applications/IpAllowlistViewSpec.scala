@@ -16,7 +16,7 @@
 
 package views.applications
 
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.test.FakeRequest
@@ -25,6 +25,7 @@ import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.applications.IpAllowlistView
 import org.joda.time.DateTime
+import model._
 
 import java.time.Period
 

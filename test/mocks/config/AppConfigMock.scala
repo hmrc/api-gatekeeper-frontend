@@ -30,7 +30,6 @@ trait AppConfigMock extends MockitoSugar {
   when(mockConfig.superUserRole).thenReturn(superUserRole)
   when(mockConfig.superUsers).thenReturn(Seq("superUserName"))
 
-  when(mockConfig.gatekeeperSuccessUrl).thenReturn("http://mock-gatekeeper-frontend/api-gatekeeper/applications")
   when(mockConfig.strideLoginUrl).thenReturn("https://loginUri")
   when(mockConfig.appName).thenReturn("Gatekeeper app name")
 

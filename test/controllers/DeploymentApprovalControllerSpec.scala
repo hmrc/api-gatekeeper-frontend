@@ -44,18 +44,22 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
     val serviceName = "ServiceName" + UUID.randomUUID()
     val mockedURl = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
-    val redirectLoginUrl = "https://loginUri" +
-      s"?successURL=$mockedURl&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
+    val redirectLoginUrl = s"http://localhost:9041/stride/sign-in?successURL=${URLEncoder.encode("http://localhost:9684/api-gatekeeper/applications", "UTF-8")}" +
+              s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}"
+
 
     val underTest = new DeploymentApprovalController(
-      mockAuthConnector,
       forbiddenView,
       mockDeploymentApprovalService,
       mockApiCataloguePublishConnector,
       mcc,
       deploymentApprovalView,
       deploymentReviewView,
-      errorTemplateView)
+      errorTemplateView,
+      strideAuthConfig,
+      mockAuthConnector,
+      forbiddenHandler
+    )
   }
 
   "pendingPage" should {

@@ -16,7 +16,7 @@
 
 package views.applications
 
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import model.Forms._
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
@@ -26,6 +26,7 @@ import utils.ViewHelpers._
 import views.html.applications.DeleteApplicationView
 import views.CommonViewSpec
 import org.joda.time.DateTime
+import model._
 
 import java.time.Period
 

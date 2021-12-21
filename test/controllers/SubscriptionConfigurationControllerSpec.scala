@@ -30,6 +30,7 @@ import builder.{ApiBuilder, SubscriptionsBuilder, ApplicationBuilder}
 import builder.FieldDefinitionsBuilder
 import model.ApiStatus
 import model.Environment
+import config.ErrorHandler
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec
@@ -41,6 +42,7 @@ class SubscriptionConfigurationControllerSpec
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]
   private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfigurationView]
+  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
 
   trait Setup extends ControllerSetupBase 
       with SubscriptionsBuilder 
@@ -48,13 +50,16 @@ class SubscriptionConfigurationControllerSpec
     lazy val controller = new SubscriptionConfigurationController (
       mockApplicationService,
       mockSubscriptionFieldsService,
-      mockAuthConnector,
       forbiddenView,
       mcc,
       listSubscriptionConfigurationView,
       editSubscriptionConfigurationView,
       errorTemplateView,
-      mockApmService
+      mockApmService,
+      errorHandler,
+      strideAuthConfig,
+      mockAuthConnector,
+      forbiddenHandler
     )
 
     val version = ApiVersion.random

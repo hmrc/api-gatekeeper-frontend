@@ -16,10 +16,8 @@
 
 package mocks
 
-import java.util.UUID
-
 object TestRoles {
-  val userRole = s"userRole${UUID.randomUUID}"
-  val adminRole = s"adminRole${UUID.randomUUID}"
-  val superUserRole = s"superUserRole${UUID.randomUUID}"
+  val userRole = s"user-role"
+  val adminRole = s"admin-role"
+  val superUserRole = s"super-user-role"
 }

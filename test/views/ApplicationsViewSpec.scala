@@ -34,7 +34,8 @@ package views
 
 import config.AppConfig
 import model.ApiStatus._
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import model._
 import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 import views.html.applications.ApplicationsView

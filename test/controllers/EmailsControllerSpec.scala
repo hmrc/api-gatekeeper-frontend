@@ -127,10 +127,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectApiView,
         mockApplicationService,
         forbiddenView,
-        mockAuthConnector,
         mcc,
         errorTemplateView,
-        mockApmService
+        mockApmService,
+        strideAuthConfig,
+        mockAuthConnector,
+        forbiddenHandler
       )
 
     }

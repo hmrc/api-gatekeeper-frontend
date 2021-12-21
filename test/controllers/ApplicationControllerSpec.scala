@@ -50,6 +50,7 @@ import utils.CollaboratorTracker
 import org.mockito.captor.ArgCaptor
 import mocks.connectors.ApplicationConnectorMockProvider
 import org.joda.time.DateTime
+import config.ErrorHandler
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 
@@ -84,6 +85,7 @@ class ApplicationControllerSpec
   private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
   private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView = app.injector.instanceOf[ManageGrantLengthSuccessView]
+  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
 
  
   running(app) {
@@ -114,7 +116,6 @@ class ApplicationControllerSpec
         forbiddenView,
         mockApiDefinitionService,
         mockDeveloperService,
-        mockAuthConnector,
         mcc,
         applicationsView,
         applicationView,
@@ -140,7 +141,11 @@ class ApplicationControllerSpec
         removeTeamMemberView,
         manageGrantLengthView,
         manageGrantLengthSuccessView,
-        mockApmService
+        mockApmService,
+        errorHandler,
+        strideAuthConfig,
+        mockAuthConnector,
+        forbiddenHandler
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
@@ -224,7 +229,7 @@ class ApplicationControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe
           Some(
-            s"https://loginUri?successURL=${URLEncoder.encode("http://mock-gatekeeper-frontend/api-gatekeeper/applications", "UTF-8")}" +
+            s"http://localhost:9041/stride/sign-in?successURL=${URLEncoder.encode("http://localhost:9684/api-gatekeeper/applications", "UTF-8")}" +
               s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
       }
 
