@@ -154,10 +154,10 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
                     <!-- These two inputs are reversed in the html dom as the first submit button is trigged by the 'enter' key on the 
                     text search input'. They are then swapped in the stylesheet. -->
-                    <input type="submit" value="Submit" name="main-submit" class="button plain-button"/>
+                    <input id="submitButton" type="submit" value="Submit" name="main-submit" class="button plain-button"/>
 
                     @if(showExport==Some("true")){
-                        <input id="submitButton" type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button"/>
+                        <input type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button"/>
                     }
                 </div>
                 <br/>
