@@ -68,6 +68,8 @@ trait AppConfig {
   def userRole: String
   def adminRole: String
   def superUsers: Seq[String]
+
+  def gatekeeperApprovalsUrl: String
 }
 
 @Singleton
@@ -154,4 +156,6 @@ class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(conf
   val superUserRole = getString("roles.super-user")
   val userRole = getString("roles.user")
   val adminRole = getString("roles.admin")
+
+  val gatekeeperApprovalsUrl = getString("gatekeeper-approvals-url")
 }

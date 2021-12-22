@@ -73,7 +73,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       subscriptionsThatHaveFieldDefns = List.empty,
       stateHistory = List.empty,
       isAtLeastSuperUser = false,
-      isAdmin = false
+      isAdmin = false,
+      hasSubmissions = false,
+      gatekeeperApprovalsUrl = "http://localhost:1234/api-gatekeeper-approvals-frontend/applications"
     )
   }
 
