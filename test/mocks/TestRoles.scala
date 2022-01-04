@@ -17,7 +17,7 @@
 package mocks
 
 object TestRoles {
-  val userRole = s"user-role"
-  val adminRole = s"admin-role"
-  val superUserRole = s"super-user-role"
+  val userRole = "user-role"
+  val adminRole = "admin-role"
+  val superUserRole = "super-user-role"
 }
