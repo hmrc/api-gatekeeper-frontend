@@ -81,19 +81,15 @@ class ApplicationController @Inject()(
   manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  strideAuthConfig: StrideAuthConfig,
   authConnector: AuthConnector,
   forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
     with ErrorHelper 
     with ActionBuilders 
     with ApplicationLogger {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
-
-  // TODO - Find better way of passing strid auth config to helper functions like isAtLeastSuperUser
-  implicit val authConfig = strideAuthConfig
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption

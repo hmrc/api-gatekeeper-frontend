@@ -77,7 +77,6 @@ class TeamMembersControllerSpec
         errorTemplateView,
         forbiddenView,
         errorHandler,
-        strideAuthConfig,
         mockAuthConnector,
         forbiddenHandler
       )

@@ -53,14 +53,10 @@ class SubscriptionController @Inject()(
   val applicationService: ApplicationService,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  strideAuthConfig: StrideAuthConfig,
   authConnector: AuthConnector,
   forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ActionBuilders {
-
-  // TODO - Find better way of passing strid auth config to helper functions like isAtLeastSuperUser
-  implicit val authConfig = strideAuthConfig
     
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersion]): List[VersionSubscriptionWithoutFields] = {

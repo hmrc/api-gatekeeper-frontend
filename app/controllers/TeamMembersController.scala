@@ -64,17 +64,13 @@ class TeamMembersController @Inject()(
   val errorTemplate: ErrorTemplate,
   val forbiddenView: ForbiddenView,
   val errorHandler: ErrorHandler,
-  strideAuthConfig: StrideAuthConfig,
   authConnector: AuthConnector,
   forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
     with ErrorHelper 
     with ActionBuilders 
     with WithRestrictedApp {
-
-  // TODO - Find better way of passing strid auth config to helper functions like isAtLeastSuperUser
-  implicit val authConfig = strideAuthConfig
 
   def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>

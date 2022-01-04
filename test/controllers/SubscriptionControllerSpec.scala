@@ -75,7 +75,6 @@ class SubscriptionControllerSpec
         mockApplicationService,
         mockApmService,
         errorHandler,
-        strideAuthConfig,
         mockAuthConnector,
         forbiddenHandler
       )
