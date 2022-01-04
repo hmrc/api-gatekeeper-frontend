@@ -143,7 +143,6 @@ class ApplicationControllerSpec
         manageGrantLengthSuccessView,
         mockApmService,
         errorHandler,
-        strideAuthConfig,
         mockAuthConnector,
         forbiddenHandler
       )

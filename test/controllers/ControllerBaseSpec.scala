@@ -30,7 +30,7 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
-  lazy val strideAuthConfig: StrideAuthConfig = app.injector.instanceOf[StrideAuthConfig]
+  implicit lazy val strideAuthConfig: StrideAuthConfig = app.injector.instanceOf[StrideAuthConfig]
   lazy val forbiddenHandler = app.injector.instanceOf[ForbiddenHandler]
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
