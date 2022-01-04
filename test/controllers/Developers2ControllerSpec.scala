@@ -44,13 +44,15 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken).withCSRFToken
 
       val developersController = new Developers2Controller(
-        mockAuthConnector,
         forbiddenView,
         mockDeveloperService,
         mockApiDefinitionService,
         mcc,
         developersView,
-        errorTemplateView
+        errorTemplateView,
+        strideAuthConfig,
+        mockAuthConnector,
+        forbiddenHandler
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

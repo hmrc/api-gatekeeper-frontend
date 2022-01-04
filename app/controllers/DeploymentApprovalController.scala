@@ -17,42 +17,48 @@
 package controllers
 
 import config.AppConfig
-import connectors.{ApiCataloguePublishConnector, AuthConnector}
+import connectors.ApiCataloguePublishConnector
 import model._
 import play.api.data.Form
-import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DeploymentApprovalService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper}
+import utils.ErrorHelper
 import views.html.deploymentApproval._
 import views.html.{ErrorTemplate, ForbiddenView}
+
+import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import javax.inject.Inject
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeploymentApprovalController @Inject()(val authConnector: AuthConnector,
-                                             val forbiddenView: ForbiddenView,
-                                             deploymentApprovalService: DeploymentApprovalService,
-                                             apiCataloguePublishConnector: ApiCataloguePublishConnector,
-                                             mcc: MessagesControllerComponents,
-                                             deploymentApproval: DeploymentApprovalView,
-                                             deploymentReview: DeploymentReviewView,
-                                             override val errorTemplate: ErrorTemplate
-                                            )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) with ErrorHelper with GatekeeperAuthWrapper with I18nSupport {
+class DeploymentApprovalController @Inject()(
+  val forbiddenView: ForbiddenView,
+  deploymentApprovalService: DeploymentApprovalService,
+  apiCataloguePublishConnector: ApiCataloguePublishConnector,
+  mcc: MessagesControllerComponents,
+  deploymentApproval: DeploymentApprovalView,
+  deploymentReview: DeploymentReviewView,
+  override val errorTemplate: ErrorTemplate,
+  strideAuthConfig: StrideAuthConfig,
+  authConnector: AuthConnector,
+  forbiddenHandler: ForbiddenHandler
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ErrorHelper {
 
-  def pendingPage(): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+  def pendingPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
-  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
-  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = requiresAtLeast(GatekeeperRole.USER) { implicit request =>
+  def handleApproval(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
     def errors(errors: Form[HandleApprovalForm]) =

@@ -27,6 +27,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import utils.CollaboratorTracker
+import config.ErrorHandler
 
 class TeamMembersControllerSpec 
     extends ControllerBaseSpec
@@ -41,7 +42,8 @@ class TeamMembersControllerSpec
   private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
   private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
   private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
-      
+  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
+  
    running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -74,7 +76,9 @@ class TeamMembersControllerSpec
         mockApmService,
         errorTemplateView,
         forbiddenView,
-        mockAuthConnector
+        errorHandler,
+        mockAuthConnector,
+        forbiddenHandler
       )
     }
 

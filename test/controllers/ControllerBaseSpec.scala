@@ -24,10 +24,14 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
 import utils.AsyncHmrcSpec
 import play.api.inject.bind
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  implicit lazy val strideAuthConfig: StrideAuthConfig = app.injector.instanceOf[StrideAuthConfig]
+  lazy val forbiddenHandler = app.injector.instanceOf[ForbiddenHandler]
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   override def fakeApplication(): Application =

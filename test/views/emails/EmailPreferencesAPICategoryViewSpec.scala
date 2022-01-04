@@ -17,6 +17,7 @@
 package views.emails
 
 import mocks.config.AppConfigMock
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import model._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

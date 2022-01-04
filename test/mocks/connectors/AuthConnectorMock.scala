@@ -19,7 +19,7 @@ package mocks.connectors
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.{failed, successful}
-import connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, InsufficientEnrolments, InvalidBearerToken}
 import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrieval}
 

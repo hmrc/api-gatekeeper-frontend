@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package model
+package uk.gov.hmrc.modules.stride.connectors
 
-case class LoggedInUser(userFullName: Option[String])
+import javax.inject.{Inject, Singleton}
+
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+
+@Singleton
+class AuthConnector @Inject()(val http: HttpClient, strideAuthConfig: StrideAuthConfig) extends PlayAuthConnector {
+  lazy val serviceUrl = strideAuthConfig.authBaseUrl
+}
+

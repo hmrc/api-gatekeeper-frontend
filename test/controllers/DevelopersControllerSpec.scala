@@ -27,6 +27,7 @@ import org.joda.time.DateTime
 
 import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
+import config.ErrorHandler
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -38,6 +39,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
   private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccessView]
   private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloperView]
   private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccessView]
+  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
 
   Helpers.running(app) {
 
@@ -68,7 +70,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         mockApplicationService,
         forbiddenView,
         mockApiDefinitionService,
-        mockAuthConnector,
         mcc,
         developerDetailsView,
         removeMfaView,
@@ -76,7 +77,11 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         deleteDeveloperView,
         deleteDeveloperSuccessView,
         errorTemplateView,
-        mockApmService
+        mockApmService,
+        errorHandler,
+        strideAuthConfig,
+        mockAuthConnector,
+        forbiddenHandler
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

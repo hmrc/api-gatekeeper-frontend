@@ -49,9 +49,11 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     val controller = new ApiCataloguePublishController(
       mockApiCataloguePublishConnector,
       forbiddenView,
-      mockAuthConnector,
       mcc,
-      publishTemplateView
+      publishTemplateView,
+      strideAuthConfig,
+      mockAuthConnector,
+      forbiddenHandler
     )
   }
 

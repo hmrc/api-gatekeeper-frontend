@@ -16,7 +16,7 @@
 
 package views.developers
 
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
@@ -24,6 +24,7 @@ import utils.FakeRequestCSRFSupport._
 import utils.ViewHelpers._
 import views.CommonViewSpec
 import views.html.apicataloguepublish.PublishTemplate
+import model._
 
 class PublishTemplateSpec extends CommonViewSpec {
 

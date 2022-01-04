@@ -17,69 +17,71 @@
 package controllers
 
 import config.AppConfig
-import connectors.AuthConnector
 import javax.inject.{Inject, Singleton}
 import model._
-import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{ApiDefinitionService, DeveloperService}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.{ErrorHelper, GatekeeperAuthWrapper, UserFunctionsWrapper}
+import utils.{ErrorHelper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc._
 import utils.ApplicationLogger
 
+import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+
 @Singleton
-class Developers2Controller @Inject()(val authConnector: AuthConnector,
-                                      val forbiddenView: ForbiddenView,
-                                      developerService: DeveloperService,
-                                      val apiDefinitionService: ApiDefinitionService,
-                                      mcc: MessagesControllerComponents,
-                                      developersView: Developers2View,
-                                      override val errorTemplate: ErrorTemplate
-                                     )(implicit val appConfig: AppConfig, val ec: ExecutionContext)
-    extends FrontendController(mcc) 
-    with ErrorHelper 
-    with GatekeeperAuthWrapper 
+class Developers2Controller @Inject()(
+  val forbiddenView: ForbiddenView,
+  developerService: DeveloperService,
+  val apiDefinitionService: ApiDefinitionService,
+  mcc: MessagesControllerComponents,
+  developersView: Developers2View,
+  override val errorTemplate: ErrorTemplate,
+  strideAuthConfig: StrideAuthConfig,
+  authConnector: AuthConnector,
+  forbiddenHandler: ForbiddenHandler
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+    with ErrorHelper
     with UserFunctionsWrapper 
-    with I18nSupport
     with ApplicationLogger {
 
-  def blankDevelopersPage() = requiresAtLeast(GatekeeperRole.USER) { 
-    implicit request =>
-      combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
+  def blankDevelopersPage() = anyStrideUserAction { implicit request =>
+    combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-  def developersPage() = requiresAtLeast(GatekeeperRole.USER) { 
-      implicit request =>
-      DevelopersSearchForm.form.bindFromRequest.fold(
-        formWithErrors => {
-            logger.warn("Errors found trying to bind request for developers search")
-            // binding failure, you retrieve the form containing errors:
-            Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
-        },
-        searchParams => {
-          val allFoundUsers = searchParams match {
-            case DevelopersSearchForm(None, None, None, None) => 
-              logger.info("Not performing a query for empty parameters")
-              Future.successful(List.empty)
-            case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
-              logger.info("Searching developers")
-              val filters = 
-              Developers2Filter(
-                mapEmptyStringToNone(maybeEmailFilter),
-                    ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
-                    ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
-                    DeveloperStatusFilter(maybeDeveloperStatusFilter)
-                  )
-                  developerService.searchDevelopers(filters)
-          }
-          combineUsersIntoPage(allFoundUsers, searchParams)
+  def developersPage() = anyStrideUserAction { implicit request =>
+    DevelopersSearchForm.form.bindFromRequest.fold(
+      formWithErrors => {
+          logger.warn("Errors found trying to bind request for developers search")
+          // binding failure, you retrieve the form containing errors:
+          Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
+      },
+      searchParams => {
+        val allFoundUsers = searchParams match {
+          case DevelopersSearchForm(None, None, None, None) => 
+            logger.info("Not performing a query for empty parameters")
+            Future.successful(List.empty)
+          case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
+            logger.info("Searching developers")
+            val filters = 
+            Developers2Filter(
+              mapEmptyStringToNone(maybeEmailFilter),
+                  ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                  ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
+                  DeveloperStatusFilter(maybeDeveloperStatusFilter)
+                )
+                developerService.searchDevelopers(filters)
         }
-      )
-    }
+        combineUsersIntoPage(allFoundUsers, searchParams)
+      }
+    )
+  }
 
   def combineUsersIntoPage(allFoundUsers: Future[List[User]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
     for {

@@ -64,8 +64,6 @@ trait AppConfig {
   def apiDefinitionSandboxApiKey: String
   def apiDefinitionProductionBaseUrl: String
 
-  def gatekeeperSuccessUrl: String
-
   def superUserRole: String
   def userRole: String
   def adminRole: String
@@ -152,8 +150,7 @@ class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(conf
   val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
   val apiDefinitionProductionApiKey = apiKey("api-definition-production")
 
-  val gatekeeperSuccessUrl = getString("api-gatekeeper-frontend-success-url")
-
+  
   val superUserRole = getString("roles.super-user")
   val userRole = getString("roles.user")
   val adminRole = getString("roles.admin")

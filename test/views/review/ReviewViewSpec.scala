@@ -18,7 +18,8 @@ package views.review
 
 import controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
-import model.{LoggedInUser, _}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import model._
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import org.joda.time.DateTime

@@ -17,7 +17,8 @@
 package views.emails
 
 import mocks.config.AppConfigMock
-import model.{EmailOptionChoice, LoggedInUser}
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import model._
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest

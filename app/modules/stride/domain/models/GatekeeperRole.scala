@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package model
+package uk.gov.hmrc.modules.stride.domain.models
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.Enrolments
-
-case class LoggedInRequest[A](name: Option[String], authorisedEnrolments: Enrolments, request: Request[A]) extends WrappedRequest(request)
+object GatekeeperRole extends Enumeration {
+  type GatekeeperRole = Value
+  val USER, SUPERUSER, ADMIN = Value
+}
