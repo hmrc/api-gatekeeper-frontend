@@ -30,7 +30,9 @@ case class ApplicationViewModel(
   subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersion, ApiStatus)])],
   stateHistory: List[StateHistory],
   isAtLeastSuperUser: Boolean,
-  isAdmin: Boolean
+  isAdmin: Boolean,
+  hasSubmissions: Boolean,
+  gatekeeperApprovalsUrl: String
 ) {
   val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
 }

@@ -116,5 +116,11 @@ trait ApplicationServiceMockProvider {
         when(mockApplicationService.removeTeamMember(*, *, *)(*))
         .thenReturn(failed(TeamMemberLastAdmin))
     }
+
+    object DoesApplicationHaveSubmissions {
+      def succeedsFalse() =
+        when(mockApplicationService.doesApplicationHaveSubmissions(*[ApplicationId])(*))
+        .thenReturn(successful(false))
+    }
   }
 }

@@ -223,6 +223,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
     http.POST[SearchCollaboratorsRequest,List[String]](s"$serviceBaseUrl/collaborators", request)
   }
+
+  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value}")
+    .map( _ match {
+      case Some(_) => true
+      case None    => false
+    })
+  }
 }
 
 @Singleton

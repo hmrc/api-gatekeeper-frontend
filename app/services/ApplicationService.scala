@@ -265,4 +265,8 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
 
   private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
+
+  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    productionApplicationConnector.doesApplicationHaveSubmissions(applicationId)
+  }
 }

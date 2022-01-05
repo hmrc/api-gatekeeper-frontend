@@ -180,10 +180,14 @@
             </td>
             <td>
                 @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
-                    <a href={routes.ApplicationController.reviewPage(applicationId).url} class="button--link" role="button" id="review">Check application</a>
-                   } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
+                    if (model.hasSubmissions) {
+                      <a href={model.gatekeeperApprovalsUrl} class="button--link" role="button" id="review">Check application</a>
+                    } else {
+                      <a href={routes.ApplicationController.reviewPage(applicationId).url} class="button--link" role="button" id="review">Check application</a>
+                    }  
+                  } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
                     <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
-                   }
+                  }
                 }
             </td>
         </tr>

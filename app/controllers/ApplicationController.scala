@@ -148,6 +148,7 @@ class ApplicationController @Inject()(
       val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
+      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsUrl}${appId.value}"
 
       def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
         subscriptions.exists(id => id.context == t._1)
@@ -189,10 +190,11 @@ class ApplicationController @Inject()(
         subscribedContexts = allPossibleSubs.filter(isSubscribed)
         subscribedVersions = subscribedContexts.map(filterOutVersions)
         subscribedWithFields = subscribedVersions.map(filterForFields)
+        doesApplicationHaveSubmissions <- applicationService.doesApplicationHaveSubmissions(appId)
 
         seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin)))
+      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, isAtLeastSuperUser, isAdmin, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
     }
   }
 
