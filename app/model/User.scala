@@ -51,7 +51,7 @@ object RegisteredUser {
   import UserId._
   import play.api.libs.json._
   
-  implicit val reads = Json.format[RegisteredUser]
+  implicit val registeredUserFormat = Json.format[RegisteredUser]
 }
 
 case class UnregisteredUser(email: String, userId: UserId) extends User {

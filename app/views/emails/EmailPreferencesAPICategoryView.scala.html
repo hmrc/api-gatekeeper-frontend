@@ -18,10 +18,11 @@
 @import model.TopicOptionChoice.TopicOptionChoice
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import play.api.libs.json.JsValue
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
 
@@ -67,7 +68,7 @@
         </form>
         @if(maybeTopicFilter.isDefined) {
             <div><hr/></div>
-            @userTable(users, emails)
+            @userTable(users, composeEmailRecipients, emails)
         }
     </div>
 

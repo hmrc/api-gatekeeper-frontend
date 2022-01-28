@@ -18,11 +18,13 @@
 @import config.AppConfig
 @import model.EmailOptionChoice.EmailOptionChoice
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import play.api.libs.json.JsValue
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(apiVersions: Seq[DropDownValue],
         users: Seq[RegisteredUser],
+        composeEmailRecipients: JsValue,
         emails: String,
         params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -65,7 +67,7 @@
         </form>
          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
             <div><hr/></div>
-            @userTable(users, emails)
+            @userTable(users, composeEmailRecipients, emails)
           }
         }
 

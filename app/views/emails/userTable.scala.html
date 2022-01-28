@@ -15,8 +15,10 @@
  *@
 
 @import model._
- 
-@(users: Seq[User], emails: String)(implicit messages: Messages)
+
+@import play.api.libs.json.JsValue
+@import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+@(users: Seq[User], composeEmailRecipients: JsValue, emails: String)(implicit messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
     <div class="form-group>">
@@ -27,6 +29,17 @@
             } email addresses into the system clipboard." data-clip-text="@emails">Copy
                 emails to clipboard</a>
         </p>
+        <div style="visibility: hidden">
+          <form method="post" action="http://localhost:9692/api-gatekeeper/compose-email/process-recipients">
+            @helper.CSRF.formField
+
+            <input type="hidden" name="email-recipients" value="@composeEmailRecipients">
+            <button type="submit" class="button--link" name="compose-email" value="whatever"
+            title="Compose an email to send to all @{users.length} displayed email addresses.">
+              Compose email to send
+            </button>
+          </form>
+        </div>
     </div>
     <div>@users.size results</div>
 

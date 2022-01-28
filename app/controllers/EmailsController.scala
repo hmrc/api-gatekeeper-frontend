@@ -23,22 +23,22 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APICategory, ApiDefinition, AnyEnvironment, ApiContextVersion, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice}
+import model.{APICategory, AnyEnvironment, ApiContextVersion, ApiDefinition, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.NotFoundException
 import utils.{ErrorHelper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
-
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.{User,RegisteredUser}
+import model.{RegisteredUser, User}
+import play.api.libs.json.Json
 
 @Singleton
 class EmailsController @Inject()(
@@ -129,7 +129,8 @@ class EmailsController @Inject()(
         users <- selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified))
         })
-      } yield Ok(emailPreferencesSpecificApiView(users, usersToEmailCopyText(users), filteredApis, selectedTopic))
+        usersAsJson = Json.toJson(users)
+      } yield Ok(emailPreferencesSpecificApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, selectedTopic))
     }
   }
 
@@ -139,7 +140,8 @@ class EmailsController @Inject()(
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
       .map(users => {
         val filteredUsers = users.filter(_.verified)
-        Ok(emailPreferencesTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic))
+        val filteredUsersAsJson = Json.toJson(filteredUsers)
+        Ok(emailPreferencesTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
       })
   }
 
@@ -155,8 +157,9 @@ class EmailsController @Inject()(
       users <- topicAndCategory.map(tup =>
         developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2)))
         .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+      usersAsJson = Json.toJson(users)
 
-    } yield Ok(emailPreferencesAPICategoryView(users, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))
+    } yield Ok(emailPreferencesAPICategoryView(users, usersAsJson, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse("")))
   }
 
 
@@ -172,7 +175,8 @@ class EmailsController @Inject()(
     developerService.fetchUsers
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
-        Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))
+        val usersAsJson = Json.toJson(filteredUsers)
+        Ok(emailsAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
       })
   }
 
@@ -190,7 +194,8 @@ class EmailsController @Inject()(
         case r : RegisteredUser => r
       })
       verifiedUsers = registeredUsers.filter(_.verified)
+      usersAsJson = Json.toJson(verifiedUsers)
       apis <- apiDropDowns
-    } yield Ok(emailApiSubscriptionsView(apis, verifiedUsers, usersToEmailCopyText(verifiedUsers), queryParams))
+    } yield Ok(emailApiSubscriptionsView(apis, verifiedUsers, usersAsJson, usersToEmailCopyText(verifiedUsers), queryParams))
   }
 }

@@ -20,6 +20,7 @@ import akka.stream.Materializer
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import model._
+import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -53,10 +54,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     trait Setup extends ControllerSetupBase {
       when(mockSendEmailChoiceView.apply()(*,*,*)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailInformationView.apply(*)(*,*,*)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailApiSubscriptionsView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String) = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -241,8 +242,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         val filteredUsers = users3Verified1Unverified.filter(_.verified)
+        val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString))(*, *, *)
         verifyAuthConnectorCalledForUser
       }
 
@@ -253,7 +255,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString))(*, *, *)
 
         verifyAuthConnectorCalledForUser
       }
@@ -264,7 +266,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""))(*, *, *)
         verifyAuthConnectorCalledForUser
       }
     }
@@ -277,7 +279,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
+        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
         verifyAuthConnectorCalledForUser
       }
 
@@ -288,7 +290,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(result) shouldBe OK
         
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
+        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
         verifyAuthConnectorCalledForUser
       }
 
@@ -340,7 +342,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
-        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
@@ -356,10 +358,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic.toString))(FakeRequest())
         status(result) shouldBe OK
         val apiNames = selectedAPIs.map(_.serviceName)
-         val  categories = selectedAPIs.flatMap(_.categories.getOrElse(List.empty))
+        val  categories = selectedAPIs.flatMap(_.categories.getOrElse(List.empty))
 
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)
-        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(Json.toJson(verified2Users)), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
       }
 
     }
