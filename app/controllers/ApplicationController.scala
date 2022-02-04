@@ -95,11 +95,16 @@ class ApplicationController @Inject()(
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val buildAppUrlFn: ApplicationId => String = (appId) => 
+      if(appConfig.gatekeeperApprovalsEnabled)
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
+      else
+        routes.ApplicationController.applicationPage(appId).url
 
     for {
       paginatedApplicationResponse <- applicationService.searchApplications(env, params)
       apis <- apiDefinitionService.fetchAllApiDefinitions(env)
-    } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), isAtLeastSuperUser, params))
+    } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), isAtLeastSuperUser, params, buildAppUrlFn))
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -148,7 +153,7 @@ class ApplicationController @Inject()(
       val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsUrl}${appId.value}"
+      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/applications/${appId.value}"
 
       def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
         subscriptions.exists(id => id.context == t._1)

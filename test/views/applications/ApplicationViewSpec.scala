@@ -75,7 +75,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       isAtLeastSuperUser = false,
       isAdmin = false,
       hasSubmissions = false,
-      gatekeeperApprovalsUrl = "http://localhost:1234/api-gatekeeper-approvals-frontend/applications"
+      gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}"
     )
   }
 
