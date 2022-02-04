@@ -46,6 +46,7 @@ import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import model.Environment.Environment
 
 @Singleton
 class ApplicationController @Inject()(
@@ -95,8 +96,8 @@ class ApplicationController @Inject()(
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
-    val buildAppUrlFn: ApplicationId => String = (appId) => 
-      if(appConfig.gatekeeperApprovalsEnabled)
+    val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) => 
+      if(appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
       else
         routes.ApplicationController.applicationPage(appId).url
