@@ -153,7 +153,7 @@ class ApplicationController @Inject()(
       val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/applications/${appId.value}"
+      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
 
       def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
         subscriptions.exists(id => id.context == t._1)
