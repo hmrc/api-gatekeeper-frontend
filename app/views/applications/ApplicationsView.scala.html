@@ -15,7 +15,8 @@
  *@
 
 @import model.State._
-@import model.{PaginatedApplicationResponse, VersionSummary}
+@import model.Environment.Environment
+@import model.{ApplicationId, PaginatedApplicationResponse, VersionSummary}
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import org.joda.time.format.DateTimeFormat
 @import include.pagination
@@ -23,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String])(
+@(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, String) => String)(
 implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @pageUrl(extra: (String, String)) = @{
@@ -175,9 +176,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         <tr role="row">
                            <td id="app-name-@index">
                                <div class="constrain_width">
-                                   <a href="@{
-                                        routes.ApplicationController.applicationPage(application.id)
-                                    }">@application.name</a>
+                                   <a href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
                                </div>
                            </td>
                             <td id="app-created-@index">@{

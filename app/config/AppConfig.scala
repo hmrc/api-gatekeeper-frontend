@@ -69,7 +69,8 @@ trait AppConfig {
   def adminRole: String
   def superUsers: Seq[String]
 
-  def gatekeeperApprovalsUrl: String
+  def gatekeeperApprovalsEnabled: Boolean
+  def gatekeeperApprovalsBaseUrl: String
 }
 
 @Singleton
@@ -157,5 +158,6 @@ class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(conf
   val userRole = getString("roles.user")
   val adminRole = getString("roles.admin")
 
-  val gatekeeperApprovalsUrl = getString("gatekeeper-approvals-url")
+  val gatekeeperApprovalsEnabled = getBoolean("api-gatekeeper-approvals-frontend.enabled")
+  val gatekeeperApprovalsBaseUrl = baseUrl("api-gatekeeper-approvals-frontend")
 }
