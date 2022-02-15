@@ -30,7 +30,7 @@
                 emails to clipboard</a>
         </p>
         <div>
-          <form method="post" action="http://localhost:9692/api-gatekeeper/compose-email/process-recipients">
+          <form method="post" action="/api-gatekeeper/compose-email/process-recipients">
             @helper.CSRF.formField
 
             <input type="hidden" name="email-recipients" value="@composeEmailRecipients">
