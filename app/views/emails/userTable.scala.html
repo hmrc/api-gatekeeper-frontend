@@ -18,7 +18,8 @@
 
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-@(users: Seq[User], composeEmailRecipients: JsValue, emails: String)(implicit messages: Messages, request: RequestHeader)
+@import config.AppConfig
+@(users: Seq[User], composeEmailRecipients: JsValue, emails: String, config: AppConfig)(implicit messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
     <div class="form-group>">
@@ -30,7 +31,7 @@
                 emails to clipboard</a>
         </p>
         <div>
-          <form method="post" action="/api-gatekeeper/compose-email/process-recipients">
+          <form method="post" action=@config.gatekeeperComposeEmailUrl>
             @helper.CSRF.formField
 
             <input type="hidden" name="email-recipients" value="@composeEmailRecipients">

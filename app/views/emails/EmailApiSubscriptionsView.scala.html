@@ -67,7 +67,7 @@
         </form>
          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
             <div><hr/></div>
-            @userTable(users, composeEmailRecipients, emails)
+            @userTable(users, composeEmailRecipients, emails, applicationConfig)
           }
         }
 
