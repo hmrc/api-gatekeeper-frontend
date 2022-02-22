@@ -31,7 +31,7 @@
             } email addresses into the system clipboard." data-clip-text="@emails">Copy
                 emails to clipboard</a>
         </p>
-        <div>
+        <div style="visibility: hidden">
           <form method="post" action="@config.gatekeeperComposeEmailUrl">
             @helper.CSRF.formField
 
@@ -40,7 +40,7 @@
                 Json.toJson[List[RegisteredUser]](List[RegisteredUser](
                   new RegisteredUser("imran.akram@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Imran", "Akram", true),
                   new RegisteredUser("gareth.chapman@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Gareth", "Chapman", true),
-                  new RegisteredUser("Neil", UserId(UUID.randomUUID()), "Neil", "Frow", true),
+                  new RegisteredUser("neil.frow@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Neil", "Frow", true),
                   new RegisteredUser("siva.isikella@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Siva", "Isikella", true),
                   new RegisteredUser("srinivasalu.munagala@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Srini", "Munagala", true)
                 ))}
