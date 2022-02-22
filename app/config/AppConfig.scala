@@ -74,6 +74,7 @@ trait AppConfig {
 
   def gatekeeperComposeEmailBaseUrl: String
   def gatekeeperComposeEmailUrl: String
+  def overrideEmailRecipients: Boolean
 }
 
 @Singleton
@@ -166,4 +167,5 @@ class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(conf
 
   val gatekeeperComposeEmailBaseUrl = baseUrl("gatekeeper-compose-email-frontend")
   val gatekeeperComposeEmailUrl = s"$gatekeeperComposeEmailBaseUrl/api-gatekeeper/compose-email/email"
+  val overrideEmailRecipients = getConfBool("gatekeeper-compose-email-frontend.overrideEmailRecipients", true)
 }
