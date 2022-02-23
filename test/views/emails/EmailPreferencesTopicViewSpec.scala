@@ -20,6 +20,7 @@ import mocks.config.AppConfigMock
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import model._
 import org.jsoup.Jsoup
+import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -30,7 +31,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-
+    val emailRecipientsAsJson: JsArray = new JsArray()
     val emailPreferencesTopicView: EmailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   }
 
@@ -42,21 +43,21 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", None, request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesTopicPage(Jsoup.parse(result.body))
     }
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesTopicView.render(users, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
+      emailPreferencesTopicView.render(users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
       
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+      emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
       
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }

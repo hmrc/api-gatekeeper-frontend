@@ -21,6 +21,7 @@ import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import model._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -33,7 +34,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-
+    val emailRecipientsAsJson: JsArray = new JsArray()
     val emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView = app.injector.instanceOf[EmailPreferencesAPICategoryView]
   }
 
@@ -68,7 +69,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, "", request, LoggedInUser(None), messagesProvider)
 
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -78,7 +79,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), categories, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), categories, "", request, LoggedInUser(None), messagesProvider)
 
         validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)    
     }
@@ -86,7 +87,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and options when only Category filter provided" in new Setup {
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, "", None, categories, category1.category, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, category1.category, request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
@@ -95,6 +96,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(
           users,
+          emailRecipientsAsJson,
           s"${user1.email}; ${user2.email}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           categories,
@@ -110,6 +112,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(
           Seq.empty,
+          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.RELEASE_SCHEDULES),
           categories,

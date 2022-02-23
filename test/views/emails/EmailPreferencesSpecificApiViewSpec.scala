@@ -20,6 +20,7 @@ import mocks.config.AppConfigMock
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import model._
 import org.jsoup.Jsoup
+import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -45,21 +46,21 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, "", List.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
 
        validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), List.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesSpecificApiView.render(List.empty, "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+      emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body),  selectedTopic)
     }
 
     "show correct title and elements when topic filter provided and selectedApis" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, List.empty, "")
     }
@@ -67,7 +68,7 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
       val emailsStr = users.map(_.email).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(users, emailsStr, selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(users, new JsArray(), emailsStr, selectedApis, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
      
       validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, selectedApis, users, emailsStr)
     }

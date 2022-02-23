@@ -18,10 +18,11 @@
 @import config.AppConfig
 @import model.EmailOptionChoice.EmailOptionChoice
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import play.api.libs.json.JsValue
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Emails all users") {
 
@@ -30,7 +31,7 @@
             <a data-back-link href="@routes.EmailsController.showEmailInformation("all-users")">Back</a>
         </div>
         <div><h1 id="pageTitle">Email all users</h1></div>
-        @userTable(users, emails)
+        @userTable(users, composeEmailRecipients, emails, applicationConfig)
     </div>
 
 
