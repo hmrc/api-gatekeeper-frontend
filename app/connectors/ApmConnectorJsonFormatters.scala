@@ -19,6 +19,7 @@ package connectors
 import model.ApiStatusJson
 import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
+import model.CombinedApi
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
@@ -28,4 +29,6 @@ private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with
   implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
   implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
   implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
+
+  implicit val readsCombinedApi: Reads[CombinedApi] = Json.reads[CombinedApi]
 }

@@ -42,6 +42,7 @@ import model.ApplicationNotFound
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import model.CombinedApi
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -85,6 +86,10 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
       case Right(_) => ApplicationUpdateSuccessResult
       case Left(err) => throw err
     })
+  }
+
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+    http.GET[List[CombinedApi]](s"${config.serviceBaseUrl}/combined-rest-xml-apis")
   }
 }
 

@@ -7,6 +7,7 @@ object AppDependencies {
   lazy val logbackVersion = "1.1.10"
   lazy val jsoupVersion = "1.12.1"
   lazy val scalaCheckVersion = "1.14.0"
+  lazy val enumeratumVersion = "1.6.2"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
@@ -28,7 +29,8 @@ object AppDependencies {
     "ch.qos.logback"              %   "logback-core"                      % logbackVersion,
     "com.typesafe.play"           %%  "play-json"                         % "2.9.2",
     "com.typesafe.play"           %%  "play-json-joda"                    % "2.9.2",
-    "org.typelevel"               %%  "cats-core"                         % "2.3.1"
+    "org.typelevel"               %%  "cats-core"                         % "2.3.1",
+        "com.beachape"            %% "enumeratum-play-json"               % enumeratumVersion
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
