@@ -26,7 +26,7 @@ import utils.ViewHelpers._
 import utils.HmrcSpec
 import model.CombinedApi
 
-trait EmailUsersHelper extends APIDefinitionHelper {
+trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
@@ -69,8 +69,8 @@ trait EmailUsersHelper extends APIDefinitionHelper {
   }
 
 
-  def validateNonSelectedApiDropDown(document: Document, apis: Seq[ApiDefinition], defaultOption: String) = {
-    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
+  def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.displayName)))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
   }

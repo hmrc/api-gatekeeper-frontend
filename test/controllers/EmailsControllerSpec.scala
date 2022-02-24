@@ -304,21 +304,23 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "email preferences select api page" should {
        "return ok on initial load" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val result: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
         status(result) shouldBe OK
 
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
       }
 
      "return ok when filters provided" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
-        val result: Future[Result] = underTest.selectSpecficApi(Some(List(api1.serviceName)))(FakeRequest())
+        val result: Future[Result] = underTest.selectSpecficApi(Some(List(combinedRestApi1.serviceName)))(FakeRequest())
         status(result) shouldBe OK
 
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List(combinedRestApi1)))(*, *, *)
       }
     }
@@ -337,8 +339,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()         
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val selectedAPIs = List(combinedXmlApi2)
 
@@ -346,12 +348,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
+
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
         DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users:_*)
 
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
@@ -365,6 +370,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val  categories = selectedAPIs.flatMap(_.categories)
 
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)
         verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(Json.toJson(verified2Users)), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
       }

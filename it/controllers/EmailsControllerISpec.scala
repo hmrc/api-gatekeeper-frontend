@@ -15,7 +15,7 @@ import views.emails.EmailsPagesHelper
 
 
 class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
-  with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper {
+  with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
   this: Suite with ServerProvider =>
 
   protected override def appBuilder: GuiceApplicationBuilder =
@@ -35,7 +35,9 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         "microservice.services.third-party-application-production.host" ->  wireMockHost,
         "microservice.services.third-party-application-production.port" -> wireMockPort,
         "microservice.services.third-party-application-sandbox.host" ->  wireMockHost,
-        "microservice.services.third-party-application-sandbox.port" -> wireMockPort
+        "microservice.services.third-party-application-sandbox.port" -> wireMockPort,
+        "microservice.services.api-platform-microservice.host" -> wireMockHost,
+         "microservice.services.api-platform-microservice.port" -> wireMockPort,
       )
 
   val url = s"http://localhost:$port"
@@ -57,6 +59,14 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
   val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
   val apis = List(api1, api2, api3)
+
+  val combinedApi1 = simpleAPI("api-1", "API 1", List.empty, ApiType.REST_API)
+  val combinedApi2 = simpleAPI("api-2", "API 2", List("CATEGORY1", "VAT"), ApiType.REST_API)
+  val combinedApi3 = simpleAPI("api-3", "API 3", List("TAX", "VAT"), ApiType.REST_API)
+  val combinedApi4 = simpleAPI("api-4", "API 4", List.empty, ApiType.REST_API)
+  val combinedApi5 = simpleAPI("api-5", "API 5", List.empty, ApiType.REST_API)
+  val combinedApi6 = simpleAPI("api-6", "API 6", List.empty, ApiType.XML_API)
+  val combinedApis = List(combinedApi1, combinedApi2, combinedApi3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient
@@ -349,25 +359,25 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
        "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(Seq.empty)
-        primeDefinitionServiceSuccessWithPrivateAPIs(apis)
+        primeFetchAllCombinedApisSuccess(combinedApis)
+
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), apis)
+        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis)
       } 
 
 
       "respond with 200 and render the page correctly when selectedAPis provided" in {
-        val selectedApis = Seq(api4, api5, api6)
+        val selectedApis = List(combinedApi4, combinedApi5, combinedApi6)
 
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(Seq.empty)
-        primeDefinitionServiceSuccessWithPrivateAPIs(apis++selectedApis)
+        primeFetchAllCombinedApisSuccess(combinedApis++selectedApis)
+
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api?${selectedApis.map("selectedAPIs="+_.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), apis, selectedApis)
+        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)
       } 
 
       "respond with 403 when not authorised" in {
@@ -378,12 +388,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     }
 
     "GET /emails/email-preferences/by-specific-api" should {
-        val selectedApis = Seq(api4, api5, api6)
+        val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
 
      "respond with 200 and render the page correctly on initial load with selectedApis" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(Seq.empty)
-        primeDefinitionServiceSuccessWithPrivateAPIs(apis++selectedApis)
+
+        primeFetchAllCombinedApisSuccess(combinedApis++selectedApis)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("selectedAPIs="+_.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
@@ -400,27 +410,27 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page with users table with selectedApis" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(Seq.empty)
-        primeDefinitionServiceSuccessWithPrivateAPIs(apis++selectedApis)
+  
+        primeFetchAllCombinedApisSuccess(combinedApis++selectedApis)
         primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(allUsers, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
 
         val result =
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
 
-        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, apis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
+        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
       } 
 
 
       "respond with 200 and render the page with selectedApis but no users" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(Seq.empty)
-        primeDefinitionServiceSuccessWithPrivateAPIs(apis++selectedApis)
+
+        primeFetchAllCombinedApisSuccess(combinedApis++selectedApis)
         primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(Seq.empty, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
 
         val result =
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
 
-        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, apis, Seq.empty, "")
+        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis, Seq.empty, "")
       }
 
        "respond with 403 when not authorised" in {

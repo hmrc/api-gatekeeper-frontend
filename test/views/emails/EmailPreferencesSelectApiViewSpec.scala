@@ -39,26 +39,25 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPrefere
 
   "email preferences specific api view" must {
 
-     val api1 = simpleAPIDefinition(serviceName="serviceName1", name="api1","context",  None, "1")
-     val api2 = simpleAPIDefinition(serviceName="serviceName2", name="api2","context",  None, "1")
-     val api3 = simpleAPIDefinition(serviceName="serviceName3", name="api3", "context",  None, "1")
+     val api1: CombinedApi = simpleAPI(serviceName="serviceName0", displayName="displayName0",  List.empty,  ApiType.REST_API)
+     val api2 = simpleAPI(serviceName="serviceName1", displayName="displayName1",  List.empty,  ApiType.REST_API)
+     val api3 = simpleAPI(serviceName="serviceName2", displayName="displayName2",  List.empty,  ApiType.XML_API)
      val dropDownApis = Seq(api1, api2, api3)
 
     val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(APICategory("CUSTOMS")), ApiType.REST_API)
-    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
-    val combinedList = List(combinedRestApi1, combinedXmlApi2)
+    val combinedXmlApi3 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
+    val combinedList = List(combinedRestApi1, combinedXmlApi3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesSelectApiView.render(combinedList, Seq.empty, request, LoggedInUser(None), messagesProvider)
+      emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
       
       validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), dropDownApis)
     }
     
     "show correct title and options when selectedAPis are provided" in new Setup {
-      val selectedApis = Seq(api2)
       val result: HtmlFormat.Appendable =
-      emailPreferencesSelectApiView.render(combinedList, combinedList, request, LoggedInUser(None), messagesProvider)
+      emailPreferencesSelectApiView.render(dropDownApis, combinedList, request, LoggedInUser(None), messagesProvider)
 
       validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), dropDownApis, combinedList)
     }

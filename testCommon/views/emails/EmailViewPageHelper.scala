@@ -273,7 +273,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[ApiDefinition]) {
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[CombinedApi]) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
@@ -281,11 +281,11 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateButtonText(document, "submit", "Select API")
   }
 
-  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[ApiDefinition]) = {
+  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi]) = {
     validateStaticPageElements(document, dropDownAPIs)
   }
 
-  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[ApiDefinition], selectedAPIs: Seq[CombinedApi]) = {
+  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi]) = {
     validateStaticPageElements(document, dropDownAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs)
   }
