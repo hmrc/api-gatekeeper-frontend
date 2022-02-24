@@ -25,6 +25,8 @@ import org.jsoup.nodes.{Document, Element}
 import utils.ViewHelpers._
 import utils.HmrcSpec
 import model.CombinedApi
+import model.ApiType.XML_API
+import model.ApiType.REST_API
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
@@ -68,9 +70,16 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     }
   }
 
+    def handleXmlAppendValue(api: CombinedApi)={
+      api.apiType match{
+        case XML_API => api.displayName + " - XML API"
+        case REST_API => api.displayName  
+      }
+    }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
-    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.displayName)))
+  
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, handleXmlAppendValue(x))))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
   }

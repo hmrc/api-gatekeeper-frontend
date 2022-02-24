@@ -23,16 +23,23 @@
 
 @(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
+@handleAppendXmlTag(api: CombinedApi) =@{
+    if(api.apiType == ApiType.XML_API) {
+        api.displayName + " - XML API"
+    } else { api.displayName }
+}
+
 @drawAPIDropDown() = {
 <select class="govuk-select govuk-select-width-full"
 id="selectedAPIs"
 name="selectedAPIs">
     <option value="">Select an API</option>
     @for(api <- apis) {
-        <option value="@api.serviceName"> @api.displayName </option>
+        <option value="@api.serviceName">@handleAppendXmlTag(api) </option>
     }
 </select>
 }
+
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
 

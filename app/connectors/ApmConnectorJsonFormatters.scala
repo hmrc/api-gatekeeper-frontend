@@ -29,6 +29,4 @@ private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with
   implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
   implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
   implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
-
-  implicit val readsCombinedApi: Reads[CombinedApi] = Json.reads[CombinedApi]
 }
