@@ -21,22 +21,43 @@ import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
 import model._
 import connectors.ApmConnector
+import model.applications.ApplicationWithSubscriptionData
+import model.subscriptions.ApiData
 
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
-  
+
   val mockApmConnector = mock[ApmConnector]
   val mockApmConnectorConfig = mock[ApmConnector.Config]
 
+  object FetchAllCombinedApis {
+    def returns(combinedApis: List[CombinedApi]) = when(mockApmConnector.fetchAllCombinedApis()(*)).thenReturn(successful(combinedApis))
+  }
+
+  object FetchApplicationById {
+    def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) = when(mockApmConnector.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
+  }
+
+  object FetchAllPossibleSubscriptions {
+    def returns(possibleSubscriptions: Map[ApiContext, ApiData]) = when(mockApmConnector.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
+  }
+
+  object GetAllFieldDefinitions {
+    def returns(fieldDefinitions: ApiDefinitions.Alias) = when(mockApmConnector.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
+  }
+
   object ApmConnectorConfigMock {
     object ServiceBaseUrl {
-      def returns(url: String) = when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(url)
+      def returns(url: String) =
+        when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(url)
     }
   }
 
   object ApmConnectorMock {
     object SubscribeToApi {
-      def succeeds() = when(mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(
+        mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
+      ).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
   }

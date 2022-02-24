@@ -24,6 +24,7 @@ import model.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
 import utils.ViewHelpers._
 import utils.HmrcSpec
+import model.CombinedApi
 
 trait EmailUsersHelper extends APIDefinitionHelper {
   self: HmrcSpec =>
@@ -118,7 +119,7 @@ trait EmailUsersHelper extends APIDefinitionHelper {
     }
   }
 
-  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[ApiDefinition], numberOfSets: Int = 1) = {
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1) = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size shouldBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
@@ -146,7 +147,7 @@ trait EmailUsersHelper extends APIDefinitionHelper {
     })
   }
 
-  def validateSelectedSpecificApiItems(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[CombinedApi]): Unit = {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
 

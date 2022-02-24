@@ -24,6 +24,7 @@ import model.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
 import org.jsoup.nodes.Document
 import utils.ViewHelpers._
 import utils.HmrcSpec
+import model.CombinedApi
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailInformationViewHelper
@@ -240,7 +241,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateTopicGrid(document, selectedTopic)
   }
 
-  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[ApiDefinition]) = {
+  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[CombinedApi]) = {
     validateStaticPageElements(document, "Filter", None)
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
@@ -253,7 +254,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesSpecificAPIResults(document: Document,
                                                  selectedTopic: TopicOptionChoice,
-                                                 selectedAPIs: Seq[ApiDefinition],
+                                                 selectedAPIs: Seq[CombinedApi],
                                                  users: Seq[RegisteredUser],
                                                  emailsString: String) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
@@ -284,7 +285,7 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateStaticPageElements(document, dropDownAPIs)
   }
 
-  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[ApiDefinition], selectedAPIs: Seq[ApiDefinition]) = {
+  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[ApiDefinition], selectedAPIs: Seq[CombinedApi]) = {
     validateStaticPageElements(document, dropDownAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs)
   }

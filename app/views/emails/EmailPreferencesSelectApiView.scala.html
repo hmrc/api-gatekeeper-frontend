@@ -21,7 +21,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(apis: Seq[ApiDefinition], filteredApis: Seq[ApiDefinition])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @drawAPIDropDown() = {
 <select class="govuk-select govuk-select-width-full"
@@ -29,7 +29,7 @@ id="selectedAPIs"
 name="selectedAPIs">
     <option value="">Select an API</option>
     @for(api <- apis) {
-        <option value="@api.serviceName"> @api.name </option>
+        <option value="@api.serviceName"> @api.displayName </option>
     }
 </select>
 }

@@ -24,6 +24,7 @@ import model.ApplicationId
 import uk.gov.hmrc.http.HeaderCarrier
 import builder.{ApplicationBuilder, ApiBuilder}
 import model._
+import model.CombinedApi
 import model.subscriptions.ApiData
 import play.api.test.Helpers._
 import play.api.libs.json.Json
@@ -53,6 +54,10 @@ class ApmConnectorSpec
     val application = buildApplication(applicationId)
 
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
+
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(APICategory("CUSTOMS")), ApiType.REST_API)
+    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
+    val combinedList = List(combinedRestApi1, combinedXmlApi2)
   }
 
   "fetchApplicationById" should {
@@ -212,6 +217,58 @@ class ApmConnectorSpec
 
       intercept[UpstreamErrorResponse] {
         await(underTest.addTeamMember(applicationId, addTeamMemberRequest))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "getAllFieldDefinitions" should {
+    "returns empty field definitions" in new Setup {
+      val url = "/subscription-fields\\?environment=PRODUCTION"
+
+      stubFor(
+        get(urlMatching(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody("{}")
+        )
+      )
+
+      val result = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
+      result shouldBe Map.empty
+    } 
+  }
+
+  "fetchAllCombinedApis" should {
+    "returns combined xml and rest apis" in new Setup {
+      val url = "/combined-rest-xml-apis"
+
+      stubFor(
+        get(urlPathEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(Json.toJson(combinedList).toString)
+        )
+      )
+
+      val result = await(underTest.fetchAllCombinedApis())
+      result shouldBe combinedList
+    }    
+    
+    "returns exception when backend returns error" in new Setup {
+      val url = "/combined-rest-xml-apis"
+
+      stubFor(
+        get(urlPathEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(INTERNAL_SERVER_ERROR)
+        )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(underTest.fetchAllCombinedApis())
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }

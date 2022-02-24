@@ -26,6 +26,7 @@ import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions._
 import model.ApiContext
 import model.Environment.Environment
+import model.CombinedApi
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
 
@@ -39,5 +40,9 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
   
   def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias]  = {
     apmConnector.getAllFieldDefinitions(environment)
+  }
+
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]]  = {
+    apmConnector.fetchAllCombinedApis()
   }
 }
