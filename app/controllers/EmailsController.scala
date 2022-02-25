@@ -37,8 +37,11 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.{ExecutionContext, Future}
+
 import model.{RegisteredUser, User}
 import play.api.libs.json.Json
+import model.CombinedApi
+
 
 @Singleton
 class EmailsController @Inject()(
@@ -107,13 +110,13 @@ class EmailsController @Inject()(
 
   def selectSpecficApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
-      apis <- apiDefinitionService.fetchAllDistinctApisIgnoreVersions()
+      apis <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
-    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.name), selectedApis.sortBy(_.name)))
+    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
   }
 
-  private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[ApiDefinition]) =
-    maybeSelectedAPIs.fold(List.empty[ApiDefinition])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
+  private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
+    maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
   def emailPreferencesSpecificApis(selectedAPIs: List[String],
                                    selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -122,10 +125,10 @@ class EmailsController @Inject()(
       Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
     } else {
       for {
-        apis <- apiDefinitionService.fetchAllDistinctApisIgnoreVersions()
-        filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.name)
+        apis <- apmService.fetchAllCombinedApis()
+        filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         apiNames = filteredApis.map(_.serviceName)
-        categories = filteredApis.flatMap(_.categories.getOrElse(List.empty))
+        categories = filteredApis.flatMap(_.categories)
         users <- selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified))
         })

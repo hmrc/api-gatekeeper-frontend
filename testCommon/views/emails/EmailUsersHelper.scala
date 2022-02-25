@@ -24,8 +24,11 @@ import model.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
 import utils.ViewHelpers._
 import utils.HmrcSpec
+import model.CombinedApi
+import model.ApiType.XML_API
+import model.ApiType.REST_API
 
-trait EmailUsersHelper extends APIDefinitionHelper {
+trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
@@ -67,9 +70,16 @@ trait EmailUsersHelper extends APIDefinitionHelper {
     }
   }
 
+    def handleXmlAppendValue(api: CombinedApi)={
+      api.apiType match{
+        case XML_API => api.displayName + " - XML API"
+        case REST_API => api.displayName  
+      }
+    }
 
-  def validateNonSelectedApiDropDown(document: Document, apis: Seq[ApiDefinition], defaultOption: String) = {
-    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, x.name)))
+  def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
+  
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, handleXmlAppendValue(x))))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
   }
@@ -118,7 +128,7 @@ trait EmailUsersHelper extends APIDefinitionHelper {
     }
   }
 
-  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[ApiDefinition], numberOfSets: Int = 1) = {
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1) = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size shouldBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
@@ -146,7 +156,7 @@ trait EmailUsersHelper extends APIDefinitionHelper {
     })
   }
 
-  def validateSelectedSpecificApiItems(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[CombinedApi]): Unit = {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
 

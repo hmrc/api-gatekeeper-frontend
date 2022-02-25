@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package connectors
+package model
 
-import model.ApiStatusJson
-import model.APIDefinitionFormatters
-import model.applications.ApplicationWithSubscriptionData
-import model.CombinedApi
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.libs.json.Json
 
-private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
-  import model.subscriptions.{VersionData, ApiData}
-  import play.api.libs.json._
+sealed trait ApiType extends EnumEntry
 
-  implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-  implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
-  implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
+object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
+  val values = findValues
+  case object REST_API extends ApiType
+  case object XML_API extends ApiType
 }
+
+case class CombinedApi(displayName: String,
+                       serviceName: String,
+                        categories: List[APICategory],
+                        apiType: ApiType)
+
+object CombinedApi {
+  implicit val formatCombinedApi = Json.format[CombinedApi]
+}
+
+

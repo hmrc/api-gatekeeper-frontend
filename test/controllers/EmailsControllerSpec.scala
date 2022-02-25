@@ -114,6 +114,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiCategories.returns(category1, category2, category3)
       }
 
+      val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(APICategory("CUSTOMS")), ApiType.REST_API)
+      val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
+      val combinedList = List(combinedRestApi1, combinedXmlApi2)
+
       val underTest = new EmailsController(
         mockDeveloperService,
         mockApiDefinitionService,
@@ -300,22 +304,24 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "email preferences select api page" should {
        "return ok on initial load" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val result: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(twoApis.sortBy(_.name)), eqTo(List.empty))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(*)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
       }
 
      "return ok when filters provided" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
-        val result: Future[Result] = underTest.selectSpecficApi(Some(List(api1.serviceName)))(FakeRequest())
+        val result: Future[Result] = underTest.selectSpecficApi(Some(List(combinedRestApi1.serviceName)))(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(twoApis.sortBy(_.name)), eqTo(List(api1)))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(*)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List(combinedRestApi1)))(*, *, *)
       }
     }
 
@@ -333,33 +339,38 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        givenTheGKUserIsAuthorisedAndIsANormalUser()         
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
-        val selectedAPIs = List(api1)
+        val selectedAPIs = List(combinedXmlApi2)
 
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), None)(FakeRequest())
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
+
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
-        givenApiDefinition2Apis()
+        
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
         DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users:_*)
 
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
 
-        val selectedAPIs = List(api1)
+        val selectedAPIs = List(combinedXmlApi2)
         val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
 
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic.toString))(FakeRequest())
         status(result) shouldBe OK
         val apiNames = selectedAPIs.map(_.serviceName)
-        val  categories = selectedAPIs.flatMap(_.categories.getOrElse(List.empty))
 
+        val  categories = selectedAPIs.flatMap(_.categories)
+
+        verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)
         verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(Json.toJson(verified2Users)), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
       }

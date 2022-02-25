@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package connectors
+package views.emails
 
-import model.ApiStatusJson
-import model.APIDefinitionFormatters
-import model.applications.ApplicationWithSubscriptionData
 import model.CombinedApi
+import model.ApiType
+import model.APICategory
 
-private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
-
-  import model.subscriptions.{VersionData, ApiData}
-  import play.api.libs.json._
-
-  implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-  implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
-  implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
+trait CombinedApiHelper {
+   def simpleAPI(serviceName: String,
+                          displayName: String,
+                          categories: List[String],
+                          apiType: ApiType): CombinedApi =
+    CombinedApi(displayName, serviceName,  categories.map(APICategory(_)), apiType)
 }
