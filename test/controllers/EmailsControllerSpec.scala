@@ -17,6 +17,7 @@
 package controllers
 
 import akka.stream.Materializer
+import model.CombinedApiCategory.toAPICategory
 import model.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import model.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import model._
@@ -114,8 +115,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiCategories.returns(category1, category2, category3)
       }
 
-      val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(APICategory("CUSTOMS")), ApiType.REST_API)
-      val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
+      val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API)
+      val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API)
       val combinedList = List(combinedRestApi1, combinedXmlApi2)
 
       val underTest = new EmailsController(
@@ -368,7 +369,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         val apiNames = selectedAPIs.map(_.serviceName)
 
-        val  categories = selectedAPIs.flatMap(_.categories)
+        val  categories = selectedAPIs.flatMap(_.categories.map(toAPICategory))
 
         verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)

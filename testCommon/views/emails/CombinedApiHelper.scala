@@ -16,14 +16,12 @@
 
 package views.emails
 
-import model.CombinedApi
-import model.ApiType
-import model.APICategory
+import model.{ApiType, CombinedApi, CombinedApiCategory}
 
 trait CombinedApiHelper {
    def simpleAPI(serviceName: String,
                           displayName: String,
                           categories: List[String],
                           apiType: ApiType): CombinedApi =
-    CombinedApi(displayName, serviceName,  categories.map(APICategory(_)), apiType)
+    CombinedApi(displayName, serviceName,  categories.map(CombinedApiCategory(_)), apiType)
 }
