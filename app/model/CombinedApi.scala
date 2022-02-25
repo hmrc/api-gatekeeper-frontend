@@ -17,7 +17,7 @@
 package model
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 
 sealed trait ApiType extends EnumEntry
@@ -28,9 +28,18 @@ object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
   case object XML_API extends ApiType
 }
 
+case class CombinedApiCategory(value: String) extends AnyVal
+
+object CombinedApiCategory {
+  implicit val categoryFormat: Format[CombinedApiCategory] = Json.format[CombinedApiCategory]
+  def toAPICategory(combinedApiCategory: CombinedApiCategory) : APICategory = {
+    APICategory(combinedApiCategory.value)
+  }
+}
+
 case class CombinedApi(displayName: String,
                        serviceName: String,
-                        categories: List[APICategory],
+                        categories: List[CombinedApiCategory],
                         apiType: ApiType)
 
 object CombinedApi {

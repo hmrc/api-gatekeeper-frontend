@@ -38,12 +38,10 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences specific api view" must {
     val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(APICategory("CUSTOMS")), ApiType.REST_API)
-    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(APICategory("VAT")), ApiType.XML_API)
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API)
+    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API)
     val combinedList = List(combinedRestApi1, combinedXmlApi2)
 
-    // val selectedApis: List[ApiDefinition] = List(simpleAPIDefinition("Api1ServiceName", "Api1Name", "context", None, "1"),
-    //   simpleAPIDefinition("Api2ServiceName", "Api2Name", "context",  None, "1"))
     val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
     val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
     val users = List(user1, user2)

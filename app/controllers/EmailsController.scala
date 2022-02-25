@@ -18,6 +18,7 @@ package controllers
 
 import config.AppConfig
 import model.Forms._
+
 import javax.inject.{Inject, Singleton}
 import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
@@ -37,10 +38,10 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.{ExecutionContext, Future}
-
 import model.{RegisteredUser, User}
 import play.api.libs.json.Json
 import model.CombinedApi
+import model.CombinedApiCategory.toAPICategory
 
 
 @Singleton
@@ -128,7 +129,7 @@ class EmailsController @Inject()(
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         apiNames = filteredApis.map(_.serviceName)
-        categories = filteredApis.flatMap(_.categories)
+        categories = filteredApis.flatMap(_.categories.map(toAPICategory))
         users <- selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified))
         })
