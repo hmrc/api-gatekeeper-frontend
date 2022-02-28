@@ -16,20 +16,13 @@
 
 package connectors
 
-import javax.inject.{Inject, Singleton}
-import config.AppConfig
-
-import model._
-
-import encryption._
-
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
-import uk.gov.hmrc.http.HttpClient
-import scala.util.control.NonFatal
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.Logging
 import model.xml.XmlApi
+import play.api.Logging
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
 class XmlServicesConnector @Inject()(appConfig: XmlServicesConnector.Config, http: HttpClient)
