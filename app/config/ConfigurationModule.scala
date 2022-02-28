@@ -48,6 +48,8 @@ class ConfigurationModule extends Module {
         .toProvider(classOf[LiveApmConnectorConfigProvider]),
       bind[ApiCataloguePublishConnector.Config]
         .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider]),
+      bind[XmlServicesConnector.Config]
+        .toProvider(classOf[XmlServicesConnectorConfigProvider]),
       bind(classOf[ForbiddenHandler]).to(classOf[HandleForbiddenWithView])
     )
   }
