@@ -358,7 +358,8 @@ object MockDataSugar {
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {}
        |  },
        |  {
        |    "email": "$developer4",
@@ -398,7 +399,8 @@ object MockDataSugar {
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "mfaEnabled": true,
+       |    "emailPreferences": {}
        |  }
        |]
    """.stripMargin
@@ -411,7 +413,8 @@ object MockDataSugar {
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "mfaEnabled": true,
+       |    "emailPreferences": {}
        |  }
    """.stripMargin
 

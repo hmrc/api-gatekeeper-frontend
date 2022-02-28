@@ -44,7 +44,8 @@ case class RegisteredUser(
   lastName: String,
   verified: Boolean,
   organisation: Option[String] = None,
-  mfaEnabled: Boolean = false) extends User {
+  mfaEnabled: Boolean = false,
+  emailPreferences: EmailPreferences = EmailPreferences.noPreferences) extends User {
 }
 
 object RegisteredUser {
@@ -89,6 +90,11 @@ case class Developer(user: User, applications: List[Application]) {
   lazy val mfaEnabled: Boolean = user match {
     case UnregisteredUser(_,_) => false
     case r : RegisteredUser => r.mfaEnabled
+  }
+
+  lazy val emailPreferences: EmailPreferences = user match {
+    case UnregisteredUser(_,_) => EmailPreferences.noPreferences
+    case r : RegisteredUser => r.emailPreferences
   }
 
   lazy val sortField: String = user match {
