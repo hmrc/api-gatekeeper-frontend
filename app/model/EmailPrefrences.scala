@@ -36,16 +36,7 @@ object EmailTopic extends Enum[EmailTopic] with PlayJsonEnum[EmailTopic] {
   case object EVENT_INVITES extends EmailTopic
 }
 
-//case class EmailPreferences(interests: List[TaxRegimeInterests], topics: Set[EmailTopic])
-//object EmailPreferences {
-//  implicit val formatEmailPreferences = Json.format[EmailPreferences]
-//
-//  def noPreferences: EmailPreferences = EmailPreferences(List.empty, Set.empty)
-//}
-
 case class EmailPreferences(interests: List[TaxRegimeInterests], topics: Set[EmailTopic])
-
-//case class EmailPreferences(interests: String)
 
 object EmailPreferences {
   implicit val formatEmailPreferences = Json.format[EmailPreferences]

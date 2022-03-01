@@ -34,9 +34,9 @@ import java.time.Period
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
-  def aUser(name: String, verified: Boolean = true) = {
+  def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
     val email = s"$name@example.com"
-    RegisteredUser(email, idOf(email), "Fred", "Example", verified)
+    RegisteredUser(email, idOf(email), "Fred", "Example", verified, emailPreferences = emailPreferences)
   }
 
   def aDeveloper(name: String, apps: List[Application] = List.empty, verified: Boolean = true) = {
@@ -286,7 +286,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   "fetchDeveloper" should {
-    val user = aUser("Fred")
+    val emailPreferences = EmailPreferences(
+      interests = List(TaxRegimeInterests("TestRegimeOne", Set("TestServiceOne", "TestServiceTwo")),
+          TaxRegimeInterests("TestRegimeTwo", Set("TestServiceThree", "TestServiceFour"))),
+      topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
+    )
+    val user = aUser("Fred", emailPreferences = emailPreferences )
 
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user)

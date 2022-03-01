@@ -18,9 +18,12 @@ package services
 
 import config.AppConfig
 import connectors._
+
 import javax.inject.Inject
 import model._
 import model.TopicOptionChoice._
+import model.xml.XmlApi
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
-                                 productionApplicationConnector: ProductionApplicationConnector)(implicit ec: ExecutionContext) {
+                                 productionApplicationConnector: ProductionApplicationConnector,
+                                 xmlServicesConnector: XmlServicesConnector)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
@@ -140,9 +144,18 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   def fetchDeveloper(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Developer] =
     for {
       user <- developerConnector.fetchById(developerId)
+      xmlApis <- xmlServicesConnector.getAllApis
+      xmlEmailPreferences = filterXmlEmailPreferences(user.asInstanceOf[RegisteredUser], xmlApis)
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
       productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
+
+  private def filterXmlEmailPreferences(user: RegisteredUser, xmlApis: Seq[XmlApi]) : Set[String] = {
+    val services: Set[String] = xmlApis.map(x => x.serviceName).toSet
+    val userServices = user.emailPreferences.interests.flatMap(interest => interest.services).toSet
+
+    services.intersect(userServices)
+  }
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)

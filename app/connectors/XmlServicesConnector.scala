@@ -28,17 +28,10 @@ import scala.util.control.NonFatal
 class XmlServicesConnector @Inject()(appConfig: XmlServicesConnector.Config, http: HttpClient)
     (implicit ec: ExecutionContext) extends Logging {
 
-  def getAllApis()(implicit hc: HeaderCarrier): Future[Either[Throwable, Seq[XmlApi]]] = {
-    handleResult(http.GET[Seq[XmlApi]](url = s"${appConfig.serviceBaseUrl}/xml/apis"))
+  def getAllApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
+    http.GET[Seq[XmlApi]](url = s"${appConfig.serviceBaseUrl}/xml/apis")
   }
 
-    private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] = {
-    result.map(x => Right(x))
-      .recover {
-        case NonFatal(e) => logger.error(e.getMessage)
-          Left(e)
-      }
-  }
 }
 
 object XmlServicesConnector {
