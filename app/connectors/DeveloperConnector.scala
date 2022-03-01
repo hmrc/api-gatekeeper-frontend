@@ -77,7 +77,7 @@ object DeveloperConnector {
 
 @Singleton
 class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
-    (implicit ec: ExecutionContext) 
+    (implicit ec: ExecutionContext)
     extends DeveloperConnector
     with SendsSecretRequest {
 

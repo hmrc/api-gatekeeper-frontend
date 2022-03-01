@@ -16,6 +16,9 @@
 
 package model
 
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
 case class CoreUserDetails(email: String, id: UserId)
 
 trait User {
@@ -49,9 +52,7 @@ case class RegisteredUser(
 }
 
 object RegisteredUser {
-  import UserId._
-  import play.api.libs.json._
-  
+
   implicit val registeredUserFormat = Json.format[RegisteredUser]
 }
 

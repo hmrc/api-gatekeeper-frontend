@@ -350,7 +350,11 @@ object MockDataSugar {
        |    "firstName": "$devFirstName",
        |    "lastName": "$devLastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer2",
@@ -359,7 +363,10 @@ object MockDataSugar {
        |    "lastName": "$dev2LastName",
        |    "verified": true,
        |    "mfaEnabled": false,
-       |    "emailPreferences": {}
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer4",
@@ -367,7 +374,11 @@ object MockDataSugar {
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer5",
@@ -375,7 +386,11 @@ object MockDataSugar {
        |    "firstName": "$dev5FirstName",
        |    "lastName": "$dev5LastName",
        |    "verified": false,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer6",
@@ -383,7 +398,11 @@ object MockDataSugar {
        |    "firstName": "$dev6FirstName",
        |    "lastName": "$dev6LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer7",
@@ -391,7 +410,11 @@ object MockDataSugar {
        |    "firstName": "$dev7FirstName",
        |    "lastName": "$dev7LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer8",
@@ -400,7 +423,10 @@ object MockDataSugar {
        |    "lastName": "$dev8LastName",
        |    "verified": false,
        |    "mfaEnabled": true,
-       |    "emailPreferences": {}
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  }
        |]
    """.stripMargin
@@ -414,7 +440,10 @@ object MockDataSugar {
        |    "lastName": "$dev8LastName",
        |    "verified": false,
        |    "mfaEnabled": true,
-       |    "emailPreferences": {}
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  }
    """.stripMargin
 
@@ -551,7 +580,12 @@ object MockDataSugar {
        |"lastName": "$lastName",
        |"registrationTime": 1458300873012,
        |"lastModified": 1458300877382,
-       |"verified": true
+       |"verified": true,
+       |"emailPreferences": {
+       |   "interests": [],
+       |    "topics": []
+       | }
+       |
        |}
      """.stripMargin
 
