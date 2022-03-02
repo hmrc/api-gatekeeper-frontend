@@ -19,7 +19,6 @@ package specs
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
-import model.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests, UserId}
 import org.scalatest.{Assertions, Tag}
 import pages._
 import play.api.http.Status._
@@ -119,6 +118,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubDevelopers()
     stubDevelopersSearch()
     stubDeveloper()
+    stubGetAllXmlApis()
     stubApplicationSubscription()
     stubRemoveMfa()
   }
@@ -166,6 +166,11 @@ class ApiGatekeeperRemoveMfaSpec
   def stubDevelopersSearch(): Unit = {
     stubFor(post(urlEqualTo("/developers/search"))
       .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
+  }
+
+  def stubGetAllXmlApis(): Unit = {
+    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
+      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
   }
 
   def stubDeveloper(): Unit = {

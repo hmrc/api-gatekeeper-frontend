@@ -23,8 +23,6 @@ import com.google.inject.{Provider, Inject, Singleton}
 @Singleton
 class XmlServicesConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[XmlServicesConnector.Config] {
   override def get(): XmlServicesConnector.Config = {
-
-    println(s"*****config.baseUrl: ${config.baseUrl("api-platform-xml-services")}")
     XmlServicesConnector.Config(
       serviceBaseUrl = config.baseUrl("api-platform-xml-services")
     )

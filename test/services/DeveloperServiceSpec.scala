@@ -19,7 +19,7 @@ package services
 import config.AppConfig
 import model._
 import org.mockito.invocation.InvocationOnMock
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,6 +28,7 @@ import utils.CollaboratorTracker
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors._
+import mocks.services.XmlServiceMockProvider
 import org.joda.time.DateTime
 
 import java.time.Period
@@ -67,7 +68,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider
-    with DeveloperConnectorMockProvider with XmlServicesConnectorMockProvider {
+    with DeveloperConnectorMockProvider with XmlServiceMockProvider {
     val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(
@@ -96,7 +97,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       DeveloperConnectorMock.FetchByEmail.handles(user)
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
-      XmlServicesConnectorMock.GetAllApis.returnsApis(user, xmlServiceNames)
+      XmlServiceMock.GetXmlServicesForUser.returnsApis(user, xmlServiceNames)
 
       ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
       ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
@@ -279,7 +280,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       fetchDeveloperWillReturn(developer, apps)
 
       val result = await(underTest.fetchDeveloper(developer.userId))
-      result shouldBe Developer(developer, apps)
+
+      result shouldBe Developer(developer, apps, xmlServiceNames)
       verify(mockDeveloperConnector).fetchById(eqTo(UuidIdentifier(developer.userId)))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByUserId(eqTo(developer.userId))(*)
     }
@@ -308,19 +310,33 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty)
+      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty, xmlServiceNames)
     }
 
     "fetch the developer when requested by email as developerId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty)
+      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty, xmlServiceNames)
     }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty)
+      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames)
+    }
+
+    "returns UpstreamErrorResponse" in new Setup {
+      DeveloperConnectorMock.FetchByEmail.handles(user)
+      DeveloperConnectorMock.FetchByUserId.handles(user)
+      DeveloperConnectorMock.FetchById.handles(user)
+      XmlServiceMock.GetXmlServicesForUser.returnsError(user)
+
+      intercept[UpstreamErrorResponse](
+        await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames)
+      ) match {
+        case (e: UpstreamErrorResponse) => succeed
+        case _                          => fail
+      }
     }
   }
 
@@ -380,6 +396,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
+
       val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
       val sandboxApps = List(anApp(
         name = "sandboxApplication",
@@ -622,7 +639,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(*)
     }
-
-
   }
+
 }

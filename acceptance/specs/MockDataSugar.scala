@@ -20,6 +20,7 @@ import org.scalacheck.Gen
 import play.api.libs.json.Json
 import model.RegisteredUser
 import model.UserId
+import model.xml.XmlApi
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -83,6 +84,14 @@ object MockDataSugar {
   val statusVerified = "verified"
   val statusUnverified = "not yet verified"
   val statusUnregistered = "not registered"
+
+  val xmlApiOne = XmlApi(
+    name = "xml api one",
+    serviceName = "xml-api-one",
+    context = "context",
+    description = "description")
+
+  val xmlApis = Json.toJson(Seq(xmlApiOne)).toString
 
   val approvedApplications =
     s"""

@@ -23,11 +23,13 @@ import org.openqa.selenium.By
 import org.scalatest.Tag
 import play.api.http.Status._
 import pages.ApplicationPage
-import testdata.{StateHistoryTestData, ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
+import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import model.RegisteredUser
 import model.UserId
+import specs.MockDataSugar.xmlApis
 
-class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
+class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
+  with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
@@ -108,6 +110,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       on(ApplicationPage)
 
       stubDeveloper()
+      stubGetAllXmlApis
       stubApplicationForDeveloper(unverifiedUser.userId)
 
       When("I select to navigate to a collaborator")
@@ -131,5 +134,10 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
     stubFor(
       get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
+  }
+
+  def stubGetAllXmlApis(): Unit = {
+    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
+      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
   }
 }

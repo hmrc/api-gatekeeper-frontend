@@ -144,7 +144,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   def fetchDeveloper(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Developer] =
     for {
       user <- developerConnector.fetchById(developerId)
-      xmlServiceNames <- xmlService.getXmlServicesForUserId(user.asInstanceOf[RegisteredUser])
+      xmlServiceNames <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
       productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames)

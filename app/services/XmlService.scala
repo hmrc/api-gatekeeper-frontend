@@ -27,10 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class XmlService @Inject()(xmlServicesConnector: XmlServicesConnector)
                           (implicit val ec: ExecutionContext) extends XmlServicesHelper {
 
-  def getXmlServicesForUserId(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
-    xmlServicesConnector.getAllApis().map(apis =>
-      filterXmlEmailPreferences(user, apis)
-    )
+  def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
+    xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user, apis))
   }
 
 }

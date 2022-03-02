@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package utils
+package services
 
+import mocks.connectors.XmlServicesConnectorMockProvider
+import model._
 import model.xml.XmlApi
-import model.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests, UserId}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import utils.AsyncHmrcSpec
 
-class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHelper {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  trait Setup {
+class XmlServiceSpec extends AsyncHmrcSpec {
+
+
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with XmlServicesConnectorMockProvider {
+
+    implicit val hc: HeaderCarrier = new HeaderCarrier
+
+    val objectInTest = new XmlService(mockXmlServicesConnector)
+
     def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
       val email = s"$name@example.com"
       val userId = UserId.random
@@ -42,40 +52,37 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
     val xmlApis = Seq(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
 
     val restApiOne = "rest-api-one"
-    val restApiTwo = "rest-api-two"
-    val restApiThree = "rest-api-three"
-    val restApiFour = "rest-api-four"
-
-    val restEmailPrefInterests = List(TaxRegimeInterests("TestRegimeOne", Set(restApiOne, restApiTwo)),
-                                      TaxRegimeInterests("TestRegimeTwo", Set(restApiThree, restApiFour)))
 
     val emailPreferences = EmailPreferences(
       interests = List(TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
-                       TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))),
+        TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))),
       topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
     )
-
-    val restEmailPreferences = emailPreferences.copy(interests = restEmailPrefInterests)
 
     val user = aUser("Fred", emailPreferences = emailPreferences)
   }
 
-  "filterXmlEmailPreferences" should {
-    "return filtered xml service names" in new Setup {
-      filterXmlEmailPreferences(user, xmlApis) should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
-    }
+  "XmlService" when {
 
-    "return no xml service names when no xmlApis passed in" in new Setup {
-      filterXmlEmailPreferences(user, Seq.empty) shouldBe Set.empty
-    }
+    "getXmlServicesForUser" should {
 
-    "return no xml service names when user does not have any email preferences" in new Setup {
-      filterXmlEmailPreferences(user.copy(emailPreferences = EmailPreferences.noPreferences), xmlApis) shouldBe Set.empty
-    }
+      "Return users xml email preferences when call to get xml apis is successful" in new Setup {
+        XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
 
-    "return no xml service names when user does not have xml email preferences" in new Setup {
-      filterXmlEmailPreferences(user.copy(emailPreferences = restEmailPreferences), xmlApis) shouldBe Set.empty
+        val result = await(objectInTest.getXmlServicesForUser(user))
+
+        result should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+      }
+
+      "Return UpstreamErrorResponse when call to connector fails" in new Setup {
+        XmlServicesConnectorMock.GetAllApis.returnsError
+
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
+          case (e: UpstreamErrorResponse) => succeed
+          case _                          => fail
+        }
+      }
+
     }
   }
-
 }

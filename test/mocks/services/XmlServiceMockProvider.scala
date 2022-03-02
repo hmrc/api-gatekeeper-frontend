@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package mocks.connectors
+package mocks.services
 
-import connectors._
-import model.xml.XmlApi
+import model.RegisteredUser
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import services.XmlService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future.successful
 
-trait XmlServicesConnectorMockProvider {
+trait XmlServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
+  
+  val mockXmlService = mock[XmlService]
 
-  val mockXmlServicesConnector = mock[XmlServicesConnector]
+  object XmlServiceMock {
+    object GetXmlServicesForUser {
+      def returnsApis(user: RegisteredUser, xmlServiceNames: Set[String]) =
+        when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenReturn(successful(xmlServiceNames))
 
-  object XmlServicesConnectorMock {
-    object GetAllApis {
-      def returnsApis(xmlApis: Seq[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
-      def returnsError() = when(mockXmlServicesConnector.getAllApis()(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+      def returnsError(user: RegisteredUser) =
+        when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
   }
 

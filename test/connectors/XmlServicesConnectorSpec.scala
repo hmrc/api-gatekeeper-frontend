@@ -22,7 +22,7 @@ import model.xml.XmlApi
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, Upstream5xxResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 import utils.{AsyncHmrcSpec, UrlEncoding, WireMockSugar}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,7 +57,7 @@ class XmlServicesConnectorSpec
   }
 
   "getAllApis" should {
-    val url = s"/xml/apis"
+    val url = "/api-platform-xml-services/xml/apis"
 
     "return no APIs" in new Setup {
       stubFor(
