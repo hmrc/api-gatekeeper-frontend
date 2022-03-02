@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package config
+package services
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import connectors.XmlServicesConnector
-import com.google.inject.{Provider, Inject, Singleton}
+import model.RegisteredUser
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.XmlServicesHelper
 
-@Singleton
-class XmlServicesConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[XmlServicesConnector.Config] {
-  override def get(): XmlServicesConnector.Config = {
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-    println(s"*****config.baseUrl: ${config.baseUrl("api-platform-xml-services")}")
-    XmlServicesConnector.Config(
-      serviceBaseUrl = config.baseUrl("api-platform-xml-services")
+class XmlService @Inject()(xmlServicesConnector: XmlServicesConnector)
+                          (implicit val ec: ExecutionContext) extends XmlServicesHelper {
+
+  def getXmlServicesForUserId(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
+    xmlServicesConnector.getAllApis().map(apis =>
+      filterXmlEmailPreferences(user, apis)
     )
   }
+
 }

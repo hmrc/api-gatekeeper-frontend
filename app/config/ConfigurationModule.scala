@@ -46,10 +46,8 @@ class ConfigurationModule extends Module {
         .to(classOf[ProductionSubscriptionFieldsConnector]),
       bind[ApmConnector.Config]
         .toProvider(classOf[LiveApmConnectorConfigProvider]),
-      bind[ApiCataloguePublishConnector.Config]
-        .toProvider(classOf[ApiCataloguePublishConnectorConfigProvider]),
-      bind[XmlServicesConnector.Config]
-        .toProvider(classOf[XmlServicesConnectorConfigProvider]),
+      bind[ApiCataloguePublishConnector.Config].toProvider(classOf[ApiCataloguePublishConnectorConfigProvider]),
+      bind[XmlServicesConnector.Config].toProvider(classOf[XmlServicesConnectorConfigProvider]),
       bind(classOf[ForbiddenHandler]).to(classOf[HandleForbiddenWithView])
     )
   }

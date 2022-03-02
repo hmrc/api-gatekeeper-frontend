@@ -61,12 +61,14 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
   val lastName = "n/a"
 }
 
-case class Developer(user: User, applications: List[Application]) {
+case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty) {
   lazy val fullName = user.fullName
   
   lazy val email = user.email
 
   lazy val userId = user.userId
+
+  lazy val xmlEmailPrefServices = xmlServiceNames
   
   lazy val firstName: String = user match {
     case UnregisteredUser(_,_) => "n/a"

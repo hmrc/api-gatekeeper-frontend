@@ -22,7 +22,7 @@ import model.xml.XmlApi
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, Upstream5xxResponse, UpstreamErrorResponse}
 import utils.{AsyncHmrcSpec, UrlEncoding, WireMockSugar}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,7 +59,7 @@ class XmlServicesConnectorSpec
   "getAllApis" should {
     val url = s"/xml/apis"
 
-    "returns right with no APIs" in new Setup {
+    "return no APIs" in new Setup {
       stubFor(
         get(urlEqualTo(url))
         .willReturn(
@@ -68,10 +68,10 @@ class XmlServicesConnectorSpec
           .withBody("[]")
         )
       )
-      await(connector.getAllApis) shouldBe Right(Seq.empty)
+      await(connector.getAllApis) shouldBe Seq.empty
     }
 
-    "returns Right with APIs" in new Setup {
+    "return APIs" in new Setup {
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
@@ -80,10 +80,10 @@ class XmlServicesConnectorSpec
               .withBody(Json.toJson(xmlApis).toString)
           )
       )
-      await(connector.getAllApis) shouldBe Right(xmlApis)
+      await(connector.getAllApis) shouldBe xmlApis
     }
 
-    "returns Left with exception" in new Setup {
+    "return UpstreamErrorResponse" in new Setup {
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
@@ -91,11 +91,9 @@ class XmlServicesConnectorSpec
               .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
-      val result = await(connector.getAllApis)
-
-      result match {
-        case Left(UpstreamErrorResponse(_, INTERNAL_SERVER_ERROR, _, _)) => succeed
-        case _                                                           => fail
+      intercept[UpstreamErrorResponse](await(connector.getAllApis)) match {
+        case (e: UpstreamErrorResponse) => succeed
+        case _                          => fail
       }
     }
   }

@@ -22,8 +22,6 @@ import connectors._
 import javax.inject.Inject
 import model._
 import model.TopicOptionChoice._
-import model.xml.XmlApi
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +30,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  developerConnector: DeveloperConnector,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector,
-                                 xmlServicesConnector: XmlServicesConnector)(implicit ec: ExecutionContext) {
+                                 xmlService: XmlService)(implicit ec: ExecutionContext) {
   def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
@@ -52,16 +50,16 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     } yield results.sortBy(_.email)
   }
 
-  private def getCollaboratorsByApplicationEnvironments(environmentFilter : ApiSubscriptionInEnvironmentFilter,
+  private def getCollaboratorsByApplicationEnvironments(environmentFilter: ApiSubscriptionInEnvironmentFilter,
                                                         maybeEmailFilter: Option[String],
                                                         apiFilter: ApiContextVersion)
                                                        (implicit hc: HeaderCarrier): Future[Set[String]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
-        case ProductionEnvironment => List(productionApplicationConnector)
-        case SandboxEnvironment => List(sandboxApplicationConnector)
-        case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
-      }
+      case ProductionEnvironment => List(productionApplicationConnector)
+      case SandboxEnvironment => List(sandboxApplicationConnector)
+      case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
+    }
 
     val allCollaboratorEmailsFutures: List[Future[List[String]]] = environmentApplicationConnectors
       .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter))
@@ -75,7 +73,9 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     val registeredEmails = users.map(_.user.email)
 
     type KEY = Tuple2[String, UserId]
+
     def asKey(collaborator: Collaborator): KEY = ((collaborator.emailAddress, collaborator.userId))
+
     def asUnregisteredUser(c: KEY): UnregisteredUser = UnregisteredUser(c._1, c._2)
 
     def linkAppsAndCollaborators(apps: List[Application]): Map[KEY, Set[Application]] = {
@@ -91,7 +91,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
     lazy val unregistered: Set[Developer] =
       unregisteredCollaborators.map {
-        case (key,userApps) => Developer(asUnregisteredUser(key), userApps.toList)
+        case (key, userApps) => Developer(asUnregisteredUser(key), userApps.toList)
       }.toSet
 
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
@@ -144,18 +144,10 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   def fetchDeveloper(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Developer] =
     for {
       user <- developerConnector.fetchById(developerId)
-      xmlApis <- xmlServicesConnector.getAllApis
-      xmlEmailPreferences = filterXmlEmailPreferences(user.asInstanceOf[RegisteredUser], xmlApis)
+      xmlServiceNames <- xmlService.getXmlServicesForUserId(user.asInstanceOf[RegisteredUser])
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
       productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
-    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct)
-
-  private def filterXmlEmailPreferences(user: RegisteredUser, xmlApis: Seq[XmlApi]) : Set[String] = {
-    val services: Set[String] = xmlApis.map(x => x.serviceName).toSet
-    val userServices = user.emailPreferences.interests.flatMap(interest => interest.services).toSet
-
-    services.intersect(userServices)
-  }
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames)
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)

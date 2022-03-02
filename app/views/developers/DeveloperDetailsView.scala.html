@@ -68,6 +68,10 @@
             <th>User ID</th>
             <td id="userId">@developer.id</td>
         </tr>
+        <tr>
+            <th>XML email preferences</th>
+            <td id="xmlEmailPreferences">@for(e <- developer.xmlEmailPrefServices) {@e <br>}</td>
+        </tr>
     </table>
     <h2>Associated applications</h2>
     <div>

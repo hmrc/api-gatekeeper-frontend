@@ -16,22 +16,22 @@
 
 package connectors
 
+import connectors.XmlServicesConnector.Config
 import model.xml.XmlApi
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
+
 
 @Singleton
-class XmlServicesConnector @Inject()(appConfig: XmlServicesConnector.Config, http: HttpClient)
+class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
     (implicit ec: ExecutionContext) extends Logging {
 
   def getAllApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-    http.GET[Seq[XmlApi]](url = s"${appConfig.serviceBaseUrl}/xml/apis")
+    http.GET[Seq[XmlApi]](s"${config.serviceBaseUrl}/api-platform-xml-services/xml/apis")
   }
-
 }
 
 object XmlServicesConnector {
