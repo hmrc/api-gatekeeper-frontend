@@ -16,6 +16,7 @@
 
 package model
 
+import model.xml.XmlOrganisation
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -61,7 +62,8 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
   val lastName = "n/a"
 }
 
-case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty) {
+case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty,
+                     xmlOrganisations: List[XmlOrganisation] = List.empty) {
   lazy val fullName = user.fullName
   
   lazy val email = user.email
@@ -69,6 +71,8 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
   lazy val userId = user.userId
 
   lazy val xmlEmailPrefServices = xmlServiceNames
+
+  lazy val xmlOrgs = xmlOrganisations
   
   lazy val firstName: String = user match {
     case UnregisteredUser(_,_) => "n/a"

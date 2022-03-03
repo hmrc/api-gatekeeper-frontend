@@ -28,6 +28,7 @@ import model.RegisteredUser
 import model.UserId
 import utils.WireMockExtensions
 
+import java.util.UUID
 import scala.io.Source
 
 class ApiGatekeeperRemoveMfaSpec
@@ -119,6 +120,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubDevelopersSearch()
     stubDeveloper()
     stubGetAllXmlApis()
+    stubGetXmlOrganisationsForUser(UserId(developer8Id))
     stubApplicationSubscription()
     stubRemoveMfa()
   }
@@ -171,6 +173,11 @@ class ApiGatekeeperRemoveMfaSpec
   def stubGetAllXmlApis(): Unit = {
     stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
       .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
+  }
+
+  def stubGetXmlOrganisationsForUser(userId: UserId): Unit = {
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+      .willReturn(aResponse().withBody(xmlOrganisations).withStatus(OK)))
   }
 
   def stubDeveloper(): Unit = {

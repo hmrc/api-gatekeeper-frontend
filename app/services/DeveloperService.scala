@@ -145,9 +145,10 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     for {
       user <- developerConnector.fetchById(developerId)
       xmlServiceNames <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
+      xmlOrganisations <- xmlService.findOrganisationsByUserId(user.userId)
       sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
       productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
-    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations)
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)

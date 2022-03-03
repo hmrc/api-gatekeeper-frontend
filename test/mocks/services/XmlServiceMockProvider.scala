@@ -16,7 +16,8 @@
 
 package mocks.services
 
-import model.RegisteredUser
+import model.xml.XmlOrganisation
+import model.{RegisteredUser, UserId}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import services.XmlService
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -35,6 +36,15 @@ trait XmlServiceMockProvider {
 
       def returnsError(user: RegisteredUser) =
         when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+    }
+
+    object GetXmlOrganisationsForUser {
+
+      def returnsOrganisations(userId: UserId, xmlOrganisations: List[XmlOrganisation]) =
+        when(mockXmlService.findOrganisationsByUserId(eqTo(userId))(*)).thenReturn(successful(xmlOrganisations))
+
+      def returnsError() =
+        when(mockXmlService.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
   }
 

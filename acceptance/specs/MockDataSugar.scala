@@ -20,7 +20,9 @@ import org.scalacheck.Gen
 import play.api.libs.json.Json
 import model.RegisteredUser
 import model.UserId
-import model.xml.XmlApi
+import model.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+
+import java.util.UUID
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -92,6 +94,8 @@ object MockDataSugar {
     description = "description")
 
   val xmlApis = Json.toJson(Seq(xmlApiOne)).toString
+  val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+  val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
   val approvedApplications =
     s"""

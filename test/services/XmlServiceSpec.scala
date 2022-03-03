@@ -18,15 +18,15 @@ package services
 
 import mocks.connectors.XmlServicesConnectorMockProvider
 import model._
-import model.xml.XmlApi
+import model.xml.{XmlOrganisation, OrganisationId, VendorId, XmlApi}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.AsyncHmrcSpec
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class XmlServiceSpec extends AsyncHmrcSpec {
-
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with XmlServicesConnectorMockProvider {
 
@@ -44,7 +44,8 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       name = "xml api one",
       serviceName = "xml-api-one",
       context = "context",
-      description = "description")
+      description = "description"
+    )
 
     val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two")
     val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three")
@@ -54,8 +55,10 @@ class XmlServiceSpec extends AsyncHmrcSpec {
     val restApiOne = "rest-api-one"
 
     val emailPreferences = EmailPreferences(
-      interests = List(TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
-        TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))),
+      interests = List(
+        TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
+        TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))
+      ),
       topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
     )
 
@@ -82,7 +85,27 @@ class XmlServiceSpec extends AsyncHmrcSpec {
           case _                          => fail
         }
       }
+    }
 
+    "findOrganisationsByUserId" should {
+      val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+
+      "Return List of Organisations when call to get xml apis is successful" in new Setup {
+        XmlServicesConnectorMock.GetOrganisations.returnsOrganisations(user.userId, List(orgOne))
+
+        val result = await(objectInTest.findOrganisationsByUserId(user.userId))
+
+        result shouldBe List(orgOne)
+      }
+
+      "Return UpstreamErrorResponse when call to connector fails" in new Setup {
+        XmlServicesConnectorMock.GetOrganisations.returnsError
+
+        intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId))) match {
+          case (e: UpstreamErrorResponse) => succeed
+          case _                          => fail
+        }
+      }
     }
   }
 }

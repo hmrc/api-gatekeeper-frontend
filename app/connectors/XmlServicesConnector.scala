@@ -17,21 +17,34 @@
 package connectors
 
 import connectors.XmlServicesConnector.Config
-import model.xml.XmlApi
+import model.UserId
+import model.xml.{XmlOrganisation, VendorId, XmlApi}
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 @Singleton
 class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
     (implicit ec: ExecutionContext) extends Logging {
 
+  val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
+
   def getAllApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-    http.GET[Seq[XmlApi]](s"${config.serviceBaseUrl}/api-platform-xml-services/xml/apis")
+    http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis")
   }
+
+  def findOrganisationsByUserId(userId: UserId)
+                               (implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+    val userIdParams = Seq("userId" -> userId.value.toString)
+    val sortByParams = Seq("sortBy" -> "ORGANISATION_NAME")
+
+    val params = userIdParams ++ sortByParams
+
+    http.GET[List[XmlOrganisation]](url = s"$baseUrl/organisations", queryParams = params)
+  }
+
 }
 
 object XmlServicesConnector {

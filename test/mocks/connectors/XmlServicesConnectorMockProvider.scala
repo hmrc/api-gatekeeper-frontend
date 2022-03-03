@@ -17,10 +17,12 @@
 package mocks.connectors
 
 import connectors._
-import model.xml.XmlApi
+import model.UserId
+import model.xml._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import java.util.UUID
 import scala.concurrent.Future.successful
 
 trait XmlServicesConnectorMockProvider {
@@ -31,7 +33,17 @@ trait XmlServicesConnectorMockProvider {
   object XmlServicesConnectorMock {
     object GetAllApis {
       def returnsApis(xmlApis: Seq[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
-      def returnsError() = when(mockXmlServicesConnector.getAllApis()(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+
+      def returnsError() =
+        when(mockXmlServicesConnector.getAllApis()(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+    }
+
+    object GetOrganisations {
+      def returnsOrganisations(userId: UserId, xmlOrganisations: List[XmlOrganisation]) =
+        when(mockXmlServicesConnector.findOrganisationsByUserId(eqTo(userId))(*)).thenReturn(successful(xmlOrganisations))
+
+      def returnsError() =
+        when(mockXmlServicesConnector.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
   }
 

@@ -33,14 +33,14 @@ import model.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 
 
-class ApiGatekeeperBaseSpec 
-    extends BaseSpec 
-    with SignInSugar 
-    with Matchers 
-    with CustomMatchers 
+class ApiGatekeeperBaseSpec
+    extends BaseSpec
+    with SignInSugar
+    with Matchers
+    with CustomMatchers
     with GivenWhenThen
-    with AllSubscribeableApisTestData 
-    with ApiDefinitionTestData 
+    with AllSubscribeableApisTestData
+    with ApiDefinitionTestData
     with utils.UrlEncoding {
 
   def stubNewApplication(application: String, appId: String) = {

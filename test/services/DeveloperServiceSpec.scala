@@ -29,9 +29,11 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
+import model.xml.{OrganisationId, VendorId, XmlOrganisation}
 import org.joda.time.DateTime
 
 import java.time.Period
+import java.util.UUID
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -88,6 +90,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val apiContext = ApiContext("api")
     val apiVersion = ApiVersion.random
 
+    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+
     val xmlServiceNames = Set("XML API one", "XML API two")
 
     implicit val hc = HeaderCarrier()
@@ -98,6 +102,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
       XmlServiceMock.GetXmlServicesForUser.returnsApis(user, xmlServiceNames)
+      XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(user.userId, List(orgOne))
 
       ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
       ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
@@ -281,7 +286,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       val result = await(underTest.fetchDeveloper(developer.userId))
 
-      result shouldBe Developer(developer, apps, xmlServiceNames)
+      result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne))
       verify(mockDeveloperConnector).fetchById(eqTo(UuidIdentifier(developer.userId)))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByUserId(eqTo(developer.userId))(*)
     }
@@ -310,29 +315,44 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty, xmlServiceNames)
+      await(underTest.fetchDeveloper(user.userId)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "fetch the developer when requested by email as developerId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty, xmlServiceNames)
+      await(underTest.fetchDeveloper(EmailIdentifier(user.email))) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
       fetchDeveloperWillReturn(user)
 
-      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames)
+      await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
-    "returns UpstreamErrorResponse" in new Setup {
+    "returns UpstreamErrorResponse when call to GetXmlServicesForUser fails" in new Setup {
       DeveloperConnectorMock.FetchByEmail.handles(user)
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
       XmlServiceMock.GetXmlServicesForUser.returnsError(user)
 
       intercept[UpstreamErrorResponse](
-        await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames)
+        await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      ) match {
+        case (e: UpstreamErrorResponse) => succeed
+        case _                          => fail
+      }
+    }
+
+    "returns UpstreamErrorResponse when call to get xml organisations fails" in new Setup {
+      DeveloperConnectorMock.FetchByEmail.handles(user)
+      DeveloperConnectorMock.FetchByUserId.handles(user)
+      DeveloperConnectorMock.FetchById.handles(user)
+      XmlServiceMock.GetXmlServicesForUser.returnsApis(user, Set.empty)
+      XmlServiceMock.GetXmlOrganisationsForUser.returnsError
+
+      intercept[UpstreamErrorResponse](
+        await(underTest.fetchDeveloper(UuidIdentifier(user.userId))) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail

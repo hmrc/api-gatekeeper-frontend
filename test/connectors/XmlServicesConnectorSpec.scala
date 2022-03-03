@@ -18,13 +18,15 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
-import model.xml.XmlApi
+import model.xml.{XmlOrganisation, OrganisationId, VendorId, XmlApi}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 import utils.{AsyncHmrcSpec, UrlEncoding, WireMockSugar}
+import uk.gov.hmrc.http.BadRequestException
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class XmlServicesConnectorSpec
@@ -93,6 +95,50 @@ class XmlServicesConnectorSpec
       )
       intercept[UpstreamErrorResponse](await(connector.getAllApis)) match {
         case (e: UpstreamErrorResponse) => succeed
+        case _                          => fail
+      }
+    }
+  }
+
+  "findOrganisationsByUserId" should {
+    val url = "/api-platform-xml-services/organisations"
+    val userId = UserId.random
+    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+
+    "return APIs when userId exists on an organisation" in new Setup {
+      stubFor(
+        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(List(orgOne)).toString)
+          )
+      )
+      await(connector.findOrganisationsByUserId(userId)) shouldBe List(orgOne)
+    }
+
+    "return no APIs when userId does not exist in backend" in new Setup {
+      stubFor(
+        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("[]")
+          )
+      )
+      await(connector.findOrganisationsByUserId(userId)) shouldBe List.empty
+    }
+
+    "return BadRequestException when backend returns 400" in new Setup {
+      stubFor(
+        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+          )
+      )
+      intercept[BadRequestException](await(connector.findOrganisationsByUserId(userId))) match {
+        case (e: BadRequestException) => succeed
         case _                          => fail
       }
     }

@@ -17,18 +17,22 @@
 package services
 
 import connectors.XmlServicesConnector
-import model.RegisteredUser
+import model.xml.XmlOrganisation
+import model.{RegisteredUser, UserId}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.XmlServicesHelper
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class XmlService @Inject()(xmlServicesConnector: XmlServicesConnector)
-                          (implicit val ec: ExecutionContext) extends XmlServicesHelper {
+class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
 
   def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
     xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user, apis))
+  }
+
+  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] =  {
+    xmlServicesConnector.findOrganisationsByUserId(userId)
   }
 
 }
