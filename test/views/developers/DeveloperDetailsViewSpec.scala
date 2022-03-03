@@ -42,6 +42,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
+    val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
+
     def testDeveloperDetails(developer: Developer) = {
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
 
@@ -62,6 +64,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         case _ => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
+      document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
     }
   }
 
@@ -82,7 +85,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), List.empty)
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), List.empty, xmlServiceNames)
       testDeveloperDetails(verifiedDeveloper)
     }
 
