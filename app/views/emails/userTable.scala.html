@@ -21,6 +21,8 @@
 @import config.AppConfig
 @import play.api.libs.json.Json
 @(users: Seq[User], composeEmailRecipients: JsValue, emails: String, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
+@if(users.nonEmpty) {
+
     <div class="form-group>">
         <p>
             <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
@@ -29,7 +31,7 @@
             } email addresses into the system clipboard." data-clip-text="@emails">Copy
                 emails to clipboard</a>
         </p>
-        <div>
+        <div style="visibility: hidden">
           <form method="post" action="@config.gatekeeperComposeEmailUrl">
             @helper.CSRF.formField
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
@@ -71,3 +73,6 @@
         }
         </tbody>
     </table>
+}else{
+<div>0 results</div>
+}

@@ -47,16 +47,15 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     val users = List(user1, user2)
 
     "show correct title and elements on initial load" in new Setup {
-      val result: HtmlFormat.Appendable =
+      val result: HtmlFormat.Appendable = {
         emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
-
-       validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), List.empty)
+      }
+      validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), List.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
       emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-
       validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body),  selectedTopic)
     }
 

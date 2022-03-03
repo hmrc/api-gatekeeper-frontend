@@ -91,8 +91,13 @@
             </form>
             @if(maybeTopicFilter.isDefined) {
                 <div><hr/></div>
-                @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API" -> filteredApis.head.displayName,
-            "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+                @if(filteredApis.nonEmpty) {
+                    @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API" -> filteredApis.head.displayName,
+                    "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+                } else {
+                    @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API" -> "",
+                    "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+                }
             }
         </div>
     }
