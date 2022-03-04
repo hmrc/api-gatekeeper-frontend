@@ -118,7 +118,7 @@
                     @for(organisation <- developer.xmlOrganisations) {
                         <tr>
                             <td id="xml-organisation-td">
-                                <a href="@gatekeeperXmlServicesUrlFn(organisation.organisationId)">@organisation.name</a>
+                                <a id="xml-organisation-link" href="@gatekeeperXmlServicesUrlFn(organisation.organisationId)">@organisation.name</a>
                             </td>
                         </tr>
                     }}
