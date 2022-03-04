@@ -17,7 +17,6 @@
 package views.developers
 
 import java.util.UUID
-
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
@@ -25,6 +24,7 @@ import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
 import model._
+import model.xml.{OrganisationId, VendorId, XmlOrganisation}
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
@@ -43,6 +43,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
     val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
+
+    val xmlOrganisations = List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID())))
 
     def testDeveloperDetails(developer: Developer) = {
       val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
@@ -64,7 +66,13 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         case _ => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
-      document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
+      if(developer.xmlEmailPrefServices.isEmpty) {
+        document.getElementById("xmlEmailPreferences").text shouldBe "None"
+      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
+
+      if(developer.xmlOrganisations.isEmpty) {
+        document.getElementById("xml-organisation").text shouldBe "None"
+      } else document.getElementById("xml-organisation-td").text shouldBe developer.xmlOrganisations.map(org => org.name).head
     }
   }
 
@@ -85,7 +93,13 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), List.empty, xmlServiceNames)
+      val verifiedDeveloper =
+        Developer(
+        RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
+        List.empty,
+        xmlServiceNames,
+        xmlOrganisations)
+
       testDeveloperDetails(verifiedDeveloper)
     }
 
@@ -112,6 +126,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
 
+      elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
       elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
       elementExistsByText(document, "td", "Admin") shouldBe true

@@ -55,7 +55,8 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubDevelopers()
       stubDevelopersSearch()
       stubDeveloper(unverifiedUser)
-      stubGetAllXmlApis
+      stubGetAllXmlApis()
+      stubGetXmlOrganisationsForUnverifiedUser(unverifiedUser.userId)
       stubApplicationSubscription()
 
       signInGatekeeper()
@@ -131,6 +132,11 @@ class ApiGatekeeperDeveloperDetailsSpec
   def stubGetAllXmlApis(): Unit = {
     stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
       .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
+  }
+
+  def stubGetXmlOrganisationsForUnverifiedUser(userId: UserId): Unit = {
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+      .willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 }
 

@@ -26,7 +26,7 @@ import pages.ApplicationPage
 import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import model.RegisteredUser
 import model.UserId
-import specs.MockDataSugar.xmlApis
+import specs.MockDataSugar.{xmlApis, xmlOrganisations}
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
   with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
@@ -111,6 +111,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
 
       stubDeveloper()
       stubGetAllXmlApis
+      stubGetXmlOrganisationsForUnverifiedUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId)
 
       When("I select to navigate to a collaborator")
@@ -139,5 +140,10 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   def stubGetAllXmlApis(): Unit = {
     stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
       .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
+  }
+
+  def stubGetXmlOrganisationsForUnverifiedUser(userId: UserId): Unit = {
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+      .willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 }
