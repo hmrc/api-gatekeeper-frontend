@@ -16,6 +16,10 @@
 
 package model
 
+import model.xml.XmlOrganisation
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
 case class CoreUserDetails(email: String, id: UserId)
 
 trait User {
@@ -44,13 +48,12 @@ case class RegisteredUser(
   lastName: String,
   verified: Boolean,
   organisation: Option[String] = None,
-  mfaEnabled: Boolean = false) extends User {
+  mfaEnabled: Boolean = false,
+  emailPreferences: EmailPreferences = EmailPreferences.noPreferences) extends User {
 }
 
 object RegisteredUser {
-  import UserId._
-  import play.api.libs.json._
-  
+
   implicit val registeredUserFormat = Json.format[RegisteredUser]
 }
 
@@ -59,12 +62,17 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
   val lastName = "n/a"
 }
 
-case class Developer(user: User, applications: List[Application]) {
+case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty,
+                     xmlOrganisations: List[XmlOrganisation] = List.empty) {
   lazy val fullName = user.fullName
   
   lazy val email = user.email
 
   lazy val userId = user.userId
+
+  lazy val xmlEmailPrefServices = xmlServiceNames
+
+  lazy val xmlOrgs = xmlOrganisations
   
   lazy val firstName: String = user match {
     case UnregisteredUser(_,_) => "n/a"
@@ -89,6 +97,11 @@ case class Developer(user: User, applications: List[Application]) {
   lazy val mfaEnabled: Boolean = user match {
     case UnregisteredUser(_,_) => false
     case r : RegisteredUser => r.mfaEnabled
+  }
+
+  lazy val emailPreferences: EmailPreferences = user match {
+    case UnregisteredUser(_,_) => EmailPreferences.noPreferences
+    case r : RegisteredUser => r.emailPreferences
   }
 
   lazy val sortField: String = user match {

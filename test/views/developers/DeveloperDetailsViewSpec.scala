@@ -17,7 +17,6 @@
 package views.developers
 
 import java.util.UUID
-
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
@@ -25,6 +24,7 @@ import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
 import model._
+import model.xml.{OrganisationId, VendorId, XmlOrganisation}
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
@@ -42,8 +42,15 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
+    val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
+
+    val xmlOrganisations = List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID())))
+
+    val buildXmlServicesFeUrl: (OrganisationId) => String = (organisationId) =>
+      s"/api-gatekeeper-xml-services/organisations/${organisationId.value}"
+
     def testDeveloperDetails(developer: Developer) = {
-      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -62,6 +69,18 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         case _ => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
+      if(developer.xmlEmailPrefServices.isEmpty) {
+        document.getElementById("xmlEmailPreferences").text shouldBe "None"
+      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
+
+      if(developer.xmlOrganisations.isEmpty) {
+        document.getElementById("xml-organisation").text shouldBe "None"
+      } else {
+        val orgId = developer.xmlOrganisations.map(org => org.organisationId).head
+        val orgName = developer.xmlOrganisations.map(org => org.name).head
+        document.getElementById("xml-organisation-td").text shouldBe orgName
+        document.getElementById("xml-organisation-link").attr("href") shouldBe s"/api-gatekeeper-xml-services/organisations/${orgId.value}"
+      }
     }
   }
 
@@ -82,12 +101,18 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")), List.empty)
+      val verifiedDeveloper =
+        Developer(
+        RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
+        List.empty,
+        xmlServiceNames,
+        xmlOrganisations)
+
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with no applications when logged in as superuser" in new Setup {
-      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -103,12 +128,13 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
-      val result = developerDetails.render(developerWithApps, true, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developerWithApps, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
 
+      elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
       elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
       elementExistsByText(document, "td", "Admin") shouldBe true
@@ -117,7 +143,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {
-      val result = developerDetails.render(developer, true, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -127,7 +153,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details WITH delete button when logged in as non-superuser" in new Setup {
-      val result = developerDetails.render(developer, false, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, false, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

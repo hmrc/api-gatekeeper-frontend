@@ -20,6 +20,9 @@ import org.scalacheck.Gen
 import play.api.libs.json.Json
 import model.RegisteredUser
 import model.UserId
+import model.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+
+import java.util.UUID
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -83,6 +86,16 @@ object MockDataSugar {
   val statusVerified = "verified"
   val statusUnverified = "not yet verified"
   val statusUnregistered = "not registered"
+
+  val xmlApiOne = XmlApi(
+    name = "xml api one",
+    serviceName = "xml-api-one",
+    context = "context",
+    description = "description")
+
+  val xmlApis = Json.toJson(Seq(xmlApiOne)).toString
+  val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+  val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
   val approvedApplications =
     s"""
@@ -350,7 +363,11 @@ object MockDataSugar {
        |    "firstName": "$devFirstName",
        |    "lastName": "$devLastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer2",
@@ -358,7 +375,11 @@ object MockDataSugar {
        |    "firstName": "$dev2FirstName",
        |    "lastName": "$dev2LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer4",
@@ -366,7 +387,11 @@ object MockDataSugar {
        |    "firstName": "$dev4FirstName",
        |    "lastName": "$dev4LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer5",
@@ -374,7 +399,11 @@ object MockDataSugar {
        |    "firstName": "$dev5FirstName",
        |    "lastName": "$dev5LastName",
        |    "verified": false,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer6",
@@ -382,7 +411,11 @@ object MockDataSugar {
        |    "firstName": "$dev6FirstName",
        |    "lastName": "$dev6LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer7",
@@ -390,7 +423,11 @@ object MockDataSugar {
        |    "firstName": "$dev7FirstName",
        |    "lastName": "$dev7LastName",
        |    "verified": true,
-       |    "mfaEnabled": false
+       |    "mfaEnabled": false,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  },
        |  {
        |    "email": "$developer8",
@@ -398,7 +435,11 @@ object MockDataSugar {
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "mfaEnabled": true,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  }
        |]
    """.stripMargin
@@ -411,7 +452,11 @@ object MockDataSugar {
        |    "firstName": "$dev8FirstName",
        |    "lastName": "$dev8LastName",
        |    "verified": false,
-       |    "mfaEnabled": true
+       |    "mfaEnabled": true,
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
        |  }
    """.stripMargin
 
@@ -548,7 +593,12 @@ object MockDataSugar {
        |"lastName": "$lastName",
        |"registrationTime": 1458300873012,
        |"lastModified": 1458300877382,
-       |"verified": true
+       |"verified": true,
+       |"emailPreferences": {
+       |   "interests": [],
+       |    "topics": []
+       | }
+       |
        |}
      """.stripMargin
 

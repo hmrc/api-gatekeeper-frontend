@@ -17,16 +17,17 @@
 package controllers
 
 import config.{AppConfig, ErrorHandler}
+
 import javax.inject.{Inject, Singleton}
 import model._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{ApiDefinitionService, ApplicationService, DeveloperService, ApmService}
+import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import utils.ErrorHelper
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers._
 import utils.ApplicationLogger
 import controllers.actions.ActionBuilders
-
+import model.xml.OrganisationId
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
@@ -62,7 +63,10 @@ class DevelopersController @Inject()(
   implicit val authConfig = strideAuthConfig
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser)))
+    val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
+        s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
+
+    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser, buildGateKeeperXmlServicesUrlFn)))
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>

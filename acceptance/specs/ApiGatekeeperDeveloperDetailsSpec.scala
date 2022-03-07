@@ -17,20 +17,21 @@
 package specs
 
 import pages._
-import testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData, CommonTestData}
+import testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, CommonTestData, StateHistoryTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
+import specs.MockDataSugar.xmlApis
 
-class ApiGatekeeperDeveloperDetailsSpec 
-    extends ApiGatekeeperBaseSpec 
-    with ApplicationWithSubscriptionDataTestData 
-    with ApplicationResponseTestData 
-    with StateHistoryTestData 
-    with Assertions 
-    with CommonTestData 
-    with ApiDefinitionTestData 
+class ApiGatekeeperDeveloperDetailsSpec
+    extends ApiGatekeeperBaseSpec
+    with ApplicationWithSubscriptionDataTestData
+    with ApplicationResponseTestData
+    with StateHistoryTestData
+    with Assertions
+    with CommonTestData
+    with ApiDefinitionTestData
     with utils.UrlEncoding {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
@@ -54,6 +55,8 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubDevelopers()
       stubDevelopersSearch()
       stubDeveloper(unverifiedUser)
+      stubGetAllXmlApis()
+      stubGetXmlOrganisationsForUnverifiedUser(unverifiedUser.userId)
       stubApplicationSubscription()
 
       signInGatekeeper()
@@ -124,6 +127,16 @@ class ApiGatekeeperDeveloperDetailsSpec
         aResponse().withStatus(OK).withBody(unverifiedUserJson)
       )
     )
+  }
+
+  def stubGetAllXmlApis(): Unit = {
+    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
+      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
+  }
+
+  def stubGetXmlOrganisationsForUnverifiedUser(userId: UserId): Unit = {
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+      .willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 }
 

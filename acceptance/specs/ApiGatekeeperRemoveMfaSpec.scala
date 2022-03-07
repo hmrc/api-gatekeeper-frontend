@@ -16,27 +16,28 @@
 
 package specs
 
-import pages._
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{Assertions, Tag}
-import play.api.http.Status._
-
-import scala.io.Source
-import play.api.libs.json.Json
 import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import org.scalatest.{Assertions, Tag}
+import pages._
+import play.api.http.Status._
+import play.api.libs.json.Json
 import testdata.CommonTestData
 import model.RegisteredUser
 import model.UserId
 import utils.WireMockExtensions
 
-class ApiGatekeeperRemoveMfaSpec 
-    extends ApiGatekeeperBaseSpec 
-    with Assertions 
+import java.util.UUID
+import scala.io.Source
+
+class ApiGatekeeperRemoveMfaSpec
+  extends ApiGatekeeperBaseSpec
+    with Assertions
     with CommonTestData
     with WireMockExtensions {
-      
-  import MockDataSugar._      
+
+  import MockDataSugar._
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")
@@ -118,11 +119,13 @@ class ApiGatekeeperRemoveMfaSpec
     stubDevelopers()
     stubDevelopersSearch()
     stubDeveloper()
+    stubGetAllXmlApis()
+    stubGetXmlOrganisationsForUser(UserId(developer8Id))
     stubApplicationSubscription()
     stubRemoveMfa()
   }
 
-  def navigateToDeveloperDetails(): Unit ={
+  def navigateToDeveloperDetails(): Unit = {
     When("I select to navigate to the Developers page")
     ApplicationsPage.selectDevelopers()
 
@@ -138,18 +141,18 @@ class ApiGatekeeperRemoveMfaSpec
   }
 
   def stubFetchAllApplicationsList(): Unit = {
-    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
   }
 
   def stubApplicationForDeveloper(): Unit = {
     stubFor(
       get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
-      .willReturn(
-        aResponse()
-        .withBody(applicationResponseForEmail)
-        .withStatus(OK)
-      )
+        .willReturn(
+          aResponse()
+            .withBody(applicationResponseForEmail)
+            .withStatus(OK)
+        )
     )
   }
 
@@ -167,28 +170,38 @@ class ApiGatekeeperRemoveMfaSpec
       .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
   }
 
+  def stubGetAllXmlApis(): Unit = {
+    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
+      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
+  }
+
+  def stubGetXmlOrganisationsForUser(userId: UserId): Unit = {
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+      .willReturn(aResponse().withBody(xmlOrganisations).withStatus(OK)))
+  }
+
   def stubDeveloper(): Unit = {
 
     implicit val format = Json.writes[FindUserIdResponse]
-    
+
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))
-      .withJsonRequestBody(FindUserIdRequest(developer8))
-      .willReturn(
-        aResponse()
-        .withStatus(OK)
-        .withJsonBody(FindUserIdResponse(UserId(developer8Id)))
-      )
+        .withJsonRequestBody(FindUserIdRequest(developer8))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(FindUserIdResponse(UserId(developer8Id)))
+        )
     )
 
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
-      .willReturn(
-        aResponse()
-        .withStatus(OK)
-        .withJsonBody(RegisteredUser(developer8,UserId(developer8Id),"Bob","Smith",true,None,true))
-      )
+        .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(RegisteredUser(developer8, UserId(developer8Id), "Bob", "Smith", true, None, true))
+        )
     )
   }
 
