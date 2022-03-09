@@ -119,18 +119,8 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                 </div>
 
                 <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
-                    <div class="grid-layout__column--1-3">
-                        <label class="form-label bold" for="filter">Filter by Terms of Use status
-                            <select class="form-control input-select input-select--large" id="tou_status" name="termsOfUse">
-                                <option @if(termsOfUse == None || termsOfUse == Some("ALL")){selected} id="default-tou-status" value>All</option>
-                                <option @if(termsOfUse == Some("NOT_ACCEPTED")){selected} value="NOT_ACCEPTED">Not agreed</option>
-                                <option @if(termsOfUse == Some("ACCEPTED")){selected} value="ACCEPTED">Agreed</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <div class="grid-layout__column--1-3">
-                        <label class="form-label bold centered-content" for="filter">Filter by Access type
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold" for="access_type">Filter by Access type
                             <select class="form-control input-select input-select--large" id="access_type" name="accessType">
                                 <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value>All</option>
                                 <option @if(accessType == Some("STANDARD")){selected} value="STANDARD">Standard</option>
@@ -140,8 +130,8 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                         </label>
                     </div>
 
-                    <div class="grid-layout__column--1-3 hard--right">
-                        <label class="form-label bold" for="filter">Filter by Environment
+                    <div class="grid-layout__column--1-2">
+                        <label class="form-label bold centered-content hard--right" for="environment">Filter by Environment
                             <select class="form-control input-select input-select--large" id="environment" name="environment">
                                 <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION">Production</option>
                                 <option @if(environment == Some("SANDBOX") || environment == None){selected} value="SANDBOX">Sandbox</option>
