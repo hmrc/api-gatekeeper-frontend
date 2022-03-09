@@ -92,12 +92,6 @@ class ApplicationsViewSpec extends CommonViewSpec {
         applicationViewWithNoApis().body should not include "Retired"
         applicationViewWithNoApis().body should not include "Deprecated"
       }
-
-      "Display the Terms of Use filters" in new Setup {
-        applicationViewWithNoApis().body should include("""<option selected id="default-tou-status" value>All</option>""")
-        applicationViewWithNoApis().body should include("""<option  value="NOT_ACCEPTED">Not agreed</option>""")
-        applicationViewWithNoApis().body should include("""<option  value="ACCEPTED">Agreed</option>""")
-      }
     }
 
     "Called with APIs" should {
@@ -137,14 +131,6 @@ class ApplicationsViewSpec extends CommonViewSpec {
         status.get(0).child(2).text() shouldBe "Pending gatekeeper check"
         status.get(0).child(3).text() shouldBe "Pending submitter verification"
         status.get(0).child(4).text() shouldBe "Active"
-      }
-
-      "Terms of Use status filter entries in correct order" in new Setup {
-        val status = applicationViewWithApplicationDocument.select(s"#tou_status")
-
-        status.get(0).child(0).text() shouldBe "All"
-        status.get(0).child(1).text() shouldBe "Not agreed"
-        status.get(0).child(2).text() shouldBe "Agreed"
       }
 
       "Access type filter entries in correct order" in new Setup {
