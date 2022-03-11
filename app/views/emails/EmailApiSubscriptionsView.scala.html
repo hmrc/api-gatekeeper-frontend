@@ -67,7 +67,7 @@
         </form>
          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
             <div><hr/></div>
-            @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API subscription" -> apiVersionFilter.get))
+            @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
           }
         }
 
