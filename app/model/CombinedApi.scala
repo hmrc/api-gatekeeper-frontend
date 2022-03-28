@@ -40,7 +40,8 @@ object CombinedApiCategory {
 case class CombinedApi(displayName: String,
                        serviceName: String,
                         categories: List[CombinedApiCategory],
-                        apiType: ApiType)
+                        apiType: ApiType,
+                       accessType: APIAccessType)
 
 object CombinedApi {
   implicit val formatCombinedApi = Json.format[CombinedApi]

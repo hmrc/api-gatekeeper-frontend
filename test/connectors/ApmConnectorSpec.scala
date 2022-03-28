@@ -18,11 +18,12 @@ package connectors
 
 import utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HttpClient
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.applications.ApplicationWithSubscriptionData
 import model.ApplicationId
 import uk.gov.hmrc.http.HeaderCarrier
-import builder.{ApplicationBuilder, ApiBuilder}
+import builder.{ApiBuilder, ApplicationBuilder}
 import model._
 import model.CombinedApi
 import model.subscriptions.ApiData
@@ -31,6 +32,7 @@ import play.api.libs.json.Json
 import model.subscriptions.VersionData
 import model.APIDefinitionFormatters._
 import com.github.tomakehurst.wiremock.client.WireMock._
+import model.APIAccessType.PUBLIC
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import utils.WireMockSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -55,8 +57,8 @@ class ApmConnectorSpec
 
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API)
-    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API)
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, PUBLIC)
+    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, PUBLIC)
     val combinedList = List(combinedRestApi1, combinedXmlApi2)
   }
 
