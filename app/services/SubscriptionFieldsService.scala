@@ -17,9 +17,9 @@
 package services
 
 import javax.inject.{Inject, Named, Singleton}
-import model.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse, SaveSubscriptionFieldsSuccessResponse, SubscriptionFieldDefinition, SubscriptionFieldValue}
-import model.{APIDefinitionFormatters, ApiIdentifier, ApiContext, ApiVersion, Application, ClientId, FieldName, FieldValue, FieldsDeleteResult}
-import services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
+import model.SubscriptionFields._
+import model._
+import services.SubscriptionFieldsService._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -30,69 +30,12 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
                                           @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector)
                                           extends APIDefinitionFormatters {
 
-  def fetchFieldsValues(application: Application, fieldDefinitions: List[SubscriptionFieldDefinition], apiIdentifier: ApiIdentifier)
-                       (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
-    val connector = connectorFor(application)
-
-    if (fieldDefinitions.isEmpty) {
-      Future.successful(List.empty[SubscriptionFieldValue])
-    } else {
-      connector.fetchFieldValues(application.clientId, apiIdentifier.context, apiIdentifier.version)
-    }
-  }
-
-  def fetchAllFieldDefinitions(deployedTo: String)(implicit hc: HeaderCarrier) : Future[DefinitionsByApiVersion] = {
-     connectorFor(deployedTo).fetchAllFieldDefinitions()
-  }
-
-  def fetchFieldDefinitions(deployedTo: String, apiIdentifier: ApiIdentifier)
-                           (implicit hc: HeaderCarrier) : Future[List[SubscriptionFieldDefinition]] = {
-    connectorFor(deployedTo)
-      .fetchFieldDefinitions(apiIdentifier.context, apiIdentifier.version)
-  }
-
-  def fetchFieldsWithPrefetchedDefinitions(application: Application,
-                                           apiIdentifier: ApiIdentifier,
-                                           definitions: DefinitionsByApiVersion)
-                                          (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
-    connectorFor(application).fetchFieldsValuesWithPrefetchedDefinitions(application.clientId, apiIdentifier, definitions)
-  }
-
   def saveFieldValues(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
       (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
     connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
-  def saveBlankFieldValues( application: Application,
-                            apiContext: ApiContext,
-                            apiVersion: ApiVersion,
-                            values : List[SubscriptionFieldValue])
-                          (implicit hc: HeaderCarrier) : Future[SaveSubscriptionFieldsResponse] = {
-
-    def createEmptyFieldValues(fieldDefinitions: List[SubscriptionFieldDefinition]) = {
-      fieldDefinitions
-        .map(d => d.name -> FieldValue.empty)
-        .toMap[FieldName, FieldValue]
-    }
-
-    if(values.forall(_.value.isEmpty)){
-      val connector = connectorFor(application)
-
-      val emptyFieldValues = createEmptyFieldValues(values.map(_.definition))
-
-      connector.saveFieldValues(application.clientId, apiContext, apiVersion, emptyFieldValues)
-    } else {
-      Future.successful(SaveSubscriptionFieldsSuccessResponse)
-    }
-  }
-
-  def deleteFieldValues(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
-    connectorFor(application).deleteFieldValues(application.clientId, context, version)
-  }
-
-  def connectorFor(application: Application): SubscriptionFieldsConnector = connectorFor(application.deployedTo)
-
-  def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
+  private def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
     if (deployedTo == "PRODUCTION") {
       productionSubscriptionFieldsConnector
     } else {
@@ -102,20 +45,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 
 object SubscriptionFieldsService {
   trait SubscriptionFieldsConnector {
-    def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)
-                        (implicit hc: HeaderCarrier) : Future[List[SubscriptionFieldValue]]
-
-    def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: ApiIdentifier, definitionsCache: DefinitionsByApiVersion)
-                                                  (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]]
-
-    def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion]
-
-    def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)
-                             (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldDefinition]]
-
     def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
-
-    def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult]
   }
 
   type DefinitionsByApiVersion = Map[ApiIdentifier, List[SubscriptionFieldDefinition]]

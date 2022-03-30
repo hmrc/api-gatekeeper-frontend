@@ -76,7 +76,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object SubscribeToApi {
-      def succeeds() = when(mockApplicationService.subscribeToApi(*, *[ApiContext], *[ApiVersion])(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.subscribeToApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
 
     object UnsubscribeFromApi {

@@ -98,9 +98,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     def subscriptionFields : List[SubscriptionFieldValue]
 
-    when(mockSubscriptionFieldsService.fetchAllFieldDefinitions(stdApp1.deployedTo)).thenReturn(successful(prefetchedDefinitions))
-    when(mockSubscriptionFieldsService.fetchFieldsWithPrefetchedDefinitions(stdApp1, apiIdentifier, prefetchedDefinitions))
-      .thenReturn(successful(subscriptionFields))
   }
 
   "searchApplications" should {
@@ -375,76 +372,12 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "subscribeToApi" should {
-    "field definitions with empty values will persist empty values" in new Setup {
+    "calls APM connector only now" in new Setup {
       ApmConnectorMock.SubscribeToApi.succeeds()
 
-      when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
-          .thenReturn(successful(definitions))
-
-      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.empty))
-
-      when(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
-        .thenReturn(successful(subscriptionFieldValues))
-      
-      when(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
-
-      val result = await(underTest.subscribeToApi(stdApp1, context, version))
+      val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier))
 
       result shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockApmConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
-      verify(mockSubscriptionFieldsService).fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*)
-      verify(mockSubscriptionFieldsService).saveBlankFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(subscriptionFieldValues))(*)
-    }
-
-    "field definitions with non-empty values will not persist anything" in new Setup {
-      ApmConnectorMock.SubscribeToApi.succeeds()
-
-      when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
-        .thenReturn(successful(definitions))
-
-      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.random))
-
-      when(mockSubscriptionFieldsService.fetchFieldsValues(eqTo(stdApp1), eqTo(definitions), eqTo(apiIdentifier))(*))
-        .thenReturn(successful(subscriptionFieldValues))
-
-      when(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
-
-      val fields = subscriptionFieldValues.map(v => v.definition.name -> v.value).toMap[FieldName, FieldValue]
-
-      val result = await(underTest.subscribeToApi(stdApp1, context, version))
-
-      result shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockApmConnector).subscribeToApi(eqTo(stdApp1.id), eqTo(apiIdentifier))(*)
-      verify(mockSubscriptionFieldsService, never).saveFieldValues(*[NewApplication], eqTo(context), eqTo(version), eqTo(fields))(*)
-      verify(mockSubscriptionFieldsService).saveBlankFieldValues(eqTo(stdApp1), eqTo(context), eqTo(version), eqTo(subscriptionFieldValues))(*)
-    }
-
-    "with field definitions but fails to save subscription fields throws error" in new Setup {
-      ApmConnectorMock.SubscribeToApi.succeeds()
-
-      when(mockSubscriptionFieldsService.fetchFieldDefinitions(*, *)(*))
-          .thenReturn(successful(definitions))
-
-      val subscriptionFieldValues = List(SubscriptionFieldValue(definitions.head, FieldValue.empty))
-
-      when(mockSubscriptionFieldsService.fetchFieldsValues(*, *, *)(*))
-        .thenReturn(successful(subscriptionFieldValues))
-
-      val errors = Map("fieldName" -> "failure reason")
-
-      when(mockSubscriptionFieldsService.saveBlankFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-          .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(errors)))
-
-      private val exception = intercept[RuntimeException](
-          await(underTest.subscribeToApi(stdApp1, context, version))
-      )
-        
-      exception.getMessage should include("failure reason")
-      exception.getMessage should include("Failed to save blank subscription field values")
     }
   }
 

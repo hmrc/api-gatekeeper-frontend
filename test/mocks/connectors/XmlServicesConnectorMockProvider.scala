@@ -22,7 +22,6 @@ import model.xml._
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import java.util.UUID
 import scala.concurrent.Future.successful
 
 trait XmlServicesConnectorMockProvider {

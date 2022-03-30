@@ -16,12 +16,10 @@
 
 package controllers
 
-import model.ApplicationId
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import model.ApiContext
-import model.ApiVersion
+import model._
 import controllers.actions.ActionBuilders
 import config.{AppConfig, ErrorHandler}
 import scala.concurrent.ExecutionContext
@@ -32,12 +30,8 @@ import views.html.ErrorTemplate
 import views.html.ForbiddenView
 import com.google.inject.{Singleton, Inject}
 import model.view.SubscriptionViewModel
-import model.ApiIdentifier
 import model.subscriptions.ApiData
 import utils.SortingHelper
-import model.SubscriptionWithoutFields
-import model.VersionSubscriptionWithoutFields
-import model.ApiVersionDefinition
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
@@ -91,7 +85,7 @@ class SubscriptionController @Inject()(
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      applicationService.subscribeToApi(app.application, apiContext, version).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      applicationService.subscribeToApi(app.application, ApiIdentifier(apiContext, version)).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 

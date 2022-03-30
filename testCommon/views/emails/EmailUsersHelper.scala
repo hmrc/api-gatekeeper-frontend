@@ -19,7 +19,7 @@ package views.emails
 import model.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import model.EmailPreferencesChoice.EmailPreferencesChoice
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{ApiDefinition, EmailPreferencesChoice, TopicOptionChoice}
+import model._
 import model.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
 import utils.ViewHelpers._

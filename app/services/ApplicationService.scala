@@ -19,7 +19,6 @@ package services
 import connectors._
 
 import javax.inject.Inject
-import model.SubscriptionFields._
 import model.Environment._
 import model.GrantLength.GrantLength
 import model.RateLimitTier.RateLimitTier
@@ -153,42 +152,12 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
   }
 
-  def subscribeToApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val apiIdentifier = ApiIdentifier(context, version)
-
-    trait HasSucceeded
-    object HasSucceeded extends HasSucceeded
-
-    def ensureEmptyValuesWhenNoneExists(fieldDefinitions: List[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
-      for {
-        oldValues <- subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
-        saveResponse <- subscriptionFieldsService.saveBlankFieldValues(application, context, version, oldValues)
-      } yield saveResponse match {
-        case SaveSubscriptionFieldsSuccessResponse => HasSucceeded
-        case error =>
-          val errorMessage = s"Failed to save blank subscription field values: $error"
-          throw new RuntimeException(errorMessage)
-      }
-    }
-
-    def ensureSavedValuesForAnyDefinitions(defns: List[SubscriptionFieldDefinition]): Future[HasSucceeded] = {
-      if (defns.nonEmpty){
-        ensureEmptyValuesWhenNoneExists(defns)
-      } else {
-        Future.successful(HasSucceeded)
-      }
-    }
-
-    val subscribeResponse = apmConnector.subscribeToApi(application.id, apiIdentifier)
-    val fieldDefinitions = subscriptionFieldsService.fetchFieldDefinitions(application.deployedTo, apiIdentifier)
-
-    fieldDefinitions
-      .flatMap(ensureSavedValuesForAnyDefinitions)
-      .flatMap(_ => subscribeResponse)
+  def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    apmConnector.subscribeToApi(application.id, apiIdentifier)
   }
 
   def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-      applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
+    applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 
   def updateGrantLength(application: Application, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

@@ -1232,8 +1232,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         status(result) shouldBe OK
 
-        verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*)
-        verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*, *, *)(*)
+        // verify(mockSubscriptionFieldsService, never).fetchAllFieldDefinitions(*)(*)
+        // verify(mockSubscriptionFieldsService, never).fetchFieldsWithPrefetchedDefinitions(*, *, *)(*)
         verifyAuthConnectorCalledForUser
       }
     }
