@@ -20,8 +20,6 @@ import model._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AsyncHmrcSpec
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApmConnectorMockProvider

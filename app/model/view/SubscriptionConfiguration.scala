@@ -28,13 +28,6 @@ import model.ApiStatus
 case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 
 object SubscriptionVersion {
-  def apply(subscriptionsWithFieldDefinitions: List[Subscription]): List[SubscriptionVersion] = {
-    for {
-      sub <- subscriptionsWithFieldDefinitions
-      version <- sub.versions
-    } yield SubscriptionVersion(sub.name, sub.context, version.version.version, version.version.displayedStatus, SubscriptionField(version.fields))
-  }
-
   def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): List[SubscriptionVersion] = {
     app.apiDefinitions.flatMap(contextMap => {
       contextMap._2.map(versionMap => {
@@ -57,31 +50,9 @@ object SubscriptionVersion {
       })
     }).toList
   }
-
-  def apply(subscription : Subscription, version : VersionSubscription, subscriptionFields : List[SubscriptionField]) : SubscriptionVersion = {
-    SubscriptionVersion(
-      subscription.name,
-      subscription.context,
-      version.version.version,
-      version.version.displayedStatus, 
-      subscriptionFields)
-  }
 }
 
 case class SubscriptionField(name: FieldName, shortDescription: String, description: String, hint: String, value: FieldValue)
-
-object SubscriptionField {
-  def apply(fields : SubscriptionFieldsWrapper): List[SubscriptionField] = {
-    fields.fields.map((field: SubscriptionFields.SubscriptionFieldValue) => {
-        SubscriptionField(
-          field.definition.name,
-          field.definition.shortDescription,
-          field.definition.description,
-          field.definition.hint,
-          field.value)
-    })
-  }
-}
 
 case class SubscriptionFieldValueForm(name: FieldName, value: FieldValue)
 
