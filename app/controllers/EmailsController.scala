@@ -125,6 +125,8 @@ class EmailsController @Inject()(
    private def handleGettingApiUsers(apis: List[CombinedApi],
                                     selectedTopic: Option[model.TopicOptionChoice.Value],
                                     apiAcessType: APIAccessType)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] ={
+   //APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
+   //return this is deployed out to all environments
     val filteredApis = apis.filter(_.accessType.getOrElse(APIAccessType.PUBLIC) == apiAcessType)
     val categories = filteredApis.flatMap(_.categories.map(toAPICategory))
     val apiNames = filteredApis.map(_.serviceName)

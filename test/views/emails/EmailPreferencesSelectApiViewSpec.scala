@@ -38,13 +38,13 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPrefere
 
   "email preferences specific api view" must {
 
-     val api1: CombinedApi = simpleAPI(serviceName="serviceName0", displayName="displayName0",  List.empty,  ApiType.REST_API, PUBLIC)
-     val api2 = simpleAPI(serviceName="serviceName1", displayName="displayName1",  List.empty,  ApiType.REST_API, PUBLIC)
-     val api3 = simpleAPI(serviceName="serviceName2", displayName="displayName2",  List.empty,  ApiType.XML_API, PUBLIC)
+     val api1: CombinedApi = simpleAPI(serviceName="serviceName0", displayName="displayName0",  List.empty,  ApiType.REST_API, Some(PUBLIC))
+     val api2 = simpleAPI(serviceName="serviceName1", displayName="displayName1",  List.empty,  ApiType.REST_API, Some(PUBLIC))
+     val api3 = simpleAPI(serviceName="serviceName2", displayName="displayName2",  List.empty,  ApiType.XML_API, Some(PUBLIC))
      val dropDownApis = Seq(api1, api2, api3)
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, PUBLIC)
-    val combinedXmlApi3 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, PUBLIC)
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
+    val combinedXmlApi3 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
     val combinedList = List(combinedRestApi1, combinedXmlApi3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {

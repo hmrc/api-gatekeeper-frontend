@@ -23,6 +23,6 @@ trait CombinedApiHelper {
                  displayName: String,
                  categories: List[String],
                  apiType: ApiType,
-                 apiAccessType: APIAccessType): CombinedApi =
-    CombinedApi(displayName, serviceName,  categories.map(CombinedApiCategory(_)), apiType, apiAccessType)
+                 accessType: Option[APIAccessType]): CombinedApi =
+    CombinedApi(displayName, serviceName,  categories.map(CombinedApiCategory(_)), apiType, accessType)
 }
