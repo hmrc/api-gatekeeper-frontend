@@ -373,7 +373,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val  categories = selectedAPIs.flatMap(_.categories.map(toAPICategory))
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames), *)(*)
         verify(mockEmailPreferencesSpecificApiView).apply(eqTo(verified2Users), eqTo(Json.toJson(verified2Users)), eqTo(expectedEmailString), eqTo(selectedAPIs), eqTo(Some(selectedTopic)))(*, *, *)
       }
 

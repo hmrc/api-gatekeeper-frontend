@@ -631,33 +631,43 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val apis = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when only passed a topic" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, None)(sandboxUser)
+      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, None, false)(sandboxUser)
 
       val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *)(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *, * )(*)
     }
 
     "call the connector correctly when only passed a topic and a category" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)))(sandboxUser)
+      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)), false)(sandboxUser)
 
       val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))), *)(*)
     }
 
-    "call the connector correctly passed a topic, a seqeuence of categories and apis" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories))(sandboxUser)
+    "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
+      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories), false)(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis))
+      val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis, false))
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(false))(*)
+    }
+
+    "call the connector correctly passed a topic, a sequence of categories and apis and private match is set" in new Setup {
+      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories), true)(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apis, true))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(true))(*)
     }
   }
 

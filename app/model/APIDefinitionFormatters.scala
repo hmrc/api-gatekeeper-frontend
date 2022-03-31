@@ -36,7 +36,6 @@ trait APIDefinitionFormatters {
   implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
 
   implicit val formatAPIStatus = ApiStatusJson.apiStatusFormat(ApiStatus)
-
   implicit val formatAPIAccess = Json.format[ApiAccess]
   implicit val formatAPIVersion = Json.format[ApiVersionDefinition]
   implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]

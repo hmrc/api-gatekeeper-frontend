@@ -162,8 +162,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }
 
-  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: List[APICategory], apiNames: List[String])(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct))
+  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: List[APICategory], apiNames: List[String], privateApiMatch: Boolean)(implicit hc: HeaderCarrier) = {
+    developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct), privateApiMatch)
   }
 
 

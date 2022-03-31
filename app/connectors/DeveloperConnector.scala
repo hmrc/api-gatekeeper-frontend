@@ -54,7 +54,8 @@ trait DeveloperConnector {
 
   def fetchByEmailPreferences(topic: TopicOptionChoice,
                               maybeApis: Option[Seq[String]] = None,
-                              maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+                              maybeApiCategory: Option[Seq[APICategory]] = None,
+                              privateapimatch: Boolean = false)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
@@ -133,11 +134,13 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
 
   def fetchByEmailPreferences(topic: TopicOptionChoice,
                               maybeApis: Option[Seq[String]] = None,
-                              maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+                              maybeApiCategories: Option[Seq[APICategory]] = None,
+                              privateapimatch: Boolean = false)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     val regimes: Seq[(String,String)] = maybeApiCategories.fold(Seq.empty[(String,String)])(regimes =>  regimes.flatMap(regime => Seq("regime" -> regime.value)))
+    val privateapimatchParams = if(privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams =
       Seq("topic" -> topic.toString) ++ regimes ++
-      maybeApis.fold(Seq.empty[(String,String)])(apis => apis.map(("service" -> _)))
+      maybeApis.fold(Seq.empty[(String,String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams
 
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
@@ -189,7 +192,8 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(List.empty)
 
-  def fetchByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier) = Future.successful(List.empty)
+  def fetchByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategories: Option[Seq[APICategory]] = None,
+                              privateapimatch: Boolean = false)(implicit hc: HeaderCarrier) = Future.successful(List.empty)
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
