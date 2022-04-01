@@ -17,6 +17,7 @@
 package controllers
 
 import config.AppConfig
+import model.APIAccessType.{PRIVATE, PUBLIC}
 import model.Forms._
 
 import javax.inject.{Inject, Singleton}
@@ -24,11 +25,12 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
+import model.{APIAccessType, APICategory, AnyEnvironment, ApiContextVersion, ApiDefinition, CombinedApi, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, RegisteredUser, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import model._
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
-import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.{ErrorHelper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
@@ -38,10 +40,10 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.{ExecutionContext, Future}
-import model.{RegisteredUser, User}
 import play.api.libs.json.Json
-import model.CombinedApi
 import model.CombinedApiCategory.toAPICategory
+
+import scala.concurrent.Future.successful
 
 
 @Singleton
@@ -119,22 +121,42 @@ class EmailsController @Inject()(
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
+
+   private def handleGettingApiUsers(apis: List[CombinedApi],
+                                    selectedTopic: Option[model.TopicOptionChoice.Value],
+                                    apiAcessType: APIAccessType)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] ={
+   //APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
+   //return this is deployed out to all environments
+    val filteredApis = apis.filter(_.accessType.getOrElse(APIAccessType.PUBLIC) == apiAcessType)
+    val categories = filteredApis.flatMap(_.categories.map(toAPICategory))
+    val apiNames = filteredApis.map(_.serviceName)
+    selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
+      (apiAcessType, filteredApis) match {
+        case (_, Nil) =>  successful(List.empty[RegisteredUser])
+        case (PUBLIC, _)  =>
+          developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = false).map(_.filter(_.verified))
+        case (PRIVATE, _) =>
+          developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
+      }
+
+    })
+  }
+
+
   def emailPreferencesSpecificApis(selectedAPIs: List[String],
                                    selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val selectedTopic = selectedTopicStr.map(TopicOptionChoice.withName)
+    val selectedTopic: Option[model.TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     if (selectedAPIs.forall(_.isEmpty)) {
       Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
     } else {
       for {
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        apiNames = filteredApis.map(_.serviceName)
-        categories = filteredApis.flatMap(_.categories.map(toAPICategory))
-        users <- selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
-          developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames).map(_.filter(_.verified))
-        })
-        usersAsJson = Json.toJson(users)
-      } yield Ok(emailPreferencesSpecificApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, selectedTopic))
+        publicUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PUBLIC)
+        privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
+        combinedUsers = publicUsers ++ privateUsers
+        usersAsJson = Json.toJson(combinedUsers)
+      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 

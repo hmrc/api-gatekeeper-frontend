@@ -16,7 +16,9 @@
 
 package model
 
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import model.ApiStatus.ApiStatus
+import model.ApiType.findValues
 import model.SubscriptionFields._
 import play.api.libs.json.Json
 
@@ -99,11 +101,14 @@ object ApiStatus extends Enumeration {
   }
 }
 
-case class ApiAccess(`type`: APIAccessType.Value, isTrial : Option[Boolean] = None)
+case class ApiAccess(`type`: APIAccessType, isTrial : Option[Boolean] = None)
 
-object APIAccessType extends Enumeration {
-  type APIAccessType = Value
-  val PRIVATE, PUBLIC = Value
+sealed trait APIAccessType extends EnumEntry
+
+object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
+  val values = findValues
+  case object PRIVATE extends APIAccessType
+  case object PUBLIC extends APIAccessType
 }
 
 case class ApiIdentifier(context: ApiContext, version: ApiVersion)

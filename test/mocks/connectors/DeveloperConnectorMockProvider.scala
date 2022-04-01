@@ -49,9 +49,11 @@ trait DeveloperConnectorMockProvider {
       def returnsFor(
         topic: TopicOptionChoice,
         maybeApis: Option[Seq[String]],
-        maybeApiCategory: Option[Seq[APICategory]])
-        ( users: RegisteredUser*) = 
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory))(*)).thenReturn(successful(users.toList))
+        maybeApiCategory: Option[Seq[APICategory]],
+        privateapimatch: Boolean)
+        ( users: RegisteredUser*) =
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch))(*))
+          .thenReturn(successful(users.toList))
     }
 
     object FetchByEmails {
