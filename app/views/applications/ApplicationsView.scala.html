@@ -178,6 +178,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                             <td id="app-status-@index" class="text--right hard--right">
                             @defining(application.state.name match {
                                 case PRODUCTION => ("status status--verified", "Active")
+                                case PRE_PRODUCTION => ("status status--verified", "Active")
                                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
                                 case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                                 case _ => ("status", "Created")

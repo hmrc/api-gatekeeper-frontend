@@ -284,13 +284,14 @@ case class SubscriptionNameAndVersion(name: String, version: String)
 
 object State extends Enumeration {
   type State = Value
-  val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRODUCTION = Value
+  val TESTING, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION = Value
   implicit val format = Json.formatEnum(State)
 
   val displayedState: State => String = {
     case TESTING => "Created"
     case PENDING_GATEKEEPER_APPROVAL => "Pending gatekeeper check"
     case PENDING_REQUESTER_VERIFICATION => "Pending submitter verification"
+    case PRE_PRODUCTION => "Active"
     case PRODUCTION => "Active"
   }
 
@@ -301,8 +302,10 @@ object State extends Enumeration {
       "A production application that one of its admins has submitted for checking"
     case PENDING_REQUESTER_VERIFICATION =>
       "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
+    case PRE_PRODUCTION =>
+      "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
     case PRODUCTION =>
-      "A production application that has passed checking, been verified and is therefore fully active - or any sandbox application"
+      "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
   }
 }
 
