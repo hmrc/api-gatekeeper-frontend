@@ -59,6 +59,7 @@ POST        /applications/:id/team-members/remove                             co
 GET         /assets/*file                                                     controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /nav-links                                                        controllers.NavigationController.navLinks
+GET         /xml-organisations                                                controllers.XmlServicesController.organisationsSearchPage
 
 GET         /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationPage(id: model.ApplicationId)
 POST        /applications/:id/delete                                          controllers.ApplicationController.deleteApplicationAction(id: model.ApplicationId)

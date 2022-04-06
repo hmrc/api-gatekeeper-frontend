@@ -20,21 +20,21 @@ import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavigationControllerSpec extends ControllerBaseSpec {
+class XmlServicesControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {
-      val underTest = new NavigationController(mcc)
+      val underTest = new XmlServicesController(mcc)
     }
 
-    "navigationController" should {
-      "render all nav links for standard site" in new Setup {
-        val result = underTest.navLinks()(aLoggedInRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe
-          """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers2"},{"label":"Email","href":"/api-gatekeeper/emails"},{"label":"API Approvals","href":"/api-gatekeeper/pending"},{"label":"XML","href":"/api-gatekeeper/xml-organisations"}]"""
+    "xmlServicesController" should {
+
+      "render XML nav link for standard site" in new Setup {
+        val result = underTest.organisationsSearchPage()(aLoggedInRequest)
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).map(x => x.contains("api-gatekeeper-xml-services/organisations") shouldBe true)
       }
     }
   }

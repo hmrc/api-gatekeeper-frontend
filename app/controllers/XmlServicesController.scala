@@ -16,21 +16,18 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
 import config.AppConfig
-import model.{NavLink, StaticNavLinks}
-import play.api.libs.json._
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc.{Action, AnyContent}
 
 @Singleton
-class NavigationController @Inject()(mcc: MessagesControllerComponents)
-                                    (implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) {
+class XmlServicesController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {
 
-  def navLinks() = Action.async { _ =>
-    Future.successful(Ok(Json.toJson(StaticNavLinks())))
+  def organisationsSearchPage(): Action[AnyContent] = Action.async { _ =>
+    Future.successful(Redirect(s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations"))
   }
 }
