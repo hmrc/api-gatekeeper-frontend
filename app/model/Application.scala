@@ -61,6 +61,10 @@ trait Application {
   def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
 
   def isSoleAdmin(emailAddress: String) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
+
+  def isApproved = state.isApproved
+  def isPendingGatekeeperApproval = state.isPendingGatekeeperApproval
+  def isPendingRequesterVerification = state.isPendingRequesterVerification
 }
 
 case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
@@ -307,6 +311,12 @@ object State extends Enumeration {
     case PRODUCTION =>
       "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
   }
+
+  implicit class StateHelpers(state: State) {
+    def isApproved = state == State.PRE_PRODUCTION || state == State.PRODUCTION
+    def isPendingGatekeeperApproval = state == State.PENDING_GATEKEEPER_APPROVAL
+    def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
+  }
 }
 
 object Environment extends Enumeration {
@@ -340,7 +350,11 @@ object CollaboratorRole extends Enumeration {
 case class Collaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
-                            verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now())
+                            verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now()) {
+  def isApproved = name.isApproved
+  def isPendingGatekeeperApproval = name.isPendingGatekeeperApproval
+  def isPendingRequesterVerification = name.isPendingRequesterVerification
+}
 
 object RateLimitTier extends Enumeration {
   type RateLimitTier = Value
