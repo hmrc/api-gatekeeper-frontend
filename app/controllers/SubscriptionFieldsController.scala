@@ -24,33 +24,24 @@ import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import config.{AppConfig, ErrorHandler}
-import controllers.actions.ActionBuilders
+import play.api.mvc.MessagesControllerComponents
+import config.AppConfig
 import model._
-import model.subscriptions.ApiData
-import model.view.SubscriptionViewModel
-import services.{ApmService, ApplicationService}
-import utils.SortingHelper
-import views.html.applications.ManageSubscriptionsView
-import views.html.{ErrorTemplate, ForbiddenView}
-
 import utils.CsvHelper._
-import scala.concurrent.Future
+import utils.ErrorHelper
+import views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class SubscriptionFieldsController @Inject()(
-  manageSubscriptionsView: ManageSubscriptionsView,
-  mcc: MessagesControllerComponents,
-  val errorTemplate: ErrorTemplate,
-  val applicationService: ApplicationService,
   val subscriptionFieldsService : services.SubscriptionFieldsService,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
+  val forbiddenView: ForbiddenView,
+  mcc: MessagesControllerComponents,
+  override val errorTemplate: ErrorTemplate,
+  strideAuthConfig: StrideAuthConfig,
   authConnector: AuthConnector,
   forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ActionBuilders {
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ErrorHelper {
 
   def subscriptionFieldValues() = anyStrideUserAction { implicit request =>
     case class FlattenedSubscriptionFieldValue(clientId: ClientId, name: FieldName)
