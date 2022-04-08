@@ -81,6 +81,8 @@ POST        /pending/:serviceName/approve-productio                           co
 
 GET         /apis                                                             controllers.ApiDefinitionController.apis
 
+GET         /subscriptionFieldValues                                          controllers.SubscriptionFieldsController.subscriptionFieldValues
+
 GET         /emails                                                           controllers.EmailsController.landing()
 POST        /emails                                                           controllers.EmailsController.chooseEmailOption()
 
