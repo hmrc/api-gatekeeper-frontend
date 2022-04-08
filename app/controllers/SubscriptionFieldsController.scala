@@ -53,19 +53,19 @@ class SubscriptionFieldsController @Inject()(
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ActionBuilders {
 
   def subscriptionFieldValues() = anyStrideUserAction { implicit request =>
-    
-    // TODO: Do we want field type? It's stored in the definition...
     case class FlattenedSubscriptionFieldValue(clientId: ClientId, name: FieldName)
 
     val columnDefinitions : Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(
-      ColumnDefinition("clientId", (data => data.clientId.value)),
-      ColumnDefinition("fieldName", (data => data.name.value))
+      ColumnDefinition("Environment",(_ => model.Environment.PRODUCTION.toString())),
+      ColumnDefinition("ClientId", (data => data.clientId.value)),
+      ColumnDefinition("FieldName", (data => data.name.value))
     )
 
     def flattendFieldValues(subscriptionFieldValues: List[SubscriptionFields.ApplicationApiFieldValues]) : List[FlattenedSubscriptionFieldValue] = {
       subscriptionFieldValues.flatMap(allsubscriptionFieldValues => {
         allsubscriptionFieldValues.fields.seq.map{ fieldValue: (FieldName, FieldValue) => {
-          FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, fieldValue._1)
+          val fieldName = fieldValue._1
+          FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, fieldName)
         }}
       })
     }

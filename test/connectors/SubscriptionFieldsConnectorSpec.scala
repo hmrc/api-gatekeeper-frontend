@@ -191,6 +191,37 @@ class SubscriptionFieldsConnectorSpec
     }
   }
 
+  "fetchAllFieldValues" should {
+    val url = "/field"
+    
+    "return all fields values" in new Setup {
+      val fieldValues = Map.empty[FieldName, FieldValue]
+
+      val expectedResult = List(SubscriptionFields.ApplicationApiFieldValues(
+          ClientId("clientId-1"),
+          ApiContext("apiContext"),
+          ApiVersion("1.0"),
+          UUID.randomUUID(),
+          fieldValues))
+
+      val data : AllApiFieldValues = AllApiFieldValues(expectedResult)
+
+      private val validResponse = Json.toJson(data).toString()
+
+      stubFor(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(validResponse)
+        )
+      )
+      private val result = await (subscriptionFieldsConnector.fetchAllFieldValues())
+
+      result shouldBe data.subscriptions
+    }
+  }
+
   "fetchFieldDefinitions" should {
     val expectedDefinitions = List(expectedSubscriptionDefinition)
 

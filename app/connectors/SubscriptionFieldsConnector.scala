@@ -16,8 +16,6 @@
 
 package connectors
 
-import java.util.UUID
-
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
@@ -59,7 +57,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
 
-  // TODO Test me
   def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[SubscriptionFields.ApplicationApiFieldValues]] = {
     val url = s"$serviceBaseUrl/field"
     http.GET[AllApiFieldValues](url).map(_.subscriptions)
