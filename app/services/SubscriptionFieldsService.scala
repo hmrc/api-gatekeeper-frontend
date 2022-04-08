@@ -35,7 +35,6 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
-    // TODO: Test me
   def fetchAllFieldValues()(implicit hc: HeaderCarrier) : Future[List[SubscriptionFields.ApplicationApiFieldValues]] = {
     // TODO: Check sandbox?
     val productionEnvironment = model.Environment.PRODUCTION.toString()
