@@ -485,7 +485,7 @@ class ApplicationController @Inject()(
   def approvedApplicationPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def lastApproval(app: ApplicationWithHistory): StateHistory = {
-        app.history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+        app.history.filter(_.state.isPendingRequesterVerification)
           .sortWith(StateHistory.ascendingDateForAppId)
           .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
@@ -496,7 +496,7 @@ class ApplicationController @Inject()(
       }
 
       def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
-        val verified = app.state.name == State.PRODUCTION
+        val verified = app.isApproved
         val details = applicationReviewDetails(app, submissionDetails)(request)
 
         ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
@@ -515,7 +515,7 @@ class ApplicationController @Inject()(
   }
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
-    val submission: StateHistory = app.history.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
+    val submission: StateHistory = app.history.filter(_.state.isPendingGatekeeperApproval)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 

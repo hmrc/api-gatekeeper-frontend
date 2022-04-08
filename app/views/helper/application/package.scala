@@ -56,7 +56,7 @@ object ApplicationSubmission {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
   private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
-    stateHistory.filter(_.state == State.PENDING_GATEKEEPER_APPROVAL)
+    stateHistory.filter(_.state.isPendingGatekeeperApproval)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 
@@ -80,7 +80,7 @@ object ApplicationReview {
   val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
 
   private def getLastApproval(history: Seq[StateHistory]) =
-    history.filter(_.state == State.PENDING_REQUESTER_VERIFICATION)
+    history.filter(_.state.isPendingRequesterVerification)
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 

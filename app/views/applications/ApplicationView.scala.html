@@ -179,13 +179,13 @@
                 <div data-status-info><span class="faded-text">@State.additionalInformation(application.state.name)</span></div>
             </td>
             <td>
-                @{ if (application.state.name == PENDING_GATEKEEPER_APPROVAL){
+                @{ if (application.state.isPendingGatekeeperApproval){
                     if (model.hasSubmissions) {
                       <a href={model.gatekeeperApprovalsUrl} class="button--link" role="button" id="review">Check application</a>
                     } else {
                       <a href={routes.ApplicationController.reviewPage(applicationId).url} class="button--link" role="button" id="review">Check application</a>
                     }  
-                  } else if (application.state.name == PENDING_REQUESTER_VERIFICATION) {
+                  } else if (application.state.isPendingRequesterVerification) {
                     <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
                   }
                 }
@@ -502,10 +502,10 @@
         <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="button--alert text--center">Delete application</a>
     }
     @if(model.isAdmin) {
-        @if(application.state.name == PRODUCTION && !application.blocked) {
+        @if(application.state.isApproved && !application.blocked) {
             <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="button--alert text--center">Block application</a>
         }
-        @if(application.state.name == PRODUCTION && application.blocked) {
+        @if(application.state.isApproved && application.blocked) {
         <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="button--alert text--center">Unblock application</a>
         }
     }
