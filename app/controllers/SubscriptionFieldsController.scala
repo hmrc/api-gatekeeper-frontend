@@ -44,11 +44,13 @@ class SubscriptionFieldsController @Inject()(
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ErrorHelper {
 
   def subscriptionFieldValues() = anyStrideUserAction { implicit request =>
-    case class FlattenedSubscriptionFieldValue(clientId: ClientId, name: FieldName)
+    case class FlattenedSubscriptionFieldValue(clientId: ClientId, context: ApiContext, version: ApiVersion, name: FieldName)
 
     val columnDefinitions : Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(
       ColumnDefinition("Environment",(_ => model.Environment.PRODUCTION.toString())),
       ColumnDefinition("ClientId", (data => data.clientId.value)),
+      ColumnDefinition("ApiContext", (data => data.context.value)),
+      ColumnDefinition("ApiVersion", (data => data.version.value)),
       ColumnDefinition("FieldName", (data => data.name.value))
     )
 
@@ -56,14 +58,17 @@ class SubscriptionFieldsController @Inject()(
       subscriptionFieldValues.flatMap(allsubscriptionFieldValues => {
         allsubscriptionFieldValues.fields.seq.map{ fieldValue: (FieldName, FieldValue) => {
           val fieldName = fieldValue._1
-          FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, fieldName)
+          FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, allsubscriptionFieldValues.apiContext, allsubscriptionFieldValues.apiVersion, fieldName)
         }}
       })
     }
 
-    for {
-      subscriptionFieldValues: List[SubscriptionFields.ApplicationApiFieldValues] <- subscriptionFieldsService.fetchAllFieldValues()
-      flattendedFieldValues = flattendFieldValues(subscriptionFieldValues).sortBy(x=> (x.clientId.value, x.name.value))
-    } yield( Ok(toCsvString(columnDefinitions, flattendedFieldValues)))
+    subscriptionFieldsService.fetchAllFieldValues().map(allFieldsValues =>{
+      
+      val sortedAndFlattenedFields = flattendFieldValues(allFieldsValues)
+        .sortBy(x=> (x.clientId.value, x.context, x.version, x.name.value))
+      
+      Ok(toCsvString(columnDefinitions, sortedAndFlattenedFields))
+    })
   }
 }

@@ -54,8 +54,8 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 
       val expectedCsv = """
-        |Environment,ClientId,FieldName
-        |PRODUCTION,my-client-id,callbackUrl""".stripMargin.trim()
+        |Environment,ClientId,ApiContext,ApiVersion,FieldName
+        |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl""".stripMargin.trim()
 
       contentAsString(result) shouldBe expectedCsv
     }
