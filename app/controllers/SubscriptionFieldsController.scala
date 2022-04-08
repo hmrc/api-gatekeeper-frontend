@@ -63,7 +63,7 @@ class SubscriptionFieldsController @Inject()(
       })
     }
 
-    subscriptionFieldsService.fetchAllFieldValues().map(allFieldsValues =>{
+    subscriptionFieldsService.fetchAllProductionFieldValues().map(allFieldsValues =>{
       
       val sortedAndFlattenedFields = flattendFieldValues(allFieldsValues)
         .sortBy(x=> (x.clientId.value, x.context, x.version, x.name.value))

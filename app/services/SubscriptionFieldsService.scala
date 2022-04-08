@@ -36,8 +36,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
   }
 
 
-  def fetchAllFieldValues()(implicit hc: HeaderCarrier) : Future[List[SubscriptionFields.ApplicationApiFieldValues]] = {
-    // TODO: Check sandbox, or rename to just production.
+  def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier) : Future[List[SubscriptionFields.ApplicationApiFieldValues]] = {
     val productionEnvironment = model.Environment.PRODUCTION.toString()
     val connector = connectorFor(productionEnvironment)
 

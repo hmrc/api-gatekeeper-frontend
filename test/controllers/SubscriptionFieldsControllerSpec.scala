@@ -48,7 +48,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
         Map(FieldName("callbackUrl") -> FieldValue("callbackUrlValue"))
       ))
 
-      when(subscriptionFieldsService.fetchAllFieldValues()(*))
+      when(subscriptionFieldsService.fetchAllProductionFieldValues()(*))
         .thenReturn(Future.successful(expectedValues))
       
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
