@@ -25,6 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import services.SubscriptionFieldsService
 import java.util.UUID
 import scala.concurrent.Future
+import model.SubscriptionFields.ApplicationApiFieldValues
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
@@ -40,7 +41,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
     "return a csv" in new Setup {
       givenTheGKUserIsAuthorisedAndIsANormalUser()
       
-      val expectedValues = List(SubscriptionFields.ApplicationApiFieldValues(
+      val expectedValues = List(ApplicationApiFieldValues(
         ClientId("my-client-id"),
         ApiContext("my-api-context"),
         ApiVersion("my-api-version"),

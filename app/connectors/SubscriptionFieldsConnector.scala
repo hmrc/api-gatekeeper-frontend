@@ -57,7 +57,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
 
-  def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[SubscriptionFields.ApplicationApiFieldValues]] = {
+  def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
     val url = s"$serviceBaseUrl/field"
     http.GET[AllApiFieldValues](url).map(_.subscriptions)
   }

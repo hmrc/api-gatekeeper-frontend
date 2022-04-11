@@ -27,6 +27,7 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import play.api.mvc.MessagesControllerComponents
 import config.AppConfig
 import model._
+import model.SubscriptionFields.ApplicationApiFieldValues
 import utils.CsvHelper._
 import utils.ErrorHelper
 import views.html.{ErrorTemplate, ForbiddenView}
@@ -54,7 +55,7 @@ class SubscriptionFieldsController @Inject()(
       ColumnDefinition("FieldName", (data => data.name.value))
     )
 
-    def flattendFieldValues(subscriptionFieldValues: List[SubscriptionFields.ApplicationApiFieldValues]) : List[FlattenedSubscriptionFieldValue] = {
+    def flattendFieldValues(subscriptionFieldValues: List[ApplicationApiFieldValues]) : List[FlattenedSubscriptionFieldValue] = {
       subscriptionFieldValues.flatMap(allsubscriptionFieldValues => {
         allsubscriptionFieldValues.fields.seq.map{ fieldValue: (FieldName, FieldValue) => {
           val fieldName = fieldValue._1

@@ -197,7 +197,7 @@ class SubscriptionFieldsConnectorSpec
     "return all fields values" in new Setup {
       val fieldValues = Map.empty[FieldName, FieldValue]
 
-      val expectedResult = List(SubscriptionFields.ApplicationApiFieldValues(
+      val expectedResult = List(ApplicationApiFieldValues(
           ClientId("clientId-1"),
           ApiContext("apiContext"),
           ApiVersion("1.0"),
