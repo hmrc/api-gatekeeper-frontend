@@ -37,8 +37,7 @@
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
             <input type="hidden" name="email-recipients" value="@{
               if (config.overrideEmailRecipients) {
-                Json.toJson[List[RegisteredUser]](List[RegisteredUser](
-                  new RegisteredUser("imran.akram@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Imran", "Akram", true),
+                  val users: List[RegisteredUser] = List(new RegisteredUser("imran.akram@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Imran", "Akram", true),
                   new RegisteredUser("gareth.chapman@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Gareth", "Chapman", true),
                   new RegisteredUser("neil.frow@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Neil", "Frow", true),
                   new RegisteredUser("siva.isikella@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Siva", "Isikella", true),
@@ -47,9 +46,21 @@
                   new RegisteredUser("razwana.khan@hmrc.gov.uk", UserId(UUID.randomUUID()), "Razwana", "Khan", true),
                   new RegisteredUser("helen.bacigalupo@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Helen", "Bacigalupo", true),
                   new RegisteredUser("helen.bacigalupo@hmrc.gov.uk", UserId(UUID.randomUUID()), "Helen", "Bacigalupo", true),
-                  new RegisteredUser("michael.humes@hmrc.gov.uk", UserId(UUID.randomUUID()), "Michael", "Humes", true)
-                ))}
-              else composeEmailRecipients
+                  new RegisteredUser("michael.humes@hmrc.gov.uk", UserId(UUID.randomUUID()), "Michael", "Humes", true))
+                  if(config.sendToSDSTEmailRecipient) {
+              Json.toJson[List[RegisteredUser]](users :+
+              new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST Team", "", true))
+                  } else {
+                    Json.toJson[List[RegisteredUser]](
+                      users
+                    )}
+              }
+              else if (config.sendToSDSTEmailRecipient) {
+                  Json.toJson[List[RegisteredUser]](composeEmailRecipients.as[List[RegisteredUser]] :+
+                  new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST Team", "", true))
+              } else {
+                Json.toJson[List[RegisteredUser]](composeEmailRecipients.as[List[RegisteredUser]])
+              }
             }">
             <div class="compose-email">
                 <button type="submit" class="button--link" name="compose-email" value="whatever"
