@@ -18,6 +18,7 @@ package model
 
 import play.api.libs.json.{Format, Json}
 import scala.util.Random
+import java.util.UUID
 
 case class FieldName(value: String) extends AnyVal
 
@@ -55,6 +56,8 @@ object SubscriptionFields {
   case class SubscriptionFieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
   case class SubscriptionFieldValue(definition : SubscriptionFieldDefinition, value: FieldValue)
+
+  case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fieldsId: UUID, fields: Map[FieldName, FieldValue])
 
   object SubscriptionFieldValue {
     def fromFormValues(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String, value: FieldValue) = {

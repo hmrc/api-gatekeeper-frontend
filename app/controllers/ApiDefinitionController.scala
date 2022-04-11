@@ -31,6 +31,7 @@ import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 
 import scala.concurrent.ExecutionContext
+import utils.CsvHelper._
 
 case class ApiDefinitionView(apiName: String, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
 
@@ -53,11 +54,17 @@ class ApiDefinitionController @Inject()(
       val allDefinitionsAsRows = allDefinitions
         .flatMap { case(d, env) => toViewModel(d, env) }
         .sortBy((vm: ApiDefinitionView) => (vm.apiName, vm.apiVersion))
-        .map(vm => Seq(vm.apiName,vm.apiVersion.value,vm.status,vm.access,vm.isTrial,vm.environment).mkString(","))
+        
+      val columnDefinitions : Seq[ColumnDefinition[ApiDefinitionView]] = Seq(
+        ColumnDefinition("name",(vm => vm.apiName)),
+        ColumnDefinition("version",(vm => vm.apiVersion.value)),
+        ColumnDefinition("status",(vm => vm.status)),
+        ColumnDefinition("access", (vm => vm.access)),
+        ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
+        ColumnDefinition("environment", (vm => vm.environment))
+       )
 
-      val rowHeader = Seq("name","version","status","access", "isTrial", "environment").mkString(",")
-
-      Ok((rowHeader +: allDefinitionsAsRows).mkString(System.lineSeparator()))
+      Ok(toCsvString(columnDefinitions, allDefinitionsAsRows))
     })
   }
 

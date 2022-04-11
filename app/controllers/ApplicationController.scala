@@ -41,12 +41,12 @@ import model.subscriptions.ApiData
 import model.ApiStatus.ApiStatus
 import model._
 import utils.ApplicationLogger
+import utils.CsvHelper._
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
-import model.Environment.Environment
 
 @Singleton
 class ApplicationController @Inject()(
@@ -54,7 +54,6 @@ class ApplicationController @Inject()(
   val forbiddenView: ForbiddenView,
   apiDefinitionService: ApiDefinitionService,
   developerService: DeveloperService,
-  // override val authConnector: AuthConnector,
   mcc: MessagesControllerComponents,
   applicationsView: ApplicationsView,
   applicationView: ApplicationView,
@@ -117,10 +116,8 @@ class ApplicationController @Inject()(
       .map(applicationResponse => Ok(toCsvContent(applicationResponse)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse) : String = {
-    case class ColumnDefinition(name: String, getValue : ApplicationResponse => String)
-    
-    val csvColumnDefinitions = Seq(
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse) : String = {    
+    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
       ColumnDefinition("Name",                  (app => app.name)),
       ColumnDefinition("App ID",                (app => app.id.value)),
       ColumnDefinition("Client ID",             (app => app.clientId.value)),
@@ -134,18 +131,14 @@ class ApplicationController @Inject()(
       ColumnDefinition("Last API call",         (app => app.lastAccess.toString()))
     )
 
-    val csvSperator = ","
-
-    def getCsvRowValues(applicationResponse: ApplicationResponse) = {
-      csvColumnDefinitions.map(_.getValue(applicationResponse)).mkString(csvSperator)
-    }
     
     val pagingRow =  s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results" 
-    val headerRow = csvColumnDefinitions.map(columns => columns.name).mkString(csvSperator)
-    val csvRows = paginatedApplicationResponse.applications.map(getCsvRowValues)
     
-    val headerAndApplicationRows = pagingRow +: headerRow +: csvRows
-    headerAndApplicationRows.mkString(System.lineSeparator())
+    toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
+    
+    val csvRows = toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
+    
+    Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>

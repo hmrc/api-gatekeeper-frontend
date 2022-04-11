@@ -16,8 +16,6 @@
 
 package connectors
 
-import java.util.UUID
-
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import model.Environment.Environment
@@ -57,6 +55,11 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     def getDefinitions() = fetchFieldDefinitions(apiContext, version)
 
     internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
+  }
+
+  def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
+    val url = s"$serviceBaseUrl/field"
+    http.GET[AllApiFieldValues](url).map(_.subscriptions)
   }
 
   private def internalFetchFieldValues(getDefinitions: () => Future[List[SubscriptionFieldDefinition]])
@@ -160,19 +163,20 @@ object SubscriptionFieldsConnector {
     .toMap
   }
 
-  private[connectors] case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fieldsId: UUID, fields: Map[FieldName, FieldValue])
-
   private[connectors] case class FieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
   private[connectors] case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: List[FieldDefinition])
 
   private[connectors] case class AllApiFieldDefinitions(apis: List[ApiFieldDefinitions])
 
+  private[connectors] case class AllApiFieldValues(subscriptions: List[ApplicationApiFieldValues])
+
   object JsonFormatters extends APIDefinitionFormatters {
     implicit val format: Format[ApplicationApiFieldValues] = Json.format[ApplicationApiFieldValues]
     implicit val formatFieldDefinition: Format[FieldDefinition] = Json.format[FieldDefinition]
     implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions] = Json.format[ApiFieldDefinitions]
     implicit val formatAllApiFieldDefinitionsResponse: Format[AllApiFieldDefinitions] = Json.format[AllApiFieldDefinitions]
+    implicit val formatAllApplicationApiFieldValues: Format[AllApiFieldValues] = Json.format[AllApiFieldValues]
   }
 }
 

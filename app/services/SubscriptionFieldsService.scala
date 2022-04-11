@@ -35,6 +35,14 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
     connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
+
+  def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier) : Future[List[ApplicationApiFieldValues]] = {
+    val productionEnvironment = model.Environment.PRODUCTION.toString()
+    val connector = connectorFor(productionEnvironment)
+
+    connector.fetchAllFieldValues()
+  }
+
   private def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
     if (deployedTo == "PRODUCTION") {
       productionSubscriptionFieldsConnector
@@ -46,6 +54,8 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 object SubscriptionFieldsService {
   trait SubscriptionFieldsConnector {
     def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+
+    def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]]
   }
 
   type DefinitionsByApiVersion = Map[ApiIdentifier, List[SubscriptionFieldDefinition]]
