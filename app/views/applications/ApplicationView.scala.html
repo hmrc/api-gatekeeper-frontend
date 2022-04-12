@@ -250,11 +250,10 @@
         <tr>
             <th><h3>Privacy policy URL</h3></th>
             <td data-privacy-url="">
-                @{
-                    access match {
-                        case standardAccess : Standard => renderExternalUrl(standardAccess.privacyPolicyUrl)
-                        case _ => {}
-                    }
+                @if(application.privacyPolicyInDesktopApp) {
+                    In Desktop Software
+                } else {
+                    @renderExternalUrl(application.privacyPolicyUrl)
                 }
             </td>
             <td></td>
@@ -262,11 +261,10 @@
         <tr>
             <th><h3>Terms and conditions URL</h3></th>
             <td data-terms-url="">
-                @{
-                    access match {
-                        case standardAccess : Standard => renderExternalUrl(standardAccess.termsAndConditionsUrl)
-                        case _ => {}
-                    }
+                @if(application.termsAndConditionsInDesktopApp) {
+                    In Desktop Software
+                } else {
+                    @renderExternalUrl(application.termsAndConditionsUrl)
                 }
             </td>
             <td></td>

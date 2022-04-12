@@ -16,7 +16,7 @@
 
 package model.applications
 
-import model.{Access, AccessType, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, IpAllowlist, Privileged, Ropc, Standard, TotpIds}
+import model.{Access, AccessType, ApplicationId, ApplicationState, CheckInformation, ClientId, Collaborator, CollaboratorRole, ImportantSubmissionData, IpAllowlist, PrivacyPolicyLocation, Privileged, Ropc, Standard, TermsAndConditionsLocation, TotpIds}
 import org.joda.time.DateTime
 import model.Environment.Environment
 import uk.gov.hmrc.play.json.Union
@@ -42,7 +42,30 @@ case class NewApplication(
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
     grantLength: Period
-)
+) {
+  lazy val privacyPolicyUrl = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(_, PrivacyPolicyLocation.Url(url))), _) => Some(url)
+    case Standard(_, _, Some(url), _, _) => Some(url)
+    case _ => None
+  }
+
+  lazy val privacyPolicyInDesktopApp = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(_, PrivacyPolicyLocation.InDesktopSoftware)), _) => true
+    case _ => false
+  }
+
+  lazy val termsAndConditionsUrl = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(TermsAndConditionsLocation.Url(url), _)), _) => Some(url)
+    case Standard(_, Some(url), _, _, _) => Some(url)
+    case _ => None
+  }
+
+  lazy val termsAndConditionsInDesktopApp = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(TermsAndConditionsLocation.InDesktopSoftware, _)), _) => true
+    case _ => false
+  }
+
+}
 
 object NewApplication {
   import play.api.libs.json.Json
