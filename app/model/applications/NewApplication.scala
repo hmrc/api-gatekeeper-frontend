@@ -43,28 +43,16 @@ case class NewApplication(
     ipAllowlist: IpAllowlist = IpAllowlist(),
     grantLength: Period
 ) {
-  lazy val privacyPolicyUrl = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(_, PrivacyPolicyLocation.Url(url))), _) => Some(url)
-    case Standard(_, _, Some(url), _, _) => Some(url)
-    case _ => None
+  lazy val privacyPolicyLocation = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation)), _) => privacyPolicyLocation
+    case Standard(_, _, Some(url), _, _) => PrivacyPolicyLocation.Url(url)
+    case _ => PrivacyPolicyLocation.NoneProvided
   }
-
-  lazy val privacyPolicyInDesktopApp = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(_, PrivacyPolicyLocation.InDesktopSoftware)), _) => true
-    case _ => false
+  lazy val termsAndConditionsLocation = access match {
+    case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _)), _) => termsAndConditionsLocation
+    case Standard(_, Some(url), _, _, _) => TermsAndConditionsLocation.Url(url)
+    case _ => TermsAndConditionsLocation.NoneProvided
   }
-
-  lazy val termsAndConditionsUrl = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(TermsAndConditionsLocation.Url(url), _)), _) => Some(url)
-    case Standard(_, Some(url), _, _, _) => Some(url)
-    case _ => None
-  }
-
-  lazy val termsAndConditionsInDesktopApp = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(TermsAndConditionsLocation.InDesktopSoftware, _)), _) => true
-    case _ => false
-  }
-
 }
 
 object NewApplication {
