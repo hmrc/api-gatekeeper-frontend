@@ -100,10 +100,8 @@
 }
 
 
-@renderExternalUrl(url: Option[String]) = {
-    @if(url.isDefined) {
-        <a href="@url" target="_blank">@url</a> (opens in a new window)
-    }
+@renderExternalUrl(url: String) = {
+    <a href="@url" target="_blank">@url</a> (opens in a new window)
 }
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
@@ -251,9 +249,10 @@
             <th><h3>Privacy policy URL</h3></th>
             <td data-privacy-url="">
                 @{
-                    access match {
-                        case standardAccess : Standard => renderExternalUrl(standardAccess.privacyPolicyUrl)
-                        case _ => {}
+                    application.privacyPolicyLocation match {
+                        case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
+                        case PrivacyPolicyLocation.InDesktopSoftware => "In Desktop Software"
+                        case _ => ""
                     }
                 }
             </td>
@@ -263,9 +262,10 @@
             <th><h3>Terms and conditions URL</h3></th>
             <td data-terms-url="">
                 @{
-                    access match {
-                        case standardAccess : Standard => renderExternalUrl(standardAccess.termsAndConditionsUrl)
-                        case _ => {}
+                    application.termsAndConditionsLocation match {
+                        case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
+                        case TermsAndConditionsLocation.InDesktopSoftware => "In Desktop Software"
+                        case _ => ""
                     }
                 }
             </td>

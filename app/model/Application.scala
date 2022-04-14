@@ -27,6 +27,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+
 import java.time.Period
 
 case class ApplicationId(value: String) extends AnyVal
@@ -98,6 +99,50 @@ object CheckInformation {
   implicit val formatApprovalInformation = Json.format[CheckInformation]
 }
 
+sealed trait PrivacyPolicyLocation
+
+object PrivacyPolicyLocation {
+  case object NoneProvided extends PrivacyPolicyLocation
+  case object InDesktopSoftware extends PrivacyPolicyLocation
+  case class Url(value: String) extends PrivacyPolicyLocation
+
+  implicit val noneProvidedFormat = Json.format[NoneProvided.type]
+  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
+  implicit val urlFormat = Json.format[Url]
+
+  implicit val format = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
+    .and[NoneProvided.type]("noneProvided")
+    .and[InDesktopSoftware.type]("inDesktop")
+    .and[Url]("url")
+    .format
+}
+
+sealed trait TermsAndConditionsLocation
+
+object TermsAndConditionsLocation {
+  case object NoneProvided extends TermsAndConditionsLocation
+  case object InDesktopSoftware extends TermsAndConditionsLocation
+  case class Url(value: String) extends TermsAndConditionsLocation
+
+  implicit val noneProvidedFormat = Json.format[NoneProvided.type]
+  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
+  implicit val urlFormat = Json.format[Url]
+
+  implicit val format = Union.from[TermsAndConditionsLocation]("termsAndConditionsType")
+    .and[NoneProvided.type]("noneProvided")
+    .and[InDesktopSoftware.type]("inDesktop")
+    .and[Url]("url")
+    .format
+}
+
+case class ImportantSubmissionData(
+  termsAndConditionsLocation: TermsAndConditionsLocation,
+  privacyPolicyLocation: PrivacyPolicyLocation
+)
+object ImportantSubmissionData {
+  implicit val format = Json.format[ImportantSubmissionData]
+}
+
 sealed trait Access {
   val accessType: AccessType.Value
 }
@@ -109,6 +154,7 @@ sealed trait AccessWithRestrictedScopes extends Access {
 case class Standard(redirectUris: List[String] = List.empty,
                     termsAndConditionsUrl: Option[String] = None,
                     privacyPolicyUrl: Option[String] = None,
+                    importantSubmissionData: Option[ImportantSubmissionData] = None,
                     overrides: Set[OverrideFlag] = Set.empty) extends Access {
   override val accessType = AccessType.STANDARD
 }
