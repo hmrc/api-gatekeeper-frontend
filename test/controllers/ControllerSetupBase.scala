@@ -54,7 +54,7 @@ trait ControllerSetupBase
     None,
     Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator),
     DateTime.now(),
-    DateTime.now(),
+    Some(DateTime.now()),
     Standard(),
     ApplicationState(),
     grantLength)

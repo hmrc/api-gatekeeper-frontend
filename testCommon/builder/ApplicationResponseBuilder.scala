@@ -42,7 +42,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       description = Some(s"$appId-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       createdOn = createdOn,
-      lastAccess = lastAccess,
+      lastAccess = Some(lastAccess),
       access = Standard(
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
@@ -67,7 +67,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
     ApplicationResponse(ApplicationId(randomUUID().toString), ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
-      lastAccess, Privileged(), ApplicationState(), grantLength, RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
+      Some(lastAccess), Privileged(), ApplicationState(), grantLength, RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
 
   def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
@@ -117,7 +117,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 
