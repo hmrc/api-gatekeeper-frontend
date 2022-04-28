@@ -242,7 +242,7 @@ case class ApplicationResponse(id: ApplicationId,
                                description: Option[String] = None,
                                collaborators: Set[Collaborator],
                                createdOn: DateTime,
-                               lastAccess: DateTime,
+                               lastAccess: Option[DateTime],
                                access: Access,
                                state: ApplicationState,
                                grantLength: Period,
@@ -285,7 +285,7 @@ object ApplicationResponse {
       (JsPath \ "description").readNullable[String] and
       (JsPath \ "collaborators").read[Set[Collaborator]] and
       (JsPath \ "createdOn").read[DateTime] and
-      (JsPath \ "lastAccess").read[DateTime] and
+      (JsPath \ "lastAccess").readNullable[DateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
       (JsPath \ "grantLength").read[Period] and

@@ -62,7 +62,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val grantLength: Period = Period.ofDays(547)
     ApplicationResponse(
       ApplicationId.random, ClientId("clientId"), "gatewayId", name, deployedTo, None,
-      collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+      collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
   }
 
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")

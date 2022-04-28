@@ -52,7 +52,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       gatewayId = "gateway",
       name = "AnApplicationName",
       createdOn = DateTime.now(),
-      lastAccess = DateTime.now(),
+      lastAccess = Some(DateTime.now()),
       lastAccessTokenUsage = None,
       deployedTo = Environment.PRODUCTION,
       description = None,

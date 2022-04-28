@@ -35,7 +35,7 @@ class NewApplicationSpec extends HmrcSpec {
       "gatewayId",
       "name",
       DateTime.now(),
-      DateTime.now(),
+      Some(DateTime.now()),
       None,
       Environment.PRODUCTION,
       access = standardAccess,

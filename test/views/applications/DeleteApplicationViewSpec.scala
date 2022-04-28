@@ -49,7 +49,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         None,
         Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)),
         DateTime.now(),
-        DateTime.now(),
+        Some(DateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength

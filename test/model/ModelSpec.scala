@@ -73,7 +73,7 @@ class ModelSpec  extends AsyncHmrcSpec {
     val grantLength: Period = Period.ofDays(547)
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(
-        ApplicationId.random, ClientId("clientid"), "gatewayId", "application", "PRODUCTION", None, teamMembers, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+        ApplicationId.random, ClientId("clientid"), "gatewayId", "application", "PRODUCTION", None, teamMembers, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))

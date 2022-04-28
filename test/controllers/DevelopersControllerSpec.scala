@@ -46,7 +46,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     def anApplication(collaborators: Set[Collaborator]) = {
       val grantLength: Period = Period.ofDays(547)
       ApplicationResponse(
-        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
     }
 
     trait Setup extends ControllerSetupBase {

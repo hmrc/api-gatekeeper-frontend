@@ -42,13 +42,18 @@ object ApplicationFormatter {
   }
 
   def getLastAccess(app: NewApplication): String = {
-    if (secondsBetween(app.createdOn, app.lastAccess).getSeconds == 0) {
-      "No API called"
-    } else if (daysBetween(initialLastAccessDate.toLocalDate, app.lastAccess.toLocalDate).getDays > 0) {
-      dateFormatter.print(app.lastAccess)
-    } else {
-      s"More than ${monthsBetween(app.lastAccess, DateTime.now()).getMonths} months ago"
-    }
+   app.lastAccess match {
+     case Some(lastAccess) =>
+       if (secondsBetween(app.createdOn, lastAccess).getSeconds == 0) {
+         "No API called"
+       } else if (daysBetween(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate).getDays > 0) {
+         dateFormatter.print(lastAccess)
+       } else {
+         s"More than ${monthsBetween(lastAccess, DateTime.now()).getMonths} months ago"
+       }
+     case None =>  "No API called"
+   }
+
   }
 }
 

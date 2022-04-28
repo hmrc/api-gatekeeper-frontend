@@ -274,7 +274,7 @@ class ApplicationControllerSpec
             description = None,
             collaborators = Set.empty,
             createdOn = DateTime.parse("2001-02-03T12:01:02Z"),
-            lastAccess = DateTime.parse("2002-02-03T12:01:02Z"),
+            lastAccess = Some(DateTime.parse("2002-02-03T12:01:02Z")),
             Standard(),
             ApplicationState(),
             grantLength)
@@ -287,7 +287,7 @@ class ApplicationControllerSpec
         
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z"""
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,Some(2002-02-03T12:01:02.000Z)"""
 
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody shouldBe expectedCsvContent
@@ -935,7 +935,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -958,7 +958,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -983,7 +983,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
 
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
@@ -1007,7 +1007,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
           val existingApp = ApplicationResponse(
-            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), DateTime.now(), Standard(), ApplicationState(), grantLength)
+            ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           givenTheGKUserIsAuthorisedAndIsASuperUser()
