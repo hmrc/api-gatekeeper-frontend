@@ -30,7 +30,7 @@ case class NewApplication(
     gatewayId: String,
     name: String,
     createdOn: DateTime,
-    lastAccess: DateTime,
+    lastAccess: Option[DateTime],
     lastAccessTokenUsage: Option[DateTime] = None,
     deployedTo: Environment,
     description: Option[String] = None,

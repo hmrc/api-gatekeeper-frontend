@@ -41,7 +41,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       gatewayId = "",
       name = s"${appId.value}-name",
       createdOn = createdOn,
-      lastAccess = lastAccess,
+      lastAccess = Some(lastAccess),
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"${appId.value}-description"),
@@ -151,7 +151,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
+    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
     
