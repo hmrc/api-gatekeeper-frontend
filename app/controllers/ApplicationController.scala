@@ -121,6 +121,7 @@ class ApplicationController @Inject()(
       ColumnDefinition("Name",                  (app => app.name)),
       ColumnDefinition("App ID",                (app => app.id.value)),
       ColumnDefinition("Client ID",             (app => app.clientId.value)),
+      ColumnDefinition("Gateway ID",            (app => app.gatewayId)),
       ColumnDefinition("Environment",           (app => app.deployedTo)),
       ColumnDefinition("Status",                (app => State.displayedState(app.state.name))),
       ColumnDefinition("Rate limit tier",       (app => app.rateLimitTier.toString())),
@@ -130,7 +131,6 @@ class ApplicationController @Inject()(
       ColumnDefinition("Submitted/Created on",  (app => app.createdOn.toString())),
       ColumnDefinition("Last API call",         (app => app.lastAccess.fold("")(_.toString)))
     )
-
     
     val pagingRow =  s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results" 
     
