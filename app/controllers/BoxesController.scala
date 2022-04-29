@@ -37,20 +37,17 @@ import utils.CsvHelper.ColumnDefinition
 @Singleton
 class BoxesController @Inject()(
   mcc: MessagesControllerComponents,
-  val applicationService: ApplicationService,
   val apmService: ApmService,
-  val errorHandler: ErrorHandler,
   authConnector: AuthConnector,
   forbiddenHandler: ForbiddenHandler
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ActionBuilders {
+  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) {
     
-  // TODO: Test me
   def getAll(): Action[AnyContent] = anyStrideUserAction { implicit request =>
 
     apmService.fetchAllBoxes().map(boxes => {
       val columnDefinitions : Seq[ColumnDefinition[Box]] = Seq(
-        ColumnDefinition("environment",(box => box.environment)),
+        ColumnDefinition("environment",(box => box.environment.toString())),
         ColumnDefinition("applicationId",(box => box.applicationId.fold("")(_.value))),
         ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
         ColumnDefinition("name",(box => box.boxName)),
