@@ -51,7 +51,7 @@ class BoxesController @Inject()(
         ColumnDefinition("applicationId",(box => box.applicationId.fold("")(_.value))),
         ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
         ColumnDefinition("name",(box => box.boxName)),
-        ColumnDefinition("boxId",(box => box.boxId)),
+        ColumnDefinition("boxId",(box => box.boxId.value)),
         ColumnDefinition("callbackUrl", (box => box.subscriber.map(s=>s.callBackUrl).getOrElse(""))),
       )
       

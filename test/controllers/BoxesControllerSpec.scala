@@ -23,7 +23,7 @@ import scala.concurrent.Future
 import org.joda.time.DateTime
 
 import services.ApmService
-import model.{Box,BoxCreator,Environment,ApplicationId,ClientId,BoxSubscriber,SubscriptionType}
+import model.{Box,BoxId,BoxCreator,Environment,ApplicationId,ClientId,BoxSubscriber,SubscriptionType}
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
@@ -52,7 +52,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         )
 
         val box = Box(
-          "boxId",
+          BoxId("boxId"),
           "boxName",
           BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")),
           Some(boxSubscriber), Environment.PRODUCTION)

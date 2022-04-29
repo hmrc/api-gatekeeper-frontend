@@ -20,8 +20,10 @@ import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import model.Environment.Environment
 
+case class BoxId(value: String) extends AnyVal
+
 case class Box(
-  boxId: String, // TODO: Create BoxId class
+  boxId: BoxId,
   boxName: String,
   boxCreator : BoxCreator,
   applicationId : Option[ApplicationId],

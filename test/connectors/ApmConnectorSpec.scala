@@ -63,7 +63,7 @@ class ApmConnectorSpec
     val combinedList = List(combinedRestApi1, combinedXmlApi2)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", DateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box = Box("boxId", "boxName", BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")), Some(boxSubscriber), Environment.PRODUCTION)
+    val box = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")), Some(boxSubscriber), Environment.PRODUCTION)
   }
 
   "fetchApplicationById" should {
@@ -281,6 +281,7 @@ class ApmConnectorSpec
 
   "fetchAllBoxes" should {
     import play.api.libs.json.JodaWrites._
+    implicit val writesBoxId = Json.valueFormat[BoxId]
     implicit val writesBoxCreator = Json.writes[BoxCreator]
     implicit val writesBoxSubscriber = Json.writes[BoxSubscriber]
     implicit val writesBox = Json.writes[Box]
