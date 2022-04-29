@@ -17,16 +17,13 @@
 package services
 
 import connectors.ApmConnector
-import model.ApplicationId
-import model.ApiDefinitions
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions._
-import model.ApiContext
+import model.{ApplicationId,ApiDefinitions,ApiContext,CombinedApi,Box}
 import model.Environment.Environment
-import model.CombinedApi
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
 
@@ -46,7 +43,7 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllCombinedApis()
   }
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[model.Box]] = {
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     apmConnector.fetchAllBoxes()
   }
 }

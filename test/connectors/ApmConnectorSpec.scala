@@ -36,6 +36,7 @@ import model.APIAccessType.PUBLIC
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import utils.WireMockSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.joda.time.DateTime
 
 class ApmConnectorSpec 
     extends AsyncHmrcSpec
@@ -60,6 +61,9 @@ class ApmConnectorSpec
     val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
     val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
     val combinedList = List(combinedRestApi1, combinedXmlApi2)
+
+    val boxSubscriber = BoxSubscriber("callbackUrl", DateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
+    val box = Box("boxId", "boxName", BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")), Some(boxSubscriber), Environment.PRODUCTION)
   }
 
   "fetchApplicationById" should {
@@ -273,5 +277,30 @@ class ApmConnectorSpec
         await(underTest.fetchAllCombinedApis())
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
+  }
+
+  "fetchAllBoxes" should {
+    import play.api.libs.json.JodaWrites._
+    implicit val writesBoxCreator = Json.writes[BoxCreator]
+    implicit val writesBoxSubscriber = Json.writes[BoxSubscriber]
+    implicit val writesBox = Json.writes[Box]
+    
+    "returns all boxes" in new Setup {
+      val url = "/push-pull-notifications/boxes"
+
+      val boxes = List(box)
+
+      stubFor(
+        get(urlPathEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withBody(Json.toJson(boxes).toString)
+        )
+      )
+
+      val result = await(underTest.fetchAllBoxes())
+      result shouldBe boxes
+    }    
   }
 }

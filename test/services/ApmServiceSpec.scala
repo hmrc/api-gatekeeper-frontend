@@ -100,7 +100,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
         FetchAllBoxes.returns(allBoxes)
 
         val result = await(apmService.fetchAllBoxes())
-        result shouldBe combinedList
+        result shouldBe allBoxes
       }
     }
   }

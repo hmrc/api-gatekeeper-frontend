@@ -92,7 +92,6 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[CombinedApi]](s"${config.serviceBaseUrl}/combined-rest-xml-apis")
   }
 
-  // TODO: Test me
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[model.Box]] = {
     http.GET[List[model.Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
   }
