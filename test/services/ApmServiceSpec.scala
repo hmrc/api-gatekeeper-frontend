@@ -92,6 +92,16 @@ class ApmServiceSpec extends AsyncHmrcSpec {
         result shouldBe combinedList
       }
     }
-  }
 
+    "fetchAllBoxes" should {
+      "return a list of PPNS Boxes" in new Setup {
+        val allBoxes = List.empty
+        
+        FetchAllBoxes.returns(allBoxes)
+
+        val result = await(apmService.fetchAllBoxes())
+        result shouldBe allBoxes
+      }
+    }
+  }
 }

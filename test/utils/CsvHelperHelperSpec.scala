@@ -33,7 +33,22 @@ class CsvHelperSpec extends AnyWordSpec with Matchers{
 
       csvText shouldBe """Value,Length
 Hello,5
-World!,6"""
+World!,6
+"""
+    }
+  }
+  
+  "CsvHelper" should {
+    "handle line break characters in data" in {
+      val data = Seq("\n")
+
+      val columnDefinitions = Seq[ColumnDefinition[String]](
+        ColumnDefinition("Value", (text=>text)),
+        ColumnDefinition("Length", (text=>text.length().toString()))
+      )
+      val csvText = toCsvString(columnDefinitions, data)
+
+      csvText shouldBe "Value,Length\n\"\n\",1\n" 
     }
   }
 }

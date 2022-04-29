@@ -23,6 +23,7 @@ import model._
 import connectors.ApmConnector
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions.ApiData
+import model.pushpullnotifications.Box
 
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -45,6 +46,10 @@ trait ApmConnectorMockProvider {
   object GetAllFieldDefinitions {
     def returns(fieldDefinitions: ApiDefinitions.Alias) = when(mockApmConnector.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
   }
+  
+  object FetchAllBoxes {
+    def returns(allBoxes: List[Box]) = when(mockApmConnector.fetchAllBoxes()(*)).thenReturn(successful(allBoxes))
+  }
 
   object ApmConnectorConfigMock {
     object ServiceBaseUrl {
@@ -59,6 +64,5 @@ trait ApmConnectorMockProvider {
         mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
-
   }
 }

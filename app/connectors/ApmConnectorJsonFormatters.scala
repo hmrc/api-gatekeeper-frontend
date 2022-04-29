@@ -19,14 +19,21 @@ package connectors
 import model.ApiStatusJson
 import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
-import model.CombinedApi
+import model.pushpullnotifications.{Box, BoxSubscriber, BoxCreator, BoxId}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
   import model.subscriptions.{VersionData, ApiData}
   import play.api.libs.json._
 
+  import play.api.libs.json.JodaReads._
+  
   implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
   implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
   implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
+
+  implicit val readsBoxId= Json.valueFormat[BoxId]
+  implicit val readsBoxCreator = Json.reads[BoxCreator]
+  implicit val readsBoxSubscriber = Json.reads[BoxSubscriber]
+  implicit val readsBox = Json.reads[Box]
 }

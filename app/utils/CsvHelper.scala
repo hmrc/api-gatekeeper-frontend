@@ -16,21 +16,30 @@
 
 package utils
 
+import java.io.StringWriter
+
 object CsvHelper {
   case class ColumnDefinition[T](name: String, getValue : T => String)
 
   def toCsvString[T](csvColumnDefinitions: Seq[ColumnDefinition[T]], data: Seq[T]) : String = {
-  
-    val csvSperator = ","
+    import org.apache.commons.csv.{CSVFormat, CSVPrinter}
 
-    def getCsvRowValues(dataItem: T) = {
-      csvColumnDefinitions.map(_.getValue(dataItem)).mkString(csvSperator)
+    val headers: Seq[String]  = csvColumnDefinitions.map(_.name)
+
+    val format = CSVFormat.RFC4180.builder
+      .setHeader(headers: _*)
+      .setRecordSeparator(System.lineSeparator())
+      .build()
+
+    val output = new StringWriter()
+    val printer = new CSVPrinter(output, format)
+
+    def getCsvRowValues(dataItem: T) : Seq[String] = {
+      csvColumnDefinitions.map(_.getValue(dataItem))
     }
 
-    val headerRow = csvColumnDefinitions.map(columns => columns.name).mkString(csvSperator)
-    val csvRows = data.map(getCsvRowValues)
-    
-    val headerAndApplicationRows = headerRow +: csvRows
-    headerAndApplicationRows.mkString(System.lineSeparator())
+    data.foreach(row => printer.printRecord(getCsvRowValues(row): _*))
+
+    output.getBuffer.toString
   }
 }
