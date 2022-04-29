@@ -52,7 +52,8 @@ class BoxesController @Inject()(
         ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
         ColumnDefinition("name",(box => box.boxName)),
         ColumnDefinition("boxId",(box => box.boxId.value)),
-        ColumnDefinition("callbackUrl", (box => box.subscriber.map(s=>s.callBackUrl).getOrElse(""))),
+        ColumnDefinition("subscriptionType",(box => (box.subscriber.fold("")(s=>s.subscriptionType.toString())))),
+        ColumnDefinition("callbackUrl", (box => box.subscriber.fold("")(s=>s.callBackUrl)))
       )
       
       Ok(CsvHelper.toCsvString(columnDefinitions, boxes))
