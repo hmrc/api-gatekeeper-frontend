@@ -19,7 +19,7 @@ package connectors
 import model.ApiStatusJson
 import model.APIDefinitionFormatters
 import model.applications.ApplicationWithSubscriptionData
-import model.{Box, BoxSubscriber, BoxCreator, BoxId}
+import model.pushpullnotifications.{Box, BoxSubscriber, BoxCreator, BoxId}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 

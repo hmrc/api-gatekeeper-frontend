@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext
 import model.subscriptions.ApiData
+import model.pushpullnotifications.Box
 import model.ApplicationId
 import model.Environment.Environment
 import model.ApiVersion
@@ -92,8 +93,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[CombinedApi]](s"${config.serviceBaseUrl}/combined-rest-xml-apis")
   }
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[model.Box]] = {
-    http.GET[List[model.Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+    http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
   }
 }
 

@@ -23,7 +23,8 @@ import scala.concurrent.Future
 import org.joda.time.DateTime
 
 import services.ApmService
-import model.{Box,BoxId,BoxCreator,Environment,ApplicationId,ClientId,BoxSubscriber,SubscriptionType}
+import model.{Environment,ApplicationId,ClientId}
+import model.pushpullnotifications.{Box,BoxId,BoxCreator,BoxSubscriber,SubscriptionType}
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 

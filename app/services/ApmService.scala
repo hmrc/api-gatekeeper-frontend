@@ -22,7 +22,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions._
-import model.{ApplicationId,ApiDefinitions,ApiContext,CombinedApi,Box}
+import model.{ApplicationId,ApiDefinitions,ApiContext,CombinedApi}
+import model.pushpullnotifications.Box
 import model.Environment.Environment
 
 class ApmService @Inject() (apmConnector: ApmConnector) {

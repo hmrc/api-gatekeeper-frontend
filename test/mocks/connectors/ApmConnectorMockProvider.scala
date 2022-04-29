@@ -23,6 +23,7 @@ import model._
 import connectors.ApmConnector
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions.ApiData
+import model.pushpullnotifications.Box
 
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

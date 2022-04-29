@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package model
+package model.pushpullnotifications
 
 import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import model.Environment.Environment
+import model._
 
 case class BoxId(value: String) extends AnyVal
 

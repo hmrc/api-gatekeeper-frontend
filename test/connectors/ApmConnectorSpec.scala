@@ -21,18 +21,19 @@ import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.applications.ApplicationWithSubscriptionData
-import model.ApplicationId
 import uk.gov.hmrc.http.HeaderCarrier
 import builder.{ApiBuilder, ApplicationBuilder}
 import model._
 import model.CombinedApi
+import model.ApplicationId
+import model.APIDefinitionFormatters._
+import model.APIAccessType.PUBLIC
 import model.subscriptions.ApiData
+import model.subscriptions.VersionData
+import model.pushpullnotifications._
 import play.api.test.Helpers._
 import play.api.libs.json.Json
-import model.subscriptions.VersionData
-import model.APIDefinitionFormatters._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.APIAccessType.PUBLIC
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import utils.WireMockSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

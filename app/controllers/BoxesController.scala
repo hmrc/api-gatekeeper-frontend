@@ -20,6 +20,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import model._
+import model.pushpullnotifications.Box
 import controllers.actions.ActionBuilders
 import config.{AppConfig, ErrorHandler}
 import scala.concurrent.ExecutionContext
