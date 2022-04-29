@@ -128,7 +128,7 @@ class ApplicationController @Inject()(
       ColumnDefinition("Blocked",               (app => app.blocked.toString())),
       ColumnDefinition("Has IP Allow List",     (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on",  (app => app.createdOn.toString())),
-      ColumnDefinition("Last API call",         (app => app.lastAccess.toString()))
+      ColumnDefinition("Last API call",         (app => app.lastAccess.fold("")(_.toString)))
     )
 
     
