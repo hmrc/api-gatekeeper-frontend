@@ -53,7 +53,8 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
       contentAsString(result) shouldBe """name,version,status,access,isTrial,environment
                                 |MyApi,1.0,Alpha,PUBLIC,false,PRODUCTION
-                                |MyApi,2.0,Stable,PUBLIC,false,PRODUCTION""".stripMargin
+                                |MyApi,2.0,Stable,PUBLIC,false,PRODUCTION
+                                |""".stripMargin
     }
 
     "Forbidden if not stride auth" in new Setup {

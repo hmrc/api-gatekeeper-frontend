@@ -30,7 +30,8 @@ object AppDependencies {
     "com.typesafe.play"           %%  "play-json"                         % "2.9.2",
     "com.typesafe.play"           %%  "play-json-joda"                    % "2.9.2",
     "org.typelevel"               %%  "cats-core"                         % "2.3.1",
-        "com.beachape"            %% "enumeratum-play-json"               % enumeratumVersion
+    "com.beachape"                %% "enumeratum-play-json"               % enumeratumVersion,
+    "org.apache.commons"          % "commons-csv"                         % "1.9.0"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")

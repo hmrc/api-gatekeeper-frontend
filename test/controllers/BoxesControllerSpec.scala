@@ -60,7 +60,8 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         when(apmService.fetchAllBoxes()( (*) )).thenReturn(Future.successful(List(box)))
 
         val expectedCsv = """|environment,applicationId,clientId,name,boxId,callbackUrl
-                             |PRODUCTION,applicationId,clientId,boxName,boxId,callbackUrl""".stripMargin
+                             |PRODUCTION,applicationId,clientId,boxName,boxId,callbackUrl
+                             |""".stripMargin
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK
