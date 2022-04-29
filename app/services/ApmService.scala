@@ -45,4 +45,9 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]]  = {
     apmConnector.fetchAllCombinedApis()
   }
+
+  // TODO: Test me
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[model.Box]] = {
+    apmConnector.fetchAllBoxes()
+  }
 }
