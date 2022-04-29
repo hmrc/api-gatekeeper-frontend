@@ -18,14 +18,15 @@ package model
 
 import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+// import model.Environment.Environment
 
 case class Box(
   boxId: String, // TODO: Create BoxId class
   boxName: String,
   boxCreator : BoxCreator,
-  applicationId : ApplicationId,
+  applicationId : Option[ApplicationId],
   subscriber: Option[BoxSubscriber],
-  environment: String
+  environment: String // TODO: Use environment
 )
 
 case class BoxCreator(clientId: ClientId)
