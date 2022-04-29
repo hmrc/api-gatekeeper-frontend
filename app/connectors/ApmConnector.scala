@@ -94,7 +94,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   // TODO: Test me
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[model.Box]] = {
-    http.GET[List[model.Box]](s"${config.serviceBaseUrl}/push-pull-notifications/box")
+    http.GET[List[model.Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
   }
 }
 

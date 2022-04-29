@@ -53,9 +53,10 @@ class BoxesController @Inject()(
         ColumnDefinition("environment",(box => box.environment)),
         ColumnDefinition("applicationId",(box => box.applicationId.value)),
         ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
+        ColumnDefinition("name",(box => box.boxName)),
         ColumnDefinition("boxId",(box => box.boxId)),
         ColumnDefinition("callbackUrl", (box => box.subscriber.map(s=>s.callBackUrl).getOrElse(""))),
-       )
+      )
       
       Ok(CsvHelper.toCsvString(columnDefinitions, boxes))
     })

@@ -98,4 +98,4 @@ GET         /emails/email-preferences/by-api-category                           
 GET         /emails/email-preferences/select-api                                controllers.EmailsController.selectSpecficApi(selectedAPIs: Option[List[String]])
 GET         /emails/email-preferences/by-specific-api                           controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
 
-GET         /box/csv                                                              controllers.BoxesController.getAll()
+GET         /boxes/csv                                                              controllers.BoxesController.getAll()

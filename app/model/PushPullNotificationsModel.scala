@@ -21,6 +21,7 @@ import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 case class Box(
   boxId: String, // TODO: Create BoxId class
+  boxName: String,
   boxCreator : BoxCreator,
   applicationId : ApplicationId,
   subscriber: Option[BoxSubscriber],
