@@ -45,6 +45,10 @@ trait ApmConnectorMockProvider {
   object GetAllFieldDefinitions {
     def returns(fieldDefinitions: ApiDefinitions.Alias) = when(mockApmConnector.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
   }
+  
+  object FetchAllBoxes {
+    def returns(allBoxes: List[Box]) = when(mockApmConnector.fetchAllBoxes()(*)).thenReturn(successful(allBoxes))
+  }
 
   object ApmConnectorConfigMock {
     object ServiceBaseUrl {
@@ -59,6 +63,5 @@ trait ApmConnectorMockProvider {
         mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
-
   }
 }
