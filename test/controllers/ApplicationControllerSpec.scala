@@ -268,7 +268,7 @@ class ApplicationControllerSpec
         val applicationResponse = ApplicationResponse(
             ApplicationId("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e"),
             ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
-            "gatewayId",
+            "the-gateway-id",
             "App Name",
             deployedTo = "SANDBOX",
             description = None,
@@ -286,8 +286,8 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
         
         val expectedCsvContent = """page: 1 of 1 from 1 results
-Name,App ID,Client ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
