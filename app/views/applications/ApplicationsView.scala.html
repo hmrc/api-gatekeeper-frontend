@@ -110,6 +110,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                             <select class="form-control input-select input-select--large" id="status" name="status">
                                 <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
                                 <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
+                                <option @if(status == Some("PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION")){selected} value="PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION">Pending responsible individual verification</option>
                                 <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
                                 <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
                                 <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
@@ -179,6 +180,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                             @defining(application.state.name match {
                                 case PRODUCTION => ("status status--verified", "Active")
                                 case PRE_PRODUCTION => ("status status--verified", "Active")
+                                case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
                                 case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
                                 case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                                 case _ => ("status", "Created")
