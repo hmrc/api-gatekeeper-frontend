@@ -24,51 +24,53 @@
 
 @main(title = s"${applicationConfig.title} - Manage rate limit tier") {
 
-<div class="">
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage rate limit tier</li>
-        </ul>
-    </nav>
-    <h1>Manage rate limit tier</h1>
+  <h1 class="govuk-heading-l">Manage rate limit tier</h1>
 
-    <div class="notice">
-        <i class="icon icon-important">
-            <span class="visually-hidden">Warning</span>
-        </i>
-        <strong class="bold-small">
-            Tell the application's administrators that any deprecated APIs are not re-subscribed when we change the rate limit.
-        </strong>
-    </div>
-    <br>
+  <div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+      <span class="govuk-warning-text__assistive">Warning</span>
+      Tell the application's administrators that any deprecated APIs are not re-subscribed when we change the rate limit.
+    </strong>
+  </div>
 
-    @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), 'class -> "form") {
-        <div>
-            @helper.CSRF.formField
+  @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), 'class -> "form") {
+    @helper.CSRF.formField
 
-            @for(t <- RateLimitTier.asOrderedList) {
-                <fieldset class="inline">
-                <label class="block-label" style="width: 100%;">
-                    <input type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>
-                    @RateLimitTier.displayedTier(t)
-                </label>
-                </fieldset>
-            }
-            <strong class="bold-small">
-                NOTE: Do NOT use Platinum or Rhodium.
-            </strong>
-        </div>
-        <div class="form-field form-field--submit">
-            <button id="submit" class="button" type="submit">Save and return</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
-        </div>
+    @for(t <- RateLimitTier.asOrderedList) {
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-visually-hidden">
+            Rate Limit
+          </legend>
+          <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>
+              <label class="govuk-label govuk-radios__label" for="@t">
+                @RateLimitTier.displayedTier(t)
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
     }
-</div>
-
+    <span class="govuk-!-font-weight-bold">
+      NOTE: Do NOT use Platinum or Rhodium.
+    </span>
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save and return</button>
+      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }
-

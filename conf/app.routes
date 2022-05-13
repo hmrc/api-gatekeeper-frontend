@@ -1,6 +1,7 @@
 # microservice specific routes
 
 ->          /apicatalogue             apicataloguepublish.Routes
+->          /hmrc-frontend            hmrcfrontend.Routes
 
 
 GET         /review                                                           controllers.ApplicationController.reviewPage(id: model.ApplicationId)

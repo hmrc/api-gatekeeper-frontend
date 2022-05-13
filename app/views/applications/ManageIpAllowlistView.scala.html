@@ -26,58 +26,62 @@
 
 @main(title = s"${applicationConfig.title} - Manage IP allow list") {
 
-<div class="ip-allowlist">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage IP allow list</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
 
-    @errorSummary(form)
+  @errorSummary(form)
 
-    <h1 class="heading-xlarge">Manage IP allow list</h1>
+  <h1 class="govuk-heading-l">Manage IP allow list</h1>
 
-    @helper.form(action = controllers.routes.ApplicationController.manageIpAllowlistAction(application.id)) {
+  @helper.form(action = controllers.routes.ApplicationController.manageIpAllowlistAction(application.id)) {
 
-        <p>The IP allow list controls where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
-        <p>The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
-        <p class="indented">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
+    <p class="govuk-body">The IP allow list controls where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
+    <p class="govuk-body">The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
+    <p class="govuk-body">&lt;IP Address&gt; / &lt;netmask&gt; e.g. 1.1.1.1/24</p>
 
-        <p>The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
-        <p>The netmask identifies how large the network is.</p>
-        <p>This notation can be used to give access to a single IP address (by using a 32bit netmask) or a larger network by varying the IP address.</p>
-        <p><strong class="bold">Third parties should be as specific as possible about the IP address range. Keep IP address ranges as small as possible.</strong></p>
+    <p class="govuk-body">The CIDR block must be between the ranges of 0.0.0.0/24 and 255.255.255.255/32.</p>
+    <p class="govuk-body">The netmask identifies how large the network is.</p>
+    <p class="govuk-body">This notation can be used to give access to a single IP address (by using a 32bit netmask) or a larger network by varying the IP address.</p>
+    <p class="govuk-body govuk-!-font-weight-bold">Third parties should be as specific as possible about the IP address range. Keep IP address ranges as small as possible.</p>
 
-        @helper.CSRF.formField
-        <div class="form-group @if(form.errors("allowlistedIps").nonEmpty) {form-field--error}">
-            <label for="allowlistedIps" id="allowlistedIps-label">Enter each CIDR block on a separate line:</label>
-            @fieldError(form.errors, "allowlistedIps", false)
-            <textarea
-            inputtype="text"
-            id="allowlistedIps"
-            name="allowlistedIps"
-            cols="20"
-            rows="5"
-            class="form-control @if(form.errors("allowlistedIps").nonEmpty) {form-control-error}"
-            aria-labelledby="allowlistedIps-label"
-            aria-describedby="allowlistedIps-note">@form.data.getOrElse("allowlistedIps", "")</textarea>
+    @helper.CSRF.formField
+
+    <div class="govuk-form-group @if(form.errors("allowlistedIps").nonEmpty) {form-field--error}">
+      <label class="govuk-label" for="allowlistedIps" id="allowlistedIps-label">
+        Enter each CIDR block on a separate line:
+      </label>
+      <textarea class="govuk-textarea @if(form.errors("allowlistedIps").nonEmpty) {form-control-error}" id="allowlistedIps" name="allowlistedIps" rows="5">
+        @form.data.getOrElse("allowlistedIps", "")
+      </textarea>
+    </div>
+
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-visually-hidden">
+          Make the IP allow list mandatory?
+        </legend>
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" type="checkbox" id="required" name="required" value="true" @if(form.data.get("required").contains("true")){checked}>
+            <label class="govuk-label govuk-checkboxes__label" for="required">
+              Make the IP allow list mandatory for this application
+            </label>
+          </div>
         </div>
-        <div class="form-group">
-            <div class="multiple-choice">
-                <input type="checkbox" id="required" name="required" value="true" @if(form.data.get("required").contains("true")){checked}>
-                <label for="required">Make the IP allow list mandatory for this application</label>
-            </div>
-        </div>
+      </fieldset>
+    </div>
 
-        <div class="form-field">
-            <button id="submit" class="button button--padded" type="submit">Save</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button">Cancel</a>
-        </div>
-    }
-</div>
-
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save</button>
+      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }

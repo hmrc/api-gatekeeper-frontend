@@ -24,50 +24,50 @@
 
 @main(title = s"${applicationConfig.title} - Manage Team Members") {
 
-<div class="content-body">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage team members</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
 
-    <h1 class="heading-large">Manage Team Members</h1>
+  <h1 class="govuk-heading-l">Manage Team Members</h1>
 
-    <section class="hard--top flush--bottom">
-        <h2 class="heading-medium">Team members</h2>
+  <h2 class="govuk-heading-m">Team members</h2>
 
-        <table class="table--spaced-top">
-            <thead>
-                <tr>
-                    <th class="hard">Email address</th>
-                    <th class="hard">Role</th>
-                    <th class="hard"></th>
-                </tr>
-            </thead>
+  <table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Dates and amounts</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Email address</th>
+        <th scope="col" class="govuk-table__header">Role</th>
+        <th scope="col" class="govuk-table__header"></th>
+      </tr>
+    </thead>
 
-            <tbody>
-            @for(teamMember <- application.collaborators.toSeq.sortBy(_.emailAddress)) {
-                <tr data-teamMember-row="@teamMember.emailAddress">
-                    <td class="table--large">@teamMember.emailAddress</td>
-                    <td class="table--large text--left hard--left">@CollaboratorRole.displayedRole(teamMember.role)</td>
-                    <td class="text--right hard--right">
-                        @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), 'class -> "form inline-controls") {
-                            @helper.CSRF.formField
-                            <input id="email" name="email" class="form-control" hidden aria-hidden="true" type="text" value="@{teamMember.emailAddress}">
-                            <input id="remove" class="button secondary-button button--link" type="submit" value="Remove">
-                        }
-                    </td>
-                </tr>
+    <tbody class="govuk-table__body">
+      @for(teamMember <- application.collaborators.toSeq.sortBy(_.emailAddress)) {
+        <tr class="govuk-table__row" data-teamMember-row="@teamMember.emailAddress">
+          <td class="govuk-table__cell">@teamMember.emailAddress</td>
+          <td class="govuk-table__cell">@CollaboratorRole.displayedRole(teamMember.role)</td>
+          <td class="govuk-table__cell">
+            @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), 'class -> "form inline-controls") {
+            @helper.CSRF.formField
+              <input id="email" name="email" class="govuk-visually-hidden" hidden aria-hidden="true" type="text" value="@{teamMember.emailAddress}">
+              <input id="remove" class="govuk-button govuk-button--secondary" type="submit" value="Remove">
             }
-            </tbody>
-        </table>
-        <br>
-        <a href="@routes.TeamMembersController.addTeamMember(application.id)" class="button">Add a team member</a>
-        <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button">Cancel</a>
-    </section>
-</div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <br>
+  <div class="govuk-button-group">
+    <a href="@routes.TeamMembersController.addTeamMember(application.id)" class="govuk-button">Add a team member</a>
+    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+  </div>
 }

@@ -26,58 +26,56 @@
 
 @main(title = s"${applicationConfig.title} - Manage grant length") {
 
-<div class="column-two-thirds">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage grant length</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
 
-    @errorSummary(form)
+  @errorSummary(form)
 
-    <h1 class="heading-large">Manage application grant length</h1>
+  <h1 class="govuk-heading-l">Manage application grant length</h1>
 
-    <p>
-        The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
-    </p>
-    <p>The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
-    <legend><strong class="bold">Choose a new application grant length</strong></legend>
-    <div>
-        <span id="changed-name-hint" class="faded-text">
-            A change you make now does not affect existing grant lengths.
-        </span>
-    </div>
-    @if(form.errors("grantLength").nonEmpty) {
-        <br>
-    }
-    @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
-    <div>
-        @helper.CSRF.formField
-        <div class="form-group @if(form.errors("grantLength").nonEmpty) {form-field--error}">
-            @fieldError(form.errors, "grantLength", form.error("submissionError").isEmpty)
-            <br>
-            <fieldset id="grantLength">
-                @for(g <- GrantLength.asOrderedIdList) {
-                    <div class="multiple-choice">
-                        <input type="radio" id="@g" name="grantLength" value="@g">
-                        <label for="@g">
-                            @GrantLength.displayedGrantLength(g)
-                        </label>
-                    </div>
-                }
-            </fieldset>
+  <p class="govuk-body">
+    The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
+  </p>
+
+  <p class="govuk-body">The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
+
+  @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
+    @helper.CSRF.formField
+    <div class="govuk-form-group @if(form.errors("grantLength").nonEmpty) {form-field--error}">
+      <fieldset id="grantLength" class="govuk-fieldset" aria-describedby="application-grant-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+          <h1 class="govuk-fieldset__heading">
+            Choose a new application grant length
+          </h1>
+        </legend>
+        <div id="application-grant-hint" class="govuk-hint">
+          Select one option.
         </div>
+        @fieldError(form.errors, "grantLength", form.error("submissionError").isEmpty)
+        <div class="govuk-radios" data-module="govuk-radios">
+          @for(g <- GrantLength.asOrderedIdList) {
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="@g" name="grantLength" value="@g" type="radio">
+              <label class="govuk-label govuk-radios__label" for="@g">
+                Email
+              </label>
+            </div>
+          }
+        </div>
+      </fieldset>
     </div>
-    <div class="form-field form-field--submit">
-        <button id="submit" class="button" type="submit">Change grant length</button>
-        <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
-    </div>
-    }
-</div>
+  }
 
+  <div class="govuk-button-group">
+    <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Change grant length</button>
+    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+  </div>
 }
-

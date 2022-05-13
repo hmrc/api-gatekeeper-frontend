@@ -25,42 +25,33 @@
 
 @main(title = s"${applicationConfig.title} - Manage scopes") {
 
-<div class="">
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage scopes</li>
-        </ul>
-    </nav>
+  <h1 class="govuk-heading-l">Manage scopes</h1>
 
-    <h1>Manage scopes</h1>
+  @helper.form(action = routes.ApplicationController.updateScopes(application.id), 'class -> "form") {
+      @helper.CSRF.formField
 
-    @helper.form(action = routes.ApplicationController.updateScopes(application.id), 'class -> "form") {
-        <div>
-            @helper.CSRF.formField
+      <div class="govuk-form-group @if(form.errors("scopes").nonEmpty) {form-field--error}">
+        <label class="govuk-label" for="scopes">
+          Scopes
+        </label>
+        <textarea class="govuk-textarea @if(form.errors("scopes").nonEmpty) {error-field}" name="scopes" id="scopes" cols="50" rows="5"></textarea>
+      </div>
 
-            <table>
-                <tr>
-                    <th>Scopes</th>
-                    <td>
-                        <div class="@if(form.errors("scopes").nonEmpty) {form-field--error}">
-                            @fieldError(form.errors, "scopes")
-                            <textarea name="scopes" id="scopes" cols="50" rows="5" class="@if(form.errors("scopes").nonEmpty) {error-field}">@form.data.get("scopes")</textarea>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="form-field form-field--submit">
-            <button id="submit" class="button" type="submit">Save and return</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="button--link">Cancel</a>
-        </div>
-    }
-</div>
-
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save and return</button>
+      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }
 

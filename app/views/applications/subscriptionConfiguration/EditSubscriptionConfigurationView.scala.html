@@ -31,56 +31,46 @@
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {
 
-<div class="">
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}">Subscription configuration</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@pageTitle</li>
-        </ul>
-    </nav>
 
-  <header>
-    <h1>@pageTitle</h1>
-  </header>
-  </br>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}">Subscription configuration</a>
+      </li>
+    </ol>
+  </div>
+
+  <h1 class="govuk-heading-l">@pageTitle</h1>
 
   @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
-    <div class="form-field-group">
-        @helper.CSRF.formField
-        @helper.repeatWithIndex(form("fields")) { (field, index) =>
-          
-          @defining(field("name").value.getOrElse("")) { formFieldId =>
-            <label class="label--full-length" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.version}-@{field("description").value.getOrElse("")}">
-            <strong class="bold">@{subscriptionViewModel.fields(index).description}</strong>
-            <p>@{subscriptionViewModel.fields(index).hint}</p>
-            </label>
+    @helper.CSRF.formField
+    @helper.repeatWithIndex(form("fields")) { (field, index) =>
+      @defining(field("name").value.getOrElse("")) { formFieldId =>
 
-            @helper.input(field("name"), '_label -> "") { (id, name, value, args) =>
-            <input type="hidden" name="@name" id="@id" value="@value">
-            }
-
-            <div class="@if(form.errors(formFieldId).nonEmpty) {form-field--error}">
-              <fieldset class="inline" class="@if(form.errors(formFieldId).nonEmpty) {error-field}">
-                @fieldError(form.errors, formFieldId)
-
-                @helper.input(field("value"), '_label -> "") { (id, name, value, args) =>
-                  <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="form-input input--medium" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
-                }
-              </fieldset>
-            </div>
-          </br>
-          }
+        @helper.input(field("name"), '_label -> "") { (id, name, value, args) =>
+          <input class="govuk-visually-hidden" type="hidden" name="@name" id="@id" value="@value">
         }
 
-        <div class="form-field form-field--submit">
-            <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-submit" class="button submit-button" type="submit">Save changes</button>
-            <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id)" class="secondary-button button--link">Cancel</a>
+        <div class="govuk-form-group @if(form.errors(formFieldId).nonEmpty) {govuk-form-group--error}">
+          <label class="govuk-label" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.version}-@{field("description").value.getOrElse("")}">
+            <span class="bold">@{subscriptionViewModel.fields(index).description}</span>
+            @{subscriptionViewModel.fields(index).hint}
+          </label>
+          @fieldError(form.errors, formFieldId)
+          @helper.input(field("value"), '_label -> "") { (id, name, value, args) =>
+            <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="govuk-input @if(form.errors(formFieldId).nonEmpty) {govuk-input--error}" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
+          }
         </div>
-
       }
-</div>
+    }
+
+    <div class="govuk-button-group">
+      <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-submit" class="govuk-button" type="submit" data-module="govuk-button">Save changes</button>
+      <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }

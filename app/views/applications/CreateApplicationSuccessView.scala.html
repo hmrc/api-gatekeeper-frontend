@@ -29,59 +29,75 @@
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
 
-<h1 class="heading-large">@applicationName</h1>
+  <h1 class="govuk-heading-l">@applicationName</h1>
 
-<div class="govuk-box-highlight">
-    <h1 class="heading-large">Application added</h1>
-</div>
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h2 class="govuk-panel__title">Application added</h2>
+  </div>
 
 
-<div class="notice">
-    <i class="icon icon-important">
-        <span class="visually-hidden">Warning</span>
-    </i>
+  <div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+      <span class="govuk-warning-text__assistive">Warning</span>
+      This is your only chance to copy and save this application's TOTP.
+    </strong>
+  </div>
 
-    <strong class="bold-small">This is your only chance to copy and save this application's TOTP.</strong>
-
-</div>
-
-<br>
-<table>
-    <tbody>
-    <tr>
-        <th>Application ID</th>
-        <td>@applicationId.value</td>
-    </tr>
-    <tr>
-        <th>Application name</th>
-        <td>@applicationName</td>
-    </tr>
-    <tr>
-        <th>Environment</th>
-        <td>@environment.toLowerCase.capitalize</td>
-    </tr>
-    <tr>
-        <th>Access type</th>
-        @{accessType match {
-        case Some(AccessType.PRIVILEGED) => {<td>Privileged</td>}
-        case Some(AccessType.ROPC) => {<td>ROPC</td>}
-        case _  => {<td></td>}
-        }}
-    </tr>
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application ID
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @applicationId.value
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application name
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @applicationName
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Environment
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @environment.toLowerCase.capitalize
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Access type
+      </dt>
+      @{accessType match {
+        case Some(AccessType.PRIVILEGED) => {<dd class="govuk-summary-list__value">Privileged</dd>}
+        case Some(AccessType.ROPC) => {<dd class="govuk-summary-list__value">ROPC</dd>}
+        case _  => {<dd class="govuk-summary-list__value"></dd>}
+      }}
+    </div>
     @if(totpSecret.isDefined) {
-        <tr>
-            <th>TOTP secret</th>
-            <td>@totpSecret.get.production</td>
-        </tr>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          TOTP secret
+        </dt>
+        <dd class="govuk-summary-list__value">
+          @totpSecret.get.production
+        </dd>
+      </div>
     }
-    <tr>
-        <th>Client ID</th>
-        <td>@clientId.value</td>
-    </tr>
-    </tbody>
-</table>
-<br>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Client ID
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @clientId.value
+      </dd>
+    </div>
+  </dl>
 
-<a href="@{routes.ApplicationController.applicationsPage(None)}" class="button">Done</a>
-
+  <a href="@{routes.ApplicationController.applicationsPage(None)}" class="govuk-button">Done</a>
 }
