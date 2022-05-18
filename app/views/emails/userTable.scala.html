@@ -31,7 +31,7 @@
             } email addresses into the system clipboard." data-clip-text="@emails">Copy
                 emails to clipboard</a>
         </p>
-        <div style="visibility: hidden">
+        <div style="visibility: visible">
           <form method="post" action="@config.gatekeeperComposeEmailUrl">
             @helper.CSRF.formField
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
