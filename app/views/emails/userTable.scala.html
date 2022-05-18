@@ -49,7 +49,7 @@
                   new RegisteredUser("michael.humes@hmrc.gov.uk", UserId(UUID.randomUUID()), "Michael", "Humes", true))
                   if(config.sendToSDSTEmailRecipient) {
               Json.toJson[List[RegisteredUser]](users :+
-              new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST Team", "", true))
+              new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST", "Team", true))
                   } else {
                     Json.toJson[List[RegisteredUser]](
                       users
