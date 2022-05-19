@@ -34,7 +34,7 @@
       </li>
     </ol>
   </div>
-
+  <br />
   @if(flash.get("success").isDefined) {
     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
       <div class="govuk-notification-banner__content">
@@ -91,13 +91,13 @@
             @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
               <div class="govuk-radios__item">
                 {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress) {
-                  <input class="govuk-radios__input" name="collaboratorEmail" type="radio" value={c.emailAddress} checked="">{c.emailAddress}</input>
+                  <input class="govuk-radios__input" name="collaboratorEmail" type="radio" value={c.emailAddress} checked=""></input>
                   <label class="govuk-label govuk-radios__label" for="emailAddress">
                     {c.emailAddress}
                   </label>
                 }
                 else {
-                  <input class="govuk-radios__input" name="collaboratorEmail" type="radio" value={c.emailAddress}>{c.emailAddress}</input>
+                  <input class="govuk-radios__input" name="collaboratorEmail" type="radio" value={c.emailAddress}></input>
                   <label class="govuk-label govuk-radios__label" for="emailAddress">
                     {c.emailAddress}
                   </label>

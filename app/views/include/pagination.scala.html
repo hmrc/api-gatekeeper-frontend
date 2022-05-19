@@ -54,13 +54,15 @@
       </select>
       <span class="govuk-body govuk-!-font-size-16">entries</span>
     </div>
-    <span class="govuk-body govuk-!-font-size-16" id="applications-table_info" role="status" aria-live="polite">
-      Showing @start to @(start + numDocs - 1) of @matching entries
-      @if(matching != total) {
-        (filtered from @total total entries)
-      }
-    </span>
-    <div class="dataTables_paginate paging_simple_numbers" id="applications-table_paginate">
+    <div class="pagination-box-entries">
+      <span class="govuk-body govuk-!-font-size-16" id="applications-table_info" role="status" aria-live="polite">
+        Showing @start to @(start + numDocs - 1) of @matching entries
+        @if(matching != total) {
+          (filtered from @total total entries)
+        }
+      </span>
+    </div>
+    <div class="pagination-box-pages" id="applications-table_paginate">
       @if(page > 1) {
         <a class="govuk-link" href="@pageUrl("page" -> s"${page - 1}")" class="paginate_button previous" tabindex="0" id="applications-table_previous">Previous</a>
       }

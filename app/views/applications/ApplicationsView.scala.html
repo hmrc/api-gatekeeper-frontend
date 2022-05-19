@@ -48,17 +48,18 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
 
     @if(isSuperUser) {
-      <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivOrROPCApplicationPage()}" class="govuk-button">
+      <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivOrROPCApplicationPage()}" class="govuk-button" style="float: right;">
         Add privileged or ROPC application
       </a>
     }
-
+    <br />
+    <br />
     @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort", "showExport").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: showExport :: _ =>
       <form name="application-filters" action="@routes.ApplicationController.applicationsPage(None).url" method="get">
         <input class="govuk-visually-hidden" type="hidden" name="page" value="1" />
 
         <div class="govuk-form-group js-visible">
-          <label class="govuk-label">
+          <label class="govuk-label govuk-!-font-weight-bold">
             Search
           <input
             class="govuk-input"
@@ -70,11 +71,12 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
           </label>
         </div>
 
-        <div class="govuk-form-group js-visible">
-            <label class="govuk-label" for="filter">
+        <div class="govuk-filter-row">
+          <div class="govuk-form-group govuk-!-padding-right-6 js-visible">
+            <label class="govuk-label govuk-!-font-weight-bold" for="filter">
               Filter by API Subscription
             </label>
-            <select class="govuk-select" id="filter" name="apiSubscription">
+            <select class="govuk-select full-width" id="filter" name="apiSubscription">
               <option @if(apiSubscription == None){selected} value>All applications</option>
               <option @if(apiSubscription == Some("ANY")){selected} value="ANY">One or more subscriptions</option>
               <option @if(apiSubscription == Some("NONE")){selected} value="NONE">No subscriptions</option>
@@ -91,41 +93,43 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                 </optgroup>
               }
             </select>
+          </div>
+          <div class="govuk-form-group js-visible">
+            <label class="govuk-label govuk-!-font-weight-bold" for="status">
+              Filter by Status
+            </label>
+            <select class="govuk-select full-width" id="status" name="status">
+              <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
+              <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
+              <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
+              <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
+              <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
+            </select>
+          </div>
         </div>
+        
 
-        <div class="govuk-form-group js-visible">
-          <label class="govuk-label" for="status">
-            Filter by Status
-          </label>
-          <select class="govuk-select" id="status" name="status">
-            <option @if(status == None || status == Some("ALL")){selected} value="ALL" selected>All</option>
-            <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
-            <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
-            <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
-            <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
-          </select>
-        </div>
-
-        <div class="govuk-form-group js-visible">
-          <label class="govuk-label" for="access_type">
-            Filter by Access type
-          </label>
-          <select class="govuk-select" id="access_type" name="accessType">
-            <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value>All</option>
-            <option @if(accessType == Some("STANDARD")){selected} value="STANDARD">Standard</option>
-            <option @if(accessType == Some("ROPC")){selected} value="ROPC">ROPC</option>
-            <option @if(accessType == Some("PRIVILEGED")){selected} value="PRIVILEGED">Privileged</option>
-          </select>
-        </div>
-
-        <div class="govuk-form-group js-visible">
-          <label class="govuk-label" for="environment">
-            Filter by Environment
-          </label>
-          <select class="govuk-select" id="environment" name="environment">
-            <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION">Production</option>
-            <option @if(environment == Some("SANDBOX") || environment == None){selected} value="SANDBOX">Sandbox</option>
-          </select>
+        <div class="govuk-filter-row">
+          <div class="govuk-form-group govuk-!-padding-right-6 js-visible">
+            <label class="govuk-label govuk-!-font-weight-bold" for="access_type">
+              Filter by Access type
+            </label>
+            <select class="govuk-select full-width" id="access_type" name="accessType">
+              <option @if(accessType == None || accessType == Some("ALL")){selected} id="default-access-type" value>All</option>
+              <option @if(accessType == Some("STANDARD")){selected} value="STANDARD">Standard</option>
+              <option @if(accessType == Some("ROPC")){selected} value="ROPC">ROPC</option>
+              <option @if(accessType == Some("PRIVILEGED")){selected} value="PRIVILEGED">Privileged</option>
+            </select>
+          </div>
+          <div class="govuk-form-group js-visible">
+            <label class="govuk-label govuk-!-font-weight-bold" for="environment">
+              Filter by Environment
+            </label>
+            <select class="govuk-select full-width" id="environment" name="environment">
+              <option @if(environment == Some("PRODUCTION")){selected} id="default-environment" value="PRODUCTION">Production</option>
+              <option @if(environment == Some("SANDBOX") || environment == None){selected} value="SANDBOX">Sandbox</option>
+            </select>
+          </div>
         </div>
 
         <div class="appsearch-buttons">
@@ -133,15 +137,15 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
           <!-- These two inputs are reversed in the html dom as the first submit button is trigged by the 'enter' key on the 
           text search input'. They are then swapped in the stylesheet. -->
-          <input id="submitButton" type="submit" value="Submit" name="main-submit" class="button plain-button"/>
+          <input id="submitButton" type="submit" value="Submit" name="main-submit" class="govuk-button"/>
 
           @if(showExport==Some("true")){
-            <input type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="button"/>
+            <input type="submit" value="Export CSV" name="submit" formaction="@routes.ApplicationController.applicationsPageCsv(None).url" class="govuk-button"/>
           }
         </div>
 
         <table id="applications-table" class="govuk-table">
-          <caption class="govuk-table__caption govuk-table__caption--m">Dates and amounts</caption>
+          <caption class="govuk-visually-hidden">Applications table</caption>
           <thead class="govuk-table__head">
             <tr class="govuk-table__row">
               <th tabindex="0" scope="col" class="govuk-table__header @sortClass(sort, "NAME")">

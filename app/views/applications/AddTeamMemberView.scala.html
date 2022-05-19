@@ -39,7 +39,7 @@
       </li>
     </ol>
   </div>
-
+  <br />
   @errorSummary(form)
 
   <h1 class="govuk-heading-l">Add Team Member</h1>
@@ -57,7 +57,7 @@
         id="email"
         name="email"
         value="@form.data.getOrElse("email", "")"
-        class="govuk-input @if(form.errors("email").nonEmpty) {form-control-error}"
+        class="govuk-input govuk-!-width-two-thirds @if(form.errors("email").nonEmpty) {form-control-error}"
         aria-labelledby="email-label"
         aria-describedby="email-note"
       />

@@ -31,7 +31,25 @@
 }
 
 @overrideEnabled(fieldName: String) = {
-  <input class="govuk-checkboxes__input" type="checkbox" name=@fieldName id=@fieldName value="true" @if(form.data.get(fieldName) == Some("true")) {checked}>
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-visually-hidden">
+        <h1 class="govuk-fieldset__heading">
+          Do you want to enable this override?
+        </h1>
+      </legend>
+      <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" type="checkbox" name=@fieldName id=@fieldName value="true" @if(form.data.get(fieldName) == Some("true")) {checked}>
+          <label class="govuk-label govuk-checkboxes__label" for=@fieldName>
+            <span class="govuk-visually-hidden">Enable override</span>
+          </label>
+        </div>
+      </div>
+  
+    </fieldset>
+  </div>
+  
 }
 
 @main(title = s"${applicationConfig.title} - Manage access overrides") {
@@ -45,6 +63,7 @@
       </li>
     </ol>
   </div>
+  <br />
 
   <h1 class="govuk-heading-l">Manage access overrides</h1>
 

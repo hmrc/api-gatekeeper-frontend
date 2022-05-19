@@ -25,7 +25,6 @@
 @application = @{applicationWithHistory.application}
 
 @main(title = s"${applicationConfig.title} - Application Deleted") {
-
   <div class="govuk-breadcrumbs">
     <ol class="govuk-breadcrumbs__list">
       <li class="govuk-breadcrumbs__list-item">
@@ -33,7 +32,7 @@
       </li>
     </ol>
   </div>
-
+  <br />
   @if(flash.get("success").isDefined) {
     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
       <div class="govuk-notification-banner__content">
@@ -43,14 +42,13 @@
       </div>
     </div>
   }
-    <span class="govuk-caption-l">@application.name</span>
-    <h1 class="govuk-heading-l">Application deleted</h1>
+  <span class="govuk-caption-l">@application.name</span>
+  <h1 class="govuk-heading-l">Application deleted</h1>
 
-    <p class="govuk-body">We've sent an email to all team members to let them know.</p>
+  <p class="govuk-body">We've sent an email to all team members to let them know.</p>
 
-    @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
-      @helper.CSRF.formField
-        <button id="submit" class="govuk-button" type="submit">Finish</button>
-    }
+  @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
+    @helper.CSRF.formField
+    <button id="submit" class="govuk-button" type="submit">Finish</button>
+  }
 }
-

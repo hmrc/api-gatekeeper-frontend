@@ -34,481 +34,585 @@
 @applicationId = @{model.application.id}
 
 @renderScopes(scopes: Set[String]) = {
-    <th>
-        <h3>Scopes</h3>
-    </th>
-    <td>
-        @if(scopes.isEmpty) {
-            <span class="faded-text">No scopes assigned to this application</span>
-        } else {
-            <table class="table-plain">
-                @for(scope <- scopes.toIterator) {
-                    <tr><td>@scope</td></tr>
-                }
-            </table>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Scopes
+    </dt>
+    <dd class="govuk-summary-list__value">
+      @if(scopes.isEmpty) {
+        No scopes assigned to this application
+      } else {
+        @for(scope <- scopes.toIterator) {
+          @scope
         }
-    </td>
-    <td>
-        @if(model.isAtLeastSuperUser) {
-        <a id="manage-scopes" href="@{routes.ApplicationController.manageScopes(applicationId)}" class="button--link" role="button">Manage</a>
-        }
-    </td>
+      }
+    </dd>
+    @if(model.isAtLeastSuperUser) {
+      <dd class="govuk-summary-list__actions">
+        <a id="manage-scopes" class="govuk-link" href="@{routes.ApplicationController.manageScopes(applicationId)}">
+          Manage<span class="govuk-visually-hidden"> scopes</span>
+        </a>
+      </dd>
+    }
+  </div>
 }
 
 @buildOverrideRow(overrideType: OverrideType, scopes: Set[String] = Set.empty) = {
-    <tr>
-        <td>
-            @OverrideType.displayedType(overrideType)
-        </td>
-        <td>
-            <table class="table-plain">
-                @if(scopes.isEmpty) {
-                    <tr><td></td></tr>
-                } else {
-                    @for(scope <- scopes.toIterator) {
-                        <tr><td>@scope</td></tr>
-                    }
-                }
-            </table>
-        </td>
-    </tr>
+  <tr class="govuk-table__row">
+    <td class="govuk-table__cell">
+       @OverrideType.displayedType(overrideType)
+    </td>
+    <td class="govuk-table__cell">
+      @if(scopes.isEmpty) {
+      } else {
+        @for(scope <- scopes.toIterator) {
+          @scope
+        }
+      }
+    </td>
+  </tr>
 }
 
 @renderOverrides(overrides: Set[OverrideFlag]) = {
-    <th><h3>Access overrides</h3></th>
-    <td>
-        @if(overrides.isEmpty) {
-            <span class="faded-text">No access overrides assigned to this application</span>
-        } else {
-            <table>
-                <thead><tr><th>Override</th><th>Scopes</th></tr></thead>
-                @overrides.toList.map(or => or match {
-                    case or@ PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
-                    case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
-                    case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
-                    case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
-                    case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
-                })
-            </table>
-        }
-    </td>
-    <td>
-        @if(model.isAtLeastSuperUser) {
-            <a id="manage-access-overrides" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}" class="button--link" role="button">Manage</a>
-        }
-    </td>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Access overrides
+    </dt>
+    @if(overrides.isEmpty) {
+      <dd class="govuk-summary-list__value" data-client-id>
+        No access overrides assigned to this application
+      </dd>
+    } else {
+      <dd class="govuk-summary-list__value" data-client-id>
+        <table class="govuk-table">
+          <caption class="govuk-visually-hidden">Access overrides table</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Override</th>
+              <th scope="col" class="govuk-table__header">Scopes</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            @overrides.toList.map(or => or match {
+              case or@ PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+              case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+              case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+              case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
+              case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+            })
+          </tbody>
+        </table>
+      </dd>
+    }
+    @if(model.isAtLeastSuperUser) {
+      <dd class="govuk-summary-list__actions">
+        <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}">
+          Manage<span class="govuk-visually-hidden"> access overrides</span>
+        </a>
+      </dd>
+    }
+  </div>
 }
 
 
 @renderExternalUrl(url: String) = {
-    <a href="@url" target="_blank">@url</a> (opens in a new window)
+  <a href="@url" class="govuk-link" target="_blank">@url</a> (opens in a new window)
 }
 
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
-    v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+  v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
 }
 
 @renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
-    @for(subscription <- subs.toIterator) {
-        <tr>
-            <td>
-                @subscription._1
-                @{
-                    subscription._2.map(data => 
-                        data._1.value + " (" + ApiStatus.displayedStatus(data._2) + ")"
-                    ).mkString(", ")
-                }
-            </td>
-            <td></td>
-        </tr>
-    }
+  @for(subscription <- subs.toIterator) {
+    <li>
+      @subscription._1
+      @{
+        subscription._2.map(data => 
+          data._1.value + " (" + ApiStatus.displayedStatus(data._2) + ")"
+        ).mkString(", ")
+      }
+    </li>
+  }
 }
 
 @main(title = s"${applicationConfig.title} - Application Details") {
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+    </ol>
+  </div>
 
-<div class="">
+  <br />
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@application.name</li>
+  @if(flash.get("success").isDefined) {
+    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading" success-message>
+          @flash.get("success").getOrElse("")
+        </p>
+      </div>
+    </div>
+  }
+
+  <h1 class="govuk-heading-l">@application.name</h1>
+
+  @if(application.blocked){
+    <div id="termsOfUseWarning" class="govuk-warning-text">
+      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+      <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+        This application has been blocked.
+      </strong>
+    </div>
+  }
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Environment
+      </dt>
+      <dd class="govuk-summary-list__value" data-environment>
+        @application.deployedTo.asDisplayed
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application ID
+      </dt>
+      <dd class="govuk-summary-list__value" data-app-id>
+        @applicationId.value
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Client ID
+      </dt>
+      <dd class="govuk-summary-list__value" data-client-id>
+        @application.clientId.value
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Gateway ID
+      </dt>
+      <dd class="govuk-summary-list__value" data-gateway-id>
+        @application.gatewayId
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Status
+      </dt>
+      <dd class="govuk-summary-list__value" data-status>
+        @State.displayedState(application.state.name)
+        <span data-status-info>@State.additionalInformation(application.state.name)</span>
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    @{ if (application.state.isPendingGatekeeperApproval){
+      <br />
+      if (model.hasSubmissions) {
+        <a href={model.gatekeeperApprovalsUrl} class="govuk-link govuk-link--no-visited-state" role="button" id="review">Check application</a>
+      } else {
+        <a href={routes.ApplicationController.reviewPage(applicationId).url} class="govuk-link govuk-link--no-visited-state" role="button" id="review">Check application</a>
+      }
+      <br />
+      <br />
+    } else if (application.state.isPendingRequesterVerification) {
+      <br />
+      <span>(<a id="resend-verify" data-resend-email="" class="govuk-link govuk-link--no-visited-state" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
+      <br />
+      <br />
+      }
+    }
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Created on
+      </dt>
+      <dd class="govuk-summary-list__value" data-created-on>
+        @ApplicationFormatter.getCreatedOn(application)
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Last API call
+      </dt>
+      <dd class="govuk-summary-list__value" data-last-access>
+        @ApplicationFormatter.getLastAccess(application)
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Rate limit tier
+      </dt>
+      <dd class="govuk-summary-list__value" data-rate-limit>
+        @RateLimitTier.displayedTier(application.rateLimitTier)
+      </dd>
+      @if(model.isAdmin) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-rate-limit" class="govuk-link" href="@{routes.ApplicationController.manageRateLimitTier(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> Rate limit tier</span>
+          </a>
+        </dd>
+      }
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Terms of Use
+      </dt>
+      <dd class="govuk-summary-list__value" data-terms>
+        @{
+          model.maybeLatestTOUAgreement match {
+            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
+            case _ =>  <p class="govuk-body">Not agreed</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Description (private)
+      </dt>
+      <dd class="govuk-summary-list__value" data-description-private>
+        @if(application.description.nonEmpty) {
+          @application.description
+        } else {
+          No description added
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Description (public)
+      </dt>
+      <dd class="govuk-summary-list__value" data-description-public>
+        @{
+          ApplicationPublicDescription(application) match {
+            case Some(description) => {description}
+            case None => <p class="govuk-body">No description added</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Privacy policy URL
+      </dt>
+      <dd class="govuk-summary-list__value" data-privacy-url>
+        @{
+          application.privacyPolicyLocation match {
+            case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
+            case PrivacyPolicyLocation.InDesktopSoftware => "In Desktop Software"
+            case _ => ""
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Terms and conditions URL
+      </dt>
+      <dd class="govuk-summary-list__value" data-terms-url>
+        @{
+          application.termsAndConditionsLocation match {
+            case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
+            case TermsAndConditionsLocation.InDesktopSoftware => "In Desktop Software"
+            case _ => ""
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application grant Length
+      </dt>
+      <dd class="govuk-summary-list__value" grant-length>
+        @GrantLength.displayedGrantLength(application.grantLength.getDays)
+      </dd>
+      @if(model.isAdmin) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-grant-length" class="govuk-link" href="@{routes.ApplicationController.manageGrantLength(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> application grant Length</span>
+          </a>
+        </dd>
+      }
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Access type
+      </dt>
+      <dd class="govuk-summary-list__value" data-access-type>
+        @AccessType.displayedType(access.accessType)
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    @{
+      access match {
+        case standardAccess : Standard => {
+          renderOverrides(standardAccess.overrides)
+        }
+        case privilegedAccess : Privileged => {
+          renderScopes(privilegedAccess.scopes)
+        }
+        case ropcAccess : Ropc => {
+          renderScopes(ropcAccess.scopes)
+        }
+      }
+    }
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        IP allow list
+      </dt>
+      <dd class="govuk-summary-list__value" data-access-type>
+        @if(application.ipAllowlist.allowlist.isEmpty) {
+          No IP allow list
+        } else {
+          @if(application.ipAllowlist.required) {
+            Mandatory and active
+          } else {
+            Active
+          }
+        }
+      </dd>
+      @if(model.isAtLeastSuperUser) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}">
+            Manage<span class="govuk-visually-hidden"> IP allow list</span>
+          </a>
+        </dd>
+      } else {
+        @if(application.ipAllowlist.allowlist.nonEmpty) {
+          <dd class="govuk-summary-list__actions">
+            <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id)}" class="govuk-link">View</a>
+          </dd>
+        }
+      }
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        API subscriptions
+      </dt>
+      <dd class="govuk-summary-list__value" data-subscriptions>
+        <ul class="govuk-list">
+          @renderSubscriptions(model.subscriptions)
         </ul>
-    </nav>
-
-    <header>
-        @if(flash.get("success").isDefined) {
-        <div class="alert alert--success" role="alert">
-            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
-        </div>
+      </dd>
+      @if(model.isAtLeastSuperUser) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-subscriptions" class="govuk-link" href="@{routes.SubscriptionController.manageSubscription(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> API subscriptions</span>
+          </a>
+        </dd>
+      }
+    </div>
+    @if(model.subscriptionsThatHaveFieldDefns.nonEmpty){
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Subscription configuration
+        </dt>
+        <dd class="govuk-summary-list__value" data-subscriptions>
+          <ul class="govuk-list">
+            @renderSubscriptions(model.subscriptionsThatHaveFieldDefns)
+          </ul>
+        </dd>
+        @if(model.isAtLeastSuperUser) {
+          <dd class="govuk-summary-list__actions">
+            <a id="manage-subscriptions-configuration" class="govuk-link" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}">
+              Manage<span class="govuk-visually-hidden"> API subscription configuration</span>
+            </a>
+          </dd>
         }
-        <h1 class="flush--top">@application.name</h1>
-    </header>
-    @if(application.blocked){
-    <div id="termsOfUseWarning" class="notice">
-        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
-        <strong class="bold-small">This application has been blocked.</strong>
-    </div>}
-    <table>
-        <tr>
-            <th><h3>Environment</h3></th>
-            <td data-environment>@application.deployedTo.asDisplayed</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Application ID</h3></th>
-            <td data-app-id>@applicationId.value</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Client ID</h3></th>
-            <td data-client-id>@application.clientId.value</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Gateway ID</h3></th>
-            <td data-gateway-id>@application.gatewayId</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Status</h3></th>
-            <td>
-                <div data-status>@State.displayedState(application.state.name)</div>
-                <div data-status-info><span class="faded-text">@State.additionalInformation(application.state.name)</span></div>
-            </td>
-            <td>
-                @{ if (application.state.isPendingGatekeeperApproval){
-                    if (model.hasSubmissions) {
-                      <a href={model.gatekeeperApprovalsUrl} class="button--link" role="button" id="review">Check application</a>
-                    } else {
-                      <a href={routes.ApplicationController.reviewPage(applicationId).url} class="button--link" role="button" id="review">Check application</a>
-                    }  
-                  } else if (application.state.isPendingRequesterVerification) {
-                    <span>(<a id="resend-verify" data-resend-email="" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
-                  }
-                }
-            </td>
-        </tr>
-        <tr>
-            <th><h3>Created on</h3></th>
-            <td data-created-on>@ApplicationFormatter.getCreatedOn(application)</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Last API call</h3></th>
-            <td data-last-access>@ApplicationFormatter.getLastAccess(application)</td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Rate limit tier</h3></th>
-            <td data-rate-limit>@RateLimitTier.displayedTier(application.rateLimitTier)</td>
-            <td>@if(model.isAdmin) {
-                <a id="manage-rate-limit" href="@{routes.ApplicationController.manageRateLimitTier(applicationId)}" class="button--link" role="button">Manage</a>
-                }</td>
-        </tr>
-        <tr>
-            <th><h3>Terms of Use</h3></th>
-            <td>
-                <div data-terms>
-                    @{
-                        model.maybeLatestTOUAgreement match {
-                            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
-                            case _ =>  <p>Not agreed</p>
-                        }
-                    }
-                </div>
-
-            </td>
-            <td>
-            </td>
-        </tr>
-        <tr>
-            <th><h3>Description (private)</h3></th>
-            <td>
-            @if(application.description.nonEmpty) {
-                <p data-description-private class="flush--top">@application.description</p>
-            } else {
-                <p data-description-private class="faded-text">No description added</p>
-            }
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Description (public)</h3></th>
-            <td>
-                @{
-                    ApplicationPublicDescription(application) match {
-                        case Some(description) => <p data-description-public="" class="flush--top">{description}</p>
-                        case None => <p data-description-public="" class="faded-text">No description added</p>
-                    }
-                }
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Privacy policy URL</h3></th>
-            <td data-privacy-url="">
-                @{
-                    application.privacyPolicyLocation match {
-                        case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
-                        case PrivacyPolicyLocation.InDesktopSoftware => "In Desktop Software"
-                        case _ => ""
-                    }
-                }
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Terms and conditions URL</h3></th>
-            <td data-terms-url="">
-                @{
-                    application.termsAndConditionsLocation match {
-                        case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
-                        case TermsAndConditionsLocation.InDesktopSoftware => "In Desktop Software"
-                        case _ => ""
-                    }
-                }
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <th><h3>Application grant Length</h3></th>
-            <td grant-length>@GrantLength.displayedGrantLength(application.grantLength.getDays)</td>
-            <td>@if(model.isAdmin) {
-                <a id="manage-grant-length" href="@{routes.ApplicationController.manageGrantLength(applicationId)}" class="button--link" role="button">Manage</a>
-                }</td>
-        </tr>
-        <tr>
-            <th><h3>Access type</h3></th>
-            <td data-access-type>@AccessType.displayedType(access.accessType)</td>
-            <td></td>
-        </tr>
-        <tr>
-            @{
-                access match {
-                    case standardAccess : Standard => {
-                        renderOverrides(standardAccess.overrides)
-                    }
-                    case privilegedAccess : Privileged => {
-                        renderScopes(privilegedAccess.scopes)
-                    }
-                    case ropcAccess : Ropc => {
-                        renderScopes(ropcAccess.scopes)
-                    }
-                }
-            }
-        </tr>
-        <tr>
-            <th>
-                <h3>IP allow list</h3>
-            </th>
-            <td>
-            @if(application.ipAllowlist.allowlist.isEmpty) {
-                <span class="faded-text">No IP allow list</span>
-            } else {
-                @if(application.ipAllowlist.required) {
-                    Mandatory and active
-                } else {
-                    Active
-                }
-            }
-            </td>
-            <td>
-            @if(model.isAtLeastSuperUser) {
-                <a id="manage-ip-allowlist" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}" class="button--link" role="button">Manage</a>
-            } else {
-                @if(application.ipAllowlist.allowlist.nonEmpty) {
-                    <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id)}" class="button--link" role="button">View</a>
-                }
-            }
-            </td>
-        </tr>
-        <tr>
-            <th><h3>API subscriptions</h3></th>
-            <td data-subscriptions>
-              <table class="table-plain">
-                @renderSubscriptions(model.subscriptions)
-                </table>
-            </td>
-            <td>
-                @if(model.isAtLeastSuperUser) {
-                    <a id="manage-subscriptions" href="@{routes.SubscriptionController.manageSubscription(applicationId)}" class="button--link" role="button">Manage</a>
-                }
-            </td>
-        </tr>
-
-        @if(model.subscriptionsThatHaveFieldDefns.nonEmpty){
-            <tr>
-                <th><h3>Subscription configuration</h3></th>
-                <td data-subscriptions>
-                    <table class="table-plain">                        
-                        @renderSubscriptions(model.subscriptionsThatHaveFieldDefns)
-                    </table>
-                </td>
-                <td>
-                    @if(model.isAtLeastSuperUser) {
-                        <a id="manage-subscriptions-configuration" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}" class="button--link" role="button">Manage</a>
-                    }
-                </td>
+      </div>
+    }
+    <div class="govuk-summary-list__row" style="height: 180px;">
+      <dt class="govuk-summary-list__key">
+        Team members
+      </dt>
+      <dd class="govuk-summary-list__value" data-access-type>
+        <table class="govuk-table">
+          <caption class="govuk-visually-hidden">Team members table</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Email address</th>
+              <th scope="col" class="govuk-table__header">Role</th>
+              <th scope="col" class="govuk-table__header">2SV Enabled</th>
             </tr>
-        }
-        <tr>
-            <th class="no-border"><h3>Team members</h3></th>
-            <td class="no-border">
-                <table class="table-plain">
-                    <thead>
-                    <tr>
-                        <th>Email address</th>
-                        <th>Role</th>
-                        <th>2SV Enabled</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @for(collaborator <- application.collaborators) {
-                    <tr>
-                        <td data-collaborator-email><a href="@{routes.DevelopersController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a></td>
-                        <td data-collaborator-role>
-                            @{
-                                if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
-                                    "Admin"
-                                } else if (collaborator.role == CollaboratorRole.DEVELOPER) {
-                                    "Developer"
-                                } else {
-                                    ""
-                                }
-                            }
-                        </td>
-                        <td data-collaborator-mfaEnabled>@(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
-                            case Some(user) if (user.mfaEnabled) => "Yes"
-                            case _ => "No"
-                        })</td>
-                    </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            @for(collaborator <- application.collaborators) {
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell" data-collaborator-email>
+                  <a class="govuk-link" href="@{routes.DevelopersController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
+                </td>
+                <td class="govuk-table__cell" data-collaborator-role>
+                  @{
+                    if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
+                      "Admin"
+                    } else if (collaborator.role == CollaboratorRole.DEVELOPER) {
+                      "Developer"
+                    } else {
+                      ""
                     }
-                    </tbody>
-                </table>
-            </td>
-            <td class="no-border">
-                @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
-                    <a id="manage-team-members" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}" class="button--link" role="button">Manage</a>
-                }
-            </td>
-        </tr>
-    </table>
-
-    <table>
-        <tr>
-            <td>
+                  }
+                </td>
+                <td class="govuk-table__cell" data-collaborator-mfaEnabled>
+                  @(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
+                    case Some(user) if (user.mfaEnabled) => "Yes"
+                    case _ => "No"
+                  })
+                </td>
+              </tr>
+            }
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell" style="border: none; position: absolute;">
                 @if(application.collaborators.nonEmpty) {
-
-                <div class="form-group">
-                    <p>
-                        <a id="copy-all-to-clip" class="button copy-to-clip float--right" href="#"
-                           title="Copies all team member email addresses into the system clipboard."
-                           data-clip-text="@EmailsFormatter.format(application.collaborators)">
-                            Copy all team member email addresses
-                        </a>
-                    </p>
-                </div>
-                <div class="form-group">
-                    <p>
-                        <a id="copy-admins-to-clip" class="button copy-to-clip float--right" href="#"
-                           title="Copies admin email addresses into the system clipboard."
-                           data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
-                            Copy admin email addresses
-                        </a>
-                    </p>
-                </div>
+                  <div class="govuk-button-group">
+                    <a id="copy-all-to-clip" class="govuk-button copy-to-clip" href="#"
+                    title="Copies all team member email addresses into the system clipboard."
+                    data-clip-text="@EmailsFormatter.format(application.collaborators)">
+                      Copy all team member email addresses
+                    </a>
+                    <br />
+                    <a id="copy-admins-to-clip" class="govuk-button copy-to-clip" href="#"
+                    title="Copies admin email addresses into the system clipboard."
+                    data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
+                      Copy admin email addresses
+                    </a>
+                  </div>
                 }
-            </td>
-        </tr>
-    </table>
-
-    <table>
-        <tr>
-            <td>
-                <h3 class="heading--font-reset">Submitted on</h3>
-            </td>
-            @{ ApplicationSubmission.getSubmittedOn(model.stateHistory) match {
-                case Some(submittedOn) => <td data-submitted-on="">{submittedOn}</td>
-                case None => <td data-submitted-on="" class="faded-text">N/A</td>
-               }
-            }
-            <td></td>
-        </tr>
-        <tr>
-            <td>
-                <h3 class="heading--font-reset">Submitted by</h3>
-            </td>
-            @{ApplicationSubmission.getSubmittedBy(model.stateHistory) match {
-                    case Some(email) =>
-                            <td>
-                                <p data-submitted-by-email="">
-                                    {email}
-                                </p>
-                            </td>
-                    case None => <td class="faded-text">N/A</td>
-                }
-            }
-            <td></td>
-        </tr>
-        <tr>
-            <td>
-                <h3 class="heading--font-reset">Submission contact</h3>
-            </td>
-            <td>
-                @{ApplicationReview.getReviewContactName(application.checkInformation) match {
-                    case Some(name) => <p data-submission-contact-name="">{name}</p>
-                    case None => <p data-submission-contact-name="" class="faded-text">No contact name given</p>
-                    }
-                }
-                @{ApplicationReview.getReviewContactEmail(application.checkInformation) match {
-                        case Some(email) => <p data-submission-contact-email="">{email}</p>
-                        case None => <p data-submission-contact-email="" class="faded-text">No contact email given</p>
-                    }
-                }
-                @{ApplicationReview.getReviewContactTelephone(application.checkInformation) match {
-                        case Some(telephone) => <p data-submission-contact-telephone="">{telephone}</p>
-                        case None => <p data-submission-contact-telephone="" class="faded-text">No contact telephone number given</p>
-                    }
-                }
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>
-                <h3 class="heading--font-reset">Checked on</h3>
-            </td>
-            @{ApplicationReview.getApprovedOn(model.stateHistory) match {
-                  case Some(approvedOn) => <td data-checked-on="">{approvedOn}</td>
-                  case None => <td data-checked-on="" class="faded-text">N/A</td>
-                }
-            }
-            <td></td>
-        </tr>
-        <tr>
-            <td>
-                <h3 class="heading--font-reset">Checked by</h3>
-            </td>
-            @{ApplicationReview.getApprovedBy(model.stateHistory) match {
-                    case Some(approvedBy) => <td data-checked-by="">{approvedBy}</td>
-                    case None => <td data-checked-by="" class="faded-text">N/A</td>
-                }
-            }
-            <td></td>
-        </tr>
-    </table>
-    <br>
-    @if(model.isAtLeastSuperUser) {
-        <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="button--alert text--center">Delete application</a>
-    }
-    @if(model.isAdmin) {
-        @if(application.state.isApproved && !application.blocked) {
-            <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="button--alert text--center">Block application</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </dd>
+      @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> team members</span>
+          </a>
+        </dd>
+      }
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Submitted on
+      </dt>
+      <dd class="govuk-summary-list__value" data-submitted-on>
+        @{ ApplicationSubmission.getSubmittedOn(model.stateHistory) match {
+          case Some(submittedOn) => {submittedOn}
+          case None => <p class="govuk-body">N/A</p>
+          }
         }
-        @if(application.state.isApproved && application.blocked) {
-        <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="button--alert text--center">Unblock application</a>
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Submitted by
+      </dt>
+      <dd class="govuk-summary-list__value" data-submitted-by-email>
+        @{ApplicationSubmission.getSubmittedBy(model.stateHistory) match {
+          case Some(email) => {email}
+          case None => <p class="govuk-body">N/A</p>
+          }
         }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Submission contact
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @{ApplicationReview.getReviewContactName(application.checkInformation) match {
+          case Some(name) => <p class="govuk-body" data-submission-contact-name="">{name}</p>
+          case None => <p data-submission-contact-name="" class="govuk-body">No contact name given</p>
+          }
+        }
+        @{ApplicationReview.getReviewContactEmail(application.checkInformation) match {
+            case Some(email) => <p class="govuk-body" data-submission-contact-email="">{email}</p>
+            case None => <p data-submission-contact-email="" class="govuk-body">No contact email given</p>
+          }
+        }
+        @{ApplicationReview.getReviewContactTelephone(application.checkInformation) match {
+            case Some(telephone) => <p class="govuk-body" data-submission-contact-telephone="">{telephone}</p>
+            case None => <p data-submission-contact-telephone="" class="govuk-body">No contact telephone number given</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Checked on
+      </dt>
+      <dd class="govuk-summary-list__value" data-checked-on>
+        @{ApplicationReview.getApprovedOn(model.stateHistory) match {
+          case Some(approvedOn) => {approvedOn}
+          case None => <p class="govuk-body">N/A</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Checked by
+      </dt>
+      <dd class="govuk-summary-list__value" data-checked-by>
+        @{ApplicationReview.getApprovedBy(model.stateHistory) match {
+          case Some(approvedBy) => {approvedBy}
+          case None => <p class="govuk-body">N/A</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+  </dl>
+
+  <br>
+  @if(model.isAtLeastSuperUser) {
+    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Delete application</a>
+  }
+  @if(model.isAdmin) {
+    @if(application.state.isApproved && !application.blocked) {
+      <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Block application</a>
     }
-</div>
+    @if(application.state.isApproved && application.blocked) {
+      <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Unblock application</a>
+    }
+  }
 }
-

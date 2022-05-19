@@ -45,7 +45,7 @@
     The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
   </p>
 
-  <p class="govuk-body">The current application grant length is  <strong class="bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
+  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
 
   @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     @helper.CSRF.formField
@@ -65,17 +65,18 @@
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" id="@g" name="grantLength" value="@g" type="radio">
               <label class="govuk-label govuk-radios__label" for="@g">
-                Email
+                @GrantLength.displayedGrantLength(g)
               </label>
             </div>
           }
         </div>
       </fieldset>
     </div>
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Change grant length</button>
+      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
   }
 
-  <div class="govuk-button-group">
-    <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Change grant length</button>
-    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
-  </div>
+
 }
