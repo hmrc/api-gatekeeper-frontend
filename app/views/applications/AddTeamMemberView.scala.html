@@ -58,14 +58,12 @@
         name="email"
         value="@form.data.getOrElse("email", "")"
         class="govuk-input govuk-!-width-two-thirds @if(form.errors("email").nonEmpty) {form-control-error}"
-        aria-labelledby="email-label"
-        aria-describedby="email-note"
       />
     </div>
 
     <div class="govuk-form-group @if(form.errors("role").nonEmpty) {form-field--error}">
       @fieldError(form.errors, "role", form.error("submissionError").isEmpty)
-      <fieldset class="govuk-fieldset" aria-describedby="changed-name-hint" id="role">
+      <fieldset class="govuk-fieldset" id="role">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
           <h1 class="govuk-fieldset__heading">
             What permissions do you want to give them?

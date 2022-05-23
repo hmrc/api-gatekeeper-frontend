@@ -492,20 +492,13 @@
               </tr>
             }
             <tr class="govuk-table__row">
-              <td class="govuk-table__cell" style="border: none; position: absolute;">
+              <td class="govuk-table__cell" style="border: none;">
                 @if(application.collaborators.nonEmpty) {
                   <div class="govuk-button-group">
-                    <a id="copy-all-to-clip" class="govuk-button copy-to-clip" href="#"
-                    title="Copies all team member email addresses into the system clipboard."
-                    data-clip-text="@EmailsFormatter.format(application.collaborators)">
-                      Copy all team member email addresses
-                    </a>
-                    <br />
-                    <a id="copy-admins-to-clip" class="govuk-button copy-to-clip" href="#"
-                    title="Copies admin email addresses into the system clipboard."
-                    data-clip-text="@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))">
-                      Copy admin email addresses
-                    </a>
+                    <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
+                    <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
+                    <button class="govuk-button" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
+                    <button class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
                   </div>
                 }
               </td>

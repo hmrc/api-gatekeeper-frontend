@@ -41,7 +41,7 @@
             @defining(form.data.get("environment") == Some("PRODUCTION")) { productionChecked =>
               <input class="govuk-radios__input" id="environmentProduction" type="radio" name="environment" value="@PRODUCTION" @if(productionChecked) {checked}>
             }
-            <label class="govuk-label govuk-radios__label" for="accessTypeProduction">
+            <label class="govuk-label govuk-radios__label" for="environmentProduction">
               Production
             </label>
           </div>
