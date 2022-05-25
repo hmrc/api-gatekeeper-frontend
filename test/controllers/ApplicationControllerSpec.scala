@@ -164,9 +164,7 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
         val responseBody = Helpers.contentAsString(eventualResult)
-        responseBody should include("<h1>Applications</h1>")
-        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/applications\">Applications</a>")
-        responseBody should include("<a class=\"align--middle inline-block \" href=\"/api-gatekeeper/developers2\">Developers</a>")
+        responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
         verifyAuthConnectorCalledForUser
 
@@ -1391,7 +1389,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       val body = contentAsString(result)
 
       body should include(message)
-      assert(Jsoup.parse(body).getElementsByClass("form-field--error").size == 1)
+      assert(Jsoup.parse(body).getElementsByClass("govuk-form-group--error").size == 1)
     }
   }
 }

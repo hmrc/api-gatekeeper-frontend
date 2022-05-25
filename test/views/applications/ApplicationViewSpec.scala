@@ -105,8 +105,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-terms") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") shouldBe true
+      elementExistsByAttr(document, "dd", "data-terms") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe true
     }
 
     "show application with check information but no terms of use agreed" in new Setup {
@@ -125,8 +125,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-terms") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") shouldBe true
+      elementExistsByAttr(document, "dd", "data-terms") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe true
     }
 
     "show application with check information and terms of use agreed" in new Setup {
@@ -146,11 +146,11 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-terms") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") shouldBe false
+      elementExistsByAttr(document, "dd", "data-terms") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe false
       val agreedText =
         s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(termsOfUseAgreement)}"
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", agreedText) shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", agreedText) shouldBe true
     }
 
     "show application with check information and multiple terms of use agreed" in new Setup {
@@ -172,10 +172,10 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-terms") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", "Not agreed") shouldBe false
+      elementExistsByAttr(document, "dd", "data-terms") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe false
       val agreedText = s"v${newTOUAgreement.version} agreed by ${newTOUAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(newTOUAgreement)}"
-      elementIdentifiedByAttrContainsText(document, "div", "data-terms", agreedText) shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", agreedText) shouldBe true
       result.body.contains(s"v$oldTOUAgreement.version") shouldBe false
       result.body.contains(DateTimeFormat.longDate.print(oldTOUAgreement.timeStamp)) shouldBe false
     }
@@ -192,11 +192,11 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-status") shouldBe true
-      elementExistsByAttr(document, "div", "data-status-info") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-status", "Created") shouldBe true
+      elementExistsByAttr(document, "span", "data-status") shouldBe true
+      elementExistsByAttr(document, "span", "data-status-info") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "span", "data-status", "Created") shouldBe true
       val checkingText = "A production application that its admin has created but not submitted for checking"
-      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", checkingText) shouldBe true
+      elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
       elementExistsById(document, "review") shouldBe false
     }
 
@@ -214,11 +214,11 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByAttr(document, "div", "data-status") shouldBe true
-      elementExistsByAttr(document, "div", "data-status-info") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "div", "data-status", "Pending gatekeeper check") shouldBe true
+      elementExistsByAttr(document, "span", "data-status") shouldBe true
+      elementExistsByAttr(document, "span", "data-status-info") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "span", "data-status", "Pending gatekeeper check") shouldBe true
       val checkingText = "A production application that one of its admins has submitted for checking"
-      elementIdentifiedByAttrContainsText(document, "div", "data-status-info", checkingText) shouldBe true
+      elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
       elementIdentifiedByIdContainsText(document, "a", "review", "Check application") shouldBe true
     }
 

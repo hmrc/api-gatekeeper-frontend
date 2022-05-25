@@ -214,30 +214,24 @@
       <dt class="govuk-summary-list__key">
         Status
       </dt>
-      <dd class="govuk-summary-list__value" data-status>
-        @State.displayedState(application.state.name)
+      <dd class="govuk-summary-list__value">
+        <span data-status>@State.displayedState(application.state.name)</span>
+        <br />
         <span data-status-info>@State.additionalInformation(application.state.name)</span>
       </dd>
       <dd class="govuk-summary-list__actions">
+          @{ if (application.state.isPendingGatekeeperApproval){
+            if (model.hasSubmissions) {
+              <a href={model.gatekeeperApprovalsUrl} class="govuk-link" role="button" id="review">Check application</a>
+            } else {
+              <a href={routes.ApplicationController.reviewPage(applicationId).url} class="govuk-link" role="button" id="review">Check application</a>
+            }  
+          } else if (application.state.isPendingRequesterVerification) {
+            <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
+          }
+        }
       </dd>
     </div>
-    @{ if (application.state.isPendingGatekeeperApproval){
-      <br />
-      if (model.hasSubmissions) {
-        <a href={model.gatekeeperApprovalsUrl} class="govuk-link govuk-link--no-visited-state" role="button" id="review">Check application</a>
-      } else {
-        <a href={routes.ApplicationController.reviewPage(applicationId).url} class="govuk-link govuk-link--no-visited-state" role="button" id="review">Check application</a>
-      }
-      <br />
-      <br />
-    } else if (application.state.isPendingRequesterVerification) {
-      <br />
-      <span>(<a id="resend-verify" data-resend-email="" class="govuk-link govuk-link--no-visited-state" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
-      <br />
-      <br />
-      }
-    }
-
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         Created on
