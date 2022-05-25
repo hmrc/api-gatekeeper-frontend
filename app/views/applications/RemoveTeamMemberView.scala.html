@@ -20,7 +20,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: Application, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -40,25 +40,25 @@
     </ol>
   </div>
   <br />
-  @errorSummary(form)
+  @errorSummary2(form)
 
   <h1 class="govuk-heading-l">Remove Team Member</h1>
 
   @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id)) {
     @helper.CSRF.formField
     <input type="hidden" name="email" value="@email">
-    <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {form-field--error}">
+    <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
       <fieldset id="confirm" class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
           <h2 class="govuk-fieldset__heading">
             Team member
           </h2>
         </legend>
-        <div id="email" class="form-group @if(form.errors("email").nonEmpty) {form-field--error}">
+        <div id="email" class="form-group @if(form.errors("email").nonEmpty) {govuk-form-group--error}">
           <p class="govuk-body">@email</p>
         </div>
         <h3 class="govuk-heading-s">Are you sure you want to remove this team member from this application?</h3>
-        @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
+        @fieldError2(form.errors, "confirm", form.error("submissionError").isEmpty)
         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
           <div class="govuk-radios__item">
             <input class="govuk-radios__input" id="yes" type="radio" name="confirm" value="Yes">

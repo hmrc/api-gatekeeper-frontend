@@ -19,7 +19,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[BlockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
@@ -67,7 +67,7 @@
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">Status</th>
         <td class="govuk-table__cell">
-            @status(application)
+          @status(application)
         </td>
       </tr>
     </tbody>
@@ -75,12 +75,16 @@
 
   @if(isSuperUser) {
     @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
-        <h2 class="govuk-heading-m">Application name</h2>
+      <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
+        <h2 class="govuk-label-wrapper">
+          <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
+            Application name
+          </label>
+        </h1>
         <p class="govuk-body">Enter the application name to confirm blocking</p>
-        <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
-          @fieldError(form.errors, "applicationNameConfirmation")
-          <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
-        </div>
+        @fieldError2(form.errors, "applicationNameConfirmation")
+        <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">
+      </div>
 
       @helper.CSRF.formField
 

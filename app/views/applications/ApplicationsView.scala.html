@@ -22,7 +22,7 @@
 @import include.pagination
 @import config.AppConfig
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, String) => String)(
 implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)

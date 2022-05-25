@@ -19,17 +19,17 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @scopes(fieldName: String) = {
-  <div class="govuk-form-group @if(form.errors(fieldName).nonEmpty) {form-field--error}">
+  <div class="govuk-form-group @if(form.errors(fieldName).nonEmpty) {govuk-form-group--error}">
     <label class="govuk-visually-hidden" for=@fieldName>
       Override Scopes
     </label>
-    @fieldError(form.errors, fieldName)
-    <textarea name=@fieldName id=@fieldName rows="5" class="govuk-textarea @if(form.errors(fieldName).nonEmpty) {error-field}">@form.data.get(fieldName)</textarea>
+    @fieldError2(form.errors, fieldName)
+    <textarea name=@fieldName id=@fieldName rows="5" class="govuk-textarea @if(form.errors(fieldName).nonEmpty) {govuk-input--error}">@form.data.get(fieldName)</textarea>
   </div>
 }
 

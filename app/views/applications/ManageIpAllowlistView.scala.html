@@ -20,7 +20,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[IpAllowlistForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -37,7 +37,7 @@
     </ol>
   </div>
 
-  @errorSummary(form)
+  @errorSummary2(form)
 
   <h1 class="govuk-heading-l">Manage IP allow list</h1>
 
@@ -54,11 +54,11 @@
 
     @helper.CSRF.formField
 
-    <div class="govuk-form-group @if(form.errors("allowlistedIps").nonEmpty) {form-field--error}">
+    <div class="govuk-form-group @if(form.errors("allowlistedIps").nonEmpty) {govuk-form-group--error}">
       <label class="govuk-label" for="allowlistedIps" id="allowlistedIps-label">
         Enter each CIDR block on a separate line:
       </label>
-      <textarea class="govuk-textarea @if(form.errors("allowlistedIps").nonEmpty) {form-control-error}" id="allowlistedIps" name="allowlistedIps" rows="5">
+      <textarea class="govuk-textarea @if(form.errors("allowlistedIps").nonEmpty) {govuk-input--error}" id="allowlistedIps" name="allowlistedIps" rows="5">
         @form.data.getOrElse("allowlistedIps", "")
       </textarea>
     </div>

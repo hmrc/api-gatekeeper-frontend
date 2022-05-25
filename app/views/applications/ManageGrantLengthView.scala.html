@@ -20,7 +20,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[UpdateGrantLengthForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -37,7 +37,7 @@
     </ol>
   </div>
 
-  @errorSummary(form)
+  @errorSummary2(form)
 
   <h1 class="govuk-heading-l">Manage application grant length</h1>
 
@@ -49,7 +49,7 @@
 
   @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     @helper.CSRF.formField
-    <div class="govuk-form-group @if(form.errors("grantLength").nonEmpty) {form-field--error}">
+    <div class="govuk-form-group @if(form.errors("grantLength").nonEmpty) {govuk-form-group--error}">
       <fieldset id="grantLength" class="govuk-fieldset" aria-describedby="application-grant-hint">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
           <h1 class="govuk-fieldset__heading">
@@ -59,7 +59,7 @@
         <div id="application-grant-hint" class="govuk-hint">
           Select one option.
         </div>
-        @fieldError(form.errors, "grantLength", form.error("submissionError").isEmpty)
+        @fieldError2(form.errors, "grantLength", form.error("submissionError").isEmpty)
         <div class="govuk-radios" data-module="govuk-radios">
           @for(g <- GrantLength.asOrderedIdList) {
             <div class="govuk-radios__item">
@@ -77,6 +77,4 @@
       <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
-
-
 }

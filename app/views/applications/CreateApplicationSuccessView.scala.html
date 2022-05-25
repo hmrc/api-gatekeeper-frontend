@@ -22,7 +22,7 @@
 @import model.ApplicationId
 @import model.ClientId
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
@@ -34,7 +34,6 @@
   <div class="govuk-panel govuk-panel--confirmation">
     <h2 class="govuk-panel__title">Application added</h2>
   </div>
-
 
   <div class="govuk-warning-text">
     <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
