@@ -79,7 +79,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
       signInGatekeeper
 
-      val actualApplicationName = webDriver.findElement(By.className("header__menu__proposition-name")).getText
+      val actualApplicationName = webDriver.findElement(By.className("hmrc-header__service-name")).getText
       var actualApplicationTitle = webDriver.getTitle
       on(ApplicationsPage)
 

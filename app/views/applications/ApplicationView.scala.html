@@ -217,7 +217,7 @@
       <dd class="govuk-summary-list__value">
         <span data-status>@State.displayedState(application.state.name)</span>
         <br />
-        <span data-status-info>@State.additionalInformation(application.state.name)</span>
+        <span class="govuk-hint" data-status-info>@State.additionalInformation(application.state.name)</span>
       </dd>
       <dd class="govuk-summary-list__actions">
           @{ if (application.state.isPendingGatekeeperApproval){
@@ -300,11 +300,11 @@
       <dt class="govuk-summary-list__key">
         Description (public)
       </dt>
-      <dd class="govuk-summary-list__value" data-description-public>
+      <dd class="govuk-summary-list__value govuk-hint" data-description-public>
         @{
           ApplicationPublicDescription(application) match {
             case Some(description) => {description}
-            case None => <p class="govuk-body">No description added</p>
+            case None => <p class="govuk-hint">No description added</p>
           }
         }
       </dd>
@@ -385,7 +385,7 @@
       <dt class="govuk-summary-list__key">
         IP allow list
       </dt>
-      <dd class="govuk-summary-list__value" data-access-type>
+      <dd class="govuk-summary-list__value govuk-hint" data-access-type>
         @if(application.ipAllowlist.allowlist.isEmpty) {
           No IP allow list
         } else {
@@ -450,7 +450,7 @@
       <dt class="govuk-summary-list__key">
         Team members
       </dt>
-      <dd class="govuk-summary-list__value" data-access-type>
+      <dd class="govuk-summary-list__value" style="display: flex;flex-direction: column;width: 100%;" data-access-type>
         <table class="govuk-table">
           <caption class="govuk-visually-hidden">Team members table</caption>
           <thead class="govuk-table__head">
@@ -485,20 +485,14 @@
                 </td>
               </tr>
             }
-            <tr class="govuk-table__row">
-              <td class="govuk-table__cell" style="border: none;">
-                @if(application.collaborators.nonEmpty) {
-                  <div class="govuk-button-group">
-                    <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
-                    <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
-                    <button class="govuk-button" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
-                    <button class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
-                  </div>
-                }
-              </td>
-            </tr>
           </tbody>
         </table>
+        @if(application.collaborators.nonEmpty) {
+          <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
+          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
+          <button class="govuk-button govuk-!-margin-bottom-3" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
+          <button class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
+        }
       </dd>
       @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
         <dd class="govuk-summary-list__actions">
