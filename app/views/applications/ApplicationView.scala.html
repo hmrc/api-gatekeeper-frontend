@@ -315,7 +315,7 @@
       <dt class="govuk-summary-list__key">
         Privacy policy URL
       </dt>
-      <dd class="govuk-summary-list__value" data-privacy-url>
+      <dd class="govuk-summary-list__value" data-privacy-url="">
         @{
           application.privacyPolicyLocation match {
             case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
@@ -331,7 +331,7 @@
       <dt class="govuk-summary-list__key">
         Terms and conditions URL
       </dt>
-      <dd class="govuk-summary-list__value" data-terms-url>
+      <dd class="govuk-summary-list__value" data-terms-url="">
         @{
           application.termsAndConditionsLocation match {
             case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
