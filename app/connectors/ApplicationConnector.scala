@@ -160,6 +160,13 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     })
   }
 
+  def updateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
+    http.PUT[UpdateApplicationNameRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/name", UpdateApplicationNameRequest(name))
+      .map( _ match {
+        case Right(result) => UpdateApplicationNameSuccessResult
+        case Left(err) => throw err
+      })
+  }
 
   def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${version.value}")

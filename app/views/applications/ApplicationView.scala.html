@@ -171,6 +171,13 @@
             <td></td>
         </tr>
         <tr>
+            <th><h3>Application name</h3></th>
+            <td data-name-id>@application.name</td>
+            <td>@if(model.isAdmin) {
+                <a id="manage-app-name" href="@{routes.ApplicationController.manageApplicationName(applicationId).url}" class="button--link" role="button">Manage</a>
+            }</td>
+        </tr>
+        <tr>
             <th><h3>Status</h3></th>
             <td>
                 <div data-status>@State.displayedState(application.state.name)</div>

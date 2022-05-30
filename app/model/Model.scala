@@ -241,10 +241,19 @@ object UpdateIpAllowlistRequest {
 sealed trait UpdateIpAllowlistResult
 case object UpdateIpAllowlistSuccessResult extends UpdateIpAllowlistResult
 
+case class UpdateApplicationNameRequest(name: String)
+
+object UpdateApplicationNameRequest {
+  implicit val format = Json.format[UpdateApplicationNameRequest]
+}
+
+sealed trait UpdateApplicationNameResult
+case object UpdateApplicationNameSuccessResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureResult extends UpdateApplicationNameResult
+
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult
 case object ApplicationUpdateFailureResult extends ApplicationUpdateResult
-
 
 sealed trait ApplicationDeleteResult
 case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult

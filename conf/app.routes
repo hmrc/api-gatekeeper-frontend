@@ -42,6 +42,9 @@ GET         /applications/:id/subscriptions-configuration                     co
 GET         /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.editConfigurations(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
 POST        /applications/:id/subscriptions-configuration/:context/:version   controllers.SubscriptionConfigurationController.saveConfigurations(id: model.ApplicationId, context: model.ApiContext, version: model.ApiVersion)
 
+GET         /applications/:id/name                                            controllers.ApplicationController.manageApplicationName(id: model.ApplicationId)
+POST        /applications/:id/name                                            controllers.ApplicationController.updateApplicationName(id: model.ApplicationId)
+
 GET         /applications/:id/rate-limit                                      controllers.ApplicationController.manageRateLimitTier(id: model.ApplicationId)
 POST        /applications/:id/rate-limit                                      controllers.ApplicationController.updateRateLimitTier(id: model.ApplicationId)
 

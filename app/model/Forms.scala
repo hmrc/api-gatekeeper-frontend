@@ -319,4 +319,14 @@ object Forms {
       )(UpdateGrantLengthForm.apply)(UpdateGrantLengthForm.unapply)
     )
   }
+
+  final case class UpdateApplicationNameForm(name: String)
+
+  object UpdateApplicationNameForm {
+    val form: Form[UpdateApplicationNameForm] = Form(
+      mapping(
+        "name" -> text.verifying("application.confirmation.missing", _.nonEmpty),
+      )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
+    )
+  }
 }

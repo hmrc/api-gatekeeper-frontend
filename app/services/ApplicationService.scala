@@ -152,6 +152,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
   }
 
+  def updateApplicationName(application: ApplicationResponse, name: String)
+                       (implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
+    applicationConnectorFor(application).updateApplicationName(application.id, name)
+  }
+
   def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     apmConnector.subscribeToApi(application.id, apiIdentifier)
   }
