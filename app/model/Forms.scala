@@ -320,12 +320,12 @@ object Forms {
     )
   }
 
-  final case class UpdateApplicationNameForm(name: String)
+  final case class UpdateApplicationNameForm(applicationName: String)
 
   object UpdateApplicationNameForm {
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
-        "name" -> text.verifying("application.confirmation.missing", _.nonEmpty),
+        "applicationName" -> text.verifying("application.confirmation.missing", _.nonEmpty),
       )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
     )
   }

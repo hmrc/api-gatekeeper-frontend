@@ -163,8 +163,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   def updateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
     http.PUT[UpdateApplicationNameRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/name", UpdateApplicationNameRequest(name))
       .map( _ match {
-        case Right(result) => UpdateApplicationNameSuccessResult
-        case Left(err) => throw err
+        case Right(_) => UpdateApplicationNameSuccessResult
+        case Left(Upstream4xxResponse(_,BAD_REQUEST,_,_)) => UpdateApplicationNameFailureInvalidResult
+        case Left(Upstream4xxResponse(_,CONFLICT,_,_)) => UpdateApplicationNameFailureDuplicateResult
       })
   }
 

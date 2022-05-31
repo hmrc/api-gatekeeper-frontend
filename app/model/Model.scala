@@ -249,7 +249,8 @@ object UpdateApplicationNameRequest {
 
 sealed trait UpdateApplicationNameResult
 case object UpdateApplicationNameSuccessResult extends UpdateApplicationNameResult
-case object UpdateApplicationNameFailureResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureInvalidResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureDuplicateResult extends UpdateApplicationNameResult
 
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult

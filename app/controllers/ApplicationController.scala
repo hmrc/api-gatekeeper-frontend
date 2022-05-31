@@ -372,8 +372,17 @@ class ApplicationController @Inject()(
   def updateApplicationName(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameForm) = {
-        applicationService.updateApplicationName(app.application, form.name).map( _ =>
-          Ok(manageApplicationNameSuccessView(app.application, form.name)))
+        applicationService.updateApplicationName(app.application, form.applicationName).map( _ match {
+          case UpdateApplicationNameSuccessResult => Ok(manageApplicationNameSuccessView(app.application, form.applicationName))
+          case failure => {
+            val errorMsg = failure match {
+              case UpdateApplicationNameFailureInvalidResult => "application.name.invalid.error"
+              case UpdateApplicationNameFailureDuplicateResult => "application.name.duplicate.error"
+            }
+            val formWithErrors = UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)(errorMsg))
+            Ok(manageApplicationNameView(app.application, formWithErrors))
+          }
+        })
       }
 
       def handleFormError(form: Form[UpdateApplicationNameForm]) = {

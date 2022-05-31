@@ -29,7 +29,7 @@
         <ul>
             <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
             <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@newName</a></li>
         </ul>
     </nav>
 
@@ -47,7 +47,7 @@
         <p>We will inform all team members about the application name change.</p>
 
         <p>
-            <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-link govuk-link--no-visited-state">Review or manage @application.name</a>
+            <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-link govuk-link--no-visited-state">Review or manage @newName</a>
         </p>
     </div>
 

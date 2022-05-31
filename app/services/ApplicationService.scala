@@ -154,6 +154,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def updateApplicationName(application: ApplicationResponse, name: String)
                        (implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
+    //TODO check if name has actually changed
     applicationConnectorFor(application).updateApplicationName(application.id, name)
   }
 

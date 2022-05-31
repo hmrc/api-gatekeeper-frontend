@@ -18,6 +18,8 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import model.Forms.UpdateApplicationNameForm
+@import views.html.include.fieldError
+@import views.html.include.errorSummary
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -36,6 +38,8 @@
     </nav>
 
     <div>
+        @errorSummary(form)
+
         <h1 class="govuk-label-wrapper">Change the application name</h1>
 
         <p>
@@ -56,10 +60,10 @@
         </p>
 
         @helper.form(action = routes.ApplicationController.updateApplicationName(application.id), 'class -> "form") {
-            <div>
+            <div class="@if(form.hasErrors) {form-field--error}">
                 @helper.CSRF.formField
-
-                <input class="govuk-input govuk-input--width-20" id="application-name" name="name" type="text" value="@form.data.get("name")">
+                @fieldError(form.errors, "applicationName")
+                <input class="govuk-input govuk-input--width-20" id="application-name" name="applicationName" type="text" value="@form.data.get("applicationName")">
             </div>
             <div class="form-field form-field--submit">
                 <button id="submit" class="button" type="submit">Continue</button>
