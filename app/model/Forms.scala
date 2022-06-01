@@ -325,8 +325,19 @@ object Forms {
   object UpdateApplicationNameForm {
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
-        "applicationName" -> text.verifying("application.confirmation.missing", _.nonEmpty),
+        "applicationName" -> text.verifying("application.name.required", _.nonEmpty),
       )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
     )
   }
+
+  final case class UpdateApplicationNameAdminEmailForm(adminEmail: Option[String])
+
+  object UpdateApplicationNameAdminEmailForm {
+    val form: Form[UpdateApplicationNameAdminEmailForm] = Form(
+      mapping(
+        "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined),
+      )(UpdateApplicationNameAdminEmailForm.apply)(UpdateApplicationNameAdminEmailForm.unapply)
+    )
+  }
+
 }

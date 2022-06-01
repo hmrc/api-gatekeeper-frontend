@@ -33,6 +33,12 @@ object ApplicationConnector {
   import play.api.libs.json.Json
   import model.APIDefinitionFormatters._
 
+  case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
+  case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])
+
+  implicit val validateApplicationNameResponseErrorDetailsReads = Json.reads[ValidateApplicationNameResponseErrorDetails]
+  implicit val validateApplicationNameResponseReads = Json.reads[ValidateApplicationNameResponse]
+
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
 
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
@@ -158,6 +164,16 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       case Right(result) => UpdateIpAllowlistSuccessResult
       case Left(err) => throw err
     })
+  }
+
+  def validateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+    http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](s"$serviceBaseUrl/application/name/validate", ValidateApplicationNameRequest(name, applicationId))
+      .map( _ match {
+        case Right(ValidateApplicationNameResponse(None)) => ValidateApplicationNameSuccessResult
+        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(true, _)))) => ValidateApplicationNameFailureInvalidResult
+        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(_, true)))) => ValidateApplicationNameFailureDuplicateResult
+        case Left(err) => throw err
+      })
   }
 
   def updateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {

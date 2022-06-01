@@ -59,7 +59,7 @@
             <a class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank" href="https://developer.service.hmrc.gov.uk/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines (opens in new tab)</a>.
         </p>
 
-        @helper.form(action = routes.ApplicationController.updateApplicationName(application.id), 'class -> "form") {
+        @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), 'class -> "form") {
             <div class="@if(form.hasErrors) {form-field--error}">
                 @helper.CSRF.formField
                 @fieldError(form.errors, "applicationName")

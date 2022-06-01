@@ -57,7 +57,6 @@ class ApplicationController @Inject()(
   mcc: MessagesControllerComponents,
   applicationsView: ApplicationsView,
   applicationView: ApplicationView,
-  manageSubscriptionsView: ManageSubscriptionsView,
   manageAccessOverridesView: ManageAccessOverridesView,
   manageScopesView: ManageScopesView,
   ipAllowlistView: IpAllowlistView,
@@ -74,12 +73,7 @@ class ApplicationController @Inject()(
   approvedView: ApprovedView,
   createApplicationView: CreateApplicationView,
   createApplicationSuccessView: CreateApplicationSuccessView,
-  manageTeamMembersView: ManageTeamMembersView,
-  addTeamMemberView: AddTeamMemberView,
-  removeTeamMemberView: RemoveTeamMemberView,
   manageGrantLengthView: ManageGrantLengthView,
-  manageApplicationNameView: ManageApplicationNameView,
-  manageApplicationNameSuccessView: ManageApplicationNameSuccessView,
   manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
@@ -359,37 +353,6 @@ class ApplicationController @Inject()(
       }
 
       UpdateGrantLengthForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
-    }
-  }
-
-  def manageApplicationName(appId: ApplicationId) = adminOnlyAction { implicit request =>
-    withApp(appId) { app =>
-      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.application.name))
-      Future.successful(Ok(manageApplicationNameView(app.application, form)))
-    }
-  }
-
-  def updateApplicationName(appId: ApplicationId) = adminOnlyAction { implicit request =>
-    withApp(appId) { app =>
-      def handleValidForm(form: UpdateApplicationNameForm) = {
-        applicationService.updateApplicationName(app.application, form.applicationName).map( _ match {
-          case UpdateApplicationNameSuccessResult => Ok(manageApplicationNameSuccessView(app.application, form.applicationName))
-          case failure => {
-            val errorMsg = failure match {
-              case UpdateApplicationNameFailureInvalidResult => "application.name.invalid.error"
-              case UpdateApplicationNameFailureDuplicateResult => "application.name.duplicate.error"
-            }
-            val formWithErrors = UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)(errorMsg))
-            Ok(manageApplicationNameView(app.application, formWithErrors))
-          }
-        })
-      }
-
-      def handleFormError(form: Form[UpdateApplicationNameForm]) = {
-        Future.successful(BadRequest(manageApplicationNameView(app.application, form)))
-      }
-
-      UpdateApplicationNameForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 

@@ -1,0 +1,63 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model._
+@import config.AppConfig
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import views.html.include.fieldError
+@import views.html.include.errorSummary
+@import model.Forms.UpdateApplicationNameAdminEmailForm
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+
+@(application: ApplicationResponse, adminEmails: Set[String], form: Form[UpdateApplicationNameAdminEmailForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Which admin requested the application name change?") {
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a data-back-link href="@routes.UpdateApplicationNameController.updateApplicationNamePage(application.id)">Back</a></li>
+        </ul>
+    </nav>
+
+    <div>
+        @errorSummary(form)
+
+        <h1 class="govuk-label-wrapper">Which admin requested the application name change?</h1>
+
+        @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(application.id), 'class -> "form") {
+            @helper.CSRF.formField
+            @fieldError(form.errors, "adminEmail")
+            <div class="govuk-radios @if(form.hasErrors) {form-field--error}" data-module="govuk-radios">
+                @for(adminEmail <- adminEmails) {
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" name="adminEmail" type="radio" id="@adminEmail" value="@adminEmail">
+                    <label class="govuk-label govuk-radios__label" for="@adminEmail">
+                        @adminEmail
+                    </label>
+                </div>
+                }
+            </div>
+            <div class="form-field form-field--submit">
+                <button id="submit" class="button" type="submit">Continue</button>
+            </div>
+        }
+
+    </div>
+
+}
+

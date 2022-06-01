@@ -152,8 +152,13 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
   }
 
+  def validateApplicationName(application: ApplicationResponse, name: String)
+                       (implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+    applicationConnectorFor(application).validateApplicationName(application.id, name)
+  }
+
   def updateApplicationName(application: ApplicationResponse, name: String)
-                       (implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
+                           (implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
     //TODO check if name has actually changed
     applicationConnectorFor(application).updateApplicationName(application.id, name)
   }
