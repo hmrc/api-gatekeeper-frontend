@@ -54,14 +54,14 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val document = Jsoup.parse(page().body)
 
         elementExistsByText(document, "h1", appName) shouldBe true
-        elementExistsByText(document, "h1", "Application added") shouldBe true
+        elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "tr", s"Application ID ${appId.value}") shouldBe true
-        elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "tr", s"Environment $env") shouldBe true
-        elementExistsByText(document, "tr", "Access type Privileged") shouldBe true
-        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe true
-        elementExistsByText(document, "tr", s"Client ID ${clientId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application name $appName") shouldBe true
+        elementExistsByText(document, "div", s"Environment $env") shouldBe true
+        elementExistsByText(document, "div", "Access type Privileged") shouldBe true
+        elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe true
+        elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true
 
       }
     }
@@ -79,14 +79,14 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val document = Jsoup.parse(page().body)
 
         elementExistsByText(document, "h1", appName) shouldBe true
-        elementExistsByText(document, "h1", "Application added") shouldBe true
+        elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "tr", s"Application ID ${appId.value}") shouldBe true
-        elementExistsByText(document, "tr", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "tr", s"Environment $env") shouldBe true
-        elementExistsByText(document, "tr", "Access type ROPC") shouldBe true
-        elementExistsByText(document, "tr", s"TOTP secret $totpSecret") shouldBe false
-        elementExistsByText(document, "tr", s"Client ID ${clientId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application name $appName") shouldBe true
+        elementExistsByText(document, "div", s"Environment $env") shouldBe true
+        elementExistsByText(document, "div", "Access type ROPC") shouldBe true
+        elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe false
+        elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true
 
       }
     }

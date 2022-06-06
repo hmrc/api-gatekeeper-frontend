@@ -91,7 +91,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "p", "Choose an administrator") shouldBe true
+      elementExistsByText(document, "p", "Error: Choose an administrator") shouldBe true
     }
 
     "show error message when the application name doesn't match" in new Setup {
@@ -104,7 +104,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "p", "The application name doesn't match") shouldBe true
+      elementExistsByText(document, "p", "Error: The application name doesn't match") shouldBe true
     }
   }
 }

@@ -19,33 +19,32 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, grantLength: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Manage application grant length success") {
 
-<div class="column-two-thirds">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Manage application grant length</li>
-        </ul>
-    </nav>
-    <div class="govuk-box-highlight">
-        <h1 class="heading-xlarge">
-            Grant length changed
-        </h1>
-        <p class="font-large">
-            The application grant length is now
-            <br><span class="bold">@grantLength</span>
-        </p>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
+  <br />
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h1 class="govuk-panel__title">
+      Grant length changed
+    </h1>
+    <div class="govuk-panel__body">
+      The application grant length is now
+      <br><span class="govuk-body govuk-!-font-weight-bold" style="color:#ffffff;">@grantLength</span>
     </div>
-    <br>
+  </div>
 
-    <a href="@{routes.ApplicationController.applicationPage(application.id)}">Check application page</a>
-</div>
+  <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Check application page</a>
 }

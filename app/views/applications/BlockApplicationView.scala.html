@@ -19,7 +19,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[BlockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
@@ -27,64 +27,71 @@
 
 @main(title = s"${applicationConfig.title} - Block Application") {
 
-<div class="">
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+    </ol>
+  </div>
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@application.name</li>
-        </ul>
-    </nav>
-
-    <header>
-        @if(flash.get("success").isDefined) {
-        <div class="alert alert--success" role="alert">
-            <p success-message class="alert__message">@flash.get("success").getOrElse("")</p>
-        </div>
-        }
-        <h1 class="flush--top">@application.name</h1>
-    </header>
-
-    <table>
-        <tr>
-            <th class="tabular-data__heading">Environment</th>
-            <td class="tabular-data__data-1--2-col">@{application.deployedTo.toLowerCase.capitalize}</td>
-        </tr>
-        <tr>
-            <th class="tabular-data__heading">Application type</th>
-            <td class="tabular-data__data-1--2-col">@AccessType.displayedType(application.access.accessType)</td>
-        </tr>
-        <tr>
-            <th class="tabular-data__heading">Status</th>
-            <td class="tabular-data__data-1--2-col">
-                @status(application)
-            </td>
-        </tr>
-    </table>
-
-    <div>
-    @if(isSuperUser) {
-        @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
-            <div>
-                <p class="h2-heading">Application name</p>
-                <p>Enter the application name to confirm blocking</p>
-                <div class="@if(form.errors("applicationNameConfirmation").nonEmpty) {form-field--error}">
-                    @fieldError(form.errors, "applicationNameConfirmation")
-                    <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="@if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
-                </div>
-            </div>
-
-            @helper.CSRF.formField
-
-            <div class="form-field form-field--submit">
-                <button id="block-application" class="button--alert text--center flush--right" type="submit">Block application</button>
-                <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="secondary-button button--link">Cancel</a>
-            </div>
-
-        }
+  @if(flash.get("success").isDefined) {
+    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading" success-message>
+          @flash.get("success").getOrElse("")
+        </p>
+      </div>
     </div>
-    }
-</div>
-}
+  }
 
+  <h1 class="govuk-caption-l">@application.name</h1>
+
+  <table class="govuk-table">
+    <caption class="govuk-visually-hidden">Blocked application table</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-visually-hidden">
+        <th scope="col" class="govuk-table__header">Tabular heading</th>
+        <th scope="col" class="govuk-table__header">Tabular value</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">Environment</th>
+        <td class="govuk-table__cell">@{application.deployedTo.toLowerCase.capitalize}</td>
+      </tr>
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">Application type</th>
+        <td class="govuk-table__cell">@AccessType.displayedType(application.access.accessType)</td>
+      </tr>
+      <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header">Status</th>
+        <td class="govuk-table__cell">
+          @status(application)
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  @if(isSuperUser) {
+    @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
+      <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
+        <h2 class="govuk-label-wrapper">
+          <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
+            Application name
+          </label>
+        </h1>
+        <p class="govuk-body">Enter the application name to confirm blocking</p>
+        @fieldError2(form.errors, "applicationNameConfirmation")
+        <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">
+      </div>
+
+      @helper.CSRF.formField
+
+      <div class="govuk-button-group">
+        <button id="block-application" class="govuk-button" type="submit">Block application</button>
+        <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
+      </div>
+    }
+  }
+}

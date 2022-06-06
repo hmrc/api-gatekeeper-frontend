@@ -20,81 +20,88 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: Application, form: Form[AddTeamMemberForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Add Team Member") {
 
-<div class="content-body">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.TeamMembersController.manageTeamMembers(application.id)}">Manage team members</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Add team member</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.TeamMembersController.manageTeamMembers(application.id)}">Manage team members</a>
+      </li>
+    </ol>
+  </div>
+  <br />
+  @errorSummary2(form)
 
-    @errorSummary(form)
+  <h1 class="govuk-heading-l">Add Team Member</h1>
 
-    <h1 class="heading-large">Add Team Member</h1>
+  <h2 class="govuk-heading-m">Team member</h2>
 
-    <h2 class="heading-medium">Team member</h2>
+  @helper.form(action = controllers.routes.TeamMembersController.addTeamMemberAction(application.id)) {
+    @helper.CSRF.formField
 
-    @helper.form(action = controllers.routes.TeamMembersController.addTeamMemberAction(application.id)) {
-        @helper.CSRF.formField
+    <div class="govuk-form-group @if(form.errors("email").nonEmpty) {govuk-form-group--error}">
+      <label class="govuk-label" for="email" id="email-label">Email address</label>
+      @fieldError2(form.errors, "email", form.error("submissionError").isEmpty)
+      <input
+        type="text"
+        id="email"
+        name="email"
+        value="@form.data.getOrElse("email", "")"
+        class="govuk-input govuk-!-width-two-thirds @if(form.errors("email").nonEmpty) {govuk-input--error}"
+      />
+    </div>
 
-        <div class="form-group @if(form.errors("email").nonEmpty) {form-field--error}">
-            <label class="form-label-bold" for="email" id="email-label">Email address</label>
-            @fieldError(form.errors, "email", form.error("submissionError").isEmpty)
-            <input type="text"
-                   id="email"
-                   name="email"
-                   value="@form.data.getOrElse("email", "")"
-            class="form-control @if(form.errors("email").nonEmpty) {form-control-error}"
-            aria-labelledby="email-label"
-            aria-describedby="email-note"/>
+    <div class="govuk-form-group @if(form.errors("role").nonEmpty) {govuk-form-group--error}">
+      @fieldError2(form.errors, "role", form.error("submissionError").isEmpty)
+      <fieldset class="govuk-fieldset" id="role">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+          <h1 class="govuk-fieldset__heading">
+            What permissions do you want to give them?
+          </h1>
+        </legend>
+        <div class="govuk-radios" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="Developer" type="radio" name="role" value="Developer">
+            <label class="govuk-label govuk-radios__label" for="Developer">
+              Developer
+              <span class="govuk-hint">
+                Test an application<br>
+                Subscribe to sandbox APIs<br>
+                Add redirect URIs<br>
+                View team members
+              </span>
+            </label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="Admin" type="radio" name="role" value="Administrator">
+            <label class="govuk-label govuk-radios__label" for="Admin">
+              Administrator
+              <span class="govuk-hint">
+                Test an application<br>
+                Subscribe to sandbox APIs and request to change production APIs<br>
+                Change application details<br>
+                Add or remove team members
+              </span>
+            </label>
+          </div>
         </div>
+      </fieldset>
+    </div>
 
-        <h2 class="heading-medium">What permissions do you want to give them?</h2>
-        <div class="form-group @if(form.errors("role").nonEmpty) {form-field--error}">
-            @fieldError(form.errors, "role", form.error("submissionError").isEmpty)
-            <br>
-            <fieldset id="role">
-                <div class="multiple-choice">
-                    <input id="Developer" type="radio" name="role" value="Developer">
-                    <label for="Developer"><strong class="bold">Developer</strong>
-                        <span class="form-hint">
-                                                Test an application<br>
-                                                Subscribe to sandbox APIs<br>
-                                                Add redirect URIs<br>
-                                                View team members
-                                             </span>
-                    </label>
-                </div>
-                <div class="multiple-choice">
-                    <input id="Admin" type="radio" name="role" value="Administrator">
-                    <label for="Admin"><strong class="bold">Administrator</strong>
-                        <span class="form-hint">
-                                                Test an application<br>
-                                                Subscribe to sandbox APIs and request to change production APIs<br>
-                                                Change application details<br>
-                                                Add or remove team members
-                                             </span>
-                    </label>
-                </div>
-            </fieldset>
-        </div>
-
-        <div class="form-field">
-            <button id="submit" class="button button--padded" type="submit">Add</button>
-            <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="secondary-button">Cancel</a>
-        </div>
-    }
-</div>
-
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Add</button>
+      <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }
+

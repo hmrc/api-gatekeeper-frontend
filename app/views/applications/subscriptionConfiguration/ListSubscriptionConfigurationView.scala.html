@@ -21,7 +21,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: NewApplication, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -29,44 +29,46 @@
 
 @main(title = s"${applicationConfig.title} - $pageTitle") {
 
-<div class="col-75">
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">
+          Applications
+        </a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">
+          @application.name
+        </a>
+      </li>
+    </ol>
+  </div>
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@pageTitle</li>
-        </ul>
-    </nav>
+  <h1 class="govuk-heading-l">@pageTitle</h1>
 
-  <header>
-    <h1>@pageTitle</h1>
-  </header>
-
-  </br>
-  <p>Edit the configuration for these APIs the application is subscribed to.</p>
-  
+  <p class="govuk-body">Edit the configuration for these APIs the application is subscribed to.</p>
 
   @for(subscriptionVersion <- subscriptionVersions) {
-    <h2>@{subscriptionVersion.apiName} @{subscriptionVersion.version.value} @{subscriptionVersion.displayedStatus}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="col-35">Name</th>
-          <th class="col-60">Configuration</th>
-          <td>
-            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="numeric" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
-          </td>
+    <h2 class="govuk-heading-m">
+      @{subscriptionVersion.apiName} @{subscriptionVersion.version.value} @{subscriptionVersion.displayedStatus}
+    </h2>
+    <table class="govuk-table">
+      <caption class="govuk-visually-hidden">Table containing configurations for selected API's</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header col-35">Name</th>
+          <th scope="col" class="govuk-table__header col-60">Configuration</th>
+          <th scope="col" class="govuk-table__header">
+            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="govuk-link govuk-link--no-visited-state" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
+          </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="govuk-table__body">
       @for(field <- subscriptionVersion.fields) {
-        <tr>
-          <td>@{field.shortDescription}</td>
-          <td>@{field.value.value}</td>
-          <td></td>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">@{field.shortDescription}</td>
+          <td class="govuk-table__cell">@{field.value.value}</td>
+          <td class="govuk-table__cell"></td>
         </tr>
       }
       </tbody>
@@ -74,10 +76,8 @@
   }
 
   </br>
-  <div class="form-field form-field--submit">
-    <a href="@routes.ApplicationController.applicationPage(application.id)" class="button--link">Cancel</a>
-  </div>
 
-</div>
+  <p class="govuk-body">
+    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+  </p>
 }
-
