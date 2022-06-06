@@ -82,6 +82,13 @@ lazy val microservice =  (project in file("."))
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(
+  TwirlKeys.templateImports ++= Seq(
+      "views.html.helper.CSPNonce",
+      "config.AppConfig",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
+    )
+  )
+  .settings(
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     )

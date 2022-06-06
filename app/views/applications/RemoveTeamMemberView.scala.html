@@ -20,60 +20,65 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: Application, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove Team Member") {
 
-<div class="content-body">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.TeamMembersController.manageTeamMembers(application.id)}">Manage team members</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Remove team member</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.TeamMembersController.manageTeamMembers(application.id)}">Manage team members</a>
+      </li>
+    </ol>
+  </div>
+  <br />
+  @errorSummary2(form)
 
-    @errorSummary(form)
+  <h1 class="govuk-heading-l">Remove Team Member</h1>
 
-    <h1 class="heading-large">Remove Team Member</h1>
-
-    <h2 class="heading-medium">Team member</h2>
-    <div id="email" class="form-group @if(form.errors("email").nonEmpty) {form-field--error}">
-        <span>@email</span>
+  @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id)) {
+    @helper.CSRF.formField
+    <input type="hidden" name="email" value="@email">
+    <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
+      <fieldset id="confirm" class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+          <h2 class="govuk-fieldset__heading">
+            Team member
+          </h2>
+        </legend>
+        <div id="email" class="form-group @if(form.errors("email").nonEmpty) {govuk-form-group--error}">
+          <p class="govuk-body">@email</p>
+        </div>
+        <h3 class="govuk-heading-s">Are you sure you want to remove this team member from this application?</h3>
+        @fieldError2(form.errors, "confirm", form.error("submissionError").isEmpty)
+        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="yes" type="radio" name="confirm" value="Yes">
+            <label class="govuk-label govuk-radios__label" for="yes">
+              Yes
+            </label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="no" type="radio" name="confirm" value="No">
+            <label class="govuk-label govuk-radios__label" for="no">
+              No
+            </label>
+          </div>
+        </div>
+      </fieldset>
     </div>
 
-    @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id)) {
-        @helper.CSRF.formField
-        <input type="hidden" name="email" value="@email">
-        <div class="form-group @if(form.errors("confirm").nonEmpty) {form-field--error}">
-            <h2 class="heading-medium">Are you sure you want to remove this team member from this application?</h2>
-
-            @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
-            <fieldset id="confirm" class="inline">
-                <div class="multiple-choice">
-                    <input id="yes" type="radio" name="confirm" value="Yes">
-                    <label for="yes"><strong class="bold">Yes</strong></label>
-                </div>
-                <div class="multiple-choice">
-                    <input id="no" type="radio" name="confirm" value="No">
-                    <label for="no"><strong class="bold">No</strong></label>
-                </div>
-            </fieldset>
-            <br>
-        </div>
-
-        <div class="form-field">
-            <button id="submit" class="button button--padded" type="submit">Submit</button>
-            <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="secondary-button">Cancel</a>
-        </div>
-    }
-
-</div>
-
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" type="submit">Submit</button>
+      <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
+  }
 }

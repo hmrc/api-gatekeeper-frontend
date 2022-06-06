@@ -1,6 +1,11 @@
+$hmrc-assets-path: "/api-test-user/assets/lib/hmrc-frontend/hmrc/";
+$govuk-assets-path: "/applications-manage-authority/assets/lib/govuk-frontend/govuk/assets/";
+
 // Partials
 @import "partials/govukCopy.scss";
 @import "partials/developers.scss";
 @import "partials/datatables.scss";
 @import "partials/sandbox.scss";
 @import "partials/ad-hoc.scss";
+@import "lib/hmrc-frontend/hmrc/all";
+@import "lib/govuk-frontend/govuk/all";

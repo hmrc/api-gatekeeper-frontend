@@ -69,8 +69,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)
       verifyText("data-description-public", "")
-      webDriver.findElement(By.cssSelector("td[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
-      webDriver.findElement(By.cssSelector("td[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
+      webDriver.findElement(By.cssSelector("dd[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
+      webDriver.findElement(By.cssSelector("dd[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
       verifyText("data-subscriptions", "API Simulator 1.0 (Stable)\nHello World 1.0 (Stable)")
       verifyText("data-collaborator-email", "admin@example.com", 0)

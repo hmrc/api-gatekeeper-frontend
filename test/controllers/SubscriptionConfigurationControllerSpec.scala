@@ -108,7 +108,7 @@ class SubscriptionConfigurationControllerSpec
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
 
       val responseBody = contentAsString(result)
-      responseBody should include("<h1>Subscription configuration</h1>")
+      responseBody should include("Subscription configuration")
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
       responseBody should include(ApiStatus.displayedStatus(versionData.status))
