@@ -7,6 +7,7 @@ trait AuthServiceStub {
   val authUrl = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)
 
+  val headersWithBearer = Map()
 
   def primeAuthServiceNoClientId(body: String): Unit = {
     stubFor(post(authUrlMatcher)
