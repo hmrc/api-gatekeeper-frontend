@@ -35,6 +35,8 @@ import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions.ApiData
 
+import java.time.LocalDateTime
+
 object GatekeeperRole extends Enumeration {
   type GatekeeperRole = Value
   val USER,SUPERUSER,ADMIN = Value
@@ -247,10 +249,20 @@ object ValidateApplicationNameRequest {
   implicit val format = Json.format[ValidateApplicationNameRequest]
 }
 
-case class UpdateApplicationNameRequest(name: String)
+trait ApplicationUpdate {
+  def instigator: UserId
+  def timestamp: LocalDateTime
+}
 
-object UpdateApplicationNameRequest {
-  implicit val format = Json.format[UpdateApplicationNameRequest]
+trait GatekeeperApplicationUpdate extends ApplicationUpdate {
+  def gatekeeperUser: String
+}
+
+case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String) extends ApplicationUpdate
+
+trait ApplicationUpdateFormatters {
+  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
+    .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
 }
 
 sealed trait UpdateApplicationNameResult

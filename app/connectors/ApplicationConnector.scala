@@ -27,6 +27,7 @@ import model.GrantLength.GrantLength
 import model.RateLimitTier.RateLimitTier
 import model.{ApiContext, UserId, _}
 
+import java.time.LocalDateTime
 import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
@@ -44,7 +45,7 @@ object ApplicationConnector {
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
 }
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with ApplicationUpdateFormatters {
   import ApplicationConnector._
 
   protected val httpClient: HttpClient
@@ -176,12 +177,12 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def updateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[UpdateApplicationNameResult] = {
-    http.PUT[UpdateApplicationNameRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/name", UpdateApplicationNameRequest(name))
+  def updateApplicationName(applicationId: ApplicationId, instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val payload = ChangeProductionApplicationName(instigator, timestamp, gatekeeperUser, newName)
+    http.PATCH[ChangeProductionApplicationName, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), payload)
       .map( _ match {
-        case Right(_) => UpdateApplicationNameSuccessResult
-        case Left(Upstream4xxResponse(_,BAD_REQUEST,_,_)) => UpdateApplicationNameFailureInvalidResult
-        case Left(Upstream4xxResponse(_,CONFLICT,_,_)) => UpdateApplicationNameFailureDuplicateResult
+        case Right(_) => ApplicationUpdateSuccessResult
+        case Left(err) => throw err
       })
   }
 
