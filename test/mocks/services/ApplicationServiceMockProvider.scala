@@ -122,5 +122,9 @@ trait ApplicationServiceMockProvider {
         when(mockApplicationService.doesApplicationHaveSubmissions(*[ApplicationId])(*))
         .thenReturn(successful(false))
     }
+
+    object ValidateApplicationName {
+      def succeeds() = when(mockApplicationService.validateApplicationName(*[ApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+    }
   }
 }

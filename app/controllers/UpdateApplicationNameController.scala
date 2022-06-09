@@ -69,14 +69,14 @@ class UpdateApplicationNameController @Inject()(
 
   val newAppNameSessionKey = "newApplicationName"
 
-  def updateApplicationNamePage(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def updateApplicationNamePage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.application.name))
       Future.successful(Ok(manageApplicationNameView(app.application, form)))
     }
   }
 
-  def updateApplicationNameAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def updateApplicationNameAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameForm) = {
         if (form.applicationName.equalsIgnoreCase(app.application.name)) {
@@ -110,7 +110,7 @@ class UpdateApplicationNameController @Inject()(
     }
   }
 
-  def updateApplicationNameAdminEmailPage(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def updateApplicationNameAdminEmailPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       val adminEmails = app.application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress)
       Future.successful(adminEmails.size match {
@@ -120,7 +120,7 @@ class UpdateApplicationNameController @Inject()(
     }
   }
 
-  def updateApplicationNameAdminEmailAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def updateApplicationNameAdminEmailAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameAdminEmailForm) = {
         val newApplicationName = request.session.get(newAppNameSessionKey).get
@@ -149,7 +149,7 @@ class UpdateApplicationNameController @Inject()(
     }
   }
 
-  def updateApplicationNameSuccessPage(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def updateApplicationNameSuccessPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       Future.successful(Ok(manageApplicationNameSuccessView(app.application)))
     }
