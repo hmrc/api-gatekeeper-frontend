@@ -14,63 +14,53 @@
  * limitations under the License.
  *@
 
+@import include._
 @import model._
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import model.Forms.UpdateApplicationNameForm
 @import views.html.include.fieldError
-@import views.html.include.errorSummary
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[UpdateApplicationNameForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Manage application name") {
+@main(title = s"${applicationConfig.title} - Change the application name") {
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(application.id)}">Application details</a></li>
-        </ul>
-    </nav>
-
-    <div>
-        @errorSummary(form)
-
-        <h1 class="govuk-label-wrapper">Change the application name</h1>
-
-        <p>
-            We want developers to use a single Developer Hub application, preferably named after their organisation, like Sage or Xero.
-        </p>
-
-        <p>
-            We show the application name when users grant authority. Users should see a name they trust instead of an unrecognised product name.
-        </p>
-
-        <p>
-            If you think the name is unrecognisable, recommend that the developer use their organisation’s name.
-        </p>
-
-        <p>
-            Any new name must follow our
-            <a class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank" href="https://developer.service.hmrc.gov.uk/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines (opens in new tab)</a>.
-        </p>
-
-        @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), 'class -> "form") {
-            <div class="@if(form.hasErrors) {form-field--error}">
-                @helper.CSRF.formField
-                @fieldError(form.errors, "applicationName")
-                <input class="govuk-input govuk-input--width-20" id="application-name" name="applicationName" type="text" value="@form.data.get("applicationName")">
-            </div>
-            <div class="form-field form-field--submit">
-                <button id="submit" class="button" type="submit">Continue</button>
-                <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
-            </div>
-        }
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+        </li>
+      </ol>
     </div>
+    <br />
 
+    @errorSummary2(form)
+
+    <h1 class="govuk-heading-l">Change the application name</h1>
+
+    <p class="govuk-body">We want developers to use a single Developer Hub application, preferably named after their organisation, like Sage or Xero.</p>
+
+    <p class="govuk-body">We show the application name when users grant authority. Users should see a name they trust instead of an unrecognised product name.</p>
+
+    <p class="govuk-body">If you think the name is unrecognisable, recommend that the developer use their organisation’s name.</p>
+
+    <p class="govuk-body">Any new name must follow our <a class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank" href="https://developer.service.hmrc.gov.uk/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines (opens in new tab)</a>.</p>
+
+    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), 'class -> "form") {
+      <div class="govuk-form-group @if(form.hasErrors) {govuk-form-group--error}">
+        @helper.CSRF.formField
+        @fieldError2(form.errors, "applicationName")
+        <input class="govuk-input govuk-input--width-20" id="application-name" name="applicationName" type="text" value="@form.data.get("applicationName")">
+      </div>
+      <div class="govuk-button-group">
+        <button id="submit" class="govuk-button" type="submit">Continue</button>
+        <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      </div>
+    }
 }
 
