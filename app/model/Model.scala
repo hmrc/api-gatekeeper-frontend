@@ -35,6 +35,8 @@ import model.SubscriptionFields.SubscriptionFieldDefinition
 import model.applications.ApplicationWithSubscriptionData
 import model.subscriptions.ApiData
 
+import java.time.LocalDateTime
+
 object GatekeeperRole extends Enumeration {
   type GatekeeperRole = Value
   val USER,SUPERUSER,ADMIN = Value
@@ -241,10 +243,41 @@ object UpdateIpAllowlistRequest {
 sealed trait UpdateIpAllowlistResult
 case object UpdateIpAllowlistSuccessResult extends UpdateIpAllowlistResult
 
+case class ValidateApplicationNameRequest(applicationName: String, selfApplicationId: ApplicationId)
+
+object ValidateApplicationNameRequest {
+  implicit val format = Json.format[ValidateApplicationNameRequest]
+}
+
+trait ApplicationUpdate {
+  def instigator: UserId
+  def timestamp: LocalDateTime
+}
+
+trait GatekeeperApplicationUpdate extends ApplicationUpdate {
+  def gatekeeperUser: String
+}
+
+case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String) extends ApplicationUpdate
+
+trait ApplicationUpdateFormatters {
+  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
+    .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
+}
+
+sealed trait UpdateApplicationNameResult
+case object UpdateApplicationNameSuccessResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureInvalidResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureDuplicateResult extends UpdateApplicationNameResult
+
+sealed trait ValidateApplicationNameResult
+case object ValidateApplicationNameSuccessResult extends ValidateApplicationNameResult
+case object ValidateApplicationNameFailureInvalidResult extends ValidateApplicationNameResult
+case object ValidateApplicationNameFailureDuplicateResult extends ValidateApplicationNameResult
+
 sealed trait ApplicationUpdateResult
 case object ApplicationUpdateSuccessResult extends ApplicationUpdateResult
 case object ApplicationUpdateFailureResult extends ApplicationUpdateResult
-
 
 sealed trait ApplicationDeleteResult
 case object ApplicationDeleteSuccessResult extends ApplicationDeleteResult

@@ -122,5 +122,19 @@ trait ApplicationServiceMockProvider {
         when(mockApplicationService.doesApplicationHaveSubmissions(*[ApplicationId])(*))
         .thenReturn(successful(false))
     }
+
+    object ValidateApplicationName {
+      def succeeds() = when(mockApplicationService.validateApplicationName(*[ApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+
+      def invalid() = when(mockApplicationService.validateApplicationName(*[ApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+
+      def duplicate() = when(mockApplicationService.validateApplicationName(*[ApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+    }
+
+    object UpdateApplicationName {
+      def succeeds() = when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[String], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+
+      def fails() = when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[String], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateFailureResult))
+    }
   }
 }

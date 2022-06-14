@@ -29,6 +29,8 @@ import play.api.http.Status.NOT_FOUND
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import java.time.LocalDateTime
+
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
                                    sandboxApiScopeConnector: SandboxApiScopeConnector,
@@ -150,6 +152,26 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   def manageIpAllowlist(application: ApplicationResponse, required: Boolean, ipAllowlist: Set[String])
                        (implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
     applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
+  }
+
+  def validateApplicationName(application: ApplicationResponse, name: String)
+                       (implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+    applicationConnectorFor(application).validateApplicationName(application.id, name)
+  }
+
+  def updateApplicationName(application: ApplicationResponse, adminEmail: String, gatekeeperUser: String, name: String)
+                           (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    if (application.name.equalsIgnoreCase(name)) {
+      Future.successful(ApplicationUpdateSuccessResult)
+    } else {
+      application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {
+        case Some(instigator) => {
+          val timestamp = LocalDateTime.now
+          applicationConnectorFor(application).updateApplicationName(application.id, instigator, timestamp, gatekeeperUser, name)
+        }
+        case None => Future.successful(ApplicationUpdateFailureResult)
+      }
+    }
   }
 
   def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

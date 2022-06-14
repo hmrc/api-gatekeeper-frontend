@@ -27,18 +27,25 @@ import model.GrantLength.GrantLength
 import model.RateLimitTier.RateLimitTier
 import model.{ApiContext, UserId, _}
 
+import java.time.LocalDateTime
 import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
   import play.api.libs.json.Json
   import model.APIDefinitionFormatters._
 
+  case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
+  case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])
+
+  implicit val validateApplicationNameResponseErrorDetailsReads = Json.reads[ValidateApplicationNameResponseErrorDetails]
+  implicit val validateApplicationNameResponseReads = Json.reads[ValidateApplicationNameResponse]
+
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
 
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
 }
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with ApplicationUpdateFormatters {
   import ApplicationConnector._
 
   protected val httpClient: HttpClient
@@ -160,6 +167,24 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     })
   }
 
+  def validateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+    http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](s"$serviceBaseUrl/application/name/validate", ValidateApplicationNameRequest(name, applicationId))
+      .map( _ match {
+        case Right(ValidateApplicationNameResponse(None)) => ValidateApplicationNameSuccessResult
+        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(true, _)))) => ValidateApplicationNameFailureInvalidResult
+        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(_, true)))) => ValidateApplicationNameFailureDuplicateResult
+        case Left(err) => throw err
+      })
+  }
+
+  def updateApplicationName(applicationId: ApplicationId, instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val payload = ChangeProductionApplicationName(instigator, timestamp, gatekeeperUser, newName)
+    http.PATCH[ChangeProductionApplicationName, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), payload)
+      .map( _ match {
+        case Right(_) => ApplicationUpdateSuccessResult
+        case Left(err) => throw err
+      })
+  }
 
   def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${version.value}")

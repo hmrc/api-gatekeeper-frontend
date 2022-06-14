@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
+
 import java.time.Period
 
 class ApplicationConnectorSpec 
@@ -648,6 +649,59 @@ class ApplicationConnectorSpec
       )
 
       await(connector.searchCollaborators(apiContext, apiVersion1, Some(email))) shouldBe List(email)
+    }
+  }
+
+  "validateApplicationName" should {
+    "return success result if name is valid" in new Setup {
+      val name = "my new name"
+      val request =ValidateApplicationNameRequest(name, applicationId)
+
+      stubFor(
+        post(urlPathEqualTo("/application/name/validate"))
+          .withJsonRequestBody(request)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.obj().toString())
+          )
+      )
+
+      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameSuccessResult
+    }
+
+    "return failure result if name is invalid" in new Setup {
+      val name = "my new name"
+      val request =ValidateApplicationNameRequest(name, applicationId)
+
+      stubFor(
+        post(urlPathEqualTo("/application/name/validate"))
+          .withJsonRequestBody(request)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.obj("errors" -> Json.obj("invalidName" -> true, "duplicateName" -> false)).toString())
+          )
+      )
+
+      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameFailureInvalidResult
+    }
+
+    "return failure result if name is duplicate" in new Setup {
+      val name = "my new name"
+      val request =ValidateApplicationNameRequest(name, applicationId)
+
+      stubFor(
+        post(urlPathEqualTo("/application/name/validate"))
+          .withJsonRequestBody(request)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.obj("errors" -> Json.obj("invalidName" -> false, "duplicateName" -> true)).toString())
+          )
+      )
+
+      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameFailureDuplicateResult
     }
   }
 }

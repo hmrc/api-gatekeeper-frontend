@@ -211,6 +211,19 @@
       </dd>
     </div>
     <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Application name
+        </dt>
+        <dd class="govuk-summary-list__value" data-name-id>
+            @application.name
+        </dd>
+        <dd class="govuk-summary-list__actions">
+        @if(application.deployedTo == Environment.PRODUCTION) {
+            <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId).url}" class="button--link" role="button">Manage</a>
+        }
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         Status
       </dt>

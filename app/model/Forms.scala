@@ -319,4 +319,25 @@ object Forms {
       )(UpdateGrantLengthForm.apply)(UpdateGrantLengthForm.unapply)
     )
   }
+
+  final case class UpdateApplicationNameForm(applicationName: String)
+
+  object UpdateApplicationNameForm {
+    val form: Form[UpdateApplicationNameForm] = Form(
+      mapping(
+        "applicationName" -> text.verifying("application.name.required", _.nonEmpty)
+      )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
+    )
+  }
+
+  final case class UpdateApplicationNameAdminEmailForm(adminEmail: Option[String])
+
+  object UpdateApplicationNameAdminEmailForm {
+    val form: Form[UpdateApplicationNameAdminEmailForm] = Form(
+      mapping(
+        "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined)
+      )(UpdateApplicationNameAdminEmailForm.apply)(UpdateApplicationNameAdminEmailForm.unapply)
+    )
+  }
+
 }

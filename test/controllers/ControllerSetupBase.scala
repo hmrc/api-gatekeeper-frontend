@@ -30,9 +30,9 @@ import org.joda.time.DateTime
 
 import java.time.Period
 
-trait ControllerSetupBase 
-    extends MockitoSugar 
-    with ArgumentMatchersSugar 
+trait ControllerSetupBase
+    extends MockitoSugar
+    with ArgumentMatchersSugar
     with AuthConnectorMock
     with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
