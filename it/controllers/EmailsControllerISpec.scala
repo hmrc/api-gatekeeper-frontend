@@ -10,7 +10,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 import support._
-import utils.UserFunctionsWrapper
+import play.filters.csrf.CSRF.{Token, TokenInfo}
+import play.filters.csrf.{CSRFConfigProvider, CSRFFilter}
+import play.mvc.Http.Headers
+import utils.{MockCookies, UserFunctionsWrapper}
 import views.emails.EmailsPagesHelper
 
 
@@ -22,6 +25,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   protected override def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
+        "microservice.services.auth.host" -> wireMockHost,
         "microservice.services.auth.port" -> wireMockPort,
         "metrics.enabled" -> true,
         "auditing.enabled" -> false,
@@ -44,7 +48,9 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val url = s"http://localhost:$port"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded")
+
 
   val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
   val unverifiedUser1 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = false)
@@ -73,6 +79,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     wsClient
       .url(url)
       .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .get()
       .futureValue
@@ -81,9 +88,10 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     wsClient
       .url(url)
       .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .post(body)
-      .futureValue  
+      .futureValue
 
   "EmailsController" when {
 
@@ -103,32 +111,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       }
 
     }
-
-     "POST /api-gatekeeper/emails" should {
-      "redirect to subscription information page when EMAIL_PREFERENCES passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_PREFERENCES")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences")
-      }
-
-      "redirect to subscription information page when API_SUBSCRIPTION passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=API_SUBSCRIPTION")
-       validateRedirect(result, "/api-gatekeeper/emails/api-subscription/information")
-      }
-
-      "redirect to email all users information page when EMAIL_ALL_USERS passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_ALL_USERS")
-        validateRedirect(result, "/api-gatekeeper/emails/all-users/information")
-      }
-
-      "respond with 403 and when not authorised" in {
-        primeAuthServiceFail()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "")
-        result.status shouldBe FORBIDDEN
-      }
-     }
 
      "GET  /emails/:emailChoice/information " should {
       "respond with 200 and render api-subscription information page correctly when authorised" in {
@@ -169,7 +151,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users", validHeaders)
             result.status shouldBe OK
 
-            validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)  
+            validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)
           }
 
 
@@ -186,7 +168,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             primeAuthServiceFail()
            
             val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users", validHeaders)
-            result.status shouldBe FORBIDDEN   
+            result.status shouldBe FORBIDDEN
           }
      }
 
@@ -246,33 +228,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       }
     }
 
-    "POST /emails/email-preferences " should {
-      "redirect to select page when SPECIFIC_API passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=SPECIFIC_API")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
-      }
-
-      "redirect to select page when TAX_REGIME passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-api-category")
-      }
-
-      "redirect to select page when TOPIC passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-topic")
-      }
-
-      "respond with 403 when not authorised" in {
-        primeAuthServiceFail()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
-        result.status shouldBe FORBIDDEN
-      }
-
-    }
-
     "GET /emails/email-preferences/by-topic" should {
 
       "respond with 200 and render the page correctly on initial load when authorised" in {
@@ -281,7 +236,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesTopicPage(Jsoup.parse(result.body))
-      } 
+      }
 
       "respond with 200 and render the page correctly when selected topic provided" in {
         primeAuthServiceSuccess()
@@ -289,8 +244,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body),  TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)  
-      } 
+        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body),  TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
+      }
 
       "respond with 200 and render the page correctly when selected topic provided but no users returned" in {
         primeAuthServiceSuccess()
@@ -298,15 +253,15 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body),  TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty) 
-      } 
+        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body),  TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
+      }
 
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic", validHeaders)
         result.status shouldBe FORBIDDEN
       }
-    } 
+    }
     
     "GET /emails/email-preferences/by-api-category" should {
       val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"),  APICategoryDetails("category3", "name3"))
@@ -318,7 +273,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
-      } 
+      }
 
       "respond with 200 and render the page correctly when only category filter is provided" in {
         primeAuthServiceSuccess()
@@ -327,7 +282,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, categories.head)
-      } 
+      }
 
       "respond with 200 and render the page correctly when category and topic filter provided but no users returned" in {
         primeAuthServiceSuccess()
@@ -337,7 +292,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(categories.head), TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
-      } 
+      }
 
      "respond with 200 and render the page correctly when category and topic filter provided and some users returned" in {
         primeAuthServiceSuccess()
@@ -347,7 +302,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(categories.head), TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
-      } 
+      }
 
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
@@ -366,7 +321,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis)
-      } 
+      }
 
 
       "respond with 200 and render the page correctly when selectedAPis provided" in {
@@ -379,7 +334,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)
-      } 
+      }
 
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
@@ -399,7 +354,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), selectedApis)
-      } 
+      }
 
 
      "redirect to select api page when no selectedApis in query params" in {
@@ -407,7 +362,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
 
-      } 
+      }
 
       "respond with 200 and render the page with users table with selectedApis" in {
         primeAuthServiceSuccess()
@@ -419,7 +374,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs="+_.serviceName).mkString}", validHeaders)
 
         validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
-      } 
+      }
 
 
       "respond with 200 and render the page with selectedApis but no users" in {
@@ -444,7 +399,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
      def validateRedirect(response: WSResponse, expectedLocation: String){
         response.status shouldBe SEE_OTHER
         val mayBeLocationHeader: Option[Seq[String]] = response.headers.get(LOCATION)
-        mayBeLocationHeader.fold(fail("redirect Location header missing")){ locationHeader => 
+        mayBeLocationHeader.fold(fail("redirect Location header missing")){ locationHeader =>
           locationHeader.head shouldBe expectedLocation}
      }
   }

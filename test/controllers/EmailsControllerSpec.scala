@@ -148,7 +148,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(result) shouldBe OK
-       
+
         verify(mockSendEmailChoiceView).apply()(*,*,*)
       }
     }
@@ -293,7 +293,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
-        val result: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
+        val result: Future[Result] = underTest.selectSpecificApi(None)(FakeRequest())
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
@@ -304,7 +304,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
-        val result: Future[Result] = underTest.selectSpecficApi(Some(List(combinedRestApi1.serviceName)))(FakeRequest())
+        val result: Future[Result] = underTest.selectSpecificApi(Some(List(combinedRestApi1.serviceName)))(FakeRequest())
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
@@ -326,7 +326,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)         
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val selectedAPIs = List(combinedXmlApi2)

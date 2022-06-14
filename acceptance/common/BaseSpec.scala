@@ -29,6 +29,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.TestData
 import org.scalatest.featurespec.AnyFeatureSpec
 import play.api.test.RunningServer
+import utils.MockCookies
 
 trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with GuiceOneServerPerTest {
 

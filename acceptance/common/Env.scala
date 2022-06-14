@@ -16,22 +16,54 @@
 
 package common
 
-import java.net.URL
+import net.lightbody.bmp.BrowserMobProxyServer
+import net.lightbody.bmp.client.ClientUtil
+import net.lightbody.bmp.util.{HttpMessageContents, HttpMessageInfo}
+import io.netty.handler.codec.http.HttpRequest
+import io.netty.handler.codec.http.HttpResponse
 
+import java.net.URL
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
-import org.openqa.selenium.remote.{DesiredCapabilities, RemoteWebDriver}
+import org.openqa.selenium.remote.{CapabilityType, DesiredCapabilities, RemoteWebDriver}
 import org.openqa.selenium.{Dimension, WebDriver}
 
 import scala.util.{Properties, Try}
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.firefox.FirefoxDriver
+import utils.MockCookies
+
 
 trait Env {
+
   val driver: WebDriver = createWebDriver
   lazy val port = 6001
+  lazy val proxyPort = 6003
   lazy val windowSize = new Dimension(1024, 800)
 
+def createProxy()= {
+  val proxy: BrowserMobProxyServer = new BrowserMobProxyServer()
+  proxy.addHeader("Authorization", "Bearer 123")
+  proxy.start(proxyPort)
+  println("*** CREATE PROXY")
+
+  // get the Selenium proxy object
+  val seleniumProxy = ClientUtil.createSeleniumProxy(proxy)
+    proxy.addRequestFilter(new net.lightbody.bmp.filters.RequestFilter() {
+       override def filterRequest(request: HttpRequest , contents: HttpMessageContents, messageInfo: HttpMessageInfo): HttpResponse  = {
+         println("*** FILTER REQUEST")
+       request.headers().add("Authorization", "Bearer 123")
+
+        // in the request filter, you can return an HttpResponse object to "short-circuit" the request
+        return null
+      }
+    });
+
+  seleniumProxy
+}
+
+
   lazy val createWebDriver: WebDriver = {
+
     Properties.propOrElse("test_driver", "chrome") match {
       case "chrome" => createChromeDriver()
       case "firefox" => createFirefoxDriver()
@@ -42,20 +74,29 @@ trait Env {
   }
 
   def createRemoteChromeDriver() = {
-    val driver = new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.chrome)
+    println("*** CREATE REMOTE CHROME DRIVER")
+    val options = new ChromeOptions()
+    .setProxy(createProxy())
+    val driver = new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), options)
     driver.manage().window().setSize(windowSize)
     driver
   }
 
   def createRemoteFirefoxDriver() = {
-    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.firefox)
+    println("*** CREATE REMOTE FIREFOX DRIVER")
+    val options = new FirefoxOptions().setProxy(createProxy())
+    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), options)
   }
 
   def createChromeDriver(): WebDriver = {
+    println("*** CREATE  CHROME DRIVER")
+    val proxy = createProxy()
     val options = new ChromeOptions()
+    options.addArguments(s"--proxy-server=${proxy.getHttpProxy}")
     options.addArguments("--headless")
-    options.addArguments("--proxy-server='direct://'")
-    options.addArguments("--proxy-bypass-list=*")
+//    options.addArguments("--proxy-server='direct://'")
+//    options.addArguments("--proxy-bypass-list=*")
+
     val driver = new ChromeDriver(options)
     driver.manage().deleteAllCookies()
     driver.manage().window().setSize(windowSize)
@@ -63,8 +104,11 @@ trait Env {
   }
 
   def createFirefoxDriver(): WebDriver = {
+    println("*** CREATE FIREFOX DRIVER")
     val options = new FirefoxOptions()
     .setAcceptInsecureCerts(true)
+
+      .setProxy(createProxy())
     new FirefoxDriver(options)
   }
 

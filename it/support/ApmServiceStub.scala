@@ -1,9 +1,9 @@
 package support
 
-import utils.WireMockExtensions
 import com.github.tomakehurst.wiremock.client.WireMock._
 import model.CombinedApi
 import play.api.http.Status
+import utils.WireMockExtensions
 
 trait ApmServiceStub extends WireMockExtensions {
   def primeFetchAllCombinedApisSuccess(combinedApis: List[CombinedApi]): Unit = {

@@ -29,6 +29,8 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
   import MockDataSugar._
 
+
+
   Feature("Gatekeeper Sign in") {
 
     info("In order to manage uplift application requests")

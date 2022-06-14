@@ -1,19 +1,14 @@
 package controllers.apicataloguepublish
 
-import support.ServerBaseISpec
-import support.AuthServiceStub
-import utils.UserFunctionsWrapper
+import connectors.ApiCataloguePublishConnector
+import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.WSClient
-import play.api.libs.ws.WSResponse
-import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK}
-import org.jsoup.Jsoup
-import support.ApiCataloguePublishStub
-import play.filters.csrf.CSRF
-import connectors.ApiCataloguePublishConnector
+import support.{ApiCataloguePublishStub, AuthServiceStub, ServerBaseISpec}
+import utils.{MockCookies, UserFunctionsWrapper}
 
 
 
@@ -37,17 +32,20 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
         val url = s"http://localhost:$port"
 
         val wsClient: WSClient = app.injector.instanceOf[WSClient]
-        val tokenProvider = app.injector.instanceOf[CSRF.TokenProviderProvider]
-        val validHeaders = List("Authorization" -> "Bearer 123")
+
+        val validHeaders: List[(String, String)] = List("Authorization" -> "Bearer 123")
+
+
 
 
       def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
-    wsClient
-      .url(url)
-      .withHttpHeaders(headers: _*)
-      .withFollowRedirects(false)
-      .get()
-      .futureValue
+            wsClient
+              .url(url)
+              .withHttpHeaders(headers: _*)
+              .withCookies(MockCookies.makeWsCookie(app))
+              .withFollowRedirects(false)
+              .get()
+              .futureValue
 
         "ApiCataloguePublishController" when {
 
