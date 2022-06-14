@@ -325,7 +325,7 @@ object Forms {
   object UpdateApplicationNameForm {
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
-        "applicationName" -> text.verifying("application.name.required", _.nonEmpty),
+        "applicationName" -> text.verifying("application.name.required", _.nonEmpty)
       )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
     )
   }
@@ -335,7 +335,7 @@ object Forms {
   object UpdateApplicationNameAdminEmailForm {
     val form: Form[UpdateApplicationNameAdminEmailForm] = Form(
       mapping(
-        "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined),
+        "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined)
       )(UpdateApplicationNameAdminEmailForm.apply)(UpdateApplicationNameAdminEmailForm.unapply)
     )
   }
