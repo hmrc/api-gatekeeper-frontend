@@ -66,7 +66,16 @@ trait GatekeeperAuthorisationActions {
         val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
         authConnector.authorise(predicate, retrieval) map {
-          case Some(name) ~ authorisedEnrolments => Right(new LoggedInRequest(name.name, authorisedEnrolments, request))
+          case Some(name) ~ authorisedEnrolments => 
+            def applyRole(role: GatekeeperRole): Either[Result, LoggedInRequest[A]] =  Right(new LoggedInRequest(name.name, role, request))
+
+            ( authorisedEnrolments.getEnrolment(strideAuthConfig.adminRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.superUserRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.userRole).isDefined ) match {
+              case (true, _, _) => applyRole(GatekeeperRole.ADMIN)
+              case (_, true, _) => applyRole(GatekeeperRole.SUPERUSER)
+              case (_, _, true) => applyRole(GatekeeperRole.USER)
+              case _            => Left(forbiddenHandler.handle(msgRequest))
+            }
+
           case None ~ authorisedEnrolments       => Left(forbiddenHandler.handle(msgRequest))
         } recover {
           case _: NoActiveSession                => Left(loginRedirect)

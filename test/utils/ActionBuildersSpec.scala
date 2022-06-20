@@ -18,7 +18,6 @@ package utils
 
 import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
-import mocks.TestRoles
 import model.ApiVersion
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 import play.api.mvc.Results.Ok
@@ -26,7 +25,6 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.ApplicationService
-import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,6 +35,7 @@ import model.State
 import controllers.actions.ActionBuilders
 import play.api.mvc.MessagesRequest
 import config.ErrorHandler
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 
 class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {
@@ -51,7 +50,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
     val fakeRequest = FakeRequest()
     val msgRequest = new MessagesRequest(fakeRequest, stubMessagesApi())
-    implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), Enrolments(Set(Enrolment(TestRoles.userRole))), msgRequest)
+    implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRole.USER, msgRequest)
     implicit val messages = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)

@@ -17,6 +17,6 @@
 package uk.gov.hmrc.modules.stride.controllers.models
 
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.auth.core.Enrolments
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole.GatekeeperRole
 
-class LoggedInRequest[A](val name: Option[String], val authorisedEnrolments: Enrolments, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi)
+class LoggedInRequest[A](val name: Option[String], val role: GatekeeperRole, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi)
