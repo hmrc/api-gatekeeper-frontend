@@ -18,16 +18,16 @@ package modules.stride.utils
 
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+// import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
   
-  def isAtLeastSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-    request.role == GatekeeperRole.SUPERUSER || request.role == GatekeeperRole.ADMIN
-  }
+  // def request.isAtLeastSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
+  //   request.role == GatekeeperRole.SUPERUSER || request.role == GatekeeperRole.ADMIN
+  // }
 
-  def isAdmin(implicit request: LoggedInRequest[_]): Boolean = {
-    request.role == GatekeeperRole.ADMIN
-  }
+  // def isAdmin(implicit request: LoggedInRequest[_]): Boolean = {
+  //   request.role == GatekeeperRole.ADMIN
+  // }
 }

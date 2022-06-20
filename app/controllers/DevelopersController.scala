@@ -59,14 +59,14 @@ class DevelopersController @Inject()(
     with ActionBuilders
     with ApplicationLogger {
 
-  // TODO - Find better way of passing strid auth config to helper functions like isAtLeastSuperUser
+  // TODO - Find better way of passing strid auth config to helper functions like request.isAtLeastSuperUser
   implicit val authConfig = strideAuthConfig
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
         s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
-    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, isAtLeastSuperUser, buildGateKeeperXmlServicesUrlFn)))
+    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, request.isAtLeastSuperUser, buildGateKeeperXmlServicesUrlFn)))
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>

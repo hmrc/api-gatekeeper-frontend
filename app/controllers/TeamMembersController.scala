@@ -45,7 +45,7 @@ trait WithRestrictedApp {
     withApp(appId) { app =>
       app.application.access match {
         case _: Standard => f(app)
-        case _ if isAtLeastSuperUser => f(app)
+        case _ if request.isAtLeastSuperUser => f(app)
         case _ => successful(Forbidden(forbiddenView()))
       }
     }

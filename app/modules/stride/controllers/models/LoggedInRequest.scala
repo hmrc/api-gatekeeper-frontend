@@ -17,6 +17,12 @@
 package uk.gov.hmrc.modules.stride.controllers.models
 
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole.GatekeeperRole
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+import uk.gov.hmrc.modules.stride
 
-class LoggedInRequest[A](val name: Option[String], val role: GatekeeperRole, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi)
+class LoggedInRequest[A](val name: Option[String], val role: GatekeeperRole.GatekeeperRole, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi) {
+  lazy val isAtLeastSuperUser: Boolean = role == stride.domain.models.GatekeeperRole.SUPERUSER || isAdmin
+
+  lazy val isAdmin: Boolean = role == GatekeeperRole.ADMIN
+  private lazy val isSuperUse: Boolean = role == GatekeeperRole.SUPERUSER
+}
