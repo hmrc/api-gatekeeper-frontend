@@ -85,7 +85,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
     stubApiDefinition()
 
-    signInAdminUserGatekeeper
+    signInAdminUserGatekeeper(app, stubPort)
     on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")
