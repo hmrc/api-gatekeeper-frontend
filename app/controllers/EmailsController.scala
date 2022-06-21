@@ -26,7 +26,6 @@ import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
 import model._
-import model._
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
