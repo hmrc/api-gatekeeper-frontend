@@ -33,6 +33,7 @@ import model.ApiStatus._
 import org.joda.time.DateTime
 import java.time.Period
 import model._
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {
@@ -72,8 +73,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       subscriptions = List.empty,
       subscriptionsThatHaveFieldDefns = List.empty,
       stateHistory = List.empty,
-      isAtLeastSuperUser = false,
-      isAdmin = false,
+      role = GatekeeperRoles.USER,
       hasSubmissions = false,
       gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}"
     )

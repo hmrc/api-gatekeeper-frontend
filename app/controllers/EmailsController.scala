@@ -25,7 +25,6 @@ import model.DeveloperStatusFilter.VerifiedStatus
 import model.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import model.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import model.TopicOptionChoice.TopicOptionChoice
-import model.{APIAccessType, APICategory, AnyEnvironment, ApiContextVersion, ApiDefinition, CombinedApi, Developers2Filter, DropDownValue, EmailOptionChoice, GatekeeperRole, RegisteredUser, SendEmailChoice, SendEmailPreferencesChoice, TopicOptionChoice, User}
 import model._
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

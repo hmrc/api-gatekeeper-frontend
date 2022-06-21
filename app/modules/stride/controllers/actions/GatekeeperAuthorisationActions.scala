@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole.GatekeeperRole
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -66,7 +66,16 @@ trait GatekeeperAuthorisationActions {
         val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
         authConnector.authorise(predicate, retrieval) map {
-          case Some(name) ~ authorisedEnrolments => Right(new LoggedInRequest(name.name, authorisedEnrolments, request))
+          case Some(name) ~ authorisedEnrolments => 
+            def applyRole(role: GatekeeperRole): Either[Result, LoggedInRequest[A]] =  Right(new LoggedInRequest(name.name, role, request))
+
+            ( authorisedEnrolments.getEnrolment(strideAuthConfig.adminRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.superUserRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.userRole).isDefined ) match {
+              case (true, _, _) => applyRole(GatekeeperRoles.ADMIN)
+              case (_, true, _) => applyRole(GatekeeperRoles.SUPERUSER)
+              case (_, _, true) => applyRole(GatekeeperRoles.USER)
+              case _            => Left(forbiddenHandler.handle(msgRequest))
+            }
+
           case None ~ authorisedEnrolments       => Left(forbiddenHandler.handle(msgRequest))
         } recover {
           case _: NoActiveSession                => Left(loginRedirect)
@@ -81,9 +90,9 @@ trait GatekeeperAuthorisationActions {
     val userEnrolment = Enrolment(strideAuthConfig.userRole)
 
     minimumRoleRequired match {
-      case GatekeeperRole.ADMIN => adminEnrolment
-      case GatekeeperRole.SUPERUSER => adminEnrolment or superUserEnrolment
-      case GatekeeperRole.USER => adminEnrolment or superUserEnrolment or userEnrolment
+      case GatekeeperRoles.ADMIN => adminEnrolment
+      case GatekeeperRoles.SUPERUSER => adminEnrolment or superUserEnrolment
+      case GatekeeperRoles.USER => adminEnrolment or superUserEnrolment or userEnrolment
     }
   }
 
@@ -93,11 +102,11 @@ trait GatekeeperAuthorisationActions {
     }
 
   def anyStrideUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
-    gatekeeperRoleAction(GatekeeperRole.USER)(block)
+    gatekeeperRoleAction(GatekeeperRoles.USER)(block)
 
   def atLeastSuperUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
-    gatekeeperRoleAction(GatekeeperRole.SUPERUSER)(block)
+    gatekeeperRoleAction(GatekeeperRoles.SUPERUSER)(block)
 
   def adminOnlyAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
-    gatekeeperRoleAction(GatekeeperRole.ADMIN)(block)
+    gatekeeperRoleAction(GatekeeperRoles.ADMIN)(block)
 }

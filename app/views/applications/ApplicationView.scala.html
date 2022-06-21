@@ -47,7 +47,7 @@
         }
       }
     </dd>
-    @if(model.isAtLeastSuperUser) {
+    @if(model.isSuperUser) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-scopes" class="govuk-link" href="@{routes.ApplicationController.manageScopes(applicationId)}">
           Manage<span class="govuk-visually-hidden"> scopes</span>
@@ -104,7 +104,7 @@
         </table>
       </dd>
     }
-    @if(model.isAtLeastSuperUser) {
+    @if(model.isSuperUser) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}">
           Manage<span class="govuk-visually-hidden"> access overrides</span>
@@ -409,7 +409,7 @@
           }
         }
       </dd>
-      @if(model.isAtLeastSuperUser) {
+      @if(model.isSuperUser) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}">
             Manage<span class="govuk-visually-hidden"> IP allow list</span>
@@ -432,7 +432,7 @@
           @renderSubscriptions(model.subscriptions)
         </ul>
       </dd>
-      @if(model.isAtLeastSuperUser) {
+      @if(model.isSuperUser) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-subscriptions" class="govuk-link" href="@{routes.SubscriptionController.manageSubscription(applicationId)}">
             Manage<span class="govuk-visually-hidden"> API subscriptions</span>
@@ -450,7 +450,7 @@
             @renderSubscriptions(model.subscriptionsThatHaveFieldDefns)
           </ul>
         </dd>
-        @if(model.isAtLeastSuperUser) {
+        @if(model.isSuperUser) {
           <dd class="govuk-summary-list__actions">
             <a id="manage-subscriptions-configuration" class="govuk-link" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}">
               Manage<span class="govuk-visually-hidden"> API subscription configuration</span>
@@ -507,7 +507,7 @@
           <button class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
         }
       </dd>
-      @if(model.isAtLeastSuperUser || access.accessType == AccessType.STANDARD) {
+      @if(model.isSuperUser || access.accessType == AccessType.STANDARD) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}">
             Manage<span class="govuk-visually-hidden"> team members</span>
@@ -598,7 +598,7 @@
   </dl>
 
   <br>
-  @if(model.isAtLeastSuperUser) {
+  @if(model.isSuperUser) {
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Delete application</a>
   }
   @if(model.isAdmin) {

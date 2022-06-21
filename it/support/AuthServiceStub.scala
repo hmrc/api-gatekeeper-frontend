@@ -28,7 +28,7 @@ trait AuthServiceStub {
           .withStatus(Status.OK)
           .withBody(
             s"""{
-               |  "authorisedEnrolments": [ ],
+               |  "authorisedEnrolments": [ { "key" : "user-role", "identifiers": [], "state": "123"} ],
                |  "optionalName": {"name": "bob", "lastName": "hope"}
                |}""".stripMargin)
       )

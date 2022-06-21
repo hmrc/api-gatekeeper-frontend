@@ -37,11 +37,6 @@ import model.subscriptions.ApiData
 
 import java.time.LocalDateTime
 
-object GatekeeperRole extends Enumeration {
-  type GatekeeperRole = Value
-  val USER,SUPERUSER,ADMIN = Value
-}
-
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
 }

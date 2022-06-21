@@ -16,7 +16,28 @@
 
 package uk.gov.hmrc.modules.stride.domain.models
 
-object GatekeeperRole extends Enumeration {
-  type GatekeeperRole = Value
-  val USER, SUPERUSER, ADMIN = Value
+sealed trait GatekeeperRole {
+  def isAdmin: Boolean
+  def isSuperUser: Boolean
+  def isUser: Boolean
+}
+
+object GatekeeperRoles {
+  case object USER extends GatekeeperRole {
+    val isAdmin: Boolean = false
+    val isSuperUser: Boolean = false
+    val isUser: Boolean = true
+  }
+
+  case object SUPERUSER extends GatekeeperRole {
+    val isAdmin: Boolean = false
+    val isSuperUser: Boolean = true
+    val isUser: Boolean = true
+  }
+
+  case object ADMIN extends GatekeeperRole {
+    val isAdmin: Boolean = true
+    val isSuperUser: Boolean = true
+    val isUser: Boolean = true
+  }
 }

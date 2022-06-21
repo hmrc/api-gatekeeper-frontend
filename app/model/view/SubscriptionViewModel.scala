@@ -23,5 +23,5 @@ case class SubscriptionViewModel(
   applicationId: ApplicationId, 
   applicationName: String,
   subscriptions: List[SubscriptionWithoutFields],
-  isAtLeastSuperUser: Boolean
+  isSuperUser: Boolean
 )

@@ -41,11 +41,11 @@ import services.{ApplicationService, ApmService, DeveloperService}
 trait WithRestrictedApp {
   self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier, strideAuthConfig: StrideAuthConfig) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.application.access match {
         case _: Standard => f(app)
-        case _ if isAtLeastSuperUser => f(app)
+        case _ if request.role.isSuperUser => f(app)
         case _ => successful(Forbidden(forbiddenView()))
       }
     }

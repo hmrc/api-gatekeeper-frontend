@@ -17,17 +17,9 @@
 package modules.stride.utils
 
 import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+// import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
-  
-  def isAtLeastSuperUser(implicit request: LoggedInRequest[_], strideAuthConfig: StrideAuthConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(strideAuthConfig.superUserRole).isDefined || request.authorisedEnrolments.getEnrolment(strideAuthConfig.adminRole).isDefined
-  }
-
-  def isAdmin(implicit request: LoggedInRequest[_], strideAuthConfig: StrideAuthConfig): Boolean = {
-    request.authorisedEnrolments.getEnrolment(strideAuthConfig.adminRole).isDefined
-  }
 }

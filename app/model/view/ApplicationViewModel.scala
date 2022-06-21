@@ -22,6 +22,7 @@ import model.StateHistory
 import model.TermsOfUseAgreement
 import model.ApiStatus.ApiStatus
 import model.RegisteredUser
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 
 case class ApplicationViewModel(
   developers: List[RegisteredUser],
@@ -29,10 +30,12 @@ case class ApplicationViewModel(
   subscriptions: List[(String, List[(ApiVersion, ApiStatus)])],
   subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersion, ApiStatus)])],
   stateHistory: List[StateHistory],
-  isAtLeastSuperUser: Boolean,
-  isAdmin: Boolean,
+  role: GatekeeperRole,
   hasSubmissions: Boolean,
   gatekeeperApprovalsUrl: String
 ) {
   val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
+
+  lazy val isSuperUser = role.isSuperUser
+  lazy val isAdmin = role.isAdmin
 }
