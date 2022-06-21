@@ -18,34 +18,21 @@ package controllers
 
 import config.{AppConfig, ErrorHandler}
 import controllers.actions.ActionBuilders
-import model.ApiStatus.ApiStatus
 import model.Forms._
-import model.SubscriptionFields.Fields.Alias
-import model.UpliftAction.{APPROVE, REJECT}
 import model._
-import model.subscriptions.ApiData
-import model.view.ApplicationViewModel
-import org.joda.time.DateTime
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.mvc._
+import services._
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
 import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
-import utils.CsvHelper._
 import utils.{ApplicationLogger, ErrorHelper}
 import views.html.applications._
-import views.html.approvedApplication.ApprovedView
-import views.html.review.ReviewView
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton
 class UpdateApplicationNameController @Inject()(
