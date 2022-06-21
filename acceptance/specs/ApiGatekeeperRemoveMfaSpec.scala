@@ -80,7 +80,7 @@ class ApiGatekeeperRemoveMfaSpec
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
-      signInGatekeeper(app)
+      signInGatekeeper(app, stubPort)
       on(ApplicationsPage)
 
       When("I navigate to the Developer Details page")

@@ -18,7 +18,7 @@ package common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, SEE_OTHER}
 import pages.ApplicationsPage
 import play.api.Application
 import utils.MockCookies
@@ -103,10 +103,11 @@ trait SignInSugar extends NavigationSugar {
     """.stripMargin
 
 
-  def signInGatekeeper(app: Application)(implicit webDriver: WebDriver) = {
+  def signInGatekeeper(app: Application, stubPort: Int)(implicit webDriver: WebDriver) = {
 
     webDriver.manage().deleteAllCookies()
-    webDriver.manage().addCookie(MockCookies.makeSeleniumCookie(app))
+    //println(s"*** ${webDriver.navigate().to("http:\\127.0.1.1:9864/api-gatekeeper/applications")}")
+
     val responseJson =
       s"""{
          |  "optionalName": {"name":"$gatekeeperId","lastName":"Smith"},
@@ -114,9 +115,11 @@ trait SignInSugar extends NavigationSugar {
          |}""".stripMargin
 
     setupAuthCall(requestJsonForUser, responseJson)
+    setupStrideAuthPage(app,stubPort)
 
+    //webDriver.manage().addCookie(MockCookies.makeSeleniumCookie(app))
     go(ApplicationsPage)
-
+    go(ApplicationsPage)
   }
 
   def signInSuperUserGatekeeper()(implicit webDriver: WebDriver) = {
@@ -155,5 +158,13 @@ trait SignInSugar extends NavigationSugar {
       .willReturn(aResponse()
         .withBody(responseJson)
         .withStatus(OK)))
+  }
+
+  def setupStrideAuthPage(app: Application, stubPort: Int) ={
+    stubFor(get(urlPathEqualTo("/stride/sign-in"))
+      .willReturn(aResponse()
+        .withHeader("LOCATION", s"http://localHost:$stubPort/api-gatekeeper")
+        .withHeader("SET-COOKIE", s"mdtp=${MockCookies.makeCookieValue(app)}; SameSite=Lax; Path=/; HTTPOnly")
+        .withStatus(SEE_OTHER)))
   }
 }

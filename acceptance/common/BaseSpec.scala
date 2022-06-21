@@ -48,6 +48,8 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
       .configure(
         "microservice.services.auth.host" -> stubHost,
         "microservice.services.auth.port" -> stubPort,
+        "microservice.services.stride-auth-frontend.host" -> stubHost,
+        "microservice.services.stride-auth-frontend.port" -> stubPort,
         "microservice.services.third-party-application-sandbox.host" -> stubHost,
         "microservice.services.third-party-application-sandbox.port" -> stubPort,
         "microservice.services.third-party-application-production.host" -> stubHost,

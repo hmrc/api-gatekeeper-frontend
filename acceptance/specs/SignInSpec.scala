@@ -35,18 +35,19 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
     info("As a gatekeeper")
     info("I would like to sign in")
 
-//    Scenario("Sign in with invalid auth token") {
-//      stubPaginatedApplicationList()
-//
-//      stubFor(post(urlPathEqualTo("/auth/authorise"))
-//        .willReturn(aResponse()
-//          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
-//          .withStatus(UNAUTHORIZED)))
-//
-//      goOn(ApplicationsPage)
-//
-//      ApplicationsPage.isForbidden shouldBe true
-//    }
+    Scenario("Sign in with invalid auth token") {
+      stubPaginatedApplicationList()
+
+      stubFor(post(urlPathEqualTo("/auth/authorise"))
+        .willReturn(aResponse()
+          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
+          .withStatus(UNAUTHORIZED)))
+      setupStrideAuthPage(app,stubPort)
+      go(ApplicationsPage)
+      goOn(ApplicationsPage)
+
+      ApplicationsPage.isForbidden shouldBe true
+    }
 
     Scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
       stubPaginatedApplicationList()
@@ -77,7 +78,8 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
       Given("The developer goes to the Gatekeeper home page")
 
-      signInGatekeeper(app)
+      stubApiDefinition()
+      signInGatekeeper(app, stubPort)
 
       val actualApplicationName = webDriver.findElement(By.className("hmrc-header__service-name")).getText
       var actualApplicationTitle = webDriver.getTitle
@@ -97,7 +99,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       stubApiDefinition()
 
       Given("The developer goes to the Gatekeeper home page")
-      signInGatekeeper(app)
+      signInGatekeeper(app, stubPort)
 
       on(ApplicationsPage)
 
