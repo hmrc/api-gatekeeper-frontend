@@ -20,6 +20,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
 import play.api.http.Status.OK
 import pages.ApplicationsPage
+import play.api.Application
+import utils.MockCookies
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
@@ -101,8 +103,10 @@ trait SignInSugar extends NavigationSugar {
     """.stripMargin
 
 
-  def signInGatekeeper()(implicit webDriver: WebDriver) = {
+  def signInGatekeeper(app: Application)(implicit webDriver: WebDriver) = {
 
+    webDriver.manage().deleteAllCookies()
+    webDriver.manage().addCookie(MockCookies.makeSeleniumCookie(app))
     val responseJson =
       s"""{
          |  "optionalName": {"name":"$gatekeeperId","lastName":"Smith"},

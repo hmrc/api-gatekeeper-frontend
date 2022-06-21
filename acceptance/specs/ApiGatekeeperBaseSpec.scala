@@ -22,7 +22,7 @@ import testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
 import pages.{ApplicationsPage, DashboardPage}
 import common.{BaseSpec, SignInSugar, WebPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{GivenWhenThen}
+import org.scalatest.GivenWhenThen
 import play.api.http.Status._
 import play.api.libs.json.Json
 
@@ -31,6 +31,8 @@ import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import model.UserId
 import model.RegisteredUser
 import org.scalatest.matchers.should.Matchers
+import play.api.Application
+import utils.MockCookies
 
 
 class ApiGatekeeperBaseSpec

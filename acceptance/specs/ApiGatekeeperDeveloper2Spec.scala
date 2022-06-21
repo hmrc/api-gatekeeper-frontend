@@ -70,7 +70,7 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
       stubDevelopersSearch("partialEmail", developers)
 
-      signInGatekeeper()
+      signInGatekeeper(app)
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")

@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Mode}
-import org.scalatestplus.play.guice.GuiceOneServerPerTest
+import org.scalatestplus.play.guice.{GuiceOneAppPerSuite, GuiceOneServerPerTest}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers

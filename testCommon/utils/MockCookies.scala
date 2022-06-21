@@ -24,7 +24,6 @@ import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 
-import java.time.Instant
 
 object MockCookies {
 
@@ -60,8 +59,9 @@ object MockCookies {
 
   def makeSeleniumCookie(application: Application)={
     val playCookie = makeSessionCookie(application)
-
-    new SeleniumCookie(sessionCookieName, playCookie.value)
+    //dr.add_cookie({'domain': '192.168.2.211',
+    // 'httpOnly': True, 'name': 'JSESSIONID', 'path': '/smartcommty', 'sameSite': 'Lax', 'secure': False, 'value': '5574c24a-dbc4-4a7d-9607-cc24f5653ebf'})
+    new SeleniumCookie.Builder(sessionCookieName, playCookie.value).path("/").domain("127.0.0.1").isHttpOnly(true).isSecure(false).build()
   }
 
 }

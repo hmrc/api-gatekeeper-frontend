@@ -45,7 +45,6 @@ object AppDependencies {
     // "org.pegdown"             %   "pegdown"                   % "1.6.0",
     "org.jsoup"                   %   "jsoup"                             % jsoupVersion,
     // "com.typesafe.play"       %%  "play-test"                 % PlayVersion.current,
-    "net.lightbody.bmp"           %   "browsermob-core"                   % "2.1.5",
     "com.github.tomakehurst"      %   "wiremock-jre8-standalone"          % "2.27.2",
     "org.seleniumhq.selenium"     %   "selenium-java"                     % "2.53.1",
     "org.seleniumhq.selenium"     %   "selenium-htmlunit-driver"          % "2.52.0",

@@ -24,7 +24,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.Assertions
 import org.scalatest.matchers.should.Matchers
 
-trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
+trait NavigationSugar extends WebBrowser with Eventually  with Assertions with Matchers {
 
   implicit override val patienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)), interval = scaled(Span(100, Millis)))
 
