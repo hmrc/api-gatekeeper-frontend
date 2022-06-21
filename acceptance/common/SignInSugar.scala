@@ -163,7 +163,7 @@ trait SignInSugar extends NavigationSugar {
   def setupStrideAuthPage(app: Application, stubPort: Int) ={
     stubFor(get(urlPathEqualTo("/stride/sign-in"))
       .willReturn(aResponse()
-        .withHeader("LOCATION", s"http://localHost:$stubPort/api-gatekeeper")
+        .withHeader("LOCATION", s"/api-gatekeeper")
         .withHeader("SET-COOKIE", s"mdtp=${MockCookies.makeCookieValue(app)}; SameSite=Lax; Path=/; HTTPOnly")
         .withStatus(SEE_OTHER)))
   }
