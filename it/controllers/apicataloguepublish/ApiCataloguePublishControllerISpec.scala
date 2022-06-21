@@ -53,7 +53,6 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
                     "respond with 200 and render start correctly when authorised" in {
                         primeAuthServiceSuccess()
                         val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/start", validHeaders)
-                      result.headers.foreach(k => println(s"key: ${k._1}, value: ${k._2}"))
                         result.status shouldBe OK
 
                         val document = Jsoup.parse(result.body)

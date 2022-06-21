@@ -19,7 +19,6 @@ package specs
 import testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import common.CookieHelper
 import play.api.http.Status._
 import model._
 
@@ -29,8 +28,7 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithSubscriptionDataTestData 
     with ApplicationResponseTestData 
     with ApplicationWithHistoryTestData
-    with utils.UrlEncoding
-    with CookieHelper {
+    with utils.UrlEncoding {
 
 
 

@@ -16,24 +16,22 @@
 
 package common
 
+import java.net.URL
+
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
-import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
-import org.openqa.selenium.remote.RemoteWebDriver
+import org.openqa.selenium.remote.{DesiredCapabilities, RemoteWebDriver}
 import org.openqa.selenium.{Dimension, WebDriver}
 
-import java.net.URL
 import scala.util.{Properties, Try}
-
+import org.openqa.selenium.firefox.FirefoxOptions
+import org.openqa.selenium.firefox.FirefoxDriver
 
 trait Env {
-
   val driver: WebDriver = createWebDriver
   lazy val port = 6001
-  lazy val proxyPort = 6003
   lazy val windowSize = new Dimension(1024, 800)
 
   lazy val createWebDriver: WebDriver = {
-
     Properties.propOrElse("test_driver", "chrome") match {
       case "chrome" => createChromeDriver()
       case "firefox" => createFirefoxDriver()
@@ -44,15 +42,13 @@ trait Env {
   }
 
   def createRemoteChromeDriver() = {
-    val options = new ChromeOptions()
-    val driver = new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), options)
+    val driver = new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.chrome)
     driver.manage().window().setSize(windowSize)
     driver
   }
 
   def createRemoteFirefoxDriver() = {
-    val options = new FirefoxOptions()
-    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), options)
+    new RemoteWebDriver(new URL(s"http://localhost:4444/wd/hub"), DesiredCapabilities.firefox)
   }
 
   def createChromeDriver(): WebDriver = {
@@ -60,7 +56,6 @@ trait Env {
     options.addArguments("--headless")
     options.addArguments("--proxy-server='direct://'")
     options.addArguments("--proxy-bypass-list=*")
-
     val driver = new ChromeDriver(options)
     driver.manage().deleteAllCookies()
     driver.manage().window().setSize(windowSize)
@@ -70,7 +65,6 @@ trait Env {
   def createFirefoxDriver(): WebDriver = {
     val options = new FirefoxOptions()
     .setAcceptInsecureCerts(true)
-
     new FirefoxDriver(options)
   }
 
