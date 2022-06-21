@@ -22,12 +22,4 @@ import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
-  
-  // def request.role.isSuperUser(implicit request: LoggedInRequest[_]): Boolean = {
-  //   request.role == GatekeeperRole.SUPERUSER || request.role == GatekeeperRole.ADMIN
-  // }
-
-  // def isAdmin(implicit request: LoggedInRequest[_]): Boolean = {
-  //   request.role == GatekeeperRole.ADMIN
-  // }
 }
