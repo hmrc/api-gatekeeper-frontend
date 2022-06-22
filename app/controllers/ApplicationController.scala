@@ -43,13 +43,12 @@ import model._
 import utils.ApplicationLogger
 import utils.CsvHelper._
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 @Singleton
 class ApplicationController @Inject()(
+  strideAuthorisationService: StrideAuthorisationService,
   val applicationService: ApplicationService,
   val forbiddenView: ForbiddenView,
   apiDefinitionService: ApiDefinitionService,
@@ -76,11 +75,9 @@ class ApplicationController @Inject()(
   manageGrantLengthView: ManageGrantLengthView,
   manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
   val apmService: ApmService,
-  val errorHandler: ErrorHandler,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  val errorHandler: ErrorHandler
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper 
     with ActionBuilders 
     with ApplicationLogger {

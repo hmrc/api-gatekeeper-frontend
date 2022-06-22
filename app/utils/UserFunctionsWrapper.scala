@@ -17,7 +17,7 @@
 package utils
 
 import model._
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 trait UserFunctionsWrapper {
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {

@@ -24,15 +24,25 @@ import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperStrideRole
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.ActionRefiner
 import play.api.mvc.MessagesRequest
+import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-
+import cats.data.OptionT
+import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
+import uk.gov.hmrc.internalauth.client.Retrieval
+import scala.concurrent.Future.successful
+import uk.gov.hmrc.internalauth.client._
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles.READ_ONLY
+import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[_]): Result
@@ -41,60 +51,24 @@ trait ForbiddenHandler {
 trait GatekeeperAuthorisationActions {
   self: FrontendBaseController =>
 
-  def authConnector: AuthConnector
-  
-  def forbiddenHandler: ForbiddenHandler
-
-  def strideAuthConfig: StrideAuthConfig
+  def strideAuthorisationService: StrideAuthorisationService
 
   implicit def ec: ExecutionContext
 
   def gatekeeperRoleActionRefiner(minimumRoleRequired: GatekeeperRole): ActionRefiner[MessagesRequest, LoggedInRequest] = 
     new ActionRefiner[MessagesRequest, LoggedInRequest] {
       def executionContext = ec
+
       def refine[A](msgRequest: MessagesRequest[A]): Future[Either[Result, LoggedInRequest[A]]] = {
-
-        lazy val loginRedirect = 
-          Redirect(
-            strideAuthConfig.strideLoginUrl, 
-            Map("successURL" -> Seq(strideAuthConfig.successUrl), "origin" -> Seq(strideAuthConfig.origin))
-          )
-
-        implicit val request = msgRequest
-
-        val predicate = authPredicate(minimumRoleRequired)
-        val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
-
-        authConnector.authorise(predicate, retrieval) map {
-          case Some(name) ~ authorisedEnrolments => 
-            def applyRole(role: GatekeeperRole): Either[Result, LoggedInRequest[A]] =  Right(new LoggedInRequest(name.name, role, request))
-
-            ( authorisedEnrolments.getEnrolment(strideAuthConfig.adminRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.superUserRole).isDefined, authorisedEnrolments.getEnrolment(strideAuthConfig.userRole).isDefined ) match {
-              case (true, _, _) => applyRole(GatekeeperRoles.ADMIN)
-              case (_, true, _) => applyRole(GatekeeperRoles.SUPERUSER)
-              case (_, _, true) => applyRole(GatekeeperRoles.USER)
-              case _            => Left(forbiddenHandler.handle(msgRequest))
-            }
-
-          case None ~ authorisedEnrolments       => Left(forbiddenHandler.handle(msgRequest))
-        } recover {
-          case _: NoActiveSession                => Left(loginRedirect)
-          case _: InsufficientEnrolments         => Left(forbiddenHandler.handle(msgRequest))
+        
+        val strideRoleRequired: GatekeeperStrideRole = minimumRoleRequired match {
+          case READ_ONLY => GatekeeperRoles.USER  // The lowest stride category
+          case gsr: GatekeeperStrideRole => gsr
         }
+
+        strideAuthorisationService.createStrideRefiner(strideRoleRequired)(msgRequest)
       }
-    }   
-
-  private def authPredicate(minimumRoleRequired: GatekeeperRole): Predicate = {
-    val adminEnrolment = Enrolment(strideAuthConfig.adminRole)
-    val superUserEnrolment = Enrolment(strideAuthConfig.superUserRole)
-    val userEnrolment = Enrolment(strideAuthConfig.userRole)
-
-    minimumRoleRequired match {
-      case GatekeeperRoles.ADMIN => adminEnrolment
-      case GatekeeperRoles.SUPERUSER => adminEnrolment or superUserEnrolment
-      case GatekeeperRoles.USER => adminEnrolment or superUserEnrolment or userEnrolment
     }
-  }
 
   private def gatekeeperRoleAction(minimumRoleRequired: GatekeeperRole)(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
     Action.async { implicit request =>
@@ -109,4 +83,8 @@ trait GatekeeperAuthorisationActions {
 
   def adminOnlyAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.ADMIN)(block)
+
+  def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] = 
+    gatekeeperRoleAction(GatekeeperRoles.READ_ONLY)(block)
+
 }

@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.modules.stride.domain.models
 
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import play.api.mvc.MessagesRequest
 
-case class LoggedInUser(userFullName: Option[String])
-
-object LoggedInUser {
-  implicit def fromRequest(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
-}
+class LoggedInRequest[A](val name: Option[String], val role: GatekeeperRole, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi)

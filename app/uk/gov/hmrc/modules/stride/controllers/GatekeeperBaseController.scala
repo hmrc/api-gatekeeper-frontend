@@ -18,17 +18,12 @@ package uk.gov.hmrc.modules.stride.controllers
 
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 import uk.gov.hmrc.modules.stride.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import modules.stride.utils.GatekeeperAuthorisationHelper
+import uk.gov.hmrc.modules.stride.utils.GatekeeperAuthorisationHelper
 import scala.concurrent.ExecutionContext
 
 abstract class GatekeeperBaseController(
-  val strideAuthConfig: StrideAuthConfig,
-  val authConnector: AuthConnector,
-
-  val forbiddenHandler: ForbiddenHandler,
+  val strideAuthorisationService: StrideAuthorisationService,
   mcc: MessagesControllerComponents
 )(implicit val ec: ExecutionContext) extends FrontendController(mcc) with GatekeeperAuthorisationActions with GatekeeperAuthorisationHelper

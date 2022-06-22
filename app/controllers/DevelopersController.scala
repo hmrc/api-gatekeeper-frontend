@@ -29,9 +29,7 @@ import utils.ApplicationLogger
 import controllers.actions.ActionBuilders
 import model.xml.OrganisationId
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 import scala.concurrent.ExecutionContext
 
@@ -50,17 +48,12 @@ class DevelopersController @Inject()(
   override val errorTemplate: ErrorTemplate,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
+  strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
-
-  // TODO - Find better way of passing strid auth config to helper functions like request.role.isSuperUser
-  implicit val authConfig = strideAuthConfig
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>

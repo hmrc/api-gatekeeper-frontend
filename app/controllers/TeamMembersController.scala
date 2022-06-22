@@ -29,10 +29,8 @@ import views.html.applications._
 import controllers.actions.ActionBuilders
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful
@@ -64,10 +62,9 @@ class TeamMembersController @Inject()(
   val errorTemplate: ErrorTemplate,
   val forbiddenView: ForbiddenView,
   val errorHandler: ErrorHandler,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  strideAuthorisationService: StrideAuthorisationService
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper 
     with ActionBuilders 
     with WithRestrictedApp {

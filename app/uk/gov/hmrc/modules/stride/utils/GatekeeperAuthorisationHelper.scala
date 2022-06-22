@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.controllers.models
+package uk.gov.hmrc.modules.stride.utils
 
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+import uk.gov.hmrc.modules.stride.domain.models._
 
-class LoggedInRequest[A](val name: Option[String], val role: GatekeeperRole, request: MessagesRequest[A]) extends MessagesRequest[A](request, request.messagesApi)
+trait GatekeeperAuthorisationHelper {
+  implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
+}

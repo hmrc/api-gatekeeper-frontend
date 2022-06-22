@@ -19,19 +19,15 @@ package controllers
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import model._
 import model.pushpullnotifications.Box
-import controllers.actions.ActionBuilders
-import config.{AppConfig, ErrorHandler}
+import config.AppConfig
 import scala.concurrent.ExecutionContext
 import services.ApmService
-import services.ApplicationService
 import com.google.inject.{Singleton, Inject}
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+
 import utils.CsvHelper
 import utils.CsvHelper.ColumnDefinition
 
@@ -39,10 +35,9 @@ import utils.CsvHelper.ColumnDefinition
 class BoxesController @Inject()(
   mcc: MessagesControllerComponents,
   val apmService: ApmService,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) {
+  strideAuthorisationService: StrideAuthorisationService
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc) {
     
   def getAll(): Action[AnyContent] = anyStrideUserAction { implicit request =>
 
