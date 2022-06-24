@@ -24,58 +24,75 @@
 @(form: Form[controllers.HandleApprovalForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - API Approval") {
-<div class="content__body">
 
-    <header>
-        <h1 class="flush--top">API approval</h1>
-    </header>
+  <h1 class="govuk-heading-l">API approval</h1>
 
-    @if(form.hasGlobalErrors) {
+  @if(form.hasGlobalErrors) {
     @include.errorSummary(form)
+  }
+
+  <h2 class="govuk-heading-m">API name</h2>
+
+  <p class="govuk-body" data-name>
+    @{apiDefinition.name}
+  </p>
+
+  <h2 class="govuk-heading-m">Service ID</h2>
+
+  <p class="govuk-body" data-service-name>
+    @{apiDefinition.serviceName}
+  </p>
+
+  <h2 class="govuk-heading-m">Environment</h2>
+
+  <p class="govuk-body" data-service-environment>
+    @apiDefinition.env
+  </p>
+
+  <h2 class="govuk-heading-m">Description</h2>
+
+  <p class="govuk-body" data-description>
+    @{
+      apiDefinition.description
     }
+  </p>
 
-    <h2>API name</h2>
-    <p class="flush--top" data-name>@{
-        apiDefinition.name
-        }</p>
+  <h2 class="govuk-heading-m">Approve</h2>
 
-    <h2>Service ID</h2>
-    <p class="flush--top" data-service-name>@{
-        apiDefinition.serviceName
-        }</p>
+  <p class="govuk-body">
+    You must check if the API meets all the necessary requirements before submitting to live.
+  </p>
 
-    <h2>Environment</h2>
-    <p class="flush--top" data-service-environment>@apiDefinition.env</p>
+  <div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+      <span class="govuk-warning-text__assistive">Warning</span>
+      Your decision is final and will set the API live.
+    </strong>
+  </div>
 
-    <h2>Description</h2>
-    <p class="flush--top" data-description>@{
-        apiDefinition.description
-        }</p>
-
-
-    <h2>Approve</h2>
-    <p class="flush--top">You must check if the API meets all the necessary requirements before submitting to live.</p>
-
-    <section class="subsection">
-        <div class="highlight-message highlight-message--light">
-            <p>Your decision is final and will set the API live.</p>
+  @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName, apiDefinition.environment.get.toString),
+  'class -> "form") {
+    @helper.CSRF.formField
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-visually-hidden">
+          Confirm details
+        </legend>
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
+            <label for="approval_confirmation" class="govuk-label govuk-checkboxes__label">
+              I confirm the details are correct
+            </label>
+          </div>
         </div>
-
-        @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName, apiDefinition.environment.get.toString),
-        'class -> "form") {
-        @helper.CSRF.formField
-        <label for="approval_confirmation" class="block-label">
-            <input type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
-            I confirm the details are correct
-        </label>
-    </section>
-
-    <div class="form-field">
-        <input id="submit" type="submit" class="button" role="button" value="Submit" disabled data-journey-target/>
-        <a href="/api-service-approval/pending" class="button button--link">Cancel</a>
+      </fieldset>
     </div>
 
-    }
-
-</div>
+    <div class="govuk-button-group">
+      <button id="submit" type="submit" class="govuk-button" role="button" disabled data-journey-target>Submit</button>
+      <a href="/api-service-approval/pending" class="govuk-link">Cancel</a>
+    </div>
+  }
 }

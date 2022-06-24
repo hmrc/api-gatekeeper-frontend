@@ -20,29 +20,30 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(developerEmailAddress: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Delete Developer") {
 
-<div class="">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.DevelopersController.blankDevelopersPage}">Developers</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Delete developer</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a>
+      </li>
+    </ol>
+  </div>
 
-    <header>
-        <h1>@developerEmailAddress</h1>
-    </header>
-    <div class="transaction-banner--complete">
-        <h1 class="transaction-banner--heading">Developer deleted</h1>
+  <h1 class="govuk-heading-l">@developerEmailAddress</h1>
+
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h2 class="govuk-panel__title">
+      Developer deleted
+    </h2>
+    <div class="govuk-panel__body">
+      We've sent an email to the developer and any application administrators to let them know.
     </div>
-    <p>We've sent an email to the developer and any application administrators to let them know.</p>
+  </div>
 
-    <a href="@{routes.DevelopersController.blankDevelopersPage}" class="button">Finish</a>
-</div>
+  <a href="@{routes.DevelopersController.blankDevelopersPage}" class="govuk-button">Finish</a>
 }

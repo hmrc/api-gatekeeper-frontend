@@ -20,58 +20,45 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
-    if(api.apiType == ApiType.XML_API) {
-        api.displayName + " - XML API"
-    } else { api.displayName }
+  if(api.apiType == ApiType.XML_API) {
+    api.displayName + " - XML API"
+  } else { api.displayName }
 }
 
 @drawAPIDropDown() = {
-<select class="govuk-select govuk-select-width-full"
-id="selectedAPIs"
-name="selectedAPIs">
+  <select class="govuk-select" id="selectedAPIs" name="selectedAPIs">
     <option value="">Select an API</option>
     @for(api <- apis) {
-        <option value="@api.serviceName">@handleAppendXmlTag(api) </option>
+      <option value="@api.serviceName">@handleAppendXmlTag(api)</option>
     }
-</select>
+  </select>
 }
 
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
+  <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link"  data-back-link>Back</a>
 
+  <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 
+  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
 
-    <div class="govuk-template__body">
-        <div>
-            <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
-        </div>
-        <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
-        <div class="form-group">
-            <fieldset class=" govuk-fieldset">
-                <legend class="form-label-bold">
-                    <h1 id="pageTitle">Email users interested in a specific API</h1>
-                </legend>
-
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="selectedApi">Select an API from the list</label>
-                    @if(filteredApis.nonEmpty) {
-                        @for(filteredApi <- filteredApis){
-                            <input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
-                        }                  
-                    }
-                     @drawAPIDropDown
-                </div>
-            </fieldset>
-        </div>
-            <div class="form-field">
-                <button id="submit" class="button button--padded" type="submit">Select API</button>
-            </div>
-        </form>
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="selectedApi">
+        Select an API from the list
+      </label>
+      @if(filteredApis.nonEmpty) {
+        @for(filteredApi <- filteredApis){
+          <input class="govuk-visually-hidden" type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
+        }
+      }
+      @drawAPIDropDown
     </div>
 
+    <button id="submit" class="govuk-button" type="submit">Select API</button>
+  </form>
 }

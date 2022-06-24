@@ -21,57 +21,50 @@
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
 
-    <div class="govuk-template__body">
-        <div>
-            <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
-        </div>
-        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
-
-            <div class="govuk-form-group">
-                <fieldset class="govuk-fieldset">
-                    <legend class="form-label-bold">
-                        <h1 id="pageTitle">Email users interested in a tax regime</h1>
-                    </legend>
-                    <div class="govuk-form-group">
-                        <label class="govuk-label" for="selectedCategory">Select a tax regime from the list </label>
-                        <select class="govuk-select govuk-select-width-full"
-                        id="selectedCategory"
-                        name="selectedCategory"
-                        value="@selectedCategory">
-                            <option value="">Select tax regime</option>
-                            @for(category <- categories.sortBy(_.name)) {
-                                <option
-                                @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
-                            }
-                        </select>
-
-                    </div>
-                    <div class="govuk-form-group">
-                        @topicRadioGrid(maybeTopicFilter)
-                    </div>
-                </fieldset>
-                @if(maybeTopicFilter.isDefined) {
-                    <div class="form-group grid-layout grid-layout--stacked push--sides">
-                        <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
-                    </div>
-                } else {
-                    <div class="form-group grid-layout grid-layout--stacked push--sides">
-                        <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
-                    </div>
-                }
-            </div>
-        </form>
-        @if(maybeTopicFilter.isDefined) {
-            <div><hr/></div>
-            @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
-        "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
-        }
+  <div class="govuk-template__body">
+    <div>
+        <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
     </div>
+    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
 
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+            <legend >
+                <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
+            </legend>
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="selectedCategory">Select a tax regime from the list </label>
+                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value="@selectedCategory">
+                    <option value="">Select tax regime</option>
+                    @for(category <- categories.sortBy(_.name)) {
+                        <option @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
+                    }
+                </select>
+            </div>
+            <div class="govuk-form-group">
+                @topicRadioGrid(maybeTopicFilter)
+            </div>
+        </fieldset>
+
+        @if(maybeTopicFilter.isDefined) {
+          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter Again</button>
+        } else {
+          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter</button>
+        }
+      </div>
+    </form>
+
+    @if(maybeTopicFilter.isDefined) {
+      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+      @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
+    "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+
+    }
+  </div>
 }

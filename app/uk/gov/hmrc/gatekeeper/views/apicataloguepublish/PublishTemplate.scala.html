@@ -19,33 +19,26 @@
 @import uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish.routes
 @import uk.gov.hmrc.gatekeeper.models._
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(pageTitle: String, heading: String, message: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = pageTitle) {
-  <h1 id="heading">@heading</h1>
-  <p id="message">@message</p>
+  <h1 class="govuk-heading-l" id="heading">@heading</h1>
+  <p class="govuk-body" id="message">@message</p>
 
-  <div class="content-body">
-    <section class="hard--top flush--bottom">
   @helper.form(action = routes.ApiCataloguePublishController.publishAll(), 'id -> "publish-all-form") {
     @helper.CSRF.formField
-    <button id="publish-all-button" class="button" type="submit">Publish All Apis</button>
-
+    <button id="publish-all-button" class="govuk-button" type="submit">Publish All Apis</button>
   }
-<br/>
 
-<div class="form-group">
+  <br/>
+
   @helper.form(action =  routes.ApiCataloguePublishController.publishByServiceName(""), 'id -> "publish-one-form") {
-        <div class="form-field">
-          <label id="publish-one-label" for="publish-one-input" class="form-label-bold">Enter the service name of the api you with to publish to the Api Catalogue</label>
-          <input id="publish-one-input" type="text" name="serviceName" value="">
-          
-      </div>
-      <button id="publish-one-button" class="button" type="submit">Publish</button>
+    <div class="govuk-form-group">
+      <label id="publish-one-label" for="publish-one-input" class="govuk-label">Enter the service name of the api you with to publish to the Api Catalogue</label>
+      <input id="publish-one-input" type="text" class="govuk-input" name="serviceName" value="">
+    </div>
+    <button id="publish-one-button" class="govuk-button" type="submit">Publish</button>
   }
-</div>
-</section>
-</div>
 }

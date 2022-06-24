@@ -20,50 +20,46 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
 @buildOptionRow(preferencesChoice: EmailPreferencesChoice, checked: Boolean = false) = {
-    <div class="multiple-choice">
 
-            <input id="@preferencesChoice.toString" name="sendEmailPreferences" aria-label="@EmailPreferencesChoice.optionHint(preferencesChoice)" type="radio" value="@preferencesChoice.toString"@checkedFlag(checked)>
-
-            <label class="form-label-bold" for="@preferencesChoice.toString" >@EmailPreferencesChoice.optionLabel(preferencesChoice)
-                <span><div class="font-small text-secondary">@EmailPreferencesChoice.optionHint(preferencesChoice)</div></span>
-            </label>
+  <div class="govuk-radios__item">
+    <input class="govuk-radios__input" id="@preferencesChoice.toString" name="sendEmailPreferences" type="radio" value="@preferencesChoice.toString" @checkedFlag(checked)>
+    <label class="govuk-label govuk-radios__label" for="@preferencesChoice.toString">
+      @EmailPreferencesChoice.optionLabel(preferencesChoice)
+    </label>
+    <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
+      @EmailPreferencesChoice.optionHint(preferencesChoice)
     </div>
+  </div>
 }
 
 @main(title = s"${applicationConfig.title} - Who do you want to email?") {
+  <a href="@routes.EmailsController.chooseEmailOption()" class="govuk-back-link" data-back-link>Back</a>
 
-        <div class="content__body full-width">
-           <div>
-              <a data-back-link href="@routes.EmailsController.chooseEmailOption()">Back</a>
-          </div>
+  @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
+    @helper.CSRF.formField
 
-        @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
-            @helper.CSRF.formField
-            <div class="form-group">
-                <fieldset class=" govuk-fieldset">
-                    <legend class="form-label-bold">
-                        <h1 id="pageTitle">Who do you want to email?</h1>
-                    </legend>
-                    <div class="govuk-radios">
-                        @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
-                        @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
-                        @buildOptionRow(EmailPreferencesChoice.TOPIC)
-                    </div>
-                </fieldset>
-                <div><br/></div>
-                <div class="form-field">
-                    <button id="submit" class="button button--padded" type="submit">Continue</button>
-                </div>
-            </div>
-        }
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset" aria-describedby="sign-in-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 id="pageTitle" class="govuk-fieldset__heading">
+            Who do you want to email?
+          </h1>
+        </legend>
+        <div class="govuk-radios" data-module="govuk-radios">
+          @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
+          @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
+          @buildOptionRow(EmailPreferencesChoice.TOPIC)
         </div>
+      </fieldset>
+    </div>
 
-
+    <button id="submit" class="govuk-button" type="submit">Continue</button>
+  }
 }

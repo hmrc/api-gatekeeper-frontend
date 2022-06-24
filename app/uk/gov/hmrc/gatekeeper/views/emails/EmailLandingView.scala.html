@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -28,41 +28,37 @@
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
 @buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean = false, checked: Boolean = false) = {
-    <div class="multiple-choice">
-
-            <input id="@optionChoice.toString" name="sendEmailChoice" aria-label="@EmailOptionChoice.optionHint(optionChoice)" type="radio" value="@optionChoice.toString"@disabledFlag(enabled)@checkedFlag(checked)>
-
-            <label class="form-label-bold" for="@optionChoice.toString" >@EmailOptionChoice.optionLabel(optionChoice)
-                <span><div class="font-small text-secondary">@EmailOptionChoice.optionHint(optionChoice)</div></span>
-            </label>
+  <div class="govuk-radios__item">
+    <input class="govuk-radios__input" id="@optionChoice.toString" name="sendEmailChoice" type="radio" value="@optionChoice.toString" @disabledFlag(enabled)@checkedFlag(checked)>
+    <label class="govuk-label govuk-radios__label" for="@optionChoice.toString">
+      @EmailOptionChoice.optionLabel(optionChoice)
+    </label>
+    <div id="option-hint" class="govuk-hint govuk-radios__hint">
+      @EmailOptionChoice.optionHint(optionChoice)
     </div>
+  </div>
 }
 
 @main(title = s"${applicationConfig.title} - Send emails to users based on") {
+  @helper.form(action = routes.EmailsController.chooseEmailOption()) {
+    @helper.CSRF.formField
 
-        <div class="content__body full-width">
-
-        @helper.form(action = routes.EmailsController.chooseEmailOption()) {
-            @helper.CSRF.formField
-            <div class="form-group">
-                <fieldset class=" govuk-fieldset">
-                    <legend class="form-label-bold">
-                        <h1 id="pageTitle">Send emails to users based on</h1>
-                    </legend>
-                    <div class="govuk-radios">
-                        @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES, enabled = true, checked = true)
-                        @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled = true)
-                        <div class="float-left-block">Or</div>
-                        @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
-                    </div>
-                </fieldset>
-                <div><br/></div>
-                <div class="form-field">
-                    <button id="submit" class="button button--padded" type="submit">Continue</button>
-                </div>
-            </div>
-        }
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 id="pageTitle" class="govuk-fieldset__heading">
+            Send emails to users based on
+          </h1>
+        </legend>
+        <div class="govuk-radios" data-module="govuk-radios">
+          @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES, enabled = true, checked = true)
+          @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled = true)
+          <div class="govuk-radios__divider">or</div>
+          @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
         </div>
+      </fieldset>
+    </div>
 
-
+    <button id="submit" class="govuk-button" type="submit">Continue</button>
+  }
 }

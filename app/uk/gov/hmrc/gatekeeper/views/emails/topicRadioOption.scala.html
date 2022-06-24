@@ -20,17 +20,19 @@
 @(topic: TopicOptionChoice, maybeTopicFilter: Option[TopicOptionChoice])
 
 @checkedFlag(checked: Boolean) = @{
-    if(checked) {
-        " checked"
-    } else {
-        ""
-    }
+  if(checked) {
+    " checked"
+  } else {
+    ""
+  }
 }
 
 <div class="govuk-radios__item">
-    <input id="@topic.toString" name="selectedTopic" class="govuk-radios__input aria-label="@TopicOptionChoice.optionHint(topic)" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
-
-    <label class="govuk-label govuk-radios__label" for="@topic.toString" >@TopicOptionChoice.optionLabel(topic)
-        <div class="govuk-hint">@TopicOptionChoice.optionHint(topic)</div>
-    </label>
+  <input class="govuk-radios__input" id="@topic.toString" name="selectedTopic" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
+  <label class="govuk-label govuk-radios__label" for="@topic.toString">
+    @TopicOptionChoice.optionLabel(topic)
+  </label>
+  <div id="topic-hint" class="govuk-hint govuk-radios__hint">
+    @TopicOptionChoice.optionHint(topic)
+  </div>
 </div>
