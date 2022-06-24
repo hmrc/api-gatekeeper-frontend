@@ -61,8 +61,9 @@ class StrideAuthorisationService @Inject() (
     authorise(strideRoleRequired) map {
       case Some(name) ~ authorisedEnrolments => 
         def applyRole(role: GatekeeperRole): Either[Result, LoggedInRequest[A]] = {
-          val fullName = name.name.getOrElse("") + " " + name.lastName.getOrElse("")
-          Right(new LoggedInRequest(Option(fullName).filterNot(_.isEmpty()), role, request))
+          // val fullName = name.name.getOrElse("") + " " + name.lastName.getOrElse("")
+          // Right(new LoggedInRequest(Option(fullName).filterNot(_.isEmpty()), role, request))
+          Right(new LoggedInRequest(name.name, role, request))
         }
 
         ( authorisedEnrolments.getEnrolment(adminRole).isDefined, authorisedEnrolments.getEnrolment(superUserRole).isDefined, authorisedEnrolments.getEnrolment(userRole).isDefined ) match {

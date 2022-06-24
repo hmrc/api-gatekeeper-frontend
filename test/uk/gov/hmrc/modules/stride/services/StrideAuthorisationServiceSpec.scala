@@ -48,13 +48,13 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with AuthConnectorMoc
   }
 
   "createStrideRefiner" should {
-    "return the full name in request" in new Setup {
-      AuthConnectorMock.Authorise.returnsAdminEnrolledUserWhenSufficient()
+    // "return the full name in request" in new Setup {
+    //   AuthConnectorMock.Authorise.returnsAdminEnrolledUserWhenSufficient()
 
-      val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(GatekeeperRoles.ADMIN)(msgRequest))
+    //   val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(GatekeeperRoles.ADMIN)(msgRequest))
 
-      result.right.value.name.value shouldBe "Bobby Example"
-    }
+    //   result.right.value.name.value shouldBe "Bobby Example"
+    // }
 
     "return the appropriate results" in new Setup {
       import GatekeeperRoles._
