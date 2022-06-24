@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package modules.stride.services
+package uk.gov.hmrc.modules.stride.services
 
 import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import play.api.mvc.MessagesRequest

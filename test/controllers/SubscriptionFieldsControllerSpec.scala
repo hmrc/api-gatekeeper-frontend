@@ -26,6 +26,7 @@ import services.SubscriptionFieldsService
 import java.util.UUID
 import scala.concurrent.Future
 import model.SubscriptionFields.ApplicationApiFieldValues
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
@@ -34,12 +35,12 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
   trait Setup extends ControllerSetupBase {
     val subscriptionFieldsService = mock[SubscriptionFieldsService]
-    val controller = new SubscriptionFieldsController(subscriptionFieldsService,forbiddenView, mcc, errorTemplateView, strideAuthConfig, mockAuthConnector, forbiddenHandler)
+    val controller = new SubscriptionFieldsController(subscriptionFieldsService,forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock)
   }
   
   "subscriptionFieldValues" should {
     "return a csv" in new Setup {
-      givenTheGKUserIsAuthorisedAndIsANormalUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
       
       val expectedValues = List(ApplicationApiFieldValues(
         ClientId("my-client-id"),
@@ -62,7 +63,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
     }
 
     "Forbidden if not stride auth" in new Setup {
-      givenTheGKUserHasInsufficientEnrolments()
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
       
       val result = controller.subscriptionFieldValues()(aLoggedOutRequest)
 

@@ -64,9 +64,6 @@ class EmailsController @Inject()(
   mcc: MessagesControllerComponents,
   override val errorTemplate: ErrorTemplate,
   val apmService: ApmService,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler,
   strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)

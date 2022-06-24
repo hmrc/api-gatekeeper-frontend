@@ -25,26 +25,27 @@ import org.joda.time.DateTime
 import services.ApmService
 import model.{Environment,ApplicationId,ClientId}
 import model.pushpullnotifications.{Box,BoxId,BoxCreator,BoxSubscriber,SubscriptionType}
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = app.materializer
 
   running(app) {
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
       val apmService: ApmService = mock[ApmService]
 
       val controller = new BoxesController(
-            mcc,
-            apmService,
-            mockAuthConnector,
-            forbiddenHandler
-        )
+        mcc,
+        apmService,
+        StrideAuthorisationServiceMock.aMock
+      )
     }
 
     "BoxesController" should {
       "return a CSV of all boxes" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val boxSubscriber = BoxSubscriber(
           "callbackUrl",
@@ -56,9 +57,10 @@ class BoxesControllerSpec extends ControllerBaseSpec {
           BoxId("boxId"),
           "boxName",
           BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")),
-          Some(boxSubscriber), Environment.PRODUCTION)
+          Some(boxSubscriber), Environment.PRODUCTION
+        )
 
-        when(apmService.fetchAllBoxes()( (*) )).thenReturn(Future.successful(List(box)))
+        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
 
         val expectedCsv = """|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
                              |PRODUCTION,applicationId,clientId,boxName,boxId,API_PUSH_SUBSCRIBER,callbackUrl
@@ -70,7 +72,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       }
 
       "Forbidden if not stride auth" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments //succeeds(GatekeeperRoles.USER)
       
         val result = controller.getAll()(aLoggedOutRequest)
 

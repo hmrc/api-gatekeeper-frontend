@@ -30,6 +30,7 @@ import builder.ApplicationBuilder
 import model.applications.ApplicationWithSubscriptionData
 import builder.ApiBuilder
 import config.ErrorHandler
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class SubscriptionControllerSpec 
     extends ControllerBaseSpec 
@@ -75,8 +76,7 @@ class SubscriptionControllerSpec
         mockApplicationService,
         mockApmService,
         errorHandler,
-        mockAuthConnector,
-        forbiddenHandler
+        StrideAuthorisationServiceMock.aMock
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
@@ -90,7 +90,7 @@ class SubscriptionControllerSpec
       val apiContext = ApiContext.random
 
       "call the service to subscribe to the API when submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.SubscribeToApi.succeeds()
@@ -101,11 +101,11 @@ class SubscriptionControllerSpec
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
         verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(ApiIdentifier(apiContext, ApiVersion("1.0"))))(*)
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
@@ -120,7 +120,7 @@ class SubscriptionControllerSpec
       val apiContext = ApiContext.random
 
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UnsubscribeFromApi.succeeds()
@@ -131,11 +131,11 @@ class SubscriptionControllerSpec
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
         verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
         givenTheAppWillBeReturned()
 
         val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
@@ -156,20 +156,19 @@ class SubscriptionControllerSpec
           val apiContext = ApiContext("Api Context")
           val apiContextAndApiData = Map(apiContext -> apiData)
 
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
           ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
 
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 
           status(result) shouldBe OK
-          verifyAuthConnectorCalledForSuperUser
-        }
+          }
       }
 
       "the user is not a superuser" should {
         "show 403 forbidden" in new Setup {
-          givenTheGKUserHasInsufficientEnrolments()
+          StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
 
           val result = addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest)
 

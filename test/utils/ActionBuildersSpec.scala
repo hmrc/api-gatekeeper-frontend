@@ -19,7 +19,6 @@ package utils
 import builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
 import model.ApiVersion
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -36,6 +35,7 @@ import controllers.actions.ActionBuilders
 import play.api.mvc.MessagesRequest
 import config.ErrorHandler
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {

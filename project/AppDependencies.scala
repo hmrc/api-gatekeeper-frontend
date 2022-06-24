@@ -40,14 +40,11 @@ object AppDependencies {
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                 %% "bootstrap-test-play-28"             % "5.16.0",
-    // "org.scalatestplus.play"  %%  "scalatestplus-play"        % "3.1.3",
-    // "org.pegdown"             %   "pegdown"                   % "1.6.0",
-    "org.jsoup"                   %   "jsoup"                             % jsoupVersion,
-    // "com.typesafe.play"       %%  "play-test"                 % PlayVersion.current,
-    "com.github.tomakehurst"      %   "wiremock-jre8-standalone"          % "2.27.2",
-    "org.seleniumhq.selenium"     %   "selenium-java"                     % "2.53.1",
-    "org.seleniumhq.selenium"     %   "selenium-htmlunit-driver"          % "2.52.0",
-    "org.mockito"                 %%  "mockito-scala-scalatest"           % "1.16.42",
-    "org.scalacheck"              %%  "scalacheck"                        % scalaCheckVersion
+    "org.jsoup"                   %  "jsoup"                              % jsoupVersion,
+    "com.github.tomakehurst"      %  "wiremock-jre8-standalone"           % "2.27.2",
+    "org.seleniumhq.selenium"     %  "selenium-java"                      % "2.53.1",
+    "org.seleniumhq.selenium"     %  "selenium-htmlunit-driver"           % "2.52.0",
+    "org.mockito"                 %% "mockito-scala-scalatest"            % "1.16.42",
+    "org.scalacheck"              %% "scalacheck"                         % scalaCheckVersion
   ).map (_ % testScopes)
 }

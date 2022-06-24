@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.net.URLEncoder
-
 import model.Environment._
 import model.RateLimitTier.RateLimitTier
 import model._
@@ -29,7 +27,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import services.SubscriptionFieldsService
-import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.FakeRequestCSRFSupport._
 import utils.{TitleChecker, WithCSRFAddToken}
@@ -37,7 +34,6 @@ import views.html.applications._
 import views.html.approvedApplication.ApprovedView
 import views.html.review.ReviewView
 import views.html.{ErrorTemplate, ForbiddenView}
-import mocks.TestRoles._
   
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -51,6 +47,8 @@ import org.mockito.captor.ArgCaptor
 import mocks.connectors.ApplicationConnectorMockProvider
 import org.joda.time.DateTime
 import config.ErrorHandler
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 
@@ -64,7 +62,6 @@ class ApplicationControllerSpec
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
   private lazy val applicationsView = app.injector.instanceOf[ApplicationsView]
   private lazy val applicationView = app.injector.instanceOf[ApplicationView]
-  private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
   private lazy val manageAccessOverridesView = app.injector.instanceOf[ManageAccessOverridesView]
   private lazy val manageScopesView = app.injector.instanceOf[ManageScopesView]
   private lazy val ipAllowlistView = app.injector.instanceOf[IpAllowlistView]
@@ -80,9 +77,6 @@ class ApplicationControllerSpec
   private lazy val approvedView = app.injector.instanceOf[ApprovedView]
   private lazy val createApplicationView = app.injector.instanceOf[CreateApplicationView]
   private lazy val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
-  private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
-  private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
-  private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
   private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView = app.injector.instanceOf[ManageGrantLengthSuccessView]
   private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
@@ -90,7 +84,7 @@ class ApplicationControllerSpec
  
   running(app) {
 
-    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider { 
+    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule { 
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -112,6 +106,7 @@ class ApplicationControllerSpec
       }
 
       val underTest = new ApplicationController(
+        StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
         forbiddenView,
         mockApiDefinitionService,
@@ -138,9 +133,7 @@ class ApplicationControllerSpec
         manageGrantLengthView,
         manageGrantLengthSuccessView,
         mockApmService,
-        errorHandler,
-        mockAuthConnector,
-        forbiddenHandler
+        errorHandler
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {
@@ -152,7 +145,7 @@ class ApplicationControllerSpec
 
     "applicationsPage" should {
       "on request with no specified environment all sandbox applications supplied" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
@@ -162,14 +155,12 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verifyAuthConnectorCalledForUser
-
         verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
         verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*)
       }
 
       "on request for production all production applications supplied" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("PRODUCTION"))(aLoggedInRequest)
@@ -181,7 +172,7 @@ class ApplicationControllerSpec
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
         val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("SANDBOX"))(aLoggedInRequest)
@@ -193,7 +184,7 @@ class ApplicationControllerSpec
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
         val aLoggedInRequestWithParams = FakeRequest(GET, "/applications?search=abc&apiSubscription=ANY&status=CREATED&termsOfUse=ACCEPTED&accessType=STANDARD")
@@ -215,19 +206,19 @@ class ApplicationControllerSpec
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
-        givenAUnsuccessfulLogin()
+        StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
 
         val result = underTest.applicationsPage()(aLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe
-          Some(
-            s"http://localhost:9041/stride/sign-in?successURL=${URLEncoder.encode("http://localhost:9684/api-gatekeeper/applications", "UTF-8")}" +
-              s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
+          Some("http://example.com")
+            // s"http://localhost:9041/stride/sign-in?successURL=${URLEncoder.encode("http://localhost:9684/api-gatekeeper/applications", "UTF-8")}" +
+            //   s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
       }
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenThePaginatedApplicationsWillBeReturned
 
         val result = underTest.applicationsPage()(aSuperUserLoggedInRequest)
@@ -237,11 +228,10 @@ class ApplicationControllerSpec
 
         body should include("Add privileged or ROPC application")
 
-        verifyAuthConnectorCalledForUser
       }
 
       "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
         
         val result = underTest.applicationsPage()(aLoggedInRequest)
@@ -251,13 +241,12 @@ class ApplicationControllerSpec
 
         body shouldNot include("Add privileged or ROPC application")
 
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "applicationsPageExportCsv" should {
       "return csv data" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         
         val applicationResponse = ApplicationResponse(
             ApplicationId("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e"),
@@ -287,13 +276,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody shouldBe expectedCsvContent
         
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "resendVerification" should {
       "call backend with correct application id and gatekeeper id when resend verification is invoked" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
         val appCaptor = ArgCaptor[Application]
@@ -302,47 +290,43 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
-        verifyAuthConnectorCalledForUser
         verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(*)
         appCaptor hasCaptured basicApplication
-        gatekeeperIdCaptor hasCaptured userName
-
+        gatekeeperIdCaptor hasCaptured "Bobby Example"
       }
     }
 
     "manageScopes" should {
       "fetch an app with Privileged access for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "fetch an app with ROPC access for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an error for a Standard app" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
         intercept[RuntimeException] {
           await(addToken(underTest.manageScopes(applicationId))(aSuperUserLoggedInRequest))
         }
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageScopes(applicationId))(aLoggedInRequest)
@@ -353,7 +337,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "updateScopes" should {
       "call the service to update scopes when a valid form is submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateScopes.succeeds()
@@ -367,11 +351,10 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         verify(mockApplicationService)
           .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*)
 
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
@@ -380,11 +363,10 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateScopes(*, *)(*)
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateScopes.failsWithInvalidScopes()
@@ -396,7 +378,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody()
@@ -410,7 +393,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "viewIpAllowlistPage" should {
       "return the view IP allowlist page for a normal user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
         val result = underTest.viewIpAllowlistPage(applicationId)(aLoggedInRequest)
@@ -422,7 +405,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "manageGrantLengthPage" should {
       "return the manage grant length page for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val result = underTest.manageGrantLength(applicationId)(anAdminLoggedInRequest)
@@ -432,7 +416,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the manage grant length page for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         val result = underTest.manageGrantLength(applicationId)(aSuperUserLoggedInRequest)
@@ -442,7 +426,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val result = underTest.manageGrantLength(applicationId)(aLoggedInRequest)
@@ -454,7 +439,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "updateGrantLength" should {
       "call the service to update the grant length when a valid form is submitted for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateGrantLength.succeeds()
@@ -466,12 +452,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), eqTo(GrantLength.EIGHTEEN_MONTHS))(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -481,11 +467,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateGrantLength(*, *)(*)
-        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> "547")
@@ -495,13 +481,14 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateGrantLength(*, *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
     "manageIpAllowlistPage" should {
       "return the manage IP allowlist page for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val result = underTest.manageIpAllowlistPage(applicationId)(anAdminLoggedInRequest)
@@ -511,7 +498,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the manage IP allowlist page for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         val result = underTest.manageIpAllowlistPage(applicationId)(aSuperUserLoggedInRequest)
@@ -521,7 +508,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val result = underTest.manageIpAllowlistPage(applicationId)(aLoggedInRequest)
@@ -536,7 +524,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       val required: Boolean = false
 
       "manage the IP allowlist using the app service for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
@@ -549,7 +538,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "manage the IP allowlist using the app service for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
@@ -562,7 +551,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "clear the IP allowlist when allowlistedIps is empty" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> "")
@@ -575,7 +564,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "fail validation when clearing a required IP allowlist" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> "true", "allowlistedIps" -> "")
@@ -602,7 +591,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         )
 
         invalidAllowlistedIps.foreach { invalidAllowlistedIp =>
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
           val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
 
@@ -614,7 +603,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
         val request = aLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
@@ -627,17 +617,16 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "manageOverrides" should {
       "fetch an app with Standard access for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return an error for a ROPC app" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
@@ -645,7 +634,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return an error for a Privileged app" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aSuperUserLoggedInRequest)
@@ -653,7 +642,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageAccessOverrides(applicationId))(aLoggedInRequest)
@@ -664,7 +654,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "updateOverrides" should {
       "call the service to update overrides when a valid form is submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateOverrides.succeeds()
@@ -691,11 +681,10 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
           )))(*)
 
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -708,11 +697,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         verify(mockApplicationService, never).updateOverrides(*, *)(*)
 
-        verifyAuthConnectorCalledForSuperUser
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
@@ -728,42 +717,45 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
     "manageRateLimitTier" should {
       "fetch the app and return the page for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
-        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden for a super user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
 
       "return forbidden for a user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
     "updateRateLimitTier" should {
       "call the service to update the rate limit tier when a valid form is submitted for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateRateLimitTier.succeeds()
@@ -776,12 +768,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -791,11 +783,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
-        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
@@ -805,14 +797,14 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
     "handleUplift" should {
 
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
@@ -821,9 +813,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           .thenReturn(successful(ApproveUpliftSuccessful))
         await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
         appCaptor.getValue shouldBe basicApplication
-        gatekeeperIdCaptor.getValue shouldBe userName
+        gatekeeperIdCaptor.getValue shouldBe "Bobby Example"
 
-        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -831,7 +822,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       val tier = RateLimitTier.GOLD
 
       "change the rate limit for a super user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val appCaptor = ArgumentCaptor.forClass(classOf[Application])
@@ -849,11 +840,10 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier)(hcCaptor.getValue)
 
-        verifyAuthConnectorCalledForUser
       }
 
       "not call the application connector for a normal user " in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
@@ -861,7 +851,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
 
-        verifyAuthConnectorCalledForUser
       }
     }
 
@@ -879,7 +868,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -895,7 +884,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when no access type is chosen" in new Setup {
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -911,7 +900,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when the app name is left empty" in new Setup {
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -933,7 +922,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
           
 
@@ -956,7 +945,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
 
@@ -971,8 +960,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           status(result) shouldBe OK
 
           contentAsString(result) should include("Application added")
-          verifyAuthConnectorCalledForSuperUser
-        }
+          }
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
@@ -981,7 +969,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
 
@@ -996,8 +984,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           status(result) shouldBe OK
 
           contentAsString(result) should include("Application added")
-          verifyAuthConnectorCalledForSuperUser
-        }
+          }
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators = Set("sample@example.com".asAdministratorCollaborator)
@@ -1005,7 +992,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             ApplicationId.random, ClientId.random, "gatewayId", "I Already Exist", "SANDBOX", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess))
 
@@ -1020,12 +1007,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           status(result) shouldBe OK
 
           contentAsString(result) should include("Application added")
-          verifyAuthConnectorCalledForSuperUser
-        }
+          }
 
         "show the correct error message when app description is left empty" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1042,7 +1028,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         "show the correct error message when admin email is left empty" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1058,7 +1044,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when admin email is invalid" in new Setup {
-          givenTheGKUserIsAuthorisedAndIsASuperUser()
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1079,7 +1065,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
             DeveloperServiceMock.SeekRegisteredUser.returnsFor(email)
-            givenTheGKUserHasInsufficientEnrolments()
+            StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aLoggedInRequest.withFormUrlEncodedBody(
@@ -1096,7 +1083,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess))
 
@@ -1118,13 +1105,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include("Privileged")
             contentAsString(result) should include(totpSecret)
             contentAsString(result) should include(clientId.value)
-            verifyAuthConnectorCalledForSuperUser
-
+    
           }
 
           "show the success page for a priv app in sandbox" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess))
 
@@ -1146,12 +1132,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include("Privileged")
             contentAsString(result) should include(totpSecret)
             contentAsString(result) should include(clientId.value)
-            verifyAuthConnectorCalledForSuperUser
-          }
+              }
 
           "show the success page for an ROPC app in production" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess))
 
@@ -1171,12 +1156,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include("Production")
             contentAsString(result) should include("ROPC")
             contentAsString(result) should include(clientId.value)
-            verifyAuthConnectorCalledForSuperUser
-          }
+              }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
-            givenTheGKUserIsAuthorisedAndIsASuperUser()
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess))
 
@@ -1196,8 +1180,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include("Sandbox")
             contentAsString(result) should include("ROPC")
             contentAsString(result) should include(clientId.value)
-            verifyAuthConnectorCalledForSuperUser
-
+    
           }
         }
       }
@@ -1213,7 +1196,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val apiContext = ApiContext("Api Context")
         val apiContextAndApiData = Map(apiContext -> apiData)
 
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
@@ -1227,39 +1210,40 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         status(result) shouldBe OK
 
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "blockApplicationPage" should {
 
       "return the page for block app if admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
 
       "return forbidden for a non-admin" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
     }
 
     "blockApplicationAction" should {
       "call the service to block application when a valid form is submitted for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.BlockApplication.succeeds()
@@ -1271,12 +1255,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -1286,11 +1270,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).blockApplication(*, *)(*)
-        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1300,7 +1284,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).blockApplication(*, *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
     }
@@ -1308,36 +1292,37 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
     "unblockApplicationPage" should {
 
       "return the page for unblock app if admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
 
       "return forbidden for a non-admin" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         ApplicationServiceMock.FetchApplication.returns(application)
 
         val result = addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
     }
 
     "unblockApplicationAction" should {
       "call the service to unblock application when a valid form is submitted for an admin" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UnblockApplication.succeeds()
-
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
 
@@ -1346,12 +1331,12 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-        verifyAuthConnectorCalledForAdmin
+        // verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
@@ -1361,11 +1346,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).unblockApplication(*, *)(*)
-        verifyAuthConnectorCalledForAdmin
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
         givenTheAppWillBeReturned()
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
@@ -1375,9 +1360,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).unblockApplication(*, *)(*)
-        verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
+        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
-
     }
 
     def assertIncludesOneError(result: Future[Result], message: String) = {
