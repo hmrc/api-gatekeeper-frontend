@@ -16,11 +16,11 @@
 
 @import config.AppConfig
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messagesProvider: MessagesProvider)
 
 @main(title = pageTitle) {
-  <h1>@heading</h1>
-  <p>@message</p>
+  <h1 class="govuk-heading-l">@heading</h1>
+  <p class="govuk-body">@message</p>
 }

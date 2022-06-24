@@ -19,7 +19,7 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @* TODO - simplify Developer to Id *@
 
@@ -27,26 +27,23 @@
 
 @main(title = s"${applicationConfig.title} - Remove 2SV") {
 
-<article class="content__body full-width">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Remove 2SV</li>
-        </ul>
-    </nav>
 
-    <header>
-        <h1>@developer.user.email</h1>
-    </header>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a>
+      </li>
+    </ol>
+  </div>
 
-    @helper.form(action = routes.DevelopersController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
+  <h1 class="govuk-heading-l">@developer.user.email</h1>
+
+  @helper.form(action = routes.DevelopersController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
     @helper.CSRF.formField
-    <h2>Are you sure you want to remove 2SV for this developer?</h2>
-    <div class="form-field form-field--submit">
-        <button id="submit" class="button--alert" type="submit">Remove 2SV</button>
-        <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button--link">Cancel</a>
+    <h2 class="govuk-heading-m">Are you sure you want to remove 2SV for this developer?</h2>
+    <div class="govuk-button-group">
+      <button id="submit" class="govuk-button" type="submit">Remove 2SV</button>
+      <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="govuk-link">Cancel</a>
     </div>
-    }
-</article>
+  }
 }

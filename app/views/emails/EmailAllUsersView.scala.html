@@ -20,19 +20,14 @@
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Emails all users") {
+  <a href="@routes.EmailsController.showEmailInformation("all-users")" class="govuk-back-link" data-back-link>Back</a>
 
-    <div class="content__body full-width">
-        <div>
-            <a data-back-link href="@routes.EmailsController.showEmailInformation("all-users")">Back</a>
-        </div>
-        <div><h1 id="pageTitle">Email all users</h1></div>
-        @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("To" -> "All Developer Hub users"))
-    </div>
+  <h1 class="govuk-heading-l" id="pageTitle">Email all users</h1>
 
-
+  @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("To" -> "All Developer Hub users"))
 }

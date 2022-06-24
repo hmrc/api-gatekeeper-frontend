@@ -20,45 +20,45 @@
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {
+  <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
 
-    <div class="content__body full-width">
-        <div>
-            <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
+  <form name="topic-filters" action="@routes.EmailsController.emailPreferencesTopic(None).url" method="get">
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+        <legend id="pageTitle" class="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 class="govuk-fieldset__heading">
+            Email users interested in a topic
+          </h1>
+        </legend>
+        <div class="govuk-radios govuk-radios--small" data-module="govuk-radios">
+          @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
+          @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
+          @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
+          @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
         </div>
-        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesTopic(None).url" method="get">
-        <div class="form-group">
-            <fieldset class=" govuk-fieldset">
-                <legend class="form-label-bold">
-                    <h1 id="pageTitle">Email users interested in a topic</h1>
-                </legend>
-                <div class="govuk-radios govuk-radios--small">
-                    @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
-                    @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
-                    @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
-                    @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
-                </div>
-            </fieldset>
-            @if(maybeTopicFilter.isDefined) {
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
-                </div>
-            } else {
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
-                </div>
-            }
-        </div>
-        </form>
-    @if(maybeTopicFilter.isDefined) { 
-      <div><hr/></div>     
-      @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
-    }
+      </fieldset>
+
+      <br/ >
+
+      @if(maybeTopicFilter.isDefined) {
+        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+          Filter Again
+        </button>
+      } else {
+        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+          Filter
+        </button>
+      }
     </div>
-
+  </form>
+  @if(maybeTopicFilter.isDefined) { 
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+    @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+  }
 }

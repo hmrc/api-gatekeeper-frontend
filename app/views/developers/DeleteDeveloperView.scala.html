@@ -19,49 +19,49 @@
 @import config.AppConfig
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(developer: Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Delete Developer") {
 
-<article class="content__body full-width">
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">Delete developer</li>
-        </ul>
-    </nav>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a>
+      </li>
+    </ol>
+  </div>
 
-    @defining(developer.applications.filter(_.isSoleAdmin(developer.user.email))) { applications =>
-        @if(applications.isEmpty) {
-            <header>
-                <h1>@developer.user.email</h1>
-            </header>
+  @defining(developer.applications.filter(_.isSoleAdmin(developer.user.email))) { applications =>
+    @if(applications.isEmpty) {
+      <h1 class="govuk-heading-l">@developer.user.email</h1>
 
-            @helper.form(action = routes.DevelopersController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
-            @helper.CSRF.formField
-            <h2>Are you sure you want to delete this developer?</h2>
-            <div class="form-field form-field--submit">
-                <button id="submit" class="button--alert" type="submit">Delete developer</button>
-                <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button--link">Cancel</a>
-            </div>
-            }
-        } else {
-            <h1>You cannot delete this developer</h1>
-            <div>
-                <p><strong>@developer.user.email</strong> is the only administrator for one or more applications.</p>
-                <p>Applications cannot exist without an administrator.</p>
-                <p>Delete the following applications or <a href="mailto:@{developer.user.email}">ask the administrator</a> to appoint a new
-                administrator for them:</p>
+      @helper.form(action = routes.DevelopersController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
+        @helper.CSRF.formField
+        <h2 class="govuk-heading-m">Are you sure you want to delete this developer?</h2>
+        <div class="govuk-button-group">
+          <button id="submit" class="govuk-button" type="submit">Delete developer</button>
+          <a id="cancel" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="govuk-link">Cancel</a>
+        </div>
+      }
+    } else {
+      <h1 class="govuk-heading-l">You cannot delete this developer</h1>
+      <p class="govuk-body"><span class="govuk-body govuk-!-font-weight-bold">@developer.user.email</span> is the only administrator for one or more applications.</p>
+      <p class="govuk-body">Applications cannot exist without an administrator.</p>
+      <p class="govuk-body">Delete the following applications or 
+        <a class="govuk-link" href="mailto:@{developer.user.email}">ask the administrator</a> 
+        to appoint a new administrator for them:
+      </p>
 
-                @for(application <- applications) {
-                    <p><a id="app-@{application.id.value}" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a></p>
-                }
-            </div>
-            <a id="finish" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="button">Finish</a>
-        }
+      @for(application <- applications) {
+        <p class="govuk-body">
+          <a id="app-@{application.id.value}" class="govuk-link" href="@{routes.ApplicationController.applicationPage(application.id)}">
+            @application.name
+          </a>
+        </p>
+      }
+      <a id="finish" href="@routes.DevelopersController.developerPage(UuidIdentifier(developer.user.userId))" class="govuk-button">Finish</a>
     }
-</article>
+  }
 }

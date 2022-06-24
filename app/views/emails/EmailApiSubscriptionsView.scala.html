@@ -20,58 +20,48 @@
 @import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 @(apiVersions: Seq[DropDownValue],
-        users: Seq[RegisteredUser],
-        composeEmailRecipients: JsValue,
-        emails: String,
-        params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+  users: Seq[RegisteredUser],
+  composeEmailRecipients: JsValue,
+  emails: String,
+  params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
+)
 
 @main(title = s"${applicationConfig.title} - Email all users subscribed to an API") {
 
-    <div class="content__body full-width">
-        <div>
-            <a data-back-link href="@routes.EmailsController.showEmailInformation("api-subscription")">Back</a>
-        </div>
-        <div><h1 id="pageTitle">Email all users subscribed to an API</h1></div>
+  <a href="@routes.EmailsController.showEmailInformation("api-subscription")" class="govuk-back-link"  data-back-link>Back</a>
 
+  <h1 class="govuk-heading-l" id="pageTitle">Email all users subscribed to an API</h1>
 
-
-        @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
-        <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
-            <div class="grid-layout__column--2-3">
-
-                <label class="form-label" for="apiVersionFilter">Select an API from the list
-                    <select class="form-control input-select--large"
-                    id="apiVersionFilter"
-                    name="apiVersionFilter"
-                    value="@apiVersionFilter">
-                        <option value="">Select API</option>
-                        @for(apiVersion <- apiVersions) {
-                         <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
-                        }
-                    </select>
-                </label>
-            </div>
-            @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
-                <div class="form-group grid-layout grid-layout--stacked push--sides">
-                    <input id="filter" type="submit" value="Filter Again" name="main-submit" class="button--link text--center float--left flush--left"/>
-                </div>
-            } else {
-
-            <div class="form-group grid-layout grid-layout--stacked push--sides">
-                <input id="filter" type="submit" value="Filter" name="main-submit" class="button text--center float--left flush--left"/>
-            </div>
-            }
-        </form>
-         @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
-            <div><hr/></div>
-            @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
+  @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
+    <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="apiVersionFilter">
+          Select an API from the list
+        </label>
+        <select class="govuk-select" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
+          <option value="">Select API</option>
+          @for(apiVersion <- apiVersions) {
+            <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
           }
-        }
+        </select>
+      </div>
+      @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
+        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+          Filter Again
+        </button>
+      } else {
+        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+        Filter
+      </button>
+      }
+    </form>
 
-    </div>
-
-
+    @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
+      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+      @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
+    }
+  }
 }

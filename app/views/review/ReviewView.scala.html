@@ -24,72 +24,72 @@
 @(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Review Application") {
-<div class="content__body">
 
-    <nav class="breadcrumb-nav">
-        <ul>
-            <li class="breadcrumb-nav__item"><a href="/api-gatekeeper/applications">Applications</a></li>
-            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
-            <li class="breadcrumb-nav__item">@{application.name}</li>
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="/api-gatekeeper/applications">Applications</a>
+      </li>
+    </ol>
+  </div>
+
+  <h1 class="govuk-heading-l">@{application.name}</h1>
+
+  @if(form.hasErrors) {
+    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary-title">
+        There is a problem
+      </h2>
+      <div class="govuk-error-summary__body">
+        <ul class="govuk-list govuk-error-summary__list">
+          @for(error <- form.errors) {
+            <li>
+              <a href="#@error.key" data-global-error>@Messages(error.message)</a>
+            </li>
+          }
         </ul>
-    </nav>
+      </div>
+    </div>
+  }
 
-    <header>
-        <h1 class="flush--top">@{application.name}</h1>
-    </header>
-
-    @if(form.hasErrors) {
-        <div class="flash error-summary error-summary--show" role="group" aria-labelledby="errorSummaryHeading" tabindex="-1">
-            <h2 id="errorSummaryHeading" class="flush--top">There are errors on the page.</h2>
-            <ul>
-            @for(error <- form.errors) {
-                <li role="tooltip">
-                    <a href="#@error.key" data-global-error>@Messages(error.message)</a>
-                </li>
-            }
-            </ul>
+  @helper.form(action = routes.ApplicationController.handleUplift(application.id), 'class -> "form") {
+    @helper.CSRF.formField
+    <div class="govuk-form-group @if(form.errors("action").nonEmpty) {form-field--error}" data-journey-dynamic-radios>
+      <fieldset id="action" class="govuk-fieldset" data-target="rejection-reason" data-trigger="js-toggle-trigger" data-open="reject-app" data-close="approve-app">
+        <legend class="govuk-fieldset__legend">
+          Choose pass or fail application
+        </legend>
+        <div class="govuk-radios" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="approve-app" name="action" type="radio" value="APPROVE" data-journey-val="Approved">
+            <label class="govuk-label govuk-radios__label" for="approve-app">
+              Pass
+            </label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="reject-app" name="action" type="radio" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}>
+            <label class="govuk-label govuk-radios__label" for="reject-app">
+              Fail
+            </label>
+          </div>
         </div>
-    }
+      </fieldset>
+    </div>
 
+    <div id="rejection-reason" class="govuk-form-group @if(form.errors("reason").isEmpty) {hidden} else {form-field--error}" aria-expanded="false" aria-visible="false">
+      <label class="govuk-label" for="reason">
+        Failure reason
+      </label>
+      <p class="govuk-hint">
+        Tell the submitter why the application failed the check. This text will appear in the email to them.
+      </p>
+      @fieldError2(form.errors, "reason", true)
+      <textarea class="govuk-textarea @if(form.errors("reason").nonEmpty) {error-field}" id="reason" name="reason" rows="5"></textarea>
+    </div>
 
-
-
-    @helper.form(action = routes.ApplicationController.handleUplift(application.id), 'class -> "form") {
-
-        <div data-journey-dynamic-radios>
-            @helper.CSRF.formField
-
-            <fieldset id="action" class="form-field-group js-toggle @if(form.errors("action").nonEmpty) {form-field--error}"
-                data-target="rejection-reason"
-                data-trigger="js-toggle-trigger"
-                data-open="reject-app"
-                data-close="approve-app"
-                aria-hidden="true">
-                @fieldError(form.errors, "action", true)
-                <legend class="visuallyhidden">Choose pass or fail application</legend>
-                <label class="block-label form-field--inline"><input type="radio" id="approve-app" name="action" value="APPROVE" data-journey-val="Approved"/>Pass</label>
-                <label class="block-label form-field--inline"><input type="radio" id="reject-app" name="action" value="REJECT" data-journey-val="Rejected" @if(form.errors("reason").nonEmpty) {checked}/>Fail</label>
-            </fieldset>
-
-            <div id="rejection-reason"
-                 class="form-field toggle-target @if(form.errors("reason").isEmpty) {hidden} else {form-field--error}"
-                 aria-expanded="false"
-                 aria-visible="false">
-                <label for="reason">Failure reason</label>
-                <p class="form-hint flush--top">Tell the submitter why the application failed the check. This text will appear in the email to them.
-                </p>
-                @fieldError(form.errors, "reason", true)
-                <textarea id="reason" name="reason" class="textarea--3-4 flush--top @if(form.errors("reason").nonEmpty) {error-field}" rows="5">@form.data.get("reason")</textarea>
-            </div>
-
-            <div class="form-field">
-                <input id="submit" type="submit" class="button" role="button" value="Submit" data-journey-click="gate-keeper:Click:@if(form.errors("reason").isEmpty){Approved}else{Rejected}" data-journey-target/>
-                <a href="@routes.ApplicationController.applicationPage(application.id)" class="secondary-button button--link">Cancel</a>
-            </div>
-
-        </div>
-
-    }
-
-</div>
+    <div class="govuk-button-group">
+      <input id="submit" type="submit" class="govuk-button" role="button" value="Submit" data-journey-click="gate-keeper:Click:@if(form.errors("reason").isEmpty){Approved}else{Rejected}" data-journey-target/>
+      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link">Cancel</a>
+    </div>
+  }
 }
