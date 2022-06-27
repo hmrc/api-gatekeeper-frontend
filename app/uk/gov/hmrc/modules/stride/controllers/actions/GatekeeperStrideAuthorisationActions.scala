@@ -35,13 +35,13 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles.READ_ONLY
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.stride.services._
 
 trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[_]): Result
 }
 
-trait GatekeeperAuthorisationActions {
+trait GatekeeperStrideAuthorisationActions {
   self: FrontendBaseController =>
 
   def strideAuthorisationService: StrideAuthorisationService
@@ -76,8 +76,22 @@ trait GatekeeperAuthorisationActions {
 
   def adminOnlyAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.ADMIN)(block)
+}
 
-  def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] = 
-    gatekeeperRoleAction(GatekeeperRoles.READ_ONLY)(block)
+trait GatekeeperAuthorisationActions {
+  self: FrontendBaseController with GatekeeperStrideAuthorisationActions =>
+    
+    def ldapAuthorisationService: LdapAuthorisationService
+    def auth: FrontendAuthComponents
 
+  def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =  {
+    Action.async { implicit request => 
+      ldapAuthorisationService.refineLdap(auth)(request)
+      .recover { case _ => Left(request) }
+      .flatMap(_ match {
+        case Left(_) => anyStrideUserAction(block)(request)
+        case Right(lir) => block(lir)
+      })
+    }
+  }
 }

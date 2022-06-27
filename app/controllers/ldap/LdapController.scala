@@ -43,7 +43,7 @@ class LdapController @Inject()(
     auth.authorizedAction(
       continueUrl = controllers.routes.ApplicationController.applicationsPage(),
       predicate = LdapController.permission
-    ).async { implicit request =>
+    ).async { _ =>
       successful(Redirect(controllers.routes.ApplicationController.applicationsPage()))
     }(initialRequest)
   }

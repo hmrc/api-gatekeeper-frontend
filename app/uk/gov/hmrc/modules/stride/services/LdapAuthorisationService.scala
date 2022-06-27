@@ -17,7 +17,7 @@
 package uk.gov.hmrc.modules.stride.services
 
 import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
-import play.api.mvc.MessagesRequest
+import play.api.mvc._
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -26,26 +26,29 @@ import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
+import javax.inject.{Singleton, Inject}
 
-class LdapAuthorisationService(implicit ec: ExecutionContext) {
-  def refineLdap[A](auth: FrontendAuthComponents)(msgRequest: MessagesRequest[A]): Future[Option[LoggedInRequest[A]]] = {
-    val gatekeeperPermission = Predicate.Permission(
-      Resource(
-        ResourceType("api-gatekeeper-frontend"),
-        ResourceLocation("*")
-      ),
-      IAAction("READ")
-    )
+@Singleton
+class LdapAuthorisationService @Inject()(implicit ec: ExecutionContext) {
+  val gatekeeperPermission = Predicate.Permission(
+    Resource(
+      ResourceType("api-gatekeeper-frontend"),
+      ResourceLocation("*")
+    ),
+    IAAction("READ")
+  )
+  
+  def refineLdap[A](auth: FrontendAuthComponents)(msgRequest: MessagesRequest[A]): Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
 
-    val notAuthenticatedOrAuthorized: Future[Option[LoggedInRequest[A]]] = successful(None)
+    lazy val notAuthenticatedOrAuthorized: Either[MessagesRequest[A], LoggedInRequest[A]] = Left(msgRequest)
 
-    hc.authorization.fold(notAuthenticatedOrAuthorized)(authorization => {
+    hc.authorization.fold(successful(notAuthenticatedOrAuthorized))(authorization => {
       auth.authConnector.authenticate(predicate = None, Retrieval.username ~ Retrieval.hasPredicate(gatekeeperPermission))
-        .map[Option[LoggedInRequest[A]]] {
-          case (name ~ hasPredicate) => if(hasPredicate) Some(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest)) else None
-          case _ => None
+        .map {
+          case (name ~ hasPredicate) => if(hasPredicate) Right(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest)) else notAuthenticatedOrAuthorized
+          case _ => notAuthenticatedOrAuthorized
         }
     })
   }

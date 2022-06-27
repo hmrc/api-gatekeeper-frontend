@@ -19,11 +19,11 @@ package uk.gov.hmrc.modules.stride.controllers
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
-import uk.gov.hmrc.modules.stride.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.modules.stride.controllers.actions.GatekeeperStrideAuthorisationActions
 import uk.gov.hmrc.modules.stride.utils.GatekeeperAuthorisationHelper
 import scala.concurrent.ExecutionContext
 
 abstract class GatekeeperBaseController(
   val strideAuthorisationService: StrideAuthorisationService,
   mcc: MessagesControllerComponents
-)(implicit val ec: ExecutionContext) extends FrontendController(mcc) with GatekeeperAuthorisationActions with GatekeeperAuthorisationHelper
+)(implicit val ec: ExecutionContext) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper
