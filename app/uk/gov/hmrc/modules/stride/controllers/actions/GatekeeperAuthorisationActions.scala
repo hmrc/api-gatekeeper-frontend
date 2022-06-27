@@ -17,13 +17,8 @@
 package uk.gov.hmrc.modules.stride.controllers.actions
 
 import play.api.mvc.{Action, AnyContent, Result}
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperStrideRole
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
@@ -31,9 +26,7 @@ import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.ActionRefiner
 import play.api.mvc.MessagesRequest
-import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import cats.data.OptionT
 import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import uk.gov.hmrc.internalauth.client.Retrieval
 import scala.concurrent.Future.successful
