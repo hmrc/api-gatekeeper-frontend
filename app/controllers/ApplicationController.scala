@@ -33,7 +33,6 @@ import views.html.applications._
 import views.html.approvedApplication.ApprovedView
 import views.html.review.ReviewView
 import controllers.actions.ActionBuilders
-import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.concurrent.Future.successful
@@ -77,8 +76,7 @@ class ApplicationController @Inject()(
   manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  val ldapAuthorisationService: LdapAuthorisationService,
-  val auth: FrontendAuthComponents
+  val ldapAuthorisationService: LdapAuthorisationService
 
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)

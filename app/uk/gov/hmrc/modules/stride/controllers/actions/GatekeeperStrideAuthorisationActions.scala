@@ -26,15 +26,8 @@ import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.ActionRefiner
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
-import uk.gov.hmrc.internalauth.client.Retrieval
-import scala.concurrent.Future.successful
-import uk.gov.hmrc.internalauth.client._
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles.READ_ONLY
-import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.modules.stride.services._
 
 trait ForbiddenHandler {
@@ -82,11 +75,10 @@ trait GatekeeperAuthorisationActions {
   self: FrontendBaseController with GatekeeperStrideAuthorisationActions =>
     
     def ldapAuthorisationService: LdapAuthorisationService
-    def auth: FrontendAuthComponents
-
+    
   def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =  {
     Action.async { implicit request => 
-      ldapAuthorisationService.refineLdap(auth)(request)
+      ldapAuthorisationService.refineLdap(request)
       .recover { case _ => Left(request) }
       .flatMap(_ match {
         case Left(_) => anyStrideUserAction(block)(request)

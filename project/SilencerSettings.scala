@@ -1,5 +1,6 @@
+import sbt.{CrossVersion, compilerPlugin}
 import sbt.Keys._
-import sbt.{CrossVersion, compilerPlugin, _}
+import sbt._
 
 object SilencerSettings {
   // stop "unused import" warnings from routes files

@@ -18,7 +18,6 @@ package model
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import model.ApiStatus.ApiStatus
-import model.ApiType.findValues
 import model.SubscriptionFields._
 import play.api.libs.json.Json
 

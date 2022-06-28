@@ -40,7 +40,7 @@ lazy val microservice =  (project in file("."))
   // .settings(SilencerSettings())
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.16",
+    scalaVersion := "2.12.13",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
@@ -104,7 +104,7 @@ lazy val SandboxTest = config("sandbox") extend Test
  
 lazy val appName = "api-gatekeeper-frontend"
 
-coverageMinimum := 84
+coverageMinimumStmtTotal := 84
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
   "<empty>",

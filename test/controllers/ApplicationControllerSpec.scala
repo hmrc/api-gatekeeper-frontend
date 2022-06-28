@@ -49,6 +49,7 @@ import org.joda.time.DateTime
 import config.ErrorHandler
 import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.stride.services.LdapAuthorisationServiceMockModule
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 
@@ -80,11 +81,10 @@ class ApplicationControllerSpec
   private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView = app.injector.instanceOf[ManageGrantLengthSuccessView]
   private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
-
  
   running(app) {
 
-    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule { 
+    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule { 
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -104,6 +104,16 @@ class ApplicationControllerSpec
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
       }
+
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+
+      // import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBehaviour}
+      // // val expectedPredicate = LdapAuthorisationService.gatekeeperPermission
+      // // val expectedRetrieval = Retrieval.username ~ Retrieval.hasPredicate(expectedPredicate)
+      // val mockStubBehaviour = mock[StubBehaviour]
+      // val frontendAuthComponents = FrontendAuthComponentsStub(mockStubBehaviour)(mcc, implicitly)
+      // // // when(mockStubBehaviour.stubAuth(Some(expectedPredicate),expectedRetrieval)).thenReturn(Future.successful(uk.gov.hmrc.internalauth.client.~[Retrieval.Username, Boolean](Retrieval.Username("Bob"), true)))
+      // // when(mockStubBehaviour.stubAuth(Some(expectedPredicate),expectedRetrieval)).thenReturn(Future.successful(uk.gov.hmrc.internalauth.client.~[Retrieval.Username, Boolean](Retrieval.Username("Bob"), false)))
 
       val underTest = new ApplicationController(
         StrideAuthorisationServiceMock.aMock,
@@ -133,7 +143,8 @@ class ApplicationControllerSpec
         manageGrantLengthView,
         manageGrantLengthSuccessView,
         mockApmService,
-        errorHandler
+        errorHandler,
+        LdapAuthorisationServiceMock.aMock
       )
 
       def givenThePaginatedApplicationsWillBeReturned = {

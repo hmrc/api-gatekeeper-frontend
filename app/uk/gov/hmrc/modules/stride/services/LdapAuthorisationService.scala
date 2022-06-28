@@ -28,8 +28,7 @@ import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
 import javax.inject.{Singleton, Inject}
 
-@Singleton
-class LdapAuthorisationService @Inject()(implicit ec: ExecutionContext) {
+object LdapAuthorisationService {
   val gatekeeperPermission = Predicate.Permission(
     Resource(
       ResourceType("api-gatekeeper-frontend"),
@@ -37,8 +36,12 @@ class LdapAuthorisationService @Inject()(implicit ec: ExecutionContext) {
     ),
     IAAction("READ")
   )
+}
+@Singleton
+class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) {
+  import LdapAuthorisationService._
   
-  def refineLdap[A](auth: FrontendAuthComponents)(msgRequest: MessagesRequest[A]): Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = {
+  def refineLdap[A]: (MessagesRequest[A]) => Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = (msgRequest) => {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
 
