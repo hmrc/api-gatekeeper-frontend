@@ -91,78 +91,78 @@ class ApiGatekeeperApplicationReviewSpec
     }
   }
 
-  // Feature("Reject a request to uplift an application when no action was selected") {
-  //   Scenario("I see the review page and I cannot submit without choosing an action") {
-  //     Given("I have successfully logged in to the API Gatekeeper")
-  //     stubPaginatedApplicationList()
+  Feature("Reject a request to uplift an application when no action was selected") {
+    Scenario("I see the review page and I cannot submit without choosing an action") {
+      Given("I have successfully logged in to the API Gatekeeper")
+      stubPaginatedApplicationList()
 
-  //     stubApiDefinition()
-  //     signInSuperUserGatekeeper()
+      stubApiDefinition()
+      signInSuperUserGatekeeper()
 
-  //     on(ApplicationsPage)
-  //     stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
+      on(ApplicationsPage)
+      stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
 
-  //     When("I select to navigate to the Automated Test Application page")
-  //     ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
+      When("I select to navigate to the Automated Test Application page")
+      ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
 
-  //     Then("I am successfully navigated to the Automated Test Application page")
-  //     on(ApplicationToReviewPage)
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(ApplicationToReviewPage)
 
-  //     verifyText("data-submitted-on", "22 August 2019")
-  //     verifyText("data-submitted-by-email", "admin@example.com")
-  //     verifyText("data-submission-contact-name", "Holly Golightly")
-  //     verifyText("data-submission-contact-email", "holly.golightly@example.com")
-  //     verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-submitted-on", "22 August 2019")
+      verifyText("data-submitted-by-email", "admin@example.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-  //     stubApplicationToReview()
-  //     clickOnReview("review")
+      stubApplicationToReview()
+      clickOnReview("review")
 
-  //     on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-  //     clickOnSubmit()
+      on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
+      clickOnSubmit()
 
-  //     on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-  //     verifyText("data-global-error", "Review the application")
-  //   }
-  // }
+      on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
+      verifyText("data-global-error", "Review the application")
+    }
+  }
 
-  // Feature("Reject a request to uplift an application") {
-  //   Scenario("I see the review page and I am able to reject the uplift request with a reason") {
-  //     Given("I have successfully logged in to the API Gatekeeper")
-  //     stubPaginatedApplicationList()
+  Feature("Reject a request to uplift an application") {
+    Scenario("I see the review page and I am able to reject the uplift request with a reason") {
+      Given("I have successfully logged in to the API Gatekeeper")
+      stubPaginatedApplicationList()
 
-  //     stubApiDefinition()
-  //     signInSuperUserGatekeeper()
+      stubApiDefinition()
+      signInSuperUserGatekeeper()
 
-  //     on(ApplicationsPage)
-  //     stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
+      on(ApplicationsPage)
+      stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
 
-  //     When("I select to navigate to the Automated Test Application page")
-  //     ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
+      When("I select to navigate to the Automated Test Application page")
+      ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
 
-  //     Then("I am successfully navigated to the Automated Test Application page")
-  //     on(ApplicationToReviewPage)
+      Then("I am successfully navigated to the Automated Test Application page")
+      on(ApplicationToReviewPage)
 
-  //     verifyText("data-submitted-on", "22 August 2019")
-  //     verifyText("data-submitted-by-email", "admin@example.com")
-  //     verifyText("data-submission-contact-name", "Holly Golightly")
-  //     verifyText("data-submission-contact-email", "holly.golightly@example.com")
-  //     verifyText("data-submission-contact-telephone", "020 1122 3344")
+      verifyText("data-submitted-on", "22 August 2019")
+      verifyText("data-submitted-by-email", "admin@example.com")
+      verifyText("data-submission-contact-name", "Holly Golightly")
+      verifyText("data-submission-contact-email", "holly.golightly@example.com")
+      verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-  //     stubApplicationToReview()
-  //     clickOnReview("review")
+      stubApplicationToReview()
+      clickOnReview("review")
 
-  //     on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-  //     clickOnElement("reject-app")
+      on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
+      clickOnElement("reject-app")
 
-  //     stubFor(post(urlMatching(s"/application/$pendingApprovalApplicationId/reject-uplift"))
-  //       .withRequestBody(equalToJson(rejectRequest))
-  //       .willReturn(aResponse().withStatus(200)))
-  //     clickOnSubmit()
+      stubFor(post(urlMatching(s"/application/$pendingApprovalApplicationId/reject-uplift"))
+        .withRequestBody(equalToJson(rejectRequest))
+        .willReturn(aResponse().withStatus(200)))
+      clickOnSubmit()
 
-  //     on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-  //     verifyText("data-global-error", "This field is required")
-  //   }
-  // }
+      on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
+      verifyText("data-global-error", "This field is required")
+    }
+  }
 
   def stubApplicationToReview() = {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/$pendingApprovalApplicationId")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
