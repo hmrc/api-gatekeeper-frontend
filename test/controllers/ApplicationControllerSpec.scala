@@ -107,14 +107,6 @@ class ApplicationControllerSpec
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
-      // import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBehaviour}
-      // // val expectedPredicate = LdapAuthorisationService.gatekeeperPermission
-      // // val expectedRetrieval = Retrieval.username ~ Retrieval.hasPredicate(expectedPredicate)
-      // val mockStubBehaviour = mock[StubBehaviour]
-      // val frontendAuthComponents = FrontendAuthComponentsStub(mockStubBehaviour)(mcc, implicitly)
-      // // // when(mockStubBehaviour.stubAuth(Some(expectedPredicate),expectedRetrieval)).thenReturn(Future.successful(uk.gov.hmrc.internalauth.client.~[Retrieval.Username, Boolean](Retrieval.Username("Bob"), true)))
-      // // when(mockStubBehaviour.stubAuth(Some(expectedPredicate),expectedRetrieval)).thenReturn(Future.successful(uk.gov.hmrc.internalauth.client.~[Retrieval.Username, Boolean](Retrieval.Username("Bob"), false)))
-
       val underTest = new ApplicationController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
