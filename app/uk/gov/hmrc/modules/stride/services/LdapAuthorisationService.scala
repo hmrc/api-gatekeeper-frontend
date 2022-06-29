@@ -27,6 +27,7 @@ import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
 import javax.inject.{Singleton, Inject}
+import utils.ApplicationLogger
 
 object LdapAuthorisationService {
   val gatekeeperPermission = Predicate.Permission(
@@ -38,7 +39,7 @@ object LdapAuthorisationService {
   )
 }
 @Singleton
-class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) {
+class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) extends ApplicationLogger {
   import LdapAuthorisationService._
   
   def refineLdap[A]: (MessagesRequest[A]) => Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = (msgRequest) => {
@@ -47,11 +48,19 @@ class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit
 
     lazy val notAuthenticatedOrAuthorized: Either[MessagesRequest[A], LoggedInRequest[A]] = Left(msgRequest)
 
-    hc.authorization.fold(successful(notAuthenticatedOrAuthorized))(authorization => {
+    hc.authorization.fold({
+      logger.debug("No Header Carrier Authoriation")
+      successful(notAuthenticatedOrAuthorized)
+    })(authorization => {
       auth.authConnector.authenticate(predicate = None, Retrieval.username ~ Retrieval.hasPredicate(gatekeeperPermission))
         .map {
-          case (name ~ hasPredicate) => if(hasPredicate) Right(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest)) else notAuthenticatedOrAuthorized
-          case _ => notAuthenticatedOrAuthorized
+          case (name ~ hasPredicate) => if(hasPredicate) Right(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest)) else {
+            logger.debug("No LDAP predicate matched")
+            notAuthenticatedOrAuthorized
+          }
+          case _ => 
+            logger.debug("LDAP Authenticate failed to find user")
+            notAuthenticatedOrAuthorized
         }
     })
   }

@@ -74,7 +74,7 @@ trait GatekeeperStrideAuthorisationActions {
 trait GatekeeperAuthorisationActions {
   self: FrontendBaseController with GatekeeperStrideAuthorisationActions =>
     
-    def ldapAuthorisationService: LdapAuthorisationService
+  def ldapAuthorisationService: LdapAuthorisationService
     
   def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =  {
     Action.async { implicit request => 

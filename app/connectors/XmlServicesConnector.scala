@@ -18,7 +18,7 @@ package connectors
 
 import connectors.XmlServicesConnector.Config
 import model.UserId
-import model.xml.{XmlOrganisation, VendorId, XmlApi}
+import model.xml.{XmlOrganisation, XmlApi}
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
