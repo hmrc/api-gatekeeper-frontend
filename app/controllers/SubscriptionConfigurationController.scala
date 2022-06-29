@@ -113,5 +113,3 @@ class SubscriptionConfigurationController @Inject()(
     }
   }
 }
-
-
