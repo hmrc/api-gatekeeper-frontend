@@ -26,7 +26,7 @@ import pages.ApplicationPage
 import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import model.RegisteredUser
 import model.UserId
-import specs.MockDataSugar.{xmlApis, xmlOrganisations}
+import specs.MockDataSugar.xmlApis
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
   with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {

@@ -31,7 +31,6 @@ import play.api.mvc.ControllerComponents
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 import scala.concurrent.Future
-import org.eclipse.jetty.http2.api.Session
 
 class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComponentsFactory  {
   val fakeRequest = FakeRequest()

@@ -36,7 +36,7 @@ class ApiCataloguePublishController @Inject()(
   connector: ApiCataloguePublishConnector,
   val forbiddenView: ForbiddenView,
   mcc: MessagesControllerComponents,
-  publishTemplate: PublishTemplate,
+  publishTemplate: PublishTemplate
 )(implicit ec: ExecutionContext, implicit val appConfig: AppConfig)
   extends GatekeeperBaseController(strideAuthorisationService, mcc) {
 

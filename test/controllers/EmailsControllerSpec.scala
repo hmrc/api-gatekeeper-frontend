@@ -149,7 +149,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(result) shouldBe OK
        
-        // verifyAuthConnectorCalledForUser
         verify(mockSendEmailChoiceView).apply()(*,*,*)
       }
     }
@@ -214,7 +213,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*,*,*)
-        // verifyAuthConnectorCalledForUser
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
@@ -223,7 +221,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*,*,*)
-        // verifyAuthConnectorCalledForUser
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {
@@ -234,7 +231,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         verifyZeroInteractions(mockEmailInformationView)
         result.message shouldBe "Page Not Found"
-        // verifyAuthConnectorCalledForUser
       }
     }
 
@@ -249,7 +245,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString))(*, *, *)
-        // verifyAuthConnectorCalledForUser
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
@@ -260,8 +255,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString))(*, *, *)
-
-        // verifyAuthConnectorCalledForUser
       }
 
       "on request should render correctly when no verified users are retrieved from the developer service" in new Setup {
@@ -271,7 +264,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""))(*, *, *)
-        // verifyAuthConnectorCalledForUser
       }
     }
 
@@ -283,7 +275,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
-        // verifyAuthConnectorCalledForUser
       }
 
       "render correctly and display users when api filter provided" in new Setup {
@@ -294,7 +285,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         
         verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
-        // verifyAuthConnectorCalledForUser
       }
     }
 
@@ -395,7 +385,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody = contentAsString(result)
 
         verifyUserTable(responseBody, List.empty)
-
       }
 
       "render the view correctly when filter selected and users returned" in new Setup {
