@@ -20,14 +20,18 @@ import javax.inject.{Inject, Provider, Singleton}
 import play.api.Configuration
 import com.typesafe.config.Config
 
+case class StrideAuthRoles(
+  adminRole: String,
+  superUserRole: String,
+  userRole: String
+)
+
 case class StrideAuthConfig(
   authBaseUrl: String,
   strideLoginUrl: String,
   successUrl: String,
   origin: String,
-  adminRole: String,
-  superUserRole: String,
-  userRole: String
+  roles: StrideAuthRoles
 )
 
 trait BaseUrl {
@@ -58,6 +62,6 @@ class StrideAuthConfigProvider @Inject()(configuration: Configuration) extends P
     val superUserRole = strideConfig.getString("roles.super-user")
     val userRole = strideConfig.getString("roles.user")
 
-    StrideAuthConfig(authBaseUrl, strideLoginUrl, successUrl, origin, adminRole, superUserRole, userRole)
+    StrideAuthConfig(authBaseUrl, strideLoginUrl, successUrl, origin, StrideAuthRoles(adminRole, superUserRole, userRole))
   }
 }

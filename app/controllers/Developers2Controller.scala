@@ -29,10 +29,8 @@ import play.api.mvc._
 import utils.ApplicationLogger
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 @Singleton
 class Developers2Controller @Inject()(
@@ -42,11 +40,9 @@ class Developers2Controller @Inject()(
   mcc: MessagesControllerComponents,
   developersView: Developers2View,
   override val errorTemplate: ErrorTemplate,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
+  strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with UserFunctionsWrapper 
     with ApplicationLogger {

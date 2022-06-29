@@ -22,8 +22,10 @@ import utils.FakeRequestCSRFSupport._
 import play.api.test.Helpers._
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.developers.Developers2View
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class Developers2ControllerSpec extends ControllerBaseSpec {
 
@@ -38,7 +40,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
 
       override val aLoggedInRequest = FakeRequest().withSession(authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken).withCSRFToken
@@ -50,9 +52,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
         mcc,
         developersView,
         errorTemplateView,
-        strideAuthConfig,
-        mockAuthConnector,
-        forbiddenHandler
+       StrideAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -76,32 +76,30 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
 
     "blankDevelopersPage" should {
       "show no results when initially opened" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         val result = developersController.blankDevelopersPage()(aLoggedInRequest)
 
         contentAsString(result) should include("Developers")
 
-        verifyAuthConnectorCalledForUser
       }
     }
     
     "developersPage" should {
 
       "show no results when initially opened" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         val result = developersController.developersPage()(aLoggedInRequest.withFormUrlEncodedBody())
 
         contentAsString(result) should include("Developers")
 
-        verifyAuthConnectorCalledForUser
       }
 
       "searching with all empty filters does not trigger a query" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val EMPTY = ""
@@ -122,7 +120,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "allow searching by email or partial email" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -142,7 +140,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "remember the search filter text on submit" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val searchFilter = "anEmailFilterCriteria"
@@ -156,7 +154,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "allow me to copy all the email addresses for verified users" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
@@ -172,7 +170,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
       
       "search by api version" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -194,7 +192,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
 
 
       "show an api version filter dropdown with correct display text" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
@@ -206,11 +204,10 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(s"MyApi (${apiVersion1.value}) (Alpha)")
         contentAsString(result) should include(s"MyApi (${apiVersion2.value}) (Stable)")
 
-        verifyAuthConnectorCalledForUser
       }
 
       "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         val apiContext = ApiContext.random
@@ -224,7 +221,6 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(s"${apiContext.value}__${apiVersion1.value}")
         contentAsString(result) should include(s"${apiContext.value}__${apiVersion2.value}")
 
-        verifyAuthConnectorCalledForUser
       }
 
       "show an api version filter dropdown without duplicates" in new Setup {
@@ -242,7 +238,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "show number of entries" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val email1 = "a@example.com"
@@ -257,7 +253,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "allow searching by developerStatusFilter" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"
@@ -277,7 +273,7 @@ class Developers2ControllerSpec extends ControllerBaseSpec {
       }
 
       "allow searching by environmentFilter" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress = "developer@example.com"

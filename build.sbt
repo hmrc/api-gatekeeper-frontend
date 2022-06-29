@@ -12,6 +12,8 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import bloop.integrations.sbt.BloopDefaults
 
+bloopAggregateSourceDependencies in Global := true
+
 lazy val microservice =  (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
@@ -35,10 +37,10 @@ lazy val microservice =  (project in file("."))
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
-  .settings(SilencerSettings(): _*)
+  .settings(SilencerSettings())
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.13",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
@@ -51,6 +53,7 @@ lazy val microservice =  (project in file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings)) 
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
@@ -58,7 +61,7 @@ lazy val microservice =  (project in file("."))
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"  
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"
   )
   .configs(AcceptanceTest)
   .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
@@ -73,7 +76,7 @@ lazy val microservice =  (project in file("."))
   )
   .configs(SandboxTest)
   .settings(inConfig(SandboxTest)(Defaults.testSettings): _*)
-  .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
+  .settings(inConfig(SandboxTest)(BloopDefaults.configSettings))
   .settings(
     SandboxTest / Keys.fork := false,
     SandboxTest / parallelExecution := false,
@@ -101,7 +104,7 @@ lazy val SandboxTest = config("sandbox") extend Test
  
 lazy val appName = "api-gatekeeper-frontend"
 
-coverageMinimum := 84
+coverageMinimumStmtTotal := 84
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
   "<empty>",

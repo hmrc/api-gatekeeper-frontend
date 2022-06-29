@@ -31,6 +31,7 @@ import builder.FieldDefinitionsBuilder
 import model.ApiStatus
 import model.Environment
 import config.ErrorHandler
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec
@@ -57,9 +58,7 @@ class SubscriptionConfigurationControllerSpec
       errorTemplateView,
       mockApmService,
       errorHandler,
-      strideAuthConfig,
-      mockAuthConnector,
-      forbiddenHandler
+      StrideAuthorisationServiceMock.aMock
     )
 
     val version = ApiVersion.random
@@ -96,7 +95,7 @@ class SubscriptionConfigurationControllerSpec
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheGKUserIsAuthorisedAndIsASuperUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
       
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -122,7 +121,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheGKUserIsAuthorisedAndIsASuperUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -130,21 +129,19 @@ class SubscriptionConfigurationControllerSpec
 
       val result = controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest)
       status(result) shouldBe OK
-      verifyAuthConnectorCalledForSuperUser
     }
 
     "When logged in as normal user renders forbidden page" in new Setup {
-      givenTheGKUserHasInsufficientEnrolments()
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
       val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
-      verifyAuthConnectorCalledForSuperUser
     }
   }
 
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheGKUserIsAuthorisedAndIsANormalUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -170,7 +167,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
      "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      givenTheGKUserIsAuthorisedAndIsASuperUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -179,21 +176,19 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      verifyAuthConnectorCalledForSuperUser
     }
 
     "When logged in as normal user renders forbidden page" in new Setup {
-      givenTheGKUserHasInsufficientEnrolments()
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
       val result = controller.editConfigurations(applicationId, context, version)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
-      verifyAuthConnectorCalledForSuperUser
     }
   }
 
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
-      givenTheGKUserIsAuthorisedAndIsANormalUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -214,7 +209,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "save gives validation errors" in new EditSaveFormData {
-      givenTheGKUserIsAuthorisedAndIsANormalUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -235,7 +230,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as super saves the data" in new EditSaveFormData {
-      givenTheGKUserIsAuthorisedAndIsASuperUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
@@ -247,17 +242,15 @@ class SubscriptionConfigurationControllerSpec
       val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
 
       status(result) shouldBe SEE_OTHER
-      verifyAuthConnectorCalledForSuperUser
     }
 
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
-      givenTheGKUserHasInsufficientEnrolments()
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
       
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
       val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
       status(result) shouldBe FORBIDDEN
-      verifyAuthConnectorCalledForSuperUser
     }
   }
 }

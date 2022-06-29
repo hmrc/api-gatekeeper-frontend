@@ -27,13 +27,13 @@ import org.mockito.stubbing.ScalaOngoingStubbing
 import connectors.DeveloperConnector
 import model._
 import org.joda.time.DateTime
-
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
 import java.time.Period
 
 trait ControllerSetupBase
     extends MockitoSugar
     with ArgumentMatchersSugar
-    with AuthConnectorMock
+    with StrideAuthorisationServiceMockModule
     with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
     with ApplicationServiceMockProvider
@@ -62,9 +62,9 @@ trait ControllerSetupBase
   val applicationId = application.application.id
 
   val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
-  val userToken = GatekeeperSessionKeys.LoggedInUser -> userName
-  val superUserToken = GatekeeperSessionKeys.LoggedInUser -> superUserName
-  val adminToken = GatekeeperSessionKeys.LoggedInUser -> adminName
+  val userToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
+  val superUserToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
+  val adminToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
   val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
   val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
   val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)

@@ -77,9 +77,14 @@ class ApiGatekeeperApplicationReviewSpec
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       clickOnElement("approve-app")
 
-      stubFor(post(urlMatching(s"/application/$pendingApprovalApplicationId/approve-uplift"))
+      stubFor(
+        post(
+          urlMatching(s"/application/$pendingApprovalApplicationId/approve-uplift")
+        )
         .withRequestBody(equalToJson(approveRequest))
-        .willReturn(aResponse().withStatus(OK)))
+        .willReturn(aResponse().withStatus(OK))
+      )
+
       clickOnSubmit()
 
       on(ApplicationToReviewPage)

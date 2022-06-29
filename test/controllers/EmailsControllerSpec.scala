@@ -35,6 +35,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -137,28 +138,24 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mcc,
         errorTemplateView,
         mockApmService,
-        strideAuthConfig,
-        mockAuthConnector,
-        forbiddenHandler
+        StrideAuthorisationServiceMock.aMock
       )
 
     }
 
     "email landing page" should {
       "on initial request with logged in user should display disabled options and checked email all options" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(result) shouldBe OK
        
-        verifyAuthConnectorCalledForUser
         verify(mockSendEmailChoiceView).apply()(*,*,*)
       }
     }
 
     "choose email option" should {
-
       "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_ALL_USERS))
 
         status(result) shouldBe SEE_OTHER
@@ -166,7 +163,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(API_SUBSCRIPTION))
 
@@ -175,7 +172,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_PREFERENCES))
 
         status(result) shouldBe SEE_OTHER
@@ -185,7 +182,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TOPIC))
 
         status(result) shouldBe SEE_OTHER
@@ -193,7 +190,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API))
 
         status(result) shouldBe SEE_OTHER
@@ -201,7 +198,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TAX_REGIME))
 
         status(result) shouldBe SEE_OTHER
@@ -211,38 +208,35 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email information page" should {
       "on request with 'all-users' in uri path should render correctly" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(result) shouldBe OK
         verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*,*,*)
-        verifyAuthConnectorCalledForUser
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(result) shouldBe OK
         verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*,*,*)
-        verifyAuthConnectorCalledForUser
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = intercept[NotFoundException] {
           await(underTest.showEmailInformation("")(aLoggedInRequest))
         }
 
         verifyZeroInteractions(mockEmailInformationView)
         result.message shouldBe "Page Not Found"
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "email all Users page" should {
       "on request should render correctly when 3 verified users are retrieved from developer service " in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         given3VerifiedDevelopers1Unverified()
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
@@ -251,61 +245,52 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString))(*, *, *)
-        verifyAuthConnectorCalledForUser
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenVerifiedDeveloper()
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString))(*, *, *)
-
-        verifyAuthConnectorCalledForUser
       }
 
       "on request should render correctly when no verified users are retrieved from the developer service" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoVerifiedDevelopers()
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
         verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""))(*, *, *)
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "email subscribers page" should {
-
       "render correctly (not display user table) when no filter provided" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition2Apis
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
         verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
-        verifyAuthConnectorCalledForUser
       }
 
       "render correctly and display users when api filter provided" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition2Apis
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
         val result: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(result) shouldBe OK
         
         verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(Map.empty))(*, *, *)
-        verifyAuthConnectorCalledForUser
       }
-
     }
-
 
     "email preferences select api page" should {
        "return ok on initial load" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val result: Future[Result] = underTest.selectSpecficApi(None)(FakeRequest())
@@ -316,7 +301,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
      "return ok when filters provided" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val result: Future[Result] = underTest.selectSpecficApi(Some(List(combinedRestApi1.serviceName)))(FakeRequest())
@@ -329,7 +314,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email preferences specific api page" should {
       "redirect to select API page when no filter selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition2Apis()
 
         val result = underTest.emailPreferencesSpecificApis(List.empty, None)(FakeRequest())
@@ -341,7 +326,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
       
       "render the view correctly when selected api filters are selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()         
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)         
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
 
         val selectedAPIs = List(combinedXmlApi2)
@@ -356,7 +341,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedList))
         DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users:_*)
@@ -381,7 +366,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
     "email preferences topic page" should {
       "render the view correctly when no filter selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val request = createGetRequest("/emails/api-subscribers/email-preferences/by-topic")
         val result: Future[Result] = underTest.emailPreferencesTopic()(request)
@@ -391,7 +376,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view correctly when filter selected and no users returned" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns()
 
         val result = underTest.emailPreferencesTopic(Some("TECHNICAL"))(FakeRequest())
@@ -400,11 +385,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody = contentAsString(result)
 
         verifyUserTable(responseBody, List.empty)
-
       }
 
       "render the view correctly when filter selected and users returned" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
 
         val request = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
@@ -414,15 +398,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val responseBody = Helpers.contentAsString(result)
 
         verifyUserTable(responseBody, users)
-
       }
-
-
     }
 
     "Email preferences API Category page" should {
       "render the view correctly when no filters selected" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
         val request = createGetRequest("/emails/email-preferences/by-api-category")
         val result: Future[Result] = underTest.emailPreferencesAPICategory()(request)
@@ -433,7 +414,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
 
       "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
@@ -447,7 +428,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       }
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users:_*)
 

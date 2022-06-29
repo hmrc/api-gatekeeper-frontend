@@ -28,6 +28,7 @@ import org.joda.time.DateTime
 import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
 import config.ErrorHandler
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -61,7 +62,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
-      val loggedInUser = "userName"
+      val loggedInUser = "Bobby Example"
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
 
@@ -79,9 +80,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         errorTemplateView,
         mockApmService,
         errorHandler,
-        strideAuthConfig,
-        mockAuthConnector,
-        forbiddenHandler
+        StrideAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -106,7 +105,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
 
     "removeMfaPage" should {
       "not allow a user with insufficient enrolments to access the page" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
         DeveloperServiceMock.FetchDeveloper.handles(developer)
 
         val result = developersController.removeMfaPage(developerId)(aLoggedInRequest)
@@ -114,37 +114,36 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
       }
 
       "allow a normal user to access the page" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.FetchDeveloper.handles(developer)
 
         val result = addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verifyAuthConnectorCalledForUser
       }
     }
 
     "removeMfaAction" should {
 
       "not allow a user with insufficient enrolments to access the page" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
         val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a normal user to access the page" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.RemoveMfa.returns(user)
 
         val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
 
         status(result) shouldBe OK
         verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
-        verifyAuthConnectorCalledForUser
       }
 
       "return an internal server error when it fails to remove MFA" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
         val result = developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest)
@@ -156,40 +155,39 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
     "deleteDeveloperPage" should {
 
       "not allow a user with insifficient enrolments to access the page" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
         val result = developersController.deleteDeveloperPage(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.FetchDeveloper.handles(developer)
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(developerId))(*)
-        verifyAuthConnectorCalledForSuperUser
       }
     }
 
     "deleteDeveloperAction" should {
 
       "not allow an unauthorised user to access the page" in new Setup {
-        givenTheGKUserHasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         val result = developersController.deleteDeveloperAction(developerId)(aLoggedInRequest)
         status(result) shouldBe FORBIDDEN
       }
 
       "allow a super user to access the page" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteSuccessResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo(superUserName))(*)
-        verifyAuthConnectorCalledForSuperUser
+        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(*)
       }
 
       "return an internal server error when the delete fails" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsASuperUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteFailureResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR

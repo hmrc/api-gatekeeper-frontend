@@ -23,10 +23,8 @@ import model._
 import play.api.data.Form
 import play.api.mvc._
 import services._
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 import utils.{ApplicationLogger, ErrorHelper}
 import views.html.applications._
 import views.html.{ErrorTemplate, ForbiddenView}
@@ -46,10 +44,9 @@ class UpdateApplicationNameController @Inject()(
   manageApplicationNameSuccessView: ManageApplicationNameSuccessView,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  strideAuthorisationService: StrideAuthorisationService
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {

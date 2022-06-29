@@ -25,24 +25,20 @@ import views.html.ForbiddenView
 import views.html.apicataloguepublish.PublishTemplate
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApiCataloguePublishController @Inject()(
+  strideAuthorisationService: StrideAuthorisationService,
   connector: ApiCataloguePublishConnector,
   val forbiddenView: ForbiddenView,
   mcc: MessagesControllerComponents,
-  publishTemplate: PublishTemplate,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
+  publishTemplate: PublishTemplate
 )(implicit ec: ExecutionContext, implicit val appConfig: AppConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc) {
 
   def start(): Action[AnyContent] = adminOnlyAction { implicit request =>
     Future.successful(Ok(publishTemplate("Publish Page", "Publish Page", "Welcome to the publish page")))

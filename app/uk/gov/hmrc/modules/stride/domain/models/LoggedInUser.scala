@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package modules.stride.utils
+package uk.gov.hmrc.modules.stride.domain.models
 
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
-// import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+case class LoggedInUser(userFullName: Option[String])
 
-trait GatekeeperAuthorisationHelper {
-  implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
+object LoggedInUser {
+  implicit def fromRequest(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 }

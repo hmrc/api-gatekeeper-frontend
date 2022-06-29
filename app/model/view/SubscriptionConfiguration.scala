@@ -16,8 +16,7 @@
 
 package model.view
 
-import model.{ApiContext, ApiVersion, FieldName, FieldValue, Subscription, SubscriptionFields, VersionSubscription}
-import model.SubscriptionFields.SubscriptionFieldsWrapper
+import model._
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
 import model.SubscriptionFields.Fields

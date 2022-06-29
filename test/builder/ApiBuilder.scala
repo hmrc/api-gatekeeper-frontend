@@ -17,7 +17,6 @@
 package builder
 
 import model.APIAccessType
-import model.APIAccessType._
 import model.ApiAccess
 import model.ApiStatus
 import model.ApiStatus._

@@ -22,20 +22,28 @@ sealed trait GatekeeperRole {
   def isUser: Boolean
 }
 
+sealed trait GatekeeperStrideRole extends GatekeeperRole
+
 object GatekeeperRoles {
-  case object USER extends GatekeeperRole {
+  case object READ_ONLY extends GatekeeperRole {
+    val isAdmin: Boolean = false
+    val isSuperUser: Boolean = false
+    val isUser: Boolean = false
+  }
+
+  case object USER extends GatekeeperStrideRole {
     val isAdmin: Boolean = false
     val isSuperUser: Boolean = false
     val isUser: Boolean = true
   }
 
-  case object SUPERUSER extends GatekeeperRole {
+  case object SUPERUSER extends GatekeeperStrideRole {
     val isAdmin: Boolean = false
     val isSuperUser: Boolean = true
     val isUser: Boolean = true
   }
 
-  case object ADMIN extends GatekeeperRole {
+  case object ADMIN extends GatekeeperStrideRole {
     val isAdmin: Boolean = true
     val isSuperUser: Boolean = true
     val isUser: Boolean = true

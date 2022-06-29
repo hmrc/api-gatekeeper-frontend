@@ -33,7 +33,6 @@ import views.html.applications._
 import views.html.approvedApplication.ApprovedView
 import views.html.review.ReviewView
 import controllers.actions.ActionBuilders
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.concurrent.Future.successful
@@ -43,13 +42,13 @@ import model._
 import utils.ApplicationLogger
 import utils.CsvHelper._
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.controllers.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.stride.services._
+import uk.gov.hmrc.modules.stride.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
 class ApplicationController @Inject()(
+  strideAuthorisationService: StrideAuthorisationService,
   val applicationService: ApplicationService,
   val forbiddenView: ForbiddenView,
   apiDefinitionService: ApiDefinitionService,
@@ -77,17 +76,18 @@ class ApplicationController @Inject()(
   manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext, strideAuthConfig: StrideAuthConfig)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  val ldapAuthorisationService: LdapAuthorisationService
+
+)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+  with GatekeeperAuthorisationActions
     with ErrorHelper 
     with ActionBuilders 
     with ApplicationLogger {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
@@ -103,7 +103,7 @@ class ApplicationController @Inject()(
     } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
   }
 
-  def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }

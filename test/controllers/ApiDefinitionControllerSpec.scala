@@ -27,6 +27,9 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
 import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()
@@ -36,13 +39,13 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
-  trait Setup extends ControllerSetupBase {
-    val controller = new ApiDefinitionController(mockApiDefinitionService, forbiddenView, mcc, errorTemplateView, strideAuthConfig, mockAuthConnector, forbiddenHandler)
+  trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
+    val controller = new ApiDefinitionController(mockApiDefinitionService, forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock)
   }
   
   "apis" should {
     "return a csv" in new Setup {
-      givenTheGKUserIsAuthorisedAndIsANormalUser()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.STABLE))
       val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
@@ -58,7 +61,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     }
 
     "Forbidden if not stride auth" in new Setup {
-      givenTheGKUserHasInsufficientEnrolments()
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
       
       val result = controller.apis()(aLoggedOutRequest)
 

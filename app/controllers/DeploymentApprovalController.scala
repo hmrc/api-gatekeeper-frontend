@@ -28,9 +28,7 @@ import views.html.deploymentApproval._
 import views.html.{ErrorTemplate, ForbiddenView}
 
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 import javax.inject.Inject
 import scala.concurrent.Future.successful
@@ -44,11 +42,9 @@ class DeploymentApprovalController @Inject()(
   deploymentApproval: DeploymentApprovalView,
   deploymentReview: DeploymentReviewView,
   override val errorTemplate: ErrorTemplate,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
+  strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc) with ErrorHelper {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper {
 
   def pendingPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))

@@ -28,7 +28,6 @@ import model.RegisteredUser
 import model.UserId
 import utils.WireMockExtensions
 
-import java.util.UUID
 import scala.io.Source
 
 class ApiGatekeeperRemoveMfaSpec

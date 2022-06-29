@@ -34,9 +34,7 @@ import utils.{ErrorHelper, UserFunctionsWrapper}
 import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
 import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
+import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.Json
@@ -63,11 +61,9 @@ class EmailsController @Inject()(
   mcc: MessagesControllerComponents,
   override val errorTemplate: ErrorTemplate,
   val apmService: ApmService,
-  strideAuthConfig: StrideAuthConfig,
-  authConnector: AuthConnector,
-  forbiddenHandler: ForbiddenHandler
+  strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with UserFunctionsWrapper {
 

@@ -26,10 +26,10 @@ import play.api.test.FakeRequest
 import utils.FakeRequestCSRFSupport._
 import play.filters.csrf.CSRF
 import utils.WithCSRFAddToken
-import uk.gov.hmrc.auth.core.Enrolment
-import mocks.TestRoles._
 import controllers.ControllerBaseSpec
 import controllers.ControllerSetupBase
+
+import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -39,21 +39,18 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
 
     val csrfToken = "csrfToken" -> app.injector.instanceOf[CSRF.TokenProvider].generateToken
 
-    override val aLoggedInRequest = FakeRequest().withSession(authToken, userToken).withCSRFToken
+    implicit val fakeRequest = FakeRequest().withCSRFToken
 
-    override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
     private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
     private lazy val publishTemplateView: PublishTemplate = app.injector.instanceOf[PublishTemplate]
 
     val controller = new ApiCataloguePublishController(
+      StrideAuthorisationServiceMock.aMock,
       mockApiCataloguePublishConnector,
       forbiddenView,
       mcc,
-      publishTemplateView,
-      strideAuthConfig,
-      mockAuthConnector,
-      forbiddenHandler
+      publishTemplateView
     )
   }
 
@@ -62,66 +59,56 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     "/apicatalogue/start" should {
 
       "return startpage when logged in as Admin" in new Setup {
-
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
-        val result = controller.start()(anAdminLoggedInRequest)
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+        val result = controller.start()(fakeRequest)
         status(result) shouldBe OK
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish Page"
-
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return forbidden page when logged in as normal user " in new Setup {
-
-        givenTheGKUserHasInsufficientEnrolments()
-        val result = controller.start()(aLoggedInRequest)
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        val result = controller.start()(fakeRequest)
         status(result) shouldBe FORBIDDEN
         contentAsString(result)
 
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyZeroInteractions(mockApiCataloguePublishConnector)
       }
     }
 
     "/apicatalogue/publish-all" should {
-      "return forbidden page when logged in as normal user " in new Setup {
+      "return forbidden page when logged in as standard user" in new Setup {
 
-        givenTheGKUserHasInsufficientEnrolments()
-        val result = controller.publishAll()(aLoggedInRequest)
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe FORBIDDEN
         contentAsString(result)
 
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verifyZeroInteractions(mockApiCataloguePublishConnector)
       }
 
       "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApiCataloguePublishConnectorMock.PublishAll.returnRight
-        val result = controller.publishAll()(anAdminLoggedInRequest)
+        val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe OK
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish Page"
         document.getElementById("message").text() shouldBe "Publish All Called ok - Publish all called and is working in the background, check application logs for progress"
-
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-
       }
 
       "return publish template with failure message when logged in as Admin and connector returns a Left" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApiCataloguePublishConnectorMock.PublishAll.returnLeft
-        val result = controller.publishAll()(anAdminLoggedInRequest)
+        val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe OK
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish All Failed"
         document.getElementById("message").text() shouldBe "Something went wrong with publish all"
-
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
     }
@@ -129,43 +116,41 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     "/apicatalogue/publish?serviceName=" should {
       "return forbidden page when logged in as normal user " in new Setup {
 
-        givenTheGKUserHasInsufficientEnrolments()
-        val result = controller.publishByServiceName("serviceName")(aLoggedInRequest)
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+
+        val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe FORBIDDEN
         contentAsString(result)
 
         verifyZeroInteractions(mockApiCataloguePublishConnector)
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight
-        val result = controller.publishByServiceName("serviceName")(anAdminLoggedInRequest)
+        val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe OK
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish Page"
         document.getElementById("message").text() shouldBe """Publish by serviceName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
 
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)
-
       }
 
       "return publish template with failure message when logged in as Admin and connector returns a Left" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsAnAdmin()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
         ApiCataloguePublishConnectorMock.PublishByServiceName.returnLeft
-        val result = controller.publishByServiceName("serviceName")(anAdminLoggedInRequest)
+        val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe OK
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish by ServiceName failed"
         document.getElementById("message").text() shouldBe """Something went wrong with publish by serviceName serviceName"""
 
-        verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
         verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)
-
       }
     }
 
