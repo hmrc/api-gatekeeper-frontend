@@ -216,8 +216,6 @@ class ApplicationControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe
           Some("http://example.com")
-            // s"http://localhost:9041/stride/sign-in?successURL=${URLEncoder.encode("http://localhost:9684/api-gatekeeper/applications", "UTF-8")}" +
-            //   s"&origin=${URLEncoder.encode("api-gatekeeper-frontend", "UTF-8")}")
       }
 
       "show button to add Privileged or ROPC app to superuser" in new Setup {
@@ -455,7 +453,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), eqTo(GrantLength.EIGHTEEN_MONTHS))(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -484,7 +481,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateGrantLength(*, *)(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
@@ -739,8 +735,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-
       }
 
       "return forbidden for a user" in new Setup {
@@ -751,7 +745,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.manageRateLimitTier(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
@@ -771,7 +764,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -800,7 +792,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 
@@ -1226,7 +1217,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.blockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
 
@@ -1238,8 +1228,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.blockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-
       }
     }
 
@@ -1258,7 +1246,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1287,7 +1274,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).blockApplication(*, *)(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
     }
@@ -1302,7 +1288,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.unblockApplicationPage(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
 
@@ -1314,8 +1299,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.unblockApplicationPage(applicationId))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
-
       }
     }
 
@@ -1334,7 +1317,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe OK
 
         verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
-        // verify(mockAuthConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1363,7 +1345,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).unblockApplication(*, *)(*)
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
       }
     }
 

@@ -61,7 +61,7 @@ lazy val microservice =  (project in file("."))
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it" ,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"
   )
   .configs(AcceptanceTest)
   .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)

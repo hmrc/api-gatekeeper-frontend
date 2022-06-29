@@ -61,7 +61,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     }
 
     "Forbidden if not stride auth" in new Setup {
-      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments// succeeds(GatekeeperRoles.USER)
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
       
       val result = controller.apis()(aLoggedOutRequest)
 

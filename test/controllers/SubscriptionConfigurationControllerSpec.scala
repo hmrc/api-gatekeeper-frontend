@@ -179,7 +179,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as normal user renders forbidden page" in new Setup {
-      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments //succeeds(GatekeeperRoles.USER)
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
       val result = controller.editConfigurations(applicationId, context, version)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
@@ -245,7 +245,7 @@ class SubscriptionConfigurationControllerSpec
     }
 
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
-      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments //succeeds(GatekeeperRoles.USER)
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
       
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
