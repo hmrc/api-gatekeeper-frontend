@@ -89,10 +89,9 @@ class ThirdPartyDeveloperConnectorSpec
           )
       )
 
+      val expectedMessage = s"""POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: ''"""
       await(underTest.sendSms()) match {
-        case Left(response) if response.isInstanceOf[UpstreamErrorResponse] =>
-          response.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe INTERNAL_SERVER_ERROR
-          response.getMessage shouldBe s"POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: ''"
+        case Left(UpstreamErrorResponse(message, INTERNAL_SERVER_ERROR, _, _)) => message shouldBe expectedMessage
         case _ => fail()
       }
     }
