@@ -505,8 +505,8 @@
         @if(application.collaborators.nonEmpty) {
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
           <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
-          <button class="govuk-button govuk-!-margin-bottom-3" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
-          <button class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
+          <button id="copy-users-to-clip" class="govuk-button govuk-!-margin-bottom-3" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
+          <button id="copy-users-to-clip" class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
         }
       </dd>
       @if(request.role.isSuperUser || access.accessType == AccessType.STANDARD) {
