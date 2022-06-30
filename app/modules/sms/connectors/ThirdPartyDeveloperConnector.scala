@@ -24,7 +24,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.never.recover
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import  uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream5xxResponse
 
 
 @Singleton
@@ -35,6 +36,8 @@ class ThirdPartyDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpCli
     http.POSTEmpty[SendSmsResponse](s"${appConfig.developerBaseUrl}/notify/send-sms") map {
       x => Right(x)
     } recover {
+      case Upstream5xxResponse(e) if e.message contains """Response body: '{"message":""" =>
+        Right(SendSmsResponse(s"${e.message}"))
       case NonFatal(e) =>
         logger.error(e.getMessage)
         Left(e)
