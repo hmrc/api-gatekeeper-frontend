@@ -16,7 +16,6 @@
 
 package modules.sms.connectors
 
-import builder.{ApiBuilder, ApplicationBuilder}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -28,7 +27,7 @@ import utils.{AsyncHmrcSpec, WireMockSugar}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ThirdPartyDeveloperConnectorSpec
-    extends AsyncHmrcSpec
+  extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with utils.UrlEncoding {
@@ -52,31 +51,50 @@ class ThirdPartyDeveloperConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-            .withBody(Json.toJson(sendSmsResponse).toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(sendSmsResponse).toString)
+          )
       )
-        
-      val result = await(underTest.sendSms())
 
-      result shouldBe Right(sendSmsResponse)
+      await(underTest.sendSms()) shouldBe Right(sendSmsResponse)
     }
 
     "fail if the request failed on the backend" in new Setup {
 
+      val sendSmsResponse = SendSmsResponse("Missing Username")
+
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(Json.toJson(sendSmsResponse).toString)
+          )
       )
 
-      intercept[UpstreamErrorResponse] {
-        await(underTest.sendSms())
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+      await(underTest.sendSms()) shouldBe Right(SendSmsResponse(
+        s"""POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: '{"message":"${sendSmsResponse.message}"}'"""
+      ))
+    }
+
+    "fail if the request failed unexpectedly" in new Setup {
+
+      stubFor(
+        post(urlPathEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      await(underTest.sendSms()) match {
+        case Left(response) if response.isInstanceOf[UpstreamErrorResponse] =>
+          response.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe INTERNAL_SERVER_ERROR
+          response.getMessage shouldBe s"POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: ''"
+        case _ => fail()
+      }
     }
   }
 

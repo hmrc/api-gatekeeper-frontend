@@ -18,14 +18,13 @@ package modules.sms.connectors
 
 import config.AppConfig
 import play.api.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future.never.recover
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream5xxResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 
 @Singleton
