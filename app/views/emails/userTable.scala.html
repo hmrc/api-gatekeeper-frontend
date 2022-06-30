@@ -61,9 +61,9 @@
                   Compose email to send
                 </button>
                 <span id="all-emails" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
-                <a id="copy-users-to-clip" class="govuk-button govuk-button--secondary" title="Copies all @{users.length} email addresses into the system clipboard." onclick="copyText('all-emails')">
+                <button id="copy-users-to-clip" class="govuk-button govuk-button--secondary" onclick="copyText('all-emails')" data-clip-text="@emails">
                   Copy emails to clipboard
-                </a>
+                </button>
             </div>
           </form>
         </div>

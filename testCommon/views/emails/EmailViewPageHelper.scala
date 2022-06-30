@@ -163,7 +163,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
-    elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
+    elementExistsContainsText(document, "p", s"${users.size} results") shouldBe true
     //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     if (users.nonEmpty) {

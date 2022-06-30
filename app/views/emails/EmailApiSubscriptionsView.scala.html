@@ -44,7 +44,7 @@
         <select class="govuk-select" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
           <option value="">Select API</option>
           @for(apiVersion <- apiVersions) {
-            <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
+            <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim</option>
           }
         </select>
       </div>

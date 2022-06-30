@@ -65,7 +65,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
     if(users.nonEmpty) {
       val expectedValue = users.map(_.email).sorted.mkString("; ")
-      getElementBySelector(document, "a#copy-users-to-clip")
+      getElementBySelector(document, "#copy-users-to-clip")
         .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") shouldBe expectedValue)
     }
   }
@@ -170,14 +170,14 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) shouldBe true
     elementExistsContainsText(document, "label", optionLabel(option)) shouldBe true
-    elementExistsContainsText(document, "label", optionHint(option)) shouldBe true
+    elementExistsContainsText(document, "div", optionHint(option)) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 
   def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) shouldBe true
     elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) shouldBe true
-    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionHint(option)) shouldBe true
+    elementExistsContainsText(document, "div", EmailPreferencesChoice.optionHint(option)) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 }

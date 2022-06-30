@@ -445,20 +445,20 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {
     if (users.nonEmpty) {
-      responseBody should include(s"<div>${users.size} results</div>")
+      responseBody should include(raw"""<p class="govuk-body">${users.size} results</p>""")
 
-      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Email</th>")
-      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">First name</th>")
-      responseBody should include("<th tabindex=\"0\" class=\"sorting_left-aligned\">Last name</th>")
+      responseBody should include("<th tabindex=\"0\" scope=\"col\" class=\"govuk-table__header\">Email</th>")
+      responseBody should include("<th tabindex=\"0\" scope=\"col\" class=\"govuk-table__header\">First name</th>")
+      responseBody should include("<th tabindex=\"0\" scope=\"col\" class=\"govuk-table__header\">Last name</th>")
 
       for ((user, index) <- users.zipWithIndex) {
-        responseBody should include(raw"""<td id="dev-email-$index" width="45%">${user.email}</td>""")
-        responseBody should include(raw"""<td id="dev-fn-$index">${user.firstName}</td>""")
-        responseBody should include(raw"""<td id="dev-sn-$index">${user.lastName}</td>""")
+        responseBody should include(raw"""<td id="dev-email-$index" class="govuk-table__cell">${user.email}</td>""")
+        responseBody should include(raw"""<td id="dev-fn-$index" class="govuk-table__cell">${user.firstName}</td>""")
+        responseBody should include(raw"""<td id="dev-sn-$index" class="govuk-table__cell">${user.lastName}</td>""")
       }
     } else {
       if (showZeroUsers) {
-        responseBody should include("<div>0 results</div>")
+        responseBody should include("<p class=\"govuk-body\">0 results</p>")
       }
     }
   }
