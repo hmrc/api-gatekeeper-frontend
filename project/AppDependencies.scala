@@ -44,9 +44,11 @@ object AppDependencies {
     "org.jsoup"                   %   "jsoup"                             % jsoupVersion,
     // "com.typesafe.play"       %%  "play-test"                 % PlayVersion.current,
     "com.github.tomakehurst"      %   "wiremock-jre8-standalone"          % "2.27.2",
-    "org.seleniumhq.selenium"     %   "selenium-java"                     % "2.53.1",
-    "org.seleniumhq.selenium"     %   "selenium-htmlunit-driver"          % "2.52.0",
+//    "org.seleniumhq.selenium"     %   "selenium-java"                     % "2.53.1",
+//    "org.seleniumhq.selenium"     %   "selenium-htmlunit-driver"          % "2.52.0",
     "org.mockito"                 %%  "mockito-scala-scalatest"           % "1.16.42",
+    "org.scalatestplus"           %% "selenium-3-141"                     % "3.2.9.0",
+    "uk.gov.hmrc"                 %% "webdriver-factory"                  % "0.+", // Do NOT use .+ notation in test repositories
     "org.scalacheck"              %%  "scalacheck"                        % scalaCheckVersion
   ).map (_ % testScopes)
 }

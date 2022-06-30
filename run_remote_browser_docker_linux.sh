@@ -1,5 +1,5 @@
 #!/bin/bash
-   
+
 #######################################
 # The script starts remote-chrome or remote-firefox docker container for running Browser tests on a developer machine only.
 # The container directs TCP requests from the container to the host machine enabling testing services running via Service Manager.
@@ -18,7 +18,7 @@
 # Appends ZAP_PORT 11000 to ./run-zap-spec.sh
 #######################################
 port_mappings=$(sm -s | grep PASS | awk '{ print $12"->"$12 }' | paste -sd "," -)
-port_mappings="$port_mappings,11000->11000,6001->6001,6002->6002"
+port_mappings="$port_mappings,11000->11000,6001->6001"
 
 # Alternatively, port_mappings can be explicitly initialised as below:
 #port_mappings="9032->9032,9250->9250,9080->9080"
@@ -49,16 +49,16 @@ fi
 # NOTE:
 # When using on a Linux OS, add "--net=host" to the docker run command.
 #######################################
-echo ${BROWSER}
+
 docker pull ${BROWSER} \
     && docker run \
- -d \
- --rm \
- --name "${1}" \
- --net=host \
- --shm-size=2g \
- -p 4444:4444 \
- -p 5900:5900 \
- -e PORT_MAPPINGS="$port_mappings" \
- -e TARGET_IP='host.docker.internal' \
- ${BROWSER}
+        -d \
+        --rm \
+        --name "${1}" \
+        --net=host \
+        --shm-size=2g \
+        -p 4444:4444 \
+        -p 5900:5900 \
+        -e PORT_MAPPINGS="$port_mappings" \
+        -e TARGET_IP='host.docker.internal' \
+        ${BROWSER}

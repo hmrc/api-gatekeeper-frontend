@@ -16,10 +16,9 @@
 
 package common
 
-import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
-import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatestplus.selenium.{Page, WebBrowser}
+import org.openqa.selenium.{By, WebDriver}
 import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.selenium.{Page, WebBrowser}
 
 case class Link(href: String, text: String)
 
@@ -42,12 +41,13 @@ trait WebPage extends WebLink with Matchers {
   def bodyText = tagName("body").element.text
 
   def waitUntilElement(implicit webDriver: WebDriver, element: By) = {
-    val wait = new WebDriverWait(webDriver, 30)
-    wait.until(
-      new ExpectedCondition[WebElement] {
-        override def apply(d: WebDriver) = d.findElement(element)
-      }
-    )
+    webDriver.wait(30000)
+//    val wait = new WebDriverWait(webDriver, 30)
+//    wait.until(
+//      new ExpectedCondition[WebElement] {
+//        override def apply(d: WebDriver) = d.findElement(element)
+//      }
+//    )
   }
 
 }

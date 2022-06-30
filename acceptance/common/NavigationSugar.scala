@@ -58,12 +58,13 @@ trait NavigationSugar extends WebBrowser with Eventually with Assertions with Ma
   }
 
   def loadPage()(implicit webDriver: WebDriver) = {
-    val wait = new WebDriverWait(webDriver, 30)
-    wait.until(
-      new ExpectedCondition[WebElement] {
-        override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
-      }
-    )
+    webDriver.wait(30000)
+//    val wait = new WebDriverWait(webDriver, 30)
+//    wait.until(
+//      new ExpectedCondition[WebElement] {
+//        override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
+//      }
+//    )
   }
 
   def anotherTabIsOpened()(implicit webDriver: WebDriver) = {
