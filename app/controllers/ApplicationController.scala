@@ -189,7 +189,7 @@ class ApplicationController @Inject()(
 
         seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, request.role, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
+      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
     }
   }
 
@@ -566,7 +566,6 @@ class ApplicationController @Inject()(
 
           }
         }
-
         requestForm.fold(errors, addApplicationWithValidForm)
       }
     }

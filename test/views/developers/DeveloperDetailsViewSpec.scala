@@ -18,7 +18,6 @@ package views.developers
 
 import java.util.UUID
 import org.jsoup.Jsoup
-import play.api.test._
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
@@ -149,7 +148,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details WITH delete button when logged in as non-superuser" in new Setup {
-      val result = developerDetails.render(developer, buildXmlServicesFeUrl, nonSuperUserRequest)
+      val result = developerDetails.render(developer, buildXmlServicesFeUrl, strideUserRequest)
 
       val document = Jsoup.parse(result.body)
 

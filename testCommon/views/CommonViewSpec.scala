@@ -25,7 +25,6 @@ import utils.AsyncHmrcSpec
 import uk.gov.hmrc.modules.stride.domain.models.{LoggedInRequest,GatekeeperRoles}
 import model._
 import play.api.test._
-import utils.ViewHelpers._
 import utils.FakeRequestCSRFSupport._
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
@@ -36,7 +35,7 @@ trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
 
   val msgRequest = new MessagesRequest(FakeRequest().withCSRFToken, messagesApi)
-  val nonSuperUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
+  val strideUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
   val superUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
   val adminRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
 }
