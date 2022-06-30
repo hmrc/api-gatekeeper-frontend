@@ -48,7 +48,7 @@ class ApiGatekeeperRemoveMfaSpec
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
-      signInSuperUserGatekeeper(app, stubPort)
+      signInSuperUserGatekeeper(app)
       on(ApplicationsPage)
 
       When("I navigate to the Developer Details page")
@@ -80,7 +80,7 @@ class ApiGatekeeperRemoveMfaSpec
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
       on(ApplicationsPage)
 
       When("I navigate to the Developer Details page")

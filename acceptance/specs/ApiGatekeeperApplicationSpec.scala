@@ -39,7 +39,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationsPage)
     }
@@ -50,7 +50,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
@@ -95,7 +95,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)

@@ -1,14 +1,19 @@
 package controllers.apicataloguepublish
 
-import connectors.ApiCataloguePublishConnector
-import org.jsoup.Jsoup
+import support.ServerBaseISpec
+import support.AuthServiceStub
+import utils.{MockCookies, UserFunctionsWrapper}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSClient
+import play.api.libs.ws.WSResponse
+import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.test.Helpers.{FORBIDDEN, OK}
-import support.{ApiCataloguePublishStub, AuthServiceStub, ServerBaseISpec}
-import utils.{MockCookies, UserFunctionsWrapper}
+import org.jsoup.Jsoup
+import support.ApiCataloguePublishStub
+import play.filters.csrf.CSRF
+import connectors.ApiCataloguePublishConnector
 
 
 
@@ -32,20 +37,29 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
         val url = s"http://localhost:$port"
 
         val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-        val validHeaders: List[(String, String)] = List("Authorization" -> "Bearer 123")
-
-
+        val tokenProvider = app.injector.instanceOf[CSRF.TokenProviderProvider]
+        val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded",  "csrfToken" -> tokenProvider.get.generateToken)
 
 
       def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
-            wsClient
-              .url(url)
-              .withHttpHeaders(headers: _*)
-              .withCookies(MockCookies.makeWsCookie(app))
-              .withFollowRedirects(false)
-              .get()
-              .futureValue
+    wsClient
+      .url(url)
+      .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
+      .withFollowRedirects(false)
+      .get()
+      .futureValue
+
+
+    def callPostEndpoint(url: String, headers: List[(String, String)]): WSResponse =
+    wsClient
+      .url(url)
+      .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
+      .withFollowRedirects(false)
+      .post("")
+      .futureValue
+
 
         "ApiCataloguePublishController" when {
 

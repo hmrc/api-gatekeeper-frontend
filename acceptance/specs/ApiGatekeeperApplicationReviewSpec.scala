@@ -57,7 +57,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper(app, stubPort)
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
@@ -99,7 +99,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper(app, stubPort)
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
@@ -133,7 +133,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper(app, stubPort)
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)

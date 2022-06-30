@@ -59,7 +59,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlOrganisationsForUnverifiedUser(unverifiedUser.userId)
       stubApplicationSubscription()
 
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
       on(ApplicationsPage)
 
       When("I select to navigate to the Developers page")

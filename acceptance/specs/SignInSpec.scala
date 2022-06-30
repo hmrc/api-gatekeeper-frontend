@@ -42,7 +42,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
         .willReturn(aResponse()
           .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
           .withStatus(UNAUTHORIZED)))
-      setupStrideAuthPage(app,stubPort)
+      setupStrideAuthPage(app)
       go(ApplicationsPage)
       goOn(ApplicationsPage)
 
@@ -79,7 +79,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       Given("The developer goes to the Gatekeeper home page")
 
       stubApiDefinition()
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
 
       val actualApplicationName = webDriver.findElement(By.className("hmrc-header__service-name")).getText
       var actualApplicationTitle = webDriver.getTitle
@@ -99,7 +99,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       stubApiDefinition()
 
       Given("The developer goes to the Gatekeeper home page")
-      signInGatekeeper(app, stubPort)
+      signInGatekeeper(app)
 
       on(ApplicationsPage)
 
