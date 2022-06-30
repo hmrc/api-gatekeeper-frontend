@@ -10,9 +10,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 import support._
-import play.filters.csrf.CSRF.{Token, TokenInfo}
-import play.filters.csrf.{CSRFConfigProvider, CSRFFilter}
-import play.mvc.Http.Headers
 import utils.{MockCookies, UserFunctionsWrapper}
 import views.emails.EmailsPagesHelper
 
@@ -48,9 +45,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val url = s"http://localhost:$port"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-  val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded")
-
+  val validHeaders = List(CONTENT_TYPE -> "application/x-www-form-urlencoded", "Csrf-Token" -> "nocheck")
 
   val verifiedUser1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
   val unverifiedUser1 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = false)
@@ -111,6 +106,32 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       }
 
     }
+
+     "POST /api-gatekeeper/emails" should {
+      "redirect to subscription information page when EMAIL_PREFERENCES passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_PREFERENCES")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences")
+      }
+
+      "redirect to subscription information page when API_SUBSCRIPTION passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=API_SUBSCRIPTION")
+       validateRedirect(result, "/api-gatekeeper/emails/api-subscription/information")
+      }
+
+      "redirect to email all users information page when EMAIL_ALL_USERS passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_ALL_USERS")
+        validateRedirect(result, "/api-gatekeeper/emails/all-users/information")
+      }
+
+      "respond with 403 and when not authorised" in {
+        primeAuthServiceFail()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "")
+        result.status shouldBe FORBIDDEN
+      }
+     }
 
      "GET  /emails/:emailChoice/information " should {
       "respond with 200 and render api-subscription information page correctly when authorised" in {
@@ -226,6 +247,33 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe FORBIDDEN
 
       }
+    }
+
+    "POST /emails/email-preferences " should {
+      "redirect to select page when SPECIFIC_API passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=SPECIFIC_API")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
+      }
+
+      "redirect to select page when TAX_REGIME passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-api-category")
+      }
+
+      "redirect to select page when TOPIC passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-topic")
+      }
+
+      "respond with 403 when not authorised" in {
+        primeAuthServiceFail()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
+        result.status shouldBe FORBIDDEN
+      }
+
     }
 
     "GET /emails/email-preferences/by-topic" should {
