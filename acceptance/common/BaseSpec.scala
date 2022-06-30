@@ -30,7 +30,8 @@ import play.api.{Application, Mode}
 
 trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with GuiceOneServerPerTest {
 
-  val stubPort = 11111
+//  val stubPort = 11111
+  val stubPort = 6003
   val stubHost = "localhost"
 
   override protected def newServerForTest(app: Application, testData: TestData): RunningServer = MyTestServerFactory.start(app)
