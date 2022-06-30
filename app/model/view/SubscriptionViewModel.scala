@@ -22,6 +22,5 @@ import model.SubscriptionWithoutFields
 case class SubscriptionViewModel(
   applicationId: ApplicationId, 
   applicationName: String,
-  subscriptions: List[SubscriptionWithoutFields],
-  isSuperUser: Boolean
+  subscriptions: List[SubscriptionWithoutFields]
 )

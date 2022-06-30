@@ -17,11 +17,11 @@
 @import include._
 @import model._
 @import config.AppConfig
-@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 @this(main: NewMainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[BlockApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory, form: Form[BlockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
 @application = @{applicationWithHistory.application}
 
@@ -73,25 +73,23 @@
     </tbody>
   </table>
 
-  @if(isSuperUser) {
-    @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
-      <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
-        <h2 class="govuk-label-wrapper">
-          <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
-            Application name
-          </label>
-        </h1>
-        <p class="govuk-body">Enter the application name to confirm blocking</p>
-        @fieldError2(form.errors, "applicationNameConfirmation")
-        <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">
-      </div>
+  @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
+    <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
+      <h2 class="govuk-label-wrapper">
+        <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
+          Application name
+        </label>
+      </h1>
+      <p class="govuk-body">Enter the application name to confirm blocking</p>
+      @fieldError2(form.errors, "applicationNameConfirmation")
+      <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">
+    </div>
 
-      @helper.CSRF.formField
+    @helper.CSRF.formField
 
-      <div class="govuk-button-group">
-        <button id="block-application" class="govuk-button" type="submit">Block application</button>
-        <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
-      </div>
-    }
+    <div class="govuk-button-group">
+      <button id="block-application" class="govuk-button" type="submit">Block application</button>
+      <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
+    </div>
   }
 }

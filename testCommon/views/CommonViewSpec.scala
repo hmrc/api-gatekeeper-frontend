@@ -20,11 +20,23 @@ import java.util.Locale
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{MessagesRequest, MessagesControllerComponents}
 import utils.AsyncHmrcSpec
+import uk.gov.hmrc.modules.stride.domain.models.{LoggedInRequest,GatekeeperRoles}
+import model._
+import play.api.test._
+import utils.ViewHelpers._
+import utils.FakeRequestCSRFSupport._
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]
   val messagesApi = mcc.messagesApi
   implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
+
+  val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
+
+  val msgRequest = new MessagesRequest(FakeRequest().withCSRFToken, messagesApi)
+  val nonSuperUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
+  val superUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
+  val adminRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
 }

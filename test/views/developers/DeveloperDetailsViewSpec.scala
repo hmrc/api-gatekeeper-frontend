@@ -17,14 +17,14 @@
 package views.developers
 
 import java.util.UUID
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.jsoup.Jsoup
-import play.api.test.FakeRequest
+import play.api.test._
 import utils.ViewHelpers._
 import views.html.developers.DeveloperDetailsView
 import views.CommonViewSpec
 import model._
 import model.xml.{OrganisationId, VendorId, XmlOrganisation}
+
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
@@ -36,10 +36,6 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
                                     deployedTo: String = "PRODUCTION") extends Application
 
   trait Setup {
-    implicit val request = FakeRequest()
-
-    val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
-
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
 
     val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
@@ -50,7 +46,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       s"/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
     def testDeveloperDetails(developer: Developer) = {
-      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
@@ -112,7 +108,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with no applications when logged in as superuser" in new Setup {
-      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer,  buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
@@ -128,7 +124,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
-      val result = developerDetails.render(developerWithApps, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developerWithApps,  buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
@@ -143,7 +139,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {
-      val result = developerDetails.render(developer, true, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
@@ -153,7 +149,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer details WITH delete button when logged in as non-superuser" in new Setup {
-      val result = developerDetails.render(developer, false, buildXmlServicesFeUrl, request, LoggedInUser(None), messagesProvider)
+      val result = developerDetails.render(developer, buildXmlServicesFeUrl, nonSuperUserRequest)
 
       val document = Jsoup.parse(result.body)
 
