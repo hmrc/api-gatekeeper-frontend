@@ -2,7 +2,7 @@ package controllers.apicataloguepublish
 
 import support.ServerBaseISpec
 import support.AuthServiceStub
-import utils.UserFunctionsWrapper
+import utils.{MockCookies, UserFunctionsWrapper}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -19,11 +19,12 @@ import connectors.ApiCataloguePublishConnector
 
 class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
  with AuthServiceStub with ApiCataloguePublishStub{
-  this: Suite with ServerProvider => 
+  this: Suite with ServerProvider =>
 
   protected override def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
+        "microservice.services.auth.host" -> wireMockHost,
         "microservice.services.auth.port" -> wireMockPort,
         "metrics.enabled" -> true,
         "auditing.enabled" -> false,
@@ -44,18 +45,20 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
     wsClient
       .url(url)
       .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .get()
       .futureValue
-    
+
 
     def callPostEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient
       .url(url)
       .withHttpHeaders(headers: _*)
+      .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .post("")
-      .futureValue  
+      .futureValue
 
 
         "ApiCataloguePublishController" when {
@@ -63,7 +66,7 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
             "GET /api-gatekeeper/apicataloguepublish/start" should {
                     "respond with 200 and render start correctly when authorised" in {
                         primeAuthServiceSuccess()
-                        val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/start", List.empty)
+                        val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/start", validHeaders)
                         result.status shouldBe OK
 
                         val document = Jsoup.parse(result.body)
@@ -73,7 +76,7 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
 
                      "respond with 200 and render forbidden page when unauthorised" in {
                         primeAuthServiceFail()
-                        val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/start", List.empty)
+                        val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/start", validHeaders)
                         result.status shouldBe FORBIDDEN
                     }
             }
@@ -87,17 +90,17 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
                             result.status shouldBe OK
 
                             val document = Jsoup.parse(result.body)
-                            document.getElementById("heading").text() shouldBe "Publish by ServiceName failed"
+                            document.getElementById("heading").text() shouldBe "Publish Page"
                       }
 
-                      "respond with 403 and render publish  correctly when authorised" in {
+                      "respond with 403 when not authorised" in {
                         primeAuthServiceFail()
                 
                         val result = callGetEndpoint(s"$url/api-gatekeeper/apicatalogue/publish?serviceName=myservice", validHeaders)
                         result.status shouldBe FORBIDDEN
                       }
 
-              }   
+              }
 
                  
               "GET /api-gatekeeper/apicataloguepublish/publishall" should {
@@ -119,6 +122,6 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
                         result.status shouldBe FORBIDDEN
                       }
 
-              }   
+              }
         }
 }

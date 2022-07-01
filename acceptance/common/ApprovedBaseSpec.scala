@@ -32,6 +32,8 @@ trait ApprovedBaseSpec extends BaseSpec
 
   import MockDataSugar._
 
+  implicit val driver = webDriver
+
   protected def stubRateLimitTier(applicationId: String, tier: String) = {
     stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))
       .withRequestBody(equalTo(s"""{"rateLimitTier":"$tier"}""".stripMargin))

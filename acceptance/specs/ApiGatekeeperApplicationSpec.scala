@@ -16,17 +16,14 @@
 
 package specs
 
-import pages.{ApplicationsPage, DeveloperDetailsPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.UserId
+import model.{RegisteredUser, UserId}
 import org.openqa.selenium.By
 import org.scalatest.Tag
+import pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
-import pages.ApplicationPage
-import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import model.RegisteredUser
-import model.UserId
 import specs.MockDataSugar.xmlApis
+import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
   with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {
@@ -42,7 +39,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper()
+      signInGatekeeper(app)
       Then("I am successfully navigated to the Applications page where I can view all developer list details by default")
       on(ApplicationsPage)
     }
@@ -53,7 +50,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper()
+      signInGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
@@ -98,7 +95,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper()
+      signInGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)

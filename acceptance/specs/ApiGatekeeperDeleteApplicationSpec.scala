@@ -58,7 +58,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
 
     stubApiDefinition()
 
-    signInSuperUserGatekeeper
+    signInSuperUserGatekeeper(app)
     on(ApplicationsPage)
     
     When("I select to navigate to the Applications page")

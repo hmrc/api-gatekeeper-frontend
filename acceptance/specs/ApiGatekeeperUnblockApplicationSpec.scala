@@ -80,7 +80,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
 
     stubApiDefinition()
 
-    signInAdminUserGatekeeper
+    signInAdminUserGatekeeper(app)
     on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")

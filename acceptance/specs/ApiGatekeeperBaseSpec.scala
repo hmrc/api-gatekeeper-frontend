@@ -77,7 +77,7 @@ class ApiGatekeeperBaseSpec
   def stubPaginatedApplicationList() = {
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
     
-    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))  
+    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }
 
   protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
@@ -119,7 +119,7 @@ class ApiGatekeeperBaseSpec
 
     stubApiDefinition()
 
-    signInAdminUserGatekeeper
+    signInAdminUserGatekeeper(app)
     on(ApplicationsPage)
 
     When("I select to navigate to the Applications page")

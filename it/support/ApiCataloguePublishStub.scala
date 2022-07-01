@@ -11,7 +11,7 @@ trait ApiCataloguePublishStub {
 
   def primePublishByServiceName(status: Int, serviceName: String,  responseBody: ApiCataloguePublishConnector.PublishResponse): Unit = {
 
-    stubFor(get(urlEqualTo(s"$publishByServiceNameUrl$serviceName"))
+    stubFor(post(urlEqualTo(s"$publishByServiceNameUrl$serviceName"))
       .willReturn(
         aResponse()
           .withStatus(status)

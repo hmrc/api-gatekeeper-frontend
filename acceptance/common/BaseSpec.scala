@@ -20,19 +20,17 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.{Application, Mode}
-import org.scalatestplus.play.guice.GuiceOneServerPerTest
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.TestData
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestData}
 import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.play.guice.GuiceOneServerPerTest
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.RunningServer
+import play.api.{Application, Mode}
 
 trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with GuiceOneServerPerTest {
 
-  val stubPort = 11111
+  val stubPort = 6003
   val stubHost = "localhost"
 
   override protected def newServerForTest(app: Application, testData: TestData): RunningServer = MyTestServerFactory.start(app)
@@ -47,6 +45,8 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
       .configure(
         "microservice.services.auth.host" -> stubHost,
         "microservice.services.auth.port" -> stubPort,
+        "microservice.services.stride-auth-frontend.host" -> stubHost,
+        "microservice.services.stride-auth-frontend.port" -> stubPort,
         "microservice.services.third-party-application-sandbox.host" -> stubHost,
         "microservice.services.third-party-application-sandbox.port" -> stubPort,
         "microservice.services.third-party-application-production.host" -> stubHost,

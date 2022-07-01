@@ -30,6 +30,8 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithHistoryTestData
     with utils.UrlEncoding {
 
+
+
   val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com", UserId.random, "holly", "golightly", false))
 
   val approveRequest =
@@ -50,12 +52,12 @@ class ApiGatekeeperApplicationReviewSpec
 
   Feature("Approve a request to uplift an application") {
     Scenario("I see the review page and I am able to approve the uplift request") {
-      
+
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper()
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
@@ -97,7 +99,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper()
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
@@ -131,7 +133,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubPaginatedApplicationList()
 
       stubApiDefinition()
-      signInSuperUserGatekeeper()
+      signInSuperUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)

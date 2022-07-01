@@ -94,7 +94,7 @@ class EmailsController @Inject()(
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
       form.sendEmailPreferences match {
-        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
+        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
         case TAX_REGIME => Future.successful(Redirect(routes.EmailsController.emailPreferencesAPICategory(None, None)))
         case TOPIC => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
@@ -106,7 +106,7 @@ class EmailsController @Inject()(
     SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
-  def selectSpecficApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectSpecificApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
       apis <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
@@ -142,7 +142,7 @@ class EmailsController @Inject()(
                                    selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[model.TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     if (selectedAPIs.forall(_.isEmpty)) {
-      Future.successful(Redirect(routes.EmailsController.selectSpecficApi(None)))
+      Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
       for {
         apis <- apmService.fetchAllCombinedApis()

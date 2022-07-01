@@ -21,9 +21,10 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
 import uk.gov.hmrc.modules.stride.controllers.actions.GatekeeperStrideAuthorisationActions
 import uk.gov.hmrc.modules.stride.utils.GatekeeperAuthorisationHelper
+import uk.gov.hmrc.play.bootstrap.controller.WithDefaultFormBinding
 import scala.concurrent.ExecutionContext
 
 abstract class GatekeeperBaseController(
   val strideAuthorisationService: StrideAuthorisationService,
   mcc: MessagesControllerComponents
-)(implicit val ec: ExecutionContext) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper
+)(implicit val ec: ExecutionContext) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper with WithDefaultFormBinding
