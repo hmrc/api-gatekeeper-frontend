@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.gatekeeper.utils
 
 import play.api.Application
 import play.api.libs.ws.WSCookie

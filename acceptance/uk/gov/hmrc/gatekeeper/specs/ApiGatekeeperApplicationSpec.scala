@@ -16,37 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-<<<<<<< HEAD:acceptance/specs/ApiGatekeeperApplicationSpec.scala
-=======
-import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperDetailsPage}
->>>>>>> ba989ba (APIS-5849 - Fixing test packages):acceptance/uk/gov/hmrc/gatekeeper/specs/ApiGatekeeperApplicationSpec.scala
 import com.github.tomakehurst.wiremock.client.WireMock._
-<<<<<<< HEAD
-import model.{RegisteredUser, UserId}
-=======
-import uk.gov.hmrc.gatekeeper.models.UserId
->>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
 import org.openqa.selenium.By
 import org.scalatest.Tag
-import pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
+import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
-<<<<<<< HEAD:acceptance/specs/ApiGatekeeperApplicationSpec.scala
-<<<<<<< HEAD
-=======
-import pages.ApplicationPage
-import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.UserId
->>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
-import specs.MockDataSugar.xmlApis
-import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-=======
-import uk.gov.hmrc.gatekeeper.pages.ApplicationPage
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.specs.MockDataSugar.xmlApis
->>>>>>> ba989ba (APIS-5849 - Fixing test packages):acceptance/uk/gov/hmrc/gatekeeper/specs/ApiGatekeeperApplicationSpec.scala
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
   with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData {

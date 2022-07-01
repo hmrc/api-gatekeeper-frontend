@@ -20,12 +20,13 @@ import java.util.Locale
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
-import play.api.mvc.{MessagesRequest, MessagesControllerComponents}
-import play.api.test._
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.gatekeeper.utils._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.modules.gkauth.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.modules.gkauth.domain.models.{LoggedInRequest,GatekeeperRoles}
+import play.api.mvc.MessagesRequest
+import play.api.test.FakeRequest
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]

@@ -2,11 +2,7 @@ package uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish
 
 import support.ServerBaseISpec
 import support.AuthServiceStub
-<<<<<<< HEAD
-import utils.{MockCookies, UserFunctionsWrapper}
-=======
-import uk.gov.hmrc.gatekeeper.utils.UserFunctionsWrapper
->>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
+import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.inject.guice.GuiceApplicationBuilder

@@ -10,13 +10,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 import support._
-<<<<<<< HEAD
-import utils.{MockCookies, UserFunctionsWrapper}
-import views.emails.EmailsPagesHelper
-=======
-import uk.gov.hmrc.gatekeeper.utils.UserFunctionsWrapper
+import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
->>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
 
 
 

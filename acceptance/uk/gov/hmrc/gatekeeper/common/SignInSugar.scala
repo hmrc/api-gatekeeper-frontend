@@ -18,15 +18,10 @@ package uk.gov.hmrc.gatekeeper.common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
-<<<<<<< HEAD:acceptance/common/SignInSugar.scala
 import play.api.http.Status.{OK, SEE_OTHER}
-import pages.ApplicationsPage
-import play.api.Application
-import utils.MockCookies
-=======
-import play.api.http.Status.OK
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
->>>>>>> ba989ba (APIS-5849 - Fixing test packages):acceptance/uk/gov/hmrc/gatekeeper/common/SignInSugar.scala
+import play.api.Application
+import uk.gov.hmrc.gatekeeper.utils.MockCookies
 
 trait SignInSugar extends NavigationSugar {
   val gatekeeperId: String = "joe.test"
