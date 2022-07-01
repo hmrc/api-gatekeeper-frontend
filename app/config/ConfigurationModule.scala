@@ -40,15 +40,14 @@ class ConfigurationModule extends Module {
 
       bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("SANDBOX"))
-        .to(classOf[SandboxSubscriptionFieldsConnector]),
+        .to[SandboxSubscriptionFieldsConnector],
       bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("PRODUCTION"))
-        .to(classOf[ProductionSubscriptionFieldsConnector]),
-      bind[ApmConnector.Config]
-        .toProvider(classOf[LiveApmConnectorConfigProvider]),
-      bind[ApiCataloguePublishConnector.Config].toProvider(classOf[ApiCataloguePublishConnectorConfigProvider]),
-      bind[XmlServicesConnector.Config].toProvider(classOf[XmlServicesConnectorConfigProvider]),
-      bind(classOf[ForbiddenHandler]).to(classOf[HandleForbiddenWithView])
+        .to[ProductionSubscriptionFieldsConnector],
+      bind[ApmConnector.Config].toProvider[LiveApmConnectorConfigProvider],
+      bind[ApiCataloguePublishConnector.Config].toProvider[ApiCataloguePublishConnectorConfigProvider],
+      bind[XmlServicesConnector.Config].toProvider[XmlServicesConnectorConfigProvider],
+      bind[ForbiddenHandler].to(classOf[HandleForbiddenWithView])
     )
   }
 }

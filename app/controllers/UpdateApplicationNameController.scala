@@ -73,7 +73,7 @@ class UpdateApplicationNameController @Inject()(
             case ValidateApplicationNameSuccessResult =>
               Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
-            case failure => {
+            case failure : ValidateApplicationNameFailureResult => {
               val errorMsg = failure match {
                 case ValidateApplicationNameFailureInvalidResult => "application.name.invalid.error"
                 case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error"

@@ -189,7 +189,7 @@ class ApplicationController @Inject()(
 
         seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, request.role, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
+      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
     }
   }
 
@@ -250,7 +250,7 @@ class ApplicationController @Inject()(
       app.application.access match {
         case access: AccessWithRestrictedScopes => {
           val form = scopesForm.fill(access.scopes)
-          Future.successful(Ok(manageScopesView(app.application, form, request.role.isSuperUser)))
+          Future.successful(Ok(manageScopesView(app.application, form)))
         }
         case _ => Future.failed(new RuntimeException("Invalid access type on application"))
       }
@@ -263,14 +263,14 @@ class ApplicationController @Inject()(
         applicationService.updateScopes(app.application, scopes).map {
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
-            BadRequest(manageScopesView(app.application, form, request.role.isSuperUser))
+            BadRequest(manageScopesView(app.application, form))
 
           case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[Set[String]]) = {
-        Future.successful(BadRequest(manageScopesView(app.application, form, request.role.isSuperUser)))
+        Future.successful(BadRequest(manageScopesView(app.application, form)))
       }
 
       scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -389,7 +389,7 @@ class ApplicationController @Inject()(
 
   def blockApplicationPage(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(blockApplicationView(app, request.role.isSuperUser, blockApplicationForm.fill(BlockApplicationForm("")))))
+      Future.successful(Ok(blockApplicationView(app, blockApplicationForm.fill(BlockApplicationForm("")))))
     }
   }
 
@@ -406,12 +406,12 @@ class ApplicationController @Inject()(
           messagesApi.preferred(request)("invalid.scope")
           val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
-          Future.successful(BadRequest(blockApplicationView(app, request.role.isSuperUser, formWithErrors)))
+          Future.successful(BadRequest(blockApplicationView(app, formWithErrors)))
         }
       }
 
       def handleFormError(form: Form[BlockApplicationForm]) = {
-        Future.successful(BadRequest(blockApplicationView(app, request.role.isSuperUser, form)))
+        Future.successful(BadRequest(blockApplicationView(app, form)))
       }
 
       blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -420,7 +420,7 @@ class ApplicationController @Inject()(
 
   def unblockApplicationPage(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(unblockApplicationView(app, request.role.isSuperUser, unblockApplicationForm.fill(UnblockApplicationForm("")))))
+      Future.successful(Ok(unblockApplicationView(app, unblockApplicationForm.fill(UnblockApplicationForm("")))))
     }
   }
 
@@ -436,12 +436,12 @@ class ApplicationController @Inject()(
         else {
           val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
-          Future.successful(BadRequest(unblockApplicationView(app, request.role.isSuperUser, formWithErrors)))
+          Future.successful(BadRequest(unblockApplicationView(app, formWithErrors)))
         }
       }
 
       def handleFormError(form: Form[UnblockApplicationForm]) = {
-        Future.successful(BadRequest(unblockApplicationView(app, request.role.isSuperUser, form)))
+        Future.successful(BadRequest(unblockApplicationView(app, form)))
       }
 
       unblockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
@@ -566,7 +566,6 @@ class ApplicationController @Inject()(
 
           }
         }
-
         requestForm.fold(errors, addApplicationWithValidForm)
       }
     }

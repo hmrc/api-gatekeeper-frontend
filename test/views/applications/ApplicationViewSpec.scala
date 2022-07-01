@@ -17,7 +17,6 @@
 package views.applications
 
 import builder.SubscriptionsBuilder
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.mvc.Flash
@@ -73,7 +72,6 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       subscriptions = List.empty,
       subscriptionsThatHaveFieldDefns = List.empty,
       stateHistory = List.empty,
-      role = GatekeeperRoles.USER,
       hasSubmissions = false,
       gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}"
     )
@@ -100,7 +98,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
   "application view" should {
     "show application with no check information" in new Setup {
-      val result = applicationView.render(DefaultApplicationViewModel, request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      val result = applicationView.render(DefaultApplicationViewModel, strideUserRequest, Flash.emptyCookie)
 
       val document = Jsoup.parse(result.body)
 
@@ -116,10 +114,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationWithCheckInformationButNoTerms),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -137,10 +133,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -163,10 +157,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -183,10 +175,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     "show application information, including status information" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -205,10 +195,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationPendingCheck),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -224,11 +212,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "show application information, including superuser specific actions, when logged in as superuser" in new Setup {
       val result = applicationView.render(
-        DefaultApplicationViewModel.asSuperUser,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel,
+        superUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -243,10 +229,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     "show application information, excluding superuser specific actions, when logged in as non superuser" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -259,11 +243,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "show 'Manage' rate limit link when logged in as admin" in new Setup {
       val result = applicationView.render(
-        DefaultApplicationViewModel.asAdmin,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel,
+        adminRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -276,11 +258,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "not show 'Manage' rate limit link when logged in as non admin" in new Setup {
       val result = applicationView.render(
-        DefaultApplicationViewModel.asSuperUser,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel,
+        superUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -294,11 +274,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val activeApplication = application.inProduction
 
       val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(activeApplication).asSuperUser.asAdmin,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel.withApplication(activeApplication),
+        adminRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -312,11 +290,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val activeApplication = application.inProduction
 
       val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(activeApplication).asSuperUser,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel.withApplication(activeApplication),
+        superUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -330,10 +306,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val user = RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
       val result = applicationView.render(
         DefaultApplicationViewModel.withDeveloper(user),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -347,10 +321,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationPendingVerification),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -362,10 +334,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     "show API subscriptions" in new SubscriptionsSetup {
       val result = applicationView.render(
         DefaultApplicationViewModel.withSubscriptions(subscriptionsViewData),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       result.contentType should include("text/html")
@@ -380,10 +350,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
      "show subscriptions that have subscription fields configurartion" in new SubscriptionsSetup {
        val result = applicationView.render(
         DefaultApplicationViewModel.withSubscriptionsThatHaveFieldDefns(subscriptionsViewData),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
       result.contentType should include("text/html")
       result.body.contains("Subscription configuration") shouldBe true
@@ -399,10 +367,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withSubscriptions(subscriptions),
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       result.contentType should include("text/html")
@@ -411,11 +377,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "show manage IP allowlist link when user is at least a superuser" in new Setup {
       val result = applicationView.render(
-        DefaultApplicationViewModel.asSuperUser,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        DefaultApplicationViewModel,
+        superUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -427,10 +391,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     "not show IP allowlist links for normal users when the IP allowlist is not active" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
@@ -443,10 +405,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val x = DefaultApplicationViewModel.withApplication(application.withIpAllowlist(IpAllowlist(allowlist = Set("1.1.1.1/24"))))
       val result = applicationView.render(
         x,
-        request,
-        LoggedInUser(None),
-        Flash.emptyCookie,
-        messagesProvider
+        strideUserRequest,
+        Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)

@@ -17,11 +17,11 @@
 @import model._
 @import include._
 @import config.AppConfig
-@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 @this(main: NewMainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[Set[String]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[Set[String]])(implicit request: LoggedInRequest[_])
 
 @main(title = s"${applicationConfig.title} - Manage scopes") {
 

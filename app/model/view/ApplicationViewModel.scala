@@ -30,12 +30,8 @@ case class ApplicationViewModel(
   subscriptions: List[(String, List[(ApiVersion, ApiStatus)])],
   subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersion, ApiStatus)])],
   stateHistory: List[StateHistory],
-  role: GatekeeperRole,
   hasSubmissions: Boolean,
   gatekeeperApprovalsUrl: String
 ) {
   val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
-
-  lazy val isSuperUser = role.isSuperUser
-  lazy val isAdmin = role.isAdmin
 }

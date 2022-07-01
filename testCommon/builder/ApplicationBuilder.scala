@@ -27,7 +27,6 @@ import model.ApiStatus._
 import model.RateLimitTier.RateLimitTier
 
 import java.time.Period
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {
@@ -86,9 +85,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
     def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
-    
-    def asSuperUser = applicationViewModel.copy(role = GatekeeperRoles.SUPERUSER)
-    def asAdmin = applicationViewModel.copy(role = GatekeeperRoles.ADMIN)
     
     def withDeveloper(developer: RegisteredUser) = {
       val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer)

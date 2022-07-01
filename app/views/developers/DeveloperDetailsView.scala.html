@@ -17,13 +17,13 @@
 @import controllers._
 @import model._
 @import config.AppConfig
-@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 @import model.xml.OrganisationId
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(developer: Developer, isSuperUser: Boolean, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 
 @main(title = s"${applicationConfig.title} - Developer Details") {
 

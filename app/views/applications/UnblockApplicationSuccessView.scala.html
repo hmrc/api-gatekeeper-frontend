@@ -16,11 +16,11 @@
 
 @import model._
 @import config.AppConfig
-@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
 
 @this(main: NewMainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(applicationWithHistory: ApplicationWithHistory)(implicit request: LoggedInRequest[_], flash: Flash)
 
 @application = @{applicationWithHistory.application}
 

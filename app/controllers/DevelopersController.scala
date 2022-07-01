@@ -59,7 +59,7 @@ class DevelopersController @Inject()(
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
         s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
-    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, request.role.isSuperUser, buildGateKeeperXmlServicesUrlFn)))
+    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
