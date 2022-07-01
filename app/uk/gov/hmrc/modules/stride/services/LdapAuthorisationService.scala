@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
 import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import play.api.mvc._
@@ -22,26 +22,15 @@ import scala.concurrent.Future
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
 import javax.inject.{Singleton, Inject}
 import utils.ApplicationLogger
 
-object LdapAuthorisationService {
-  val gatekeeperPermission = Predicate.Permission(
-    Resource(
-      ResourceType("api-gatekeeper-frontend"),
-      ResourceLocation("*")
-    ),
-    IAAction("READ")
-  )
-}
 @Singleton
 class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) extends ApplicationLogger {
-  import LdapAuthorisationService._
-  
   def refineLdap[A]: (MessagesRequest[A]) => Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = (msgRequest) => {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
@@ -52,7 +41,7 @@ class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit
       logger.debug("No Header Carrier Authoriation")
       successful(notAuthenticatedOrAuthorized)
     })(authorization => {
-      auth.authConnector.authenticate(predicate = None, Retrieval.username ~ Retrieval.hasPredicate(gatekeeperPermission))
+      auth.authConnector.authenticate(predicate = None, Retrieval.username ~ Retrieval.hasPredicate(LdapAuthorisationPredicate.gatekeeperReadPermission))
         .map {
           case (name ~ true) => Right(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest)) 
           case (name ~ false) => 

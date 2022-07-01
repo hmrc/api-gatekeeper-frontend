@@ -26,7 +26,7 @@ import services.SubscriptionFieldsService
 import java.util.UUID
 import scala.concurrent.Future
 import model.SubscriptionFields.ApplicationApiFieldValues
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 

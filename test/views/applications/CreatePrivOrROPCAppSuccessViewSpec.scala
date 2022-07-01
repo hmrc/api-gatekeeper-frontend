@@ -16,7 +16,7 @@
 
 package views.applications
 
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 import utils.ViewHelpers._

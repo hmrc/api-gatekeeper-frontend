@@ -25,8 +25,8 @@ import scala.concurrent.ExecutionContext
 import services.ApmService
 import com.google.inject.{Singleton, Inject}
 
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
 
 import utils.CsvHelper
 import utils.CsvHelper.ColumnDefinition

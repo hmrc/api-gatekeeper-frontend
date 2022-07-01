@@ -23,8 +23,8 @@ import model._
 import play.api.data.Form
 import play.api.mvc._
 import services._
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
 import utils.{ApplicationLogger, ErrorHelper}
 import views.html.applications._
 import views.html.{ErrorTemplate, ForbiddenView}

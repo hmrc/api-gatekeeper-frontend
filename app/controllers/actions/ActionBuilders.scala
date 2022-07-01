@@ -25,7 +25,7 @@ import config.ErrorHandler
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, NotFound}
 
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.ApiContext

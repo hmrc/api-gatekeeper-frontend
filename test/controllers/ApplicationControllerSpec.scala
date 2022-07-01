@@ -47,9 +47,9 @@ import org.mockito.captor.ArgCaptor
 import mocks.connectors.ApplicationConnectorMockProvider
 import org.joda.time.DateTime
 import config.ErrorHandler
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.stride.services.LdapAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.services.LdapAuthorisationServiceMockModule
 
 class ApplicationControllerSpec 
     extends ControllerBaseSpec 

@@ -28,8 +28,8 @@ import views.html.developers._
 import utils.ApplicationLogger
 import controllers.actions.ActionBuilders
 import model.xml.OrganisationId
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.ExecutionContext
 

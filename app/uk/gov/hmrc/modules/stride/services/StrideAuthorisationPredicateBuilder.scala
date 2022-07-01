@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
-import uk.gov.hmrc.modules.stride.config.StrideAuthRoles
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperStrideRole
+import uk.gov.hmrc.modules.gkauth.config.StrideAuthRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperStrideRole
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
-object StrideAuthPredicateForGatekeeperRole {
+object StrideAuthorisationPredicateForGatekeeperRole {
   def apply(strideAuthRoles: StrideAuthRoles)(strideRoleRequired: GatekeeperStrideRole): Predicate = {
     import strideAuthRoles._
     

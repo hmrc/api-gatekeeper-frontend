@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package uk.gov.hmrc.modules.gkauth.services
 
-import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceLocation, ResourceType}
 
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Results.Forbidden
-
-import views.html.ForbiddenView
-import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
-
-@Singleton
-class HandleForbiddenWithView @Inject()(forbiddenView: ForbiddenView) extends ForbiddenHandler {
-  def handle(m: MessagesRequest[_]) = Forbidden(forbiddenView()(m, m.messages))
+object LdapAuthorisationPredicate {
+  val gatekeeperReadPermission = Predicate.Permission(
+    Resource(
+      ResourceType("api-gatekeeper-frontend"),
+      ResourceLocation("*")
+    ),
+    IAAction("READ")
+  )
 }

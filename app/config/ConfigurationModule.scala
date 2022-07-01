@@ -22,7 +22,7 @@ import play.api.{Configuration, Environment}
 import play.api.inject.Module
 import services.SubscriptionFieldsService.SubscriptionFieldsConnector
 
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
 import controllers.HandleForbiddenWithView
 
 class ConfigurationModule extends Module {

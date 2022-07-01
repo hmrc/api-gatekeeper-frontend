@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.connectors
+package uk.gov.hmrc.modules.gkauth.connectors
 
 import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
+import uk.gov.hmrc.modules.gkauth.config.StrideAuthConfig
 
 @Singleton
 class AuthConnector @Inject()(val http: HttpClient, strideAuthConfig: StrideAuthConfig) extends PlayAuthConnector {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.config
+package uk.gov.hmrc.modules.gkauth.config
 
 import com.google.inject.AbstractModule
 

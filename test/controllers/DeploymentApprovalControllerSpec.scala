@@ -24,12 +24,12 @@ import play.filters.csrf.CSRF.TokenProvider
 import utils.WithCSRFAddToken
 import views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
 
 import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer = app.materializer

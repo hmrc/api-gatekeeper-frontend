@@ -22,7 +22,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.{MessagesRequest, MessagesControllerComponents}
 import utils.AsyncHmrcSpec
-import uk.gov.hmrc.modules.stride.domain.models.{LoggedInRequest,GatekeeperRoles}
+import uk.gov.hmrc.modules.gkauth.domain.models.{LoggedInRequest,GatekeeperRoles}
 import model._
 import play.api.test._
 import utils.FakeRequestCSRFSupport._

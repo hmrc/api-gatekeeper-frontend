@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.domain.models
+package uk.gov.hmrc.modules.gkauth.domain.models
 
 import play.api.mvc.MessagesRequest
 

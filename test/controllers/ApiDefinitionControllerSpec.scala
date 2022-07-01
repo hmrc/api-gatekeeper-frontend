@@ -27,8 +27,8 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
 import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 

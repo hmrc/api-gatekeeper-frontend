@@ -16,7 +16,7 @@
 
 package views.developers
 
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest

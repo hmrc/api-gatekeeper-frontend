@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
 import utils.AsyncHmrcSpec
 
@@ -28,8 +28,8 @@ import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBeh
 import uk.gov.hmrc.internalauth.client.Retrieval
 import play.api.test.StubControllerComponentsFactory
 import play.api.mvc.ControllerComponents
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 import scala.concurrent.Future
 
 class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComponentsFactory  {
@@ -37,7 +37,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
   
   val cc: ControllerComponents = stubMessagesControllerComponents()
 
-  val expectedRetrieval = Retrieval.username ~ Retrieval.hasPredicate(LdapAuthorisationService.gatekeeperPermission)
+  val expectedRetrieval = Retrieval.username ~ Retrieval.hasPredicate(LdapAuthorisationPredicate.gatekeeperReadPermission)
 
   trait Setup {
     val mockStubBehaviour = mock[StubBehaviour]

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
 import utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.stride.config.StrideAuthRoles
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.config.StrideAuthRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 import play.api.test.{FakeRequest, StubMessagesFactory}
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.config.StrideAuthConfig
+import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.http.Status._

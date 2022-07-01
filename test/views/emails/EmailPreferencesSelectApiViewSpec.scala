@@ -18,7 +18,7 @@ package views.emails
 
 import mocks.config.AppConfigMock
 import model.APIAccessType.PUBLIC
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest

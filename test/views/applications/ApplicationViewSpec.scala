@@ -32,7 +32,7 @@ import model.ApiStatus._
 import org.joda.time.DateTime
 import java.time.Period
 import model._
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {

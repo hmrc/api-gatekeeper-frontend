@@ -34,8 +34,8 @@ import model.State
 import controllers.actions.ActionBuilders
 import play.api.mvc.MessagesRequest
 import config.ErrorHandler
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
 
 class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {

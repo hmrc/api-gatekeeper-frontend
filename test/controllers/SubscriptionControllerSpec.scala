@@ -30,7 +30,7 @@ import builder.ApplicationBuilder
 import model.applications.ApplicationWithSubscriptionData
 import builder.ApiBuilder
 import config.ErrorHandler
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionControllerSpec 
     extends ControllerBaseSpec 

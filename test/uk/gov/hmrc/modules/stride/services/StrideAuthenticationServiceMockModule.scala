@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperStrideRole
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperStrideRole
 
 import scala.concurrent.Future
 import play.api.mvc.Result

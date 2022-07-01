@@ -22,7 +22,7 @@ import model.StateHistory
 import model.TermsOfUseAgreement
 import model.ApiStatus.ApiStatus
 import model.RegisteredUser
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRole
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRole
 
 case class ApplicationViewModel(
   developers: List[RegisteredUser],

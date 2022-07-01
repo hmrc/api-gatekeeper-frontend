@@ -22,16 +22,7 @@ import scala.concurrent.Future.successful
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.internalauth.client._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-object LdapController {
-  val permission = Predicate.Permission(
-    Resource(
-      ResourceType("api-gatekeeper-frontend"),
-      ResourceLocation("*")
-    ),
-    IAAction("READ")
-  )
-}
+import uk.gov.hmrc.modules.gkauth.services.LdapAuthorisationPredicate
 
 @Singleton
 class LdapController @Inject()(
@@ -42,9 +33,10 @@ class LdapController @Inject()(
   def signIn = Action.async { implicit initialRequest =>
     auth.authorizedAction(
       continueUrl = controllers.routes.ApplicationController.applicationsPage(),
-      predicate = LdapController.permission
+      predicate = LdapAuthorisationPredicate.gatekeeperReadPermission
     ).async { _ =>
       successful(Redirect(controllers.routes.ApplicationController.applicationsPage()))
     }(initialRequest)
   }
+
 }

@@ -28,9 +28,9 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import views.html.applications._
 import controllers.actions.ActionBuilders
 
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful

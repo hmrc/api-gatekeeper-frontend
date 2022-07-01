@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.stride.services
+package uk.gov.hmrc.modules.gkauth.services
 
 import utils.AsyncHmrcSpec
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.stride.config.StrideAuthRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.config.StrideAuthRoles
 import uk.gov.hmrc.auth.core.Enrolment
 
-class StrideAuthPredicateForGatekeeperRoleSpec extends AsyncHmrcSpec {
+class StrideAuthorisationPredicateForGatekeeperRoleSpec extends AsyncHmrcSpec {
   val roles = StrideAuthRoles("admin","super","user")
   
   import roles._
 
-  "StrideAuthPredicateForGatekeeperRole" should {
+  "StrideAuthorisationPredicateForGatekeeperRole" should {
     "contain admin role only when looking for GK.ADMIN" in {
-      val predicate = StrideAuthPredicateForGatekeeperRole(roles)(GatekeeperRoles.ADMIN)
+      val predicate = StrideAuthorisationPredicateForGatekeeperRole(roles)(GatekeeperRoles.ADMIN)
 
       predicate shouldBe Enrolment(adminRole)
     }
 
     "contain admin and super user roles when looking for GK.SUPERUSER" in {
-      val predicate = StrideAuthPredicateForGatekeeperRole(roles)(GatekeeperRoles.SUPERUSER)
+      val predicate = StrideAuthorisationPredicateForGatekeeperRole(roles)(GatekeeperRoles.SUPERUSER)
 
       predicate shouldBe (Enrolment(adminRole) or Enrolment(superUserRole))
     }
 
     "contain admin, super user and user roles when looking for GK.USER" in {
-      val predicate = StrideAuthPredicateForGatekeeperRole(roles)(GatekeeperRoles.USER)
+      val predicate = StrideAuthorisationPredicateForGatekeeperRole(roles)(GatekeeperRoles.USER)
 
       predicate shouldBe (Enrolment(adminRole) or Enrolment(superUserRole) or Enrolment(userRole))
     }

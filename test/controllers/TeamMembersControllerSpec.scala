@@ -28,7 +28,7 @@ import views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import utils.CollaboratorTracker
 import config.ErrorHandler
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class TeamMembersControllerSpec 
     extends ControllerBaseSpec

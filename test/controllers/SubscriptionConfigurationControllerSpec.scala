@@ -31,7 +31,7 @@ import builder.FieldDefinitionsBuilder
 import model.ApiStatus
 import model.Environment
 import config.ErrorHandler
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

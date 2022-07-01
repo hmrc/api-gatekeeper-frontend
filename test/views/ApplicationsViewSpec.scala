@@ -34,7 +34,7 @@ package views
 
 import config.AppConfig
 import model.ApiStatus._
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
+import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
 import model._
 import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat

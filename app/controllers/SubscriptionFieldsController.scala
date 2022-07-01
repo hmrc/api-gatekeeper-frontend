@@ -19,8 +19,8 @@ package controllers
 import scala.concurrent.ExecutionContext
 
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.services.StrideAuthorisationService
+import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
 
 import play.api.mvc.MessagesControllerComponents
 import config.AppConfig

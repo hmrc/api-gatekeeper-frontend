@@ -32,7 +32,7 @@ import views.html._
 import views.html.applications.{ManageApplicationNameAdminListView, ManageApplicationNameSingleAdminView, ManageApplicationNameSuccessView, ManageApplicationNameView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.stride.domain.models.GatekeeperRoles
+import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       
