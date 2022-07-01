@@ -1,8 +1,8 @@
 package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.TopicOptionChoice._
-import model._
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
+import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status
 import play.api.libs.json.Json
 

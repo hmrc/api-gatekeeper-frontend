@@ -8,7 +8,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
 
 abstract class BaseISpec
   extends AsyncHmrcSpec with WireMockSupport with MetricsTestSupport {

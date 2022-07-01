@@ -1,0 +1,103 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.models.AccessType
+@import uk.gov.hmrc.gatekeeper.models.AccessType.AccessType
+@import uk.gov.hmrc.gatekeeper.models.TotpSecrets
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.models.ApplicationId
+@import uk.gov.hmrc.gatekeeper.models.ClientId
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: NewMainView, applicationConfig: AppConfig)
+
+@(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
+)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
+
+  <h1 class="govuk-heading-l">@applicationName</h1>
+
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h2 class="govuk-panel__title">Application added</h2>
+  </div>
+
+  <div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+      <span class="govuk-warning-text__assistive">Warning</span>
+      This is your only chance to copy and save this application's TOTP.
+    </strong>
+  </div>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application ID
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @applicationId.value
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application name
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @applicationName
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Environment
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @environment.toLowerCase.capitalize
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Access type
+      </dt>
+      @{accessType match {
+        case Some(AccessType.PRIVILEGED) => {<dd class="govuk-summary-list__value">Privileged</dd>}
+        case Some(AccessType.ROPC) => {<dd class="govuk-summary-list__value">ROPC</dd>}
+        case _  => {<dd class="govuk-summary-list__value"></dd>}
+      }}
+    </div>
+    @if(totpSecret.isDefined) {
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          TOTP secret
+        </dt>
+        <dd class="govuk-summary-list__value">
+          @totpSecret.get.production
+        </dd>
+      </div>
+    }
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Client ID
+      </dt>
+      <dd class="govuk-summary-list__value">
+        @clientId.value
+      </dd>
+    </div>
+  </dl>
+
+  <a href="@{routes.ApplicationController.applicationsPage(None)}" class="govuk-button">Done</a>
+}

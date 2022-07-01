@@ -1,8 +1,8 @@
 package support
 
-import utils.WireMockExtensions
+import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.CombinedApi
+import uk.gov.hmrc.gatekeeper.models.CombinedApi
 import play.api.http.Status
 
 trait ApmServiceStub extends WireMockExtensions {

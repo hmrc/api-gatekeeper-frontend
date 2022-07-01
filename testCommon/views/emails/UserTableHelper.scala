@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package views.emails
+package uk.gov.hmrc.gatekeeper.views.emails
 
 import org.jsoup.nodes.Document
-import model.RegisteredUser
-import utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import org.scalatest.matchers.should.Matchers
 
 trait UserTableHelper {

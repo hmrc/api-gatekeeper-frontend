@@ -15,14 +15,14 @@
  */
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.{ProductionApiDefinitionConnector, WiremockSugarIt}
-import model._
+import uk.gov.hmrc.gatekeeper.connectors.{ProductionApiDefinitionConnector, WiremockSugarIt}
+import uk.gov.hmrc.gatekeeper.models._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.AsyncHmrcSpec
-import model.ApiContext
+import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.models.ApiContext
 
 class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with WiremockSugarIt {
   val config = Configuration(

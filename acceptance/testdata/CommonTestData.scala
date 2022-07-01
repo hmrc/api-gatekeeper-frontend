@@ -1,7 +1,7 @@
 package testdata
 
 import play.api.libs.json.Json
-import model._
+import uk.gov.hmrc.gatekeeper.models._
 import specs.MockDataSugar
 
 trait CommonTestData {

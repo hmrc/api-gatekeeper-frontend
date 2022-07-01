@@ -27,7 +27,7 @@ import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
 import javax.inject.{Singleton, Inject}
-import utils.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
 
 @Singleton
 class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) extends ApplicationLogger {

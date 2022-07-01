@@ -18,9 +18,9 @@ package specs
 
 import org.scalacheck.Gen
 import play.api.libs.json.Json
-import model.RegisteredUser
-import model.UserId
-import model.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 
 import java.util.UUID
 

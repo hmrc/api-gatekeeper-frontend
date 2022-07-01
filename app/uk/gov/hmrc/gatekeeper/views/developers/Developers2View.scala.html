@@ -1,0 +1,176 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.controllers._
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(users: Seq[User],
+emails: String,
+apiVersions : Seq[DropDownValue],
+form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Developers") {
+
+<article class="content__body full-width">
+
+    <header>
+        <h1>Developers</h1>
+    </header>
+
+    @helper.form(action = controllers.routes.Developers2Controller.developersPage) {
+      @helper.CSRF.formField
+      <input type="hidden" name="page" value="1"/>
+      <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
+
+        @defining(form("emailFilter").value) { emailFilterValue =>
+          <div class="grid-layout__column--2-3">
+              <label class="bold centered-content hard--left label--full-length" for="emailFilter">
+                  <span class="label__text bold">Search</span>
+
+                  <input class="form-control input--cleared input-select--large full-width"
+                          id="emailFilter"
+                          name="emailFilter"
+                          value="@emailFilterValue"
+                          type="text"
+                          placeholder="Partial Email"/>
+              </label>
+          </div>
+        }
+
+        @defining(form("developerStatusFilter").value) { developerStatusFilterValue =>
+          <div class="grid-layout__column--1-3">
+
+            <label class="form-label bold centered-content hard--right" for="developerStatusFilter">Filter by developer status
+                  <select class="form-control input-select input-select--large"
+                  id="developerStatusFilter"
+                  name="developerStatusFilter"
+                  style="margin-top: 5px">
+                      <option value="ALL" @if(developerStatusFilterValue.getOrElse("ALL") == Some("ALL")) {selected}>All</option>
+                      <option value="VERIFIED" @if(developerStatusFilterValue == Some("VERIFIED")) {selected}>Verified</option>
+                      <option value="UNVERIFIED" @if(developerStatusFilterValue == Some("UNVERIFIED")) {selected}>Not
+                      verified
+                      </option>
+                  </select>
+            </label>
+          </div>
+        }
+      </div>
+
+      @defining(form("apiVersionFilter").value) { apiVersionFilterValue =>
+        <div class="grid-layout__column--2-3">
+
+          <label class="form-label bold" for="apiVersionFilter">Filter by <br/>API Subscription
+              <select class="environment-filter-disable form-control input-select input-select--large"
+                      id="apiVersionFilter"
+                      name="apiVersionFilter">
+                  <option value=""></option>
+                  @for(apiVersion <- apiVersions){
+                    <option @if(apiVersionFilterValue == Some(apiVersion.value)) {selected} value="@apiVersion.value">
+                        @apiVersion.description
+                    </option>
+                  }
+              </select>
+          </label>
+
+        </div>
+      }
+
+      @defining(form("environmentFilter").value) { environmentFilterValue =>
+        <div class="grid-layout__column--1-3">
+
+          <label class="form-label bold centered-content hard--right" for="environmentFilter">Filter by <br/>API Subscription Environment
+              <select class="form-control input-select input-select--large"
+              title="You must pick an API Subscription before you can filter by environment"
+              id="environmentFilter"
+              name="environmentFilter"
+              disabled>
+                  <option value="ALL" @if(environmentFilterValue==Some("ALL")) {selected}>All</option>
+                  <option value="SANDBOX" @if(environmentFilterValue==Some("SANDBOX")) {selected}>Sandbox</option>
+                  <option value="PRODUCTION" @if(environmentFilterValue==Some("PRODUCTION")) {selected}>Production</option>
+              </select>
+          </label>
+
+       </div>
+      }
+
+      <div class="form-group grid-layout grid-layout--stacked push--sides">
+          <input id="submit" type="submit" value="Submit" name="main-submit"
+                  class="button text--center float--right flush--right"/>
+      </div>
+    }
+
+    <table id="developer-table"
+            class="no-footer developer-list"
+            width="100%">
+        <thead>
+        <tr role="row">
+            <th tabindex="0" class="sorting_left-aligned">Email</th>
+            <th tabindex="0" class="sorting_left-aligned">First name</th>
+            <th tabindex="0" class="sorting_left-aligned">Last name</th>
+            <th class="text--right hard--right" tabindex="0" data-orderable="false" data-search="false">Status</th>
+            <th tabindex="0" class="text--right hard--right sorting_left-aligned">2SV</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for((user, index) <- users.zipWithIndex) {
+        <tr role="row">
+            <td id="dev-email-@index" width="45%"><a
+                    href="@{routes.DevelopersController.developerPage(UuidIdentifier(user.userId))}">@user.email</a></td>
+            <td id="dev-fn-@index">@user.firstName</td>
+            <td id="dev-sn-@index">@user.lastName</td>
+            <td class="text--right hard--right" id="dev-status-@index">
+                @defining(User.status(user) match {
+                case VerifiedStatus => ("status status--verified", "verified")
+                case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+                case UnregisteredStatus => ("status status--not-verified", "not registered")
+                }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
+            </td>
+            <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
+              @(user match {
+                case r: RegisteredUser if(r.mfaEnabled) => "Yes"
+                case _ => "No"
+              })
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+
+    @if(users.nonEmpty) {
+    <div class="text--center">
+        <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length} entries</div>
+    </div>
+
+    <div class="form-group>">
+        <p>
+            <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
+               title="Copies all @{users.length} email addresses into the system clipboard." data-clip-text="@emails">Copy
+                to clipboard</a>
+        </p>
+    </div>
+    }
+
+    <div class="form-group>">
+        <a class="back-to-top-link" href="#">Back to Top</a>
+    </div>
+
+</article>
+}

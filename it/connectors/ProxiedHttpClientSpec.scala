@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package connectors
+package uk.gov.hmrc.gatekeeper.connectors
 
 import java.util.UUID
 
 import uk.gov.hmrc.http.Authorization
-import utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
 import play.api.http.HeaderNames
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder

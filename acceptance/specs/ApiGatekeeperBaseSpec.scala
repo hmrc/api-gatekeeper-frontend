@@ -27,9 +27,9 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.io.Source
-import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
-import model.UserId
-import model.RegisteredUser
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 
 

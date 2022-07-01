@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.modules.gkauth.services
 
-import utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.modules.gkauth.config.StrideAuthRoles

@@ -18,7 +18,7 @@ package specs
 
 import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model._
+import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status._
 import testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithHistoryTestData}
 

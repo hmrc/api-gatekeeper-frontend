@@ -1,7 +1,7 @@
 package testdata
 
-import model.Collaborator
-import utils.CollaboratorTracker
+import uk.gov.hmrc.gatekeeper.models.Collaborator
+import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
 trait CollaboratorsTestData extends CommonTestData with CollaboratorTracker {
   val collaboratorsAdminAndUnverifiedDev: Set[Collaborator] = Set(

@@ -1,7 +1,7 @@
 package testdata
 
-import builder.ApplicationBuilder
-import model.{ApplicationId, ClientId, IpAllowlist, RateLimitTier}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ClientId, IpAllowlist, RateLimitTier}
 import org.joda.time.DateTime
 
 trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData with CheckInformationTestData {

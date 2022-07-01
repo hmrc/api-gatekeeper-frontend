@@ -2,7 +2,7 @@ package support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.libs.json.Json
-import connectors.ApiCataloguePublishConnector
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 
 trait ApiCataloguePublishStub {
     val publishByServiceNameUrl = "/api-platform-api-catalogue-publish/publish/"

@@ -1,7 +1,7 @@
 package testdata
 
-import model.ApplicationState
-import model.State
+import uk.gov.hmrc.gatekeeper.models.ApplicationState
+import uk.gov.hmrc.gatekeeper.models.State
 import org.joda.time._
 
 trait ApplicationStateTestData extends CommonTestData {

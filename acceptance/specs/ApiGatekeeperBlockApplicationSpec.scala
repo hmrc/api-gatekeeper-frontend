@@ -18,12 +18,12 @@ package specs
 
 import pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.UserId
+import uk.gov.hmrc.gatekeeper.models.UserId
 import play.api.http.Status._
 import common.WebPage
 import testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
 import testdata.{StateHistoryTestData, ApplicationWithHistoryTestData}
-import model._
+import uk.gov.hmrc.gatekeeper.models._
 
 class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 

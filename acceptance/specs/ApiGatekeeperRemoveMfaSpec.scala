@@ -18,15 +18,15 @@ package specs
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import org.scalatest.{Assertions, Tag}
 import pages._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import testdata.CommonTestData
-import model.RegisteredUser
-import model.UserId
-import utils.WireMockExtensions
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 
 import scala.io.Source
 

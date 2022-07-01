@@ -1,7 +1,7 @@
 package testdata
 
-import builder.SubscriptionsBuilder
-import model.{ApiContext, ApiVersion}
+import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
+import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiVersion}
 
 trait SubscriptionsTestData extends SubscriptionsBuilder {
 

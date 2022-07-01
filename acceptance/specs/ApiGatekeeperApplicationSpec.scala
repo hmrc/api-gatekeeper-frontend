@@ -17,11 +17,22 @@
 package specs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+<<<<<<< HEAD
 import model.{RegisteredUser, UserId}
+=======
+import uk.gov.hmrc.gatekeeper.models.UserId
+>>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
+<<<<<<< HEAD
+=======
+import pages.ApplicationPage
+import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.models.UserId
+>>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
 import specs.MockDataSugar.xmlApis
 import testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 

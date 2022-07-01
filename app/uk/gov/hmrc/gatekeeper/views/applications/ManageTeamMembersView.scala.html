@@ -1,0 +1,77 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: NewMainView, applicationConfig: AppConfig)
+
+@(application: Application)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Manage Team Members") {
+
+  <div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
+      </li>
+    </ol>
+  </div>
+  <br />
+  <h1 class="govuk-heading-l">Manage Team Members</h1>
+
+  <h2 class="govuk-heading-m">Team members</h2>
+
+  <table class="govuk-table">
+    <caption class="govuk-visually-hidden">Team members table</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Email address</th>
+        <th scope="col" class="govuk-table__header">Role</th>
+        <td scope="col" class="govuk-table__header"></td>
+      </tr>
+    </thead>
+
+    <tbody class="govuk-table__body">
+      @for(teamMember <- application.collaborators.toSeq.sortBy(_.emailAddress)) {
+        <tr class="govuk-table__row" data-teamMember-row="@teamMember.emailAddress">
+          <td class="govuk-table__cell" style="vertical-align: middle;">@teamMember.emailAddress</td>
+          <td class="govuk-table__cell" style="vertical-align: middle;">@CollaboratorRole.displayedRole(teamMember.role)</td>
+          <td class="govuk-table__cell">
+            @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), 'class -> "form inline-controls") {
+            @helper.CSRF.formField
+              <label class="govuk-visually-hidden" for="@{teamMember.emailAddress}" aria-hidden="true">
+                Auto filled team members email
+              </label>
+              <input id="@{teamMember.emailAddress}" name="email" class="govuk-visually-hidden" hidden aria-hidden="true" type="text" value="@{teamMember.emailAddress}">
+              <input id="remove" class="govuk-button govuk-button--secondary govuk-!-margin-0" type="submit" value="Remove">
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <br>
+  <div class="govuk-button-group">
+    <a href="@routes.TeamMembersController.addTeamMember(application.id)" class="govuk-button">Add a team member</a>
+    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+  </div>
+}

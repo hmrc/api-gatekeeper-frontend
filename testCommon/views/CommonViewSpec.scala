@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package views
+package uk.gov.hmrc.gatekeeper.views
 
 import java.util.Locale
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
+<<<<<<< HEAD
 import play.api.mvc.{MessagesRequest, MessagesControllerComponents}
 import utils.AsyncHmrcSpec
 import uk.gov.hmrc.modules.gkauth.domain.models.{LoggedInRequest,GatekeeperRoles}
 import model._
 import play.api.test._
 import utils.FakeRequestCSRFSupport._
+=======
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.modules.gkauth.domain.models.{LoggedInRequest,GatekeeperRoles}
+>>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc = app.injector.instanceOf[MessagesControllerComponents]

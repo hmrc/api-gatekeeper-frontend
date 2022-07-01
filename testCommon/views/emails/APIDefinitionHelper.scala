@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package views.emails
+package uk.gov.hmrc.gatekeeper.views.emails
 
-import model._
+import uk.gov.hmrc.gatekeeper.models._
 
 trait APIDefinitionHelper {
   def simpleAPIDefinition(serviceName: String,

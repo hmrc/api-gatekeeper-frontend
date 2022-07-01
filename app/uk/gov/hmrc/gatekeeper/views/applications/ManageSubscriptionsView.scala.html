@@ -1,0 +1,142 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
+@import uk.gov.hmrc.gatekeeper.views.helper.IdFormatter
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(model: SubscriptionViewModel)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@subscriptions = @{model.subscriptions}
+@main(title = s"${applicationConfig.title} - Manage Subscriptions") {
+
+<div class="content__body">
+
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item"><a href="@{routes.ApplicationController.applicationPage(model.applicationId)}">@model.applicationName</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Manage subscriptions</li>
+        </ul>
+    </nav>
+
+    <h1>Manage subscriptions</h1>
+
+    <ul>
+        @subscriptions.map { case (subscription) =>
+            <li class="accordion accordion--stacked" data-accordion data-accordion-animate>
+                <div class="accordion__row">
+                    <div class="accordion__row__left">
+                        <i class="arrow arrow--right accordion__indicator" data-accordion-arrow></i>
+                        <a id="@subscription.name" href="" class="accordion__button link--no-underline bold-small" data-accordion-button>
+                            @subscription.name
+                        </a>
+                    </div>
+                    <div class="accordion__row__right">
+                    <span id="FIXME" data-api-subscriptions="" class="text--right display-block bold-xsmall subscription-count">
+                        @subscription.subscriptionNumberText
+                    </span>
+                    </div>
+                </div>
+                <div class="accordion__body conditionallyHide" data-accordion-body data-hide="true">
+                    <ul>
+                        @subscription.versions.map { case (version) =>
+                            <li>
+                                <div class="accordion__body__row accordion__body__row--no-border api-subscriber">
+                                    <div class="accordion__body__row__left">
+                                        <span class="font-xsmall external-link-16 api-subscription">
+                                            <span class="font-xsmall external-link-16 api-subscription-version">
+                                                @{version.version.version.value} 
+                                            </span>
+                                            <span>
+
+                                            </span class="font-xsmall external-link-16 api-subscription-info">
+                                                @if(version.version.accessType == APIAccessType.PRIVATE) {
+                                                    (@{version.version.displayedAccessType} @{version.version.displayedStatus})
+                                                } else {
+                                                    (@{version.version.displayedStatus})
+                                                }
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="accordion__body__row__right">
+                                        <div class="float--right">
+                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-subscribed" class="toggle subscribed @{if(!version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.SubscriptionController.unsubscribeFromApi(model.applicationId, subscription.context, version.version.version), 'class -> "form") {
+                                                    @helper.CSRF.formField
+                                                    <span class="toggle__button toggle__button--active" data-toggle-subscribe="on" aria-label="Subscribed to @{
+                                                                subscription.name
+                                                            } version @{
+                                                                version.version.version
+                                                            } @{
+                                                                version.version.displayedStatus
+                                                            }">On</span>
+                                                    <button type="submit" data-api-unsubscribe="@IdFormatter.identifier(subscription.context, version.version.version)"
+                                                           class="toggle__button" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                                subscription.name
+                                                            } version @{
+                                                                version.version.version
+                                                            } @{
+                                                                version.version.displayedStatus
+                                                            }">Off</button>
+                                                }
+                                            </div>
+                                            <div id="toggle-@IdFormatter.identifier(subscription.context, version.version.version)-notsubscribed" class="toggle not-subscribed @{if(version.subscribed) "hidden"}">
+                                                @helper.form(action = routes.SubscriptionController.subscribeToApi(model.applicationId, subscription.context, version.version.version), 'class -> "form") {
+                                                    @helper.CSRF.formField
+                                                    <button type="submit" class="toggle__button"
+                                                       data-toggle-subscribe="on" aria-label="Subscribed to @{
+                                                                    subscription.name
+                                                                } version @{
+                                                                    version.version.version
+                                                                } @{
+                                                                    version.version.displayedStatus
+                                                                }">On</button>
+                                                    <span data-api-unsubscribe="" class="toggle__button toggle__button--inactive" data-toggle-subscribe="off" aria-label="Unsubscribe from @{
+                                                                            subscription.name
+                                                                        } version @{
+                                                                            version.version.version
+                                                                        } @{
+                                                                            version.version.displayedStatus
+                                                                        }">Off</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </li>
+        }
+    </ul>
+
+    <div>
+        <a href="@routes.ApplicationController.applicationPage(model.applicationId)" class="secondary-button button--link">Cancel</a>
+    </div>
+</div>
+
+}
+
+

@@ -1,6 +1,6 @@
 package testdata
 
-import model.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import uk.gov.hmrc.gatekeeper.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
 import org.joda.time.DateTime
 
 trait CheckInformationTestData {

@@ -1,0 +1,48 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.controllers._
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(developerEmailAddress: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - Delete Developer") {
+
+<div class="">
+    <nav class="breadcrumb-nav">
+        <ul>
+            <li class="breadcrumb-nav__item"><a href="@{routes.Developers2Controller.blankDevelopersPage}">Developers</a></li>
+            <li class="breadcrumb-nav__item breadcrumb-nav__item--trail" aria-hidden="true"></li>
+            <li class="breadcrumb-nav__item">Delete developer</li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>@developerEmailAddress</h1>
+    </header>
+    <div class="transaction-banner--complete">
+        <h1 class="transaction-banner--heading">Developer deleted</h1>
+    </div>
+    <p>We've sent an email to the developer and any application administrators to let them know.</p>
+
+    <a href="@{routes.Developers2Controller.blankDevelopersPage}" class="button">Finish</a>
+</div>
+}

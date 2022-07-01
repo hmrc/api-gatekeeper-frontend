@@ -1,7 +1,7 @@
-package controllers
+package uk.gov.hmrc.gatekeeper.controllers
 
-import model.APIAccessType.PUBLIC
-import model._
+import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
+import uk.gov.hmrc.gatekeeper.models._
 import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
@@ -10,8 +10,13 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 import support._
+<<<<<<< HEAD
 import utils.{MockCookies, UserFunctionsWrapper}
 import views.emails.EmailsPagesHelper
+=======
+import uk.gov.hmrc.gatekeeper.utils.UserFunctionsWrapper
+import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
+>>>>>>> 79ea012 (APIS-5849 - Moving code into correct packages)
 
 
 

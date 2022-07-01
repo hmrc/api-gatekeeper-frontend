@@ -33,14 +33,13 @@ lazy val microservice =  (project in file("."))
       uglify
     ),
     scalacOptions += "-Ypartial-unification",
-    routesImport += "controllers.binders._"
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
   .settings(SilencerSettings())
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.12.12",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
@@ -48,7 +47,7 @@ lazy val microservice =  (project in file("."))
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
-    routesImport += "controllers.binders._",
+
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
@@ -85,10 +84,17 @@ lazy val microservice =  (project in file("."))
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(
-  TwirlKeys.templateImports ++= Seq(
+    routesImport ++= Seq(
+      "uk.gov.hmrc.gatekeeper.controllers.binders._",
+      "uk.gov.hmrc.gatekeeper.models._"
+    ),
+    TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",
-      "config.AppConfig",
-      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
+      "uk.gov.hmrc.gatekeeper.views.html._",
+      "uk.gov.hmrc.gatekeeper.views.html.include._",
+      "uk.gov.hmrc.gatekeeper.controllers",
+      "uk.gov.hmrc.gatekeeper.config.AppConfig"
     )
   )
   .settings(
@@ -97,7 +103,6 @@ lazy val microservice =  (project in file("."))
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
-
 
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test

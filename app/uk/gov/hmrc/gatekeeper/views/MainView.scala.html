@@ -1,0 +1,95 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import play.twirl.api.HtmlFormat
+@import views.html.layouts.GovUkTemplate
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import _root_.controllers.routes.Assets
+@import uk.gov.hmrc.play.views.html.layouts._
+@import uk.gov.hmrc.gatekeeper.models._
+
+@this(layoutsHead: Head,
+      layoutsFooter: Footer,
+      layoutsHeaderNav: HeaderNav,
+      layoutsFooterLinks: FooterLinks,
+      layoutsMainContent: MainContent,
+      layoutsServiceInfo: ServiceInfo,
+      govUkTemplate: GovUkTemplate,
+      applicationConfig: AppConfig)
+
+@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser = LoggedInUser(None), messagesProvider: MessagesProvider)
+
+@userBanner = {
+<div id="user-nav-links" class="header__menu__proposition--sub-header">
+  <ul class="header__menu__proposition-links">
+    @headerNavLinks(UserNavLinks(loggedInUser.userFullName), anchorClass=Some("link-style"))
+  </ul>
+</div>
+}
+
+@serviceInfo = {
+  @layoutsServiceInfo(
+    betaBanner = HtmlFormat.empty,
+    includeGridWrapper = false,
+    includeHMRCBranding = false,
+    serviceInfoContent = Some(userBanner))
+}
+
+@content = {
+  @layoutsMainContent(
+    article = mainContent,
+    mainContentHeader = mainContentHeader,
+    serviceInfo = serviceInfo,
+    getHelpForm = HtmlFormat.empty
+  )
+}
+
+@scriptElem = {
+  <script src='@Assets.versioned("javascripts/apis-app.min.js")' type="text/javascript"></script>
+}
+
+@bodyEnd = {
+  @layoutsFooter(
+      analyticsToken = None,
+      analyticsHost = "",
+      ssoUrl = None,
+      scriptElem = Some(scriptElem),
+      gaCalls = None)
+}
+
+@insideHeader = {
+  @layoutsHeaderNav(
+    navTitle = Option(applicationConfig.title),
+    navTitleLink = None,
+    showBetaLink = false,
+    navLinks = Option(include.headerNavLinks(StaticNavLinks()))
+  )
+
+  <link rel="stylesheet" href='@Assets.versioned("stylesheets/main.css")'>
+}
+
+@govUkTemplate(
+    title = Some(title),
+    bodyClasses = Some("govuk-template__body"))(
+      head = layoutsHead(linkElem = None, headScripts = None),
+      bodyEnd = bodyEnd,
+      insideHeader = insideHeader,
+      afterHeader = HtmlFormat.empty,
+      footerTop = HtmlFormat.empty,
+      footerLinks = None,
+      nav = true
+    )(content)

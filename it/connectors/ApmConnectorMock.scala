@@ -1,8 +1,8 @@
-package connectors
+package uk.gov.hmrc.gatekeeper.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
-import model.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.ApplicationId
 
 trait ApmConnectorMock {
     self: WiremockSugarIt =>

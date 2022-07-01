@@ -19,12 +19,12 @@ package common
 import matchers.CustomMatchers
 import specs.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model.RateLimitTier.BRONZE
+import uk.gov.hmrc.gatekeeper.models.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import play.api.libs.json.Json
-import connectors.DeveloperConnector.FindUserIdRequest
-import model.UserId
-import connectors.DeveloperConnector.FindUserIdResponse
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequest
+import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
 trait ApprovedBaseSpec extends BaseSpec

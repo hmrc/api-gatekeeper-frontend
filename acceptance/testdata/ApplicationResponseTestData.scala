@@ -1,10 +1,10 @@
 package testdata
 
-import builder.ApplicationResponseBuilder
-import model.{ApplicationId, ClientId, RateLimitTier}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ClientId, RateLimitTier}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
-import model.ApplicationResponse
+import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 
 trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 

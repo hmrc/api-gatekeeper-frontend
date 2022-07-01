@@ -1,6 +1,6 @@
 package testdata
 
-import model.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import play.api.libs.json.Json
 
 trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {
@@ -11,7 +11,7 @@ trait ApplicationWithSubscriptionDataTestData extends CommonTestData with Subscr
   val pendingApprovalApplicationWithSubscriptionData = ApplicationWithSubscriptionData(pendingApprovalApplication, defaultSubscriptions, Map.empty)
 
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
-    import model.APIDefinitionFormatters._
+    import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
     implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]
 
     def toJson = Json.toJson(applicationWithSubscriptionData)

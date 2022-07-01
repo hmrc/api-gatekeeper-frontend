@@ -1,0 +1,81 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(form: Form[controllers.HandleApprovalForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - API Approval") {
+<div class="content__body">
+
+    <header>
+        <h1 class="flush--top">API approval</h1>
+    </header>
+
+    @if(form.hasGlobalErrors) {
+    @include.errorSummary(form)
+    }
+
+    <h2>API name</h2>
+    <p class="flush--top" data-name>@{
+        apiDefinition.name
+        }</p>
+
+    <h2>Service ID</h2>
+    <p class="flush--top" data-service-name>@{
+        apiDefinition.serviceName
+        }</p>
+
+    <h2>Environment</h2>
+    <p class="flush--top" data-service-environment>@apiDefinition.env</p>
+
+    <h2>Description</h2>
+    <p class="flush--top" data-description>@{
+        apiDefinition.description
+        }</p>
+
+
+    <h2>Approve</h2>
+    <p class="flush--top">You must check if the API meets all the necessary requirements before submitting to live.</p>
+
+    <section class="subsection">
+        <div class="highlight-message highlight-message--light">
+            <p>Your decision is final and will set the API live.</p>
+        </div>
+
+        @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName, apiDefinition.environment.get.toString),
+        'class -> "form") {
+        @helper.CSRF.formField
+        <label for="approval_confirmation" class="block-label">
+            <input type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
+            I confirm the details are correct
+        </label>
+    </section>
+
+    <div class="form-field">
+        <input id="submit" type="submit" class="button" role="button" value="Submit" disabled data-journey-target/>
+        <a href="/api-service-approval/pending" class="button button--link">Cancel</a>
+    </div>
+
+    }
+
+</div>
+}

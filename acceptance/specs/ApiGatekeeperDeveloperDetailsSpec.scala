@@ -19,7 +19,7 @@ package specs
 import pages._
 import testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, CommonTestData, StateHistoryTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import model._
+import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 import specs.MockDataSugar.xmlApis

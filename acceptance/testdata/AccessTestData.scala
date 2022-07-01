@@ -1,6 +1,6 @@
 package testdata
 
-import model.{Access, Standard}
+import uk.gov.hmrc.gatekeeper.models.{Access, Standard}
 
 trait AccessTestData {
 

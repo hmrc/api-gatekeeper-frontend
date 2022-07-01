@@ -1,9 +1,9 @@
 package testdata
 
-import model.{Actor, ApplicationId, State, StateHistory}
+import uk.gov.hmrc.gatekeeper.models.{Actor, ApplicationId, State, StateHistory}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
-import builder.StateHistoryBuilder
+import uk.gov.hmrc.gatekeeper.builder.StateHistoryBuilder
 
 trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
   val stateHistories = List(

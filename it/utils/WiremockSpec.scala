@@ -1,6 +1,6 @@
-package utils
+package uk.gov.hmrc.gatekeeper.utils
 
-import connectors.WiremockSugarIt
+import uk.gov.hmrc.gatekeeper.connectors.WiremockSugarIt
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.test.FutureAwaits
 import play.api.test.DefaultAwaitTimeout
