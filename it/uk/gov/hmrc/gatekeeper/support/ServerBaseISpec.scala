@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}

@@ -1,7 +1,7 @@
 package uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish
 
-import support.ServerBaseISpec
-import support.AuthServiceStub
+import uk.gov.hmrc.gatekeeper.support.ServerBaseISpec
+import uk.gov.hmrc.gatekeeper.support.AuthServiceStub
 import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
@@ -11,7 +11,7 @@ import play.api.libs.ws.WSResponse
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.test.Helpers.{FORBIDDEN, OK}
 import org.jsoup.Jsoup
-import support.ApiCataloguePublishStub
+import uk.gov.hmrc.gatekeeper.support.ApiCataloguePublishStub
 import play.filters.csrf.CSRF
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 

@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
@@ -32,5 +32,4 @@ trait MetricsTestSupport {
     }
     metrics.getCount >= 1L shouldBe true
   }
-
 }

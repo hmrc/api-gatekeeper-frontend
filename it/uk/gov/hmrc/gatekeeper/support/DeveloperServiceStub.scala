@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
@@ -38,7 +38,7 @@ trait DeveloperServiceStub {
           .withBody(Json.toJson(users).toString())))
   }
 
-    def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
+  def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
     val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl+"?topic="+topic.toString+"&regime="+category.category
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
@@ -48,7 +48,7 @@ trait DeveloperServiceStub {
   }
 
 
-    def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
     val categories: Seq[APICategory] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
 
     val topicParam = s"topic=${topic.toString}"
@@ -62,6 +62,4 @@ trait DeveloperServiceStub {
           .withStatus(Status.OK)
           .withBody(Json.toJson(users).toString())))
   }
- 
-
 }

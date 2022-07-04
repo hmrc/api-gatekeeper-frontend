@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import java.net.URL
 

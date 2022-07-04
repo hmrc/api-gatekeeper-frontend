@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import akka.stream.Materializer
 import play.api.Application

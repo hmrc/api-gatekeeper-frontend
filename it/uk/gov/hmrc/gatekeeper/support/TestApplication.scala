@@ -1,4 +1,4 @@
-package support
+package uk.gov.hmrc.gatekeeper.support
 
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -17,5 +17,4 @@ trait TestApplication {
         "auditing.consumer.baseUri.host"  -> wireMockHost,
         "auditing.consumer.baseUri.port"  -> wireMockPort
       )
-
 }
