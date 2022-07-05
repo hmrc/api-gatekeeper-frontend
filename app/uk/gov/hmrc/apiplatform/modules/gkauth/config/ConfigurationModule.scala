@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.config
+package uk.gov.hmrc.apiplatform.modules.gkauth.config
 
 import com.google.inject.AbstractModule
 

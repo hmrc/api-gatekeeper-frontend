@@ -28,7 +28,7 @@ import org.joda.time.DateTime
 import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 

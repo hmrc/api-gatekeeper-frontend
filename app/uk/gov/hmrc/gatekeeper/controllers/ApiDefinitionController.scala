@@ -25,8 +25,8 @@ import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._

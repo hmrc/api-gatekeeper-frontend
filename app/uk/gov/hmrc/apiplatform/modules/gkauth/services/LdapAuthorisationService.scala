@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.services
+package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import play.api.mvc._
@@ -22,8 +22,8 @@ import scala.concurrent.Future
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.internalauth.client._
 import scala.concurrent.ExecutionContext
 import javax.inject.{Singleton, Inject}

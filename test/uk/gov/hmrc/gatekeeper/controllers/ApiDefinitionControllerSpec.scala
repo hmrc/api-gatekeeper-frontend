@@ -27,8 +27,8 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
 import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 

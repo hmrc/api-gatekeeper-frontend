@@ -25,8 +25,8 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.models.{Environment,ApplicationId,ClientId}
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box,BoxId,BoxCreator,BoxSubscriber,SubscriptionType}
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 

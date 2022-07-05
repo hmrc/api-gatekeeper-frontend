@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.services
+package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
 
@@ -28,8 +28,8 @@ import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBeh
 import uk.gov.hmrc.internalauth.client.Retrieval
 import play.api.test.StubControllerComponentsFactory
 import play.api.mvc.ControllerComponents
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import scala.concurrent.Future
 
 class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComponentsFactory  {

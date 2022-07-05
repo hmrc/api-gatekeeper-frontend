@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.concurrent.ExecutionContext
 
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.gatekeeper.config.AppConfig

@@ -41,10 +41,10 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.gkauth.services._
-import uk.gov.hmrc.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.services._
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
 class ApplicationController @Inject()(

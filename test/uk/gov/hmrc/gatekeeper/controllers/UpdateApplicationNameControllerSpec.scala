@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.views.html._
 import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageApplicationNameAdminListView, ManageApplicationNameSingleAdminView, ManageApplicationNameSuccessView, ManageApplicationNameView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       

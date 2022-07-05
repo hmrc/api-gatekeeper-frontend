@@ -27,7 +27,7 @@ import org.mockito.stubbing.ScalaOngoingStubbing
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import org.joda.time.DateTime
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import java.time.Period
 
 trait ControllerSetupBase

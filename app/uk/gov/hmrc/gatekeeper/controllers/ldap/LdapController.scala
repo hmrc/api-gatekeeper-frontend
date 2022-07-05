@@ -22,7 +22,7 @@ import scala.concurrent.Future.successful
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.internalauth.client._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.modules.gkauth.services.LdapAuthorisationPredicate
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationPredicate
 
 @Singleton
 class LdapController @Inject()(

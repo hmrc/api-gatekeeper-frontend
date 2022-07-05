@@ -31,8 +31,8 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.{ExecutionContext, Future}
 

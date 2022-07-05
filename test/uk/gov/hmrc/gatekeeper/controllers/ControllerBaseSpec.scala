@@ -24,8 +24,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
 import play.api.inject.bind
-import uk.gov.hmrc.modules.gkauth.config.StrideAuthConfig
-import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthConfig
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
 
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 

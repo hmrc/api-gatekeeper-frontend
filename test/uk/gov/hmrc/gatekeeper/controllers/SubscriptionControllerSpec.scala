@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionControllerSpec 
     extends ControllerBaseSpec 

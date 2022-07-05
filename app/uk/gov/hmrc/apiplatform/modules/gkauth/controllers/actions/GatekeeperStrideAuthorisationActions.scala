@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.controllers.actions
+package uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions
 
 import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperStrideRole
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.ActionRefiner
 import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRole
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles.READ_ONLY
-import uk.gov.hmrc.modules.gkauth.services._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRole
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles.READ_ONLY
+import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 
 trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[_]): Result

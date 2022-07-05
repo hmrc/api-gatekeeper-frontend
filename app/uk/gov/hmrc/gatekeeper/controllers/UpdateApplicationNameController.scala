@@ -23,8 +23,8 @@ import uk.gov.hmrc.gatekeeper.models._
 import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.services._
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.utils.{ApplicationLogger, ErrorHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}

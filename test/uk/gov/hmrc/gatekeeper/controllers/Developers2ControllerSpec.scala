@@ -22,10 +22,10 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import play.api.test.Helpers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.developers.Developers2View
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class Developers2ControllerSpec extends ControllerBaseSpec {
 

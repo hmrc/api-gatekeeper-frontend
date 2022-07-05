@@ -35,7 +35,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 

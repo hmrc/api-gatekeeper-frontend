@@ -28,9 +28,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
 
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 @Singleton
 class Developers2Controller @Inject()(

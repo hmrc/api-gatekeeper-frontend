@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.controllers
+package uk.gov.hmrc.apiplatform.modules.gkauth.controllers
 
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.WithDefaultFormBinding
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.modules.gkauth.controllers.actions.GatekeeperStrideAuthorisationActions
-import uk.gov.hmrc.modules.gkauth.utils.GatekeeperAuthorisationHelper
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperStrideAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
 import scala.concurrent.ExecutionContext
 
 abstract class GatekeeperBaseController(

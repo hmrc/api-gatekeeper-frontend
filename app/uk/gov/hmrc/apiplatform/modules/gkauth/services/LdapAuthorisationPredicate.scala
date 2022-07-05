@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.services
+package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceLocation, ResourceType}
 

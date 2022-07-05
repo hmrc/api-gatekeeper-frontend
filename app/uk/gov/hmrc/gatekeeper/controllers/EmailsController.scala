@@ -33,8 +33,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailAllUsersView, EmailApiSubscriptionsView, EmailInformationView, EmailLandingView, EmailPreferencesAPICategoryView, EmailPreferencesChoiceView, EmailPreferencesSelectApiView, EmailPreferencesSpecificApiView, EmailPreferencesTopicView}
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.Json

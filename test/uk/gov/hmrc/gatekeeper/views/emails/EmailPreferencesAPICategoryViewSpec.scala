@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.emails
 
 import mocks.config.AppConfigMock
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

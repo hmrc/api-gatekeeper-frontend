@@ -22,7 +22,7 @@ import play.api.mvc.MessagesRequest
 import play.api.mvc.Results.Forbidden
 
 import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
 
 @Singleton
 class HandleForbiddenWithView @Inject()(forbiddenView: ForbiddenView) extends ForbiddenHandler {

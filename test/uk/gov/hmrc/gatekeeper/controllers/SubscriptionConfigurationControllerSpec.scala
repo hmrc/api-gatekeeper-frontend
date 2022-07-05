@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.builder.FieldDefinitionsBuilder
 import uk.gov.hmrc.gatekeeper.models.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.Environment
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

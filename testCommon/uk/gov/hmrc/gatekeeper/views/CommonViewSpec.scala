@@ -23,7 +23,7 @@ import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.gatekeeper.utils._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.modules.gkauth.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.mvc.MessagesRequest
 import play.api.test.FakeRequest

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.utils
+package uk.gov.hmrc.apiplatform.modules.gkauth.utils
 
-import uk.gov.hmrc.modules.gkauth.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)

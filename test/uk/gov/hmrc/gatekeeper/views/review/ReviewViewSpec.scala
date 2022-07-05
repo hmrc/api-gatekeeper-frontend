@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.views.review
 
 import uk.gov.hmrc.gatekeeper.controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest

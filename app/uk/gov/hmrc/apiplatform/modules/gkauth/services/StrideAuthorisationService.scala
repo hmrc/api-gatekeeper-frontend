@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.modules.gkauth.services
+package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import javax.inject.{Inject, Singleton}
 
@@ -22,13 +22,13 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 
-import uk.gov.hmrc.modules.gkauth.connectors.AuthConnector
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperStrideRole
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.modules.gkauth.config.StrideAuthConfig
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRole
-import uk.gov.hmrc.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.AuthConnector
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthConfig
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRole
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.MessagesRequest

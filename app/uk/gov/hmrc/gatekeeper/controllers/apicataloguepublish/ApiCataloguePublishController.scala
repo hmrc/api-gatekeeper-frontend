@@ -24,8 +24,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
 import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 
-import uk.gov.hmrc.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

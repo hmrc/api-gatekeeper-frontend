@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat

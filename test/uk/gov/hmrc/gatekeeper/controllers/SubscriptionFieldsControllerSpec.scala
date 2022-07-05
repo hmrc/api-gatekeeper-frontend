@@ -26,7 +26,7 @@ import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 import java.util.UUID
 import scala.concurrent.Future
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 

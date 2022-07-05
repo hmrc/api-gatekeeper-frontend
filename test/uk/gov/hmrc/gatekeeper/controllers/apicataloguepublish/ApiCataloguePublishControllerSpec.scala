@@ -29,7 +29,7 @@ import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.controllers.ControllerBaseSpec
 import uk.gov.hmrc.gatekeeper.controllers.ControllerSetupBase
 
-import uk.gov.hmrc.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 

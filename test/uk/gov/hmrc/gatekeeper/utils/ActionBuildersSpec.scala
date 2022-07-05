@@ -34,7 +34,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import play.api.mvc.MessagesRequest
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.modules.gkauth.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 
 class ActionBuildersSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {
