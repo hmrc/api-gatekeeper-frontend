@@ -104,4 +104,4 @@ GET         /emails/email-preferences/by-specific-api                         uk
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
 
 
-GET         /send-sms                                                           modules.sms.controllers.SmsController.sendSms()
+GET         /send-sms/:phoneNumber                                              modules.sms.controllers.SmsController.sendSms(phoneNumber: String)

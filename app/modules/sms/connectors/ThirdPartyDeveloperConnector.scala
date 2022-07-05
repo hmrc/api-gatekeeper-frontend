@@ -16,7 +16,9 @@
 
 package modules.sms.connectors
 
+import com.google.inject.name.Named
 import config.AppConfig
+import encryption.{PayloadEncryption, SecretRequest, SendsSecretRequest}
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream5xxResponse
@@ -28,18 +30,23 @@ import scala.util.control.NonFatal
 
 
 @Singleton
-class ThirdPartyDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient)
-    (implicit ec: ExecutionContext) extends Logging {
+class ThirdPartyDeveloperConnector @Inject()(appConfig: AppConfig,
+                                             http: HttpClient,
+                                             @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
+    (implicit ec: ExecutionContext) extends Logging with SendsSecretRequest {
 
-  def sendSms()(implicit hc: HeaderCarrier): Future[Either[Throwable, SendSmsResponse]] = {
-    http.POSTEmpty[SendSmsResponse](s"${appConfig.developerBaseUrl}/notify/send-sms") map {
-      x => Right(x)
-    } recover {
-      case Upstream5xxResponse(e) if e.message contains """Response body: '{"message":""" =>
-        Right(SendSmsResponse(s"${e.message}"))
-      case NonFatal(e) =>
-        logger.error(e.getMessage)
-        Left(e)
+  def sendSms(phoneNumber: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, SendSmsResponse]] = {
+    secretRequest(SendSmsRequest(phoneNumber)) { request =>
+
+      http.POST[SecretRequest, SendSmsResponse](s"${appConfig.developerBaseUrl}/notify/send-sms", request) map {
+        x => Right(x)
+      } recover {
+        case Upstream5xxResponse(e) if e.message contains """Response body: '{"message":""" =>
+          Right(SendSmsResponse(s"${e.message}"))
+        case NonFatal(e) =>
+          logger.error(e.getMessage)
+          Left(e)
+      }
     }
   }
 }

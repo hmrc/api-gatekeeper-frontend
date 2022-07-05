@@ -18,6 +18,13 @@ package modules.sms.connectors
 
 import play.api.libs.json.Json
 
+case class SendSmsRequest(phoneNumber: String)
+
+object SendSmsRequest {
+  implicit val format = Json.format[SendSmsRequest]
+}
+
+
 case class SendSmsResponse(message: String)
 object SendSmsResponse {
   implicit val formatSendSmsResponse = Json.format[SendSmsResponse]

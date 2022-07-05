@@ -17,11 +17,10 @@
 package modules.sms.controllers
 
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
-import modules.sms.connectors.{SendSmsResponse, ThirdPartyDeveloperConnector}
+import modules.sms.connectors.SendSmsResponse
 import modules.sms.mocks.ThirdPartyDeveloperConnectorMockProvider
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import utils.FakeRequestCSRFSupport._
 import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,6 +46,7 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
         mcc
       )
 
+      val testNumber = "0123456789"
       val sendSmsResponse = SendSmsResponse("SMS sent")
 
     }
@@ -56,7 +56,7 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
       "show success message when connector returns Right" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         ThirdPartyDeveloperConnectorMock.SendSms.returnsSendSmsResponse(sendSmsResponse)
-        val result = smsController.sendSms()(aLoggedInRequest)
+        val result = smsController.sendSms(testNumber)(aLoggedInRequest)
 
         contentAsString(result) should include("SMS sent")
 
@@ -66,7 +66,7 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
       "show technical difficulties page when connector returns Left" in new Setup {
         givenTheGKUserIsAuthorisedAndIsANormalUser()
         ThirdPartyDeveloperConnectorMock.SendSms.returnsError
-        val result = smsController.sendSms()(aLoggedInRequest)
+        val result = smsController.sendSms(testNumber)(aLoggedInRequest)
 
         contentAsString(result) should include("technical difficulties")
 

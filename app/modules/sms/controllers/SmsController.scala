@@ -39,8 +39,8 @@ class SmsController @Inject()(thirdPartyDeveloperConnector: ThirdPartyDeveloperC
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
     with ErrorHelper {
 
-  def sendSms() = anyStrideUserAction { implicit request =>
-    thirdPartyDeveloperConnector.sendSms() map {
+  def sendSms(phoneNumber: String) = anyStrideUserAction { implicit request =>
+    thirdPartyDeveloperConnector.sendSms(phoneNumber) map {
       case Right(s: SendSmsResponse) => Ok(s.message)
       case Left(_: Throwable) =>  technicalDifficulties
     }

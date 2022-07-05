@@ -32,10 +32,10 @@ trait ThirdPartyDeveloperConnectorMockProvider {
 
     object SendSms {
 
-      def returnsSendSmsResponse(sendSmsResponse: SendSmsResponse) = when(mockThirdPartyDeveloperConnector.sendSms()(*))
+      def returnsSendSmsResponse(sendSmsResponse: SendSmsResponse) = when(mockThirdPartyDeveloperConnector.sendSms(*)(*))
         .thenReturn(successful(Right(sendSmsResponse)))
 
-      def returnsError() = when(mockThirdPartyDeveloperConnector.sendSms()(*))
+      def returnsError = when(mockThirdPartyDeveloperConnector.sendSms(*)(*))
         .thenReturn(successful(Left(UpstreamErrorResponse("error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR, Map.empty))))
     }
   }

@@ -18,6 +18,7 @@ package modules.sms.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
+import encryption.PayloadEncryption
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -37,10 +38,12 @@ class ThirdPartyDeveloperConnectorSpec
 
     val httpClient = app.injector.instanceOf[HttpClient]
     val mockAppConfig = mock[AppConfig]
+    val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")
     when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
 
-    val underTest = new ThirdPartyDeveloperConnector(mockAppConfig, httpClient)
+    val underTest = new ThirdPartyDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
     val url = s"/notify/send-sms"
+    val phoneNumber = "0123456789"
 
   }
 
@@ -58,7 +61,7 @@ class ThirdPartyDeveloperConnectorSpec
           )
       )
 
-      await(underTest.sendSms()) shouldBe Right(sendSmsResponse)
+      await(underTest.sendSms(phoneNumber)) shouldBe Right(sendSmsResponse)
     }
 
     "fail if the request failed on the backend" in new Setup {
@@ -74,7 +77,7 @@ class ThirdPartyDeveloperConnectorSpec
           )
       )
 
-      await(underTest.sendSms()) shouldBe Right(SendSmsResponse(
+      await(underTest.sendSms(phoneNumber)) shouldBe Right(SendSmsResponse(
         s"""POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: '{"message":"${sendSmsResponse.message}"}'"""
       ))
     }
@@ -90,7 +93,7 @@ class ThirdPartyDeveloperConnectorSpec
       )
 
       val expectedMessage = s"""POST of '$wireMockUrl$url' returned $INTERNAL_SERVER_ERROR. Response body: ''"""
-      await(underTest.sendSms()) match {
+      await(underTest.sendSms(phoneNumber)) match {
         case Left(UpstreamErrorResponse(message, INTERNAL_SERVER_ERROR, _, _)) => message shouldBe expectedMessage
         case _ => fail()
       }
