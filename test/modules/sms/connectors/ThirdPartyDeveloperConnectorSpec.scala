@@ -19,6 +19,7 @@ package modules.sms.connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.AppConfig
 import encryption.PayloadEncryption
+import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._

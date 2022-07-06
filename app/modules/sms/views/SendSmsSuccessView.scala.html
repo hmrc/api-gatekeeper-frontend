@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package modules.sms.connectors
+@import config.AppConfig
+@import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 
-import play.api.libs.json.Json
+@this(main: NewMainView, applicationConfig: AppConfig)
 
-case class SendSmsRequest(phoneNumber: String)
+@(message: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-object SendSmsRequest {
-  implicit val format = Json.format[SendSmsRequest]
+@main(title = s"${applicationConfig.title} - Send SMS Success") {
+
+  <br />
+
+  <h1 id="heading" class="govuk-heading-l">Send SMS Success</h1>
+
+  <p id="message" class="govuk-body">@message</p>
+
 }
 
-
-case class SendSmsResponse(message: String)
-object SendSmsResponse {
-  implicit val formatSendSmsResponse = Json.format[SendSmsResponse]
-}

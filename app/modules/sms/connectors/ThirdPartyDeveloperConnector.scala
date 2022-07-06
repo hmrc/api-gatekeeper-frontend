@@ -19,7 +19,10 @@ package modules.sms.connectors
 import com.google.inject.name.Named
 import config.AppConfig
 import encryption.{PayloadEncryption, SecretRequest, SendsSecretRequest}
+import modules.sms.connectors.ThirdPartyDeveloperConnector._
+import play.api.libs.json.OFormat
 import play.api.Logging
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream5xxResponse
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
@@ -49,4 +52,10 @@ class ThirdPartyDeveloperConnector @Inject()(appConfig: AppConfig,
       }
     }
   }
+}
+object ThirdPartyDeveloperConnector {
+  case class SendSmsRequest(phoneNumber: String)
+  case class SendSmsResponse(message: String)
+  implicit val formatSendSmsRequest: OFormat[SendSmsRequest] = Json.format[SendSmsRequest]
+  implicit val formatSendSmsResponse: OFormat[SendSmsResponse] = Json.format[SendSmsResponse]
 }

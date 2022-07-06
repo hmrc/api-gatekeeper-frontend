@@ -17,7 +17,11 @@
 package modules.sms.controllers
 
 import config.AppConfig
-import modules.sms.connectors.{SendSmsResponse, ThirdPartyDeveloperConnector}
+import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import modules.sms.connectors.ThirdPartyDeveloperConnector
+import modules.sms.model.Forms.SendSmsForm
+import modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
+import play.api.data.Form
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
 import uk.gov.hmrc.modules.stride.connectors.AuthConnector
@@ -27,23 +31,40 @@ import utils.ErrorHelper
 import views.html.ErrorTemplate
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.successful
 
 @Singleton
 class SmsController @Inject()(thirdPartyDeveloperConnector: ThirdPartyDeveloperConnector,
                               strideAuthConfig: StrideAuthConfig,
                               authConnector: AuthConnector,
                               forbiddenHandler: ForbiddenHandler,
+                              sendSmsView: SendSmsView,
+                              sendSmsSuccessView: SendSmsSuccessView,
                               override val errorTemplate: ErrorTemplate,
                               mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
     with ErrorHelper {
 
-  def sendSms(phoneNumber: String) = anyStrideUserAction { implicit request =>
-    thirdPartyDeveloperConnector.sendSms(phoneNumber) map {
-      case Right(s: SendSmsResponse) => Ok(s.message)
-      case Left(_: Throwable) =>  technicalDifficulties
+  def sendSmsPage() = anyStrideUserAction { implicit request =>
+    successful(Ok(sendSmsView(SendSmsForm.form)))
+
     }
+
+  def sendSmsAction() = anyStrideUserAction { implicit request =>
+
+    def handleValidForm(form: SendSmsForm) = {
+          thirdPartyDeveloperConnector.sendSms(form.phoneNumber) map {
+            case Right(s: SendSmsResponse) => Ok(sendSmsSuccessView(s.message))
+            case Left(_: Throwable) =>  technicalDifficulties
+          }
+    }
+
+    def handleInvalidForm(formWithErrors: Form[SendSmsForm]) =
+      successful(BadRequest(sendSmsView(formWithErrors)))
+
+    SendSmsForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+
   }
 
 }

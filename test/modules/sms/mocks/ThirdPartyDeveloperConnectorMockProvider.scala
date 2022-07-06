@@ -16,7 +16,8 @@
 
 package modules.sms.mocks
 
-import modules.sms.connectors.{SendSmsResponse, ThirdPartyDeveloperConnector}
+import modules.sms.connectors.ThirdPartyDeveloperConnector
+import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.http.UpstreamErrorResponse
