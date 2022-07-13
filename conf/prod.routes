@@ -1,5 +1,10 @@
 # Add all the application routes to the app.routes file
 
+
+->         /api-gatekeeper/apicatalogue             apicataloguepublish.Routes
+->         /api-gatekeeper/hmrc-frontend            hmrcfrontend.Routes
+->         /api-gatekeeper/ldap                     ldap.Routes
+->         /api-gatekeeper/template                 template.Routes
 ->         /api-gatekeeper                          app.Routes
 ->         /                                        health.Routes
 

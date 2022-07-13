@@ -33,14 +33,13 @@ lazy val microservice =  (project in file("."))
       uglify
     ),
     scalacOptions += "-Ypartial-unification",
-    routesImport += "controllers.binders._"
   )
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
   .settings(SilencerSettings())
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.12.12",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
@@ -48,7 +47,7 @@ lazy val microservice =  (project in file("."))
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
-    routesImport += "controllers.binders._",
+
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
@@ -70,7 +69,7 @@ lazy val microservice =  (project in file("."))
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
-    AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("common.AfterHook").newInstance),
+    AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
   )
@@ -81,14 +80,21 @@ lazy val microservice =  (project in file("."))
     SandboxTest / Keys.fork := false,
     SandboxTest / parallelExecution := false,
     SandboxTest / testOptions := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT")),
-    SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("common.AfterHook").newInstance),
+    SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(
-  TwirlKeys.templateImports ++= Seq(
+    routesImport ++= Seq(
+      "uk.gov.hmrc.gatekeeper.controllers.binders._",
+      "uk.gov.hmrc.gatekeeper.models._"
+    ),
+    TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",
-      "config.AppConfig",
-      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
+      "uk.gov.hmrc.gatekeeper.views.html._",
+      "uk.gov.hmrc.gatekeeper.views.html.include._",
+      "uk.gov.hmrc.gatekeeper.controllers",
+      "uk.gov.hmrc.gatekeeper.config.AppConfig"
     )
   )
   .settings(
@@ -97,7 +103,6 @@ lazy val microservice =  (project in file("."))
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
-
 
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
