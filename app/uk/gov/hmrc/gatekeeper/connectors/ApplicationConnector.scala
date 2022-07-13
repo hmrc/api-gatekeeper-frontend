@@ -195,7 +195,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def deleteApplication(applicationId: ApplicationId, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/delete", deleteApplicationRequest)
+    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/delete", deleteApplicationRequest)
     .map( _ match {
       case Right(result) => ApplicationDeleteSuccessResult
       case Left(_) => ApplicationDeleteFailureResult
