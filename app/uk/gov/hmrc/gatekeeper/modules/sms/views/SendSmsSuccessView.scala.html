@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package modules.sms.model
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.views.html.NewMainView
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 
-import play.api.data.Form
-import play.api.data.Forms._
-
-object Forms {
+@this(main: NewMainView, applicationConfig: AppConfig)
 
 
-  private def phoneNumberValidator() = {
-    text
-      .verifying("Phone number is required", _.nonEmpty)
-  }
+@(message: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-  final case class SendSmsForm(phoneNumber: String)
+@main(title = s"${applicationConfig.title} - Send SMS Success") {
 
-  object SendSmsForm {
-    def form: Form[SendSmsForm] = Form(
-      mapping(
-        "phoneNumber" -> phoneNumberValidator
-      )(SendSmsForm.apply)(SendSmsForm.unapply)
-    )
-  }
+  <br />
+
+  <h1 id="heading" class="govuk-heading-l">Send SMS Success</h1>
+
+  <p id="message" class="govuk-body">@message</p>
 
 }
+

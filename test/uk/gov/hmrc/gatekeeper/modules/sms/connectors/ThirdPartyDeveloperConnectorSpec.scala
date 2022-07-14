@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package modules.sms.connectors
+package uk.gov.hmrc.apiplatform.modules.sms.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.AppConfig
-import encryption.PayloadEncryption
-import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
-import utils.{AsyncHmrcSpec, WireMockSugar}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

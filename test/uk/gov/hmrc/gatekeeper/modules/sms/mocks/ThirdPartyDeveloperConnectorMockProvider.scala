@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package modules.sms.mocks
+package uk.gov.hmrc.apiplatform.modules.sms.mocks
 
-import modules.sms.connectors.ThirdPartyDeveloperConnector
-import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future.successful

@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package modules.sms.controllers
+package uk.gov.hmrc.apiplatform.modules.sms.controllers
 
 import controllers.{ControllerBaseSpec, ControllerSetupBase}
-import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
-import modules.sms.mocks.ThirdPartyDeveloperConnectorMockProvider
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import utils.FakeRequestCSRFSupport.CSRFFakeRequest
-import utils.WithCSRFAddToken
+import uk.gov.hmrc.apiplatform.modules.sms.controllers.SmsController
+import uk.gov.hmrc.apiplatform.modules.sms.mocks.ThirdPartyDeveloperConnectorMockProvider
 import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global

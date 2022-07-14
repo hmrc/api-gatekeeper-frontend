@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package modules.sms.connectors
+package uk.gov.hmrc.apiplatform.modules.sms.connectors
 
 import com.google.inject.name.Named
-import config.AppConfig
-import encryption.{PayloadEncryption, SecretRequest, SendsSecretRequest}
-import modules.sms.connectors.ThirdPartyDeveloperConnector._
+import ThirdPartyDeveloperConnector._
 import play.api.libs.json.OFormat
 import play.api.Logging
 import play.api.libs.json.Json
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.encryption.{PayloadEncryption, SecretRequest, SendsSecretRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream5xxResponse
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}

@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package modules.sms.controllers
+package uk.gov.hmrc.apiplatform.modules.sms.controllers
 
-import config.AppConfig
-import modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
-import modules.sms.connectors.ThirdPartyDeveloperConnector
-import modules.sms.model.Forms.SendSmsForm
-import modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.apiplatform.modules.sms.model.Forms.SendSmsForm
 import play.api.data.Form
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.modules.stride.config.StrideAuthConfig
-import uk.gov.hmrc.modules.stride.connectors.AuthConnector
-import uk.gov.hmrc.modules.stride.controllers.GatekeeperBaseController
-import uk.gov.hmrc.modules.stride.controllers.actions.ForbiddenHandler
-import utils.ErrorHelper
-import views.html.ErrorTemplate
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -36,14 +33,12 @@ import scala.concurrent.Future.successful
 
 @Singleton
 class SmsController @Inject()(thirdPartyDeveloperConnector: ThirdPartyDeveloperConnector,
-                              strideAuthConfig: StrideAuthConfig,
-                              authConnector: AuthConnector,
-                              forbiddenHandler: ForbiddenHandler,
+                              strideAuthorisationService: StrideAuthorisationService,
                               sendSmsView: SendSmsView,
                               sendSmsSuccessView: SendSmsSuccessView,
                               override val errorTemplate: ErrorTemplate,
                               mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthConfig, authConnector, forbiddenHandler, mcc)
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper {
 
   def sendSmsPage() = anyStrideUserAction { implicit request =>

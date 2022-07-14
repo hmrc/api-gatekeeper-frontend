@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package modules.sms.views
+package uk.gov.hmrc.apiplatform.modules.sms.views
 
-import modules.sms.model.Forms.SendSmsForm
-import modules.sms.views.html.SendSmsView
+import modules.sms.views.html.SendSmsSuccessView
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
 import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
 import views.CommonViewSpec
 
-class SendSmsViewSpec extends CommonViewSpec {
+class SendSmsSuccessViewSpec extends CommonViewSpec {
 
-  "Send Sms View" should {
+  "Send Sms Success View" should {
     implicit val request = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
-    val sendSmsView = app.injector.instanceOf[SendSmsView]
+    val sendSmsView = app.injector.instanceOf[SendSmsSuccessView]
 
-    "show the Send SMS button" in {
+    "show the Send SMS success message" in {
+      val message = "SMS successfully sent"
 
-      val document = Jsoup.parse(sendSmsView(SendSmsForm.form).body)
+      val document = Jsoup.parse(sendSmsView(message).body)
 
-      document.getElementById("heading").text() shouldBe "Send SMS"
-      document.getElementById("phoneNumber-label").text() shouldBe "Enter the Phone number"
-      elementExistsById(document, "phoneNumber") shouldBe true
-      elementExistsById(document, "submit") shouldBe true
-      document.getElementById("submit").text() shouldBe "Send SMS"
+      document.getElementById("heading").text() shouldBe "Send SMS Success"
+      document.getElementById("message").text() shouldBe message
 
     }
   }
