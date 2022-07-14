@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.connectors
+package uk.gov.hmrc.gatekeeper.modules.sms.connectors
 
 import com.google.inject.name.Named
 import ThirdPartyDeveloperConnector._

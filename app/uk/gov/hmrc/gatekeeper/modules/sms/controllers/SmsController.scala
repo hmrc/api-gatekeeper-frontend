@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.controllers
+package uk.gov.hmrc.gatekeeper.modules.sms.controllers
 
-import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
-import uk.gov.hmrc.apiplatform.modules.sms.model.Forms.SendSmsForm
+import uk.gov.hmrc.gatekeeper.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.gatekeeper.modules.sms.model.Forms.SendSmsForm
 import play.api.data.Form
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.modules.sms.connectors.ThirdPartyDeveloperConnector
+import uk.gov.hmrc.gatekeeper.modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 

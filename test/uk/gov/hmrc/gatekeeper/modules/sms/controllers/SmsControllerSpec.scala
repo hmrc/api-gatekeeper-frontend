@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.controllers
+package uk.gov.hmrc.gatekeeper.modules.sms.controllers
 
-import controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
-import modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.apiplatform.modules.sms.controllers.SmsController
-import uk.gov.hmrc.apiplatform.modules.sms.mocks.ThirdPartyDeveloperConnectorMockProvider
-import views.html.ErrorTemplate
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
+import uk.gov.hmrc.gatekeeper.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.gatekeeper.modules.sms.mocks.ThirdPartyDeveloperConnectorMockProvider
+import uk.gov.hmrc.gatekeeper.modules.sms.views.html.{SendSmsSuccessView, SendSmsView}
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.CSRFFakeRequest
+import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
+import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -35,7 +38,7 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
 
   Helpers.running(app) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -45,9 +48,7 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
 
       val smsController = new SmsController(
         mockThirdPartyDeveloperConnector,
-        strideAuthConfig,
-        mockAuthConnector,
-        forbiddenHandler,
+        StrideAuthorisationServiceMock.aMock,
         sendSmsView,
         sendSmsSuccessView,
         errorTemplateView,
@@ -62,36 +63,30 @@ class SmsControllerSpec extends ControllerBaseSpec with ThirdPartyDeveloperConne
     "sendSmsAction" should {
 
       "show success message when connector returns Right" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ThirdPartyDeveloperConnectorMock.SendSms.returnsSendSmsResponse(sendSmsResponse)
         val request = aLoggedInRequest.withFormUrlEncodedBody(("phoneNumber", testNumber))
         val result = addToken(smsController.sendSmsAction())(request)
 
         contentAsString(result) should include("SMS sent")
-
-        verifyAuthConnectorCalledForUser
       }
 
       "show validation errors when form field is empty" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ThirdPartyDeveloperConnectorMock.SendSms.returnsSendSmsResponse(sendSmsResponse)
         val request = aLoggedInRequest.withFormUrlEncodedBody(("phoneNumber", ""))
         val result = addToken(smsController.sendSmsAction())(request)
 
         contentAsString(result) should include("Phone number is required")
-
-        verifyAuthConnectorCalledForUser
       }
 
       "show technical difficulties page when connector returns Left" in new Setup {
-        givenTheGKUserIsAuthorisedAndIsANormalUser()
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ThirdPartyDeveloperConnectorMock.SendSms.returnsError
         val request = aLoggedInRequest.withFormUrlEncodedBody(("phoneNumber", testNumber))
         val result = addToken(smsController.sendSmsAction())(request)
 
         contentAsString(result) should include("technical difficulties")
-
-        verifyAuthConnectorCalledForUser
       }
 
     }

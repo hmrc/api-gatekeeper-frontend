@@ -15,14 +15,12 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.views.html.include._
-@import uk.gov.hmrc.apiplatform.modules.sms.model.Forms.SendSmsForm
+@import uk.gov.hmrc.gatekeeper.modules.sms.model.Forms.SendSmsForm
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.views.html.NewMainView
 
-
 @this(main: NewMainView, applicationConfig: AppConfig)
-
 
 @(form: Form[SendSmsForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -33,7 +31,7 @@
 
   <h1 id="heading" class="govuk-heading-l">Send SMS</h1>
 
-  @helper.form(action = modules.sms.controllers.routes.SmsController.sendSmsAction) {
+  @helper.form(action = uk.gov.hmrc.gatekeeper.modules.sms.controllers.routes.SmsController.sendSmsAction) {
     @helper.CSRF.formField
 
     <div class="govuk-form-group @if(form.errors("phoneNumber").nonEmpty) {govuk-form-group--error}">

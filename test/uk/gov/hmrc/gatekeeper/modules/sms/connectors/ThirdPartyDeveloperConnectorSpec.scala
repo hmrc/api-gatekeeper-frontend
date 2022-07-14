@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.connectors
+package uk.gov.hmrc.gatekeeper.modules.sms.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.apiplatform.modules.sms.connectors.ThirdPartyDeveloperConnector
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
+import uk.gov.hmrc.gatekeeper.modules.sms.connectors.ThirdPartyDeveloperConnector.SendSmsResponse
+import uk.gov.hmrc.gatekeeper.utils.{AsyncHmrcSpec, WireMockSugar, UrlEncoding}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,7 +32,7 @@ class ThirdPartyDeveloperConnectorSpec
   extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with utils.UrlEncoding {
+    with UrlEncoding {
 
   trait Setup {
     implicit val hc = HeaderCarrier()

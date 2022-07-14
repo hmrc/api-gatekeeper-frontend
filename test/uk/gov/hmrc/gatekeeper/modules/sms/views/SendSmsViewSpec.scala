@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.views
+package uk.gov.hmrc.gatekeeper.modules.sms.views
 
-import uk.gov.hmrc.apiplatform.modules.sms.model.Forms.SendSmsForm
-import modules.sms.views.html.SendSmsView
 import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import uk.gov.hmrc.modules.stride.domain.models.LoggedInUser
-import utils.FakeRequestCSRFSupport._
-import utils.ViewHelpers._
-import views.CommonViewSpec
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.modules.sms.model.Forms.SendSmsForm
+import uk.gov.hmrc.gatekeeper.modules.sms.views.html.SendSmsView
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.CSRFFakeRequest
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.elementExistsById
+import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 
 class SendSmsViewSpec extends CommonViewSpec {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.sms.model
+package uk.gov.hmrc.gatekeeper.modules.sms.model
 
 import play.api.data.Form
 import play.api.data.Forms._
