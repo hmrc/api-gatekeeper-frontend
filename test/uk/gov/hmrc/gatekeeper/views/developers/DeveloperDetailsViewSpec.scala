@@ -148,14 +148,14 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       elementExistsByText(document, "a", "Delete developer") shouldBe true
     }
 
-    "show developer details WITH delete button when logged in as non-superuser" in new Setup {
+    "show developer details without delete button when logged in as non-superuser" in new Setup {
       val result = developerDetails.render(developer, buildXmlServicesFeUrl, strideUserRequest)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
 
-      elementExistsByText(document, "a", "Delete developer") shouldBe true
+      elementExistsByText(document, "a", "Delete developer") shouldBe false
     }
   }
 }
