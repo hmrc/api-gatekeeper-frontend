@@ -102,3 +102,7 @@ GET         /emails/email-preferences/select-api                              uk
 GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
 
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
+
+
+GET         /send-sms                                                         uk.gov.hmrc.gatekeeper.modules.sms.controllers.SmsController.sendSmsPage()
+POST        /send-sms                                                         uk.gov.hmrc.gatekeeper.modules.sms.controllers.SmsController.sendSmsAction()
