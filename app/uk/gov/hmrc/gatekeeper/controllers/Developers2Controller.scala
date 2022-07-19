@@ -44,7 +44,7 @@ class Developers2Controller @Inject()(
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
-    with UserFunctionsWrapper 
+    with UserFunctionsWrapper
     with ApplicationLogger {
 
   def blankDevelopersPage() = anyStrideUserAction { implicit request =>

@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import play.api.libs.json._
+import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 import uk.gov.hmrc.play.json.Union
 
 import java.time.LocalDateTime
@@ -72,7 +73,7 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
 }
 
 case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty,
-                     xmlOrganisations: List[XmlOrganisation] = List.empty) {
+                     xmlOrganisations: List[XmlOrganisation] = List.empty)  {
   lazy val fullName = user.fullName
   
   lazy val email = user.email
@@ -105,7 +106,7 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
 
   lazy val mfaEnabled: Boolean = user match {
     case UnregisteredUser(_,_) => false
-    case r : RegisteredUser => r.mfaDetails.exists(details => details.exists(_.verified == true))
+    case r : RegisteredUser => MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails.getOrElse(List.empty))
   }
 
   lazy val emailPreferences: EmailPreferences = user match {

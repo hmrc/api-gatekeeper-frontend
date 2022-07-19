@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -145,7 +146,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
             </td>
             <td id="dev-mfaEnabled-@index" class="text--right hard--right" width="8%">
               @(user match {
-                case r: RegisteredUser if(r.mfaEnabled) => "Yes"
+                case r: RegisteredUser if(MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails.getOrElse(List.empty))) => "Yes"
                 case _ => "No"
               })
             </td>
