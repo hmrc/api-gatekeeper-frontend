@@ -137,7 +137,7 @@ class ApplicationController @Inject()(
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
-  def applicationPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
       val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
       val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
