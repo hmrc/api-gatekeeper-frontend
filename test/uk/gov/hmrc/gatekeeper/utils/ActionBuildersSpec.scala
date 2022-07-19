@@ -163,7 +163,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       contentAsString(result) shouldBe expectedResult
 
       ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId)
+      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId, applicationWithSubscriptionData.application.deployedTo)
     }
   }
 }
