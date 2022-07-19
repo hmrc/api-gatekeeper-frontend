@@ -1,8 +1,11 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
+
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.specs.MockDataSugar
+import java.time.LocalDateTime
+import java.util.UUID
 
 trait CommonTestData {
   val applicationId = "a97541e8-f93d-4d0a-ab0b-862e63204b7d"
@@ -26,6 +29,7 @@ trait CommonTestData {
     firstName = MockDataSugar.dev8FirstName,
     lastName = MockDataSugar.dev8LastName,
     verified = false,
+    mfaDetails = Some(List(AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "Some app", LocalDateTime.now(), verified = true))),
     mfaEnabled = true
   )
  

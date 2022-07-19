@@ -436,6 +436,13 @@ object MockDataSugar {
        |    "lastName": "$dev8LastName",
        |    "verified": false,
        |    "mfaEnabled": true,
+       |    "mfaDetails":[
+       |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
+       |    "name":"AUTHENTICATOR_APP",
+       |    "createdOn":"2022-07-19T07:07:45.661",
+       |    "verified":true,
+       |    "mfaType":"AUTHENTICATOR_APP"}
+       |    ],
        |    "emailPreferences": {
        |      "interests": [],
        |      "topics": []
@@ -453,6 +460,13 @@ object MockDataSugar {
        |    "lastName": "$dev8LastName",
        |    "verified": false,
        |    "mfaEnabled": true,
+       |    "mfaDetails":[
+       |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
+       |    "name":"AUTHENTICATOR_APP",
+       |    "createdOn":"2022-07-19T07:07:45.661",
+       |    "verified":true,
+       |    "mfaType":"AUTHENTICATOR_APP"}
+       |    ],
        |    "emailPreferences": {
        |      "interests": [],
        |      "topics": []
