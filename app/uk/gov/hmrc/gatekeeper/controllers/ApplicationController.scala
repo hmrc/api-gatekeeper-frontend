@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
@@ -27,19 +28,19 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.utils.{ApplicationLogger, ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
@@ -626,7 +627,7 @@ class ApplicationController @Inject()(
       case None                                            => "admin.email.is.not.registered".invalidNec
       case Some(UnregisteredUser(_,_))                     => "admin.email.is.not.registered".invalidNec
       case Some(user: RegisteredUser) if(!user.verified)   => "admin.email.is.not.verified".invalidNec
-      case Some(user: RegisteredUser) if(!user.mfaEnabled) => "admin.email.is.not.mfa.enabled".invalidNec
+      case Some(user: RegisteredUser) if(!MfaDetailHelper.isAuthAppMfaVerified(user.mfaDetails.getOrElse(List.empty))) => "admin.email.is.not.mfa.enabled".invalidNec
       case Some(user: RegisteredUser)                      => user.validNec
     }
 

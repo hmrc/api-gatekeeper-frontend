@@ -51,10 +51,10 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
 
-class ApplicationControllerSpec 
-    extends ControllerBaseSpec 
-    with WithCSRFAddToken 
-    with TitleChecker 
+class ApplicationControllerSpec
+    extends ControllerBaseSpec
+    with WithCSRFAddToken
+    with TitleChecker
     with CollaboratorTracker {
 
   implicit val materializer = app.materializer
@@ -81,10 +81,10 @@ class ApplicationControllerSpec
   private lazy val manageGrantLengthView = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView = app.injector.instanceOf[ManageGrantLengthSuccessView]
   private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
- 
+
   running(app) {
 
-    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule { 
+    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
 
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken

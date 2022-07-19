@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
 @this(main: NewMainView, applicationConfig: AppConfig)
 
@@ -493,7 +494,7 @@
                 </td>
                 <td class="govuk-table__cell" data-collaborator-mfaEnabled>
                   @(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
-                    case Some(user) if (user.mfaEnabled) => "Yes"
+                    case Some(user) if (MfaDetailHelper.isAuthAppMfaVerified(user.mfaDetails.getOrElse(List.empty))) => "Yes"
                     case _ => "No"
                   })
                 </td>
