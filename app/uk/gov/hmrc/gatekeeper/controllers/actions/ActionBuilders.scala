@@ -62,7 +62,7 @@ trait ActionBuilders extends ApplicationLogger {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
-        applicationService.fetchStateHistory(appId).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+        applicationService.fetchStateHistory(appId,value.application.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }

@@ -93,10 +93,10 @@ trait ApplicationServiceMockProvider {
 
     object FetchStateHistory {
       def returns(stateHistory: StateHistory*) = 
-        when(mockApplicationService.fetchStateHistory(*[ApplicationId])(*)).thenReturn(successful(stateHistory.toList))
+        when(mockApplicationService.fetchStateHistory(*[ApplicationId], *)(*)).thenReturn(successful(stateHistory.toList))
 
-      def verifyParams(applicationId: ApplicationId) =
-        verify(mockApplicationService).fetchStateHistory(eqTo(applicationId))(*)
+      def verifyParams(applicationId: ApplicationId, env: Environment.Environment) =
+        verify(mockApplicationService).fetchStateHistory(eqTo(applicationId), eqTo(env))(*)
     }
 
     object AddTeamMember {
