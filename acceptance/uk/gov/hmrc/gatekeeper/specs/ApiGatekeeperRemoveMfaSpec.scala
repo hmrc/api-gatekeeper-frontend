@@ -24,10 +24,10 @@ import uk.gov.hmrc.gatekeeper.pages._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaId, RegisteredUser, UserId}
 import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 
+import java.util.UUID
 import scala.io.Source
 
 class ApiGatekeeperRemoveMfaSpec
@@ -55,6 +55,7 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the button to remove MFA")
+      println(DeveloperDetailsPage.bodyText)
       assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
 
       When("I click on remove MFA")
@@ -198,8 +199,9 @@ class ApiGatekeeperRemoveMfaSpec
         .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
         .willReturn(
           aResponse()
+            .withHeader("Content-Type", "application/json")
             .withStatus(OK)
-            .withJsonBody(RegisteredUser(developer8, UserId(developer8Id), "Bob", "Smith", true, None, true))
+            .withBody(user)
         )
     )
   }
