@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.gkauth.config
+package uk.gov.hmrc.apiplatform.modules.gkauth.connectors
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
+import javax.inject.{Inject, Singleton}
 
-class ConfigurationModule extends AbstractModule {
-  override def configure() = {
-    bind(classOf[StrideAuthConfig]).toProvider(classOf[StrideAuthConfigProvider])
-    bind(classOf[StrideAuthConnector.Config]).toProvider(classOf[StrideAuthConnectorConfigProvider])
-  }
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.http.HttpClient
+
+object StrideAuthConnector {
+  case class Config(baseUrl: String)
 }
+
+@Singleton
+class StrideAuthConnector @Inject()(val http: HttpClient, config: StrideAuthConnector.Config) extends PlayAuthConnector {
+  lazy val serviceUrl = config.baseUrl
+}
+

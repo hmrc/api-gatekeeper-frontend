@@ -32,29 +32,22 @@ import play.api.http.Status._
 import play.api.http.HeaderNames.LOCATION
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with AuthConnectorMockModule with StubMessagesFactory with TableDrivenPropertyChecks {
+class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnectorMockModule with StubMessagesFactory with TableDrivenPropertyChecks {
   val strideAuthRoles = StrideAuthRoles(adminRole = "test-admin", superUserRole = "test-superUser", userRole = "test-user")
   val fakeRequest = FakeRequest()
   val msgRequest = new MessagesRequest(fakeRequest, stubMessagesApi())
   
   trait Setup {
-    val strideAuthConfig = StrideAuthConfig(authBaseUrl = "", strideLoginUrl = "http:///www.example.com", successUrl = "", origin = "", roles = strideAuthRoles)
+    val strideAuthConfig = StrideAuthConfig(strideLoginUrl = "http:///www.example.com", successUrl = "", origin = "", roles = strideAuthRoles)
     
     val underTest = new StrideAuthorisationService(
-      authConnector = AuthConnectorMock.aMock,
+      strideAuthConnector = StrideAuthConnectorMock.aMock,
       forbiddenHandler = new ForbiddenHandler { def handle(msgResult: MessagesRequest[_]): Result = Forbidden("No thanks") },
       strideAuthConfig = strideAuthConfig
     )
   }
 
   "createStrideRefiner" should {
-    // "return the full name in request" in new Setup {
-    //   AuthConnectorMock.Authorise.returnsAdminEnrolledUserWhenSufficient()
-
-    //   val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(GatekeeperRoles.ADMIN)(msgRequest))
-
-    //   result.right.value.name.value shouldBe "Bobby Example"
-    // }
 
     "return the appropriate results" in new Setup {
       import GatekeeperRoles._
@@ -73,7 +66,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with AuthConnectorMoc
       )
 
       forAll(cases) { case (requiredRole, userIsOfRole, expected) =>
-        AuthConnectorMock.Authorise.returnsFor(userIsOfRole)
+        StrideAuthConnectorMock.Authorise.returnsFor(userIsOfRole)
 
         val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(requiredRole)(msgRequest))
         expected match {
@@ -84,7 +77,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with AuthConnectorMoc
     }
 
     "return a redirect when there is no active session" in new Setup {
-      AuthConnectorMock.Authorise.failsWithNoActiveSession
+      StrideAuthConnectorMock.Authorise.failsWithNoActiveSession
 
       val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(GatekeeperRoles.USER)(msgRequest))
 

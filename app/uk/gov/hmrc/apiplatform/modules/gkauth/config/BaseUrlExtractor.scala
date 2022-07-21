@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.gkauth.connectors
+package uk.gov.hmrc.apiplatform.modules.gkauth.config
 
-import javax.inject.{Inject, Singleton}
+import com.typesafe.config.Config
 
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthConfig
 
-@Singleton
-class AuthConnector @Inject()(val http: HttpClient, strideAuthConfig: StrideAuthConfig) extends PlayAuthConnector {
-  lazy val serviceUrl = strideAuthConfig.authBaseUrl
+trait BaseUrlExtractor {
+  def config: Config
+
+  protected lazy val rootServices = "microservice.services"
+
+  def extractBaseUrl(serviceName: String) = {
+    val protocol = config.getString(s"${rootServices}.$serviceName.protocol")
+    val host     = config.getString(s"${rootServices}.$serviceName.host")
+    val port     = config.getString(s"${rootServices}.$serviceName.port")
+    s"$protocol://$host:$port"
+  }
 }
-
