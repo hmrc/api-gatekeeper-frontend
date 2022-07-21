@@ -20,7 +20,7 @@ import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import play.api.libs.json._
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 import uk.gov.hmrc.play.json.Union
-
+import play.api.libs.functional.syntax._
 import java.time.LocalDateTime
 
 case class CoreUserDetails(email: String, id: UserId)
@@ -52,7 +52,7 @@ case class RegisteredUser(
   verified: Boolean,
   organisation: Option[String] = None,
   mfaEnabled: Boolean = false,
-  mfaDetails: Option[List[MfaDetail]] = None,
+  mfaDetails: List[MfaDetail] = List.empty,
   emailPreferences: EmailPreferences = EmailPreferences.noPreferences) extends User {
 }
 
@@ -64,7 +64,20 @@ object RegisteredUser {
     .and[AuthenticatorAppMfaDetailSummary](MfaType.AUTHENTICATOR_APP.toString)
     .format
 
-  implicit val registeredUserFormat = Json.format[RegisteredUser]
+  val registeredUserReads: Reads[RegisteredUser] = (
+      (JsPath \ "email").read[String] and
+      (JsPath \ "userId").read[UserId] and
+      (JsPath \ "firstName").read[String] and
+      (JsPath \ "lastName").read[String] and
+      (JsPath \ "verified").read[Boolean] and
+      (JsPath \ "organisation").readNullable[String] and
+      (JsPath \ "mfaEnabled").read[Boolean] and
+      ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
+      ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))) (RegisteredUser.apply _)
+
+  val registeredUserWrites = Json.writes[RegisteredUser]
+  implicit val registeredUserFormat = Format(registeredUserReads, registeredUserWrites)
+
 }
 
 case class UnregisteredUser(email: String, userId: UserId) extends User {
@@ -106,7 +119,7 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
 
   lazy val mfaEnabled: Boolean = user match {
     case UnregisteredUser(_,_) => false
-    case r : RegisteredUser => MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails.getOrElse(List.empty))
+    case r : RegisteredUser => MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails)
   }
 
   lazy val emailPreferences: EmailPreferences = user match {

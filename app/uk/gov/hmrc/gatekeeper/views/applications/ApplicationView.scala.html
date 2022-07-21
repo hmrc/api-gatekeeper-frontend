@@ -494,7 +494,7 @@
                 </td>
                 <td class="govuk-table__cell" data-collaborator-mfaEnabled>
                   @(model.developers.find(dev => dev.email == collaborator.emailAddress) match {
-                    case Some(user) if (MfaDetailHelper.isAuthAppMfaVerified(user.mfaDetails.getOrElse(List.empty))) => "Yes"
+                    case Some(user) if (MfaDetailHelper.isAuthAppMfaVerified(user.mfaDetails)) => "Yes"
                     case _ => "No"
                   })
                 </td>
