@@ -51,7 +51,6 @@ case class RegisteredUser(
   lastName: String,
   verified: Boolean,
   organisation: Option[String] = None,
-  mfaEnabled: Boolean = false,
   mfaDetails: List[MfaDetail] = List.empty,
   emailPreferences: EmailPreferences = EmailPreferences.noPreferences) extends User {
 }
@@ -71,7 +70,6 @@ object RegisteredUser {
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
       (JsPath \ "organisation").readNullable[String] and
-      (JsPath \ "mfaEnabled").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))) (RegisteredUser.apply _)
 
@@ -117,7 +115,7 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
     case r : RegisteredUser => r.verified
   }
 
-  lazy val mfaEnabled: Boolean = user match {
+  lazy val authAppMfaVerified: Boolean = user match {
     case UnregisteredUser(_,_) => false
     case r : RegisteredUser => MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails)
   }

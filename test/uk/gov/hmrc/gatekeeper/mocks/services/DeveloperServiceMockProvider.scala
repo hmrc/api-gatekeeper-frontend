@@ -36,8 +36,8 @@ trait DeveloperServiceMockProvider {
   object DeveloperServiceMock {
 
     val mfaDetail = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
-    def mfaEnabledToMfaDetails(mfaEnabled: Boolean)={
-      if(mfaEnabled){
+    def hasAuthAppMfaVerified(hasMfaVerified: Boolean)={
+      if(hasMfaVerified){
         List(mfaDetail)
       }else List.empty
     }
@@ -46,13 +46,13 @@ trait DeveloperServiceMockProvider {
       def returnsFor(statusFilter: StatusFilter)(developers: Developer*) = when(mockDeveloperService.filterUsersBy(eqTo(statusFilter))(*)).thenReturn(developers.toList)
     }
     object GetDevelopersWithApps {
-      def returnsFor(apps: Application*)(users: User*)(developers: Developer*) = 
+      def returnsFor(apps: Application*)(users: User*)(developers: Developer*) =
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps.toList), eqTo(users.toList)))
         .thenReturn(developers.toList)
     }
 
     object FetchUsers {
-      def returns(users: RegisteredUser*) = 
+      def returns(users: RegisteredUser*) =
         when(mockDeveloperService.fetchUsers(*))
         .thenReturn(successful(users.toList))
     }
@@ -65,7 +65,7 @@ trait DeveloperServiceMockProvider {
       def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(successful(user))
       def throws(t: Throwable) =  when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
     }
-    
+
 
     object DeleteDeveloper {
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
@@ -80,9 +80,9 @@ trait DeveloperServiceMockProvider {
     }
 
     object SeekRegisteredUser {
-      def returnsFor(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
+      def returnsFor(email: String, verified: Boolean = true, authAppMfaVerified: Boolean = true) = {
 
-        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled, mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)))))
+        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaDetails = hasAuthAppMfaVerified(authAppMfaVerified)))))
       }
     }
     object SeekUnregisteredUser {
@@ -91,8 +91,8 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchOrCreateUser {
-      def handles(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) =
-        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled, mfaDetails = mfaEnabledToMfaDetails(mfaEnabled))))
+      def handles(email: String, verified: Boolean = true, authAppMfaVerified: Boolean = true) =
+        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(email, idOf(email), "first", "last", verified = verified,  mfaDetails = hasAuthAppMfaVerified(authAppMfaVerified))))
     }
 
     object FetchDevelopersByEmailPreferences {

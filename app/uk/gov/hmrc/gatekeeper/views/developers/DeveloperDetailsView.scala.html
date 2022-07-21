@@ -62,7 +62,7 @@
             </tr>
             <tr>
                 <th>2SV Enabled</th>
-                <td id="mfaEnabled">@(developer.mfaEnabled match {
+                <td id="mfaEnabled">@(developer.authAppMfaVerified match {
                     case true => "Yes"
                     case false => "No"
                 })</td>
@@ -131,7 +131,7 @@
                 routes.DevelopersController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))
             }" class="button--alert text--center flush--right">Delete developer</a>
         }
-        @if(developer.mfaEnabled) {
+        @if(developer.authAppMfaVerified) {
             <a id="remove-2SV" href="@{
                 routes.DevelopersController.removeMfaPage(UuidIdentifier(developer.user.userId))
             }" class="button--alert text--center flush--right">Remove 2SV</a>
