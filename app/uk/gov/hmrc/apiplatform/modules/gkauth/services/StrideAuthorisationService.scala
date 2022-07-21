@@ -22,7 +22,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ ~ }
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.AuthConnector
+import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
@@ -40,7 +40,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class StrideAuthorisationService @Inject() (
-  authConnector: AuthConnector,
+  strideAuthConnector: StrideAuthConnector,
   forbiddenHandler: ForbiddenHandler,
   strideAuthConfig: StrideAuthConfig
 )(implicit val ec: ExecutionContext) {
@@ -84,6 +84,6 @@ class StrideAuthorisationService @Inject() (
     val predicate = StrideAuthorisationPredicateForGatekeeperRole(strideAuthConfig.roles)(strideRoleRequired)
     val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
     
-    authConnector.authorise(predicate, retrieval)
+    strideAuthConnector.authorise(predicate, retrieval)
   }
 }

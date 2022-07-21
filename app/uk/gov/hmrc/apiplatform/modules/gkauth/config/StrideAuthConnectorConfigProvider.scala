@@ -16,12 +16,17 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.config
 
-import com.google.inject.AbstractModule
+import javax.inject.{Inject, Provider, Singleton}
+import play.api.Configuration
 import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 
-class ConfigurationModule extends AbstractModule {
-  override def configure() = {
-    bind(classOf[StrideAuthConfig]).toProvider(classOf[StrideAuthConfigProvider])
-    bind(classOf[StrideAuthConnector.Config]).toProvider(classOf[StrideAuthConnectorConfigProvider])
+@Singleton
+class StrideAuthConnectorConfigProvider @Inject()(configuration: Configuration) extends Provider[StrideAuthConnector.Config] with BaseUrlExtractor {
+  val config = configuration.underlying
+
+  override def get(): StrideAuthConnector.Config = {
+    val baseUrl = extractBaseUrl("auth")
+    
+    StrideAuthConnector.Config(baseUrl)
   }
 }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.AuthConnector
+import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -30,13 +30,13 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles._
 
-trait AuthConnectorMockModule {
+trait StrideAuthConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val strideAuthRoles: StrideAuthRoles
 
-  protected trait BaseAuthConnectorMock {
-    def aMock: AuthConnector
+  protected trait BaseStrideAuthConnectorMock {
+    def aMock: StrideAuthConnector
 
     object Authorise {
       private val defaultName = Name(Some("Bobby"), Some("Example"))
@@ -78,7 +78,7 @@ trait AuthConnectorMockModule {
     }
   }
 
-  object AuthConnectorMock extends BaseAuthConnectorMock {
-    val aMock = mock[AuthConnector]
+  object StrideAuthConnectorMock extends BaseStrideAuthConnectorMock {
+    val aMock = mock[StrideAuthConnector]
   }
 }
