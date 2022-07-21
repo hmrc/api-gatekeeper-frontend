@@ -29,7 +29,7 @@ trait CommonTestData {
     firstName = MockDataSugar.dev8FirstName,
     lastName = MockDataSugar.dev8LastName,
     verified = false,
-    mfaDetails = Some(List(AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "Some app", LocalDateTime.now(), verified = true))),
+    mfaDetails = List(AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "Some app", LocalDateTime.now(), verified = true)),
     mfaEnabled = true
   )
  

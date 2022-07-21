@@ -38,8 +38,8 @@ trait DeveloperServiceMockProvider {
     val mfaDetail = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
     def mfaEnabledToMfaDetails(mfaEnabled: Boolean)={
       if(mfaEnabled){
-        Some(List(mfaDetail))
-      }else None
+        List(mfaDetail)
+      }else List.empty
     }
     object FilterUsersBy {
       def returnsFor(apiFilter: ApiFilter[String],apps: Application*)(developers: Developer*) = when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
