@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
 
@@ -69,7 +69,7 @@
         </form>
         @if(maybeTopicFilter.isDefined) {
             <div><hr/></div>
-            @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("Tax regime" -> selectedCategoryName,
+            @userTable(new DevelopersEmailQuery(maybeTopicFilter, None, Some(categories), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
         }
     </div>

@@ -175,13 +175,13 @@ class EmailsController @Inject()(
 
     for {
       categories <- apiDefinitionService.apiCategories
-      users <- topicAndCategory.map(tup =>
-        developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2)))
-        .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
-      usersAsJson = Json.toJson(users)
+//      users <- topicAndCategory.map(tup =>
+//        developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2)))
+//        .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+//      usersAsJson = Json.toJson(users)
       selectedCategories = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
       selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
-    } yield Ok(emailPreferencesAPICategoryView(users, usersAsJson, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse(""), selectedCategoryName))
+    } yield Ok(emailPreferencesAPICategoryView(topicAndCategory.map(_._1), categories, selectedCategory.getOrElse(""), selectedCategoryName))
   }
 
 
