@@ -22,7 +22,7 @@ import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.gatekeeper.models.UserId
 import scala.util.Try
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
-import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 package object binders extends ApplicationLogger {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
