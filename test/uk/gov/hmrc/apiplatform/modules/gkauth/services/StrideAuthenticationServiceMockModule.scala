@@ -37,7 +37,7 @@ trait StrideAuthorisationServiceMockModule {
 
     object Auth {
       private def wrap[A](fn: MessagesRequest[A] => Future[Either[Result, LoggedInRequest[A]]]) = {
-        when(aMock.createStrideRefiner[A](*)).thenReturn(fn)
+        when(aMock.refineStride[A](*)).thenReturn(fn)
       }
       def succeeds[A](role: GatekeeperStrideRole) = {
         wrap[A](

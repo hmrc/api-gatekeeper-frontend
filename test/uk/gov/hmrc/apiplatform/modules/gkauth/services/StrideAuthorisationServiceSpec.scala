@@ -47,7 +47,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
     )
   }
 
-  "createStrideRefiner" should {
+  "refineStride" should {
 
     "return the appropriate results" in new Setup {
       import GatekeeperRoles._
@@ -68,7 +68,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
       forAll(cases) { case (requiredRole, userIsOfRole, expected) =>
         StrideAuthConnectorMock.Authorise.returnsFor(userIsOfRole)
 
-        val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(requiredRole)(msgRequest))
+        val result: Either[Result, LoggedInRequest[_]] = await(underTest.refineStride(requiredRole)(msgRequest))
         expected match {
           case Right(role) => result.right.value.role shouldBe role
           case Left(statusCode) => result.left.value.header.status shouldBe statusCode
@@ -79,7 +79,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
     "return a redirect when there is no active session" in new Setup {
       StrideAuthConnectorMock.Authorise.failsWithNoActiveSession
 
-      val result: Either[Result, LoggedInRequest[_]] = await(underTest.createStrideRefiner(GatekeeperRoles.USER)(msgRequest))
+      val result: Either[Result, LoggedInRequest[_]] = await(underTest.refineStride(GatekeeperRoles.USER)(msgRequest))
 
       result.left.value.header.status shouldBe SEE_OTHER
       result.left.value.header.headers(LOCATION) should startWith(strideAuthConfig.strideLoginUrl)
