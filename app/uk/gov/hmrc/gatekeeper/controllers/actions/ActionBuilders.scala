@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.gatekeeper.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import play.api.mvc.MessagesRequest
 
 trait ActionBuilders extends ApplicationLogger {
   def errorHandler: ErrorHandler
@@ -42,7 +43,7 @@ trait ActionBuilders extends ApplicationLogger {
   }
   
   def withStandardApp(appId: ApplicationId)(f: (ApplicationWithHistory, Standard) => Future[Result])
-             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+             (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(appWithHistory => appWithHistory.application.access match {
       case access : Standard => f(appWithHistory, access)
       case _ => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
@@ -50,7 +51,7 @@ trait ActionBuilders extends ApplicationLogger {
   }
 
   def withAppAndSubsData(appId: ApplicationId)(f: ApplicationWithSubscriptionData => Future[Result])
-             (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+             (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(appWithSubsData) => f(appWithSubsData)
       case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
@@ -58,7 +59,7 @@ trait ActionBuilders extends ApplicationLogger {
   }
 
   def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
-                                         (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+                                         (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
@@ -80,7 +81,7 @@ trait ActionBuilders extends ApplicationLogger {
   }
 
   def withAppAndSubscriptionsAndFieldDefinitions(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result])
-                                              (implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+                                              (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(applicationWithSubs) => {
         val applicationWithSubscriptionDataAndFieldDefinitions = for {
