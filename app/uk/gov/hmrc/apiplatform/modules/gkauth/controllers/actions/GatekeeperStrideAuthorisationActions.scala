@@ -29,6 +29,7 @@ import play.api.mvc.MessagesRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRole
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles.READ_ONLY
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
+import scala.util.control.NonFatal
 
 trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[_]): Result
@@ -79,7 +80,7 @@ trait GatekeeperAuthorisationActions {
   def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =  {
     Action.async { implicit request => 
       ldapAuthorisationService.refineLdap(request)
-      .recover { case _ => Left(request) }
+      .recover { case NonFatal(_) => Left(request) }
       .flatMap(_ match {
         case Left(_) => anyStrideUserAction(block)(request)
         case Right(lir) => block(lir)
