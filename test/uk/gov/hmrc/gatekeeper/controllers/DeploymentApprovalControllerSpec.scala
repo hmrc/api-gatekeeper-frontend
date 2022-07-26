@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
 
 import java.net.URLEncoder
 import java.util.UUID
@@ -39,7 +40,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentReviewView = app.injector.instanceOf[DeploymentReviewView]
 
-  trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
+  trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
     val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
@@ -55,12 +56,14 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       deploymentApprovalView,
       deploymentReviewView,
       errorTemplateView,
-      StrideAuthorisationServiceMock.aMock
+      StrideAuthorisationServiceMock.aMock,
+      LdapAuthorisationServiceMock.aMock
     )
   }
 
   "pendingPage" should {
     "render the deployment approval page for APIs in all environments" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchUnapprovedServices.returns(
@@ -80,6 +83,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised()
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
 
       val result =  underTest.pendingPage()(aLoggedInRequest)
