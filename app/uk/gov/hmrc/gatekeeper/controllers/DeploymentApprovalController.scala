@@ -33,6 +33,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import javax.inject.Inject
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
 class DeploymentApprovalController @Inject()(
   val forbiddenView: ForbiddenView,
@@ -42,11 +44,14 @@ class DeploymentApprovalController @Inject()(
   deploymentApproval: DeploymentApprovalView,
   deploymentReview: DeploymentReviewView,
   override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+  with GatekeeperAuthorisationActions
+  with ErrorHelper {
 
-  def pendingPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def pendingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
   }
 
