@@ -48,6 +48,31 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(Some(environment)).fetchStateHistory(applicationId)
   }
 
+  def fetchProdAppStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistoryChange]] = {
+    applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
+      val pairedStates = (appStateHistory.stateHistory zip appStateHistory.stateHistory.tail).map(t => {
+        val (h1, h2) = t
+        ApplicationStateHistoryChange(
+          appStateHistory.applicationId.value,
+          h1.state.toString,
+          h1.timestamp.toString,
+          h2.state.toString,
+          h2.timestamp.toString
+        )
+      })
+      appStateHistory.stateHistory.lastOption match {
+        case Some(ApplicationStateHistoryItem(state, timestamp)) => pairedStates ++ List(ApplicationStateHistoryChange(
+          appStateHistory.applicationId.value,
+          state.toString,
+          timestamp.toString,
+          "",
+          ""
+        ))
+        case None => List()
+      }
+    }))
+  }
+
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     val sandboxApplicationsFuture = sandboxApplicationConnector.fetchAllApplications()
     val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()

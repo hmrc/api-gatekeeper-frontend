@@ -142,6 +142,13 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       }
   }
 
+  def fetchAllApplicationsWithStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
+    http.GET[List[ApplicationStateHistory]](s"$serviceBaseUrl/gatekeeper/applications/stateHistory")
+      .recover {
+        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
+      }
+  }
+
   def updateOverrides(applicationId: ApplicationId, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     http.PUT[UpdateOverridesRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/access/overrides", updateOverridesRequest)
     .map( _ match {
