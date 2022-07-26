@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 @Singleton
 class ApiCataloguePublishConnector @Inject()(appConfig: ApiCataloguePublishConnector.Config, http: HttpClient)

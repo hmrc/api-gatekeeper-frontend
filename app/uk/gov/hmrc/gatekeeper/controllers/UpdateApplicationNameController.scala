@@ -25,12 +25,13 @@ import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.gatekeeper.utils.{ApplicationLogger, ErrorHelper}
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 @Singleton
 class UpdateApplicationNameController @Inject()(

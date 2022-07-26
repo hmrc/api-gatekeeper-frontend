@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.views.developers
 
 import java.util.UUID
 import org.jsoup.Jsoup
-import play.api.test.FakeRequest
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
