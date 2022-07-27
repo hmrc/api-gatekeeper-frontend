@@ -43,6 +43,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
         appStateHistoryChanges.map(c => s"${c.applicationId},${c.oldState},${c.oldTimestamp},${c.newState},${c.newTimestamp}").mkString("", "\n", "\n")
 
       "return csv data for ldap authorised user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
         LdapAuthorisationServiceMock.Auth.succeeds
         ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
         val result = underTest.csv()(aLoggedInRequest)
@@ -59,6 +60,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       }
 
       "return csv data with correct headers" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
         LdapAuthorisationServiceMock.Auth.succeeds
         ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
         val result = underTest.csv()(aLoggedInRequest)
