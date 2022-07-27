@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import mocks.services.ApplicationServiceMockProvider
 import play.api.http.Status.{FORBIDDEN, OK}
-import play.api.test.Helpers.{contentAsString, running, status}
+import play.api.test.Helpers.{contentAsString, contentType, header, running, status}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ApplicationStateHistoryChange}
@@ -56,6 +56,15 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
+      }
+
+      "return csv data with correct headers" in new Setup {
+        LdapAuthorisationServiceMock.Auth.succeeds
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
+        val result = underTest.csv()(aLoggedInRequest)
+        status(result) shouldBe OK
+        contentType(result) shouldBe Some("text/csv")
+        header("Content-Disposition", result) shouldBe Some("attachment;filename=applicationStateHistory.csv")
       }
 
       "fails for unauthorised users" in new Setup {

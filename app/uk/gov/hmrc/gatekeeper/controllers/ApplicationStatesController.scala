@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import com.google.inject.{Inject, Singleton}
+import play.api.http.HeaderNames
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -38,6 +39,8 @@ class ApplicationStatesController @Inject()(
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc) with GatekeeperAuthorisationActions {
 
+  val csvFileName = "applicationStateHistory.csv"
+
   def csv(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     applicationService.fetchProdAppStateHistories().map(appStateHistoryChange => {
       val columnDefinitions : Seq[ColumnDefinition[ApplicationStateHistoryChange]] = Seq(
@@ -49,6 +52,8 @@ class ApplicationStatesController @Inject()(
       )
       
       Ok(CsvHelper.toCsvString(columnDefinitions, appStateHistoryChange))
+        .withHeaders((HeaderNames.CONTENT_DISPOSITION, s"attachment;filename=${csvFileName}"))
+        .as("text/csv")
     })
   }
 }
