@@ -126,12 +126,11 @@
             </table>
         </div>
         <br>
-        @{
-          if(loggedInRequest.role.isSuperUser) {
-            <a id="delete-developer" href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}" class="button--alert text--center flush--right">Delete developer</a>
-          }
-          else if(loggedInRequest.role.isUser) {
-            if(developer.mfaEnabled) {
+        @if(loggedInRequest.role.isSuperUser) {
+          <a id="delete-developer" href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}" class="button--alert text--center flush--right">Delete developer</a>
+        } else {
+          @if(loggedInRequest.role.isUser) {
+            @if(developer.mfaEnabled) {
               <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}" class="button--alert text--center flush--right">Remove 2SV</a>
             }
           }

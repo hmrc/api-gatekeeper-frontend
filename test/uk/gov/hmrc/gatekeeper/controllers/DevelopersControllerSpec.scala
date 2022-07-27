@@ -22,8 +22,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import play.api.test.Helpers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
@@ -40,7 +38,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
     val apiVersion1 = ApiVersion("1.0")
     val apiVersion2 = ApiVersion("2.0")
 
-    trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
+    trait Setup extends ControllerSetupBase {
 
       override val aLoggedInRequest = FakeRequest().withSession(authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken).withCSRFToken
@@ -52,7 +50,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         mcc,
         developersView,
         errorTemplateView,
-       StrideAuthorisationServiceMock.aMock
+       StrideAuthorisationServiceMock.aMock,
+       LdapAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

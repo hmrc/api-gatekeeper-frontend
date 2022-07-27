@@ -80,7 +80,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         errorTemplateView,
         mockApmService,
         errorHandler,
-        StrideAuthorisationServiceMock.aMock
+        StrideAuthorisationServiceMock.aMock,
+        LdapAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {

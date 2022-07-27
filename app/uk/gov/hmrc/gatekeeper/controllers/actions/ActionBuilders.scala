@@ -25,8 +25,6 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, NotFound}
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.gatekeeper.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData

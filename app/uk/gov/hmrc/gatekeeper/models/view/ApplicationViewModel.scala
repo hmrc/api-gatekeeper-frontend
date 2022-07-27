@@ -22,7 +22,6 @@ import uk.gov.hmrc.gatekeeper.models.StateHistory
 import uk.gov.hmrc.gatekeeper.models.TermsOfUseAgreement
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRole
 
 case class ApplicationViewModel(
   developers: List[RegisteredUser],
