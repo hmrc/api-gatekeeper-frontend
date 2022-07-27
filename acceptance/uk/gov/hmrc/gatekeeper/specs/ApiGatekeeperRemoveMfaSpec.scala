@@ -26,8 +26,6 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaId, RegisteredUser, UserId}
 import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
-
-import java.util.UUID
 import scala.io.Source
 
 class ApiGatekeeperRemoveMfaSpec
