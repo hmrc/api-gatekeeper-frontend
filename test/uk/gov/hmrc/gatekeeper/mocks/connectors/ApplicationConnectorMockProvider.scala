@@ -42,7 +42,7 @@ trait ApplicationConnectorMockProvider {
     object SearchCollaborators {
       def returns(emails: String*) = when(mock.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)).thenReturn(successful(emails.toList))
 
-      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(collaborators: String*) = 
+      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(collaborators: String*) =
         when(mock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(partialEmailMatch))(*))
         .thenReturn(successful(collaborators.toList))
     }
@@ -51,13 +51,17 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
     }
 
+    object FetchAllApplicationsWithStateHistories {
+      def returns(applicationStateHistories: ApplicationStateHistory*) = when(mock.fetchAllApplicationsWithStateHistories()(*))
+        .thenReturn(successful(applicationStateHistories.toList))
+    }
+
     object FetchAllApplicationsWithNoSubscriptions {
       def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchAllApplicationsBySubscription {
       def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
-
     }
 
     object UnsubscribeFromApi {
@@ -69,7 +73,7 @@ trait ApplicationConnectorMockProvider {
     object FetchApplication {
       def returns(app: ApplicationWithHistory) = when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
 
-      def failsNotFound() = 
+      def failsNotFound() =
         when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not Found",NOT_FOUND)))
     }
 
@@ -80,11 +84,11 @@ trait ApplicationConnectorMockProvider {
     object RemoveCollaborator {
       def succeeds() = when(mock.removeCollaborator(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
-      def succeedsFor(id: ApplicationId, memberToRemove: String, requestingUser: String) = 
+      def succeedsFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
         when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
         .thenReturn(successful(ApplicationUpdateSuccessResult))
 
-      def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) = 
+      def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
         when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
         .thenReturn(failed(TeamMemberLastAdmin))
     }

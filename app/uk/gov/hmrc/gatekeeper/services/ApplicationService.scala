@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -37,7 +38,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                    productionApiScopeConnector: ProductionApiScopeConnector,
                                    apmConnector: ApmConnector,
                                    developerConnector: DeveloperConnector,
-                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) {
+                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) extends ApplicationLogger{
 
   def resendVerification(application: Application, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -46,6 +47,37 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
   def fetchStateHistory(applicationId: ApplicationId, environment: Environment)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
     applicationConnectorFor(Some(environment)).fetchStateHistory(applicationId)
+  }
+
+  def fetchProdAppStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistoryChange]] = {
+    def buildChanges(appId: ApplicationId, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
+      stateHistory match {
+        case state1 :: state2 :: others => ApplicationStateHistoryChange(
+          appId.value,
+          state1.state.toString,
+          state1.timestamp.toString,
+          state2.state.toString,
+          state2.timestamp.toString
+        ) :: buildChanges(appId, state2 :: others)
+
+        case finalState :: Nil => List(ApplicationStateHistoryChange(
+          appId.value,
+          finalState.state.toString,
+          finalState.timestamp.toString,
+          "",
+          ""
+        ))
+
+        case Nil => {
+          logger.warn(s"Found a PRODUCTION application ${appId} without any state history while running the Application State History report")
+          List()
+        }
+      }
+    }
+
+    applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
+      buildChanges(appStateHistory.applicationId, appStateHistory.stateHistory)
+    }))
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {

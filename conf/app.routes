@@ -18,6 +18,8 @@ GET         /developers2                                                      uk
 GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
 
+GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv
+
 GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 
 POST        /applications/:id/handle-uplift                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUplift(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)

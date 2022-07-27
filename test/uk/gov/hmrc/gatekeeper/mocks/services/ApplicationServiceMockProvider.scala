@@ -136,5 +136,10 @@ trait ApplicationServiceMockProvider {
 
       def fails() = when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[String], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateFailureResult))
     }
+
+    object FetchProdAppStateHistories {
+      def thenReturn(applicationStateHistoryChanges: ApplicationStateHistoryChange*) =
+        when(mockApplicationService.fetchProdAppStateHistories()(*)).thenReturn(successful(applicationStateHistoryChanges.toList))
+    }
   }
 }
