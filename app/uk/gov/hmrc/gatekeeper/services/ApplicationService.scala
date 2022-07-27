@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.gatekeeper.utils.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -37,7 +38,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
                                    productionApiScopeConnector: ProductionApiScopeConnector,
                                    apmConnector: ApmConnector,
                                    developerConnector: DeveloperConnector,
-                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) {
+                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) extends ApplicationLogger{
 
   def resendVerification(application: Application, gatekeeperUserId: String)
                         (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
@@ -49,27 +50,33 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchProdAppStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistoryChange]] = {
-    applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
-      val pairedStates = (appStateHistory.stateHistory zip appStateHistory.stateHistory.tail).map(t => {
-        val (h1, h2) = t
-        ApplicationStateHistoryChange(
-          appStateHistory.applicationId.value,
-          h1.state.toString,
-          h1.timestamp.toString,
-          h2.state.toString,
-          h2.timestamp.toString
-        )
-      })
-      appStateHistory.stateHistory.lastOption match {
-        case Some(ApplicationStateHistoryItem(state, timestamp)) => pairedStates ++ List(ApplicationStateHistoryChange(
-          appStateHistory.applicationId.value,
-          state.toString,
-          timestamp.toString,
+    def buildChanges(appId: ApplicationId, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
+      stateHistory match {
+        case state1 :: state2 :: others => ApplicationStateHistoryChange(
+          appId.value,
+          state1.state.toString,
+          state1.timestamp.toString,
+          state2.state.toString,
+          state2.timestamp.toString
+        ) :: buildChanges(appId, state2 :: others)
+
+        case finalState :: Nil => List(ApplicationStateHistoryChange(
+          appId.value,
+          finalState.state.toString,
+          finalState.timestamp.toString,
           "",
           ""
         ))
-        case None => List()
+
+        case Nil => {
+          logger.warn(s"Found a PRODUCTION application ${appId} without any state history while running the Application State History report")
+          List()
+        }
       }
+    }
+
+    applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
+      buildChanges(appStateHistory.applicationId, appStateHistory.stateHistory)
     }))
   }
 

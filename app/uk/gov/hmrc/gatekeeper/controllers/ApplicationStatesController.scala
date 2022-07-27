@@ -45,7 +45,7 @@ class ApplicationStatesController @Inject()(
         ColumnDefinition("oldState", _.oldState),
         ColumnDefinition("oldTimestamp", _.oldTimestamp),
         ColumnDefinition("newState", _.newState),
-        ColumnDefinition("timestamp", _.newTimestamp)
+        ColumnDefinition("newTimestamp", _.newTimestamp)
       )
       
       Ok(CsvHelper.toCsvString(columnDefinitions, appStateHistoryChange))
