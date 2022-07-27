@@ -11,9 +11,9 @@ POST        /developer/delete                                                 uk
 GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
 POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
 
-GET         /developers2                                                      uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
 GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
 POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage
+GET         /developers2                                                      uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
 
 GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
