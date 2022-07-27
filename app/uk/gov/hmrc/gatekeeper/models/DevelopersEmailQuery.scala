@@ -17,10 +17,9 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 
 
-case class DevelopersEmailQuery(topic: Option[TopicOptionChoice] = None,
+case class DevelopersEmailQuery(topic: Option[String] = None,
                                 apis: Option[Seq[String]] = None,
                                 apiCategories: Option[Seq[APICategoryDetails]] = None,
                                 privateapimatch: Boolean = false,
