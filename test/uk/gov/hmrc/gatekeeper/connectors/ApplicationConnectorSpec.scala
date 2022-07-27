@@ -34,10 +34,10 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 
-class ApplicationConnectorSpec 
-    extends AsyncHmrcSpec 
+class ApplicationConnectorSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding {
@@ -299,6 +299,32 @@ class ApplicationConnectorSpec
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplications())
       }
+    }
+  }
+
+  "fetchAllApplicationsWithStateHistories" should {
+    val url = "/gatekeeper/applications/stateHistory"
+
+    "retrieve all applications with state histories" in new Setup {
+      val applicationsWithStateHistories = List(
+        ApplicationStateHistory(ApplicationId.random, List(
+          ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now),
+          ApplicationStateHistoryItem(State.PRODUCTION, LocalDateTime.now)
+        )),
+        ApplicationStateHistory(ApplicationId.random, List(ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now)))
+      )
+      val payload = Json.toJson(applicationsWithStateHistories).toString
+
+      stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload)
+          )
+      )
+      val result = await(connector.fetchAllApplicationsWithStateHistories())
+      result shouldBe applicationsWithStateHistories
     }
   }
 

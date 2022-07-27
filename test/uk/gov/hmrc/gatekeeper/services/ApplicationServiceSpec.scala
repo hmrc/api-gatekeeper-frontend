@@ -34,13 +34,13 @@ import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.connectors.ApmConnectorMockProvider
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
-
-import java.time.Period
+import uk.gov.hmrc.gatekeeper.models.State.State
+import java.time.{LocalDateTime, Period}
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
-  trait Setup 
-      extends MockitoSugar with ArgumentMatchersSugar 
+  trait Setup
+      extends MockitoSugar with ArgumentMatchersSugar
       with ApplicationConnectorMockProvider
       with ApmConnectorMockProvider
       with ApiScopeConnectorMockProvider {
@@ -158,6 +158,56 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.resendVerification(stdApp1, userName))
       gatekeeperIdCaptor.value shouldBe userName
       appIdCaptor.value shouldBe stdApp1.id
+    }
+  }
+
+  "fetchProdAppStateHistories" should {
+    def buildAppStateHistories(states: State*) =
+      ApplicationStateHistory(ApplicationId.random, states.toList.map(ApplicationStateHistoryItem(_, LocalDateTime.now)))
+
+    "handle apps with no state history correctly" in new Setup {
+      ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(
+        buildAppStateHistories()
+      )
+      val result = await(underTest.fetchProdAppStateHistories)
+      result shouldEqual List()
+    }
+
+    "handle apps with single state history item correctly" in new Setup {
+      val appStateHistory = buildAppStateHistories(State.TESTING)
+      ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(appStateHistory)
+
+      val result = await(underTest.fetchProdAppStateHistories)
+
+      result shouldEqual List(
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "", "")
+      )
+    }
+
+    "handle apps with multiple state history items correctly" in new Setup {
+      val appStateHistory = buildAppStateHistories(State.TESTING, State.PENDING_GATEKEEPER_APPROVAL, State.PRODUCTION)
+      ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(appStateHistory)
+
+      val result = await(underTest.fetchProdAppStateHistories)
+
+      result shouldEqual List(
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString),
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString),
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString, "", "")
+      )
+    }
+    "handle multiple apps in response correctly" in new Setup {
+      val app1StateHistory = buildAppStateHistories(State.TESTING)
+      val app2StateHistory = buildAppStateHistories(State.TESTING, State.PRODUCTION)
+      ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(app1StateHistory, app2StateHistory)
+
+      val result = await(underTest.fetchProdAppStateHistories)
+
+      result shouldEqual List(
+        ApplicationStateHistoryChange(app1StateHistory.applicationId.value, "TESTING", app1StateHistory.stateHistory(0).timestamp.toString, "", ""),
+        ApplicationStateHistoryChange(app2StateHistory.applicationId.value, "TESTING", app2StateHistory.stateHistory(0).timestamp.toString, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString),
+        ApplicationStateHistoryChange(app2StateHistory.applicationId.value, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString, "", ""),
+      )
     }
   }
 
