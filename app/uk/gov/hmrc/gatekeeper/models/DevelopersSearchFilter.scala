@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
-case class DevelopersSeachFilter(
+case class DevelopersSearchFilter(
   maybeEmailFilter: Option[String] = None,
   maybeApiFilter: Option[ApiContextVersion] = None,
   environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,

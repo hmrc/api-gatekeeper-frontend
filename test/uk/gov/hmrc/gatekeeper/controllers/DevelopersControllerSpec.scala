@@ -135,7 +135,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         contentAsString(result) should include(emailAddress)
 
-        val expectedFilter = DevelopersSeachFilter(Some(partialEmailAddress))
+        val expectedFilter = DevelopersSearchFilter(Some(partialEmailAddress))
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
@@ -186,7 +186,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(emailAddress)
 
         val filter = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
-        val expectedFilter = DevelopersSeachFilter(maybeApiFilter = Some(filter))
+        val expectedFilter = DevelopersSearchFilter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
@@ -268,7 +268,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         contentAsString(result) should include(emailAddress)
 
-        val expectedFilter = DevelopersSeachFilter(developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
+        val expectedFilter = DevelopersSearchFilter(developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
@@ -288,7 +288,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         contentAsString(result) should include(emailAddress)
 
-        val expectedFilter = DevelopersSeachFilter(environmentFilter = ProductionEnvironment)
+        val expectedFilter = DevelopersSearchFilter(environmentFilter = ProductionEnvironment)
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
     }

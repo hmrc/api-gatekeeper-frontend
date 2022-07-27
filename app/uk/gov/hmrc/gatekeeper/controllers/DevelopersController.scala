@@ -66,7 +66,7 @@ class DevelopersController @Inject()(
           case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
             logger.info("Searching developers")
             val filters = 
-            DevelopersSeachFilter(
+            DevelopersSearchFilter(
               mapEmptyStringToNone(maybeEmailFilter),
                   ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
                   ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
