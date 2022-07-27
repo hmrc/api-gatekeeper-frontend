@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.pages.Developer2Page.APIFilter
-import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, Developer2Page}
+import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
+import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, Tag}
@@ -77,22 +77,22 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
       ApplicationsPage.selectDevelopers()
 
       Then("I am successfully navigated to the Developers page")
-      on(Developer2Page)
+      on(DeveloperPage)
 
       When("I enter a partial email to filter by")
-      Developer2Page.writeInSearchBox("partialEmail")
+      DeveloperPage.writeInSearchBox("partialEmail")
 
       And("I pick a an API definition")
-      Developer2Page.selectBySubscription(APIFilter.EMPLOYERSPAYE)
+      DeveloperPage.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
       And("I pick an environment")
-      Developer2Page.selectByEnvironment("PRODUCTION")
+      DeveloperPage.selectByEnvironment("PRODUCTION")
 
       And("I pick a Developer Status")
-      Developer2Page.selectByDeveloperStatus("VERIFIED")
+      DeveloperPage.selectByDeveloperStatus("VERIFIED")
 
       And("I submit my search")
-      Developer2Page.submit()
+      DeveloperPage.submit()
 
       Then("I see a list of filtered developers")
 

@@ -16,74 +16,78 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
-
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.views.html.developers._
+import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
+import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 @Singleton
 class DevelopersController @Inject()(
-  developerService: DeveloperService,
-  val applicationService: ApplicationService,
   val forbiddenView: ForbiddenView,
-  apiDefinitionService: ApiDefinitionService,
+  developerService: DeveloperService,
+  val apiDefinitionService: ApiDefinitionService,
   mcc: MessagesControllerComponents,
-  developerDetailsView: DeveloperDetailsView,
-  removeMfaView: RemoveMfaView,
-  removeMfaSuccessView: RemoveMfaSuccessView,
-  deleteDeveloperView: DeleteDeveloperView,
-  deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
+  developersView: DevelopersView,
   override val errorTemplate: ErrorTemplate,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
   strideAuthorisationService: StrideAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
-    with ActionBuilders
+    with UserFunctionsWrapper
     with ApplicationLogger {
 
-  def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
-        s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
-
-    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
+  def blankDevelopersPage() = anyStrideUserAction { implicit request =>
+    combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-  def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer)))
+  def developersPage() = anyStrideUserAction { implicit request =>
+    DevelopersSearchForm.form.bindFromRequest.fold(
+      formWithErrors => {
+          logger.warn("Errors found trying to bind request for developers search")
+          // binding failure, you retrieve the form containing errors:
+          Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
+      },
+      searchParams => {
+        val allFoundUsers = searchParams match {
+          case DevelopersSearchForm(None, None, None, None) => 
+            logger.info("Not performing a query for empty parameters")
+            Future.successful(List.empty)
+          case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
+            logger.info("Searching developers")
+            val filters = 
+            DevelopersSeachFilter(
+              mapEmptyStringToNone(maybeEmailFilter),
+                  ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                  ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
+                  DeveloperStatusFilter(maybeDeveloperStatusFilter)
+                )
+                developerService.searchDevelopers(filters)
+        }
+        combineUsersIntoPage(allFoundUsers, searchParams)
+      }
+    )
   }
 
-  def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
-      Ok(removeMfaSuccessView(user.email))
-    } recover {
-      case e: Exception =>
-        logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
-        technicalDifficulties
-    }
-  }
-
-  def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(deleteDeveloperView(developer)))
-  }
-
-  def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
-    developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
-      case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
-      case _ => technicalDifficulties
-    }
+  def combineUsersIntoPage(allFoundUsers: Future[List[User]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
+    for {
+      users <- allFoundUsers
+      registeredUsers = users.collect {
+                          case r : RegisteredUser => r
+                        }
+      verifiedUsers = registeredUsers.filter(_.verified)
+      apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
+      form = DevelopersSearchForm.form.fill(searchParams)
+    } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
   }
 }

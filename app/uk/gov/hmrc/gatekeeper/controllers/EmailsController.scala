@@ -209,7 +209,7 @@ class EmailsController @Inject()(
       apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
     } yield apiDropDowns
 
-    val filter = Developers2Filter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
+    val filter = DevelopersSeachFilter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
     val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(List.empty[User]))(_ => developerService.searchDevelopers(filter))
     for {
       registeredUsers <- fetchedUsers.map(users => users.collect {

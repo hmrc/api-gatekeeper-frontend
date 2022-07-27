@@ -74,7 +74,7 @@ class ApiGatekeeperRemoveMfaSpec
       RemoveMfaSuccessPage.finish()
       
       Then("I am successfully navigated to the Developers page")
-      on(Developer2Page)
+      on(DeveloperPage)
     }
 
     Scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
@@ -107,7 +107,7 @@ class ApiGatekeeperRemoveMfaSpec
       RemoveMfaSuccessPage.finish()
 
       Then("I am successfully navigated to the Developers page")
-      on(Developer2Page)
+      on(DeveloperPage)
     }
   }
 
@@ -130,11 +130,11 @@ class ApiGatekeeperRemoveMfaSpec
     ApplicationsPage.selectDevelopers()
 
     Then("I am successfully navigated to the Developers page")
-    on(Developer2Page)
+    on(DeveloperPage)
 
     When("I select a developer email")
-    Developer2Page.searchByPartialEmail(developer8)
-    Developer2Page.selectByDeveloperEmail(developer8)
+    DeveloperPage.searchByPartialEmail(developer8)
+    DeveloperPage.selectByDeveloperEmail(developer8)
 
     Then("I am successfully navigated to the Developer Details page")
     on(DeveloperDetailsPage)

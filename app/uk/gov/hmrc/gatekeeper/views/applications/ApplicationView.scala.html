@@ -479,7 +479,7 @@
             @for(collaborator <- application.collaborators) {
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" data-collaborator-email>
-                  <a class="govuk-link" href="@{routes.DevelopersController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
+                  <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
                 </td>
                 <td class="govuk-table__cell" data-collaborator-role>
                   @{

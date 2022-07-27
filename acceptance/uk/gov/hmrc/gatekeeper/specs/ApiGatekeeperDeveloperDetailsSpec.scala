@@ -67,11 +67,11 @@ class ApiGatekeeperDeveloperDetailsSpec
       ApplicationsPage.selectDevelopers()
 
       Then("I am successfully navigated to the Developers page where I can view all developer list details by default")
-      on(Developer2Page)
+      on(DeveloperPage)
 
       When("I select a developer email")
-      Developer2Page.searchByPartialEmail(unverifiedUser.email)
-      Developer2Page.selectByDeveloperEmail(unverifiedUser.email)
+      DeveloperPage.searchByPartialEmail(unverifiedUser.email)
+      DeveloperPage.selectByDeveloperEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the Developer Details page")
       on(DeveloperDetailsPage)

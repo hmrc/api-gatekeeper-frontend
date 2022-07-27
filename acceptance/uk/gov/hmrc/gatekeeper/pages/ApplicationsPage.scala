@@ -74,7 +74,7 @@ object ApplicationsPage extends WebPage with NavigationSugar {
 
   def selectDevelopers() = {
     click on developersNavLink
-    on(Developer2Page)
+    on(DeveloperPage)
   }
 
 

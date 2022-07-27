@@ -5,14 +5,15 @@ GET         /review                                                           uk
 
 POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 
-GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developerPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DevelopersController.deleteDeveloperPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DevelopersController.deleteDeveloperAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DevelopersController.removeMfaPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DevelopersController.removeMfaAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
 
-GET         /developers2                                                      uk.gov.hmrc.gatekeeper.controllers.Developers2Controller.blankDevelopersPage
-POST        /developers2                                                      uk.gov.hmrc.gatekeeper.controllers.Developers2Controller.developersPage
+GET         /developers2                                                      uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
+GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
+POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage
 
 GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)

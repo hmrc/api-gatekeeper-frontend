@@ -31,7 +31,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
                                  sandboxApplicationConnector: SandboxApplicationConnector,
                                  productionApplicationConnector: ProductionApplicationConnector,
                                  xmlService: XmlService)(implicit ec: ExecutionContext) {
-  def searchDevelopers(filter: Developers2Filter)(implicit hc: HeaderCarrier): Future[List[User]] = {
+  def searchDevelopers(filter: DevelopersSeachFilter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None) => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)

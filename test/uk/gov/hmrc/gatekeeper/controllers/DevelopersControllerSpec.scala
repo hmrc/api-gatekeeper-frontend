@@ -17,70 +17,42 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
-import uk.gov.hmrc.gatekeeper.views.html.developers._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import play.api.test.Helpers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import org.joda.time.DateTime
+import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 
-import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
-class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
+class DevelopersControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = app.materializer
-  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
-  private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetailsView]
-  private lazy val removeMfaView = app.injector.instanceOf[RemoveMfaView]
-  private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccessView]
-  private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloperView]
-  private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccessView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
+  private lazy val developersView = app.injector.instanceOf[DevelopersView]
+
 
   Helpers.running(app) {
 
-    def anApplication(collaborators: Set[Collaborator]) = {
-      val grantLength: Period = Period.ofDays(547)
-      ApplicationResponse(
-        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
-    }
+    val apiVersion1 = ApiVersion("1.0")
+    val apiVersion2 = ApiVersion("2.0")
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
 
-      val emailAddress = "someone@example.com"
-      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      val developerId = UuidIdentifier(user.userId)
-
-      val apps = List(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      val developer = Developer( user, apps )
-
-      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
-      val loggedInSuperUser = "superUserName"
-      val loggedInUser = "Bobby Example"
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
+      override val aLoggedInRequest = FakeRequest().withSession(authToken, userToken).withCSRFToken
+      override val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken).withCSRFToken
 
       val developersController = new DevelopersController(
-        mockDeveloperService,
-        mockApplicationService,
         forbiddenView,
+        mockDeveloperService,
         mockApiDefinitionService,
         mcc,
-        developerDetailsView,
-        removeMfaView,
-        removeMfaSuccessView,
-        deleteDeveloperView,
-        deleteDeveloperSuccessView,
+        developersView,
         errorTemplateView,
-        mockApmService,
-        errorHandler,
-        StrideAuthorisationServiceMock.aMock
+       StrideAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -92,105 +64,232 @@ class DevelopersControllerSpec extends ControllerBaseSpec with WithCSRFAddToken 
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter = StatusFilter(None)
         val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter,environmentFilter, apps:_*)
         FetchAllApiDefinitions.inAny.returns()
-        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps:_*)(developers:_*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter,apps:_*)(developers:_*)
         DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
         DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps:_*)(users:_*)(developers:_*)
         DeveloperServiceMock.FetchUsers.returns(users:_*)
       }
 
-      DeveloperServiceMock.RemoveMfa.returns(user)
     }
 
-    "removeMfaPage" should {
-      "not allow a user with insufficient enrolments to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
-
-        DeveloperServiceMock.FetchDeveloper.handles(developer)
-
-        val result = developersController.removeMfaPage(developerId)(aLoggedInRequest)
-        status(result) shouldBe FORBIDDEN
-      }
-
-      "allow a normal user to access the page" in new Setup {
+    "blankDevelopersPage" should {
+      "show no results when initially opened" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDeveloper.handles(developer)
+        givenNoDataSuppliedDelegateServices()
 
-        val result = addToken(developersController.removeMfaPage(developerId))(aLoggedInRequest)
+        val result = developersController.blankDevelopersPage()(aLoggedInRequest)
 
-        status(result) shouldBe OK
+        contentAsString(result) should include("Developers")
+
       }
     }
+    
+    "developersPage" should {
 
-    "removeMfaAction" should {
-
-      "not allow a user with insufficient enrolments to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
-
-        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
-        status(result) shouldBe FORBIDDEN
-      }
-
-      "allow a normal user to access the page" in new Setup {
+      "show no results when initially opened" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.RemoveMfa.returns(user)
+        givenNoDataSuppliedDelegateServices()
 
-        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
+        val result = developersController.developersPage()(aLoggedInRequest.withFormUrlEncodedBody())
 
-        status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+        contentAsString(result) should include("Developers")
+
       }
 
-      "return an internal server error when it fails to remove MFA" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
+      "searching with all empty filters does not trigger a query" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
 
-        val result = developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest)
+        private val EMPTY = ""
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-      }
-    }
+        DeveloperServiceMock.SearchDevelopers.returns()
 
-    "deleteDeveloperPage" should {
+        val request = aLoggedInRequest.withFormUrlEncodedBody(
+                          "emailFilter"-> EMPTY,
+                          "apiVersionFilter" -> EMPTY,
+                          "environmentFilter" -> EMPTY,
+                          "developerStatusFilter" -> EMPTY
+                      )
+        val result = developersController.developersPage()(request)
 
-      "not allow a user with insifficient enrolments to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        await(result)
 
-        val result = developersController.deleteDeveloperPage(developerId)(aLoggedInRequest)
-        status(result) shouldBe FORBIDDEN
-      }
-
-      "allow a super user to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        DeveloperServiceMock.FetchDeveloper.handles(developer)
-        val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
-        status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId))(*)
-      }
-    }
-
-    "deleteDeveloperAction" should {
-
-      "not allow an unauthorised user to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
-        val result = developersController.deleteDeveloperAction(developerId)(aLoggedInRequest)
-        status(result) shouldBe FORBIDDEN
+        verify(mockDeveloperService, never).searchDevelopers(*)(*)
       }
 
-      "allow a super user to access the page" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteSuccessResult)
-        val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
-        status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(*)
+      "allow searching by email or partial email" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val partialEmailAddress = "example"
+        private val user = aUser(emailAddress)
+
+        // Note: Developers is both users and collaborators
+        DeveloperServiceMock.SearchDevelopers.returns(user)
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter"-> partialEmailAddress)
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(emailAddress)
+
+        val expectedFilter = DevelopersSeachFilter(Some(partialEmailAddress))
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
 
-      "return an internal server error when the delete fails" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteFailureResult)
-        val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+      "remember the search filter text on submit" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val searchFilter = "anEmailFilterCriteria"
+
+        DeveloperServiceMock.SearchDevelopers.returns()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter"-> searchFilter)
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(s"""value="$searchFilter"""")
+      }
+
+      "allow me to copy all the email addresses for verified users" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val email1 = "a@example.com"
+        private val email2 = "b@example.com"
+        private val email3 = "c@example.com"
+
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1,true), aUser(email2,true), aUser(email3))
+
+        implicit val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(s"$email1; $email2")
+      }
+      
+      "search by api version" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val user = aUser(emailAddress)
+        private val apiDefinitionValueFromDropDown = "api-definition__1.0"
+
+        // Note: Developers is both users and collaborators
+        DeveloperServiceMock.SearchDevelopers.returns(user)
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("apiVersionFilter" -> apiDefinitionValueFromDropDown)
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(emailAddress)
+
+        val filter = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
+        val expectedFilter = DevelopersSeachFilter(maybeApiFilter = Some(filter))
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+      }
+
+
+      "show an api version filter dropdown with correct display text" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
+        val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+        FetchAllApiDefinitions.inAny.returns(apiDefinition)
+
+        val result = developersController.developersPage()(aLoggedInRequest)
+
+        contentAsString(result) should include(s"MyApi (${apiVersion1.value}) (Alpha)")
+        contentAsString(result) should include(s"MyApi (${apiVersion2.value}) (Stable)")
+
+      }
+
+      "show an api version filter dropdown with correct values for form submit with context and version" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        val apiContext = ApiContext.random
+
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
+        val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
+        FetchAllApiDefinitions.inAny.returns(apiDefinition)
+
+        val result = developersController.developersPage()(aLoggedInRequest)
+
+        contentAsString(result) should include(s"${apiContext.value}__${apiVersion1.value}")
+        contentAsString(result) should include(s"${apiContext.value}__${apiVersion2.value}")
+
+      }
+
+      "show an api version filter dropdown without duplicates" in new Setup {
+        val apiContext = ApiContext.random
+
+        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA)
+
+        val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
+        val apiDefinition = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+
+        val result = developersController.getApiVersionsDropDownValues(apiDefinition)
+
+        result.size shouldBe 1
+        result.head.value shouldBe s"${apiContext.value}__${apiVersion1.value}"
+      }
+
+      "show number of entries" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val email1 = "a@example.com"
+        private val email2 = "b@example.com"
+
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1), aUser(email2))
+
+        implicit val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include("Showing 2 entries")
+      }
+
+      "allow searching by developerStatusFilter" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val statusFilter = "VERIFIED"
+        private val user = aUser(emailAddress)
+
+        // Note: Developers is both users and collaborators
+        DeveloperServiceMock.SearchDevelopers.returns(user)
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> statusFilter)
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(emailAddress)
+
+        val expectedFilter = DevelopersSeachFilter(developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+      }
+
+      "allow searching by environmentFilter" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val user = aUser(emailAddress)
+        private val environmentFilter = "PRODUCTION"
+
+        // Note: Developers is both users and collaborators
+        DeveloperServiceMock.SearchDevelopers.returns(user)
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("environmentFilter" -> environmentFilter)
+        val result = developersController.developersPage()(request)
+
+        contentAsString(result) should include(emailAddress)
+
+        val expectedFilter = DevelopersSeachFilter(environmentFilter = ProductionEnvironment)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
     }
   }
