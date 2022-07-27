@@ -32,6 +32,9 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
 @Singleton
 class DeveloperController @Inject()(
@@ -48,14 +51,16 @@ class DeveloperController @Inject()(
   override val errorTemplate: ErrorTemplate,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
 
-  def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
         s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 

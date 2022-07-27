@@ -31,6 +31,8 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
 class DevelopersController @Inject()(
@@ -40,18 +42,20 @@ class DevelopersController @Inject()(
   mcc: MessagesControllerComponents,
   developersView: DevelopersView,
   override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
     with ErrorHelper
     with UserFunctionsWrapper
     with ApplicationLogger {
 
-  def blankDevelopersPage() = anyStrideUserAction { implicit request =>
+  def blankDevelopersPage() = anyAuthenticatedUserAction { implicit request =>
     combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-  def developersPage() = anyStrideUserAction { implicit request =>
+  def developersPage() = anyAuthenticatedUserAction { implicit request =>
     DevelopersSearchForm.form.bindFromRequest.fold(
       formWithErrors => {
           logger.warn("Errors found trying to bind request for developers search")
