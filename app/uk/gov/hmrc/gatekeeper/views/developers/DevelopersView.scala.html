@@ -36,7 +36,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
         <h1>Developers</h1>
     </header>
 
-    @helper.form(action = controllers.routes.Developers2Controller.developersPage) {
+    @helper.form(action = controllers.routes.DevelopersController.developersPage) {
       @helper.CSRF.formField
       <input type="hidden" name="page" value="1"/>
       <div class="form-group grid-layout grid-layout--stacked push--sides js-visible">
@@ -134,7 +134,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
         @for((user, index) <- users.zipWithIndex) {
         <tr role="row">
             <td id="dev-email-@index" width="45%"><a
-                    href="@{routes.DevelopersController.developerPage(UuidIdentifier(user.userId))}">@user.email</a></td>
+                    href="@{routes.DeveloperController.developerPage(UuidIdentifier(user.userId))}">@user.email</a></td>
             <td id="dev-fn-@index">@user.firstName</td>
             <td id="dev-sn-@index">@user.lastName</td>
             <td class="text--right hard--right" id="dev-status-@index">

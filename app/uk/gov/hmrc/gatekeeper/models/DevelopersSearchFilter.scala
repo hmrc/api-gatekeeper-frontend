@@ -18,10 +18,12 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
-case class Developers2Filter(maybeEmailFilter: Option[String] = None,
-                             maybeApiFilter: Option[ApiContextVersion] = None,
-                             environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
-                             developerStatusFilter: DeveloperStatusFilter = AllStatus)
+case class DevelopersSearchFilter(
+  maybeEmailFilter: Option[String] = None,
+  maybeApiFilter: Option[ApiContextVersion] = None,
+  environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
+  developerStatusFilter: DeveloperStatusFilter = AllStatus
+)
 
 case class ApiContextVersion(context: ApiContext, version: ApiVersion) {
   def toStringValue: String = s"${context.value}__${version.value}"

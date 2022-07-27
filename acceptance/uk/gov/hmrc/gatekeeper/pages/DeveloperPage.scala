@@ -17,10 +17,10 @@
 package uk.gov.hmrc.gatekeeper.pages
 
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.gatekeeper.pages.Developer2Page.APIFilter.APIFilterList
+import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
 
-object Developer2Page extends WebPage {
+object DeveloperPage extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/developers2"
   override def isCurrentPage: Boolean = {
     currentUrl == url
