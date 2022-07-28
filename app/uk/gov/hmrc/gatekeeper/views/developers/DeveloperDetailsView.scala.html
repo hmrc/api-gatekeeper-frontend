@@ -132,9 +132,11 @@
             }" class="button--alert text--center flush--right">Delete developer</a>
         }
         @if(developer.mfaEnabled) {
+          @if(loggedInRequest.role.isUser) {
             <a id="remove-2SV" href="@{
                 routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))
             }" class="button--alert text--center flush--right">Remove 2SV</a>
+          }
         }
     </article>
 }

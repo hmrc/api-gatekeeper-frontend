@@ -27,13 +27,15 @@ import org.mockito.stubbing.ScalaOngoingStubbing
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
 
 trait ControllerSetupBase
     extends MockitoSugar
     with ArgumentMatchersSugar
     with StrideAuthorisationServiceMockModule
+    with LdapAuthorisationServiceMockModule
     with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
     with ApplicationServiceMockProvider

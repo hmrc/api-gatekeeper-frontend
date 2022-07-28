@@ -21,7 +21,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 import uk.gov.hmrc.play.json.Union
 import play.api.libs.functional.syntax._
-import java.time.LocalDateTime
 
 case class CoreUserDetails(email: String, id: UserId)
 
