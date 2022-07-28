@@ -38,6 +38,8 @@
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
 
 
+
+            <input type="hidden" name="user-selection-query" value="@{
               val overrideUsers =
               if (config.overrideEmailRecipients) {
                   val devUsers = List(
@@ -52,22 +54,21 @@
                   new RegisteredUser("helen.bacigalupo@hmrc.gov.uk", UserId(UUID.randomUUID()), "Helen", "Bacigalupo", true),
                   new RegisteredUser("michael.humes@hmrc.gov.uk", UserId(UUID.randomUUID()), "Michael", "Humes", true))
                   if(config.sendToSDSTEmailRecipient) {
-                    Some(devUsers :+ new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST", "Team", true)))
-                    }
-                  else {
-                    Some(devUsers)
-                  }
+                    Some(devUsers :+ new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST", "Team", true))
+                 }
+                 else {
+                      Some(devUsers)
+                 }
               }
               else {
-                None
+                  None
               }
-              val tpdQueryOverride =
+
               if(overrideUsers.isDefined)
-                tpdQuery.copy(emailsForSomeCases = overrideUsers)
-              else tpdQuery
-              <input type="hidden" name="user-selection-query" value="@{
-                Json.stringify(Json.toJson(tpdQueryOverride))
-              }"/>
+                Json.stringify(Json.toJson(tpdQuery.copy(emailsForSomeCases = overrideUsers)))
+              else Json.stringify(Json.toJson(tpdQuery))
+            }"/>
+
             <div class="compose-email">
                 <button type="submit" class="button--link" name="compose-email" value="whatever"
                 title="Compose an email to send to all 1 displayed email addresses.">
