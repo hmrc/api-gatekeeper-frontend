@@ -65,7 +65,7 @@
               }
 
               if(overrideUsers.isDefined)
-                Json.stringify(Json.toJson(tpdQuery.copy(emailsForSomeCases = overrideUsers)))
+                Json.stringify(Json.toJson(tpdQuery.copy(emailsForSomeCases = Some(EmailOverride(overrideUsers.get, true)))))
               else Json.stringify(Json.toJson(tpdQuery))
             }"/>
 
