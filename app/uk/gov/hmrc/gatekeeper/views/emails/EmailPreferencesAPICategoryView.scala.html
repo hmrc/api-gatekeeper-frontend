@@ -69,7 +69,7 @@
         </form>
         @if(maybeTopicFilter.isDefined) {
             <div><hr/></div>
-            @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(categories), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
+            @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(categories.map(_.toAPICategory)), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
         }
     </div>

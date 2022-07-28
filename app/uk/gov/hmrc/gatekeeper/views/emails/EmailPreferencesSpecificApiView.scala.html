@@ -96,7 +96,7 @@
                     @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false), applicationConfig, Map("API" -> filteredApis.head.displayName,
                     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
                 } else {
-                    @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false), applicationConfig, Map("API" -> "",
+                    @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false, None), applicationConfig, Map("API" -> "",
                     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
                 }
             }

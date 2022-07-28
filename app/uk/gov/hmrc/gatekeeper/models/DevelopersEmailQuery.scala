@@ -21,10 +21,11 @@ import play.api.libs.json.Json
 
 case class DevelopersEmailQuery(topic: Option[String] = None,
                                 apis: Option[Seq[String]] = None,
-                                apiCategories: Option[Seq[APICategoryDetails]] = None,
+                                apiCategories: Option[Seq[APICategory]] = None,
                                 privateapimatch: Boolean = false,
                                 apiVersionFilter: Option[String] = None,
-                                allUsers: Boolean = false)
+                                allUsers: Boolean = false,
+                                emailsForSomeCases: Option[List[RegisteredUser]] = None)
 
 object DevelopersEmailQuery {
   implicit val formatDevelopersEmailQuery = Json.format[DevelopersEmailQuery]

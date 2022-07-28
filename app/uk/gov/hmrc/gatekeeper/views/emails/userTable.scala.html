@@ -36,13 +36,12 @@
           <form method="post" action="@config.gatekeeperComposeEmailUrl">
             @helper.CSRF.formField
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
-            <input type="hidden" name="user-selection-query" value="@{
-            Json.stringify(Json.toJson(tpdQuery))
-            }"/>
 
-            <input type="hidden" name="email-recipients" value="@{
+
+              val overrideUsers =
               if (config.overrideEmailRecipients) {
-                  val users: List[RegisteredUser] = List(new RegisteredUser("imran.akram@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Imran", "Akram", true),
+                  val devUsers = List(
+                  new RegisteredUser("imran.akram@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Imran", "Akram", true),
                   new RegisteredUser("gareth.chapman@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Gareth", "Chapman", true),
                   new RegisteredUser("neil.frow@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Neil", "Frow", true),
                   new RegisteredUser("siva.isikella@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "Siva", "Isikella", true),
@@ -53,20 +52,22 @@
                   new RegisteredUser("helen.bacigalupo@hmrc.gov.uk", UserId(UUID.randomUUID()), "Helen", "Bacigalupo", true),
                   new RegisteredUser("michael.humes@hmrc.gov.uk", UserId(UUID.randomUUID()), "Michael", "Humes", true))
                   if(config.sendToSDSTEmailRecipient) {
-              Json.toJson[List[RegisteredUser]](users :+
-              new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST", "Team", true))
-                  } else {
-                    Json.toJson[List[RegisteredUser]](
-                      users
-                    )}
+                    Some(devUsers :+ new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST", "Team", true)))
+                    }
+                  else {
+                    Some(devUsers)
+                  }
               }
-              else if (config.sendToSDSTEmailRecipient) {
-                  Json.toJson[List[RegisteredUser]](List(
-                  new RegisteredUser("sdsteam@hmrc.gov.uk", UserId(UUID.randomUUID()), "SDST Team", "", true)))
-              } else {
-                Json.toJson[List[RegisteredUser]](List(new RegisteredUser("xyz@digital.hmrc.gov.uk", UserId(UUID.randomUUID()), "xxx", "zzz", true)))
+              else {
+                None
               }
-            }">
+              val tpdQueryOverride =
+              if(overrideUsers.isDefined)
+                tpdQuery.copy(emailsForSomeCases = overrideUsers)
+              else tpdQuery
+              <input type="hidden" name="user-selection-query" value="@{
+                Json.stringify(Json.toJson(tpdQueryOverride))
+              }"/>
             <div class="compose-email">
                 <button type="submit" class="button--link" name="compose-email" value="whatever"
                 title="Compose an email to send to all 1 displayed email addresses.">
