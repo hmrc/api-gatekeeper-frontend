@@ -50,18 +50,22 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchProdAppStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistoryChange]] = {
-    def buildChanges(appId: ApplicationId, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
+    def buildChanges(appId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
       stateHistory match {
         case state1 :: state2 :: others => ApplicationStateHistoryChange(
           appId.value,
+          appName,
+          journeyVersion.toString,
           state1.state.toString,
           state1.timestamp.toString,
           state2.state.toString,
           state2.timestamp.toString
-        ) :: buildChanges(appId, state2 :: others)
+        ) :: buildChanges(appId, appName, journeyVersion, state2 :: others)
 
         case finalState :: Nil => List(ApplicationStateHistoryChange(
           appId.value,
+          appName,
+          journeyVersion.toString,
           finalState.state.toString,
           finalState.timestamp.toString,
           "",
@@ -76,7 +80,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
 
     applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
-      buildChanges(appStateHistory.applicationId, appStateHistory.stateHistory)
+      buildChanges(appStateHistory.applicationId, appStateHistory.appName, appStateHistory.journeyVersion, appStateHistory.stateHistory)
     }))
   }
 

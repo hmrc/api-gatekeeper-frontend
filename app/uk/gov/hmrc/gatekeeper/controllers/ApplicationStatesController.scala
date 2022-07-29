@@ -45,6 +45,8 @@ class ApplicationStatesController @Inject()(
     applicationService.fetchProdAppStateHistories().map(appStateHistoryChange => {
       val columnDefinitions : Seq[ColumnDefinition[ApplicationStateHistoryChange]] = Seq(
         ColumnDefinition("applicationId", _.applicationId),
+        ColumnDefinition("applicationName", _.appName),
+        ColumnDefinition("journeyVersion", _.journeyVersion),
         ColumnDefinition("oldState", _.oldState),
         ColumnDefinition("oldTimestamp", _.oldTimestamp),
         ColumnDefinition("newState", _.newState),
