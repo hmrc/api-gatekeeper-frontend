@@ -36,9 +36,6 @@
           <form method="post" action="@config.gatekeeperComposeEmailUrl">
             @helper.CSRF.formField
             <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
-
-
-
             <input type="hidden" name="user-selection-query" value="@{
               val overrideUsers =
               if (config.overrideEmailRecipients) {
