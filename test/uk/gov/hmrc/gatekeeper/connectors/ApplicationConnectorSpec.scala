@@ -307,11 +307,11 @@ class ApplicationConnectorSpec
 
     "retrieve all applications with state histories" in new Setup {
       val applicationsWithStateHistories = List(
-        ApplicationStateHistory(ApplicationId.random, List(
+        ApplicationStateHistory(ApplicationId.random, "app 1 name", 1, List(
           ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now),
           ApplicationStateHistoryItem(State.PRODUCTION, LocalDateTime.now)
         )),
-        ApplicationStateHistory(ApplicationId.random, List(ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now)))
+        ApplicationStateHistory(ApplicationId.random, "app 2 name", 2, List(ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now)))
       )
       val payload = Json.toJson(applicationsWithStateHistories).toString
 
