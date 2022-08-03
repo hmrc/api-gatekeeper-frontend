@@ -145,7 +145,7 @@
   @if(loggedInRequest.role.isSuperUser) {
     <a
       id="delete-developer"
-      href="@{routes.DevelopersController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
+      href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
       class="govuk-button govuk-button--warning"
     >
       Delete developer
@@ -156,7 +156,7 @@
     @if(loggedInRequest.role.isUser) {
       <a
         id="remove-2SV"
-        href="@{routes.DevelopersController.removeMfaPage(UuidIdentifier(developer.user.userId))}"
+        href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}"
         class="govuk-button"
       >
         Remove 2SV
