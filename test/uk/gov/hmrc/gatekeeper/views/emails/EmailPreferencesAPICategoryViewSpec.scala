@@ -69,7 +69,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     val categories = List(category1, category2, category3)
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Some(BUSINESS_AND_POLICY),  categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY),  categories, "", "", request, LoggedInUser(None), messagesProvider)
 
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -79,15 +79,15 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
 
-        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)    
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and options when only Category filter provided" in new Setup {
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Some(BUSINESS_AND_POLICY), categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
@@ -95,6 +95,9 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and select correct option when both filters and user lists are present" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(
+          users,
+          emailRecipientsAsJson,
+          s"${user1.email}; ${user2.email}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           categories,
           category2.category,
@@ -109,6 +112,9 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesAPICategoryView.render(
+          Seq.empty,
+          emailRecipientsAsJson,
+          "",
           Some(TopicOptionChoice.RELEASE_SCHEDULES),
           categories,
           category2.category,

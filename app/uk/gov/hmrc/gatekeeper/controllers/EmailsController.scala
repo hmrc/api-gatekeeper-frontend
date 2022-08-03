@@ -181,7 +181,7 @@ class EmailsController @Inject()(
       usersAsJson = Json.toJson(users)
       selectedCategories = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
       selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
-    } yield Ok(emailPreferencesAPICategoryView(topicAndCategory.map(_._1), categories, selectedCategory.getOrElse(""), selectedCategoryName))
+    } yield Ok(emailPreferencesAPICategoryView(users, usersAsJson, usersToEmailCopyText(users), topicAndCategory.map(_._1), categories, selectedCategory.getOrElse(""), selectedCategoryName))
   }
 
 

@@ -93,10 +93,10 @@
             @if(maybeTopicFilter.isDefined) {
                 <div><hr/></div>
                 @if(filteredApis.nonEmpty) {
-                    @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false), applicationConfig, Map("API" -> filteredApis.head.displayName,
+                    @userTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false), applicationConfig, Map("API" -> filteredApis.head.displayName,
                     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
                 } else {
-                    @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false, None), applicationConfig, Map("API" -> "",
+                    @userTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.displayName)), None, false, None, false, None), applicationConfig, Map("API" -> "",
                     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
                 }
             }

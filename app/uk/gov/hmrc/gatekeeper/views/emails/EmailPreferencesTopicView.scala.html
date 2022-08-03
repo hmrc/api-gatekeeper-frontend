@@ -58,7 +58,7 @@
         </form>
     @if(maybeTopicFilter.isDefined) { 
       <div><hr/></div>
-        @userTable(new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, None, false, None, false, None), applicationConfig, Map("Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+        @userTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, None, false, None, false, None), applicationConfig, Map("Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
     }
     </div>
 

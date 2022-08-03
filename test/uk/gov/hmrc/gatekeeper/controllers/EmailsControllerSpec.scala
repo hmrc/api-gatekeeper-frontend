@@ -385,7 +385,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val responseBody = contentAsString(result)
 
-        //verifyUserTable(responseBody, List.empty)
+        verifyUserTable(responseBody, List.empty)
       }
 
       "render the view correctly when filter selected and users returned" in new Setup {
@@ -398,7 +398,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val responseBody = Helpers.contentAsString(result)
 
-        //verifyUserTable(responseBody, users)
+        verifyUserTable(responseBody, users)
       }
     }
 
@@ -425,7 +425,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val responseBody = Helpers.contentAsString(result)
 
-        //verifyUserTable(responseBody, List.empty)
+        verifyUserTable(responseBody, List.empty)
       }
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
@@ -439,7 +439,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val responseBody = Helpers.contentAsString(result)
 
-        //verifyUserTable(responseBody, users)
+        verifyUserTable(responseBody, users)
       }
     }
   }
