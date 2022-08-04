@@ -266,7 +266,7 @@ class ApplicationController @Inject()(
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
             BadRequest(manageScopesView(app.application, form))
-
+            
           case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }

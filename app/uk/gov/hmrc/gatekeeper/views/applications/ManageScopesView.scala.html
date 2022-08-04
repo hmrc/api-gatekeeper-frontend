@@ -36,7 +36,13 @@
     </ol>
   </div>
 
+  @errorSummary2(form)
+
   <h1 class="govuk-heading-l">Manage scopes</h1>
+
+  <p class="govuk-body">
+    If multiple scopes are required, use a comma to separate them.
+  </p>
 
   @helper.form(action = routes.ApplicationController.updateScopes(application.id), 'class -> "form") {
     @helper.CSRF.formField
@@ -45,7 +51,7 @@
       <label class="govuk-label" for="scopes">
         Scopes
       </label>
-      <textarea class="govuk-textarea @if(form.errors("scopes").nonEmpty) {govuk-input--error}" name="scopes" id="scopes" cols="50" rows="5"></textarea>
+      <textarea class="govuk-textarea @if(form.errors("scopes").nonEmpty) {govuk-input--error}" name="scopes" id="scopes" cols="50" rows="5">@{form.data("scopes")}</textarea>
     </div>
 
     <div class="govuk-button-group">

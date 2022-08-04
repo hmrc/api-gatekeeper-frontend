@@ -94,4 +94,5 @@ class DevelopersController @Inject()(
       form = DevelopersSearchForm.form.fill(searchParams)
     } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
   }
+
 }
