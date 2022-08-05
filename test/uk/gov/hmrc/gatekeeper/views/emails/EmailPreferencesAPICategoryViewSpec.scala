@@ -87,7 +87,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and options when only Category filter provided" in new Setup {
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
