@@ -35,7 +35,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
   trait Setup extends ControllerSetupBase {
     val subscriptionFieldsService = mock[SubscriptionFieldsService]
-    val controller = new SubscriptionFieldsController(subscriptionFieldsService,forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock)
+    val controller = new SubscriptionFieldsController(subscriptionFieldsService,forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock)
   }
   
   "subscriptionFieldValues" should {
@@ -62,8 +62,9 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
       contentAsString(result) shouldBe expectedCsv
     }
 
-    "Forbidden if not stride auth" in new Setup {
-      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+    "Forbidden if not authenticated" in new Setup {
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+      LdapAuthorisationServiceMock.Auth.notAuthorised
       
       val result = controller.subscriptionFieldValues()(aLoggedOutRequest)
 

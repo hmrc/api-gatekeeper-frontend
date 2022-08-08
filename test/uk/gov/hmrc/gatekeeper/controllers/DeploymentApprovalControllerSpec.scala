@@ -63,7 +63,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   "pendingPage" should {
     "render the deployment approval page for APIs in all environments" in new Setup {
-      LdapAuthorisationServiceMock.Auth.notAuthorised()
+      LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchUnapprovedServices.returns(
@@ -83,8 +83,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
-      LdapAuthorisationServiceMock.Auth.notAuthorised()
-      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
       val result =  underTest.pendingPage()(aLoggedInRequest)
 
@@ -131,7 +131,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
-      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
+      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
       val result =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
 
@@ -207,7 +207,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
-      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
+      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
       val result =  underTest.handleApproval(serviceName, "PRODUCTION")(aLoggedInRequest)
 

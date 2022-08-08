@@ -42,7 +42,7 @@ trait LdapAuthorisationServiceMockModule {
         )
       }
 
-      def notAuthorised[A]() = {
+      def notAuthorised[A] = {
         wrap[A](
           (msg) => successful(Left(msg))
         )

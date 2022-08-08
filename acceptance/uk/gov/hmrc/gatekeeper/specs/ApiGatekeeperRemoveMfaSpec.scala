@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.pages._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
-import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaId, RegisteredUser, UserId}
+import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 import scala.io.Source
 
