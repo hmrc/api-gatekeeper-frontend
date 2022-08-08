@@ -104,7 +104,7 @@ class SubscriptionControllerSpec
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -168,7 +168,7 @@ class SubscriptionControllerSpec
 
       "the user is not a superuser" should {
         "show 403 forbidden" in new Setup {
-          StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+          StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
           val result = addToken(underTest.manageSubscription(applicationId))(aLoggedInRequest)
 

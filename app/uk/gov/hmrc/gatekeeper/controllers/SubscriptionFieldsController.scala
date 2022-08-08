@@ -30,6 +30,8 @@ import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
 @Singleton
 class SubscriptionFieldsController @Inject()(
@@ -37,11 +39,14 @@ class SubscriptionFieldsController @Inject()(
   val forbiddenView: ForbiddenView,
   mcc: MessagesControllerComponents,
   override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+  with GatekeeperAuthorisationActions
+  with ErrorHelper {
 
-  def subscriptionFieldValues() = anyStrideUserAction { implicit request =>
+  def subscriptionFieldValues() = anyAuthenticatedUserAction { implicit request =>
     case class FlattenedSubscriptionFieldValue(clientId: ClientId, context: ApiContext, version: ApiVersion, name: FieldName)
 
     val columnDefinitions : Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(

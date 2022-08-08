@@ -68,7 +68,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
       }
 
       "return forbidden page when logged in as normal user " in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         val result = controller.start()(fakeRequest)
         status(result) shouldBe FORBIDDEN
         contentAsString(result)
@@ -80,7 +80,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     "/apicatalogue/publish-all" should {
       "return forbidden page when logged in as standard user" in new Setup {
 
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe FORBIDDEN
         contentAsString(result)
@@ -116,7 +116,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
     "/apicatalogue/publish?serviceName=" should {
       "return forbidden page when logged in as normal user " in new Setup {
 
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe FORBIDDEN

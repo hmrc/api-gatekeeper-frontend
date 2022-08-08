@@ -45,18 +45,18 @@ trait StrideAuthorisationServiceMockModule {
         )
       }
 
-      def invalidBearerToken[A]() = {
+      def invalidBearerToken[A] = {
         wrap[A](
           (msg) => failed(new InvalidBearerToken)
         )
       }
-      def hasInsufficientEnrolments[A]() = {
+      def hasInsufficientEnrolments[A] = {
         wrap[A](
           (msg) => successful(Left(Forbidden("You do not have permission")))
         )
       }
 
-      def sessionRecordNotFound[A]() = {
+      def sessionRecordNotFound[A] = {
         wrap[A](
           (msg) => successful(Left(Redirect("http://example.com")))
         )

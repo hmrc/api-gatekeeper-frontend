@@ -40,7 +40,14 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
   private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
-    val controller = new ApiDefinitionController(mockApiDefinitionService, forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock)
+    val controller = new ApiDefinitionController(
+                        mockApiDefinitionService,
+                        forbiddenView,
+                        mcc,
+                        errorTemplateView,
+                        StrideAuthorisationServiceMock.aMock,
+                        LdapAuthorisationServiceMock.aMock
+                      )
   }
   
   "apis" should {
@@ -62,6 +69,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
     "Forbidden if not stride auth" in new Setup {
       StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+      LdapAuthorisationServiceMock.Auth.notAuthorised
       
       val result = controller.apis()(aLoggedOutRequest)
 

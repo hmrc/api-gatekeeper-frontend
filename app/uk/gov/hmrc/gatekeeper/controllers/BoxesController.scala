@@ -30,16 +30,20 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
 class BoxesController @Inject()(
   mcc: MessagesControllerComponents,
   val apmService: ApmService,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+  with GatekeeperAuthorisationActions {
     
-  def getAll(): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def getAll(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
 
     apmService.fetchAllBoxes().map(boxes => {
       val columnDefinitions : Seq[ColumnDefinition[Box]] = Seq(

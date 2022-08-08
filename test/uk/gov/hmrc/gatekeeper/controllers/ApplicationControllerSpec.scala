@@ -209,7 +209,7 @@ class ApplicationControllerSpec
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
-        StrideAuthorisationServiceMock.Auth.sessionRecordNotFound()
+        StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
         val result = underTest.applicationsPage()(aLoggedInRequest)
 
@@ -326,7 +326,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden for a non-super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -379,7 +379,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -427,7 +427,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -470,7 +470,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -507,7 +507,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -602,7 +602,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return the forbidden page for a normal user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
         val request = aLoggedInRequest.withFormUrlEncodedBody("required"-> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
@@ -641,7 +641,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden for a non-super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -699,7 +699,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -728,7 +728,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden for a super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -738,7 +738,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden for a user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -781,7 +781,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -1059,7 +1059,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
             DeveloperServiceMock.SeekRegisteredUser.returnsFor(email)
-            StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+            StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1221,7 +1221,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
 
       "return forbidden for a non-admin" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -1263,7 +1263,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
@@ -1292,7 +1292,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
 
       "return forbidden for a non-admin" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         ApplicationServiceMock.FetchApplication.returns(application)
 
@@ -1334,7 +1334,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments()
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 

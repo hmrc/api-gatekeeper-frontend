@@ -30,6 +30,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
 case class ApiDefinitionView(apiName: String, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
 
@@ -39,11 +41,14 @@ class ApiDefinitionController @Inject()(
   val forbiddenView: ForbiddenView,
   mcc: MessagesControllerComponents,
   override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val ldapAuthorisationService: LdapAuthorisationService
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper {
+  extends GatekeeperBaseController(strideAuthorisationService, mcc) 
+  with GatekeeperAuthorisationActions
+  with ErrorHelper {
     
-  def apis() = anyStrideUserAction { implicit request =>
+  def apis() = anyAuthenticatedUserAction { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {

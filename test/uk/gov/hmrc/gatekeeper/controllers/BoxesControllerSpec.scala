@@ -39,41 +39,54 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       val controller = new BoxesController(
         mcc,
         apmService,
-        StrideAuthorisationServiceMock.aMock
+        StrideAuthorisationServiceMock.aMock,
+        LdapAuthorisationServiceMock.aMock
       )
     }
 
     "BoxesController" should {
+      val boxSubscriber = BoxSubscriber(
+        "callbackUrl",
+        DateTime.parse("2001-01-01T01:02:03"),
+        SubscriptionType.API_PUSH_SUBSCRIBER
+      )
+
+      val box = Box(
+        BoxId("boxId"),
+        "boxName",
+        BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")),
+        Some(boxSubscriber), Environment.PRODUCTION
+      )
+
+      val expectedCsv = """|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
+                            |PRODUCTION,applicationId,clientId,boxName,boxId,API_PUSH_SUBSCRIBER,callbackUrl
+                            |""".stripMargin
+
       "return a CSV of all boxes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val boxSubscriber = BoxSubscriber(
-          "callbackUrl",
-          DateTime.parse("2001-01-01T01:02:03"),
-          SubscriptionType.API_PUSH_SUBSCRIBER
-        )
-
-        val box = Box(
-          BoxId("boxId"),
-          "boxName",
-          BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")),
-          Some(boxSubscriber), Environment.PRODUCTION
-        )
-
         when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
-
-        val expectedCsv = """|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
-                             |PRODUCTION,applicationId,clientId,boxName,boxId,API_PUSH_SUBSCRIBER,callbackUrl
-                             |""".stripMargin
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
       }
 
-      "Forbidden if not stride auth" in new Setup {
-        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments //succeeds(GatekeeperRoles.USER)
-      
+      "return a CSV of all boxes for LDAP auth" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        LdapAuthorisationServiceMock.Auth.succeeds
+
+        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
+
+        val result = controller.getAll()(aLoggedInRequest)
+        status(result) shouldBe OK
+        contentAsString(result) shouldBe expectedCsv
+      }
+
+      "Forbidden if not authorised" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        LdapAuthorisationServiceMock.Auth.notAuthorised
+
         val result = controller.getAll()(aLoggedOutRequest)
 
         status(result) shouldBe FORBIDDEN
