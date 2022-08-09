@@ -24,13 +24,15 @@ import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.encryption._
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.gatekeeper.models.UserId
+
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.name.Named
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import cats.data.OptionT
+import play.api.Logging
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
@@ -80,7 +82,7 @@ object DeveloperConnector {
 class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption)
     (implicit ec: ExecutionContext)
     extends DeveloperConnector
-    with SendsSecretRequest {
+    with SendsSecretRequest with Logging {
 
   import DeveloperConnector._
 
@@ -136,6 +138,7 @@ class HttpDeveloperConnector @Inject()(appConfig: AppConfig, http: HttpClient, @
                               maybeApis: Option[Seq[String]] = None,
                               maybeApiCategories: Option[Seq[APICategory]] = None,
                               privateapimatch: Boolean = false)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    logger.info(s"fetchByEmailPreferences topic is $topic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String,String)] = maybeApiCategories.fold(Seq.empty[(String,String)])(regimes =>  regimes.flatMap(regime => Seq("regime" -> regime.value)))
     val privateapimatchParams = if(privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams =
