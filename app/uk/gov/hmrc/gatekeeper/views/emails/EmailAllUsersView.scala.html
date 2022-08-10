@@ -32,7 +32,7 @@
             <a data-back-link href="@routes.EmailsController.showEmailInformation("all-users")">Back</a>
         </div>
         <div><h1 id="pageTitle">Email all users</h1></div>
-        @userTable(users, composeEmailRecipients, emails, applicationConfig, Map("To" -> "All Developer Hub users"))
+        @userTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
     </div>
 
 

@@ -25,6 +25,7 @@ import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.{BUSINESS_AND_POLICY, TopicOptionChoice}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
@@ -66,10 +67,9 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
 
     val categories = List(category1, category2, category3)
-
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY),  categories, "", "", request, LoggedInUser(None), messagesProvider)
 
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -79,9 +79,9 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       //If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
 
-        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)    
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and options when only Category filter provided" in new Setup {
