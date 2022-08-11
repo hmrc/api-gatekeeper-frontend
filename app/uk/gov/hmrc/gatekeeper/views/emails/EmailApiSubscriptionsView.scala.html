@@ -68,7 +68,7 @@
         </form>
          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
             <div><hr/></div>
-        @userTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, Some(apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim), false, Some(EmailOverride(users.toList, false))), applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
+        @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, Some(apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim), false, Some(EmailOverride(users.toList, false))), applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
           }
         }
 
