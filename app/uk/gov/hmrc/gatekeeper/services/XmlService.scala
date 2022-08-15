@@ -28,7 +28,20 @@ import scala.concurrent.{ExecutionContext, Future}
 class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
 
   def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
-    xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user, apis))
+    val xmlApisThatUserSelectedSpecifically = xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user, apis))
+
+    val categoriesWhereUserSelectedAllForCategory = user.emailPreferences.interests
+      .filter(_.services.isEmpty)
+      .map(_.regime)
+      .mkString(",")
+    
+    val xmlApisWhereUserSelectedAllForCategory = xmlServicesConnector.getApisForCategories(categoriesWhereUserSelectedAllForCategory)
+      .map(_.map(_.name).toSet)
+
+    for {
+      specific <- xmlApisThatUserSelectedSpecifically
+      all <- xmlApisWhereUserSelectedAllForCategory
+    } yield specific union all
   }
 
   def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] =  {

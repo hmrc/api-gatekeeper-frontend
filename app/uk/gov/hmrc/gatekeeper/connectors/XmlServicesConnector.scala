@@ -35,6 +35,10 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
     http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis")
   }
 
+  def getApisForCategories(categories: String)(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
+    http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis/filtered?categories=$categories")
+  }
+
   def findOrganisationsByUserId(userId: UserId)
                                (implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     val userIdParams = Seq("userId" -> userId.value.toString)
