@@ -59,9 +59,9 @@
             <td class="govuk-table__cell" id="api-name-@index">@api.name</td>
             <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
             <td class="govuk-table__cell">
-              <a data-review- @api.serviceName class="govuk-link" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">
-                Check and approve
-              </a>
+              @if(request.role.isUser) {
+                <a data-review="@api.serviceName" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">Check and approve</a>
+              }
             </td>
           </tr>
         }
