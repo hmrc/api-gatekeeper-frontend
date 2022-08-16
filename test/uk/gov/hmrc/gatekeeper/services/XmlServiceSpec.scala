@@ -45,7 +45,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       serviceName = "xml-api-one",
       context = "context",
       description = "description",
-      categories = Some(Seq(APICategory("PAYE")))
+      categories = Some(Seq(APICategory("PAYE"), APICategory("VAT")))
     )
 
     val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two",categories = Some(Seq(APICategory("CUSTOMS"))))
@@ -84,6 +84,16 @@ class XmlServiceSpec extends AsyncHmrcSpec {
         val result = await(objectInTest.getXmlServicesForUser(user))
 
         result should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name, xmlApiWithCategory1.name, xmlApiWithCategory2.name)
+      }
+
+      "Return users xml email preferences when call to get xml apis is successful but get for category is empty" in new Setup {
+
+        XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
+        XmlServicesConnectorMock.GetApisForCategory.returnsApis(List.empty, List("VAT"))
+
+        val result = await(objectInTest.getXmlServicesForUser(user))
+
+        result should contain only(xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
       }
 
       "Return UpstreamErrorResponse when call to connector fails on getting apis for category" in new Setup {
