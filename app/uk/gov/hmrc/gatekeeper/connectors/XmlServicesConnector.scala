@@ -36,7 +36,7 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
   }
 
   def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
-    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("category" -> _))
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("categoryFilter" -> _))
   }
 
   def findOrganisationsByUserId(userId: UserId)
