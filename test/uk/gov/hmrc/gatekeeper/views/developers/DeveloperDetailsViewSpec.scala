@@ -132,9 +132,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
       elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
-      elementExistsByText(document, "td", "Admin") shouldBe true
+      elementExistsByText(document, "p", "Admin") shouldBe true
       elementExistsByText(document, "a", "appName2") shouldBe true
-      elementExistsByText(document, "td", "Developer") shouldBe true
+      elementExistsByText(document, "p", "Developer") shouldBe true
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {

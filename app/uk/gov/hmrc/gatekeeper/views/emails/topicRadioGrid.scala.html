@@ -19,23 +19,16 @@
 
 @(maybeTopicFilter: Option[TopicOptionChoice])(implicit messages: Messages)
 
-    <div class="govuk-radios govuk-radios--small">
-        <div class="grid-layout">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-half">
-                  @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
-                </div>
-                <div class="govuk-grid-column-one-half">
-                  @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
-                </div>
-            </div>
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-half">
-                  @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
-                </div>
-                <div class="govuk-grid-column-one-half">
-                  @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
-                </div>
-            </div>
-        </div>
+<div class="govuk-form-group">
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-visually-hidden">
+      Filter
+    </legend>
+    <div class="govuk-radios govuk-radios--small" data-module="govuk-radios">
+      @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
+      @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
+      @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
+      @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
     </div>
+  </fieldset>
+</div>

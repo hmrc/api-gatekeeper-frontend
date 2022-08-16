@@ -262,3 +262,12 @@ p.error-notification {
   opacity: 0;
   background: rgba(0,0,0,0);
 }
+
+.dev-filter-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dev-filter-col-30 {
+  width: 30%;
+}
