@@ -31,10 +31,17 @@ trait XmlServicesConnectorMockProvider {
 
   object XmlServicesConnectorMock {
     object GetAllApis {
-      def returnsApis(xmlApis: Seq[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
+      def returnsApis(xmlApis: List[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
 
       def returnsError() =
         when(mockXmlServicesConnector.getAllApis()(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+    }
+
+    object GetApisForCategory {
+      def returnsApis(xmlApis: List[XmlApi], categories: List[String]) = when(mockXmlServicesConnector.getApisForCategories(eqTo(categories))(*)).thenReturn(successful(xmlApis))
+
+      def returnsError() =
+        when(mockXmlServicesConnector.getApisForCategories(*)(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
 
     object GetOrganisations {

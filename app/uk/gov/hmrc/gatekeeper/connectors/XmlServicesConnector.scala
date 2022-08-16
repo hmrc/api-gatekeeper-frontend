@@ -31,12 +31,12 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 
-  def getAllApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-    http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis")
+  def getAllApis()(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis")
   }
 
-  def getApisForCategories(categories: String)(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-    http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis/filtered?categories=$categories")
+  def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("category" -> _))
   }
 
   def findOrganisationsByUserId(userId: UserId)

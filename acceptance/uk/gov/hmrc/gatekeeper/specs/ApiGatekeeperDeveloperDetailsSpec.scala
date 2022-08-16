@@ -23,6 +23,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.specs.MockDataSugar.xmlApis
+import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperDeveloperDetailsSpec
@@ -33,8 +34,8 @@ class ApiGatekeeperDeveloperDetailsSpec
     with Assertions
     with CommonTestData
     with ApiDefinitionTestData
-    with UrlEncoding {
-
+    with UrlEncoding
+    with XmlServicesStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
@@ -56,8 +57,9 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubDevelopers()
       stubDevelopersSearch()
       stubDeveloper(unverifiedUser)
+      stubGetXmlApiForCategories()
       stubGetAllXmlApis()
-      stubGetXmlOrganisationsForUnverifiedUser(unverifiedUser.userId)
+      stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationSubscription()
 
       signInGatekeeper(app)
@@ -128,16 +130,6 @@ class ApiGatekeeperDeveloperDetailsSpec
         aResponse().withStatus(OK).withBody(unverifiedUserJson)
       )
     )
-  }
-
-  def stubGetAllXmlApis(): Unit = {
-    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
-      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
-  }
-
-  def stubGetXmlOrganisationsForUnverifiedUser(userId: UserId): Unit = {
-    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
-      .willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 }
 

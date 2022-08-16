@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.services
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,23 +28,24 @@ import scala.concurrent.{ExecutionContext, Future}
 class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
 
   def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
-    val xmlApisThatUserSelectedSpecifically = xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user, apis))
 
-    val categoriesWhereUserSelectedAllForCategory = user.emailPreferences.interests
+    def categoriesWhereUserSelectedAllForCategory(user: RegisteredUser) =
+      user.emailPreferences.interests
       .filter(_.services.isEmpty)
       .map(_.regime)
-      .mkString(",")
     
-    val xmlApisWhereUserSelectedAllForCategory = xmlServicesConnector.getApisForCategories(categoriesWhereUserSelectedAllForCategory)
+    def xmlApisWhereUserSelectedAllForCategory(user: RegisteredUser) = {
+      xmlServicesConnector.getApisForCategories(categoriesWhereUserSelectedAllForCategory(user))
       .map(_.map(_.name).toSet)
+    }
 
     for {
-      specific <- xmlApisThatUserSelectedSpecifically
-      all <- xmlApisWhereUserSelectedAllForCategory
-    } yield specific union all
+      specificApis <-  xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user.emailPreferences.interests, apis).toSet)
+      allApis <- xmlApisWhereUserSelectedAllForCategory(user)
+    } yield specificApis union allApis
   }
 
-  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] =  {
+  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     xmlServicesConnector.findOrganisationsByUserId(userId)
   }
 

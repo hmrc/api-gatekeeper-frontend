@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.models.TaxRegimeInterests
 import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
 
 trait XmlServicesHelper {
 
-  def filterXmlEmailPreferences(user: RegisteredUser, xmlApis: Seq[XmlApi]): Set[String] = {
-    val services: Set[String] = xmlApis.map(x => x.serviceName).toSet
-    val userServices = user.emailPreferences.interests.flatMap(interest => interest.services).toSet
-    val filteredServices: Set[String] = services.intersect(userServices)
-
+  def filterXmlEmailPreferences(userInterests: List[TaxRegimeInterests], xmlApis: List[XmlApi]): List[String] = {
     xmlApis
-      .filter(api => filteredServices.contains(api.serviceName))
-      .map(x => x.name).toSet
+      .filter(x => userInterests.flatMap(interest => interest.services).distinct.contains(x.serviceName))
+      .map(x => x.name)
+      .distinct
   }
+
 
 }

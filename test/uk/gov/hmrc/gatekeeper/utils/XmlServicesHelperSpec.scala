@@ -39,7 +39,7 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
     val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two")
     val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three")
     val xmlApiFour = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four")
-    val xmlApis = Seq(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
+    val xmlApis = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
 
     val restApiOne = "rest-api-one"
     val restApiTwo = "rest-api-two"
@@ -62,19 +62,19 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
 
   "filterXmlEmailPreferences" should {
     "return filtered xml service names" in new Setup {
-      filterXmlEmailPreferences(user, xmlApis) should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+      filterXmlEmailPreferences(emailPreferences.interests, xmlApis) should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
     }
 
     "return no xml service names when no xmlApis passed in" in new Setup {
-      filterXmlEmailPreferences(user, Seq.empty) shouldBe Set.empty
+      filterXmlEmailPreferences(emailPreferences.interests, List.empty) shouldBe List.empty
     }
 
     "return no xml service names when user does not have any email preferences" in new Setup {
-      filterXmlEmailPreferences(user.copy(emailPreferences = EmailPreferences.noPreferences), xmlApis) shouldBe Set.empty
+      filterXmlEmailPreferences(EmailPreferences.noPreferences.interests, xmlApis) shouldBe List.empty
     }
 
     "return no xml service names when user does not have xml email preferences" in new Setup {
-      filterXmlEmailPreferences(user.copy(emailPreferences = restEmailPreferences), xmlApis) shouldBe Set.empty
+      filterXmlEmailPreferences(restEmailPreferences.interests, xmlApis) shouldBe List.empty
     }
   }
 

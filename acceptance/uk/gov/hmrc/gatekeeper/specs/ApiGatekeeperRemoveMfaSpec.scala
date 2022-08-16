@@ -25,14 +25,17 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
+
 import scala.io.Source
 
 class ApiGatekeeperRemoveMfaSpec
   extends ApiGatekeeperBaseSpec
     with Assertions
     with CommonTestData
-    with WireMockExtensions {
+    with WireMockExtensions
+    with XmlServicesStub {
 
   import MockDataSugar._
 
@@ -118,6 +121,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubDevelopersSearch()
     stubDeveloper()
     stubGetAllXmlApis()
+    stubGetXmlApiForCategories()
     stubGetXmlOrganisationsForUser(UserId(developer8Id))
     stubApplicationSubscription()
     stubRemoveMfa()
@@ -166,16 +170,6 @@ class ApiGatekeeperRemoveMfaSpec
   def stubDevelopersSearch(): Unit = {
     stubFor(post(urlEqualTo("/developers/search"))
       .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
-  }
-
-  def stubGetAllXmlApis(): Unit = {
-    stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
-      .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
-  }
-
-  def stubGetXmlOrganisationsForUser(userId: UserId): Unit = {
-    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
-      .willReturn(aResponse().withBody(xmlOrganisations).withStatus(OK)))
   }
 
   def stubDeveloper(): Unit = {
