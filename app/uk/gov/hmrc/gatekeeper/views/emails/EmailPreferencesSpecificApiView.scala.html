@@ -32,7 +32,6 @@
 }
 
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
-<<<<<<< HEAD
   <div class="govuk-template__body">
     <div>
         <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
@@ -41,11 +40,11 @@
     <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
-              <legend class="form-label-bold">
+              <legend class="govuk-heading-l">
                   <h1 id="pageTitle">Email users interested in a specific API</h1>
               </legend>
               <div class="govuk-form-group">
-                <label class="govuk-label--bold" for="selectedApi">Selected API(s)</label>
+                <label class="govuk-label" for="selectedApi">Selected API(s)</label>
                 <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
                 @for(filteredApi <- filteredApis) {
                     <li class="hmrc-add-to-a-list__contents">
