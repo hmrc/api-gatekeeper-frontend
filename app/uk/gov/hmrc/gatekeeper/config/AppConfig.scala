@@ -76,8 +76,6 @@ trait AppConfig {
 
   def gatekeeperComposeEmailBaseUrl: String
   def gatekeeperComposeEmailUrl: String
-  def overrideEmailRecipients: Boolean
-  def sendToSDSTEmailRecipient: Boolean
   def gatekeeperComposeEmailUsersUrl: String
 }
 
