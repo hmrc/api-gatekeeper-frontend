@@ -65,17 +65,18 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
     if(users.nonEmpty) {
       val expectedValue = users.map(_.email).sorted.mkString("; ")
+
       getElementBySelector(document, "#copy-users-to-clip")
-        .fold(fail("Copy to Clipboard Link not found"))(link => link.attr("data-clip-text") shouldBe expectedValue)
+        .fold(fail("Copy to clipboard button not found"))(element => element.attr("onclick").contains(expectedValue) shouldBe true)
     }
   }
 
-    def handleXmlAppendValue(api: CombinedApi)={
-      api.apiType match{
-        case XML_API => api.displayName + " - XML API"
-        case REST_API => api.displayName  
-      }
+  def handleXmlAppendValue(api: CombinedApi)={
+    api.apiType match{
+      case XML_API => api.displayName + " - XML API"
+      case REST_API => api.displayName  
     }
+  }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
   
