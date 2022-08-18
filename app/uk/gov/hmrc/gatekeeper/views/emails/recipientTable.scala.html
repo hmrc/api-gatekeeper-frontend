@@ -23,38 +23,20 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
 @(users: Seq[User], composeEmailRecipients: JsValue, emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
-
 @if(users.nonEmpty) {
-  <div class="govuk-button-group">
-    <div class="compose-email-clipboard">
-      <button id="copy-users-to-clip" type="submit" class="govuk-button copy-to-clip" name="compose-email-clipboard" value="" title="Copies all @{ users.length} email addresses into the system clipboard." onclick="copyTextToClipboard('@emails')">
-        Copy emails to clipboard
-      </button>
-    </div>
-
-    <div style="visibility: visible">
-      <form method="post" action="@config.gatekeeperComposeEmailUrl">
-        @helper.CSRF.formField
-        <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
-        <input type="hidden" name="user-selection-query" value="@{
-          val overrideUsers =
-          if (config.overrideEmailRecipients) {
-              val devUsers = List()
-              if(config.sendToSDSTEmailRecipient) {
-                Some(devUsers)
-              }
-              else {
-                  Some(devUsers)
-              }
-          }
-          else {
-              None
-          }
-
-          if(overrideUsers.isDefined)
-            Json.stringify(Json.toJson(tpdQuery.copy(emailsForSomeCases = Some(EmailOverride(overrideUsers.get, true)))))
-          else Json.stringify(Json.toJson(tpdQuery))
-        }"/>
+    <div class="form-group>">
+        <p>
+            <a id="copy-users-to-clip" class="button copy-to-clip" href="#"
+            title="Copies all @{
+                users.length
+            } email addresses into the system clipboard." data-clip-text="@emails">Copy
+                emails to clipboard</a>
+        </p>
+        <div style="visibility: visible">
+          <form method="post" action="@config.gatekeeperComposeEmailUrl">
+            @helper.CSRF.formField
+            <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
+            <input type="hidden" name="user-selection-query" value="@{Json.stringify(Json.toJson(tpdQuery))}"/>
 
         <div class="compose-email-send">
           <button type="submit" class="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{users.length} displayed email addresses.">
