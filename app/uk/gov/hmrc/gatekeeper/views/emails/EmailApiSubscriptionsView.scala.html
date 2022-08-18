@@ -33,25 +33,26 @@
 @main(title = s"${applicationConfig.title} - Email all users subscribed to an API") {
   <div class="content__body full-width">
     <div>
-      a href="@routes.EmailsController.showEmailInformation("api-subscription")" class="govuk-back-link"  data-back-link>Back</a>
+      <a href="@routes.EmailsController.showEmailInformation("api-subscription")" class="govuk-back-link"  data-back-link>Back</a>
     </div>
     <div><h1 class="govuk-heading-l" id="pageTitle">Email all users subscribed to an API</h1></div>
       @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
       <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
-          <div class="grid-layout__column--2-3">
-              <label class="govuk-label" for="apiVersionFilter">Select an API from the list</label>
-              <select class="govuk-select" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
-                  <option value="">Select API</option>
-                  @for(apiVersion <- apiVersions) {
-                    <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
-                  }
-              </select>
-          </div>
-          @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
-            <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter Again</button>
-          } else {
-            <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter</button>
-          }
+        <div class="govuk-form-group">
+          <label class="govuk-label" for="apiVersionFilter">Select an API from the list</label>
+          <select class="govuk-select" id="apiVersionFilter" name="apiVersionFilter" value="@apiVersionFilter">
+              <option value="">Select API</option>
+              @for(apiVersion <- apiVersions) {
+                <option @if(apiVersionFilter == Some(apiVersion.value)) {selected} value="@apiVersion.value">@apiVersion.description.trim </option>
+              }
+          </select>
+        </div>
+
+        @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
+          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter Again</button>
+        } else {
+          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter</button>
+        }
       </form>
 
       @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
