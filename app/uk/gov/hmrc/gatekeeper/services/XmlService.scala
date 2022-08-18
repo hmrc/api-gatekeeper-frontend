@@ -40,7 +40,8 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit
     }
 
     for {
-      specificApis <-  xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user.emailPreferences.interests, apis).toSet)
+      apis <- xmlServicesConnector.getAllApis()
+      specificApis = filterXmlEmailPreferences(user.emailPreferences.interests, apis).toSet
       allApis <- xmlApisWhereUserSelectedAllForCategory(user)
     } yield allApis ++ specificApis
   }

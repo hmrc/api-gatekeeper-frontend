@@ -22,8 +22,9 @@ import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
 trait XmlServicesHelper {
 
   def filterXmlEmailPreferences(userInterests: List[TaxRegimeInterests], xmlApis: List[XmlApi]): List[String] = {
+    val allEmailPreferenceServices = userInterests.flatMap(interest => interest.services)
     xmlApis
-      .filter(x => userInterests.flatMap(interest => interest.services).distinct.contains(x.serviceName))
+      .filter(x => allEmailPreferenceServices.contains(x.serviceName))
       .map(x => x.name)
       .distinct
   }
