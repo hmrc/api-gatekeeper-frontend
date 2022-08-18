@@ -37,7 +37,6 @@ class XmlServicesConnectorSpec
 
   val apiVersion1 = ApiVersion.random
   val applicationId = ApplicationId.random
-
   trait Setup {
     val authToken = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))

@@ -42,8 +42,7 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit
     for {
       specificApis <-  xmlServicesConnector.getAllApis().map(apis => filterXmlEmailPreferences(user.emailPreferences.interests, apis).toSet)
       allApis <- xmlApisWhereUserSelectedAllForCategory(user)
-      combinedApis = allApis ++ specificApis
-    } yield combinedApis
+    } yield allApis ++ specificApis
   }
 
   def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
