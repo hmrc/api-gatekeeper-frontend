@@ -30,7 +30,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class XmlServicesConnectorSpec
-    extends AsyncHmrcSpec
+  extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding {
@@ -56,24 +56,26 @@ class XmlServicesConnectorSpec
     val xmlApiTwo = xmlApiOne.copy(name = "xml api 2")
     val xmlApis = Seq(xmlApiOne, xmlApiTwo)
 
+    val payeCategory = "PAYE"
+    val customsCategory = "CUSTOMS"
   }
 
   "getAllApis" should {
     val url = "/api-platform-xml-services/xml/apis"
 
-    "return no APIs" in new Setup {
+    "return empty Seq when no APIs returned" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody("[]")
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("[]")
+          )
       )
       await(connector.getAllApis) shouldBe Seq.empty
     }
 
-    "return APIs" in new Setup {
+    "return Seq with XmlAPis when APIs are returned" in new Setup {
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
@@ -85,7 +87,7 @@ class XmlServicesConnectorSpec
       await(connector.getAllApis) shouldBe xmlApis
     }
 
-    "return UpstreamErrorResponse" in new Setup {
+    "throw UpstreamErrorResponse when backend returns server error" in new Setup {
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
@@ -96,6 +98,81 @@ class XmlServicesConnectorSpec
       intercept[UpstreamErrorResponse](await(connector.getAllApis)) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail
+      }
+    }
+  }
+
+  "getApisForCategories" should {
+    val url = "/api-platform-xml-services/xml/apis/filtered"
+
+    "return empty List when no APIs returned" in new Setup {
+      stubFor(
+        get(urlEqualTo(url))
+          .withQueryParam("categoryFilter", equalTo(payeCategory))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("[]")
+          )
+      )
+      await(connector.getApisForCategories(List(payeCategory))) shouldBe List.empty
+    }
+    
+    "return List with XmlAPis when APIs are returned" in new Setup {
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("categoryFilter", equalTo(payeCategory))
+          .withQueryParam("categoryFilter", equalTo(customsCategory))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(xmlApis).toString)
+          )
+      )
+      await(connector.getApisForCategories(List(payeCategory, customsCategory))) shouldBe xmlApis
+    }
+    
+    // This is a test of XmlServicesConnector.handleUpstream404s
+    "return an empty list if the backend is not deployed" in new Setup {
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("categoryFilter", equalTo(payeCategory))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+              .withBody(s"""{"errors":[{"message":"URI not found $url"}]}""")
+          )
+      )
+      await(connector.getApisForCategories(List(payeCategory))) shouldBe List.empty
+    }
+
+    "throw BadRequestException when a bad category is requested" in new Setup {
+      val badCategory = "bad"
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("categoryFilter", equalTo(badCategory))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody(s"""{"errors":[{"message":"Unable to bind category $badCategory"}]}""")
+          )
+      )
+      intercept[BadRequestException] {
+        await(connector.getApisForCategories(List(badCategory)))
+      }.getMessage contains badCategory
+    }
+
+    "throw UpstreamErrorResponse when backend returns server error" in new Setup {
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("categoryFilter", equalTo(payeCategory))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+      intercept[UpstreamErrorResponse] {
+        await(connector.getApisForCategories(List(payeCategory)))
       }
     }
   }

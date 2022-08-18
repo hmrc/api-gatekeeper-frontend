@@ -20,7 +20,8 @@ import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlOrganisation, XmlApi}
 import play.api.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,8 +32,23 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 
-  def getAllApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-    http.GET[Seq[XmlApi]](s"$baseUrl/xml/apis")
+  /*
+   * TODO This handler can be removed once the backend is permanently deployed with no expectation of being rolled back
+   * See also XmlServicesConnectorSpec
+   */
+  private def handleUpstream404s[A](returnIf404: A): PartialFunction[Throwable, A] = (err: Throwable) => err match {
+    case _: NotFoundException => returnIf404
+    case e: UpstreamErrorResponse if e.statusCode == NOT_FOUND => returnIf404
+    case e: Throwable => throw e
+  }
+  
+  def getAllApis()(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis")
+  }
+
+  def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("categoryFilter" -> _))
+      .recover(handleUpstream404s[List[XmlApi]](List.empty[XmlApi]))
   }
 
   def findOrganisationsByUserId(userId: UserId)

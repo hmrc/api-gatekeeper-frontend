@@ -64,12 +64,12 @@ class DevelopersController @Inject()(
       },
       searchParams => {
         val allFoundUsers = searchParams match {
-          case DevelopersSearchForm(None, None, None, None) => 
+          case DevelopersSearchForm(None, None, None, None) =>
             logger.info("Not performing a query for empty parameters")
             Future.successful(List.empty)
           case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
             logger.info("Searching developers")
-            val filters = 
+            val filters =
             DevelopersSearchFilter(
               mapEmptyStringToNone(maybeEmailFilter),
                   ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),

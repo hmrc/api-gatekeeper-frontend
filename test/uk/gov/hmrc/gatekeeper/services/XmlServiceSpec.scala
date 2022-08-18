@@ -44,20 +44,27 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       name = "xml api one",
       serviceName = "xml-api-one",
       context = "context",
-      description = "description"
+      description = "description",
+      categories = Some(Seq(APICategory("PAYE"), APICategory("VAT")))
     )
 
-    val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two")
-    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three")
-    val xmlApiFour = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four")
-    val xmlApis = Seq(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
+    val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two",categories = Some(Seq(APICategory("CUSTOMS"))))
+    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Seq(APICategory("CUSTOMS"))))
+    val xmlApiFour = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Seq(APICategory("OTHER"))))
+
+    val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Seq(APICategory("VAT"))))
+    val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Seq(APICategory("VAT"))))
+
+    val xmlApis = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
+    val xmlApisWithCategories = List(xmlApiWithCategory1, xmlApiWithCategory2)
 
     val restApiOne = "rest-api-one"
 
     val emailPreferences = EmailPreferences(
       interests = List(
-        TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
-        TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))
+        TaxRegimeInterests("PAYE", Set(xmlApiOne.serviceName, restApiOne)),
+        TaxRegimeInterests("CUSTOMS", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName)),
+        TaxRegimeInterests("VAT", Set.empty)
       ),
       topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
     )
@@ -70,15 +77,38 @@ class XmlServiceSpec extends AsyncHmrcSpec {
     "getXmlServicesForUser" should {
 
       "Return users xml email preferences when call to get xml apis is successful" in new Setup {
+
         XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
+        XmlServicesConnectorMock.GetApisForCategory.returnsApis(xmlApisWithCategories, List("VAT"))
 
         val result = await(objectInTest.getXmlServicesForUser(user))
 
-        result should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+        result should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name, xmlApiWithCategory1.name, xmlApiWithCategory2.name)
       }
 
-      "Return UpstreamErrorResponse when call to connector fails" in new Setup {
-        XmlServicesConnectorMock.GetAllApis.returnsError
+      "Return users xml email preferences when call to get xml apis is successful but get for category is empty" in new Setup {
+
+        XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
+        XmlServicesConnectorMock.GetApisForCategory.returnsApis(List.empty, List("VAT"))
+
+        val result = await(objectInTest.getXmlServicesForUser(user))
+
+        result should contain only(xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+      }
+
+      "Return UpstreamErrorResponse when call to connector fails on getting apis for category" in new Setup {
+        XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
+        XmlServicesConnectorMock.GetApisForCategory.returnsError()
+
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
+          case (e: UpstreamErrorResponse) => succeed
+          case _ => fail
+        }
+      }
+
+      "Return UpstreamErrorResponse when call to connector fails getting all apis" in new Setup {
+        XmlServicesConnectorMock.GetAllApis.returnsError()
+        XmlServicesConnectorMock.GetApisForCategory.returnsApis(xmlApisWithCategories, List("VAT"))
 
         intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
           case (e: UpstreamErrorResponse) => succeed

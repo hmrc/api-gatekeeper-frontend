@@ -22,7 +22,7 @@ import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinit
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DashboardPage}
 import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.{GivenWhenThen}
+import org.scalatest.GivenWhenThen
 import play.api.http.Status._
 import play.api.libs.json.Json
 
