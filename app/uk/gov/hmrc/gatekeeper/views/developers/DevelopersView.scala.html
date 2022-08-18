@@ -82,22 +82,17 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
           </select>
         </div>
       }
+
       @defining(form("environmentFilter").value) { environmentFilterValue =>
         <div class="govuk-form-group dev-filter-col-30">
           <label class="govuk-label" for="environmentFilter">
             Filter by <br/>API Subscription Environment
           </label>
-          <select
-              class="govuk-select"
-              title="You must pick an API Subscription before you can filter by environment"
-              id="environmentFilter"
-              name="environmentFilter"
-              disabled
-            >
-              <option value="ALL" @if(environmentFilterValue==Some("ALL")) {selected}>All</option>
-              <option value="SANDBOX" @if(environmentFilterValue==Some("SANDBOX")) {selected}>Sandbox</option>
-              <option value="PRODUCTION" @if(environmentFilterValue==Some("PRODUCTION")) {selected}>Production</option>
-            </select>
+          <select class="govuk-select" title="You must pick an API Subscription before you can filter by environment" id="environmentFilter" name="environmentFilter">
+            <option value="ALL" @if(environmentFilterValue==Some("ALL")) {selected}>All</option>
+            <option value="SANDBOX" @if(environmentFilterValue==Some("SANDBOX")) {selected}>Sandbox</option>
+            <option value="PRODUCTION" @if(environmentFilterValue==Some("PRODUCTION")) {selected}>Production</option>
+          </select>
         </div>
       }
     </div>
