@@ -141,10 +141,18 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
 
   @if(users.nonEmpty) {
     <div class="text--center">
-      <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite">Showing @{users.length} entries</div>
+      <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite"><p class="govuk-body">Showing @{users.length} entries</p></div>
     </div>
     <span id="copy-email-to-clip" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
-    <button id="copy-users-to-clip" class="govuk-button" onclick="copyText('copy-email-to-clip')" data-clip-text>Copy all team member email addresses</button>
+
+    <div class="govuk-button-group">
+      <button id="copy-users-to-clip" class="govuk-button" onclick="copyText('copy-email-to-clip')" data-clip-text>Copy all team member email addresses</button>
+    
+      <a class="govuk-link" href="#">Back to Top</a>
+    </div>
+  } else {
+    <div class="govuk-button-group">
+      <a class="govuk-link" href="#">Back to Top</a>
+    </div>
   }
-  <a class="govuk-link" href="#">Back to Top</a>
 }
