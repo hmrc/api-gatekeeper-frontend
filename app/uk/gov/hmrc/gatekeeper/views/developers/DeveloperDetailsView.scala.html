@@ -101,30 +101,32 @@
     </div>
   </dl>
 
-  <h2 class="govuk-heading-m">Associated applications</h2>
 
-  @if(developer.applications.isEmpty) {
-    <p class="govuk-body" id="applications">None</p>
-  } else {
-    <dl class="govuk-summary-list" id="applications">
-      @for(app <- developer.applications) {
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            <a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a>
-          </dt>
-          <dd class="govuk-summary-list__value">
-            <p class="govuk-body">@app.deployedTo.toLowerCase.capitalize</p>
-            <p class="govuk-body">
-              @app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
-                case CollaboratorRole.ADMINISTRATOR => "Admin"
-                case CollaboratorRole.DEVELOPER => "Developer"
-              })
-            </p>
-          </dd>
-        </div>
-      }
-    </dl>
-  }
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--m">Associated applications</caption>
+      <tbody class="govuk-table__body">
+        @if(developer.applications.isEmpty) {
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><p class="govuk-body" id="applications">None</p></th>
+          </tr>
+        } else {
+          @for(app <- developer.applications) {
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header"><a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a></th>
+              <td class="govuk-table__cell"><p class="govuk-body">@app.deployedTo.toLowerCase.capitalize</p></td>
+              <td class="govuk-table__cell">
+                <p class="govuk-body">
+                  @app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
+                    case CollaboratorRole.ADMINISTRATOR => "Admin"
+                    case CollaboratorRole.DEVELOPER => "Developer"
+                  })
+                </p>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
 
   <h2 class="govuk-heading-m">Associated XML organisations</h2>
 
@@ -143,24 +145,12 @@
   <br>
 
   @if(loggedInRequest.role.isSuperUser) {
-    <a
-      id="delete-developer"
-      href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
-      class="govuk-button govuk-button--warning"
-    >
-      Delete developer
-    </a>
+    <a id="delete-developer" href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}" class="govuk-button govuk-button--warning">Delete developer</a>
   }
 
   @if(developer.mfaEnabled) {
     @if(loggedInRequest.role.isUser) {
-      <a
-        id="remove-2SV"
-        href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}"
-        class="govuk-button"
-      >
-        Remove 2SV
-      </a>
+      <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}" class="govuk-button">Remove 2SV</a>
     }
   }
 }
