@@ -113,7 +113,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
 
-      elementExistsByText(document, "h2", "Associated applications") shouldBe true
+      elementExistsByText(document, "caption", "Associated applications") shouldBe true
       document.getElementById("applications").text shouldBe "None"
     }
 
@@ -130,7 +130,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       result.contentType should include("text/html")
 
       elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
-      elementExistsByText(document, "h2", "Associated applications") shouldBe true
+      elementExistsByText(document, "caption", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
       elementExistsByText(document, "p", "Admin") shouldBe true
       elementExistsByText(document, "a", "appName2") shouldBe true
