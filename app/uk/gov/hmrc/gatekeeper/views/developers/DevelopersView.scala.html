@@ -36,8 +36,8 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
     <input class="govuk-visually-hidden" type="hidden" name="page" value="1"/>
     <div class="dev-filter-row">
       @defining(form("emailFilter").value) { emailFilterValue =>
-        <div class="govuk-form-group govuk-!-width-two-thirds">
-          <label class="govuk-label" for="emailFilter">
+        <div class="govuk-form-group govuk-!-width-one-half">
+          <label class="govuk-label govuk-!-font-weight-bold" for="emailFilter">
             Search
           </label>
           <input
@@ -51,11 +51,11 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
         </div>
       }
       @defining(form("developerStatusFilter").value) { developerStatusFilterValue =>
-        <div class="govuk-form-group dev-filter-col-30">
-          <label class="govuk-label" for="developerStatusFilter">
+        <div class="govuk-form-group govuk-!-width-one-half govuk-!-margin-left-5">
+          <label class="govuk-label govuk-!-font-weight-bold" for="developerStatusFilter">
             Filter by developer status
           </label>
-          <select class="govuk-select" id="developerStatusFilter" name="developerStatusFilter">
+          <select class="govuk-select full-width" id="developerStatusFilter" name="developerStatusFilter">
             <option value="ALL" @if(developerStatusFilterValue.getOrElse("ALL") == Some("ALL")) {selected}>All</option>
             <option value="VERIFIED" @if(developerStatusFilterValue == Some("VERIFIED")) {selected}>Verified</option>
             <option value="UNVERIFIED" @if(developerStatusFilterValue == Some("UNVERIFIED")) {selected}>
@@ -68,9 +68,9 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
 
     <div class="dev-filter-row">
       @defining(form("apiVersionFilter").value) { apiVersionFilterValue =>
-        <div class="govuk-form-group govuk-!-width-two-thirds">
-          <label class="govuk-label" for="apiVersionFilter">
-            Filter by <br/>API Subscription
+        <div class="govuk-form-group govuk-!-width-one-half">
+          <label class="govuk-label govuk-!-font-weight-bold" for="apiVersionFilter">
+            Filter by API Subscription
           </label>
           <select class="govuk-select" id="apiVersionFilter" name="apiVersionFilter" style="width:100%">
             <option value=""></option>
@@ -84,11 +84,11 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
       }
 
       @defining(form("environmentFilter").value) { environmentFilterValue =>
-        <div class="govuk-form-group dev-filter-col-30">
-          <label class="govuk-label" for="environmentFilter">
-            Filter by <br/>API Subscription Environment
+        <div class="govuk-form-group govuk-!-width-one-half govuk-!-margin-left-5">
+          <label class="govuk-label govuk-!-font-weight-bold" for="environmentFilter">
+            Filter by API Subscription Environment
           </label>
-          <select class="govuk-select" title="You must pick an API Subscription before you can filter by environment" id="environmentFilter" name="environmentFilter">
+          <select class="govuk-select full-width" title="You must pick an API Subscription before you can filter by environment" id="environmentFilter" name="environmentFilter">
             <option value="ALL" @if(environmentFilterValue==Some("ALL")) {selected}>All</option>
             <option value="SANDBOX" @if(environmentFilterValue==Some("SANDBOX")) {selected}>Sandbox</option>
             <option value="PRODUCTION" @if(environmentFilterValue==Some("PRODUCTION")) {selected}>Production</option>
@@ -97,9 +97,11 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
       }
     </div>
 
-    <button id="submit" type="submit" class="govuk-button" name="main-submit" data-module="govuk-button">
-      Submit
-    </button>
+    <div class="appsearch-buttons">
+      <button id="submit" type="submit" class="govuk-button" name="main-submit" data-module="govuk-button">
+        Submit
+      </button>
+    </div>
   }
 
   <table id="developer-table" class="govuk-table" width="100%">
@@ -140,9 +142,10 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
   </table>
 
   @if(users.nonEmpty) {
-    <div class="text--center">
+    <div class="pagination-box-entries">
       <div class="dataTables_info" id="developer-table_info" role="status" aria-live="polite"><p class="govuk-body">Showing @{users.length} entries</p></div>
     </div>
+    
     <span id="copy-email-to-clip" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
 
     <div class="govuk-button-group">

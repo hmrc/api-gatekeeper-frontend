@@ -26,11 +26,10 @@
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
+  <a href="@routes.EmailsController.chooseEmailOption()" class="govuk-back-link" data-back-link>Back</a>
 
   <div class="govuk-template__body">
-    <div>
-        <a data-back-link href="@routes.EmailsController.emailPreferencesChoice()">Back</a>
-    </div>
+
     <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
 
       <div class="govuk-form-group">
@@ -39,7 +38,7 @@
                 <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
             </legend>
             <div class="govuk-form-group">
-                <label class="govuk-label" for="selectedCategory">Select a tax regime from the list </label>
+                <label class="govuk-label govuk-!-font-weight-bold" for="selectedCategory">Select a tax regime from the list </label>
                 <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value="@selectedCategory">
                     <option value="">Select tax regime</option>
                     @for(category <- categories.sortBy(_.name)) {
