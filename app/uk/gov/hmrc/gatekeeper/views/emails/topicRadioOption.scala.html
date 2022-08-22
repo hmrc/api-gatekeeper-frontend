@@ -29,7 +29,7 @@
 
 <div class="govuk-radios__item">
   <input class="govuk-radios__input" id="@topic.toString" name="selectedTopic" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
-  <label class="govuk-label govuk-radios__label" for="@topic.toString">
+  <label class="govuk-label govuk-radios__label govuk-!-font-weight-bold" for="@topic.toString">
     @TopicOptionChoice.optionLabel(topic)
   </label>
   <div id="topic-hint" class="govuk-hint govuk-radios__hint">

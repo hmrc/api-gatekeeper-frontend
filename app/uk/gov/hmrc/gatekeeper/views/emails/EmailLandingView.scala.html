@@ -30,7 +30,7 @@
 @buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean = false, checked: Boolean = false) = {
   <div class="govuk-radios__item">
     <input class="govuk-radios__input" id="@optionChoice.toString" name="sendEmailChoice" type="radio" value="@optionChoice.toString" @disabledFlag(enabled)@checkedFlag(checked)>
-    <label class="govuk-label govuk-radios__label" for="@optionChoice.toString">
+    <label class="govuk-label govuk-radios__label govuk-!-font-weight-bold" for="@optionChoice.toString">
       @EmailOptionChoice.optionLabel(optionChoice)
     </label>
     <div id="option-hint" class="govuk-hint govuk-radios__hint">
