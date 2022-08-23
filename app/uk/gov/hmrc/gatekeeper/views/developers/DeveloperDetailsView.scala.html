@@ -112,7 +112,7 @@
         } else {
           @for(app <- developer.applications) {
             <tr class="govuk-table__row">
-              <th scope="row" class="govuk-table__header"><a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a></th>
+              <td class="govuk-table__cell"><a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a></th>
               <td class="govuk-table__cell"><p class="govuk-body">@app.deployedTo.toLowerCase.capitalize</p></td>
               <td class="govuk-table__cell">
                 <p class="govuk-body">
