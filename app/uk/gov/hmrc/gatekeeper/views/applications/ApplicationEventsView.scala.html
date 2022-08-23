@@ -1,0 +1,120 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.views.helper.application._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+@import uk.gov.hmrc.apiplatform.modules.events.domain.models._
+@import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
+
+@this(main: NewMainView, applicationConfig: AppConfig)
+
+@(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash) {
+
+  @main(title = s"${applicationConfig.title} - Application Events") {
+
+    <span class="govuk-caption-l">@{queryModel.applicationName}</span>
+    <h1 class="govuk-heading-l">Audit Events</h1>
+
+    <h2 class="govuk-heading-m">Filters</h2> 
+
+    @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), 'class -> "form") {
+    @helper.CSRF.formField
+
+      <div class="govuk-grid-row">
+        
+        @defining(form("year").value) { yearValue =>
+          <div class="govuk-grid-column-one-quarter">                         
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-!-font-weight-bold" for="year">
+                Year
+              </label>
+              <select class="govuk-select" id="year" name="year">
+                <option value="" @if(yearValue == None) {selected}>All</option>      
+                @for(year <- queryModel.searchFilterValues.years) {
+                  <option value="@year" @if(yearValue == Some(year)) {selected}>@year</option>      
+                }
+              </select>
+            </div>
+          </div>     
+        }     
+
+        @defining(form("eventType").value) { eventTypeValue =>
+          <div class="govuk-grid-column-one-third">          
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-!-font-weight-bold" for="eventType">
+                Event type
+              </label>
+              <select class="govuk-select" id="eventType" name="eventType">
+                <option value="" @if(eventTypeValue == None) {selected}>All</option>      
+                @for(eventType <- queryModel.searchFilterValues.eventTypes) {
+                  <option value="@eventType" @if(eventTypeValue == Some(eventType)) {selected}>@eventType</option>      
+                }
+              </select>
+            </div>
+          </div>
+        }
+
+        @defining(form("actor").value) { actorValue =>
+          <div class="govuk-grid-column-one-third">          
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-!-font-weight-bold" for="actor">
+                Done by user
+              </label>
+              <select class="govuk-select" id="actor" name="actor">
+                <option value="" @if(actorValue == None) {selected}>All</option>      
+                @for(actor <- queryModel.searchFilterValues.actors) {
+                  <option value="@actor" @if(actorValue == Some(actor)) {selected}>@actor</option>      
+                }
+              </select>
+            </div>
+          </div>
+        }
+      
+        <div class="govuk-grid-column-full">          
+          <button id="submit" class="govuk-button" type="submit">Filter results</button>
+        </div>
+      </div>
+    }  
+
+    <table class="govuk-table responsive-table" data-module="moj-sortable-table">
+      <thead class="govuk-table__head">
+        <tr role="row" class="govuk-table__row">
+          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Event date</th>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Event type</th>
+          <th scope="col" class="govuk-table__header" aria-sort="none">Event details</th>
+          <th scope="col" class="govuk-table__header" aria-sort="none">Done by user</th>
+        </tr>
+      </thead>
+      
+      
+      <!---->
+      
+      <tbody class="govuk-table__body">
+
+        @for(event <- queryModel.events) {
+          <tr role="row" class="govuk-table__row">
+            <td role="cell" class="govuk-table__cell">@{event.eventDateTime}</td>
+            <td role="cell" class="govuk-table__cell">@{event.eventType}</td>
+            <td role="cell" class="govuk-table__cell">@{event.eventDetails}</td>
+            <td role="cell" class="govuk-table__cell">@{event.actor}</td>
+          </tr>
+        }
+      </tbody>
+    </table>   
+  }   
+}
