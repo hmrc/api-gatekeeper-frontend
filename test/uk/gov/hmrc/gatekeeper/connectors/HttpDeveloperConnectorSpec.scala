@@ -32,6 +32,8 @@ import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequestWrite
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+
 class HttpDeveloperConnectorSpec
   extends AsyncHmrcSpec
     with WireMockSugar

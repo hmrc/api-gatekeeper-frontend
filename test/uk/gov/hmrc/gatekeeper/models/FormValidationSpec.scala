@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 
 class FormValidationSpec  extends AsyncHmrcSpec {

@@ -43,25 +43,25 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
 
-  private val eventToDescription: Map[EventType, String] = Map(
-    PROD_APP_NAME_CHANGED -> "xxxx",
-    PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "xxxx",
-    PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "xxxx",
-    PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "xxxx",
-    PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "xxxx",
-    RESPONSIBLE_INDIVIDUAL_CHANGED -> "xxxx",
+  private val toDescription: Map[EventType, String] = Map(
+    PROD_APP_NAME_CHANGED -> "Application Name Changed",
+    PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "Privacy Policy Changed",
+    PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "Legacy Privacy Policy Changed",
+    PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "T&Cs Location Changed",
+    PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "Legacy T&Cs Location Changed",
+    RESPONSIBLE_INDIVIDUAL_CHANGED -> "Responsible Individual Changed",
 
-    API_SUBSCRIBED -> "xxxx",
-    API_UNSUBSCRIBED -> "xxxx",
-    CLIENT_SECRET_ADDED -> "xxxx",
-    CLIENT_SECRET_REMOVED -> "xxxx",
-    PPNS_CALLBACK_URI_UPDATED -> "xxxx",
-    REDIRECT_URIS_UPDATED -> "xxxx",
+    API_SUBSCRIBED -> "Subscried to API",
+    API_UNSUBSCRIBED -> "Unsubscribed from API",
+    CLIENT_SECRET_ADDED -> "Client Secret Added",
+    CLIENT_SECRET_REMOVED -> "Client Secret Removed",
+    PPNS_CALLBACK_URI_UPDATED -> "PPNS Callback URI Updated",
+    REDIRECT_URIS_UPDATED -> "Redirect URIs Updated",
     TEAM_MEMBER_ADDED -> "Team Member Added",
     TEAM_MEMBER_REMOVED -> "Team Member Removed"    
   )
 
-  def describe(et: EventType): String = eventToDescription(et)
+  def describe(et: EventType): String = toDescription(et)
 
-  def fromDescription(in: String): Option[EventType] = eventToDescription.find { case (k,v) => v == in }.map(_._1)
+  def fromDescription(in: String): Option[EventType] = toDescription.find { case (k,v) => v == in }.map(_._1)
 }

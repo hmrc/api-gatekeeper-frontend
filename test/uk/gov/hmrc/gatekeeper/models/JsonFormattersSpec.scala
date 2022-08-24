@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.{JsError, JsObject, JsString, JsSuccess}
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class JsonFormattersSpec extends AsyncHmrcSpec {
 

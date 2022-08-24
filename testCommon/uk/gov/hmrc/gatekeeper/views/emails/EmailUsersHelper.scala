@@ -23,7 +23,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.jsoup.nodes.{Document, Element}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.gatekeeper.utils.HmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.CombinedApi
 import uk.gov.hmrc.gatekeeper.models.ApiType.XML_API
 import uk.gov.hmrc.gatekeeper.models.ApiType.REST_API

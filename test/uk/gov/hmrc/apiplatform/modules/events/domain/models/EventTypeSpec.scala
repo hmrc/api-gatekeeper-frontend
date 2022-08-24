@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.config
+package uk.gov.hmrc.apiplatform.modules.events.domain.models
 
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 
-class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
+class EventTypeSpec extends AsyncHmrcSpec {
 
-  trait Setup {
-    val appConfig = app.injector.instanceOf[AppConfig]
-  }
+  "describe and fromDescription" should {
 
-  override def fakeApplication: Application = {
-    new GuiceApplicationBuilder()
-      .build()
-  }
+    "pair perfectly" in {
+      val inputs = EventType.values
 
-  "AppConfig" should {
-
-    "be initialized with properties" in new Setup {
-      appConfig.title shouldBe "HMRC API Gatekeeper"
+      for(input <- inputs) {
+        val description = EventType.describe(input)
+        val output = EventType.fromDescription(description)
+        output.value shouldBe input
+      }
     }
   }
-
 }

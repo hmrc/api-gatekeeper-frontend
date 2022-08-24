@@ -21,12 +21,11 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.{ApiScope, FetchApiDefinitionsFailed}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 import play.api.http.Status._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.utils.WireMockSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApiScopeConnectorSpec

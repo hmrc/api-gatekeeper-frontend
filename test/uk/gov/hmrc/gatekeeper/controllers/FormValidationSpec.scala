@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateGrantLengthForm
 import play.api.data.FormError
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class FormValidationSpec extends AsyncHmrcSpec {
   "HandleUpliftForm" should {

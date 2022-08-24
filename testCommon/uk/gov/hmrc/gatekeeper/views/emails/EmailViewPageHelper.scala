@@ -23,8 +23,8 @@ import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.gatekeeper.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.CombinedApi
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
  with EmailInformationViewHelper

@@ -20,7 +20,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 
