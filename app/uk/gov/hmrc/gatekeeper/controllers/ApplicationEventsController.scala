@@ -102,13 +102,27 @@ class ApplicationEventsController @Inject()(
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
-      for {
-        searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
-        events <- eventsConnector.query(appId, None,None,None)
-        eventModels = events.map(EventModel(_))
-        queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
-      } yield 
-        searchFilterValues.fold(NotFound(""))(sfvs => Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
+      def handleFormError(form: Form[QueryForm]): Future[Result]  = {
+        for {
+          searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
+          queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
+          events <- eventsConnector.query(appId, None,None,None)
+          eventModels = events.map(EventModel(_))
+        } yield 
+          searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
+      }
+
+      def handleValidForm(form: QueryForm): Future[Result] = {
+        for {
+          searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
+          queryForm = QueryForm.form.fill(form)
+          events <- eventsConnector.query(appId, form.year.map(_.toInt),form.eventType.flatMap(EventType.fromDescription),form.actor)
+          eventModels = events.map(EventModel(_))
+        } yield 
+          searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
+      }
+      
+      QueryForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }
 }

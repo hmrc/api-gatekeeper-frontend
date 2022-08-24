@@ -43,21 +43,25 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
 
-  def describe(et: EventType): String = et match {
-    case PROD_APP_NAME_CHANGED => "xxxx"
-    case PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED => "xxxx"
-    case PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED => "xxxx"
-    case PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED => "xxxx"
-    case PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED => "xxxx"
-    case RESPONSIBLE_INDIVIDUAL_CHANGED => "xxxx"
+  private val eventToDescription: Map[EventType, String] = Map(
+    PROD_APP_NAME_CHANGED -> "xxxx",
+    PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "xxxx",
+    PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED -> "xxxx",
+    PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "xxxx",
+    PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED -> "xxxx",
+    RESPONSIBLE_INDIVIDUAL_CHANGED -> "xxxx",
 
-    case API_SUBSCRIBED => "xxxx"
-    case API_UNSUBSCRIBED => "xxxx"
-    case CLIENT_SECRET_ADDED => "xxxx"
-    case CLIENT_SECRET_REMOVED => "xxxx"
-    case PPNS_CALLBACK_URI_UPDATED => "xxxx"
-    case REDIRECT_URIS_UPDATED => "xxxx"
-    case TEAM_MEMBER_ADDED => "Team Member Added"
-    case TEAM_MEMBER_REMOVED => "Team Member Removed"
-  }
+    API_SUBSCRIBED -> "xxxx",
+    API_UNSUBSCRIBED -> "xxxx",
+    CLIENT_SECRET_ADDED -> "xxxx",
+    CLIENT_SECRET_REMOVED -> "xxxx",
+    PPNS_CALLBACK_URI_UPDATED -> "xxxx",
+    REDIRECT_URIS_UPDATED -> "xxxx",
+    TEAM_MEMBER_ADDED -> "Team Member Added",
+    TEAM_MEMBER_REMOVED -> "Team Member Removed"    
+  )
+
+  def describe(et: EventType): String = eventToDescription(et)
+
+  def fromDescription(in: String): Option[EventType] = eventToDescription.find { case (k,v) => v == in }.map(_._1)
 }
