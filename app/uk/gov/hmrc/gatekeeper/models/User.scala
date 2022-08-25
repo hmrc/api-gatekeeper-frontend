@@ -21,6 +21,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 import uk.gov.hmrc.play.json.Union
 import play.api.libs.functional.syntax._
+import uk.gov.hmrc.gatekeeper.models.MfaId.format
 
 case class CoreUserDetails(email: String, id: UserId)
 
@@ -43,6 +44,7 @@ object User {
   }
 }
 
+
 case class RegisteredUser(
   email: String,
   userId: UserId,
@@ -56,11 +58,12 @@ case class RegisteredUser(
 }
 
 object RegisteredUser {
-  implicit val mfaIdFormat= Json.valueFormat[MfaId]
   implicit val authenticatorAppMfaDetailFormat: OFormat[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
+  implicit val smsMfaDetailFormat: OFormat[SmsMfaDetail] = Json.format[SmsMfaDetail]
 
   implicit val mfaDetailFormat: OFormat[MfaDetail] = Union.from[MfaDetail]("mfaType")
     .and[AuthenticatorAppMfaDetailSummary](MfaType.AUTHENTICATOR_APP.toString)
+    .and[SmsMfaDetail](MfaType.SMS.toString)
     .format
 
   val registeredUserReads: Reads[RegisteredUser] = (
@@ -74,8 +77,8 @@ object RegisteredUser {
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))) (RegisteredUser.apply _)
 
-  val registeredUserWrites = Json.writes[RegisteredUser]
-  implicit val registeredUserFormat = Format(registeredUserReads, registeredUserWrites)
+  val registeredUserWrites: OWrites[RegisteredUser] = Json.writes[RegisteredUser]
+  implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
 
 }
 
@@ -85,7 +88,7 @@ case class UnregisteredUser(email: String, userId: UserId) extends User {
 }
 
 case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty,
-                     xmlOrganisations: List[XmlOrganisation] = List.empty)  {
+                     xmlOrganisations: List[XmlOrganisation] = List.empty) {
   lazy val fullName = user.fullName
   
   lazy val email = user.email
@@ -95,6 +98,11 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
   lazy val xmlEmailPrefServices = xmlServiceNames
 
   lazy val xmlOrgs = xmlOrganisations
+
+  lazy val mfaDetails: List[MfaDetail] = user match {
+    case UnregisteredUser(_,_) => List.empty
+    case r : RegisteredUser => r.mfaDetails
+  }
   
   lazy val firstName: String = user match {
     case UnregisteredUser(_,_) => "n/a"
@@ -118,7 +126,7 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
 
   lazy val mfaEnabled: Boolean = user match {
     case UnregisteredUser(_,_) => false
-    case r : RegisteredUser => MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails)
+    case r : RegisteredUser => MfaDetailHelper.isMfaVerified(r.mfaDetails)
   }
 
   lazy val emailPreferences: EmailPreferences = user match {

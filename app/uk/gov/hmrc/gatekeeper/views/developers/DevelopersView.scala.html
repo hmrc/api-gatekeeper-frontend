@@ -132,7 +132,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
           </td>
           <td id="dev-mfaEnabled-@index" class="govuk-table__cell">
             @(user match {
-              case r: RegisteredUser if(MfaDetailHelper.isAuthAppMfaVerified(r.mfaDetails)) => "Yes"
+              case r: RegisteredUser if(MfaDetailHelper.isMfaVerified(r.mfaDetails)) => "Yes"
               case _ => "No"
             })
           </td>

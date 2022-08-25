@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.libs.json.{Format, Json}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -25,12 +26,25 @@ import scala.collection.immutable
 
 case class MfaId(value: UUID) extends AnyVal
 
-sealed trait MfaType extends EnumEntry
+object MfaId {
+  implicit val format: Format[MfaId] = Json.valueFormat[MfaId]
+  def random: MfaId = MfaId(UUID.randomUUID())
+}
+
+sealed trait MfaType extends EnumEntry {
+  def asText: String
+}
 
 object MfaType extends Enum[MfaType] with PlayJsonEnum[MfaType] {
   val values: immutable.IndexedSeq[MfaType] = findValues
 
-  case object AUTHENTICATOR_APP extends MfaType
+  case object AUTHENTICATOR_APP extends MfaType {
+    override def asText: String = "Authenticator App"
+  }
+
+  case object SMS extends MfaType {
+    override def asText: String = "Text Message"
+  }
 }
 
 sealed trait MfaDetail {
@@ -41,10 +55,17 @@ sealed trait MfaDetail {
   def verified: Boolean
 }
 
-
 case class AuthenticatorAppMfaDetailSummary(override val id: MfaId,
                                             override val name: String,
                                             override val createdOn: LocalDateTime,
                                             verified: Boolean = false) extends MfaDetail {
   override val mfaType: MfaType = MfaType.AUTHENTICATOR_APP
+}
+
+case class SmsMfaDetail(override val id: MfaId = MfaId.random,
+                        override val name: String,
+                        override val createdOn: LocalDateTime,
+                        mobileNumber: String,
+                        verified: Boolean = false) extends MfaDetail {
+  override val mfaType: MfaType = MfaType.SMS
 }
