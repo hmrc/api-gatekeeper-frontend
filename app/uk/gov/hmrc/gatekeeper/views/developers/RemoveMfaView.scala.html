@@ -19,31 +19,36 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 
 @this(main: NewMainView, applicationConfig: AppConfig)
-
 @* TODO - simplify Developer to Id *@
-
-@(developer: Developer)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developer: Developer, form: Form[RemoveMfaConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove 2SV") {
 
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.DevelopersController.blankDevelopersPage}">Developers</a>
-      </li>
-    </ol>
-  </div>
+    <h1 class="govuk-heading-l">Are you sure you want to remove multi-factor authentication?</h1>
 
-  <h1 class="govuk-heading-l">@developer.user.email</h1>
+    @helper.form(action = routes.DeveloperController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
+        @helper.CSRF.formField
+        <div id="confirm-removal-hint" class="govuk-hint"></div>
+        <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-6">@developer.user.email will no longer get access codes.</p>
 
-  @helper.form(action = routes.DeveloperController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
-    @helper.CSRF.formField
-    <h2 class="govuk-heading-m">Are you sure you want to remove 2SV for this developer?</h2>
-    <div class="govuk-button-group">
-      <button id="submit" class="govuk-button" type="submit">Remove 2SV</button>
-      <a id="cancel" href="@routes.DeveloperController.developerPage(UuidIdentifier(developer.user.userId))" class="govuk-link">Cancel</a>
-    </div>
-  }
+        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="yes" name="confirm" type="radio" value="yes">
+                <label class="govuk-label govuk-radios__label" for="yes">
+                    Yes
+                </label>
+            </div>
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="no" name="confirm" type="radio" value="no" checked>
+                <label class="govuk-label govuk-radios__label" for="no">
+                    No
+                </label>
+            </div>
+        </div>
+        <br>
+        <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+    }
 }

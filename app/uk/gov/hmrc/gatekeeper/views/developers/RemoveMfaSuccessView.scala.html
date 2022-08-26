@@ -22,10 +22,9 @@
 
 @this(main: NewMainView, applicationConfig: AppConfig)
 
-@(developerEmailAddress: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developerEmailAddress: String, developerIdentifier: DeveloperIdentifier)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove 2SV") {
-
 
   <div class="govuk-breadcrumbs">
     <ol class="govuk-breadcrumbs__list">
@@ -35,11 +34,13 @@
     </ol>
   </div>
 
-  <h1 class="govuk-heading-l">@developerEmailAddress</h1>
-
   <div class="govuk-panel govuk-panel--confirmation">
-    <h2 class="govuk-panel__title">2SV removed</h2>
+    <h1 class="govuk-panel__title">You have removed 2 step verification</h1>
+
+    <div class="govuk-panel__body">
+      for @developerEmailAddress
+    </div>
   </div>
 
-  <a id="finish" href="@{routes.DevelopersController.blankDevelopersPage}" class="govuk-button">Finish</a>
+  <a id="finish" href="@{routes.DeveloperController.developerPage(developerIdentifier)}" class="govuk-link">Back to developer details</a>
 }

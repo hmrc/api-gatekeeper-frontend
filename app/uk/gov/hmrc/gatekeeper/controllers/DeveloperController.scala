@@ -20,7 +20,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -31,10 +31,13 @@ import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
+
+import scala.concurrent.Future.successful
 
 @Singleton
 class DeveloperController @Inject()(
@@ -68,17 +71,29 @@ class DeveloperController @Inject()(
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer)))
+    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
   }
 
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
-      Ok(removeMfaSuccessView(user.email))
-    } recover {
-      case e: Exception =>
-        logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
-        technicalDifficulties
+
+    def handleRemoveMfa() = {
+      developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
+        Ok(removeMfaSuccessView(user.email, developerIdentifier))
+      } recover {
+        case e: Exception =>
+          logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
+          technicalDifficulties
+      }
     }
+
+    def handleValidForm(form: RemoveMfaConfirmationForm): Future[Result] = {
+      form.confirm match {
+        case "yes" => handleRemoveMfa()
+        case _ => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier).url))
+      }
+    }
+
+    RemoveMfaConfirmationForm.form.bindFromRequest.fold(Map.empty, handleValidForm)
   }
 
   def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
