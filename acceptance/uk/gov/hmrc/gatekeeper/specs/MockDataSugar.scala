@@ -441,7 +441,13 @@ object MockDataSugar {
        |    "name":"Google Auth App",
        |    "createdOn":"2022-07-19T07:07:45.661",
        |    "verified":true,
-       |    "mfaType":"AUTHENTICATOR_APP"}
+       |    "mfaType":"AUTHENTICATOR_APP"},
+       |    {"id":"12b240e-ee7a-40ae-8eeb-b2a151da00de",
+       |    "name":"Text Message",
+       |    "createdOn":"2022-08-26T13:42:39.441",
+       |    "mobileNumber": "0123456789",
+       |    "verified":true,
+       |    "mfaType":"SMS"}
        |    ],
        |    "emailPreferences": {
        |      "interests": [],
@@ -465,7 +471,13 @@ object MockDataSugar {
        |    "name":"Google Auth App",
        |    "createdOn":"2022-07-19T07:07:45.661",
        |    "verified":true,
-       |    "mfaType":"AUTHENTICATOR_APP"}
+       |    "mfaType":"AUTHENTICATOR_APP"},
+       |    {"id":"12b240e-ee7a-40ae-8eeb-b2a151da00de",
+       |    "name":"Text Message",
+       |    "createdOn":"2022-08-26T13:42:39.441",
+       |    "mobileNumber": "0123456789",
+       |    "verified":true,
+       |    "mfaType":"SMS"}
        |    ],
        |    "emailPreferences": {
        |      "interests": [],

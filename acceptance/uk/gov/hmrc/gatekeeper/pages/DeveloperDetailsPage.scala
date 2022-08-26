@@ -56,6 +56,14 @@ object DeveloperDetailsPage extends WebPage with UrlEncoding with CommonTestData
     find(cssSelector("#mfa-name-0"))
   }
 
+  def smsMfaType = {
+    find(cssSelector("#mfa-type-1"))
+  }
+
+  def smsMfaName = {
+    find(cssSelector("#mfa-name-1"))
+  }
+
   def selectByApplicationName(name: String) = {
     click on find(linkText(name)).get
   }

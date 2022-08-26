@@ -91,9 +91,10 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA detail types and names")
-      println("#### PAGE OUTPUT ####\n" + DeveloperDetailsPage.bodyText)
       assert(DeveloperDetailsPage.authAppMfaType.get.text == MfaType.AUTHENTICATOR_APP.asText)
       assert(DeveloperDetailsPage.authAppMfaName.get.text == "On (Google Auth App)")
+      assert(DeveloperDetailsPage.smsMfaType.get.text == MfaType.SMS.asText)
+      assert(DeveloperDetailsPage.smsMfaName.get.text == "On (0123456789)")
 
       Then("I can see the link to remove MFA")
       assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
