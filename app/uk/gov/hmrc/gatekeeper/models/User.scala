@@ -44,7 +44,6 @@ object User {
   }
 }
 
-
 case class RegisteredUser(
   email: String,
   userId: UserId,

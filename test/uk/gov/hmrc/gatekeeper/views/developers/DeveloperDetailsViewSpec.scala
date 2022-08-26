@@ -18,11 +18,15 @@ package uk.gov.hmrc.gatekeeper.views.developers
 
 import java.util.UUID
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
+
+import java.time.LocalDateTime
 
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
@@ -64,11 +68,11 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         case _ => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
-      if(developer.xmlEmailPrefServices.isEmpty) {
+      if (developer.xmlEmailPrefServices.isEmpty) {
         document.getElementById("xmlEmailPreferences").text shouldBe "None"
       } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
 
-      if(developer.xmlOrganisations.isEmpty) {
+      if (developer.xmlOrganisations.isEmpty) {
         document.getElementById("xml-organisation").text shouldBe "None"
       } else {
         val orgId = developer.xmlOrganisations.map(org => org.organisationId).head
@@ -98,23 +102,27 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     "show developer with organisation when logged in as superuser" in new Setup {
       val verifiedDeveloper =
         Developer(
-        RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
-        List.empty,
-        xmlServiceNames,
-        xmlOrganisations)
+          RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
+          List.empty,
+          xmlServiceNames,
+          xmlOrganisations)
 
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with no applications when logged in as superuser" in new Setup {
-      val result = developerDetails.render(developer,  buildXmlServicesFeUrl, superUserRequest)
+      val result = developerDetails.render(developer, buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
 
+      elementExistsByText(document, "h2", "Multi-factor authentication") shouldBe true
+      elementExistsByText(document, "a", "Remove multi-factor authentication") shouldBe false
+
       elementExistsByText(document, "caption", "Associated applications") shouldBe true
       document.getElementById("applications").text shouldBe "None"
+      document.getElementById("no-mfa").text shouldBe "None"
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
@@ -123,7 +131,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
-      val result = developerDetails.render(developerWithApps,  buildXmlServicesFeUrl, superUserRequest)
+      val result = developerDetails.render(developerWithApps, buildXmlServicesFeUrl, superUserRequest)
 
       val document = Jsoup.parse(result.body)
 
@@ -135,6 +143,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       elementExistsByText(document, "p", "Admin") shouldBe true
       elementExistsByText(document, "a", "appName2") shouldBe true
       elementExistsByText(document, "p", "Developer") shouldBe true
+      document.getElementById("no-mfa").text shouldBe "None"
     }
 
     "show developer details with delete button when logged in as superuser" in new Setup {
@@ -144,6 +153,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
 
+      document.getElementById("no-mfa").text shouldBe "None"
       elementExistsByText(document, "a", "Delete developer") shouldBe true
     }
 
@@ -154,7 +164,47 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
 
+      document.getElementById("no-mfa").text shouldBe "None"
       elementExistsByText(document, "a", "Delete developer") shouldBe false
+    }
+
+    "show developer with mfa details and no applications when logged in as superuser" in new Setup {
+      val smsMfaDetailVerified: SmsMfaDetail =
+        SmsMfaDetail(
+          name = "Text Message",
+          mobileNumber = "0123456789",
+          createdOn = LocalDateTime.now,
+          verified = true)
+
+      val authAppMfaDetailVerified: AuthenticatorAppMfaDetailSummary =
+        AuthenticatorAppMfaDetailSummary(
+          name = "Google Auth App",
+          createdOn = LocalDateTime.now,
+          verified = true)
+
+      val developerWithMfaDetails: Developer = Developer(
+        RegisteredUser(
+          email = "email@example.com",
+          userId = UserId.random,
+          firstName = "firstname",
+          lastName = "lastName",
+          verified = true,
+          mfaDetails = List(authAppMfaDetailVerified, smsMfaDetailVerified)),
+        applications = List.empty)
+
+      val result: HtmlFormat.Appendable = developerDetails.render(developerWithMfaDetails, buildXmlServicesFeUrl, superUserRequest)
+
+      val document: Document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+
+      document.getElementById("mfa-heading").text shouldBe "Multi-factor authentication"
+      document.getElementById("mfa-type-0").text shouldBe MfaType.AUTHENTICATOR_APP.asText
+      document.getElementById("mfa-type-1").text shouldBe MfaType.SMS.asText
+      document.getElementById("mfa-name-0").text shouldBe s"On (${authAppMfaDetailVerified.name})"
+      document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.mobileNumber})"
+      document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"
+      document.getElementById("remove-2SV").attr("href") shouldBe s"/api-gatekeeper/developer/mfa/remove?developerId=${developerWithMfaDetails.id}"
     }
   }
 }

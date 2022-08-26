@@ -55,7 +55,7 @@ sealed trait MfaDetail {
   def verified: Boolean
 }
 
-case class AuthenticatorAppMfaDetailSummary(override val id: MfaId,
+case class AuthenticatorAppMfaDetailSummary(override val id: MfaId = MfaId.random,
                                             override val name: String,
                                             override val createdOn: LocalDateTime,
                                             verified: Boolean = false) extends MfaDetail {

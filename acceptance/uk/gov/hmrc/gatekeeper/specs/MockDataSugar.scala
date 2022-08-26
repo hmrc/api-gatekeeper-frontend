@@ -438,7 +438,7 @@ object MockDataSugar {
        |    "mfaEnabled": true,
        |    "mfaDetails":[
        |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
-       |    "name":"AUTHENTICATOR_APP",
+       |    "name":"Google Auth App",
        |    "createdOn":"2022-07-19T07:07:45.661",
        |    "verified":true,
        |    "mfaType":"AUTHENTICATOR_APP"}
@@ -462,7 +462,7 @@ object MockDataSugar {
        |    "mfaEnabled": true,
        |    "mfaDetails":[
        |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
-       |    "name":"AUTHENTICATOR_APP",
+       |    "name":"Google Auth App",
        |    "createdOn":"2022-07-19T07:07:45.661",
        |    "verified":true,
        |    "mfaType":"AUTHENTICATOR_APP"}
@@ -474,6 +474,22 @@ object MockDataSugar {
        |  }
    """.stripMargin
 
+  val userWithoutMfaDetails =
+    s"""
+       |  {
+       |    "email": "$developer8",
+       |    "userId": "$developer8Id",
+       |    "firstName": "$dev8FirstName",
+       |    "lastName": "$dev8LastName",
+       |    "verified": false,
+       |    "mfaEnabled": true,
+       |    "mfaDetails":[],
+       |    "emailPreferences": {
+       |      "interests": [],
+       |      "topics": []
+       |    }
+       |  }
+   """.stripMargin
 
   def approvedApplication(description: String = "", verified: Boolean = false) = {
     val verifiedHistory = if (verified) {

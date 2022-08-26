@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.pages._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
-import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.{MfaType, UserId}
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 
@@ -55,9 +55,11 @@ class ApiGatekeeperRemoveMfaSpec
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I can see the button to remove MFA")
-      println(DeveloperDetailsPage.bodyText)
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
+      Then("I can see the MFA heading")
+      assert(DeveloperDetailsPage.mfaHeading == "Multi-factor authentication")
+
+      Then("I can see the Link to remove MFA")
+      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -88,9 +90,14 @@ class ApiGatekeeperRemoveMfaSpec
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I can see the button to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
-      assert(DeveloperDetailsPage.removeMfaButton.get.isEnabled == true)
+      Then("I can see the MFA detail types and names")
+      println("#### PAGE OUTPUT ####\n" + DeveloperDetailsPage.bodyText)
+      assert(DeveloperDetailsPage.authAppMfaType.get.text == MfaType.AUTHENTICATOR_APP.asText)
+      assert(DeveloperDetailsPage.authAppMfaName.get.text == "On (Google Auth App)")
+
+      Then("I can see the link to remove MFA")
+      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
+      assert(DeveloperDetailsPage.removeMfaLink.get.isEnabled == true)
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -200,6 +207,6 @@ class ApiGatekeeperRemoveMfaSpec
 
   def stubRemoveMfa(): Unit = {
     stubFor(WireMock.post(urlEqualTo(s"/developer/${developer8Id}/mfa/remove"))
-      .willReturn(aResponse().withStatus(OK).withBody(user)))
+      .willReturn(aResponse().withStatus(OK).withBody(userWithoutMfaDetails)))
   }
 }
