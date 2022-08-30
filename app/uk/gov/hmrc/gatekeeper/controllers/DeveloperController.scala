@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import play.api.data.Form
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 
 import javax.inject.{Inject, Singleton}
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 
@@ -93,7 +93,11 @@ class DeveloperController @Inject()(
       }
     }
 
-    RemoveMfaConfirmationForm.form.bindFromRequest.fold(Map.empty, handleValidForm)
+    def handleInvalidForm(form: Form[RemoveMfaConfirmationForm]): Future[Result] = {
+      successful(InternalServerError)
+    }
+
+    RemoveMfaConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
   def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>

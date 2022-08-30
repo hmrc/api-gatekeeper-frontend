@@ -30,7 +30,7 @@ object RemoveMfaSuccessPage extends WebPage {
     find(cssSelector("#finish")).get
   }
 
-  def finish(): Unit = {
+  def backToDeveloperDetails(): Unit = {
     click on finishButton
   }
 }

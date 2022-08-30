@@ -67,17 +67,20 @@ class ApiGatekeeperRemoveMfaSpec
       Then("I am successfully navigated to the Remove MFA page")
       on(RemoveMfaPage)
 
+      When("I select the 'Yes' option")
+      RemoveMfaPage.selectRadioButton("yes")
+
       When("I confirm I want to remove MFA")
       RemoveMfaPage.removeMfa()
 
       Then("I am successfully navigated to the Remove MFA Success page")
       on(RemoveMfaSuccessPage)
 
-      When("I click on Finish")
-      RemoveMfaSuccessPage.finish()
+      When("I click on Back to developer details")
+      RemoveMfaSuccessPage.backToDeveloperDetails()
       
-      Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      Then("I am successfully navigated to the Developer page")
+      on(DeveloperDetailsPage)
     }
 
     Scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
@@ -98,7 +101,7 @@ class ApiGatekeeperRemoveMfaSpec
 
       Then("I can see the link to remove MFA")
       assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
-      assert(DeveloperDetailsPage.removeMfaLink.get.isEnabled == true)
+      assert(DeveloperDetailsPage.removeMfaLink.get.isEnabled)
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -106,17 +109,20 @@ class ApiGatekeeperRemoveMfaSpec
       Then("I am successfully navigated to the Remove MFA page")
       on(RemoveMfaPage)
 
+      When("I select the 'Yes' option")
+      RemoveMfaPage.selectRadioButton("yes")
+
       When("I confirm I want to remove MFA")
       RemoveMfaPage.removeMfa()
 
       Then("I am successfully navigated to the Remove MFA Success page")
       on(RemoveMfaSuccessPage)
 
-      When("I click on Finish")
-      RemoveMfaSuccessPage.finish()
+      When("I click on Back to developer details")
+      RemoveMfaSuccessPage.backToDeveloperDetails()
 
-      Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      Then("I am successfully navigated to the Developer Details page")
+      on(DeveloperDetailsPage)
     }
   }
 

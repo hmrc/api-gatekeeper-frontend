@@ -20,6 +20,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -63,8 +64,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       val loggedInSuperUser = "superUserName"
       val loggedInUser = "Bobby Example"
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
-      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken)
+      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
+      override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
 
       val developersController = new DeveloperController(
         mockDeveloperService,
@@ -137,7 +138,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.RemoveMfa.returns(user)
 
-        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
+        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val result = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe OK
         verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
