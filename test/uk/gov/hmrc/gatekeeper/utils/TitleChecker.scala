@@ -20,6 +20,8 @@ import akka.stream.Materializer
 import play.api.mvc.Result
 import scala.concurrent.Future
 import play.api.test.Helpers._
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+
 trait TitleChecker extends AsyncHmrcSpec {
 
   implicit val materializer: Materializer

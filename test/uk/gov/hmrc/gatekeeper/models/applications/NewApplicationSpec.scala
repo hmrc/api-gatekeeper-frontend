@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models.applications
 
 import com.github.nscala_time.time.Imports.DateTime
 import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ClientId, Environment, ImportantSubmissionData, PrivacyPolicyLocation, RateLimitTier, Standard, TermsAndConditionsLocation}
-import uk.gov.hmrc.gatekeeper.utils.HmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 import java.time.Period
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import uk.gov.hmrc.gatekeeper.models.State._
 import org.joda.time.format.DateTimeFormat
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.joda.time.DateTime
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 

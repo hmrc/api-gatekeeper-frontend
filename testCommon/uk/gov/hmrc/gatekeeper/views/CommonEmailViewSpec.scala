@@ -21,7 +21,7 @@ import java.util.Locale
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.gatekeeper.views.emails.EmailLandingViewHelper
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 trait CommonEmailViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with EmailLandingViewHelper {

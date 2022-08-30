@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.config
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
 

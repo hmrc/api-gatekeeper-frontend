@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.utils.HmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 class DeveloperStatusFilterSpec extends HmrcSpec {
 

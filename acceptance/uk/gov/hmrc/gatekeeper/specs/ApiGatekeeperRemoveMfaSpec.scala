@@ -26,9 +26,9 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
-import uk.gov.hmrc.gatekeeper.utils.WireMockExtensions
 
 import scala.io.Source
+import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 
 class ApiGatekeeperRemoveMfaSpec
   extends ApiGatekeeperBaseSpec

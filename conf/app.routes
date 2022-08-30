@@ -22,6 +22,8 @@ GET         /applications/states/csv                                          uk
 
 GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 
+GET         /applications/:id/events                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController.page(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
+
 POST        /applications/:id/handle-uplift                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUplift(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 GET         /applications/:id/resend-verification                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.resendVerification(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 

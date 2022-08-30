@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,9 +35,10 @@ import play.api.test.Helpers._
 import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.gatekeeper.utils._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorSpec 
     extends AsyncHmrcSpec

@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import java.util.UUID
 
 import uk.gov.hmrc.http.Authorization
-import uk.gov.hmrc.gatekeeper.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import play.api.http.HeaderNames
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder

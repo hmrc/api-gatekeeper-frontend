@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
-import uk.gov.hmrc.gatekeeper.utils.{AsyncHmrcSpec, UrlEncoding, WireMockSugar}
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.http.BadRequestException
 
 import java.util.UUID
