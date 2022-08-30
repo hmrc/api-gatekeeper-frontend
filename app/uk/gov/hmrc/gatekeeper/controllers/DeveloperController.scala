@@ -94,7 +94,7 @@ class DeveloperController @Inject()(
     }
 
     def handleInvalidForm(form: Form[RemoveMfaConfirmationForm]): Future[Result] = {
-      successful(InternalServerError)
+      successful(BadRequest)
     }
 
     RemoveMfaConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)

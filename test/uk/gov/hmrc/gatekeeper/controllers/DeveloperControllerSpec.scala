@@ -134,7 +134,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         status(result) shouldBe FORBIDDEN
       }
 
-      "allow a normal user to access the page" in new Setup {
+      "allow a normal user to access the page and confirm removal" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.RemoveMfa.returns(user)
 
@@ -145,11 +145,31 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
       }
 
+      "allow a normal user to access the page and not confirm removal" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "no"))
+        val result = developersController.removeMfaAction(developerId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId.userId.value}")
+        verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+      }
+
+      "return an internal server error when no radio buttons are selected" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val result = developersController.removeMfaAction(developerId)(aLoggedInRequest)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+
       "return an internal server error when it fails to remove MFA" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
-        val result = developersController.removeMfaAction(developerId)(aSuperUserLoggedInRequest)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val result = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
