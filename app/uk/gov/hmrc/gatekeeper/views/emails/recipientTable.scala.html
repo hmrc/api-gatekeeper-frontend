@@ -36,25 +36,7 @@
       <form method="post" action="@config.gatekeeperComposeEmailUrl">
         @helper.CSRF.formField
         <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
-        <input type="hidden" name="user-selection-query" value="@{
-          val overrideUsers =
-          if (config.overrideEmailRecipients) {
-              val devUsers = List()
-              if(config.sendToSDSTEmailRecipient) {
-                Some(devUsers)
-              }
-              else {
-                  Some(devUsers)
-              }
-          }
-          else {
-              None
-          }
-
-          if(overrideUsers.isDefined)
-            Json.stringify(Json.toJson(tpdQuery.copy(emailsForSomeCases = Some(EmailOverride(overrideUsers.get, true)))))
-          else Json.stringify(Json.toJson(tpdQuery))
-        }"/>
+        <input type="hidden" name="user-selection-query" value="@{Json.toJson(tpdQuery)}"/>
 
         <div class="compose-email-send">
           <button type="submit" class="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{users.length} displayed email addresses.">
