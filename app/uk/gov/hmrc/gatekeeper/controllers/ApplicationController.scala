@@ -628,7 +628,7 @@ class ApplicationController @Inject()(
       case None                                            => "admin.email.is.not.registered".invalidNec
       case Some(UnregisteredUser(_,_))                     => "admin.email.is.not.registered".invalidNec
       case Some(user: RegisteredUser) if(!user.verified)   => "admin.email.is.not.verified".invalidNec
-      case Some(user: RegisteredUser) if(!MfaDetailHelper.isAuthAppMfaVerified(user.mfaDetails)) => "admin.email.is.not.mfa.enabled".invalidNec
+      case Some(user: RegisteredUser) if(!MfaDetailHelper.isMfaVerified(user.mfaDetails)) => "admin.email.is.not.mfa.enabled".invalidNec
       case Some(user: RegisteredUser)                      => user.validNec
     }
 

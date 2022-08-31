@@ -30,6 +30,11 @@ object RemoveMfaPage extends WebPage {
     find(cssSelector("#submit")).get
   }
 
+  def selectRadioButton(radioId: String) = {
+    val radioButton = find(id(radioId)).get
+    click on radioButton
+  }
+
   def removeMfa(): Unit = {
     click on removeMfaButton
   }

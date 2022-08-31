@@ -20,9 +20,7 @@ import uk.gov.hmrc.gatekeeper.models.{MfaDetail, MfaType}
 
 object MfaDetailHelper {
 
-  def isAuthAppMfaVerified(mfaDetails: List[MfaDetail]): Boolean = {
-    //TODO: This will be modified when the SMS authentication is added.
-    mfaDetails.exists(x => x.mfaType == MfaType.AUTHENTICATOR_APP && x.verified)
-
+  def isMfaVerified(mfaDetails: List[MfaDetail]): Boolean = {
+    mfaDetails.exists(x => x.verified)
   }
 }

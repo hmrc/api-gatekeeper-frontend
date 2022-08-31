@@ -340,4 +340,13 @@ object Forms {
     )
   }
 
+  final case class RemoveMfaConfirmationForm(confirm: String = "")
+
+  object RemoveMfaConfirmationForm {
+    val form: Form[RemoveMfaConfirmationForm] = Form(
+      mapping(
+        "confirm" -> text
+      )(RemoveMfaConfirmationForm.apply)(RemoveMfaConfirmationForm.unapply)
+    )
+  }
 }

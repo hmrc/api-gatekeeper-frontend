@@ -40,12 +40,28 @@ object DeveloperDetailsPage extends WebPage with UrlEncoding with CommonTestData
     find(cssSelector("#status")).get.text
   }
 
-  def mfaEnabled() = {
-    find(cssSelector("#mfaEnabled")).get.text
+  def mfaHeading() = {
+    find(cssSelector("#mfa-heading")).get.text
   }
 
-  def removeMfaButton = {
+  def removeMfaLink = {
     find(cssSelector("#remove-2SV"))
+  }
+
+  def authAppMfaType = {
+    find(cssSelector("#mfa-type-0"))
+  }
+
+  def authAppMfaName = {
+    find(cssSelector("#mfa-name-0"))
+  }
+
+  def smsMfaType = {
+    find(cssSelector("#mfa-type-1"))
+  }
+
+  def smsMfaName = {
+    find(cssSelector("#mfa-name-1"))
   }
 
   def selectByApplicationName(name: String) = {
@@ -53,7 +69,7 @@ object DeveloperDetailsPage extends WebPage with UrlEncoding with CommonTestData
   }
 
   def removeMfa() = {
-    click on removeMfaButton.get
+    click on removeMfaLink.get
   }
 
 }

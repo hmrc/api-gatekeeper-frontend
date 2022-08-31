@@ -15,54 +15,78 @@
  */
 
 package uk.gov.hmrc.gatekeeper.utils
+
 import java.time.LocalDateTime
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaId}
+import uk.gov.hmrc.gatekeeper.models.MfaType.{AUTHENTICATOR_APP, SMS}
+import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaDetail, MfaId, MfaType, SmsMfaDetail}
 
 import java.util.UUID
 
 class MfaDetailHelperSpec extends AnyWordSpec with Matchers {
 
   "MfaDetailHelper" when {
-    def generateDetail(verified: Boolean): AuthenticatorAppMfaDetailSummary ={
-      AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now(), verified = verified)
+    def generateDetail(verified: Boolean, mfaType: MfaType): MfaDetail = {
+      mfaType match {
+        case AUTHENTICATOR_APP => AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now(), verified = verified)
+        case SMS => SmsMfaDetail(name = "Text Message", createdOn = LocalDateTime.now(), verified = verified, mobileNumber = "0123456789")
+      }
     }
-    "isAuthAppMfaVerified" should {
+
+    "isMfaVerified(" should {
       "return false when MfaDetails are empty List" in {
         val mfaDetails = List.empty
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe false
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe false
       }
 
-      "return false when MfaDetails contains detail where verified is false" in {
-        val mfaDetails = List(generateDetail(false))
+      "return false when MfaDetails contains auth app mfa detail where verified is false" in {
+        val mfaDetails = List(generateDetail(false, AUTHENTICATOR_APP))
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe false
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe false
       }
 
-      "return true when MfaDetails contains detail where verified is true" in {
-        val mfaDetails = List(generateDetail(true))
+      "return true when MfaDetails contains auth app mfa detail where verified is true" in {
+        val mfaDetails = List(generateDetail(true, AUTHENTICATOR_APP))
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe true
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe true
       }
 
-      "return true when MfaDetails contains details with same typ, one is true" in {
-        val mfaDetails = List(generateDetail(false), generateDetail(false), generateDetail(true))
+      "return false when MfaDetails contains sms mfa detail where verified is false" in {
+        val mfaDetails = List(generateDetail(false, SMS))
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe true
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe false
       }
 
-      "return false when MfaDetails contains details with same type, all are false" in {
-        val mfaDetails = List(generateDetail(false), generateDetail(false), generateDetail(false))
+      "return true when MfaDetails contains sms mfa detail where verified is true" in {
+        val mfaDetails = List(generateDetail(true, SMS))
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe false
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe true
       }
 
-      "return true when MfaDetails contains details with same type, all are true" in {
-        val mfaDetails = List(generateDetail(true), generateDetail(true), generateDetail(true))
+      "return true when MfaDetails contains verified auth app mfa detail and unverified sms mfa detail" in {
+        val mfaDetails = List(generateDetail(true, AUTHENTICATOR_APP), generateDetail(false, SMS))
 
-        MfaDetailHelper.isAuthAppMfaVerified(mfaDetails) shouldBe true
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe true
+      }
+
+      "return true when MfaDetails contains verified sms mfa detail and unverified auth app mfa detail" in {
+        val mfaDetails = List(generateDetail(false, AUTHENTICATOR_APP), generateDetail(true, SMS))
+
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe true
+      }
+
+      "return true when MfaDetails contains verified both sms and auth app mfa details" in {
+        val mfaDetails = List(generateDetail(true, AUTHENTICATOR_APP), generateDetail(true, SMS))
+
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe true
+      }
+
+      "return true when MfaDetails contains unverified sms mfa detail and unverified auth app mfa detail" in {
+        val mfaDetails = List(generateDetail(false, AUTHENTICATOR_APP), generateDetail(false, SMS))
+
+        MfaDetailHelper.isMfaVerified(mfaDetails) shouldBe false
       }
     }
   }

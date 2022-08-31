@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.pages._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
-import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.{MfaType, UserId}
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 
 import scala.io.Source
@@ -55,9 +55,11 @@ class ApiGatekeeperRemoveMfaSpec
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I can see the button to remove MFA")
-      println(DeveloperDetailsPage.bodyText)
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
+      Then("I can see the MFA heading")
+      assert(DeveloperDetailsPage.mfaHeading == "Multi-factor authentication")
+
+      Then("I can see the Link to remove MFA")
+      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -65,17 +67,20 @@ class ApiGatekeeperRemoveMfaSpec
       Then("I am successfully navigated to the Remove MFA page")
       on(RemoveMfaPage)
 
+      When("I select the 'Yes' option")
+      RemoveMfaPage.selectRadioButton("yes")
+
       When("I confirm I want to remove MFA")
       RemoveMfaPage.removeMfa()
 
       Then("I am successfully navigated to the Remove MFA Success page")
       on(RemoveMfaSuccessPage)
 
-      When("I click on Finish")
-      RemoveMfaSuccessPage.finish()
+      When("I click on Back to developer details")
+      RemoveMfaSuccessPage.backToDeveloperDetails()
       
-      Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      Then("I am successfully navigated to the Developer page")
+      on(DeveloperDetailsPage)
     }
 
     Scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
@@ -88,9 +93,15 @@ class ApiGatekeeperRemoveMfaSpec
       When("I navigate to the Developer Details page")
       navigateToDeveloperDetails()
 
-      Then("I can see the button to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaButton.get.text == "Remove 2SV")
-      assert(DeveloperDetailsPage.removeMfaButton.get.isEnabled == true)
+      Then("I can see the MFA detail types and names")
+      assert(DeveloperDetailsPage.authAppMfaType.get.text == MfaType.AUTHENTICATOR_APP.asText)
+      assert(DeveloperDetailsPage.authAppMfaName.get.text == "On (Google Auth App)")
+      assert(DeveloperDetailsPage.smsMfaType.get.text == MfaType.SMS.asText)
+      assert(DeveloperDetailsPage.smsMfaName.get.text == "On (0123456789)")
+
+      Then("I can see the link to remove MFA")
+      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
+      assert(DeveloperDetailsPage.removeMfaLink.get.isEnabled)
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -98,17 +109,20 @@ class ApiGatekeeperRemoveMfaSpec
       Then("I am successfully navigated to the Remove MFA page")
       on(RemoveMfaPage)
 
+      When("I select the 'Yes' option")
+      RemoveMfaPage.selectRadioButton("yes")
+
       When("I confirm I want to remove MFA")
       RemoveMfaPage.removeMfa()
 
       Then("I am successfully navigated to the Remove MFA Success page")
       on(RemoveMfaSuccessPage)
 
-      When("I click on Finish")
-      RemoveMfaSuccessPage.finish()
+      When("I click on Back to developer details")
+      RemoveMfaSuccessPage.backToDeveloperDetails()
 
-      Then("I am successfully navigated to the Developers page")
-      on(DeveloperPage)
+      Then("I am successfully navigated to the Developer Details page")
+      on(DeveloperDetailsPage)
     }
   }
 
@@ -200,6 +214,6 @@ class ApiGatekeeperRemoveMfaSpec
 
   def stubRemoveMfa(): Unit = {
     stubFor(WireMock.post(urlEqualTo(s"/developer/${developer8Id}/mfa/remove"))
-      .willReturn(aResponse().withStatus(OK).withBody(user)))
+      .willReturn(aResponse().withStatus(OK).withBody(userWithoutMfaDetails)))
   }
 }
