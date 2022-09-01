@@ -50,7 +50,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
     val smsMfaDetailVerified: SmsMfaDetail =
       SmsMfaDetail(
-        name = "Text Message",
+        name = "****6789",
         mobileNumber = "0123456789",
         createdOn = LocalDateTime.now,
         verified = true)
@@ -204,7 +204,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       document.getElementById("mfa-type-0").text shouldBe MfaType.AUTHENTICATOR_APP.asText
       document.getElementById("mfa-type-1").text shouldBe MfaType.SMS.asText
       document.getElementById("mfa-name-0").text shouldBe s"On (${authAppMfaDetailVerified.name})"
-      document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.mobileNumber})"
+      document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.name})"
       document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"
       document.getElementById("remove-2SV").attr("href") shouldBe s"/api-gatekeeper/developer/mfa/remove?developerId=${developerWithMfaDetails.id}"
     }

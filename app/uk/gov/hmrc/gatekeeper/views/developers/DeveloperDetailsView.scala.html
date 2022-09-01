@@ -106,12 +106,7 @@
                     @mfaDetail.mfaType.asText
                 </dt>
                 <dd class="govuk-summary-list__value" id="mfa-name-@idx">
-                    On (@{
-                        mfaDetail match {
-                            case mfaDetail: AuthenticatorAppMfaDetailSummary => mfaDetail.name
-                            case mfaDetail: SmsMfaDetail => mfaDetail.mobileNumber
-                        }
-                    })
+                    On (@{mfaDetail.name})
                 </dd>
             </div>
         }

@@ -30,7 +30,7 @@ class MfaDetailHelperSpec extends AnyWordSpec with Matchers {
     def generateDetail(verified: Boolean, mfaType: MfaType): MfaDetail = {
       mfaType match {
         case AUTHENTICATOR_APP => AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now(), verified = verified)
-        case SMS => SmsMfaDetail(name = "Text Message", createdOn = LocalDateTime.now(), verified = verified, mobileNumber = "0123456789")
+        case SMS => SmsMfaDetail(name = "****6789", createdOn = LocalDateTime.now(), verified = verified, mobileNumber = "0123456789")
       }
     }
 
