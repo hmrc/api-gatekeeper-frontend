@@ -48,6 +48,21 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     val buildXmlServicesFeUrl: (OrganisationId) => String = (organisationId) =>
       s"/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
+    val smsMfaDetailVerified: SmsMfaDetail =
+      SmsMfaDetail(
+        name = "Text Message",
+        mobileNumber = "0123456789",
+        createdOn = LocalDateTime.now,
+        verified = true)
+
+    val smsMfaDetailUnverified = smsMfaDetailVerified.copy(verified = false)
+
+    val authAppMfaDetailVerified: AuthenticatorAppMfaDetailSummary =
+      AuthenticatorAppMfaDetailSummary(
+        name = "Google Auth App",
+        createdOn = LocalDateTime.now,
+        verified = true)
+
     def testDeveloperDetails(developer: Developer) = {
       val result = developerDetails.render(developer, buildXmlServicesFeUrl, superUserRequest)
 
@@ -169,19 +184,6 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with mfa details and no applications when logged in as superuser" in new Setup {
-      val smsMfaDetailVerified: SmsMfaDetail =
-        SmsMfaDetail(
-          name = "Text Message",
-          mobileNumber = "0123456789",
-          createdOn = LocalDateTime.now,
-          verified = true)
-
-      val authAppMfaDetailVerified: AuthenticatorAppMfaDetailSummary =
-        AuthenticatorAppMfaDetailSummary(
-          name = "Google Auth App",
-          createdOn = LocalDateTime.now,
-          verified = true)
-
       val developerWithMfaDetails: Developer = Developer(
         RegisteredUser(
           email = "email@example.com",
@@ -189,7 +191,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
           firstName = "firstname",
           lastName = "lastName",
           verified = true,
-          mfaDetails = List(authAppMfaDetailVerified, smsMfaDetailVerified)),
+          mfaDetails = List(smsMfaDetailUnverified, authAppMfaDetailVerified, smsMfaDetailVerified)),
         applications = List.empty)
 
       val result: HtmlFormat.Appendable = developerDetails.render(developerWithMfaDetails, buildXmlServicesFeUrl, superUserRequest)
@@ -205,6 +207,27 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.mobileNumber})"
       document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"
       document.getElementById("remove-2SV").attr("href") shouldBe s"/api-gatekeeper/developer/mfa/remove?developerId=${developerWithMfaDetails.id}"
+    }
+
+    "show developer with no mfa details if all unverified and no applications when logged in as superuser" in new Setup {
+      val developerWithMfaDetailsUnverified: Developer = Developer(
+        RegisteredUser(
+          email = "email@example.com",
+          userId = UserId.random,
+          firstName = "firstname",
+          lastName = "lastName",
+          verified = true,
+          mfaDetails = List(smsMfaDetailUnverified)),
+        applications = List.empty)
+
+      val result: HtmlFormat.Appendable = developerDetails.render(developerWithMfaDetailsUnverified, buildXmlServicesFeUrl, superUserRequest)
+
+      val document: Document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+
+      document.getElementById("mfa-heading").text shouldBe "Multi-factor authentication"
+      document.getElementById("no-mfa").text shouldBe "None"
     }
   }
 }

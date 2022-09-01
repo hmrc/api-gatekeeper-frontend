@@ -93,14 +93,14 @@
 
     <h2 class="govuk-heading-m" id="mfa-heading">Multi-factor authentication</h2>
     <dl class="govuk-summary-list">
-    @if(developer.mfaDetails.isEmpty) {
+    @if(!MfaDetailHelper.isMfaVerified(developer.mfaDetails)) {
         <div class="govuk-summary-list__row">
             <dd class="govuk-summary-list__value" id="no-mfa">
             None
             </dd>
         </div>
     } else {
-        @for((mfaDetail, idx) <- developer.mfaDetails.zipWithIndex) {
+        @for((mfaDetail, idx) <- developer.mfaDetails.filter(_.verified).zipWithIndex) {
             <div class="govuk-summary-list__row">
                 <dt class="govuk-body govuk-summary-list__key" id="mfa-type-@idx">
                     @mfaDetail.mfaType.asText
