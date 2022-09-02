@@ -25,7 +25,7 @@
 @* TODO - simplify Developer to Id *@
 @(developer: Developer, form: Form[RemoveMfaConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Remove multi-factor authentication") {
+@main(title = s"${applicationConfig.title} - Are you sure you want to remove multi-factor authentication?") {
 
     <h1 class="govuk-heading-l">Are you sure you want to remove multi-factor authentication?</h1>
 
