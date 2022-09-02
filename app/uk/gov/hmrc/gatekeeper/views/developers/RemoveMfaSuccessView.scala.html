@@ -24,7 +24,7 @@
 
 @(developerEmailAddress: String, developerIdentifier: DeveloperIdentifier)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Remove 2SV") {
+@main(title = s"${applicationConfig.title} - Remove multi-factor authentication") {
 
   <div class="govuk-breadcrumbs">
     <ol class="govuk-breadcrumbs__list">
@@ -35,12 +35,14 @@
   </div>
 
   <div class="govuk-panel govuk-panel--confirmation">
-    <h1 class="govuk-panel__title">You have removed 2 step verification</h1>
+    <h1 class="govuk-panel__title">You have removed multi-factor authentication</h1>
 
     <div class="govuk-panel__body">
       for @developerEmailAddress
     </div>
   </div>
 
-  <a id="finish" href="@{routes.DeveloperController.developerPage(developerIdentifier)}" class="govuk-link">Back to developer details</a>
+  <p class="govuk-body govuk-!-margin-bottom-9">
+    <a id="finish" href="@{routes.DeveloperController.developerPage(developerIdentifier)}" class="govuk-link">Back to developer details</a>
+  </p>
 }
