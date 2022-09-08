@@ -23,6 +23,7 @@ import org.scalatestplus.selenium.WebBrowser
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.Assertions
 import org.scalatest.matchers.should.Matchers
+import java.time.Duration
 
 trait NavigationSugar extends WebBrowser with Eventually  with Assertions with Matchers {
 
@@ -58,7 +59,7 @@ trait NavigationSugar extends WebBrowser with Eventually  with Assertions with M
   }
 
   def loadPage()(implicit webDriver: WebDriver) = {
-    val wait = new WebDriverWait(webDriver, 30)
+    val wait = new WebDriverWait(webDriver, Duration.ofSeconds(30))
     wait.until(
       new ExpectedCondition[WebElement] {
         override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
