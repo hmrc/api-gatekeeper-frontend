@@ -27,7 +27,8 @@ class NewApplicationSpec extends HmrcSpec {
   val standardAccess = Standard()
   val importantSubmissionData = ImportantSubmissionData(
     TermsAndConditionsLocation.NoneProvided,
-    PrivacyPolicyLocation.NoneProvided
+    PrivacyPolicyLocation.NoneProvided,
+    List.empty
   )
   val baseApplication = NewApplication(
       ApplicationId.random,

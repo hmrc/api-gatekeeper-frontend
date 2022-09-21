@@ -30,6 +30,7 @@ import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 
 import java.time.Period
+import java.time.LocalDateTime
 
 case class ApplicationId(value: String) extends AnyVal
 
@@ -136,13 +137,42 @@ object TermsAndConditionsLocation {
     .format
 }
 
+
+trait LocalDateTimeFormatters extends EnvReads with EnvWrites {
+
+  implicit val dateFormat: Format[LocalDateTime] = Format(DefaultLocalDateTimeReads, DefaultLocalDateTimeWrites)
+}
+
+case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
+
+object TermsOfUseAcceptance extends LocalDateTimeFormatters {
+  implicit val format = Json.format[TermsOfUseAcceptance]
+}
+
+case class ResponsibleIndividual(fullName: ResponsibleIndividual.Name, emailAddress: ResponsibleIndividual.EmailAddress)
+object ResponsibleIndividual {
+  import play.api.libs.json.{Format, Json}
+
+  case class Name(value: String) extends AnyVal
+  case class EmailAddress(value: String) extends AnyVal
+  
+  implicit val nameFormat = Json.valueFormat[Name]
+  implicit val emailAddressFormat = Json.valueFormat[EmailAddress]
+
+  implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
+
+  def build(name: String, email: String) = ResponsibleIndividual(Name(name), EmailAddress(email))
+}
+
 case class ImportantSubmissionData(
   termsAndConditionsLocation: TermsAndConditionsLocation,
-  privacyPolicyLocation: PrivacyPolicyLocation
+  privacyPolicyLocation: PrivacyPolicyLocation,
+  termsOfUseAcceptances: List[TermsOfUseAcceptance]
 )
 object ImportantSubmissionData {
   implicit val format = Json.format[ImportantSubmissionData]
 }
+
 
 sealed trait Access {
   val accessType: AccessType.Value

@@ -24,7 +24,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
-import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
+import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
@@ -72,7 +72,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       subscriptionsThatHaveFieldDefns = List.empty,
       stateHistory = List.empty,
       hasSubmissions = false,
-      gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}"
+      gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}",
+      List(ResponsibleIndividualHistoryItem("Mr Responsible Individual", "ri@example.com", "22 June 2022", "Present"))
     )
   }
 
@@ -169,6 +170,27 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       elementIdentifiedByAttrContainsText(document, "dd", "data-terms", agreedText) shouldBe true
       result.body.contains(s"v$oldTOUAgreement.version") shouldBe false
       result.body.contains(DateTimeFormat.longDate.print(oldTOUAgreement.timeStamp)) shouldBe false
+    }
+
+    "show application information, including responsible individual table" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        strideUserRequest,
+        Flash.emptyCookie
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      elementExistsById(document, "responsible-individual-table") shouldBe true
+      elementExistsByAttr(document, "th", "data-responsible-individual-name") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "th", "data-responsible-individual-name", "Mr Responsible Individual") shouldBe true
+      elementExistsByAttr(document, "td", "data-responsible-individual-email") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "td", "data-responsible-individual-email", "ri@example.com") shouldBe true
+      elementExistsByAttr(document, "td", "data-responsible-individual-from-date") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "td", "data-responsible-individual-from-date", "22 June 2022") shouldBe true
+      elementExistsByAttr(document, "td", "data-responsible-individual-to-date") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "td", "data-responsible-individual-to-date", "Present") shouldBe true
     }
 
     "show application information, including status information" in new Setup {

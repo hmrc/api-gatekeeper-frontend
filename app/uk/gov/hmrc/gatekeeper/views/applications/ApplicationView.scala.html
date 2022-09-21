@@ -599,6 +599,28 @@
     </div>
   </dl>
 
+  <table id="responsible-individual-table" class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m govuk-!-margin-top-6">Responsible individual</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Name</th>
+        <th scope="col" class="govuk-table__header">Email</th>
+        <th scope="col" class="govuk-table__header">Responsible from</th>
+        <th scope="col" class="govuk-table__header">Responsible to</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      @for(riDetails <- model.history) {
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-3" data-responsible-individual-name>@riDetails.name</th>
+          <td class="govuk-table__cell govuk-!-padding-top-4 govuk-!-padding-bottom-3" data-responsible-individual-email>@riDetails.email</td>
+          <td class="govuk-table__cell govuk-!-padding-top-4 govuk-!-padding-bottom-3" data-responsible-individual-from-date>@riDetails.fromDate</td>
+          <td class="govuk-table__cell govuk-!-padding-top-4 govuk-!-padding-bottom-3" data-responsible-individual-to-date>@riDetails.toDate</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
   <br>
   @if(request.role.isSuperUser) {
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Delete application</a>
