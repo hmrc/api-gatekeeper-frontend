@@ -39,7 +39,15 @@ object ApplicationEvent {
     case _: ProductionLegacyAppPrivacyPolicyLocationChanged => EventType.PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED
     case _: ProductionLegacyAppTermsConditionsLocationChanged => EventType.PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED
     case _: RedirectUrisUpdatedEvent => EventType.REDIRECT_URIS_UPDATED
+    case _: ResponsibleIndividualSet => EventType.RESPONSIBLE_INDIVIDUAL_SET
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
+    case _: ResponsibleIndividualChangedToSelf => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF
+    case _: ApplicationStateChanged => EventType.APPLICATION_STATE_CHANGED
+    case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
+    case _: ResponsibleIndividualDeclined => EventType.RESPONSIBLE_INDIVIDUAL_DECLINED
+    case _: ResponsibleIndividualDeclinedUpdate => EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE
+    case _: ResponsibleIndividualDidNotVerify => EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY
+    case _: ApplicationApprovalRequestDeclined => EventType.APPLICATION_APPROVAL_REQUEST_DECLINED
   }
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
@@ -56,7 +64,15 @@ object ApplicationEvent {
     case e: ProductionLegacyAppPrivacyPolicyLocationChanged => Actor.extractActorText(e.actor)
     case e: ProductionLegacyAppTermsConditionsLocationChanged => Actor.extractActorText(e.actor)
     case e: RedirectUrisUpdatedEvent => e.actor.id
+    case e: ResponsibleIndividualSet => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualChangedToSelf => Actor.extractActorText(e.actor)
+    case e: ApplicationStateChanged => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDeclined => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDeclinedUpdate => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDidNotVerify => Actor.extractActorText(e.actor)
+    case e: ApplicationApprovalRequestDeclined => Actor.extractActorText(e.actor)
   }
 }
 
@@ -195,9 +211,114 @@ case class ResponsibleIndividualChanged(id: EventId,
   applicationId: String,
   eventDateTime: LocalDateTime,
   actor: Actor,
+  previousResponsibleIndividualName: String,
+  previousResponsibleIndividualEmail: String,
+  newResponsibleIndividualName: String,
+  newResponsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  code: String,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualChangedToSelf(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  previousResponsibleIndividualName: String,
+  previousResponsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualSet(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
   responsibleIndividualName: String,
   responsibleIndividualEmail: String,
   submissionId: String,
   submissionIndex: Int,
+  code: String,
+  requestingAdminName: String,
   requestingAdminEmail: String
 ) extends ApplicationEvent with HasActor
+
+case class ApplicationStateChanged(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  oldAppState: String,
+  newAppState: String,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualVerificationStarted(id: EventId,
+  applicationId: String,
+  applicationName: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  requestingAdminName: String,
+  requestingAdminEmail: String,
+  responsibleIndividualName: String,
+  responsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  verificationId: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDeclined(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  responsibleIndividualName: String,
+  responsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  code: String,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDeclinedUpdate(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  responsibleIndividualName: String,
+  responsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  code: String,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDidNotVerify(id: EventId,
+  applicationId: String,
+  eventDateTime: LocalDateTime,
+  actor: Actor,
+  responsibleIndividualName: String,
+  responsibleIndividualEmail: String,
+  submissionId: String,
+  submissionIndex: Int,
+  code: String,
+  requestingAdminName: String,
+  requestingAdminEmail: String
+) extends ApplicationEvent with HasActor
+
+case class ApplicationApprovalRequestDeclined(id: EventId,
+    applicationId: String,
+    eventDateTime: LocalDateTime,
+    actor: Actor,
+    decliningUserName: String,
+    decliningUserEmail: String,
+    submissionId: String,
+    submissionIndex: Int,
+    reasons: String,
+    requestingAdminName: String,
+    requestingAdminEmail: String
+) extends ApplicationEvent with HasActor  
