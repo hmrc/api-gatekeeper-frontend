@@ -93,6 +93,7 @@ class DevelopersController @Inject()(
       apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
       form = DevelopersSearchForm.form.fill(searchParams)
     } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
+      .withHeaders("Cache-Control" -> "max-age=60")
   }
 
 }
