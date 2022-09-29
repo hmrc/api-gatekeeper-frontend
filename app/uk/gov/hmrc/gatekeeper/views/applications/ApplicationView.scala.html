@@ -623,14 +623,14 @@
 
   <br>
   @if(request.role.isSuperUser) {
-    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Delete application</a>
+    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
   @if(request.role.isAdmin) {
     @if(application.state.isApproved && !application.blocked) {
-      <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Block application</a>
+      <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
     }
     @if(application.state.isApproved && application.blocked) {
-      <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--warning">Unblock application</a>
+      <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
   }
 }
