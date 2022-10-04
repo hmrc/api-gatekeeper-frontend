@@ -21,7 +21,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
-import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
+import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import org.joda.time.DateTime
 import play.api.data.Form
@@ -47,6 +47,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Singleton
 class ApplicationController @Inject()(
@@ -181,6 +183,15 @@ class ApplicationController @Inject()(
         }
       }
 
+      def getResponsibleIndividualHistory(access: Access): List[ResponsibleIndividualHistoryItem] = {
+        access match {
+          case Standard(_, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances)), _) => {
+            buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
+          }
+          case _  => List.empty
+        }
+      }
+
       for {
         collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
         allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
@@ -191,7 +202,18 @@ class ApplicationController @Inject()(
 
         seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl)))
+        responsibleIndividualHistory = getResponsibleIndividualHistory(app.access)
+      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl, responsibleIndividualHistory)))
+    }
+  }
+
+  private def buildResponsibleIndividualHistoryItems(termsOfUseAcceptances: List[TermsOfUseAcceptance]): List[ResponsibleIndividualHistoryItem] = {
+    def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+    termsOfUseAcceptances match {
+      case Nil => List.empty
+      case first :: Nil => List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), "Present"))
+      case first :: second :: others => List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), formatDateTime(second.dateTime))) ++
+        buildResponsibleIndividualHistoryItems(second :: others)
     }
   }
 

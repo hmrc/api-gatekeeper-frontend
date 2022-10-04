@@ -45,12 +45,12 @@ case class NewApplication(
     grantLength: Period
 ) {
   lazy val privacyPolicyLocation = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation)), _) => privacyPolicyLocation
+    case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
     case Standard(_, _, Some(url), _, _) => PrivacyPolicyLocation.Url(url)
     case _ => PrivacyPolicyLocation.NoneProvided
   }
   lazy val termsAndConditionsLocation = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _)), _) => termsAndConditionsLocation
+    case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _)), _) => termsAndConditionsLocation
     case Standard(_, Some(url), _, _, _) => TermsAndConditionsLocation.Url(url)
     case _ => TermsAndConditionsLocation.NoneProvided
   }

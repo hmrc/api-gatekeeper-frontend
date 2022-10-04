@@ -188,16 +188,153 @@ trait ApplicationEventTestData {
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
-    responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail = "ri@example.com",
+    newResponsibleIndividualName = "Mrs Responsible",
+    newResponsibleIndividualEmail = "ri@example.com",
+    previousResponsibleIndividualName = "Old Mr Responsible",
+    previousResponsibleIndividualEmail = "old-ri@example.com",
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
+    code = "323423421353245234624626",
+    requestingAdminName = "Mr Admin",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualChanged(appId: Option[String] = None): ResponsibleIndividualChanged = {
     responsibleIndividualChangedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
   }
   
+  val responsibleIndividualChangedToSelfEvent: ResponsibleIndividualChangedToSelf = ResponsibleIndividualChangedToSelf(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    previousResponsibleIndividualName = "Mr Old Responsible",
+    previousResponsibleIndividualEmail = "old-ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualChangedToSelf(appId: Option[String] = None): ResponsibleIndividualChangedToSelf = {
+    responsibleIndividualChangedToSelfEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualSetEvent: ResponsibleIndividualSet = ResponsibleIndividualSet(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = UUID.randomUUID().toString,
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualSet(appId: Option[String] = None): ResponsibleIndividualSet = {
+    responsibleIndividualSetEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val applicationStateChangedEvent: ApplicationStateChanged = ApplicationStateChanged(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
+    newAppState = "PENDING_GATEKEEPER_APPROVAL",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeApplicationStateChanged(appId: Option[String] = None): ApplicationStateChanged = {
+    applicationStateChangedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualVerificationStarted: ResponsibleIndividualVerificationStarted = ResponsibleIndividualVerificationStarted(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    applicationName = "my app",
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com",
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    verificationId = UUID.randomUUID().toString)
+
+  def makeResponsibleIndividualVerificationStarted(appId: Option[String] = None): ResponsibleIndividualVerificationStarted = {
+    responsibleIndividualVerificationStarted.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualDeclinedEvent: ResponsibleIndividualDeclined = ResponsibleIndividualDeclined(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDeclined(appId: Option[String] = None): ResponsibleIndividualDeclined = {
+    responsibleIndividualDeclinedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualDeclinedUpdateEvent: ResponsibleIndividualDeclinedUpdate = ResponsibleIndividualDeclinedUpdate(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDeclinedUpdate(appId: Option[String] = None): ResponsibleIndividualDeclinedUpdate = {
+    responsibleIndividualDeclinedUpdateEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualDidNotVerifyEvent: ResponsibleIndividualDidNotVerify = ResponsibleIndividualDidNotVerify(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDidNotVerify(appId: Option[String] = None): ResponsibleIndividualDidNotVerify = {
+    responsibleIndividualDidNotVerifyEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val applicationApprovalRequestDeclinedEvent: ApplicationApprovalRequestDeclined = ApplicationApprovalRequestDeclined(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    decliningUserName = "Mr Responsible",
+    decliningUserEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    reasons = "reason text",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeApplicationApprovalRequestDeclined(appId: Option[String] = None): ApplicationApprovalRequestDeclined = {
+    applicationApprovalRequestDeclinedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
   val exampleAppId = ApplicationId.random
   private val arg = Some(exampleAppId.value)
   val examplesOfAllApplicationEvents = 
@@ -214,7 +351,15 @@ trait ApplicationEventTestData {
     makeProductionLegacyAppPrivacyPolicyLocationChanged(arg) ::
     makeProductionLegacyAppTermsConditionsLocationChanged(arg) ::
     makeRedirectUrisUpdatedEvent(arg) ::
+    makeResponsibleIndividualSet(arg) ::
     makeResponsibleIndividualChanged(arg) ::
+    makeResponsibleIndividualChangedToSelf(arg) ::
+    makeApplicationStateChanged(arg) ::
+    makeResponsibleIndividualVerificationStarted(arg) ::
+    makeResponsibleIndividualDeclined(arg) ::
+    makeResponsibleIndividualDeclinedUpdate(arg) ::
+    makeResponsibleIndividualDidNotVerify(arg) ::
+    makeApplicationApprovalRequestDeclined(arg) ::
     Nil
 }
 
