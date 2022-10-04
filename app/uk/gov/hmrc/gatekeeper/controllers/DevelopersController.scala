@@ -79,6 +79,7 @@ class DevelopersController @Inject()(
                 developerService.searchDevelopers(filters)
         }
         combineUsersIntoPage(allFoundUsers, searchParams)
+          .map(_.withHeaders("Cache-Control" -> "max-age=3600")) // 3600s = 1h
       }
     )
   }
@@ -93,7 +94,6 @@ class DevelopersController @Inject()(
       apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
       form = DevelopersSearchForm.form.fill(searchParams)
     } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
-      .withHeaders("Cache-Control" -> "max-age=60")
   }
 
 }
