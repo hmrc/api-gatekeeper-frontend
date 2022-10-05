@@ -79,7 +79,7 @@ class DevelopersController @Inject()(
                 developerService.searchDevelopers(filters)
         }
         combineUsersIntoPage(allFoundUsers, searchParams)
-          .map(_.withHeaders("Cache-Control" -> "max-age=3600")) // 3600s = 1h
+          .map(_.withHeaders("Cache-Control" -> "no-cache"))
       }
     )
   }
