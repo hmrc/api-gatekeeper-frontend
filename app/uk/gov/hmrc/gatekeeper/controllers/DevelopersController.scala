@@ -79,6 +79,7 @@ class DevelopersController @Inject()(
                 developerService.searchDevelopers(filters)
         }
         combineUsersIntoPage(allFoundUsers, searchParams)
+          .map(_.withHeaders("Cache-Control" -> "no-cache"))
       }
     )
   }
