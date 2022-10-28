@@ -106,6 +106,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
               <option @if(status == Some("PENDING_GATEKEEPER_CHECK")){selected} value="PENDING_GATEKEEPER_CHECK">Pending gatekeeper check</option>
               <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
               <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
+              <option @if(status == Some("DELETED")){selected} value="DELETED">Deleted</option>
             </select>
           </div>
         </div>
@@ -176,6 +177,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                   @defining(application.state.name match {
                   case PRODUCTION => ("status status--verified", "Active")
                   case PRE_PRODUCTION => ("status status--verified", "Active")
+                  case DELETED => ("status status--not-verified", "Deleted")
                   case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
                   case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
                   case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")

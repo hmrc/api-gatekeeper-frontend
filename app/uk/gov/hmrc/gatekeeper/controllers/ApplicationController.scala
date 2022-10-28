@@ -93,7 +93,7 @@ class ApplicationController @Inject()(
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
-    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "true")
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) => 
       if(appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
