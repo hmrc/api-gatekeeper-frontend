@@ -19,9 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.models._
 @import play.twirl.api.HtmlFormat
-@import views.html.layouts.GovUkTemplate
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcHeader
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.Header
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
@@ -33,17 +31,19 @@
   hmrcHeader: HmrcHeader,
   hmrcFooter: HmrcFooter,
   hmrcHead: HmrcHead,
-  reportAProblemLink: ReportAProblemLink,
   applicationConfig: AppConfig
 )
 
 @(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser = LoggedInUser(None), messages: Messages, messagesProvider: MessagesProvider)
 
 @scriptElem = {
+  <script src='@Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
   <script src='@Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+  <script>window.GOVUKFrontend.initAll();</script>
   <script>window.HMRCFrontend.initAll();</script>
   <script src='@Assets.versioned("javascripts/copy-button.js")' type="text/javascript"></script>
   <script src='@Assets.versioned("javascripts/copy-to-clip.js")' type="text/javascript"></script>
+  <script src='@Assets.versioned("javascripts/apis-app.min.js")' type="text/javascript"></script>
 }
 
 @head = {

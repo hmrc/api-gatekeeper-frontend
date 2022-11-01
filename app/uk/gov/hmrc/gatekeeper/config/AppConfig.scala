@@ -26,7 +26,6 @@ trait AppConfig {
   def title: String
 
   def appName: String
-  def assetsPrefix: String
 
   def devHubBaseUrl: String
 
@@ -104,7 +103,6 @@ class AppConfigImpl @Inject()(config: Configuration) extends ServicesConfig(conf
   private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
 
   val appName = getString("appName")
-  val assetsPrefix = getString("assets.url") + getString("assets.version")
 
   val devHubBaseUrl = getString("devHubBaseUrl")
   val retryCount = getConfigDefaulted("retryCount", 0)
