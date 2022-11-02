@@ -6,9 +6,9 @@ object AppDependencies {
   lazy val slf4jVersion = "1.7.23"
   lazy val logbackVersion = "1.1.10"
   lazy val jsoupVersion = "1.12.1"
-  lazy val scalaCheckVersion = "1.14.0"
+  lazy val scalaCheckVersion = "1.15.4"
   lazy val enumeratumVersion = "1.6.2"
-  lazy val bootstrapVersion = "7.8.0"
+  lazy val bootstrapVersion = "7.3.0"
   lazy val seleniumVersion = "4.4.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
@@ -41,10 +41,11 @@ object AppDependencies {
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                 %% "bootstrap-test-play-28"            % bootstrapVersion,
     "org.jsoup"                   %  "jsoup"                             % jsoupVersion,
-    "com.github.tomakehurst"      %  "wiremock-jre8-standalone"          % "2.27.2",
+    "com.github.tomakehurst"      %  "wiremock-jre8-standalone"          % "2.34.0",
     "org.seleniumhq.selenium"     %  "selenium-java"                     % seleniumVersion,
     "org.seleniumhq.selenium"     %  "htmlunit-driver"                   % "3.64.0",
-    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.16.42",
-    "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion
+    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.12",
+    "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
+    "org.scalatestplus.play"      %% "scalatestplus-play"                % "5.1.0"
   ).map (_ % testScopes)
 }

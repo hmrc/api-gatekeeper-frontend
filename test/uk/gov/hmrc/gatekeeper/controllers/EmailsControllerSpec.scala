@@ -229,7 +229,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           await(underTest.showEmailInformation("")(aLoggedInRequest))
         }
 
-        verifyZeroInteractions(mockEmailInformationView)
         result.message shouldBe "Page Not Found"
       }
     }
