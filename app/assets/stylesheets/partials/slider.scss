@@ -1,50 +1,12 @@
 @import "lib/govuk-frontend/govuk/all";
 
 .slider {
+  $disabled-colour: #70777b;
+  $enabled-colour: #245ea0;
+
   label {
     display: inline-block;
   }
-}
-
-.js-enabled {
-  $spinner-size: 3.5rem;
-
-  .api-subscriber {
-    .accordion-body-row {
-      table-layout: fixed;
-    }
-
-    &__state-container {
-      width: 100%;
-      text-align: right;
-
-      .govuk-c-loader {
-        height: $spinner-size;
-        width: 100%;
-
-        svg {
-          height: $spinner-size;
-          width: $spinner-size;
-        }
-      }
-    }
-  }
-
-  .subscription-error {
-    color: #b10e1e;
-    font-size: 1.6rem;
-    font-weight: bold;
-  }
-
-  .slider input[type=submit] {
-    position: absolute;
-    visibility: hidden;
-  }
-}
-
-.slider {
-  $disabled-colour: #70777b;
-  $enabled-colour: #245ea0;
 
   fieldset {
     border: 0px;
@@ -101,23 +63,6 @@
           background-color: $disabled-colour;
         }
       }
-    }
-  }
-}
-
-.api-subscriber {
-  .accordion__body__row {
-    &__left, &__right {
-      vertical-align: middle;
-    }
-
-    &__right--link {
-      text-align: right;
-    }
-
-    .accordion__body--subscription-locked {
-      width: 7rem;
-      vertical-align: middle;
     }
   }
 }
