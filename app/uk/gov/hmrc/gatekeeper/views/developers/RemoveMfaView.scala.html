@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 @* TODO - simplify Developer to Id *@
 @(developer: Developer, form: Form[RemoveMfaConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 

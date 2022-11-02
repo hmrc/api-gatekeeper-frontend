@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.gatekeeper.models.ClientId
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
