@@ -1,8 +1,6 @@
 $hmrc-assets-path: "/api-gatekeeper/assets/lib/hmrc-frontend/hmrc/";
 $govuk-assets-path: "/api-gatekeeper/assets/lib/govuk-frontend/govuk/assets/";
 
-@import "lib/govuk-frontend/govuk/all";
-
 // Partials
 @import "partials/developers.scss";
 @import "partials/datatables.scss";
