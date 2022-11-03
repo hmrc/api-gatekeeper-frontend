@@ -200,7 +200,8 @@ class ApplicationControllerSpec
           "apiSubscription" -> "ANY",
           "status" -> "CREATED",
           "termsOfUse" -> "ACCEPTED",
-          "accessType" -> "STANDARD")
+          "accessType" -> "STANDARD",
+          "includeDeleted" -> "true")
         val result = underTest.applicationsPage()(aLoggedInRequestWithParams)
 
         status(result) shouldBe OK

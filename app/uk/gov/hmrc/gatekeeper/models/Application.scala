@@ -365,7 +365,7 @@ case class SubscriptionNameAndVersion(name: String, version: String)
 
 object State extends Enumeration {
   type State = Value
-  val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION = Value
+  val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value
   implicit val format = Json.formatEnum(State)
 
   val displayedState: State => String = {
@@ -375,6 +375,7 @@ object State extends Enumeration {
     case PENDING_REQUESTER_VERIFICATION => "Pending submitter verification"
     case PRE_PRODUCTION => "Active"
     case PRODUCTION => "Active"
+    case DELETED => "Deleted"
   }
 
   val additionalInformation: State => String = {
@@ -390,6 +391,8 @@ object State extends Enumeration {
       "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
     case PRODUCTION =>
       "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
+    case DELETED =>
+      "An application that has been deleted and is no longer active"
   }
 
   implicit class StateHelpers(state: State) {
