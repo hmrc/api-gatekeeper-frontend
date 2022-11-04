@@ -489,36 +489,6 @@ class ApplicationConnectorSpec
     }
   }
 
-  "unsubscribeFromApi" should {
-    val apiContext = ApiContext.random
-    val url = s"/application/${applicationId.value}/subscription?context=${apiContext.value}&version=${apiVersion1.value}"
-
-    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      stubFor(
-        delete(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-        )
-      )
-      await(connector.unsubscribeFromApi(applicationId, apiContext, apiVersion1)) shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      stubFor(
-        delete(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.unsubscribeFromApi(applicationId, apiContext, apiVersion1))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
   "createPrivOrROPCApp" should {
     val url = s"/application"
 

@@ -75,10 +75,6 @@ trait ApplicationServiceMockProvider {
       def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
     }
 
-    object UnsubscribeFromApi {
-      def succeeds() = when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
-    }
-
     object FetchApplication {
       def returns(app: ApplicationWithHistory) =
         when(mockApplicationService.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))

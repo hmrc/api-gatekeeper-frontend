@@ -21,7 +21,7 @@ import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
@@ -59,9 +59,15 @@ trait ApmConnectorMockProvider {
   }
 
   object ApmConnectorMock {
+    object UpdateApplication {
+      def succeeds(application: NewApplication) = when(
+        mockApmConnector.updateApplication(*[ApplicationId], *[ApplicationUpdate])(*)
+      ).thenReturn(successful(application))
+    }
+
     object SubscribeToApi {
       def succeeds() = when(
-        mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
+        mockApmConnector.subscribeToApi(*[ApplicationId], *[SubscribeToApi])(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
   }

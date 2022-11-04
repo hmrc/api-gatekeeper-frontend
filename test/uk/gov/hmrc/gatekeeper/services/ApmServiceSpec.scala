@@ -36,7 +36,8 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     val apmService = new ApmService(mockApmConnector)
 
     val applicationId = ApplicationId.random
-    val application = buildApplicationResponse()
+    val application = buildApplicationResponse(applicationId)
+    val newApplication = buildApplication(applicationId)
 
     val combinedRestApi1 = CombinedApi(
       "displayName1",
@@ -117,6 +118,17 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       ApmConnectorMock.SubscribeToApi.succeeds()
         
       val result = await(apmService.subscribeToApi(application, subscribeToApi))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+  }
+  
+  "unsubscribeFromApi" should {
+    "return success" in new Setup {
+      val unsubscribeFromApi = UnsubscribeFromApi(GatekeeperActor("Gate Keeper"), ApiIdentifier.random, LocalDateTime.now())
+      ApmConnectorMock.UpdateApplication.succeeds(newApplication)
+
+      val result = await(apmService.unsubscribeFromApi(application, unsubscribeFromApi))
 
       result shouldBe ApplicationUpdateSuccessResult
     }

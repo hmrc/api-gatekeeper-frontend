@@ -123,20 +123,21 @@ class SubscriptionControllerSpec
     }
 
     "unsubscribeFromApi" should {
-      val apiContext = ApiContext.random
+      val apiIdentifier = ApiIdentifier.random
 
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
+        val unsubscribeFromApi = UnsubscribeFromApi(GatekeeperActor(userToken._2), apiIdentifier, LocalDateTime.now(fixedClock))
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.UnsubscribeFromApi.succeeds()
+        ApmServiceMock.UnsubscribeFromApi.succeeds()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
+        verify(mockApmService).unsubscribeFromApi(eqTo(basicApplication), eqTo(unsubscribeFromApi))(*)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -144,11 +145,11 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)
+        verify(mockApmService, never).unsubscribeFromApi(eqTo(basicApplication), *)(*)
       }
     }
 

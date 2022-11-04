@@ -261,13 +261,17 @@ case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalD
 
 case class SubscribeToApi(actor: GatekeeperActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
 
+case class UnsubscribeFromApi(actor: GatekeeperActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
 trait ApplicationUpdateFormatters {
   implicit val changeProductionApplicationNameFormatter = Json.format[ChangeProductionApplicationName]
   implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
+  implicit val unsubscribeFromApiFormatter = Json.format[UnsubscribeFromApi]
   
   implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[ChangeProductionApplicationName]("changeProductionApplicationName")
     .and[SubscribeToApi]("subscribeToApi")
+    .and[UnsubscribeFromApi]("unsubscribeFromApi")
     .format
 }
 
