@@ -253,20 +253,36 @@ trait ApplicationUpdate {
   def timestamp: LocalDateTime
 }
 
-trait GatekeeperApplicationUpdate extends ApplicationUpdate {
-  def gatekeeperUser: String
+case class GatekeeperActor(user: String)
+
+object GatekeeperActor {
+
+  implicit val gatekeeperActorFormat = Format[GatekeeperActor](
+    Json.reads[GatekeeperActor],
+    gatekeeperUserActor => Json.obj("user" -> gatekeeperUserActor.user, "actorType" -> "GATEKEEPER")
+  )
 }
 
 case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String)            extends ApplicationUpdate
 case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmailAddress: String, reasons: String, timestamp: LocalDateTime) extends ApplicationUpdate
 
+case class SubscribeToApi(actor: GatekeeperActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
+case class UnsubscribeFromApi(actor: GatekeeperActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
 trait ApplicationUpdateFormatters {
 
-  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
-    .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
+  implicit val changeProductionApplicationNameFormatter = Json.format[ChangeProductionApplicationName]
+  implicit val deleteApplicationByGatekeeperFormatter   = Json.format[DeleteApplicationByGatekeeper]
+  implicit val subscribeToApiFormatter                  = Json.format[SubscribeToApi]
+  implicit val unsubscribeFromApiFormatter              = Json.format[UnsubscribeFromApi]
 
-  implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]
-    .transform(_.as[JsObject] + ("updateType" -> JsString("deleteApplicationByGatekeeper")))
+  implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
+    .and[ChangeProductionApplicationName]("changeProductionApplicationName")
+    .and[DeleteApplicationByGatekeeper]("deleteApplicationByGatekeeper")
+    .and[SubscribeToApi]("subscribeToApi")
+    .and[UnsubscribeFromApi]("unsubscribeFromApi")
+    .format
 }
 
 sealed trait UpdateApplicationNameResult

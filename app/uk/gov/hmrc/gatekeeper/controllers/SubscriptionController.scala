@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.{Clock, LocalDateTime}
 import scala.concurrent.ExecutionContext
 
 import com.google.inject.{Inject, Singleton}
@@ -45,7 +46,8 @@ class SubscriptionController @Inject() (
     val applicationService: ApplicationService,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
-    strideAuthorisationService: StrideAuthorisationService
+    strideAuthorisationService: StrideAuthorisationService,
+    val clock: Clock
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders {
@@ -84,13 +86,15 @@ class SubscriptionController @Inject() (
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      applicationService.subscribeToApi(app.application, ApiIdentifier(apiContext, version)).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val subscribeToApi = SubscribeToApi(GatekeeperActor(loggedIn.userFullName.getOrElse("Gatekeeper User")), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.subscribeToApi(appId, subscribeToApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val unsubscribeFromApi = UnsubscribeFromApi(GatekeeperActor(loggedIn.userFullName.getOrElse("Gatekeeper User")), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.unsubscribeFromApi(appId, unsubscribeFromApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 }

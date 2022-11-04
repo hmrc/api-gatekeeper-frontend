@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 
@@ -69,11 +69,24 @@ trait ApmConnectorMockProvider {
 
   object ApmConnectorMock {
 
+    object UpdateApplication {
+
+      def succeeds(application: NewApplication) = when(
+        mockApmConnector.updateApplication(*[ApplicationId], *[ApplicationUpdate])(*)
+      ).thenReturn(successful(application))
+
+      def verifyParams(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate) =
+        verify(mockApmConnector).updateApplication(eqTo(applicationId), eqTo(applicationUpdate))(*)
+    }
+
     object SubscribeToApi {
 
       def succeeds() = when(
-        mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
+        mockApmConnector.subscribeToApi(*[ApplicationId], *[SubscribeToApi])(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))
+
+      def verifyParams(applicationId: ApplicationId, subscribeToApi: SubscribeToApi) =
+        verify(mockApmConnector).subscribeToApi(eqTo(applicationId), eqTo(subscribeToApi))(*)
     }
   }
 }

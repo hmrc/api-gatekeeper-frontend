@@ -16,17 +16,16 @@
 
 package mocks.services
 
-import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.models.{ApiDefinitions, ApplicationUpdateSuccessResult}
 import uk.gov.hmrc.gatekeeper.services.ApmService
 
 trait ApmServiceMockProvider {
@@ -42,7 +41,7 @@ trait ApmServiceMockProvider {
       def returns(app: ApplicationWithSubscriptionData) =
         whenClause.thenReturn(successful(Some(app)))
 
-      def returnsNone(app: ApplicationWithSubscriptionData) =
+      def returnsNone() =
         whenClause.thenReturn(successful(None))
 
       def failsWith(throwable: Throwable) =
@@ -51,12 +50,12 @@ trait ApmServiceMockProvider {
 
     def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
       when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
-        .thenReturn(Future.successful(returns))
+        .thenReturn(successful(returns))
     }
 
     def getAllFieldDefinitionsReturns(returns: ApiDefinitions.Alias) = {
       when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
-        .thenReturn(Future.successful(returns))
+        .thenReturn(successful(returns))
     }
 
     def verifyFetchApplicationById(applicationId: ApplicationId) = {
@@ -69,6 +68,18 @@ trait ApmServiceMockProvider {
 
     def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
       verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
+    }
+
+    object SubscribeToApi {
+
+      def succeeds() = when(mockApmService.subscribeToApi(*[ApplicationId], *)(*))
+        .thenReturn(successful(ApplicationUpdateSuccessResult))
+    }
+
+    object UnsubscribeFromApi {
+
+      def succeeds() = when(mockApmService.unsubscribeFromApi(*[ApplicationId], *)(*))
+        .thenReturn(successful(ApplicationUpdateSuccessResult))
     }
   }
 }

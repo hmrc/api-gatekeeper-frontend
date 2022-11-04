@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -42,7 +43,8 @@ class ApmConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
+    with UrlEncoding
+    with ApplicationUpdateFormatters {
 
   trait Setup extends ApplicationBuilder with ApiBuilder {
     implicit val hc = HeaderCarrier()
@@ -121,34 +123,36 @@ class ApmConnectorSpec
     }
   }
 
-  "subscribeToApi" should {
-    val apiContext    = ApiContext.random
-    val apiVersion    = ApiVersion.random
-    val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
+  "applicationUpdate" should {
+    val actor              = GatekeeperActor("Admin Powers")
+    val apiIdentifier      = ApiIdentifier.random
+    val unsubscribeFromApi = UnsubscribeFromApi(actor, apiIdentifier, LocalDateTime.now())
+    val requestBody        = Json.toJsObject(unsubscribeFromApi) ++ Json.obj("updateType" -> "unsubscribeFromApi")
 
-    "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
+    "return OK if the request was successful" in new Setup {
+      val url = s"/applications/${applicationId.value}"
 
       stubFor(
-        post(urlPathEqualTo(url))
-          .withQueryParam("restricted", equalTo("false"))
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(requestBody)
           .willReturn(
             aResponse()
-              .withStatus(CREATED)
+              .withStatus(OK)
+              .withJsonBody(application)
           )
       )
 
-      val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
+      val result = await(underTest.updateApplication(applicationId, unsubscribeFromApi))
 
-      result shouldBe ApplicationUpdateSuccessResult
+      result shouldBe application
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
+      val url = s"/applications/${applicationId.value}"
 
       stubFor(
-        post(urlPathEqualTo(url))
-          .withQueryParam("restricted", equalTo("false"))
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(requestBody)
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -156,7 +160,49 @@ class ApmConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(underTest.subscribeToApi(applicationId, apiIdentifier))
+        await(underTest.updateApplication(applicationId, unsubscribeFromApi))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "subscribeToApi" should {
+    val actor          = GatekeeperActor("Admin Powers")
+    val apiIdentifier  = ApiIdentifier.random
+    val subscribeToApi = SubscribeToApi(actor, apiIdentifier, LocalDateTime.now())
+
+    "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
+      val url = s"/applications/${applicationId.value.toString()}/subscriptionsAppUpdate"
+
+      stubFor(
+        post(urlPathEqualTo(url))
+          .withQueryParam("restricted", equalTo("false"))
+          .withJsonRequestBody(subscribeToApi)
+          .willReturn(
+            aResponse()
+              .withStatus(CREATED)
+          )
+      )
+
+      val result = await(underTest.subscribeToApi(applicationId, subscribeToApi))
+
+      result shouldBe ApplicationUpdateSuccessResult
+    }
+
+    "fail if the request failed on the backend" in new Setup {
+      val url = s"/applications/${applicationId.value.toString()}/subscriptionsAppUpdate"
+
+      stubFor(
+        post(urlPathEqualTo(url))
+          .withQueryParam("restricted", equalTo("false"))
+          .withJsonRequestBody(subscribeToApi)
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(underTest.subscribeToApi(applicationId, subscribeToApi))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }

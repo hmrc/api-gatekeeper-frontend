@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.test.FakeRequest
@@ -44,6 +45,7 @@ class SubscriptionControllerSpec
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
   private lazy val errorHandler            = app.injector.instanceOf[ErrorHandler]
+  private lazy val fixedClock              = Clock.fixed(Instant.now(), ZoneOffset.UTC)
 
   running(app) {
 
@@ -54,27 +56,6 @@ class SubscriptionControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
-        List.empty
-      )
-
-      val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-        val page     = 1
-        val pageSize = 10
-        PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
-      }
-
       val underTest = new SubscriptionController(
         manageSubscriptionsView,
         mcc,
@@ -83,30 +64,27 @@ class SubscriptionControllerSpec
         mockApplicationService,
         mockApmService,
         errorHandler,
-        StrideAuthorisationServiceMock.aMock
+        StrideAuthorisationServiceMock.aMock,
+        fixedClock
       )
-
-      def givenThePaginatedApplicationsWillBeReturned = {
-        ApplicationServiceMock.SearchApplications.returns()
-        FetchAllApiDefinitions.inAny.returns()
-      }
     }
 
     "subscribeToApi" should {
-      val apiContext = ApiContext.random
+      val apiIdentifier = ApiIdentifier.random
 
       "call the service to subscribe to the API when submitted for a super user" in new Setup {
+        val subscribeToApi = SubscribeToApi(GatekeeperActor(userToken._2), apiIdentifier, LocalDateTime.now(fixedClock))
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.SubscribeToApi.succeeds()
+        ApmServiceMock.SubscribeToApi.succeeds()
 
-        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
+        val result = addToken(underTest.subscribeToApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(ApiIdentifier(apiContext, ApiVersion("1.0"))))(*)
+        verify(mockApmService).subscribeToApi(eqTo(applicationId), eqTo(subscribeToApi))(*)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -114,29 +92,30 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
+        val result = addToken(underTest.subscribeToApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *)(*)
+        verify(mockApmService, never).subscribeToApi(eqTo(applicationId), *)(*)
       }
     }
 
     "unsubscribeFromApi" should {
-      val apiContext = ApiContext.random
+      val apiIdentifier = ApiIdentifier.random
 
       "call the service to unsubscribe from the API when submitted for a super user" in new Setup {
+        val unsubscribeFromApi = UnsubscribeFromApi(GatekeeperActor(userToken._2), apiIdentifier, LocalDateTime.now(fixedClock))
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.UnsubscribeFromApi.succeeds()
+        ApmServiceMock.UnsubscribeFromApi.succeeds()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
+        verify(mockApmService).unsubscribeFromApi(eqTo(applicationId), eqTo(unsubscribeFromApi))(*)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -144,11 +123,11 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiIdentifier.context, apiIdentifier.version))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)
+        verify(mockApmService, never).unsubscribeFromApi(eqTo(applicationId), *)(*)
       }
     }
 
