@@ -127,6 +127,31 @@ class ApmConnectorSpec
     }
   }
 
+  "applicationUpdate" should {
+    val actor = Actors.GatekeeperUser("Admin Powers")
+    val apiIdentifier = ApiIdentifier.random
+    val unsubscribeFromApi = UnsubscribeFromApi(actor, apiIdentifier, LocalDateTime.now())
+    val requestBody = Json.toJsObject(unsubscribeFromApi) ++ Json.obj("updateType" -> "unsubscribeFromApi")
+
+    "return OK if the request was successful" in new Setup {
+      val url = s"/applications/${applicationId.value}"
+
+      stubFor(
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(requestBody)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(application)
+          )
+      )
+
+      val result = await(underTest.updateApplication(applicationId, unsubscribeFromApi))
+
+      result shouldBe application
+    }
+  }
+
   "subscribeToApi" should {
     val apiIdentifier = ApiIdentifier.random
     val actor = Actors.GatekeeperUser("Admin Powers")

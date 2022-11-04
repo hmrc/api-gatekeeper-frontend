@@ -69,5 +69,9 @@ trait ApmServiceMockProvider {
     object SubscribeToApi {
       def succeeds() = when(mockApmService.subscribeToApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
+
+    object UnsubscribeFromApi {
+      def succeeds() = when(mockApmService.unsubscribeFromApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
+    }
   }
 }

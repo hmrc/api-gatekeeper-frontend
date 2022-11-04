@@ -258,14 +258,18 @@ case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmai
 
 case class SubscribeToApi(actor: EventsActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
 
+case class UnsubscribeFromApi(actor: EventsActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
 trait ApplicationUpdateFormatters extends ActorJsonFormatters {
   implicit val changeProductionApplicationNameFormatter = Json.format[ChangeProductionApplicationName]
   implicit val deleteApplicationByGatekeeperFormatter = Json.format[DeleteApplicationByGatekeeper]
   implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
+  implicit val unsubscribeFromApiFormatter = Json.format[UnsubscribeFromApi]
   
   implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[ChangeProductionApplicationName]("changeProductionApplicationName")
     .and[SubscribeToApi]("subscribeToApi")
+    .and[UnsubscribeFromApi]("unsubscribeFromApi")
     .format
 }
 

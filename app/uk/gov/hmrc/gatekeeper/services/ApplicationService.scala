@@ -30,7 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationService @Inject() (
@@ -206,10 +205,6 @@ class ApplicationService @Inject() (
         case None             => Future.successful(ApplicationUpdateFailureResult)
       }
     }
-  }
-
-  def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 
   def updateGrantLength(application: Application, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

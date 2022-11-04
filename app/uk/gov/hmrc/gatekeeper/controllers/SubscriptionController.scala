@@ -97,7 +97,8 @@ class SubscriptionController @Inject() (
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      applicationService.unsubscribeFromApi(app.application, apiContext, version).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val unsubscribeFromApi = UnsubscribeFromApi(Actors.GatekeeperUser(loggedIn.userFullName.get), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.unsubscribeFromApi(app.application, unsubscribeFromApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 }

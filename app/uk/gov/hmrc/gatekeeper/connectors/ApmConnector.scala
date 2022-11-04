@@ -78,6 +78,10 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     )
   }
 
+  def updateApplication(applicationId: ApplicationId, request: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[NewApplication] = {
+    http.PATCH[ApplicationUpdate, NewApplication](s"${config.serviceBaseUrl}/applications/${applicationId.value}", request)
+  }
+  
   def subscribeToApi(applicationId: ApplicationId, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST[SubscribeToApi, Either[UpstreamErrorResponse, Unit]](
       s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}/subscriptionsAppUpdate?restricted=false",

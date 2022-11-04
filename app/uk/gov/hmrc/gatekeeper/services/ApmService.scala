@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.services
 
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.subscriptions._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
@@ -26,6 +26,7 @@ import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 
@@ -53,5 +54,9 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
 
   def subscribeToApi(application: Application, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     apmConnector.subscribeToApi(application.id, subscribeToApi)
+  }
+
+  def unsubscribeFromApi(application: Application, unsubscribeFromApi: UnsubscribeFromApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    apmConnector.updateApplication(application.id, unsubscribeFromApi).map { _: NewApplication => ApplicationUpdateSuccessResult }
   }
 }
