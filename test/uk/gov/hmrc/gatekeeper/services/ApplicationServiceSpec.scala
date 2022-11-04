@@ -529,16 +529,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "subscribeToApi" should {
-    "calls APM connector only now" in new Setup {
-      ApmConnectorMock.SubscribeToApi.succeeds()
-
-      val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier))
-
-      result shouldBe ApplicationUpdateSuccessResult
-    }
-  }
-
   "unsubscribeFromApi" should {
     "call the service to unsubscribe from the API and delete the field values" in new Setup {
 

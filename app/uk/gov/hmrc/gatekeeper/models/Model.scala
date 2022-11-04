@@ -35,9 +35,11 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinit
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{Actor => EventsActor}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.ActorJsonFormatters
 
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
@@ -251,19 +253,20 @@ trait ApplicationUpdate {
   def timestamp: LocalDateTime
 }
 
-trait GatekeeperApplicationUpdate extends ApplicationUpdate {
-  def gatekeeperUser: String
-}
-
 case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String) extends ApplicationUpdate
 case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmailAddress: String, reasons: String, timestamp: LocalDateTime) extends ApplicationUpdate
 
-trait ApplicationUpdateFormatters {
+case class SubscribeToApi(actor: EventsActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
 
-  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
-    .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
-  implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]
-    .transform(_.as[JsObject] + ("updateType" -> JsString("deleteApplicationByGatekeeper")))
+trait ApplicationUpdateFormatters extends ActorJsonFormatters {
+  implicit val changeProductionApplicationNameFormatter = Json.format[ChangeProductionApplicationName]
+  implicit val deleteApplicationByGatekeeperFormatter = Json.format[DeleteApplicationByGatekeeper]
+  implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
+  
+  implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
+    .and[ChangeProductionApplicationName]("changeProductionApplicationName")
+    .and[SubscribeToApi]("subscribeToApi")
+    .format
 }
 
 sealed trait UpdateApplicationNameResult

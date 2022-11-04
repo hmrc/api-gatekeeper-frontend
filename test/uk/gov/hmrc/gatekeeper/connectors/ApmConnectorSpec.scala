@@ -40,12 +40,15 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Actors
 
 class ApmConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
+    with UrlEncoding
+    with ApplicationUpdateFormatters {
 
   trait Setup extends ApplicationBuilder with ApiBuilder {
     implicit val hc = HeaderCarrier()
@@ -125,33 +128,35 @@ class ApmConnectorSpec
   }
 
   "subscribeToApi" should {
-    val apiContext    = ApiContext.random
-    val apiVersion    = ApiVersion.random
-    val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
+    val apiIdentifier = ApiIdentifier.random
+    val actor = Actors.GatekeeperUser("Admin Powers")
+    val subscribeToApi = SubscribeToApi(actor, apiIdentifier, LocalDateTime.now())
 
     "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
+      val url = s"/applications/${applicationId.value.toString()}/subscriptionsAppUpdate"
 
       stubFor(
         post(urlPathEqualTo(url))
           .withQueryParam("restricted", equalTo("false"))
+          .withJsonRequestBody(subscribeToApi)
           .willReturn(
             aResponse()
               .withStatus(CREATED)
           )
       )
-
-      val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
+        
+      val result = await(underTest.subscribeToApi(applicationId, subscribeToApi))
 
       result shouldBe ApplicationUpdateSuccessResult
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
+      val url = s"/applications/${applicationId.value.toString()}/subscriptionsAppUpdate"
 
       stubFor(
         post(urlPathEqualTo(url))
           .withQueryParam("restricted", equalTo("false"))
+          .withJsonRequestBody(subscribeToApi)
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -159,7 +164,7 @@ class ApmConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(underTest.subscribeToApi(applicationId, apiIdentifier))
+        await(underTest.subscribeToApi(applicationId, subscribeToApi))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }

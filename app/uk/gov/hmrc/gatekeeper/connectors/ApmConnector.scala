@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications._
 import scala.concurrent.Future
 
@@ -35,10 +36,16 @@ import uk.gov.hmrc.gatekeeper.models.CombinedApi
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import play.api.http.Status._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 @Singleton
-class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
+class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) extends APIDefinitionFormatters
+  with ApplicationUpdateFormatters {
+
   import ApmConnectorJsonFormatters._
   import ApmConnector._
 
@@ -71,15 +78,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     )
   }
 
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](
-      s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}/subscriptions?restricted=false",
-      apiIdentifier
-    )
-      .map(_ match {
-        case Right(_)  => ApplicationUpdateSuccessResult
-        case Left(err) => throw err
-      })
+  def subscribeToApi(applicationId: ApplicationId, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST[SubscribeToApi, Either[UpstreamErrorResponse, Unit]](
+      s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}/subscriptionsAppUpdate?restricted=false",
+      subscribeToApi
+    ).map {
+      case Right(_) => ApplicationUpdateSuccessResult
+      case Left(err) => throw err
+    }
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {

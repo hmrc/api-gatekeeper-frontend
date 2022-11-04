@@ -23,17 +23,23 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApmConnectorMockProvider
+import uk.gov.hmrc.gatekeeper.builder.{ApplicationBuilder, ApplicationResponseBuilder}
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
+import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Actors
+
 class ApmServiceSpec extends AsyncHmrcSpec {
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider {
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider with ApplicationBuilder with ApplicationResponseBuilder {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
     val apmService = new ApmService(mockApmConnector)
 
-    val anAppId = ApplicationId.random
+    val applicationId = ApplicationId.random
+    val application = buildApplicationResponse()
 
     val combinedRestApi1 = CombinedApi(
       "displayName1",
@@ -61,7 +67,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchApplicationById.returns(None)
 
-        val result = await(apmService.fetchApplicationById(anAppId))
+        val result = await(apmService.fetchApplicationById(applicationId))
         result shouldBe None
       }
     }
@@ -71,7 +77,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchAllPossibleSubscriptions.returns(Map.empty)
 
-        val result = await(apmService.fetchAllPossibleSubscriptions(anAppId))
+        val result = await(apmService.fetchAllPossibleSubscriptions(applicationId))
         result shouldBe Map.empty
       }
     }
@@ -105,6 +111,17 @@ class ApmServiceSpec extends AsyncHmrcSpec {
         val result = await(apmService.fetchAllBoxes())
         result shouldBe allBoxes
       }
+    }
+  }
+
+  "subscribeToApi" should {
+    "return success" in new Setup {
+      val subscribeToApi = SubscribeToApi(Actors.GatekeeperUser("Gate Keeper"), ApiIdentifier.random, LocalDateTime.now()) 
+      ApmConnectorMock.SubscribeToApi.succeeds()
+        
+      val result = await(apmService.subscribeToApi(application, subscribeToApi))
+
+      result shouldBe ApplicationUpdateSuccessResult
     }
   }
 }

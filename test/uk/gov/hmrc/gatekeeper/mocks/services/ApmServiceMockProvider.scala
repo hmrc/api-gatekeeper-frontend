@@ -18,14 +18,14 @@ package mocks.services
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.{ApiDefinitions, ApplicationUpdateSuccessResult}
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful,failed}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 
 trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -37,14 +37,11 @@ trait ApmServiceMockProvider {
     object FetchApplicationById {
       private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
 
-      def returns(app: ApplicationWithSubscriptionData) =
-        whenClause.thenReturn(successful(Some(app)))
+      def returns(app: ApplicationWithSubscriptionData) = whenClause.thenReturn(successful(Some(app)))
 
-      def returnsNone(app: ApplicationWithSubscriptionData) =
-        whenClause.thenReturn(successful(None))
+      def returnsNone(app: ApplicationWithSubscriptionData) = whenClause.thenReturn(successful(None))
 
-      def failsWith(throwable: Throwable) =
-        whenClause.thenReturn(failed(throwable))
+      def failsWith(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
     }
 
     def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
@@ -67,6 +64,10 @@ trait ApmServiceMockProvider {
 
     def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
       verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
+    }
+
+    object SubscribeToApi {
+      def succeeds() = when(mockApmService.subscribeToApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
   }
 }
