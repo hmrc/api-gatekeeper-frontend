@@ -17,9 +17,9 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.ApiContext
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications._
 import scala.concurrent.Future
 
@@ -28,25 +28,16 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
-import uk.gov.hmrc.gatekeeper.models.FieldName
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
-import uk.gov.hmrc.gatekeeper.models.ApiIdentifier
-import uk.gov.hmrc.gatekeeper.models.ApplicationUpdateResult
-import uk.gov.hmrc.gatekeeper.models.ApplicationUpdateSuccessResult
-import uk.gov.hmrc.gatekeeper.models.AddTeamMemberRequest
-import uk.gov.hmrc.gatekeeper.models.TeamMemberAlreadyExists
-import uk.gov.hmrc.gatekeeper.models.ApplicationNotFound
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
 
 @Singleton
-class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
+class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) extends APIDefinitionFormatters
+  with ApplicationUpdateFormatters {
+
   import ApmConnectorJsonFormatters._
   import ApmConnector._
 
@@ -60,12 +51,12 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
 
     http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
-    .map( _ match {
-      case Right(()) => ()
-      case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw TeamMemberAlreadyExists
-      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
-      case Left(err) => throw err
-    })
+      .map {
+        case Right(()) => ()
+        case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw TeamMemberAlreadyExists
+        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
+        case Left(err) => throw err
+      }
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
@@ -78,15 +69,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     )
   }
 
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](
-      s"${config.serviceBaseUrl}/applications/${applicationId.value}/subscriptions?restricted=false",
-      apiIdentifier
-    )
-    .map(_ match {
+  def subscribeToApi(applicationId: ApplicationId, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.POST[SubscribeToApi, Either[UpstreamErrorResponse, Unit]](
+      s"${config.serviceBaseUrl}/applications/${applicationId.value}/subscriptionsAppUpdate?restricted=false",
+      subscribeToApi
+    ).map {
       case Right(_) => ApplicationUpdateSuccessResult
       case Left(err) => throw err
-    })
+    }
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {

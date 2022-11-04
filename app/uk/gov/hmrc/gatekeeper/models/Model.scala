@@ -245,19 +245,30 @@ object ValidateApplicationNameRequest {
 }
 
 trait ApplicationUpdate {
-  def instigator: UserId
   def timestamp: LocalDateTime
 }
 
-trait GatekeeperApplicationUpdate extends ApplicationUpdate {
-  def gatekeeperUser: String
+case class GatekeeperActor(user: String)
+
+object GatekeeperActor {
+  implicit val gatekeeperActorFormat = Format[GatekeeperActor](
+    Json.reads[GatekeeperActor],
+    gatekeeperUserActor => Json.obj("user" -> gatekeeperUserActor.user, "actorType" -> "GATEKEEPER")
+  )
 }
 
 case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String) extends ApplicationUpdate
 
+case class SubscribeToApi(actor: GatekeeperActor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
 trait ApplicationUpdateFormatters {
-  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
-    .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
+  implicit val changeProductionApplicationNameFormatter = Json.format[ChangeProductionApplicationName]
+  implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
+  
+  implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
+    .and[ChangeProductionApplicationName]("changeProductionApplicationName")
+    .and[SubscribeToApi]("subscribeToApi")
+    .format
 }
 
 sealed trait UpdateApplicationNameResult

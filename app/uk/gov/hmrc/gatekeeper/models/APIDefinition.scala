@@ -34,6 +34,8 @@ object ApiContext {
   }
 
   def random = ApiContext(Random.alphanumeric.take(10).mkString)
+
+  implicit val jsonFormat = Json.valueFormat[ApiContext]
 }
 
 case class ApiVersion(value: String) extends AnyVal {
@@ -46,6 +48,8 @@ object ApiVersion {
   }
 
   def random = ApiVersion(Random.nextDouble().toString)
+
+  implicit val jsonFormat = Json.valueFormat[ApiVersion]
 }
 
 sealed trait ApiVersionSource {
@@ -128,7 +132,9 @@ object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType
 
 case class ApiIdentifier(context: ApiContext, version: ApiVersion)
 object ApiIdentifier {
-  def random() = ApiIdentifier(ApiContext.random, ApiVersion.random)
+  def random = ApiIdentifier(ApiContext.random, ApiVersion.random)
+
+  implicit val jsonFormat = Json.format[ApiIdentifier]
 }
 
 class FetchApiDefinitionsFailed extends Throwable

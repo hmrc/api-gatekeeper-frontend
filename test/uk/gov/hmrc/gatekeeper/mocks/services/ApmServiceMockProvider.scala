@@ -18,14 +18,12 @@ package mocks.services
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiDefinitions, ApplicationId, ApplicationUpdateSuccessResult}
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import scala.concurrent.Future.{failed,successful}
+
+import scala.concurrent.Future
 
 trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -37,11 +35,11 @@ trait ApmServiceMockProvider {
       private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
 
       def returns(app: ApplicationWithSubscriptionData) = 
-        whenClause.thenReturn(successful(Some(app)))
+        whenClause.thenReturn(Future.successful(Some(app)))
       def returnsNone(app: ApplicationWithSubscriptionData) = 
-        whenClause.thenReturn(successful(None))
+        whenClause.thenReturn(Future.successful(None))
       def failsWith(throwable: Throwable) =
-        whenClause.thenReturn(failed(throwable))
+        whenClause.thenReturn(Future.failed(throwable))
     }
 
     def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {
@@ -64,6 +62,10 @@ trait ApmServiceMockProvider {
 
     def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
       verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
+    }
+
+    object SubscribeToApi {
+      def succeeds() = when(mockApmService.subscribeToApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
   }
 }

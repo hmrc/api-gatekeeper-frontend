@@ -36,6 +36,8 @@ import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 
+import java.time.{Clock, LocalDateTime}
+
 @Singleton
 class SubscriptionController @Inject()(
   manageSubscriptionsView: ManageSubscriptionsView,
@@ -45,7 +47,8 @@ class SubscriptionController @Inject()(
   val applicationService: ApplicationService,
   val apmService: ApmService,
   val errorHandler: ErrorHandler,
-  strideAuthorisationService: StrideAuthorisationService
+  strideAuthorisationService: StrideAuthorisationService,
+  val clock: Clock
 )(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
   extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders {
     
@@ -82,7 +85,8 @@ class SubscriptionController @Inject()(
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      applicationService.subscribeToApi(app.application, ApiIdentifier(apiContext, version)).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val subscribeToApi = SubscribeToApi(GatekeeperActor(loggedIn.userFullName.get), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.subscribeToApi(app.application, subscribeToApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 

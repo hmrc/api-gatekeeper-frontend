@@ -17,14 +17,15 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
-import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
-import javax.inject.Inject
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions._
-import uk.gov.hmrc.gatekeeper.models.{ApplicationId,ApiDefinitions,ApiContext,CombinedApi}
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.http.HeaderCarrier
+
+import javax.inject.Inject
+import scala.concurrent.Future
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
 
@@ -46,5 +47,9 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     apmConnector.fetchAllBoxes()
+  }
+
+  def subscribeToApi(application: Application, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    apmConnector.subscribeToApi(application.id, subscribeToApi)
   }
 }

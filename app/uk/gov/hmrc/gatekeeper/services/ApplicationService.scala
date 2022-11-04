@@ -208,10 +208,6 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     }
   }
 
-  def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    apmConnector.subscribeToApi(application.id, apiIdentifier)
-  }
-
   def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
