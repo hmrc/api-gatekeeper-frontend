@@ -126,12 +126,13 @@ class ApplicationsViewSpec extends CommonViewSpec {
 
         val status = applicationViewWithApplicationDocument.select(s"#status")
 
-        status.get(0).child(0).text() shouldBe "All"
-        status.get(0).child(1).text() shouldBe "Created"
-        status.get(0).child(2).text() shouldBe "Pending responsible individual verification"
-        status.get(0).child(3).text() shouldBe "Pending gatekeeper check"
-        status.get(0).child(4).text() shouldBe "Pending submitter verification"
-        status.get(0).child(5).text() shouldBe "Active"
+        status.get(0).child(0).text() shouldBe "All - Excluding deleted"
+        status.get(0).child(1).text() shouldBe "All"
+        status.get(0).child(2).text() shouldBe "Created"
+        status.get(0).child(3).text() shouldBe "Pending responsible individual verification"
+        status.get(0).child(4).text() shouldBe "Pending gatekeeper check"
+        status.get(0).child(5).text() shouldBe "Pending submitter verification"
+        status.get(0).child(6).text() shouldBe "Active"
       }
 
       "Access type filter entries in correct order" in new Setup {

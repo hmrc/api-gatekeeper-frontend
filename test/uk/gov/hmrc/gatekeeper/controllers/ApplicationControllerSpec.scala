@@ -201,7 +201,7 @@ class ApplicationControllerSpec
           "status" -> "CREATED",
           "termsOfUse" -> "ACCEPTED",
           "accessType" -> "STANDARD",
-          "includeDeleted" -> "true")
+          "includeDeleted" -> "false")
         val result = underTest.applicationsPage()(aLoggedInRequestWithParams)
 
         status(result) shouldBe OK
