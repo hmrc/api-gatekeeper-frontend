@@ -101,7 +101,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
               Filter by Status
             </label>
             <select class="govuk-select full-width" id="status" name="status">
-              <option @if(status == None || status == Some("EXCLUDING_DELETED")){selected} value="EXCLUDING_DELETED" selected>All - Excluding deleted</option>
+              <option @if(status == None || status == Some("EXCLUDING_DELETED")){selected} value="EXCLUDING_DELETED">All - Excluding deleted</option>
               <option @if(status == Some("ALL")){selected} value="ALL">All</option>
               <option @if(status == Some("CREATED")){selected} value="CREATED">Created</option>
               <option @if(status == Some("PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION")){selected} value="PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION">Pending responsible individual verification</option>
