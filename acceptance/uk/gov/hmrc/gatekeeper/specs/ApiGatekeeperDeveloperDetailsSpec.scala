@@ -94,7 +94,7 @@ class ApiGatekeeperDeveloperDetailsSpec
 
   def stubApplicationForDeveloper(userId: UserId) = {
     stubFor(
-      get(urlPathEqualTo(s"/developer/${userId.asText}/applications"))
+      get(urlPathEqualTo(s"/gatekeeper/developer/${userId.asText}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 
