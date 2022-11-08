@@ -23,12 +23,12 @@ lazy val microservice =  (project in file("."))
       )
     ),
     uglifyCompressOptions := Seq(
-      "unused=false",
+      "unused=true",
       "dead_code=true"
     ),
-    includeFilter in uglify := GlobFilter("apis-*.js"),
+    uglify / includeFilter := GlobFilter("apis-*.js"),
     pipelineStages := Seq(digest),
-    pipelineStages in Assets := Seq(
+    Assets / pipelineStages := Seq(
       concat,
       uglify
     ),

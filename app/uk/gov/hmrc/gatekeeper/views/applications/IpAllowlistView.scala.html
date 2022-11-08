@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 

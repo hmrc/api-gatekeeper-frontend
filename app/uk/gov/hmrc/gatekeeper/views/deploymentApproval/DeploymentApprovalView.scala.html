@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(unapprovedApis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
