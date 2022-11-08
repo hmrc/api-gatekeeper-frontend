@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 @(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 

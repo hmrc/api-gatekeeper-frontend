@@ -63,7 +63,7 @@ POST        /applications/:id/team-members/remove-confirmation                uk
 POST        /applications/:id/team-members/remove                             uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMemberAction(id: uk.gov.hmrc.gatekeeper.models.ApplicationId)
 
 
-GET         /assets/*file                                                     controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /nav-links                                                        uk.gov.hmrc.gatekeeper.controllers.NavigationController.navLinks
 GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage
