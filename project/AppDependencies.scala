@@ -46,7 +46,8 @@ object AppDependencies {
     "com.github.tomakehurst"      %   "wiremock-jre8-standalone"          % "2.27.2",
     "org.seleniumhq.selenium"     %   "selenium-java"                     % seleniumVersion,
     "org.seleniumhq.selenium"     %   "htmlunit-driver"                   % "3.64.0",
-    "org.mockito"                 %%  "mockito-scala-scalatest"           % "1.16.42",
-    "org.scalacheck"              %%  "scalacheck"                        % scalaCheckVersion
+    "org.mockito"                 %%  "mockito-scala-scalatest"           % "1.16.46",
+    "org.scalacheck"              %%  "scalacheck"                        % scalaCheckVersion,
+    "uk.gov.hmrc"                 %% "webdriver-factory"                  % "0.38.0"
   ).map (_ % testScopes)
 }
