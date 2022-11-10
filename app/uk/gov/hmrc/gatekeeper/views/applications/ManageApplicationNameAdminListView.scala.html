@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameAdminEmailForm
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
-@this(main: NewMainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig)
 
 
 @(application: ApplicationResponse, adminEmails: Set[String], form: Form[UpdateApplicationNameAdminEmailForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
