@@ -115,7 +115,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.asText}/applications")
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId.asText}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
