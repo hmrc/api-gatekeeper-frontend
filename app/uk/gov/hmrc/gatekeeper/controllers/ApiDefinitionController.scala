@@ -33,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
-case class ApiDefinitionView(apiName: String, serviceName: String, apiContext: ApiContext, apiVersion: ApiVersion, status: String, access: String, isTrial: Boolean, environment: String)
+case class ApiDefinitionView(apiName: String, serviceName: String, apiContext: ApiContext, apiVersion: ApiVersion, versionSource: ApiVersionSource, status: String, access: String, isTrial: Boolean, environment: String)
 
 @Singleton
 class ApiDefinitionController @Inject()(
@@ -61,6 +61,7 @@ class ApiDefinitionController @Inject()(
         ColumnDefinition("serviceName", (vm => vm.serviceName)),
         ColumnDefinition("context",(vm => vm.apiContext.value)),
         ColumnDefinition("version",(vm => vm.apiVersion.value)),
+        ColumnDefinition("source", (vm => vm.versionSource.asText)),
         ColumnDefinition("status",(vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
         ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
@@ -77,7 +78,7 @@ class ApiDefinitionController @Inject()(
     }
 
     apiDefinition.versions.map(v =>
-      ApiDefinitionView(apiDefinition.name, apiDefinition.serviceName, apiDefinition.context, v.version, v.displayedStatus, v.accessType.toString, isTrial(v), environment.toString)
+      ApiDefinitionView(apiDefinition.name, apiDefinition.serviceName, apiDefinition.context, v.version, v.versionSource , v.displayedStatus, v.accessType.toString, isTrial(v), environment.toString)
     )
   }
 }
