@@ -194,7 +194,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
@@ -211,7 +211,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val apiContext = ApiContext.random
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiStatus.STABLE))
+        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE))
         val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
@@ -225,7 +225,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiStatus.ALPHA)
+        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
         val apiDefinition = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))

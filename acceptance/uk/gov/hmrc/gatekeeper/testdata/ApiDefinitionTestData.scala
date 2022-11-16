@@ -15,6 +15,7 @@ trait ApiDefinitionTestData {
        |   "versions": [
        |     {
        |       "version": "1.0",
+       |       "versionSource": "UNKNOWN",
        |       "status": "PUBLISHED",
        |       "access": {
        |         "type": "PUBLIC"
@@ -43,6 +44,7 @@ trait ApiDefinitionTestData {
        |   "versions": [
        |     {
        |       "version": "1.0",
+       |       "versionSource": "UNKNOWN",
        |       "status": "DEPRECATED",
        |       "access": {
        |         "type": "PUBLIC"
@@ -71,6 +73,7 @@ trait ApiDefinitionTestData {
        |   "versions": [
        |     {
        |       "version": "1.0",
+       |       "versionSource": "UNKNOWN",
        |       "status": "PUBLISHED",
        |       "access": {
        |         "type": "PUBLIC"
@@ -99,6 +102,7 @@ trait ApiDefinitionTestData {
        |   "versions": [
        |     {
        |       "version": "1.0",
+       |       "versionSource": "UNKNOWN",
        |       "status": "PUBLISHED",
        |       "access": {
        |         "type": "PUBLIC"

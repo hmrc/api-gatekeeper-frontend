@@ -24,5 +24,5 @@ trait APIDefinitionHelper {
                           context: String,
                           categories: Option[List[String]],
                           version: String): ApiDefinition =
-    ApiDefinition(serviceName, "url1", name, "desc", ApiContext(context), List(ApiVersionDefinition(ApiVersion(version), ApiStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
+    ApiDefinition(serviceName, "url1", name, "desc", ApiContext(context), List(ApiVersionDefinition(ApiVersion(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)), None, categories.map(_.map(APICategory(_))))
 }
