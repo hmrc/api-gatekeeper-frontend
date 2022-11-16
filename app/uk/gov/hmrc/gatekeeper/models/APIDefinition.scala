@@ -48,6 +48,22 @@ object ApiVersion {
   def random = ApiVersion(Random.nextDouble().toString)
 }
 
+sealed trait ApiVersionSource {
+  def asText: String
+}
+
+object ApiVersionSource {
+  case object RAML extends ApiVersionSource {
+    val asText = "RAML"
+  }
+  case object OAS extends ApiVersionSource {
+    val asText = "OAS"
+  }
+  case object UNKNOWN extends ApiVersionSource {
+    val asText = "UNKNOWN"
+  }
+}
+
 case class ApiDefinition(serviceName: String,
                          serviceBaseUrl: String,
                          name: String,
@@ -79,7 +95,7 @@ case class VersionSubscription(version: ApiVersionDefinition,
                                subscribed: Boolean,
                                fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: Option[ApiAccess] = None) {
+case class ApiVersionDefinition(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = ApiStatus.displayedStatus(status)
 
   val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)

@@ -37,19 +37,19 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
     val publicDefinition = ApiDefinition(
       "publicAPI", "http://localhost/",
       "publicAPI", "public api.", ApiContext.random,
-      List(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
+      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
     )
 
     val privateDefinition = ApiDefinition(
       "privateAPI", "http://localhost/",
       "privateAPI", "private api.", ApiContext.random,
-      List(ApiVersionDefinition(ApiVersion.random, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
+      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
     )
 
 
-    val version1 = ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))
-    val version2 = ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
-    val version3 = ApiVersionDefinition(ApiVersion("3.0"), ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
+    val version1 = ApiVersionDefinition(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))
+    val version2 = ApiVersionDefinition(ApiVersion("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
+    val version3 = ApiVersionDefinition(ApiVersion("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
 
     val customsDeclarations1 = ApiDefinition(serviceName = "customs-declarations",
       serviceBaseUrl = "https://customs-declarations.protected.mdtp",
