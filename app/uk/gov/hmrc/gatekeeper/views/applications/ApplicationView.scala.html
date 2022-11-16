@@ -49,7 +49,7 @@
         }
       }
     </dd>
-    @if(request.role.isSuperUser) {
+    @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-scopes" class="govuk-link" href="@{routes.ApplicationController.manageScopes(applicationId)}">
           Manage<span class="govuk-visually-hidden"> scopes</span>
@@ -106,7 +106,7 @@
         </table>
       </dd>
     }
-    @if(request.role.isSuperUser) {
+    @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}">
           Manage<span class="govuk-visually-hidden"> access overrides</span>
@@ -274,7 +274,7 @@
       <dd class="govuk-summary-list__value" data-rate-limit>
         @RateLimitTier.displayedTier(application.rateLimitTier)
       </dd>
-      @if(request.role.isAdmin) {
+      @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-rate-limit" class="govuk-link" href="@{routes.ApplicationController.manageRateLimitTier(applicationId)}">
             Manage<span class="govuk-visually-hidden"> Rate limit tier</span>
@@ -365,7 +365,7 @@
       <dd class="govuk-summary-list__value" grant-length>
         @GrantLength.displayedGrantLength(application.grantLength.getDays)
       </dd>
-      @if(request.role.isAdmin) {
+      @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-grant-length" class="govuk-link" href="@{routes.ApplicationController.manageGrantLength(applicationId)}">
             Manage<span class="govuk-visually-hidden"> application grant Length</span>
@@ -411,7 +411,7 @@
           }
         }
       </dd>
-      @if(request.role.isSuperUser) {
+      @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}">
             Manage<span class="govuk-visually-hidden"> IP allow list</span>
@@ -434,7 +434,7 @@
           @renderSubscriptions(model.subscriptions)
         </ul>
       </dd>
-      @if(request.role.isSuperUser) {
+      @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-subscriptions" class="govuk-link" href="@{routes.SubscriptionController.manageSubscription(applicationId)}">
             Manage<span class="govuk-visually-hidden"> API subscriptions</span>
@@ -452,7 +452,7 @@
             @renderSubscriptions(model.subscriptionsThatHaveFieldDefns)
           </ul>
         </dd>
-        @if(request.role.isSuperUser) {
+        @if(request.role.isSuperUser && !application.state.isDeleted) {
           <dd class="govuk-summary-list__actions">
             <a id="manage-subscriptions-configuration" class="govuk-link" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}">
               Manage<span class="govuk-visually-hidden"> API subscription configuration</span>
@@ -509,7 +509,7 @@
           <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
         }
       </dd>
-      @if(request.role.isSuperUser || access.accessType == AccessType.STANDARD) {
+      @if(!application.state.isDeleted && (request.role.isSuperUser || access.accessType == AccessType.STANDARD)) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}">
             Manage<span class="govuk-visually-hidden"> team members</span>
@@ -622,10 +622,10 @@
   </table>
 
   <br>
-  @if(request.role.isSuperUser) {
+  @if(request.role.isSuperUser && !application.state.isDeleted) {
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
-  @if(request.role.isAdmin) {
+  @if(request.role.isAdmin && !application.state.isDeleted) {
     @if(application.state.isApproved && !application.blocked) {
       <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
     }

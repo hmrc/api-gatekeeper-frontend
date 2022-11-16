@@ -399,6 +399,7 @@ object State extends Enumeration {
     def isApproved = state == State.PRE_PRODUCTION || state == State.PRODUCTION
     def isPendingGatekeeperApproval = state == State.PENDING_GATEKEEPER_APPROVAL
     def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
+    def isDeleted = state == State.DELETED
   }
 }
 
@@ -437,6 +438,7 @@ case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress
   def isApproved = name.isApproved
   def isPendingGatekeeperApproval = name.isPendingGatekeeperApproval
   def isPendingRequesterVerification = name.isPendingRequesterVerification
+  def isDeleted = name.isDeleted
 }
 
 object RateLimitTier extends Enumeration {
