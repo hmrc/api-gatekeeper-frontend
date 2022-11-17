@@ -54,7 +54,7 @@ class SubscriptionController @Inject()(
       apiData.versions.map {
         case (version, data) => 
           VersionSubscriptionWithoutFields(
-            ApiVersionDefinition(version, data.status, Some(data.access)),
+            ApiVersionDefinition(version, ApiVersionSource.UNKNOWN, data.status, Some(data.access)),
             apiVersions.contains(version)
           )
       }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)

@@ -12,6 +12,7 @@ trait AllSubscribeableApisTestData {
        |     "versions": {
        |         "2.0": {
        |             "status": "BETA",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
@@ -25,6 +26,7 @@ trait AllSubscribeableApisTestData {
        |   "versions": {
        |       "1.0": {
        |           "status": "STABLE",
+       |           "versionSource": "UNKNOWN",
        |           "access": {
        |               "type": "PUBLIC"
        |           }
@@ -38,6 +40,7 @@ trait AllSubscribeableApisTestData {
        |   "versions": {
        |       "1.0": {
        |           "status": "STABLE",
+       |           "versionSource": "UNKNOWN",
        |           "access": {
        |               "type": "PUBLIC"
        |           }
@@ -51,6 +54,7 @@ trait AllSubscribeableApisTestData {
        |     "versions": {
        |         "1.0": {
        |             "status": "BETA",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
@@ -64,60 +68,70 @@ trait AllSubscribeableApisTestData {
        |     "versions": {
        |         "7.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "6.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "5.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "4.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "3.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "2.3": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "2.2": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "2.1": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "2.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "1.0": {
        |             "status": "STABLE",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
@@ -131,12 +145,14 @@ trait AllSubscribeableApisTestData {
        |     "versions": {
        |         "2.0": {
        |             "status": "BETA",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }
        |         },
        |         "1.0": {
        |             "status": "BETA",
+       |             "versionSource": "UNKNOWN",
        |             "access": {
        |                 "type": "PUBLIC"
        |             }

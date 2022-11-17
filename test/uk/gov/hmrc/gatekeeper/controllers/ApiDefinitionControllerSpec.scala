@@ -54,16 +54,18 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
     "return a csv" in new Setup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiStatus.STABLE))
-      val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+      val someContext = ApiContext.random
+
+      val apiVersions = List(ApiVersionDefinition(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA), ApiVersionDefinition(ApiVersion("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE))
+      val apiDefinition = ApiDefinition("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, None)
       
       Apis.returns((apiDefinition, PRODUCTION))
       
       val result = controller.apis()(aLoggedInRequest)
 
-      contentAsString(result) shouldBe """name,version,status,access,isTrial,environment
-                                |MyApi,1.0,Alpha,PUBLIC,false,PRODUCTION
-                                |MyApi,2.0,Stable,PUBLIC,false,PRODUCTION
+      contentAsString(result) shouldBe s"""name,serviceName,context,version,source,status,access,isTrial,environment
+                                |MyApi,aServiceName,${someContext.value},1.0,UNKNOWN,Alpha,PUBLIC,false,PRODUCTION
+                                |MyApi,aServiceName,${someContext.value},2.0,OAS,Stable,PUBLIC,false,PRODUCTION
                                 |""".stripMargin
     }
 

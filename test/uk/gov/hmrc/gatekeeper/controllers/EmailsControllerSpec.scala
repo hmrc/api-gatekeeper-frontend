@@ -105,8 +105,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      val api1 = ApiDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), List(ApiVersionDefinition(ApiVersion("1"), ApiStatus.BETA)), None, categories = Some(List(category1.toAPICategory)))
-      val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
+      val api1 = ApiDefinition("service1", "/", "serviceName", "serviceDesc", ApiContext("service1"), List(ApiVersionDefinition(ApiVersion("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)), None, categories = Some(List(category1.toAPICategory)))
+      val api2 = ApiDefinition("service2", "/", "service2Name", "service2Desc", ApiContext("service2"), List(ApiVersionDefinition(ApiVersion("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)), None, categories = Some(List(category2.toAPICategory)))
       val twoApis = List(api1, api2)
       def givenApiDefinition2Apis() = {
         FetchAllDistinctApisIgnoreVersions.inAny.returns(twoApis: _*)

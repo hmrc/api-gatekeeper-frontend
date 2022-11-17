@@ -59,6 +59,7 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
           |     {
           |       "version": "${apiVersion.value}",
           |       "status": "PROTOTYPED",
+          |       "versionSource" : "UNKNOWN",
           |       "access": {
           |         "type": "PUBLIC"
           |       },
@@ -84,7 +85,7 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
       result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), Some(List(APICategory("VAT")))))
+        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), Some(List(APICategory("VAT")))))
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
@@ -101,6 +102,7 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
           |     {
           |       "version": "${apiVersion.value}",
           |       "status": "PUBLISHED",
+          |       "versionSource" : "UNKNOWN",
           |       "access": {
           |         "type": "PUBLIC"
           |       },
@@ -126,7 +128,7 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
       result shouldBe Seq(ApiDefinition(
         "dummyAPI", "http://localhost/",
         "dummyAPI", "dummy api.", apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN,ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
     }
   }
 }
