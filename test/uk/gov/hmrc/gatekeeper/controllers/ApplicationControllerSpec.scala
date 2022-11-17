@@ -1191,7 +1191,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val apiContext = ApiContext("Api Context")
         val apiContextAndApiData = Map(apiContext -> apiData)
 
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
@@ -1204,7 +1204,37 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe OK
+        contentAsString(result) should include(application2.name)
+        contentAsString(result) should include("Manage")
+        contentAsString(result) should include("Delete application")
+        contentAsString(result) should include("Block application")
+      }
 
+      "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
+
+        val application2 = buildApplication().copy(state = ApplicationState(State.DELETED))
+        val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
+        val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+        val apiContext = ApiContext("Api Context")
+        val apiContextAndApiData = Map(apiContext -> apiData)
+
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+        ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+
+        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+        ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
+        ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
+        
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers:_*)
+
+
+        val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(application2.name)
+        contentAsString(result) shouldNot include("Manage")
+        contentAsString(result) shouldNot include("Delete application")
+        contentAsString(result) shouldNot include("Block application")
       }
     }
 
