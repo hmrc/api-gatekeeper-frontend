@@ -130,6 +130,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubFetchAllApplicationsList()
     stubPaginatedApplicationList()
     stubApplicationForDeveloper()
+    stubApplicationExcludingDeletedForDeveloper()
     stubApiDefinition()
     stubDevelopers()
     stubDevelopersSearch()
@@ -164,6 +165,17 @@ class ApiGatekeeperRemoveMfaSpec
   def stubApplicationForDeveloper(): Unit = {
     stubFor(
       get(urlPathEqualTo(s"/gatekeeper/developer/${developer8Id.toString()}/applications"))
+        .willReturn(
+          aResponse()
+            .withBody(applicationResponseForEmail)
+            .withStatus(OK)
+        )
+    )
+  }
+
+  def stubApplicationExcludingDeletedForDeveloper(): Unit = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
         .willReturn(
           aResponse()
             .withBody(applicationResponseForEmail)

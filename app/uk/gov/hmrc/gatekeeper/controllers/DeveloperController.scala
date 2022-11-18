@@ -67,11 +67,11 @@ class DeveloperController @Inject()(
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
         s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
-    developerService.fetchDeveloper(developerId).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
+    developerService.fetchDeveloper(developerId, true).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
+    developerService.fetchDeveloper(developerIdentifier, false).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
   }
 
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -101,7 +101,7 @@ class DeveloperController @Inject()(
   }
 
   def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier).map(developer => Ok(deleteDeveloperView(developer)))
+    developerService.fetchDeveloper(developerIdentifier, false).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
   def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
