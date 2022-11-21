@@ -21,6 +21,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 
 import javax.inject.Inject
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.FetchDeletedApplications._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -139,15 +140,14 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(userId: UserId, includingDeleted: Boolean)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId), includingDeleted)
+  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId), includingDeleted)
 
-  def fetchDeveloper(developerId: DeveloperIdentifier, includingDeleted: Boolean)(implicit hc: HeaderCarrier): Future[Developer] = {
+  def fetchDeveloper(developerId: DeveloperIdentifier, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
 
-    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: Boolean): Future[List[ApplicationResponse]] = {
-      if (includingDeleted) {
-        connector.fetchApplicationsByUserId(userId)
-      } else {
-        connector.fetchApplicationsExcludingDeletedByUserId(userId)
+    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationResponse]] = {
+      includingDeleted match {
+        case IncludeDeletedApplications => connector.fetchApplicationsByUserId(userId)
+        case ExcludeDeletedApplications => connector.fetchApplicationsExcludingDeletedByUserId(userId)
       }
     }
 
@@ -205,7 +205,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       } yield result
     }
 
-    fetchDeveloper(developerId, false).flatMap { developer =>
+    fetchDeveloper(developerId, ExcludeDeletedApplications).flatMap { developer =>
       val email = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 

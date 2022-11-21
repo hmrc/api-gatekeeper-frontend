@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.services
 
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.FetchDeletedApplications._
 import org.mockito.invocation.InvocationOnMock
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -96,7 +97,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(user: RegisteredUser, includeDeleted: Boolean, productionApps: List[ApplicationResponse] = List.empty,
+    def fetchDeveloperWillReturn(user: RegisteredUser, includeDeleted: FetchDeletedApplications, productionApps: List[ApplicationResponse] = List.empty,
                                  sandboxApps: List[ApplicationResponse] = List.empty) = {
       DeveloperConnectorMock.FetchByEmail.handles(user)
       DeveloperConnectorMock.FetchByUserId.handles(user)
@@ -104,12 +105,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       XmlServiceMock.GetXmlServicesForUser.returnsApis(user, xmlServiceNames)
       XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(user.userId, List(orgOne))
 
-      if (includeDeleted) {
-        ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
-        ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
-      } else {
-        ApplicationConnectorMock.Prod.FetchApplicationsExcludingDeletedByUserId.returns(productionApps: _*)
-        ApplicationConnectorMock.Sandbox.FetchApplicationsExcludingDeletedByUserId.returns(sandboxApps: _*)
+      includeDeleted match {
+        case IncludeDeletedApplications => {
+          ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
+          ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
+        }
+        case ExcludeDeletedApplications => {
+          ApplicationConnectorMock.Prod.FetchApplicationsExcludingDeletedByUserId.returns(productionApps: _*)
+          ApplicationConnectorMock.Sandbox.FetchApplicationsExcludingDeletedByUserId.returns(sandboxApps: _*)
+        }
       }
     }
 
@@ -287,9 +291,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "fetch the developer and the applications they are a team member on" in new Setup {
       val developer = aUser("Fred")
       val apps = List(anApp("application", Set(developer.email.asAdministratorCollaborator)))
-      fetchDeveloperWillReturn(developer, true, apps)
+      fetchDeveloperWillReturn(developer, IncludeDeletedApplications, apps)
 
-      val result = await(underTest.fetchDeveloper(developer.userId, true))
+      val result = await(underTest.fetchDeveloper(developer.userId, IncludeDeletedApplications))
 
       result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne))
       verify(mockDeveloperConnector).fetchById(eqTo(UuidIdentifier(developer.userId)))(*)
@@ -318,27 +322,27 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val user = aUser("Fred", emailPreferences = emailPreferences)
 
     "fetch the developer when requested by userId" in new Setup {
-      fetchDeveloperWillReturn(user, true)
+      fetchDeveloperWillReturn(user, IncludeDeletedApplications)
 
-      await(underTest.fetchDeveloper(user.userId, true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      await(underTest.fetchDeveloper(user.userId, IncludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "fetch the developer not inclucing deleted applications when requested by userId" in new Setup {
-      fetchDeveloperWillReturn(user, false)
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications)
 
-      await(underTest.fetchDeveloper(user.userId, false)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      await(underTest.fetchDeveloper(user.userId, ExcludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "fetch the developer when requested by email as developerId" in new Setup {
-      fetchDeveloperWillReturn(user, true)
+      fetchDeveloperWillReturn(user, IncludeDeletedApplications)
 
-      await(underTest.fetchDeveloper(EmailIdentifier(user.email), true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      await(underTest.fetchDeveloper(EmailIdentifier(user.email), IncludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
-      fetchDeveloperWillReturn(user, true)
+      fetchDeveloperWillReturn(user, IncludeDeletedApplications)
 
-      await(underTest.fetchDeveloper(UuidIdentifier(user.userId), true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      await(underTest.fetchDeveloper(UuidIdentifier(user.userId), IncludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "returns UpstreamErrorResponse when call to GetXmlServicesForUser fails" in new Setup {
@@ -348,7 +352,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       XmlServiceMock.GetXmlServicesForUser.returnsError(user)
 
       intercept[UpstreamErrorResponse](
-        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), IncludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail
@@ -363,7 +367,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       XmlServiceMock.GetXmlOrganisationsForUser.returnsError
 
       intercept[UpstreamErrorResponse](
-        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), IncludeDeletedApplications)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail
@@ -378,7 +382,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
 
-      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty)
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
@@ -394,7 +398,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val app2 = aProdApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aProdApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
 
-      fetchDeveloperWillReturn(user, false, List(app1, app2, app3))
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications, List(app1, app2, app3))
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
 
@@ -413,7 +417,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val app2 = aSandboxApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aSandboxApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
 
-      fetchDeveloperWillReturn(user, false, List.empty, List(app1, app2, app3))
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
@@ -433,7 +437,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         name = "sandboxApplication",
         collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
       ))
-      fetchDeveloperWillReturn(user, false, productionApps, sandboxApps)
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications, productionApps, sandboxApps)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
@@ -450,7 +454,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       ))
       val sandboxApps = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
 
-      fetchDeveloperWillReturn(user, false, productionApps, sandboxApps)
+      fetchDeveloperWillReturn(user, ExcludeDeletedApplications, productionApps, sandboxApps)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
