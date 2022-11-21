@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.FetchDeletedApplications._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -190,7 +189,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         DeveloperServiceMock.FetchDeveloper.handles(developer)
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(ExcludeDeletedApplications))(*)
+        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(*)
       }
     }
 

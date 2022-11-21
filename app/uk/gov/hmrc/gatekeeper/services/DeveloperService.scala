@@ -21,7 +21,6 @@ import uk.gov.hmrc.gatekeeper.connectors._
 
 import javax.inject.Inject
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.FetchDeletedApplications._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -146,8 +145,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
     def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationResponse]] = {
       includingDeleted match {
-        case IncludeDeletedApplications => connector.fetchApplicationsByUserId(userId)
-        case ExcludeDeletedApplications => connector.fetchApplicationsExcludingDeletedByUserId(userId)
+        case FetchDeletedApplications.Include => connector.fetchApplicationsByUserId(userId)
+        case FetchDeletedApplications.Exclude => connector.fetchApplicationsExcludingDeletedByUserId(userId)
       }
     }
 
@@ -205,7 +204,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       } yield result
     }
 
-    fetchDeveloper(developerId, ExcludeDeletedApplications).flatMap { developer =>
+    fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 

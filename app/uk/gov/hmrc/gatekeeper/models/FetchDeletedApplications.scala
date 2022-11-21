@@ -19,6 +19,6 @@ package uk.gov.hmrc.gatekeeper.models
 sealed trait FetchDeletedApplications
 
 object FetchDeletedApplications {
-  case object IncludeDeletedApplications extends FetchDeletedApplications
-  case object ExcludeDeletedApplications extends FetchDeletedApplications
+  case object Include extends FetchDeletedApplications
+  case object Exclude extends FetchDeletedApplications
 }

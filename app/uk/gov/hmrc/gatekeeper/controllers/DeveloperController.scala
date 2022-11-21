@@ -21,7 +21,6 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.FetchDeletedApplications._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
@@ -68,11 +67,11 @@ class DeveloperController @Inject()(
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
         s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
-    developerService.fetchDeveloper(developerId, IncludeDeletedApplications).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
+    developerService.fetchDeveloper(developerId, FetchDeletedApplications.Include).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
   }
 
   def removeMfaPage(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier, ExcludeDeletedApplications).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
+    developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
   }
 
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -102,7 +101,7 @@ class DeveloperController @Inject()(
   }
 
   def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier, ExcludeDeletedApplications).map(developer => Ok(deleteDeveloperView(developer)))
+    developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).map(developer => Ok(deleteDeveloperView(developer)))
   }
 
   def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
