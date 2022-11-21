@@ -323,6 +323,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       await(underTest.fetchDeveloper(user.userId, true)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
+    "fetch the developer not inclucing deleted applications when requested by userId" in new Setup {
+      fetchDeveloperWillReturn(user, false)
+
+      await(underTest.fetchDeveloper(user.userId, false)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+    }
+
     "fetch the developer when requested by email as developerId" in new Setup {
       fetchDeveloperWillReturn(user, true)
 
