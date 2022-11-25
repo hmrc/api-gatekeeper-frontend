@@ -23,21 +23,20 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApmConnectorMockProvider
-import uk.gov.hmrc.gatekeeper.builder.{ApplicationBuilder, ApplicationResponseBuilder}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 
 import java.time.LocalDateTime
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider with ApplicationBuilder with ApplicationResponseBuilder {
+  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider with ApplicationBuilder {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
     val apmService = new ApmService(mockApmConnector)
 
     val applicationId = ApplicationId.random
-    val application = buildApplicationResponse(applicationId)
-    val newApplication = buildApplication(applicationId)
+    val application = buildApplication(applicationId)
 
     val combinedRestApi1 = CombinedApi(
       "displayName1",
@@ -117,20 +116,22 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       val subscribeToApi = SubscribeToApi(GatekeeperActor("Gate Keeper"), ApiIdentifier.random, LocalDateTime.now()) 
       ApmConnectorMock.SubscribeToApi.succeeds()
         
-      val result = await(apmService.subscribeToApi(application, subscribeToApi))
+      val result = await(apmService.subscribeToApi(applicationId, subscribeToApi))
 
       result shouldBe ApplicationUpdateSuccessResult
+      ApmConnectorMock.SubscribeToApi.verifyParams(applicationId, subscribeToApi)
     }
   }
   
   "unsubscribeFromApi" should {
     "return success" in new Setup {
       val unsubscribeFromApi = UnsubscribeFromApi(GatekeeperActor("Gate Keeper"), ApiIdentifier.random, LocalDateTime.now())
-      ApmConnectorMock.UpdateApplication.succeeds(newApplication)
+      ApmConnectorMock.UpdateApplication.succeeds(application)
 
-      val result = await(apmService.unsubscribeFromApi(application, unsubscribeFromApi))
+      val result = await(apmService.unsubscribeFromApi(applicationId, unsubscribeFromApi))
 
       result shouldBe ApplicationUpdateSuccessResult
+      ApmConnectorMock.UpdateApplication.verifyParams(applicationId, unsubscribeFromApi)
     }
   }
 }

@@ -50,11 +50,11 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllBoxes()
   }
 
-  def subscribeToApi(application: Application, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    apmConnector.subscribeToApi(application.id, subscribeToApi)
+  def subscribeToApi(applicationId: ApplicationId, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    apmConnector.subscribeToApi(applicationId, subscribeToApi)
   }
 
-  def unsubscribeFromApi(application: Application, unsubscribeFromApi: UnsubscribeFromApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    apmConnector.updateApplication(application.id, unsubscribeFromApi).map { _: NewApplication => ApplicationUpdateSuccessResult }
+  def unsubscribeFromApi(applicationId: ApplicationId, unsubscribeFromApi: UnsubscribeFromApi)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    apmConnector.updateApplication(applicationId, unsubscribeFromApi).map { _: NewApplication => ApplicationUpdateSuccessResult }
   }
 }

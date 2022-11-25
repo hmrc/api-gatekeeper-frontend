@@ -149,6 +149,23 @@ class ApmConnectorSpec
 
       result shouldBe application
     }
+
+    "fail if the request failed on the backend" in new Setup {
+      val url = s"/applications/${applicationId.value}"
+
+      stubFor(
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(requestBody)
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(underTest.updateApplication(applicationId, unsubscribeFromApi))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
   }
 
   "subscribeToApi" should {
