@@ -139,16 +139,25 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(userId: UserId)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId))
+  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId), includingDeleted)
 
-  def fetchDeveloper(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Developer] =
+  def fetchDeveloper(developerId: DeveloperIdentifier, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
+
+    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationResponse]] = {
+      includingDeleted match {
+        case FetchDeletedApplications.Include => connector.fetchApplicationsByUserId(userId)
+        case FetchDeletedApplications.Exclude => connector.fetchApplicationsExcludingDeletedByUserId(userId)
+      }
+    }
+
     for {
       user <- developerConnector.fetchById(developerId)
       xmlServiceNames <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
       xmlOrganisations <- xmlService.findOrganisationsByUserId(user.userId)
-      sandboxApplications <- sandboxApplicationConnector.fetchApplicationsByUserId(user.userId)
-      productionApplications <- productionApplicationConnector.fetchApplicationsByUserId(user.userId)
+      sandboxApplications <- fetchApplicationsByUserId(sandboxApplicationConnector, user.userId, includingDeleted)
+      productionApplications <- fetchApplicationsByUserId(productionApplicationConnector, user.userId, includingDeleted)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations)
+  }  
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
@@ -195,7 +204,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       } yield result
     }
 
-    fetchDeveloper(developerId).flatMap { developer =>
+    fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 

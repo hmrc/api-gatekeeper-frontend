@@ -189,7 +189,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         DeveloperServiceMock.FetchDeveloper.handles(developer)
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId))(*)
+        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(*)
       }
     }
 
