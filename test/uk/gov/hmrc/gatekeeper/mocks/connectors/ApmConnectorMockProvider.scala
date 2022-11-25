@@ -71,6 +71,9 @@ trait ApmConnectorMockProvider {
       def succeeds(application: NewApplication) = when(
         mockApmConnector.updateApplication(*[ApplicationId], *[ApplicationUpdate])(*)
       ).thenReturn(successful(application))
+
+      def verifyParams(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate) =
+        verify(mockApmConnector).updateApplication(eqTo(applicationId), eqTo(applicationUpdate))(*)
     }
 
     object SubscribeToApi {
@@ -78,6 +81,9 @@ trait ApmConnectorMockProvider {
       def succeeds() = when(
         mockApmConnector.subscribeToApi(*[ApplicationId], *[SubscribeToApi])(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))
+
+      def verifyParams(applicationId: ApplicationId, subscribeToApi: SubscribeToApi) =
+        verify(mockApmConnector).subscribeToApi(eqTo(applicationId), eqTo(subscribeToApi))(*)
     }
   }
 }

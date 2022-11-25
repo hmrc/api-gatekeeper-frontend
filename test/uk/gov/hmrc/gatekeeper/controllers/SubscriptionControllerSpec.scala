@@ -58,27 +58,6 @@ class SubscriptionControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
-        List.empty
-      )
-
-      val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-        val page     = 1
-        val pageSize = 10
-        PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
-      }
-
       val underTest = new SubscriptionController(
         manageSubscriptionsView,
         mcc,
@@ -90,11 +69,6 @@ class SubscriptionControllerSpec
         StrideAuthorisationServiceMock.aMock,
         fixedClock
       )
-
-      def givenThePaginatedApplicationsWillBeReturned = {
-        ApplicationServiceMock.SearchApplications.returns()
-        FetchAllApiDefinitions.inAny.returns()
-      }
     }
 
     "subscribeToApi" should {
@@ -112,7 +86,7 @@ class SubscriptionControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApmService).subscribeToApi(eqTo(basicApplication), eqTo(subscribeToApi))(*)
+        verify(mockApmService).subscribeToApi(eqTo(applicationId), eqTo(subscribeToApi))(*)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -124,7 +98,7 @@ class SubscriptionControllerSpec
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApmService, never).subscribeToApi(eqTo(basicApplication), *)(*)
+        verify(mockApmService, never).subscribeToApi(eqTo(applicationId), *)(*)
       }
     }
 
@@ -143,7 +117,7 @@ class SubscriptionControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApmService).unsubscribeFromApi(eqTo(basicApplication), eqTo(unsubscribeFromApi))(*)
+        verify(mockApmService).unsubscribeFromApi(eqTo(applicationId), eqTo(unsubscribeFromApi))(*)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -155,7 +129,7 @@ class SubscriptionControllerSpec
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApmService, never).unsubscribeFromApi(eqTo(basicApplication), *)(*)
+        verify(mockApmService, never).unsubscribeFromApi(eqTo(applicationId), *)(*)
       }
     }
 
