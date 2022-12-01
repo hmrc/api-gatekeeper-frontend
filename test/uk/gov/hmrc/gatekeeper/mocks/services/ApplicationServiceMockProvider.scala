@@ -22,6 +22,8 @@ import uk.gov.hmrc.gatekeeper.services.ApplicationService
 import scala.concurrent.Future.{failed,successful}
 import uk.gov.hmrc.gatekeeper.models._
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ApplicationServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

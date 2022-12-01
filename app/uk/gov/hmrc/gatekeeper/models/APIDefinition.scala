@@ -21,32 +21,7 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import play.api.libs.json.Json
 
-import scala.util.Random
-import java.net.URLEncoder.encode
-
-case class ApiContext(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
-}
-
-object ApiContext {
-  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
-    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
-  }
-
-  def random = ApiContext(Random.alphanumeric.take(10).mkString)
-}
-
-case class ApiVersion(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
-}
-
-object ApiVersion {
-  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
-    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
-  }
-
-  def random = ApiVersion(Random.nextDouble().toString)
-}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 sealed trait ApiVersionSource {
   def asText: String
@@ -124,11 +99,6 @@ object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType
   val values = findValues
   case object PRIVATE extends APIAccessType
   case object PUBLIC extends APIAccessType
-}
-
-case class ApiIdentifier(context: ApiContext, version: ApiVersion)
-object ApiIdentifier {
-  def random() = ApiIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 class FetchApiDefinitionsFailed extends Throwable

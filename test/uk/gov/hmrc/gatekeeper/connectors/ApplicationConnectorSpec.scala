@@ -34,6 +34,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
 
 import java.time.{LocalDateTime, Period}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec

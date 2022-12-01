@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import uk.gov.hmrc.gatekeeper.builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest

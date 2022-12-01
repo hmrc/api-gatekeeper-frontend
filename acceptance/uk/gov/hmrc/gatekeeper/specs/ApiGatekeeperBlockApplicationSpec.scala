@@ -24,6 +24,7 @@ import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
 import uk.gov.hmrc.gatekeeper.testdata.{StateHistoryTestData, ApplicationWithHistoryTestData}
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
 

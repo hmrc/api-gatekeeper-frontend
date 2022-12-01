@@ -29,6 +29,7 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.gatekeeper.models._
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 

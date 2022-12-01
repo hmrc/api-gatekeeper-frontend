@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, WireMockSugar}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionConnectorSpec
   extends AsyncHmrcSpec

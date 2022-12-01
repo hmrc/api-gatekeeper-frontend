@@ -25,14 +25,15 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, UserId, _}
+import uk.gov.hmrc.gatekeeper.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import java.time.LocalDateTime
 import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
   import play.api.libs.json.Json
-  import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 
   case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
   case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])

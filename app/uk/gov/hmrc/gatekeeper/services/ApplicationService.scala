@@ -26,11 +26,12 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,

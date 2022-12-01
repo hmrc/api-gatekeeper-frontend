@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 class ApiPublisherConnectorSpec 
   extends AsyncHmrcSpec

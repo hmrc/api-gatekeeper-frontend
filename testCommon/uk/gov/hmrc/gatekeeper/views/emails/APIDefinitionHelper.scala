@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.emails
 
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait APIDefinitionHelper {
   def simpleAPIDefinition(serviceName: String,

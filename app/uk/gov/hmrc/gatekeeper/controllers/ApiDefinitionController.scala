@@ -32,6 +32,7 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class ApiDefinitionView(apiName: String, serviceName: String, apiContext: ApiContext, apiVersion: ApiVersion, versionSource: ApiVersionSource, status: String, access: String, isTrial: Boolean, environment: String)
 

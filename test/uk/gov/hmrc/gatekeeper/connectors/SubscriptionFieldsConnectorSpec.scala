@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import JsonFormatters._
 import play.api.libs.json.Json
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class SubscriptionFieldsConnectorSpec 
     extends AsyncHmrcSpec 

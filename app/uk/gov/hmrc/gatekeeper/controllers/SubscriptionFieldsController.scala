@@ -32,6 +32,7 @@ import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionFieldsController @Inject()(

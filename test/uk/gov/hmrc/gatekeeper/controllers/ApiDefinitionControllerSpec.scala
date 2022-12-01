@@ -29,6 +29,7 @@ import play.api.http.Status.FORBIDDEN
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 

@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.CombinedApi
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
@@ -39,6 +39,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApmConnectorSpec 
     extends AsyncHmrcSpec

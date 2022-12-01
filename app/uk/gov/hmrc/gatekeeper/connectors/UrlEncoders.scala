@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.events.domain.models
+package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import java.net.URLEncoder.encode
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.gatekeeper.models.ClientId
 
-class EventTypeSpec extends AsyncHmrcSpec {
-
-  "describe and fromDescription" should {
-
-    "pair perfectly" in {
-      val inputs = EventType.values
-
-      for(input <- inputs) {
-        val description = EventType.describe(input)
-        val output = EventType.fromDescription(description)
-        output.value shouldBe input
-      }
-    }
+trait UrlEncoders {
+  implicit class UrlEncodeContext(context: ApiContext) {
+    def urlEncode: String = encode(context.value, "UTF-8")
+  }
+  implicit class UrlEncodeVersion(version: ApiVersion) {
+    def urlEncode: String = encode(version.value, "UTF-8")
+  }
+  implicit class UrlEncodeClientId(clientId: ClientId) {
+    def urlEncode: String = encode(clientId.value, "UTF-8")
   }
 }

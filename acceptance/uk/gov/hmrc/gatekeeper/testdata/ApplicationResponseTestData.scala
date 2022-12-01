@@ -1,7 +1,8 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ClientId, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.{ClientId, RateLimitTier}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.models.ApplicationResponse

@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
 import uk.gov.hmrc.gatekeeper.models.UserId
 

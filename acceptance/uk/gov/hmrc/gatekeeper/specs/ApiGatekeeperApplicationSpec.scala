@@ -23,7 +23,6 @@ import org.scalatest.Tag
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import uk.gov.hmrc.gatekeeper.specs.MockDataSugar.xmlApis
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData

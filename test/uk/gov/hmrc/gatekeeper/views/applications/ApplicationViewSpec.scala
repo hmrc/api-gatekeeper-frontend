@@ -32,6 +32,8 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import org.joda.time.DateTime
 import java.time.Period
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
   trait Setup {

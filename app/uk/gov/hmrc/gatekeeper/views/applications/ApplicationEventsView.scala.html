@@ -37,48 +37,16 @@
 
       <div class="govuk-grid-row">
         
-        @defining(form("year").value) { yearValue =>
-          <div class="govuk-grid-column-one-quarter">                         
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-!-font-weight-bold" for="year">
-                Year
-              </label>
-              <select class="govuk-select" id="year" name="year">
-                <option value="" @if(yearValue == None) {selected}>All</option>      
-                @for(year <- queryModel.searchFilterValues.years) {
-                  <option value="@year" @if(yearValue == Some(year)) {selected}>@year</option>      
-                }
-              </select>
-            </div>
-          </div>     
-        }     
-
-        @defining(form("eventType").value) { eventTypeValue =>
+        @defining(form("eventTag").value) { eventTagValue =>
           <div class="govuk-grid-column-one-third">          
             <div class="govuk-form-group">
-              <label class="govuk-label govuk-!-font-weight-bold" for="eventType">
+              <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
                 Event type
               </label>
-              <select class="govuk-select" id="eventType" name="eventType">
-                <option value="" @if(eventTypeValue == None) {selected}>All</option>      
-                @for(eventType <- queryModel.searchFilterValues.eventTypes) {
-                  <option value="@eventType" @if(eventTypeValue == Some(eventType)) {selected}>@eventType</option>      
-                }
-              </select>
-            </div>
-          </div>
-        }
-
-        @defining(form("actor").value) { actorValue =>
-          <div class="govuk-grid-column-one-third">          
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-!-font-weight-bold" for="actor">
-                Done by user
-              </label>
-              <select class="govuk-select" id="actor" name="actor">
-                <option value="" @if(actorValue == None) {selected}>All</option>      
-                @for(actor <- queryModel.searchFilterValues.actors) {
-                  <option value="@actor" @if(actorValue == Some(actor)) {selected}>@actor</option>      
+              <select class="govuk-select" id="eventTag" name="eventTag">
+                <option value="" @if(eventTagValue == None) {selected}>All</option>      
+                @for(eventTag <- queryModel.searchFilterValues.eventTags) {
+                  <option value="@eventTag" @if(eventTagValue == Some(eventTag)) {selected}>@eventTag</option>      
                 }
               </select>
             </div>
@@ -109,7 +77,7 @@
         @for(event <- queryModel.events) {
           <tr role="row" class="govuk-table__row">
             <td role="cell" class="govuk-table__cell">@{event.eventDateTime}</td>
-            <td role="cell" class="govuk-table__cell">@{event.eventType}</td>
+            <td role="cell" class="govuk-table__cell">@{event.eventTag}</td>
             <td role="cell" class="govuk-table__cell">@{event.eventDetails}</td>
             <td role="cell" class="govuk-table__cell">@{event.actor}</td>
           </tr>

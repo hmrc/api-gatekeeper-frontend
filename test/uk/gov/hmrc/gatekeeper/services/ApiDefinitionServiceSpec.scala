@@ -26,6 +26,7 @@ import scala.concurrent.Future
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApiDefinitionConnectorMockProvider
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiDefinitionConnectorMockProvider {

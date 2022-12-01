@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import uk.gov.hmrc.gatekeeper.specs.MockDataSugar.xmlApis
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 

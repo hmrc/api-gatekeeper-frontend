@@ -18,12 +18,10 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApiVersionDefinition, Subscription, VersionSubscription}
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiVersion, ClientId, ApplicationId}
-import uk.gov.hmrc.gatekeeper.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.FieldValue
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models._
 import scala.util.Random
-import uk.gov.hmrc.gatekeeper.models.ApiIdentifier
-import uk.gov.hmrc.gatekeeper.models.ApiVersionSource
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait SubscriptionsBuilder {
 

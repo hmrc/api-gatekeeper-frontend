@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import scala.concurrent.ExecutionContext
 import com.google.inject.{Singleton, Inject}
@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.services.ApmService
@@ -37,44 +36,71 @@ import uk.gov.hmrc.gatekeeper.services.ApplicationService
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 import java.time.format.DateTimeFormatter
-import uk.gov.hmrc.apiplatform.modules.events.domain.models._
 import play.api.data.Form
 import scala.concurrent.Future
-import play.api.mvc.{Range => _, _}
- 
+import uk.gov.hmrc.apiplatform.modules.events.domain.models._
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+
 object ApplicationEventsController {
-  case class EventModel(eventDateTime: String, eventType: String, eventDetails: String, actor: String)
+  case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
   
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
-    def apply(event: ApplicationEvent): EventModel = {
-      EventModel(dateTimeFormatter.format(event.eventDateTime), EventType.describe(ApplicationEvent.asEventTypeValue(event)), "Something", ApplicationEvent.extractActorText(event))
+    def apply(event: AbstractApplicationEvent): EventModel = {
+      EventModel(dateTimeFormatter.format(event.eventDateTime), EventTags.describe(EventTags.tag(event)), "Something", who(event))
     }
   }
 
-  case class SearchFilterValues(years: Seq[String], eventTypes: Seq[String], actors: Seq[String])
+  def who(event: AbstractApplicationEvent): String = event match {
+    case ae: ApplicationEvent => who(ae.actor)
+    case ose: OldStyleApplicationEvent => who(ose)
+  }
+
+  def who(actor: Actor): String = actor match {
+    case Actors.Collaborator(email) => email.value
+    case Actors.GatekeeperUser(user) => s"(GK) $user"
+    case Actors.ScheduledJob(jobId) => s"Job($jobId)"
+    case Actors.Unknown => "Unknown"
+  }
+
+  def who(actor: OldStyleActor): String = actor match {
+    case OldStyleActors.Collaborator(id) => id
+    case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
+    case OldStyleActors.ScheduledJob(id) => s"Job($id)"
+    case OldStyleActors.Unknown => "Unknown"
+  }
+
+  def fromDescription(tag: String): Option[EventTag] = tag match {
+    case "Subscription"     => Some(EventTags.SUBSCRIPTION)
+    case "Collaborator"     => Some(EventTags.COLLABORATOR)
+    case "Client Secret"    => Some(EventTags.CLIENT_SECRET)
+    case "PPNS Callback"    => Some(EventTags.PPNS_CALLBACK)
+    case "Redirect URI"     => Some(EventTags.REDIRECT_URIS)
+    case "Terms of Use"     => Some(EventTags.TERMS_OF_USE)
+    case "Application Name" => Some(EventTags.APP_NAME)
+    case "Policy Locations" => Some(EventTags.POLICY_LOCATION)
+    case _                  => None
+  }
+  case class SearchFilterValues(eventTags: List[String])
 
   object SearchFilterValues {
     def apply(qvs: QueryableValues): SearchFilterValues = {
-      val years = Range(qvs.firstYear, qvs.lastYear+1).map(_.toString)
-      val eventTypes = qvs.eventTypes.map(EventType.describe)
-      val actors = qvs.actors
-      SearchFilterValues(years, eventTypes, actors)
+      val eventTags = qvs.eventTags.map(EventTags.describe)
+      SearchFilterValues(eventTags)
     }
   }
 
   case class QueryModel(applicationId: ApplicationId, applicationName: String, searchFilterValues: SearchFilterValues, events: Seq[EventModel])
 
-  case class QueryForm(year: Option[String], eventType: Option[String], actor: Option[String])
+  case class QueryForm(eventTag: Option[String])
 
   object QueryForm {
     import play.api.data.Forms._
 
     val form: Form[QueryForm] = Form(
       mapping(
-        "year" -> optional(text),
-        "eventType" -> optional(text),
-        "actor" -> optional(text)
+        "eventTag" -> optional(text)
       )(QueryForm.apply)(QueryForm.unapply)
     )
   }
@@ -106,7 +132,7 @@ class ApplicationEventsController @Inject()(
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
           queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
-          events <- eventsConnector.query(appId, None,None,None)
+          events <- eventsConnector.query(appId, None)
           eventModels = events.map(EventModel(_))
         } yield 
           searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
@@ -116,7 +142,7 @@ class ApplicationEventsController @Inject()(
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
           queryForm = QueryForm.form.fill(form)
-          events <- eventsConnector.query(appId, form.year.map(_.toInt),form.eventType.flatMap(EventType.fromDescription),form.actor)
+          events <- eventsConnector.query(appId, form.eventTag.flatMap(fromDescription))
           eventModels = events.map(EventModel(_))
         } yield 
           searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))

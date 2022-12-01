@@ -29,6 +29,8 @@ import uk.gov.hmrc.http.BadRequestException
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class XmlServicesConnectorSpec
   extends AsyncHmrcSpec

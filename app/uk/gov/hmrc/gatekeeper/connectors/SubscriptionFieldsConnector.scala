@@ -18,9 +18,6 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
-import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status._
 import play.api.libs.json.{Format, Json, JsSuccess}
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -31,6 +28,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpErrorFunctions._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
+import uk.gov.hmrc.gatekeeper.models._
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient
@@ -138,7 +139,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     SubscriptionFieldsConnector.urlSubscriptionFieldDefinition(serviceBaseUrl)(apiContext, apiVersion)
 }
 
-object SubscriptionFieldsConnector {
+object SubscriptionFieldsConnector extends UrlEncoders {
 
   def urlSubscriptionFieldValues(baseUrl: String)(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
     s"$baseUrl/field/application/${clientId.urlEncode}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"

@@ -24,6 +24,7 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApmConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 

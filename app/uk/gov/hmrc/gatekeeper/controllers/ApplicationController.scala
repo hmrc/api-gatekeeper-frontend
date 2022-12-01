@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -49,6 +50,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class ApplicationController @Inject()(

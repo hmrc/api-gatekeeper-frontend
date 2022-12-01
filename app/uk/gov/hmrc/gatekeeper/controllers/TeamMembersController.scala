@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.services.{ApplicationService, ApmService, DeveloperService}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait WithRestrictedApp {
   self: TeamMembersController =>

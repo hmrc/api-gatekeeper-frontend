@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class PublishTemplateSpec extends CommonViewSpec {
 

@@ -24,6 +24,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val grantLength: Period = Period.ofDays(547)

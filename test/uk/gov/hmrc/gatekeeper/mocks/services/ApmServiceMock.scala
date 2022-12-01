@@ -18,10 +18,10 @@ package mocks.services
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.ApiContext
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
