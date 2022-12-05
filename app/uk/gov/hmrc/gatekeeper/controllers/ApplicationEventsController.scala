@@ -38,7 +38,6 @@ import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnec
 import java.time.format.DateTimeFormatter
 import play.api.data.Form
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.events.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
@@ -47,24 +46,26 @@ object ApplicationEventsController {
   
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
+
     def apply(event: AbstractApplicationEvent): EventModel = {
-      EventModel(dateTimeFormatter.format(event.eventDateTime), EventTags.describe(EventTags.tag(event)), "Something", who(event))
+      val eventTag = EventTags.tag(event)
+      EventModel(dateTimeFormatter.format(event.eventDateTime), EventTags.describe(eventTag), "Something", who(event))
     }
   }
 
   def who(event: AbstractApplicationEvent): String = event match {
-    case ae: ApplicationEvent => who(ae.actor)
-    case ose: OldStyleApplicationEvent => who(ose)
+    case ae: ApplicationEvent => applicationEventWho(ae.actor)
+    case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)
   }
 
-  def who(actor: Actor): String = actor match {
+  def applicationEventWho(actor: Actor): String = actor match {
     case Actors.Collaborator(email) => email.value
     case Actors.GatekeeperUser(user) => s"(GK) $user"
     case Actors.ScheduledJob(jobId) => s"Job($jobId)"
     case Actors.Unknown => "Unknown"
   }
 
-  def who(actor: OldStyleActor): String = actor match {
+  def oldStyleApplicationEventWho(actor: OldStyleActor): String = actor match {
     case OldStyleActors.Collaborator(id) => id
     case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
     case OldStyleActors.ScheduledJob(id) => s"Job($id)"
@@ -129,13 +130,15 @@ class ApplicationEventsController @Inject()(
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
       def handleFormError(form: Form[QueryForm]): Future[Result]  = {
+        val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
-          queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
           events <- eventsConnector.query(appId, None)
           eventModels = events.map(EventModel(_))
-        } yield 
-          searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
+        } yield  {
+          val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
+          Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))
+        }
       }
 
       def handleValidForm(form: QueryForm): Future[Result] = {
@@ -144,10 +147,12 @@ class ApplicationEventsController @Inject()(
           queryForm = QueryForm.form.fill(form)
           events <- eventsConnector.query(appId, form.eventTag.flatMap(fromDescription))
           eventModels = events.map(EventModel(_))
-        } yield 
-          searchFilterValues.fold(NotFound(""))(sfvs => BadRequest(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(sfvs), eventModels), queryForm)))
+        } yield {
+          val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
+          Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))
+        }
       }
-      
+
       QueryForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
     }
   }

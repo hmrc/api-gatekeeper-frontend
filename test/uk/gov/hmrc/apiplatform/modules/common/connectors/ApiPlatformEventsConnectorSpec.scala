@@ -26,8 +26,8 @@ import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnec
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import play.api.test.Helpers._
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.QueryableValues
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
 
 class ApiPlatformEventsConnectorSpec 
     extends AsyncHmrcSpec

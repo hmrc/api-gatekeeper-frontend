@@ -25,7 +25,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.QueryableValues
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
