@@ -61,7 +61,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", applicationId)
+      verifyText("data-app-id", applicationId.value.toString)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)

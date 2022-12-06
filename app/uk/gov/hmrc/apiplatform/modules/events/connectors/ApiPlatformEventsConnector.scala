@@ -50,7 +50,7 @@ class ApiPlatformEventsConnector @Inject() (http: HttpClient, config: ApiPlatfor
   private val applicationEventsUri   = s"$serviceBaseUrl/application-event"
 
   def fetchEventQueryValues(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[QueryableValues]] = {
-    http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value}/values")
+    http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value.toString()}/values")
   }
 
   def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[Seq[AbstractApplicationEvent]] = {
@@ -61,7 +61,7 @@ class ApiPlatformEventsConnector @Inject() (http: HttpClient, config: ApiPlatfor
         case Some((a,b)) => a->b
       })
 
-    http.GET[QueryResponse](s"$applicationEventsUri/${appId.value}", queryParams)
+    http.GET[QueryResponse](s"$applicationEventsUri/${appId.value.toString()}", queryParams)
     .map(_.events)
   }
 }

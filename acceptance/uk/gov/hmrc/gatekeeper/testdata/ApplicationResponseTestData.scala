@@ -1,7 +1,6 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.{ClientId, RateLimitTier}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -10,7 +9,7 @@ import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 
   val defaultApplicationResponse = DefaultApplicationResponse
-    .withId(ApplicationId(applicationId))
+    .withId(applicationId)
     .withName(applicationName)
     .withDescription("application for test")
     .withClientId(ClientId("qDxLu6_zZVGurMX7NA7g2Wd5T5Ia"))
@@ -25,12 +24,12 @@ trait ApplicationResponseTestData extends ApplicationResponseBuilder with Collab
     .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
 
   val blockedApplicationResponse = defaultApplicationResponse
-    .withId(ApplicationId(blockedApplicationId))
+    .withId(blockedApplicationId)
     .withName(blockedApplicationName)
     .withBlocked(true)
 
   val pendingApprovalApplicationResponse = defaultApplicationResponse
-    .withId(ApplicationId(pendingApprovalApplicationId))
+    .withId(pendingApprovalApplicationId)
     .withName(pendingApprovalApplicationName)
     .withState(pendingApprovalState)
 

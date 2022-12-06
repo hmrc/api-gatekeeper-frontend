@@ -82,7 +82,7 @@ class ApiGatekeeperApplicationReviewSpec
 
       stubFor(
         post(
-          urlMatching(s"/application/$pendingApprovalApplicationId/approve-uplift")
+          urlMatching(s"/application/${pendingApprovalApplicationId.value.toString()}/approve-uplift")
         )
         .withRequestBody(equalToJson(approveRequest))
         .willReturn(aResponse().withStatus(OK))
@@ -157,7 +157,7 @@ class ApiGatekeeperApplicationReviewSpec
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       clickOnElement("reject-app")
 
-      stubFor(post(urlMatching(s"/application/$pendingApprovalApplicationId/reject-uplift"))
+      stubFor(post(urlMatching(s"/application/${pendingApprovalApplicationId.value.toString()}/reject-uplift"))
         .withRequestBody(equalToJson(rejectRequest))
         .willReturn(aResponse().withStatus(200)))
       clickOnSubmit()
@@ -168,6 +168,6 @@ class ApiGatekeeperApplicationReviewSpec
   }
 
   def stubApplicationToReview() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$pendingApprovalApplicationId")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${pendingApprovalApplicationId.value.toString()}")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
   }
 }

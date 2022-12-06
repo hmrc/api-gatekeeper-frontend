@@ -182,7 +182,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
-        ApplicationStateHistoryChange(appStateHistory.applicationId.value, appStateHistory.appName, appStateHistory.journeyVersion.toString, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "", "")
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value.toString(), appStateHistory.appName, appStateHistory.journeyVersion.toString, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "", "")
       )
     }
 
@@ -193,9 +193,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
-        ApplicationStateHistoryChange(appStateHistory.applicationId.value, appStateHistory.appName, appStateHistory.journeyVersion.toString, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString),
-        ApplicationStateHistoryChange(appStateHistory.applicationId.value, appStateHistory.appName, appStateHistory.journeyVersion.toString, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString),
-        ApplicationStateHistoryChange(appStateHistory.applicationId.value, appStateHistory.appName, appStateHistory.journeyVersion.toString, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString, "", "")
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value.toString(), appStateHistory.appName, appStateHistory.journeyVersion.toString, "TESTING", appStateHistory.stateHistory(0).timestamp.toString, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString),
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value.toString(), appStateHistory.appName, appStateHistory.journeyVersion.toString, "PENDING_GATEKEEPER_APPROVAL", appStateHistory.stateHistory(1).timestamp.toString, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString),
+        ApplicationStateHistoryChange(appStateHistory.applicationId.value.toString(), appStateHistory.appName, appStateHistory.journeyVersion.toString, "PRODUCTION", appStateHistory.stateHistory(2).timestamp.toString, "", "")
       )
     }
     "handle multiple apps in response correctly" in new Setup {
@@ -206,9 +206,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
-        ApplicationStateHistoryChange(app1StateHistory.applicationId.value, app1StateHistory.appName, app1StateHistory.journeyVersion.toString, "TESTING", app1StateHistory.stateHistory(0).timestamp.toString, "", ""),
-        ApplicationStateHistoryChange(app2StateHistory.applicationId.value, app2StateHistory.appName, app2StateHistory.journeyVersion.toString, "TESTING", app2StateHistory.stateHistory(0).timestamp.toString, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString),
-        ApplicationStateHistoryChange(app2StateHistory.applicationId.value, app2StateHistory.appName, app2StateHistory.journeyVersion.toString, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString, "", ""),
+        ApplicationStateHistoryChange(app1StateHistory.applicationId.value.toString(), app1StateHistory.appName, app1StateHistory.journeyVersion.toString, "TESTING", app1StateHistory.stateHistory(0).timestamp.toString, "", ""),
+        ApplicationStateHistoryChange(app2StateHistory.applicationId.value.toString(), app2StateHistory.appName, app2StateHistory.journeyVersion.toString, "TESTING", app2StateHistory.stateHistory(0).timestamp.toString, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString),
+        ApplicationStateHistoryChange(app2StateHistory.applicationId.value.toString(), app2StateHistory.appName, app2StateHistory.journeyVersion.toString, "PRODUCTION", app2StateHistory.stateHistory(1).timestamp.toString, "", ""),
       )
     }
   }

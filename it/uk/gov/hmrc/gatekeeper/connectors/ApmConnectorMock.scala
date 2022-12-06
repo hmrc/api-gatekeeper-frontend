@@ -8,14 +8,14 @@ trait ApmConnectorMock {
     self: WiremockSugarIt =>
 
   def mockApplicationWithSubscriptionData(applicationId: ApplicationId) {
-    stubFor(get(urlEqualTo(s"/applications/${applicationId.value}"))
+    stubFor(get(urlEqualTo(s"/applications/${applicationId.value.toString()}"))
         .willReturn(
             aResponse()
                 .withStatus(OK)
                 .withBody(
                     s"""{
                         |   "application": {
-                        |       "id": "${applicationId.value}",
+                        |       "id": "${applicationId.value.toString()}",
                         |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
                         |       "blocked": false,
                         |       "gatewayId": "12345",

@@ -99,7 +99,7 @@ class ApplicationController @Inject()(
     val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) => 
       if(appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
-        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
       else
         routes.ApplicationController.applicationPage(appId).url
 
@@ -121,7 +121,7 @@ class ApplicationController @Inject()(
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse) : String = {    
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
       ColumnDefinition("Name",                  (app => app.name)),
-      ColumnDefinition("App ID",                (app => app.id.value)),
+      ColumnDefinition("App ID",                (app => app.id.value.toString())),
       ColumnDefinition("Client ID",             (app => app.clientId.value)),
       ColumnDefinition("Gateway ID",            (app => app.gatewayId)),
       ColumnDefinition("Environment",           (app => app.deployedTo)),
@@ -149,7 +149,7 @@ class ApplicationController @Inject()(
       val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
+      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
 
       def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
         subscriptions.exists(id => id.context == t._1)

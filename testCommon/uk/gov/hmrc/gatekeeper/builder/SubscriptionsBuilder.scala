@@ -41,7 +41,8 @@ trait SubscriptionsBuilder {
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: List[SubscriptionFieldValue] = List.empty) = {
-    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), ApiContext(s"context-${applicationId.value}"), ApiVersion(s"apiVersion-${applicationId.value}"), fields = fields)
+    val text = applicationId.value.toString()
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$text"), ApiContext(s"context-$text"), ApiVersion(s"apiVersion-$text"), fields = fields)
   }
 
   def buildSubscriptionFieldDefinition(

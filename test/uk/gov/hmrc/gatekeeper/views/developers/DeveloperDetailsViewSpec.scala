@@ -142,8 +142,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
-      val testApplication1: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
-      val testApplication2: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
+      val testApplication1: TestApplication = TestApplication(ApplicationId.random, "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
+      val testApplication2: TestApplication = TestApplication(ApplicationId.random, "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 

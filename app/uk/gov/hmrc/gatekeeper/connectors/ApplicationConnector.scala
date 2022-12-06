@@ -55,8 +55,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def http: HttpClient
 
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value.toString()}"
   
+  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId.value.toString()}"
+
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
   def updateRateLimitTier(applicationId: ApplicationId, tier: RateLimitTier)
@@ -108,11 +110,11 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}")
+    http.GET[ApplicationWithHistory](baseTpaGatekeeperUrl(applicationId))
   }
 
   def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
+    http.GET[List[StateHistory]](s"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")
   }
 
   def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
@@ -203,7 +205,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def deleteApplication(applicationId: ApplicationId, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/delete", deleteApplicationRequest)
+    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseTpaGatekeeperUrl(applicationId)}/delete", deleteApplicationRequest)
     .map( _ match {
       case Right(result) => ApplicationDeleteSuccessResult
       case Left(_) => ApplicationDeleteFailureResult
@@ -258,7 +260,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value}")
+    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value.toString()}")
     .map( _ match {
       case Some(_) => true
       case None    => false

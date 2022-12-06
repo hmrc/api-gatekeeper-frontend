@@ -49,7 +49,7 @@ class ApiPlatformEventsConnectorSpec
   }
 
   "calling fetchEventQueryValues" should {
-    val url = s"/application-event/${applicationId.value}/values"
+    val url = s"/application-event/${applicationId.value.toString()}/values"
 
     "return None when call returns NOT_FOUND" in new Setup {
       stubFor(
@@ -81,7 +81,7 @@ class ApiPlatformEventsConnectorSpec
   }
 
   "calling query" should {
-    val url = s"/application-event/${applicationId.value}"
+    val url = s"/application-event/${applicationId.value.toString()}"
 
     "send eventTag parameter when present" in new Setup {
       stubFor(

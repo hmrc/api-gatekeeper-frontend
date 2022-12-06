@@ -66,14 +66,14 @@ class ApmConnectorSpec
     val combinedList = List(combinedRestApi1, combinedXmlApi2)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", DateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")), Some(boxSubscriber), Environment.PRODUCTION)
+    val box = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
   }
 
   "fetchApplicationById" should {
     "return ApplicationWithSubscriptionData" in new Setup {
       implicit val writesApplicationWithSubscriptionData = Json.writes[ApplicationWithSubscriptionData]
 
-      val url = s"/applications/${applicationId.value}"
+      val url = s"/applications/${applicationId.value.toString()}"
       val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)
       val payload = Json.toJson(applicationWithSubscriptionData)
 
@@ -130,7 +130,7 @@ class ApmConnectorSpec
     val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
       
     "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value}/subscriptions"
+      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -147,7 +147,7 @@ class ApmConnectorSpec
     }
 
     "fail if the request failed on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value}/subscriptions"
+      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -168,7 +168,7 @@ class ApmConnectorSpec
     val addTeamMemberRequest = AddTeamMemberRequest("admin@example.com", CollaboratorRole.DEVELOPER, None)
 
     "post the team member to the service" in new Setup {
-      val url = s"/applications/${applicationId.value}/collaborators"
+      val url = s"/applications/${applicationId.value.toString()}/collaborators"
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -182,7 +182,7 @@ class ApmConnectorSpec
     }
 
     "throw TeamMemberAlreadyExists when the service returns 409 Conflict" in new Setup {
-      val url = s"/applications/${applicationId.value}/collaborators"
+      val url = s"/applications/${applicationId.value.toString()}/collaborators"
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -198,7 +198,7 @@ class ApmConnectorSpec
     }
 
     "throw ApplicationNotFound when the service returns 404 Not Found" in new Setup {
-      val url = s"/applications/${applicationId.value}/collaborators"
+      val url = s"/applications/${applicationId.value.toString()}/collaborators"
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -214,7 +214,7 @@ class ApmConnectorSpec
     }
 
     "throw the error when the service returns any other error" in new Setup {
-      val url = s"/applications/${applicationId.value}/collaborators"
+      val url = s"/applications/${applicationId.value.toString()}/collaborators"
 
       stubFor(
         post(urlPathEqualTo(url))

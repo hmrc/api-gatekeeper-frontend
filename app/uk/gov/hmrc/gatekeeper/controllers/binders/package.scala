@@ -33,7 +33,7 @@ package object binders extends ApplicationLogger {
     Try(UUID.fromString(text))
       .toOption
       .toRight(s"Cannot accept $text as ApplicationId")
-      .map(uuid => ApplicationId(uuid.toString()))
+      .map(uuid => ApplicationId(uuid))
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {

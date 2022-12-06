@@ -202,7 +202,7 @@ class SubscriptionConfigurationControllerSpec
       val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions-configuration")
     
       val expectedFields = Map(fields.head._1 -> newValue)
 

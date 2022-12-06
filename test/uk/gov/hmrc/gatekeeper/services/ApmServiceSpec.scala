@@ -33,6 +33,8 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
     val apmService = new ApmService(mockApmConnector)
 
+    val anAppId = ApplicationId.random
+
     val combinedRestApi1 = CombinedApi(
       "displayName1",
       "serviceName1",
@@ -59,7 +61,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchApplicationById.returns(None)
 
-        val result = await(apmService.fetchApplicationById(ApplicationId("applicationId")))
+        val result = await(apmService.fetchApplicationById(anAppId))
         result shouldBe None
       }
     }
@@ -69,7 +71,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchAllPossibleSubscriptions.returns(Map.empty)
 
-        val result = await(apmService.fetchAllPossibleSubscriptions(ApplicationId("applicationId")))
+        val result = await(apmService.fetchAllPossibleSubscriptions(anAppId))
         result shouldBe Map.empty
       }
     }

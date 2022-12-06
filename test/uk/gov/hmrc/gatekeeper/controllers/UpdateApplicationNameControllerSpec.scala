@@ -92,7 +92,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "my app name"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value}/name/admin-email")
+      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/admin-email")
     }
 
     "redisplay the name entry page if the name has not changed" in new Setup {
@@ -163,7 +163,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value}/name/updated")
+      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/updated")
     }
 
     "display app name entry page with an error if app name update fails" in new Setup {
