@@ -58,7 +58,7 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDeveloper {
-      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)))(*)).thenReturn(successful(developer))
+      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful(developer))
     }
 
     object RemoveMfa {

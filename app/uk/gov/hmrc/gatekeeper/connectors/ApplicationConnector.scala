@@ -124,6 +124,13 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       }
   }
 
+  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.asText}/applications")
+      .recover {
+        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
+      }
+  }
+
   def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
       .recover {

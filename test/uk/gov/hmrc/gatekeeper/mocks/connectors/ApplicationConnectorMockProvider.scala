@@ -83,6 +83,10 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
+    object FetchApplicationsExcludingDeletedByUserId {
+      def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+    }
+
     object RemoveCollaborator {
       def succeeds() = when(mock.removeCollaborator(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
