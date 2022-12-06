@@ -56,7 +56,7 @@ class ApiPlatformEventsConnector @Inject() (http: HttpClient, config: ApiPlatfor
   def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[Seq[AbstractApplicationEvent]] = {
     val queryParams =
       Seq(
-        tag.map(et => "eventTag" -> et.toString),
+        tag.map(et => "eventTag" -> et.toString)
       ).collect( _ match {
         case Some((a,b)) => a->b
       })
