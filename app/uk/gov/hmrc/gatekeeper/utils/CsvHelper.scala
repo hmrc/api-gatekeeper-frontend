@@ -19,22 +19,22 @@ package uk.gov.hmrc.gatekeeper.utils
 import java.io.StringWriter
 
 object CsvHelper {
-  case class ColumnDefinition[T](name: String, getValue : T => String)
+  case class ColumnDefinition[T](name: String, getValue: T => String)
 
-  def toCsvString[T](csvColumnDefinitions: Seq[ColumnDefinition[T]], data: Seq[T]) : String = {
+  def toCsvString[T](csvColumnDefinitions: Seq[ColumnDefinition[T]], data: Seq[T]): String = {
     import org.apache.commons.csv.{CSVFormat, CSVPrinter}
 
-    val headers: Seq[String]  = csvColumnDefinitions.map(_.name)
+    val headers: Seq[String] = csvColumnDefinitions.map(_.name)
 
     val format = CSVFormat.RFC4180.builder
       .setHeader(headers: _*)
       .setRecordSeparator(System.lineSeparator())
       .build()
 
-    val output = new StringWriter()
+    val output  = new StringWriter()
     val printer = new CSVPrinter(output, format)
 
-    def getCsvRowValues(dataItem: T) : Seq[String] = {
+    def getCsvRowValues(dataItem: T): Seq[String] = {
       csvColumnDefinitions.map(_.getValue(dataItem))
     }
 

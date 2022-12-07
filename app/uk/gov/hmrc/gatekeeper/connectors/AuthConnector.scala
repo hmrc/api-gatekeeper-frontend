@@ -23,6 +23,6 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HttpClient
 
 @Singleton
-class AuthConnector @Inject()(val http: HttpClient, appConfig: AppConfig) extends PlayAuthConnector {
+class AuthConnector @Inject() (val http: HttpClient, appConfig: AppConfig) extends PlayAuthConnector {
   lazy val serviceUrl = appConfig.authBaseUrl
 }

@@ -32,20 +32,20 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends SubscriptionsBuilder {
-    val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector = mock[SandboxSubscriptionFieldsConnector]
+    val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector       = mock[SandboxSubscriptionFieldsConnector]
     val mockProductionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val service = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
+    val service                              = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
     val underTest: SubscriptionFieldsService = spy(service)
   }
 
-  val apiVersion = ApiVersion.random
+  val apiVersion            = ApiVersion.random
   private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
 
   "When application is deployedTo production then principal connector is called" should {
-    val application = mock[Application]
+    val application    = mock[Application]
     val newApplication = mock[NewApplication]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
@@ -70,7 +70,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
-    val application = mock[Application]
+    val application    = mock[Application]
     val newApplication = mock[NewApplication]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
@@ -79,9 +79,8 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     when(newApplication.clientId).thenReturn(ClientId("client-id"))
     when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)
 
-
     "saveFieldValues" in new Setup {
-      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId],*[ApiContext],*[ApiVersion],*)(*))
+      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
@@ -91,7 +90,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
       verify(mockSandboxSubscriptionFieldsConnector)
         .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
-      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId],*[ApiContext],*[ApiVersion],*)(*)
+      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*)
     }
   }
   "fetchAllProductionFieldValues" in new Setup {

@@ -33,17 +33,17 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
   "CreatePrivOrROPCAppSuccess page" when {
 
-    val appId = ApplicationId.random
-    val appName = "This is my app name"
-    val env = "Production"
-    val clientId = ClientId.random
+    val appId      = ApplicationId.random
+    val appName    = "This is my app name"
+    val env        = "Production"
+    val clientId   = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
 
     "a privileged application is created" should {
       "render" in new Setup {
 
         val accessType = Some(AccessType.PRIVILEGED)
-        val totp = Some(TotpSecrets(totpSecret))
+        val totp       = Some(TotpSecrets(totpSecret))
 
         implicit val loggedInUser = LoggedInUser(Some(""))
 

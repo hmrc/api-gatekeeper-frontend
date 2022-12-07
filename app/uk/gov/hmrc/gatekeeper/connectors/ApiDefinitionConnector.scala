@@ -36,48 +36,46 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
 
   def http: HttpClient
 
-  private def for5xx(ex: Throwable): PartialFunction[Throwable,Nothing] = (err: Throwable) => err match {
-    case e: UpstreamErrorResponse if(is5xx(e.statusCode)) => throw ex 
-  }
+  private def for5xx(ex: Throwable): PartialFunction[Throwable, Nothing] = (err: Throwable) =>
+    err match {
+      case e: UpstreamErrorResponse if (is5xx(e.statusCode)) => throw ex
+    }
 
   def fetchPublic()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition")
-    .recover(for5xx(new FetchApiDefinitionsFailed))
+      .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
   def fetchPrivate()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition?type=private")
-    .recover(for5xx(new FetchApiDefinitionsFailed))
+      .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
   def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
     http.GET[List[APICategoryDetails]](s"$serviceBaseUrl/api-categories")
-    .recover(for5xx(new FetchApiCategoriesFailed))
+      .recover(for5xx(new FetchApiCategoriesFailed))
   }
 }
 
 @Singleton
-class SandboxApiDefinitionConnector @Inject()( val appConfig: AppConfig,
-                                               val httpClient: HttpClient,
-                                               val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
-  extends ApiDefinitionConnector {
+class SandboxApiDefinitionConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient, val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+    extends ApiDefinitionConnector {
 
-  val environment = Environment.SANDBOX
+  val environment    = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiDefinitionSandboxBaseUrl
-  val useProxy = appConfig.apiDefinitionSandboxUseProxy
-  val bearerToken = appConfig.apiDefinitionSandboxBearerToken
-  val apiKey = appConfig.apiDefinitionSandboxApiKey
+  val useProxy       = appConfig.apiDefinitionSandboxUseProxy
+  val bearerToken    = appConfig.apiDefinitionSandboxBearerToken
+  val apiKey         = appConfig.apiDefinitionSandboxApiKey
 
   val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 @Singleton
-class ProductionApiDefinitionConnector @Inject()(val appConfig: AppConfig,
-                                                 val httpClient: HttpClient)(implicit val ec: ExecutionContext)
-  extends ApiDefinitionConnector {
+class ProductionApiDefinitionConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit val ec: ExecutionContext)
+    extends ApiDefinitionConnector {
 
   val http: HttpClient = httpClient
 
-  val environment = Environment.PRODUCTION
+  val environment    = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiDefinitionProductionBaseUrl
 }

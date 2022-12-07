@@ -18,10 +18,11 @@ package uk.gov.hmrc.gatekeeper.config
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
-import com.google.inject.{Provider, Inject, Singleton}
+import com.google.inject.{Inject, Provider, Singleton}
 
 @Singleton
 class LiveApmConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApmConnector.Config] {
+
   override def get(): ApmConnector.Config =
     ApmConnector.Config(
       serviceBaseUrl = config.baseUrl("api-platform-microservice")

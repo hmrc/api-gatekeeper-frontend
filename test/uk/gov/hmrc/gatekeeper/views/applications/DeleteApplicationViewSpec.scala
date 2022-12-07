@@ -34,11 +34,11 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request = FakeRequest().withCSRFToken
-    val deleteApplicationView = app.injector.instanceOf[DeleteApplicationView]
-    val adminMissingMessages = messagesProvider.messages("application.administrator.missing")
+    val request                   = FakeRequest().withCSRFToken
+    val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
+    val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength: Period       = Period.ofDays(547)
 
     val application =
       ApplicationResponse(
@@ -48,7 +48,10 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         "application1",
         "PRODUCTION",
         None,
-        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)),
+        Set(
+          Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+          Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+        ),
         DateTime.now(),
         Some(DateTime.now()),
         Standard(),
@@ -62,7 +65,9 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
   "delete application view" should {
     "show application information, including superuser only actions, when logged in as superuser" in new Setup {
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = true, deleteApplicationForm.fill(DeleteApplicationForm("", None))
+        applicationWithHistory,
+        isSuperUser = true,
+        deleteApplicationForm.fill(DeleteApplicationForm("", None))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
@@ -74,7 +79,9 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = false, deleteApplicationForm.fill(DeleteApplicationForm("", None))
+        applicationWithHistory,
+        isSuperUser = false,
+        deleteApplicationForm.fill(DeleteApplicationForm("", None))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
@@ -87,7 +94,10 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", adminMissingMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+        applicationWithHistory,
+        isSuperUser = true,
+        form
+      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -97,10 +107,14 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
     "show error message when the application name doesn't match" in new Setup {
       val form = deleteApplicationForm.fill(
-        DeleteApplicationForm("", None)).withError("applicationNameConfirmation", confirmationErrorMessages)
+        DeleteApplicationForm("", None)
+      ).withError("applicationNameConfirmation", confirmationErrorMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory, isSuperUser = true, form)(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+        applicationWithHistory,
+        isSuperUser = true,
+        form
+      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

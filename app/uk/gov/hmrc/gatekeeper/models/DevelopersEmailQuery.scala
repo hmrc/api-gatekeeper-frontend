@@ -18,17 +18,19 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
 
-
 case class EmailOverride(email: List[RegisteredUser], isOverride: Boolean = false)
-case class DevelopersEmailQuery(topic: Option[String] = None,
-                                apis: Option[Seq[String]] = None,
-                                apiCategories: Option[Seq[APICategory]] = None,
-                                privateapimatch: Boolean = false,
-                                apiVersionFilter: Option[String] = None,
-                                allUsers: Boolean = false,
-                                emailsForSomeCases: Option[EmailOverride] = None)
+
+case class DevelopersEmailQuery(
+    topic: Option[String] = None,
+    apis: Option[Seq[String]] = None,
+    apiCategories: Option[Seq[APICategory]] = None,
+    privateapimatch: Boolean = false,
+    apiVersionFilter: Option[String] = None,
+    allUsers: Boolean = false,
+    emailsForSomeCases: Option[EmailOverride] = None
+  )
 
 object DevelopersEmailQuery {
-  implicit val emailOverrideFormatter = Json.format[EmailOverride]
+  implicit val emailOverrideFormatter     = Json.format[EmailOverride]
   implicit val formatDevelopersEmailQuery = Json.format[DevelopersEmailQuery]
 }

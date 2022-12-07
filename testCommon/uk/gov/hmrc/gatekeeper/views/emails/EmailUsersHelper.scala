@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{optionHint, optionLabel, EmailOptionChoice}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
@@ -36,7 +36,6 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     maybeTitleText.fold(fail("page title not present in page"))(_.text shouldBe expectedTitle)
   }
 
-
   def isElementChecked(document: Document, expectedValue: String, shouldBeChecked: Boolean = true): Unit = {
     val checkedRadio = getElementBySelector(document, "input[checked]")
     checkedRadio.isDefined shouldBe true
@@ -47,7 +46,6 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     val checkedRadio = getElementBySelector(document, "input[checked]")
     checkedRadio.isDefined shouldBe false
   }
-
 
   def checkElementsExistById(document: Document, ids: Seq[String]): Unit = {
     ids.foreach(id => {
@@ -63,7 +61,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
       elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
     }
 
-    if(users.nonEmpty) {
+    if (users.nonEmpty) {
       val expectedValue = users.map(_.email).sorted.mkString("; ")
 
       getElementBySelector(document, "#copy-users-to-clip")
@@ -71,15 +69,15 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     }
   }
 
-  def handleXmlAppendValue(api: CombinedApi)={
-    api.apiType match{
-      case XML_API => api.displayName + " - XML API"
-      case REST_API => api.displayName  
+  def handleXmlAppendValue(api: CombinedApi) = {
+    api.apiType match {
+      case XML_API  => api.displayName + " - XML API"
+      case REST_API => api.displayName
     }
   }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
-  
+
     val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, handleXmlAppendValue(x))))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
@@ -108,7 +106,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def validateFormDestination(document: Document, formId: String, expectedDestination: String) = {
     val formSelector = s"#$formId"
-    val maybeForm = getElementBySelector(document, formSelector)
+    val maybeForm    = getElementBySelector(document, formSelector)
 
     withClue(s"Form with id $formId was not found") {
       maybeForm.isDefined shouldBe true
@@ -124,7 +122,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
       maybeButtonElement.isDefined shouldBe true
     }
     maybeButtonElement.head.tag().getName match {
-      case "input" => maybeButtonElement.head.attr("value") shouldBe expectedButtonText
+      case "input"  => maybeButtonElement.head.attr("value") shouldBe expectedButtonText
       case "button" => maybeButtonElement.head.text shouldBe expectedButtonText
     }
   }
@@ -134,7 +132,6 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     elements.size shouldBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
-
 
   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {
     TopicOptionChoice.values.foreach(topic => validateTopicEntry(document, topic))
@@ -158,7 +155,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   }
 
   def validateSelectedSpecificApiItems(document: Document, apis: Seq[CombinedApi]): Unit = {
-    val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
+    val hiddenApiInputs   = getElementsBySelector(document, "form#api-filters input[type=hidden]")
     val hiddenTopicInputs = getElementsBySelector(document, "form#topic-filter input[type=hidden]")
 
     hiddenApiInputs.size shouldBe apis.size

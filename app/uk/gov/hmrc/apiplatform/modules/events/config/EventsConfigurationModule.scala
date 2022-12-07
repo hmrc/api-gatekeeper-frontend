@@ -21,7 +21,7 @@ import play.api.Environment
 import play.api.Configuration
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import com.google.inject.{Singleton, Provider, Inject}
+import com.google.inject.{Inject, Provider, Singleton}
 
 class EventsConfigurationModule extends Module {
 
@@ -34,6 +34,7 @@ class EventsConfigurationModule extends Module {
 
 @Singleton
 class LiveApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[ApiPlatformEventsConnector.Config] {
+
   override def get(): ApiPlatformEventsConnector.Config = {
     val url     = config.baseUrl("api-platform-events")
     val enabled = config.getConfBool("api-platform-events.enabled", true)

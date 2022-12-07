@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
-class FiltersSpec  extends AsyncHmrcSpec {
+class FiltersSpec extends AsyncHmrcSpec {
 
   "ApiFilter" when {
     "given an api id pattern" should {

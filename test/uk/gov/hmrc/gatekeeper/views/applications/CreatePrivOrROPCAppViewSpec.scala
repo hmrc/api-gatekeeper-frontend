@@ -27,11 +27,12 @@ import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationView
 
 class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
+
   trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
-    implicit val request = FakeRequest().withCSRFToken
+    implicit val request      = FakeRequest().withCSRFToken
 
-    implicit val userFullName = LoggedInUser(Some("firstName lastName"))
+    implicit val userFullName             = LoggedInUser(Some("firstName lastName"))
     val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm)
   }
 
@@ -76,14 +77,14 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
       }
     }
 
-    "render errors for fields when given errors in form" in  new Setup {
+    "render errors for fields when given errors in form" in new Setup {
 
-      override val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm
-        .withError("accessType", "This is an error about access type")
-        .withError("applicationName", "This is an error about application name")
-        .withError("applicationDescription", "This is an error about application description")
-        .withError("adminEmail", "This is an error about admin email")
-      )
+      override val page: () => HtmlFormat.Appendable = () =>
+        createApplicationView(createPrivOrROPCAppForm
+          .withError("accessType", "This is an error about access type")
+          .withError("applicationName", "This is an error about application name")
+          .withError("applicationDescription", "This is an error about application description")
+          .withError("adminEmail", "This is an error about admin email"))
 
       val document = Jsoup.parse(page().body)
       document.body.toString.contains("This is an error about access type") shouldBe true

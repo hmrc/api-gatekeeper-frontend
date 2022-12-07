@@ -25,10 +25,10 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationPredicate
 
 @Singleton
-class LdapController @Inject()(
-  auth: FrontendAuthComponents,
-  mcc: MessagesControllerComponents
-) extends FrontendController(mcc) {
+class LdapController @Inject() (
+    auth: FrontendAuthComponents,
+    mcc: MessagesControllerComponents
+  ) extends FrontendController(mcc) {
 
   def signIn = Action.async { implicit initialRequest =>
     auth.authorizedAction(

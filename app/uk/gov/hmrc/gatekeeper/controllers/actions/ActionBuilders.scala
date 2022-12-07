@@ -36,40 +36,59 @@ trait ActionBuilders extends ApplicationLogger {
   def applicationService: ApplicationService
   def apmService: ApmService
 
-  def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])
-             (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+  def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(f)
   }
-  
-  def withStandardApp(appId: ApplicationId)(f: (ApplicationWithHistory, Standard) => Future[Result])
-             (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    applicationService.fetchApplication(appId).flatMap(appWithHistory => appWithHistory.application.access match {
-      case access : Standard => f(appWithHistory, access)
-      case _ => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
-    })
+
+  def withStandardApp(
+      appId: ApplicationId
+    )(
+      f: (ApplicationWithHistory, Standard) => Future[Result]
+    )(implicit request: MessagesRequest[_],
+      ec: ExecutionContext,
+      hc: HeaderCarrier
+    ): Future[Result] = {
+    applicationService.fetchApplication(appId).flatMap(appWithHistory =>
+      appWithHistory.application.access match {
+        case access: Standard => f(appWithHistory, access)
+        case _                => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
+      }
+    )
   }
 
-  def withAppAndSubsData(appId: ApplicationId)(f: ApplicationWithSubscriptionData => Future[Result])
-             (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+  def withAppAndSubsData(
+      appId: ApplicationId
+    )(
+      f: ApplicationWithSubscriptionData => Future[Result]
+    )(implicit request: MessagesRequest[_],
+      ec: ExecutionContext,
+      hc: HeaderCarrier
+    ): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(appWithSubsData) => f(appWithSubsData)
-      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+      case None                  => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 
-  def withAppAndSubscriptionsAndStateHistory(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result])
-                                         (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+  def withAppAndSubscriptionsAndStateHistory(
+      appId: ApplicationId
+    )(
+      action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result]
+    )(implicit request: MessagesRequest[_],
+      ec: ExecutionContext,
+      hc: HeaderCarrier
+    ): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
-        applicationService.fetchStateHistory(appId,value.application.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
-      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+        applicationService.fetchStateHistory(appId, value.application.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+      case None        => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 
-  private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]) : ApiDefinitions.Alias = {
+  private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]): ApiDefinitions.Alias = {
     val apiContexts: List[ApiContext] = applicationSubscriptions.map(apiIdentifier => apiIdentifier.context).toList
-    
+
     val apiDefinitionsFilteredByContext = allApiDefintions.filter(contextMap => apiContexts.contains(contextMap._1))
 
     apiDefinitionsFilteredByContext.map(contextMap =>
@@ -79,19 +98,25 @@ trait ActionBuilders extends ApplicationLogger {
     )
   }
 
-  def withAppAndSubscriptionsAndFieldDefinitions(appId: ApplicationId)(action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result])
-                                              (implicit request: MessagesRequest[_], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+  def withAppAndSubscriptionsAndFieldDefinitions(
+      appId: ApplicationId
+    )(
+      action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result]
+    )(implicit request: MessagesRequest[_],
+      ec: ExecutionContext,
+      hc: HeaderCarrier
+    ): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(applicationWithSubs) => {
         val applicationWithSubscriptionDataAndFieldDefinitions = for {
           allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.application.deployedTo)
-          apiDefinitions = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
-          allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
+          apiDefinitions     = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
+          allPossibleSubs   <- apmService.fetchAllPossibleSubscriptions(appId)
         } yield ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, apiDefinitions, allPossibleSubs)
 
         applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
-      case None => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+      case None                      => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
     }
   }
 }

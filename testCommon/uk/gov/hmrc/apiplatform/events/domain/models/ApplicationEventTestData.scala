@@ -31,82 +31,89 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
     teamMemberEmail = LaxEmailAddress("jkhkhk"),
-    teamMemberRole = "ADMIN")
+    teamMemberRole = "ADMIN"
+  )
 
   def makeTeamMemberAddedEvent(appId: Option[ApplicationId] = None): TeamMemberAddedEvent = {
-    teamMemberAddedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    teamMemberAddedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
     teamMemberEmail = LaxEmailAddress("jkhkhk"),
-    teamMemberRole = "ADMIN")
+    teamMemberRole = "ADMIN"
+  )
 
   def makeTeamMemberRemovedEvent(appId: Option[ApplicationId] = None): TeamMemberRemovedEvent = {
-    teamMemberRemovedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    teamMemberRemovedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
-    clientSecretId = "jkhkhk")
+    clientSecretId = "jkhkhk"
+  )
 
   def makeClientSecretAddedEvent(appId: Option[ApplicationId] = None): ClientSecretAddedEvent = {
-    clientSecretAddedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    clientSecretAddedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
-    clientSecretId = "jkhkhk")
+    clientSecretId = "jkhkhk"
+  )
 
   def makeClientSecretRemovedEvent(appId: Option[ApplicationId] = None): ClientSecretRemovedEvent = {
-    clientSecretRemovedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    clientSecretRemovedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
     oldRedirectUris = "oldru",
-    newRedirectUris = "newru")
+    newRedirectUris = "newru"
+  )
 
   def makeRedirectUrisUpdatedEvent(appId: Option[ApplicationId] = None): RedirectUrisUpdatedEvent = {
-    redirectUrisUpdatedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    redirectUrisUpdatedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
     context = "apicontext",
-    version = "1.0")
+    version = "1.0"
+  )
 
   def makeApiSubscribedEvent(appId: Option[ApplicationId] = None): ApiSubscribedEvent = {
-    apiSubscribedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    apiSubscribedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldStyleActors.GatekeeperUser("iam@admin.com"),
     context = "apicontext",
-    version = "1.0")
+    version = "1.0"
+  )
 
   def makeApiUnsubscribedEvent(appId: Option[ApplicationId] = None): ApiUnsubscribedEvent = {
-    apiUnsubscribedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    apiUnsubscribedModel.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val ppnsCallBackUriUpdatedEvent: PpnsCallBackUriUpdatedEvent = PpnsCallBackUriUpdatedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -115,12 +122,13 @@ trait ApplicationEventTestData {
     boxId = "boxId",
     boxName = "boxName",
     oldCallbackUrl = "some/url/",
-    newCallbackUrl = "some/url/here")
+    newCallbackUrl = "some/url/here"
+  )
 
   def makePpnsCallBackUriUpdatedEvent(appId: Option[ApplicationId] = None): PpnsCallBackUriUpdatedEvent = {
-    ppnsCallBackUriUpdatedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    ppnsCallBackUriUpdatedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val productionAppNameChangedEvent: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -128,12 +136,13 @@ trait ApplicationEventTestData {
     actor = Actors.GatekeeperUser("iam@admin.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeProductionAppNameChangedEvent(appId: Option[ApplicationId] = None): ProductionAppNameChangedEvent = {
-    productionAppNameChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    productionAppNameChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val productionAppPrivacyPolicyLocationChangedEvent: ProductionAppPrivacyPolicyLocationChanged = ProductionAppPrivacyPolicyLocationChanged(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -141,12 +150,13 @@ trait ApplicationEventTestData {
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = PrivacyPolicyLocations.InDesktopSoftware,
     newLocation = PrivacyPolicyLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeProductionAppPrivacyPolicyLocationChangedEvent(appId: Option[ApplicationId] = None): ProductionAppPrivacyPolicyLocationChanged = {
-    productionAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    productionAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val productionLegacyAppPrivacyPolicyLocationChangedEvent: ProductionLegacyAppPrivacyPolicyLocationChanged = ProductionLegacyAppPrivacyPolicyLocationChanged(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -154,12 +164,13 @@ trait ApplicationEventTestData {
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
     newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeProductionLegacyAppPrivacyPolicyLocationChanged(appId: Option[ApplicationId] = None): ProductionLegacyAppPrivacyPolicyLocationChanged = {
-    productionLegacyAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    productionLegacyAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val productionAppTermsConditionsLocationChangedEvent: ProductionAppTermsConditionsLocationChanged = ProductionAppTermsConditionsLocationChanged(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -167,12 +178,13 @@ trait ApplicationEventTestData {
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = TermsAndConditionsLocations.InDesktopSoftware,
     newLocation = TermsAndConditionsLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeProductionAppTermsConditionsLocationChanged(appId: Option[ApplicationId] = None): ProductionAppTermsConditionsLocationChanged = {
-    productionAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    productionAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val productionLegacyAppTermsConditionsLocationChangedEvent: ProductionLegacyAppTermsConditionsLocationChanged = ProductionLegacyAppTermsConditionsLocationChanged(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -180,31 +192,33 @@ trait ApplicationEventTestData {
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
     newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeProductionLegacyAppTermsConditionsLocationChanged(appId: Option[ApplicationId] = None): ProductionLegacyAppTermsConditionsLocationChanged = {
-    productionLegacyAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    productionLegacyAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val responsibleIndividualChangedEvent: ResponsibleIndividualChanged = ResponsibleIndividualChanged(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     newResponsibleIndividualName = "Mrs Responsible",
-    newResponsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    newResponsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     previousResponsibleIndividualName = "Old Mr Responsible",
     previousResponsibleIndividualEmail = LaxEmailAddress("old-ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     code = "323423421353245234624626",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualChanged(appId: Option[ApplicationId] = None): ResponsibleIndividualChanged = {
-    responsibleIndividualChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())  
+    responsibleIndividualChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-  
+
   val responsibleIndividualChangedToSelfEvent: ResponsibleIndividualChangedToSelf = ResponsibleIndividualChangedToSelf(
     id = EventId.random,
     applicationId = ApplicationId.random,
@@ -215,7 +229,8 @@ trait ApplicationEventTestData {
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualChangedToSelf(appId: Option[ApplicationId] = None): ResponsibleIndividualChangedToSelf = {
     responsibleIndividualChangedToSelfEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -227,12 +242,13 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     code = UUID.randomUUID().toString(),
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualSet(appId: Option[ApplicationId] = None): ResponsibleIndividualSet = {
     responsibleIndividualSetEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -246,7 +262,8 @@ trait ApplicationEventTestData {
     oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
     newAppState = "PENDING_GATEKEEPER_APPROVAL",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeApplicationStateChanged(appId: Option[ApplicationId] = None): ApplicationStateChanged = {
     applicationStateChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -261,10 +278,11 @@ trait ApplicationEventTestData {
     requestingAdminName = "Mr Admin",
     requestingAdminEmail = LaxEmailAddress("admin@example.com"),
     responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
-    verificationId = UUID.randomUUID().toString())
+    verificationId = UUID.randomUUID().toString()
+  )
 
   def makeResponsibleIndividualVerificationStarted(appId: Option[ApplicationId] = None): ResponsibleIndividualVerificationStarted = {
     responsibleIndividualVerificationStarted.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -276,12 +294,13 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     code = "123456789",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualDeclined(appId: Option[ApplicationId] = None): ResponsibleIndividualDeclined = {
     responsibleIndividualDeclinedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -293,12 +312,13 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     code = "123456789",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualDeclinedUpdate(appId: Option[ApplicationId] = None): ResponsibleIndividualDeclinedUpdate = {
     responsibleIndividualDeclinedUpdateEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -310,12 +330,13 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail =LaxEmailAddress("ri@example.com"),
+    responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     code = "123456789",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeResponsibleIndividualDidNotVerify(appId: Option[ApplicationId] = None): ResponsibleIndividualDidNotVerify = {
     responsibleIndividualDidNotVerifyEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -327,42 +348,43 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     decliningUserName = "Mr Responsible",
-    decliningUserEmail =LaxEmailAddress("ri@example.com"),
+    decliningUserEmail = LaxEmailAddress("ri@example.com"),
     submissionId = UUID.randomUUID().toString(),
     submissionIndex = 1,
     reasons = "reason text",
     requestingAdminName = "Mr Admin",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   def makeApplicationApprovalRequestDeclined(appId: Option[ApplicationId] = None): ApplicationApprovalRequestDeclined = {
     applicationApprovalRequestDeclinedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val exampleAppId = ApplicationId.random
-  private val arg = Some(exampleAppId)
-  val examplesOfAllApplicationEvents = 
-    makeApiSubscribedEvent(arg) :: 
-    makeApiUnsubscribedEvent(arg) ::
-    makeTeamMemberAddedEvent(arg) ::
-    makeTeamMemberRemovedEvent(arg) ::
-    makeClientSecretAddedEvent(arg) ::
-    makeClientSecretRemovedEvent(arg) ::
-    makePpnsCallBackUriUpdatedEvent(arg) ::
-    makeProductionAppNameChangedEvent(arg) ::
-    makeProductionAppPrivacyPolicyLocationChangedEvent(arg) ::
-    makeProductionAppTermsConditionsLocationChanged(arg) ::
-    makeProductionLegacyAppPrivacyPolicyLocationChanged(arg) ::
-    makeProductionLegacyAppTermsConditionsLocationChanged(arg) ::
-    makeRedirectUrisUpdatedEvent(arg) ::
-    makeResponsibleIndividualSet(arg) ::
-    makeResponsibleIndividualChanged(arg) ::
-    makeResponsibleIndividualChangedToSelf(arg) ::
-    makeApplicationStateChanged(arg) ::
-    makeResponsibleIndividualVerificationStarted(arg) ::
-    makeResponsibleIndividualDeclined(arg) ::
-    makeResponsibleIndividualDeclinedUpdate(arg) ::
-    makeResponsibleIndividualDidNotVerify(arg) ::
-    makeApplicationApprovalRequestDeclined(arg) ::
-    Nil
-}
+  private val arg  = Some(exampleAppId)
 
+  val examplesOfAllApplicationEvents =
+    makeApiSubscribedEvent(arg) ::
+      makeApiUnsubscribedEvent(arg) ::
+      makeTeamMemberAddedEvent(arg) ::
+      makeTeamMemberRemovedEvent(arg) ::
+      makeClientSecretAddedEvent(arg) ::
+      makeClientSecretRemovedEvent(arg) ::
+      makePpnsCallBackUriUpdatedEvent(arg) ::
+      makeProductionAppNameChangedEvent(arg) ::
+      makeProductionAppPrivacyPolicyLocationChangedEvent(arg) ::
+      makeProductionAppTermsConditionsLocationChanged(arg) ::
+      makeProductionLegacyAppPrivacyPolicyLocationChanged(arg) ::
+      makeProductionLegacyAppTermsConditionsLocationChanged(arg) ::
+      makeRedirectUrisUpdatedEvent(arg) ::
+      makeResponsibleIndividualSet(arg) ::
+      makeResponsibleIndividualChanged(arg) ::
+      makeResponsibleIndividualChangedToSelf(arg) ::
+      makeApplicationStateChanged(arg) ::
+      makeResponsibleIndividualVerificationStarted(arg) ::
+      makeResponsibleIndividualDeclined(arg) ::
+      makeResponsibleIndividualDeclinedUpdate(arg) ::
+      makeResponsibleIndividualDidNotVerify(arg) ::
+      makeApplicationApprovalRequestDeclined(arg) ::
+      Nil
+}

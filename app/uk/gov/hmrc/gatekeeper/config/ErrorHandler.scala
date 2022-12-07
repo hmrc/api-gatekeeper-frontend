@@ -25,11 +25,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 @Singleton
-class ErrorHandler @Inject()(
-  val messagesApi: MessagesApi,
-  val configuration: Configuration,
-  errorTemplate: ErrorTemplate
-)(implicit val appConfig: AppConfig) extends FrontendErrorHandler {
+class ErrorHandler @Inject() (
+    val messagesApi: MessagesApi,
+    val configuration: Configuration,
+    errorTemplate: ErrorTemplate
+  )(implicit val appConfig: AppConfig
+  ) extends FrontendErrorHandler {
+
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
     errorTemplate(pageTitle, heading, message)
   }
@@ -38,11 +40,13 @@ class ErrorHandler @Inject()(
     standardErrorTemplate(
       Messages("global.error.pageNotFound404.title"),
       Messages("global.error.pageNotFound404.heading"),
-      Messages(message))
+      Messages(message)
+    )
 
   def badRequestTemplate(message: String)(implicit request: Request[_]) =
     standardErrorTemplate(
       Messages("global.error.badRequest400.title"),
       Messages("global.error.badRequest400.heading"),
-      Messages(message))
+      Messages(message)
+    )
 }

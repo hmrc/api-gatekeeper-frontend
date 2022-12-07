@@ -46,7 +46,7 @@ trait ControllerSetupBase
     with CollaboratorTracker {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
-  val grantLength: Period = Period.ofDays(547)
+  val grantLength: Period    = Period.ofDays(547)
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,
@@ -60,19 +60,20 @@ trait ControllerSetupBase
     Some(DateTime.now()),
     Standard(),
     ApplicationState(),
-    grantLength)
-  val application = ApplicationWithHistory(basicApplication, List.empty)
-  val applicationId = application.application.id
+    grantLength
+  )
+  val application      = ApplicationWithHistory(basicApplication, List.empty)
+  val applicationId    = application.application.id
 
-  val authToken = GatekeeperSessionKeys.AuthToken -> "some-bearer-token"
-  val userToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
-  val superUserToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
-  val adminToken = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
-  val aLoggedInRequest = FakeRequest().withSession(authToken, userToken)
+  val authToken                 = GatekeeperSessionKeys.AuthToken    -> "some-bearer-token"
+  val userToken                 = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
+  val superUserToken            = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
+  val adminToken                = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
+  val aLoggedInRequest          = FakeRequest().withSession(authToken, userToken)
   val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken)
-  val anAdminLoggedInRequest = FakeRequest().withSession(authToken, adminToken)
-  val aLoggedOutRequest = FakeRequest().withSession()
-  val noDevs = List.empty[Developer]
+  val anAdminLoggedInRequest    = FakeRequest().withSession(authToken, adminToken)
+  val aLoggedOutRequest         = FakeRequest().withSession()
+  val noDevs                    = List.empty[Developer]
 
   def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = ApplicationServiceMock.FetchApplication.returns(application)
 }

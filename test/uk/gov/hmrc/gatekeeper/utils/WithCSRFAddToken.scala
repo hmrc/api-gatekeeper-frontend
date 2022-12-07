@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.filters.csrf.CSRFAddToken
 
-trait WithCSRFAddToken  {
+trait WithCSRFAddToken {
   self: GuiceOneAppPerSuite =>
 
   val addToken = app.injector.instanceOf[CSRFAddToken]

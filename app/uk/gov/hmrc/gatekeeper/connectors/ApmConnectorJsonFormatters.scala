@@ -19,21 +19,21 @@ package uk.gov.hmrc.gatekeeper.connectors
 import uk.gov.hmrc.gatekeeper.models.ApiStatusJson
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxSubscriber, BoxCreator, BoxId}
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
-  import uk.gov.hmrc.gatekeeper.models.subscriptions.{VersionData, ApiData}
+  import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
   import play.api.libs.json._
 
   import play.api.libs.json.JodaReads._
-  
+
   implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-  implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+  implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
   implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
 
-  implicit val readsBoxId= Json.valueFormat[BoxId]
-  implicit val readsBoxCreator = Json.reads[BoxCreator]
+  implicit val readsBoxId         = Json.valueFormat[BoxId]
+  implicit val readsBoxCreator    = Json.reads[BoxCreator]
   implicit val readsBoxSubscriber = Json.reads[BoxSubscriber]
-  implicit val readsBox = Json.reads[Box]
+  implicit val readsBox           = Json.reads[Box]
 }

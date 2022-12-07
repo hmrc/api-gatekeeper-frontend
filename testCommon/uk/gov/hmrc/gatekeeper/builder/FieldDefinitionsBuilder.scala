@@ -22,27 +22,27 @@ import uk.gov.hmrc.gatekeeper.models.FieldName
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 
 trait FieldDefinitionsBuilder {
-  
-  def buildApiDefinitions() : ApiDefinitions.Alias = {
+
+  def buildApiDefinitions(): ApiDefinitions.Alias = {
     def contexts = Seq.fill(1)(ApiContext.random)
     buildApiContexts(contexts)
   }
 
-  private def buildApiContexts(apiContexts: Seq[ApiContext]) : ApiDefinitions.Alias = {
+  private def buildApiContexts(apiContexts: Seq[ApiContext]): ApiDefinitions.Alias = {
     def versions = Seq.fill(2)(ApiVersion.random)
     apiContexts.map(apiContext => (apiContext -> buildVersions(versions))).toMap
   }
 
-  private def buildVersions(apiVersions: Seq[ApiVersion]) : Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]] = {
+  private def buildVersions(apiVersions: Seq[ApiVersion]): Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]] = {
     def fieldNames = Seq.fill(2)(FieldName.random)
     apiVersions.map(apiVersion => (apiVersion -> buildFields(fieldNames))).toMap
   }
 
-  private def buildFields(fieldNames: Seq[FieldName] ) : Map[FieldName, SubscriptionFieldDefinition] = {
+  private def buildFields(fieldNames: Seq[FieldName]): Map[FieldName, SubscriptionFieldDefinition] = {
     fieldNames.map(fieldName => (fieldName -> buildSubscriptionFieldDefinition(fieldName))).toMap
   }
 
-  private def buildSubscriptionFieldDefinition(fieldName: FieldName) : SubscriptionFieldDefinition = {
+  private def buildSubscriptionFieldDefinition(fieldName: FieldName): SubscriptionFieldDefinition = {
     SubscriptionFieldDefinition(fieldName, "Description", "This is a hint", "URL", "shortDescription")
   }
 }

@@ -22,6 +22,7 @@ import play.api.inject.Module
 import com.google.inject.{Inject, Provider, Singleton}
 
 class PayloadEncryptionModule extends Module {
+
   override def bindings(environment: Environment, configuration: Configuration) = {
     Seq(
       bind[PayloadEncryption].qualifiedWith(Names.named("ThirdPartyDeveloper")).toProvider(classOf[ThirdPartyDeveloperPayloadEncryptionProvider])
@@ -30,11 +31,11 @@ class PayloadEncryptionModule extends Module {
 }
 
 @Singleton
-class ThirdPartyDeveloperPayloadEncryptionProvider @Inject()(val config: Configuration)
-  extends Provider[PayloadEncryption] {
+class ThirdPartyDeveloperPayloadEncryptionProvider @Inject() (val config: Configuration)
+    extends Provider[PayloadEncryption] {
 
   lazy val jsonEncryptionKey = config.get[String]("third-party-developer.json.encryption.key")
-  lazy val payloadEncrypion = new PayloadEncryption(jsonEncryptionKey)
+  lazy val payloadEncrypion  = new PayloadEncryption(jsonEncryptionKey)
 
   override def get() = payloadEncrypion
 }

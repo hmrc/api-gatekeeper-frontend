@@ -40,22 +40,22 @@ object HandleUpliftForm {
 }
 
 case class DevelopersSearchForm(
-  maybeEmailFilter: Option[String] = None,
-  maybeApiVersionFilter: Option[String] = None,
-  maybeEnvironmentFilter: Option[String] = None,
-  maybeDeveloperStatusFilter: Option[String] = None
-)
+    maybeEmailFilter: Option[String] = None,
+    maybeApiVersionFilter: Option[String] = None,
+    maybeEnvironmentFilter: Option[String] = None,
+    maybeDeveloperStatusFilter: Option[String] = None
+  )
 
 object DevelopersSearchForm {
   // def apply(e: Option[String], a: Option[String], env: Option[String], d: Option[String]): DevelopersSearchForm = new DevelopersSearchForm(e,a,env,d)
 
   // def unapply(form: DevelopersSearchForm): Option[(Option[String], Option[String], Option[String], Option[String])] = Some((form.maybeEmailFilter, form.maybeApiVersionFilter, form.maybeEnvironmentFilter, form.maybeDeveloperStatusFilter))
-  
+
   lazy val form = Form(
     mapping(
-      "emailFilter" -> optional(nonEmptyText),
-      "apiVersionFilter" -> optional(nonEmptyText),
-      "environmentFilter" -> optional(nonEmptyText),
+      "emailFilter"           -> optional(nonEmptyText),
+      "apiVersionFilter"      -> optional(nonEmptyText),
+      "environmentFilter"     -> optional(nonEmptyText),
       "developerStatusFilter" -> optional(nonEmptyText)
     )(DevelopersSearchForm.apply)(DevelopersSearchForm.unapply)
   )
@@ -64,6 +64,7 @@ object DevelopersSearchForm {
 case class UpdateRateLimitForm(tier: String)
 
 object UpdateRateLimitForm {
+
   val form: Form[UpdateRateLimitForm] = Form(
     mapping(
       "tier" -> nonEmptyText
@@ -77,7 +78,7 @@ object HandleApprovalForm {
 
   lazy val form = Form(
     mapping(
-      "approval_confirmation" -> text(0,20)
+      "approval_confirmation" -> text(0, 20)
     )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
   )
 

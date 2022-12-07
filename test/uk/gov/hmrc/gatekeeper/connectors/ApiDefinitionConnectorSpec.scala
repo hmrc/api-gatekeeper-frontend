@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionConnectorSpec
-  extends AsyncHmrcSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite {
 
@@ -42,7 +42,7 @@ class ApiDefinitionConnectorSpec
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiDefinitionProductionBaseUrl).thenReturn(wireMockUrl)
 
-    val connector = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
+    val connector   = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
     val apiVersion1 = ApiVersion.random
   }
 
@@ -53,33 +53,38 @@ class ApiDefinitionConnectorSpec
 
     "respond with 200 and convert body" in new Setup {
       val response = List(ApiDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", 
+        "dummyAPI",
+        "http://localhost/",
+        "dummyAPI",
+        "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        Some(false),
+        None
+      ))
 
       val payload = Json.toJson(response)
 
       stubFor(
-          get(urlEqualTo(url))
+        get(urlEqualTo(url))
           .willReturn(
             aResponse()
-            .withStatus(OK)
-            .withBody(payload.toString)
+              .withStatus(OK)
+              .withBody(payload.toString)
           )
-        )
+      )
 
       await(connector.fetchPublic()) shouldBe response
     }
 
     "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
       stubFor(
-          get(urlEqualTo(url))
+        get(urlEqualTo(url))
           .willReturn(
             aResponse()
-            .withStatus(INTERNAL_SERVER_ERROR)
+              .withStatus(INTERNAL_SERVER_ERROR)
           )
-        )
+      )
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPublic()))
     }
@@ -90,20 +95,26 @@ class ApiDefinitionConnectorSpec
 
     "respond with 200 and convert body" in new Setup {
       val response = List(ApiDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        "dummyAPI",
+        "http://localhost/",
+        "dummyAPI",
+        "dummy api.",
+        ApiContext("dummy-api"),
+        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        Some(false),
+        None
+      ))
 
       val payload = Json.toJson(response)
 
       stubFor(
         get(urlPathEqualTo(url))
-        .withQueryParam("type", equalTo("private"))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload.toString)
-        )
+          .withQueryParam("type", equalTo("private"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
       )
 
       await(connector.fetchPrivate()) shouldBe response
@@ -112,11 +123,11 @@ class ApiDefinitionConnectorSpec
     "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
       stubFor(
         get(urlPathEqualTo(url))
-        .withQueryParam("type",equalTo("private"))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .withQueryParam("type", equalTo("private"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
@@ -133,11 +144,11 @@ class ApiDefinitionConnectorSpec
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload.toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
       )
 
       await(connector.fetchAPICategories()) shouldBe response
@@ -146,12 +157,12 @@ class ApiDefinitionConnectorSpec
     "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
-      
+
       intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
     }
   }

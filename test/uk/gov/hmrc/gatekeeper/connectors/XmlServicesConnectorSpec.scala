@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.{XmlOrganisation, OrganisationId, VendorId, XmlApi}
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -33,18 +33,19 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class XmlServicesConnectorSpec
-  extends AsyncHmrcSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding {
 
-  val apiVersion1 = ApiVersion.random
+  val apiVersion1   = ApiVersion.random
   val applicationId = ApplicationId.random
+
   trait Setup {
-    val authToken = "Bearer Token"
+    val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient                                 = app.injector.instanceOf[HttpClient]
     val mockAppConfig: XmlServicesConnector.Config = mock[XmlServicesConnector.Config]
     when(mockAppConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
@@ -54,12 +55,13 @@ class XmlServicesConnectorSpec
       name = "xml api 1",
       serviceName = "service name",
       context = "context",
-      description = "description")
+      description = "description"
+    )
 
     val xmlApiTwo = xmlApiOne.copy(name = "xml api 2")
-    val xmlApis = Seq(xmlApiOne, xmlApiTwo)
+    val xmlApis   = Seq(xmlApiOne, xmlApiTwo)
 
-    val payeCategory = "PAYE"
+    val payeCategory    = "PAYE"
     val customsCategory = "CUSTOMS"
   }
 
@@ -120,7 +122,7 @@ class XmlServicesConnectorSpec
       )
       await(connector.getApisForCategories(List(payeCategory))) shouldBe List.empty
     }
-    
+
     "return List with XmlAPis when APIs are returned" in new Setup {
       stubFor(
         get(urlPathEqualTo(url))
@@ -134,7 +136,7 @@ class XmlServicesConnectorSpec
       )
       await(connector.getApisForCategories(List(payeCategory, customsCategory))) shouldBe xmlApis
     }
-    
+
     // This is a test of XmlServicesConnector.handleUpstream404s
     "return an empty list if the backend is not deployed" in new Setup {
       stubFor(
@@ -181,7 +183,7 @@ class XmlServicesConnectorSpec
   }
 
   "findOrganisationsByUserId" should {
-    val url = "/api-platform-xml-services/organisations"
+    val url    = "/api-platform-xml-services/organisations"
     val userId = UserId.random
     val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
 
@@ -219,7 +221,7 @@ class XmlServicesConnectorSpec
       )
       intercept[BadRequestException](await(connector.findOrganisationsByUserId(userId))) match {
         case (e: BadRequestException) => succeed
-        case _                          => fail
+        case _                        => fail
       }
     }
   }

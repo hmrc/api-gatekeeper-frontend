@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.views.helper
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 object IdFormatter {
-  def replaceNonAlphaNumeric(str: String, replacement: String = "_") = { str.replaceAll("\\W", replacement)}
+  def replaceNonAlphaNumeric(str: String, replacement: String = "_") = { str.replaceAll("\\W", replacement) }
 
   def identifier(context: ApiContext, suffix: ApiVersion) = { s"${replaceNonAlphaNumeric(context.value)}-${replaceNonAlphaNumeric(suffix.value)}" }
 }

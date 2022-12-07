@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import scala.concurrent.ExecutionContext
-import com.google.inject.{Singleton, Inject}
+import com.google.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -43,7 +43,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
-  
+
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
@@ -54,22 +54,22 @@ object ApplicationEventsController {
   }
 
   def who(event: AbstractApplicationEvent): String = event match {
-    case ae: ApplicationEvent => applicationEventWho(ae.actor)
+    case ae: ApplicationEvent          => applicationEventWho(ae.actor)
     case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)
   }
 
   def applicationEventWho(actor: Actor): String = actor match {
-    case Actors.Collaborator(email) => email.value
+    case Actors.Collaborator(email)  => email.value
     case Actors.GatekeeperUser(user) => s"(GK) $user"
-    case Actors.ScheduledJob(jobId) => s"Job($jobId)"
-    case Actors.Unknown => "Unknown"
+    case Actors.ScheduledJob(jobId)  => s"Job($jobId)"
+    case Actors.Unknown              => "Unknown"
   }
 
   def oldStyleApplicationEventWho(actor: OldStyleActor): String = actor match {
-    case OldStyleActors.Collaborator(id) => id
+    case OldStyleActors.Collaborator(id)   => id
     case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
-    case OldStyleActors.ScheduledJob(id) => s"Job($id)"
-    case OldStyleActors.Unknown => "Unknown"
+    case OldStyleActors.ScheduledJob(id)   => s"Job($id)"
+    case OldStyleActors.Unknown            => "Unknown"
   }
 
   def fromDescription(tag: String): Option[EventTag] = tag match {
@@ -86,6 +86,7 @@ object ApplicationEventsController {
   case class SearchFilterValues(eventTags: List[String])
 
   object SearchFilterValues {
+
     def apply(qvs: QueryableValues): SearchFilterValues = {
       val eventTags = qvs.eventTags.map(EventTags.describe)
       SearchFilterValues(eventTags)
@@ -108,34 +109,35 @@ object ApplicationEventsController {
 }
 
 @Singleton
-class ApplicationEventsController @Inject()(
-  eventsConnector: ApiPlatformEventsConnector,
-  applicationEventsView: ApplicationEventsView,
-  mcc: MessagesControllerComponents,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService,
-  val apmService: ApmService,
-  val applicationService: ApplicationService,
-  val errorTemplate: ErrorTemplate,
-  val errorHandler: ErrorHandler
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-    extends GatekeeperBaseController(strideAuthorisationService, mcc)
+class ApplicationEventsController @Inject() (
+    eventsConnector: ApiPlatformEventsConnector,
+    applicationEventsView: ApplicationEventsView,
+    mcc: MessagesControllerComponents,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService,
+    val apmService: ApmService,
+    val applicationService: ApplicationService,
+    val errorTemplate: ErrorTemplate,
+    val errorHandler: ErrorHandler
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
-    with ErrorHelper 
-    with ActionBuilders 
+    with ErrorHelper
+    with ActionBuilders
     with ApplicationLogger {
 
   import ApplicationEventsController._
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
-      def handleFormError(form: Form[QueryForm]): Future[Result]  = {
+      def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
-          events <- eventsConnector.query(appId, None)
-          eventModels = events.map(EventModel(_))
-        } yield  {
+          events             <- eventsConnector.query(appId, None)
+          eventModels         = events.map(EventModel(_))
+        } yield {
           val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
           Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))
         }
@@ -144,9 +146,9 @@ class ApplicationEventsController @Inject()(
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
-          queryForm = QueryForm.form.fill(form)
-          events <- eventsConnector.query(appId, form.eventTag.flatMap(fromDescription))
-          eventModels = events.map(EventModel(_))
+          queryForm           = QueryForm.form.fill(form)
+          events             <- eventsConnector.query(appId, form.eventTag.flatMap(fromDescription))
+          eventModels         = events.map(EventModel(_))
         } yield {
           val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
           Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))

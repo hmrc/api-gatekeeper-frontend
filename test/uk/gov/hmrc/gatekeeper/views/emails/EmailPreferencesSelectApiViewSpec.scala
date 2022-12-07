@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectApiView
 import uk.gov.hmrc.gatekeeper.models.{ApiType, CombinedApi, CombinedApiCategory}
 
-class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPreferencesSelectAPIViewHelper{
+class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPreferencesSelectAPIViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
@@ -38,25 +38,25 @@ class EmailPreferencesSelectApiViewSpec extends CommonViewSpec with EmailPrefere
 
   "email preferences specific api view" must {
 
-     val api1: CombinedApi = simpleAPI(serviceName="serviceName0", displayName="displayName0",  List.empty,  ApiType.REST_API, Some(PUBLIC))
-     val api2 = simpleAPI(serviceName="serviceName1", displayName="displayName1",  List.empty,  ApiType.REST_API, Some(PUBLIC))
-     val api3 = simpleAPI(serviceName="serviceName2", displayName="displayName2",  List.empty,  ApiType.XML_API, Some(PUBLIC))
-     val dropDownApis = Seq(api1, api2, api3)
+    val api1: CombinedApi = simpleAPI(serviceName = "serviceName0", displayName = "displayName0", List.empty, ApiType.REST_API, Some(PUBLIC))
+    val api2              = simpleAPI(serviceName = "serviceName1", displayName = "displayName1", List.empty, ApiType.REST_API, Some(PUBLIC))
+    val api3              = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", List.empty, ApiType.XML_API, Some(PUBLIC))
+    val dropDownApis      = Seq(api1, api2, api3)
 
     val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-    val combinedXmlApi3 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
-    val combinedList = List(combinedRestApi1, combinedXmlApi3)
+    val combinedXmlApi3  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
+    val combinedList     = List(combinedRestApi1, combinedXmlApi3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
-      
+        emailPreferencesSelectApiView.render(dropDownApis, Seq.empty, request, LoggedInUser(None), messagesProvider)
+
       validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), dropDownApis)
     }
-    
+
     "show correct title and options when selectedAPis are provided" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesSelectApiView.render(dropDownApis, combinedList, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectApiView.render(dropDownApis, combinedList, request, LoggedInUser(None), messagesProvider)
 
       validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), dropDownApis, combinedList)
     }

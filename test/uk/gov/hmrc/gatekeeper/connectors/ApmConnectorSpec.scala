@@ -41,7 +41,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-class ApmConnectorSpec 
+class ApmConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
@@ -62,85 +62,85 @@ class ApmConnectorSpec
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 
     val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-    val combinedXmlApi2 = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
-    val combinedList = List(combinedRestApi1, combinedXmlApi2)
+    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
+    val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", DateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
+    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
   }
 
   "fetchApplicationById" should {
     "return ApplicationWithSubscriptionData" in new Setup {
       implicit val writesApplicationWithSubscriptionData = Json.writes[ApplicationWithSubscriptionData]
 
-      val url = s"/applications/${applicationId.value.toString()}"
+      val url                             = s"/applications/${applicationId.value.toString()}"
       val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)
-      val payload = Json.toJson(applicationWithSubscriptionData)
+      val payload                         = Json.toJson(applicationWithSubscriptionData)
 
       stubFor(
-          get(urlEqualTo(url))
+        get(urlEqualTo(url))
           .willReturn(
             aResponse()
-            .withStatus(OK)
-            .withBody(payload.toString)
+              .withStatus(OK)
+              .withBody(payload.toString)
           )
-        )
+      )
 
       val result = await(underTest.fetchApplicationById(applicationId))
       result should not be None
-      
+
       result.map { appWithSubsData =>
         appWithSubsData.application.id shouldBe application.id
       }
     }
   }
-  
+
   "fetchAllPossibleSubscriptions" should {
     val url = "/api-definitions"
-    
+
     "return all subscribeable API's and their ApiData" in new Setup {
       import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
       implicit val versionDataWrites = Json.writes[VersionData]
-      implicit val apiDataWrites = Json.writes[ApiData]
+      implicit val apiDataWrites     = Json.writes[ApiData]
 
-      val apiData = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
-      val apiContext = ApiContext("Api Context")
+      val apiData              = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
+      val apiContext           = ApiContext("Api Context")
       val apiContextAndApiData = Map(apiContext -> apiData)
-      val payload = Json.stringify(Json.toJson(apiContextAndApiData))
+      val payload              = Json.stringify(Json.toJson(apiContextAndApiData))
 
       stubFor(
         get(urlPathEqualTo(url))
-        .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
-        .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload)
-        )
+          .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
+          .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload)
+          )
       )
 
       val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-      result(apiContext).name shouldBe "API Name" 
+      result(apiContext).name shouldBe "API Name"
     }
   }
 
   "subscribeToApi" should {
-    val apiContext = ApiContext.random
-    val apiVersion = ApiVersion.random
+    val apiContext    = ApiContext.random
+    val apiVersion    = ApiVersion.random
     val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
-      
+
     "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
       val url = s"/applications/${applicationId.value.toString()}/subscriptions"
 
       stubFor(
         post(urlPathEqualTo(url))
-        .withQueryParam("restricted", equalTo("false"))
-        .willReturn(
-          aResponse()
-          .withStatus(CREATED)
-        )
+          .withQueryParam("restricted", equalTo("false"))
+          .willReturn(
+            aResponse()
+              .withStatus(CREATED)
+          )
       )
-        
+
       val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
 
       result shouldBe ApplicationUpdateSuccessResult
@@ -151,11 +151,11 @@ class ApmConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .withQueryParam("restricted", equalTo("false"))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .withQueryParam("restricted", equalTo("false"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -172,10 +172,10 @@ class ApmConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+          )
       )
 
       await(underTest.addTeamMember(applicationId, addTeamMemberRequest)) shouldBe (())
@@ -186,10 +186,10 @@ class ApmConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(CONFLICT)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(CONFLICT)
+          )
       )
 
       intercept[TeamMemberAlreadyExists.type] {
@@ -202,10 +202,10 @@ class ApmConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       intercept[ApplicationNotFound.type] {
@@ -218,10 +218,10 @@ class ApmConnectorSpec
 
       stubFor(
         post(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -236,16 +236,16 @@ class ApmConnectorSpec
 
       stubFor(
         get(urlMatching(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody("{}")
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("{}")
+          )
       )
 
       val result = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
       result shouldBe Map.empty
-    } 
+    }
   }
 
   "fetchAllCombinedApis" should {
@@ -254,26 +254,26 @@ class ApmConnectorSpec
 
       stubFor(
         get(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(Json.toJson(combinedList).toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(combinedList).toString)
+          )
       )
 
       val result = await(underTest.fetchAllCombinedApis())
       result shouldBe combinedList
-    }    
-    
+    }
+
     "returns exception when backend returns error" in new Setup {
       val url = "/combined-rest-xml-apis"
 
       stubFor(
         get(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -284,11 +284,11 @@ class ApmConnectorSpec
 
   "fetchAllBoxes" should {
     import play.api.libs.json.JodaWrites._
-    implicit val writesBoxId = Json.valueFormat[BoxId]
-    implicit val writesBoxCreator = Json.writes[BoxCreator]
+    implicit val writesBoxId         = Json.valueFormat[BoxId]
+    implicit val writesBoxCreator    = Json.writes[BoxCreator]
     implicit val writesBoxSubscriber = Json.writes[BoxSubscriber]
-    implicit val writesBox = Json.writes[Box]
-    
+    implicit val writesBox           = Json.writes[Box]
+
     "returns all boxes" in new Setup {
       val url = "/push-pull-notifications/boxes"
 
@@ -296,15 +296,15 @@ class ApmConnectorSpec
 
       stubFor(
         get(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(Json.toJson(boxes).toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(boxes).toString)
+          )
       )
 
       val result = await(underTest.fetchAllBoxes())
       result shouldBe boxes
-    }    
+    }
   }
 }

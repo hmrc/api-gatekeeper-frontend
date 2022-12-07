@@ -28,7 +28,7 @@ trait TitleChecker extends AsyncHmrcSpec {
 
   def titleOf(result: Future[Result]): String = {
     val titleRegEx = """<title[^>]*>(.*)</title>""".r
-    val title = titleRegEx.findFirstMatchIn(contentAsString(result)).map(_.group(1))
+    val title      = titleRegEx.findFirstMatchIn(contentAsString(result)).map(_.group(1))
     title.isDefined shouldBe true
     title.get
   }

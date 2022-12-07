@@ -31,19 +31,20 @@ import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ApplicationStatesController @Inject()(
-  mcc: MessagesControllerComponents,
-  val applicationService: ApplicationService,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) with GatekeeperAuthorisationActions {
+class ApplicationStatesController @Inject() (
+    mcc: MessagesControllerComponents,
+    val applicationService: ApplicationService,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with GatekeeperAuthorisationActions {
 
   val csvFileName = "applicationStateHistory.csv"
 
   def csv(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     applicationService.fetchProdAppStateHistories().map(appStateHistoryChange => {
-      val columnDefinitions : Seq[ColumnDefinition[ApplicationStateHistoryChange]] = Seq(
+      val columnDefinitions: Seq[ColumnDefinition[ApplicationStateHistoryChange]] = Seq(
         ColumnDefinition("applicationId", _.applicationId),
         ColumnDefinition("applicationName", _.appName),
         ColumnDefinition("journeyVersion", _.journeyVersion),
@@ -52,7 +53,7 @@ class ApplicationStatesController @Inject()(
         ColumnDefinition("newState", _.newState),
         ColumnDefinition("newTimestamp", _.newTimestamp)
       )
-      
+
       Ok(CsvHelper.toCsvString(columnDefinitions, appStateHistoryChange))
         .withHeaders((HeaderNames.CONTENT_DISPOSITION, s"attachment;filename=${csvFileName}"))
         .as("text/csv")

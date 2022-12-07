@@ -34,12 +34,12 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 
 class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnectorMockModule with StubMessagesFactory with TableDrivenPropertyChecks {
   val strideAuthRoles = StrideAuthRoles(adminRole = "test-admin", superUserRole = "test-superUser", userRole = "test-user")
-  val fakeRequest = FakeRequest()
-  val msgRequest = new MessagesRequest(fakeRequest, stubMessagesApi())
-  
+  val fakeRequest     = FakeRequest()
+  val msgRequest      = new MessagesRequest(fakeRequest, stubMessagesApi())
+
   trait Setup {
     val strideAuthConfig = StrideAuthConfig(strideLoginUrl = "http:///www.example.com", successUrl = "", origin = "", roles = strideAuthRoles)
-    
+
     val underTest = new StrideAuthorisationService(
       strideAuthConnector = StrideAuthConnectorMock.aMock,
       forbiddenHandler = new ForbiddenHandler { def handle(msgResult: MessagesRequest[_]): Result = Forbidden("No thanks") },
@@ -51,18 +51,18 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
 
     "return the appropriate results" in new Setup {
       import GatekeeperRoles._
-      
-      val cases = Table( 
-        ( "requiredRole", "user has role",  "expected outcome"),
-        ( ADMIN,          ADMIN,            Right(ADMIN)),
-        ( SUPERUSER,      ADMIN,            Right(ADMIN)),
-        ( USER,           ADMIN,            Right(ADMIN)),
-        ( ADMIN,          SUPERUSER,        Left(FORBIDDEN)),
-        ( SUPERUSER,      SUPERUSER,        Right(SUPERUSER)),
-        ( USER,           SUPERUSER,        Right(SUPERUSER)),
-        ( ADMIN,          USER,             Left(FORBIDDEN)),
-        ( SUPERUSER,      USER,             Left(FORBIDDEN)),
-        ( USER,           USER,             Right(USER))
+
+      val cases = Table(
+        ("requiredRole", "user has role", "expected outcome"),
+        (ADMIN, ADMIN, Right(ADMIN)),
+        (SUPERUSER, ADMIN, Right(ADMIN)),
+        (USER, ADMIN, Right(ADMIN)),
+        (ADMIN, SUPERUSER, Left(FORBIDDEN)),
+        (SUPERUSER, SUPERUSER, Right(SUPERUSER)),
+        (USER, SUPERUSER, Right(SUPERUSER)),
+        (ADMIN, USER, Left(FORBIDDEN)),
+        (SUPERUSER, USER, Left(FORBIDDEN)),
+        (USER, USER, Right(USER))
       )
 
       forAll(cases) { case (requiredRole, userIsOfRole, expected) =>
@@ -70,7 +70,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
 
         val result: Either[Result, LoggedInRequest[_]] = await(underTest.refineStride(requiredRole)(msgRequest))
         expected match {
-          case Right(role) => result.right.value.role shouldBe role
+          case Right(role)      => result.right.value.role shouldBe role
           case Left(statusCode) => result.left.value.header.status shouldBe statusCode
         }
       }

@@ -25,22 +25,18 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class Actor(id: String)
 
-case class StateHistory(applicationId: ApplicationId,
-                        state: State,
-                        actor: Actor,
-                        notes: Option[String] = None,
-                        changedAt: DateTime = DateTime.now())
+case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: DateTime = DateTime.now())
 
 object StateHistory {
 
-  def ascendingDateForAppId(s1:StateHistory, s2:StateHistory): Boolean = {
+  def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
     s1.applicationId match {
       case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)
-      case _ => true
+      case _                => true
     }
   }
 
   implicit val formatState = Json.formatEnum(State)
   implicit val formatActor = Json.format[Actor]
-  implicit val format = Json.format[StateHistory]
+  implicit val format      = Json.format[StateHistory]
 }

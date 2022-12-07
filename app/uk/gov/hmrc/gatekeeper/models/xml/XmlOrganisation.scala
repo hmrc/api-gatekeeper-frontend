@@ -19,16 +19,19 @@ package uk.gov.hmrc.gatekeeper.models.xml
 import play.api.libs.json.Json
 
 case class OrganisationId(value: java.util.UUID) extends AnyVal
+
 object OrganisationId {
   implicit val formatOrganisationId = Json.valueFormat[OrganisationId]
 }
 
 case class VendorId(value: Long) extends AnyVal
+
 object VendorId {
   implicit val formatVendorId = Json.valueFormat[VendorId]
 }
 
 case class XmlOrganisation(organisationId: OrganisationId, vendorId: VendorId, name: String)
+
 object XmlOrganisation {
   implicit val formatOrganisation = Json.format[XmlOrganisation]
 }

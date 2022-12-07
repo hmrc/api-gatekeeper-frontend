@@ -50,7 +50,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       ApiType.XML_API,
       Some(PUBLIC)
     )
-    val combinedList = List(combinedRestApi1, combinedXmlApi2)
+    val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 
   }
 
@@ -99,7 +99,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchAllBoxes" should {
       "return a list of PPNS Boxes" in new Setup {
         val allBoxes = List.empty
-        
+
         FetchAllBoxes.returns(allBoxes)
 
         val result = await(apmService.fetchAllBoxes())

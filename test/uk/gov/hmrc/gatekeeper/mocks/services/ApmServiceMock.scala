@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import scala.concurrent.Future.{failed,successful}
+import scala.concurrent.Future.{failed, successful}
 
 trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -33,14 +33,17 @@ trait ApmServiceMockProvider {
   val mockApmService = mock[ApmService]
 
   object ApmServiceMock {
+
     object FetchApplicationById {
       private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
 
-      def returns(app: ApplicationWithSubscriptionData) = 
+      def returns(app: ApplicationWithSubscriptionData)     =
         whenClause.thenReturn(successful(Some(app)))
-      def returnsNone(app: ApplicationWithSubscriptionData) = 
+
+      def returnsNone(app: ApplicationWithSubscriptionData) =
         whenClause.thenReturn(successful(None))
-      def failsWith(throwable: Throwable) =
+
+      def failsWith(throwable: Throwable)                   =
         whenClause.thenReturn(failed(throwable))
     }
 

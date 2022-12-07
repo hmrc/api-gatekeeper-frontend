@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.gkauth.services
 import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceLocation, ResourceType}
 
 object LdapAuthorisationPredicate {
+
   val gatekeeperReadPermission = Predicate.Permission(
     Resource(
       ResourceType("api-gatekeeper-frontend"),

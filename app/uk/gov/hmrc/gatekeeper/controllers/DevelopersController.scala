@@ -35,17 +35,18 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
-class DevelopersController @Inject()(
-  val forbiddenView: ForbiddenView,
-  developerService: DeveloperService,
-  val apiDefinitionService: ApiDefinitionService,
-  mcc: MessagesControllerComponents,
-  developersView: DevelopersView,
-  override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+class DevelopersController @Inject() (
+    val forbiddenView: ForbiddenView,
+    developerService: DeveloperService,
+    val apiDefinitionService: ApiDefinitionService,
+    mcc: MessagesControllerComponents,
+    developersView: DevelopersView,
+    override val errorTemplate: ErrorTemplate,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
     with UserFunctionsWrapper
@@ -58,25 +59,25 @@ class DevelopersController @Inject()(
   def developersPage() = anyAuthenticatedUserAction { implicit request =>
     DevelopersSearchForm.form.bindFromRequest.fold(
       formWithErrors => {
-          logger.warn("Errors found trying to bind request for developers search")
-          // binding failure, you retrieve the form containing errors:
-          Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None,None,None,None)))))
+        logger.warn("Errors found trying to bind request for developers search")
+        // binding failure, you retrieve the form containing errors:
+        Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None, None, None, None)))))
       },
       searchParams => {
         val allFoundUsers = searchParams match {
-          case DevelopersSearchForm(None, None, None, None) =>
+          case DevelopersSearchForm(None, None, None, None)                                                                      =>
             logger.info("Not performing a query for empty parameters")
             Future.successful(List.empty)
           case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
             logger.info("Searching developers")
             val filters =
-            DevelopersSearchFilter(
-              mapEmptyStringToNone(maybeEmailFilter),
-                  ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
-                  ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
-                  DeveloperStatusFilter(maybeDeveloperStatusFilter)
-                )
-                developerService.searchDevelopers(filters)
+              DevelopersSearchFilter(
+                mapEmptyStringToNone(maybeEmailFilter),
+                ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)),
+                ApiSubscriptionInEnvironmentFilter(maybeEnvironmentFilter),
+                DeveloperStatusFilter(maybeDeveloperStatusFilter)
+              )
+            developerService.searchDevelopers(filters)
         }
         combineUsersIntoPage(allFoundUsers, searchParams)
           .map(_.withHeaders("Cache-Control" -> "no-cache"))
@@ -86,13 +87,13 @@ class DevelopersController @Inject()(
 
   def combineUsersIntoPage(allFoundUsers: Future[List[User]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
     for {
-      users <- allFoundUsers
+      users          <- allFoundUsers
       registeredUsers = users.collect {
-                          case r : RegisteredUser => r
+                          case r: RegisteredUser => r
                         }
-      verifiedUsers = registeredUsers.filter(_.verified)
-      apiVersions <- apiDefinitionService.fetchAllApiDefinitions()
-      form = DevelopersSearchForm.form.fill(searchParams)
+      verifiedUsers   = registeredUsers.filter(_.verified)
+      apiVersions    <- apiDefinitionService.fetchAllApiDefinitions()
+      form            = DevelopersSearchForm.form.fill(searchParams)
     } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
   }
 

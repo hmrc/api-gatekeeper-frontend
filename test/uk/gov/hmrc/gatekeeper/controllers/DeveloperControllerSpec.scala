@@ -34,38 +34,52 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer = app.materializer
-  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
-  private lazy val developerDetailsView = app.injector.instanceOf[DeveloperDetailsView]
-  private lazy val removeMfaView = app.injector.instanceOf[RemoveMfaView]
-  private lazy val removeMfaSuccessView = app.injector.instanceOf[RemoveMfaSuccessView]
-  private lazy val deleteDeveloperView = app.injector.instanceOf[DeleteDeveloperView]
+  implicit val materializer                   = app.materializer
+  private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView              = app.injector.instanceOf[ForbiddenView]
+  private lazy val developerDetailsView       = app.injector.instanceOf[DeveloperDetailsView]
+  private lazy val removeMfaView              = app.injector.instanceOf[RemoveMfaView]
+  private lazy val removeMfaSuccessView       = app.injector.instanceOf[RemoveMfaSuccessView]
+  private lazy val deleteDeveloperView        = app.injector.instanceOf[DeleteDeveloperView]
   private lazy val deleteDeveloperSuccessView = app.injector.instanceOf[DeleteDeveloperSuccessView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorHandler               = app.injector.instanceOf[ErrorHandler]
 
   Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
       val grantLength: Period = Period.ofDays(547)
       ApplicationResponse(
-        ApplicationId.random, ClientId.random, "gatewayId", "application", "PRODUCTION", None, collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
+        ApplicationId.random,
+        ClientId.random,
+        "gatewayId",
+        "application",
+        "PRODUCTION",
+        None,
+        collaborators,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      )
     }
 
     trait Setup extends ControllerSetupBase {
 
       val emailAddress = "someone@example.com"
-      val user = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      val developerId = UuidIdentifier(user.userId)
+      val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
+      val developerId  = UuidIdentifier(user.userId)
 
-      val apps = List(anApplication(Set(Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))))
-      val developer = Developer( user, apps )
+      val apps      = List(anApplication(Set(
+        Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
+        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+      )))
+      val developer = Developer(user, apps)
 
-      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
-      val loggedInSuperUser = "superUserName"
-      val loggedInUser = "Bobby Example"
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
+      val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
+      val loggedInSuperUser                  = "superUserName"
+      val loggedInUser                       = "Bobby Example"
+      override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
 
       val developersController = new DeveloperController(
@@ -91,16 +105,16 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       }
 
       def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
-        val apiFilter = ApiFilter(Some(""))
+        val apiFilter         = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
-        val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val statusFilter      = StatusFilter(None)
+        val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
         ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
         FetchAllApiDefinitions.inAny.returns()
-        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps:_*)(developers:_*)
-        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
-        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps:_*)(users:_*)(developers:_*)
-        DeveloperServiceMock.FetchUsers.returns(users:_*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps: _*)(developers: _*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers: _*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps: _*)(users: _*)(developers: _*)
+        DeveloperServiceMock.FetchUsers.returns(users: _*)
       }
 
       DeveloperServiceMock.RemoveMfa.returns(user)
@@ -140,7 +154,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         DeveloperServiceMock.RemoveMfa.returns(user)
 
         val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
-        val result = developersController.removeMfaAction(developerId)(request)
+        val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe OK
         verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
@@ -150,7 +164,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "no"))
-        val result = developersController.removeMfaAction(developerId)(request)
+        val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId.userId.value}")
@@ -170,7 +184,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
-        val result = developersController.removeMfaAction(developerId)(request)
+        val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }

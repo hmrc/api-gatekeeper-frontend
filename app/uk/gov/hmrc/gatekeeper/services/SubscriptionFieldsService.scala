@@ -27,19 +27,24 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
-class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
-                                          @Named("PRODUCTION")productionSubscriptionFieldsConnector: SubscriptionFieldsConnector)
-                                          extends APIDefinitionFormatters {
+class SubscriptionFieldsService @Inject() (
+    @Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
+    @Named("PRODUCTION") productionSubscriptionFieldsConnector: SubscriptionFieldsConnector
+  ) extends APIDefinitionFormatters {
 
-  def saveFieldValues(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
-      (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
+  def saveFieldValues(
+      application: NewApplication,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fields: Fields.Alias
+    )(implicit hc: HeaderCarrier
+    ): Future[SaveSubscriptionFieldsResponse] = {
     connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
-
-  def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier) : Future[List[ApplicationApiFieldValues]] = {
+  def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
     val productionEnvironment = Environment.PRODUCTION.toString()
-    val connector = connectorFor(productionEnvironment)
+    val connector             = connectorFor(productionEnvironment)
 
     connector.fetchAllFieldValues()
   }
@@ -53,6 +58,7 @@ class SubscriptionFieldsService @Inject()(@Named("SANDBOX") sandboxSubscriptionF
 }
 
 object SubscriptionFieldsService {
+
   trait SubscriptionFieldsConnector {
     def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
 

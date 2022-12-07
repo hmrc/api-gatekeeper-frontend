@@ -21,12 +21,15 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersio
 import uk.gov.hmrc.gatekeeper.models.ClientId
 
 trait UrlEncoders {
+
   implicit class UrlEncodeContext(context: ApiContext) {
     def urlEncode: String = encode(context.value, "UTF-8")
   }
+
   implicit class UrlEncodeVersion(version: ApiVersion) {
     def urlEncode: String = encode(version.value, "UTF-8")
   }
+
   implicit class UrlEncodeClientId(clientId: ClientId) {
     def urlEncode: String = encode(clientId.value, "UTF-8")
   }

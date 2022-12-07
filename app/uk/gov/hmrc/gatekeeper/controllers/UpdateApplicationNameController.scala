@@ -35,20 +35,21 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 @Singleton
-class UpdateApplicationNameController @Inject()(
-  val applicationService: ApplicationService,
-  val forbiddenView: ForbiddenView,
-  mcc: MessagesControllerComponents,
-  override val errorTemplate: ErrorTemplate,
-  manageApplicationNameView: ManageApplicationNameView,
-  manageApplicationNameAdminListView: ManageApplicationNameAdminListView,
-  manageApplicationNameSingleAdminView: ManageApplicationNameSingleAdminView,
-  manageApplicationNameSuccessView: ManageApplicationNameSuccessView,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
-  strideAuthorisationService: StrideAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+class UpdateApplicationNameController @Inject() (
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    mcc: MessagesControllerComponents,
+    override val errorTemplate: ErrorTemplate,
+    manageApplicationNameView: ManageApplicationNameView,
+    manageApplicationNameAdminListView: ManageApplicationNameAdminListView,
+    manageApplicationNameSingleAdminView: ManageApplicationNameSingleAdminView,
+    manageApplicationNameSuccessView: ManageApplicationNameSuccessView,
+    val apmService: ApmService,
+    val errorHandler: ErrorHandler,
+    strideAuthorisationService: StrideAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
@@ -72,12 +73,12 @@ class UpdateApplicationNameController @Inject()(
 
         } else {
           applicationService.validateApplicationName(app.application, form.applicationName).map(_ match {
-            case ValidateApplicationNameSuccessResult =>
+            case ValidateApplicationNameSuccessResult          =>
               Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
-            case failure : ValidateApplicationNameFailureResult => {
-              val errorMsg = failure match {
-                case ValidateApplicationNameFailureInvalidResult => "application.name.invalid.error"
+            case failure: ValidateApplicationNameFailureResult => {
+              val errorMsg       = failure match {
+                case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error"
                 case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error"
               }
               val formWithErrors = UpdateApplicationNameForm.form.fill(form)
@@ -110,11 +111,11 @@ class UpdateApplicationNameController @Inject()(
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameAdminEmailForm) = {
         val newApplicationName = request.session.get(newAppNameSessionKey).get
-        val gatekeeperUser = loggedIn.userFullName.get
-        val adminEmail = form.adminEmail.get
-        applicationService.updateApplicationName(app.application, adminEmail, gatekeeperUser, newApplicationName).map( _ match {
+        val gatekeeperUser     = loggedIn.userFullName.get
+        val adminEmail         = form.adminEmail.get
+        applicationService.updateApplicationName(app.application, adminEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
-            .withSession(request.session - newAppNameSessionKey)
+              .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
             val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName))
               .withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.updatefailed.error"))

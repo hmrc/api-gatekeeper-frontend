@@ -40,24 +40,25 @@ import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 import scala.concurrent.Future.successful
 
 @Singleton
-class DeveloperController @Inject()(
-  developerService: DeveloperService,
-  val applicationService: ApplicationService,
-  val forbiddenView: ForbiddenView,
-  apiDefinitionService: ApiDefinitionService,
-  mcc: MessagesControllerComponents,
-  developerDetailsView: DeveloperDetailsView,
-  removeMfaView: RemoveMfaView,
-  removeMfaSuccessView: RemoveMfaSuccessView,
-  deleteDeveloperView: DeleteDeveloperView,
-  deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
-  override val errorTemplate: ErrorTemplate,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
+class DeveloperController @Inject() (
+    developerService: DeveloperService,
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    apiDefinitionService: ApiDefinitionService,
+    mcc: MessagesControllerComponents,
+    developerDetailsView: DeveloperDetailsView,
+    removeMfaView: RemoveMfaView,
+    removeMfaSuccessView: RemoveMfaSuccessView,
+    deleteDeveloperView: DeleteDeveloperView,
+    deleteDeveloperSuccessView: DeleteDeveloperSuccessView,
+    override val errorTemplate: ErrorTemplate,
+    val apmService: ApmService,
+    val errorHandler: ErrorHandler,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
     with ActionBuilders
@@ -65,7 +66,7 @@ class DeveloperController @Inject()(
 
   def developerPage(developerId: DeveloperIdentifier): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
-        s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
+      s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
     developerService.fetchDeveloper(developerId, FetchDeletedApplications.Include).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))
   }
@@ -75,7 +76,6 @@ class DeveloperController @Inject()(
   }
 
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
-
     def handleRemoveMfa() = {
       developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
         Ok(removeMfaSuccessView(user.email, developerIdentifier))
@@ -89,7 +89,7 @@ class DeveloperController @Inject()(
     def handleValidForm(form: RemoveMfaConfirmationForm): Future[Result] = {
       form.confirm match {
         case "yes" => handleRemoveMfa()
-        case _ => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier).url))
+        case _     => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier).url))
       }
     }
 
@@ -107,7 +107,7 @@ class DeveloperController @Inject()(
   def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
     developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
       case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
-      case _ => technicalDifficulties
+      case _                                         => technicalDifficulties
     }
   }
 }

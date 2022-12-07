@@ -43,16 +43,18 @@ case class NewApplication(
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
     grantLength: Period
-) {
-  lazy val privacyPolicyLocation = access match {
+  ) {
+
+  lazy val privacyPolicyLocation      = access match {
     case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
-    case Standard(_, _, Some(url), _, _) => PrivacyPolicyLocation.Url(url)
-    case _ => PrivacyPolicyLocation.NoneProvided
+    case Standard(_, _, Some(url), _, _)                                                  => PrivacyPolicyLocation.Url(url)
+    case _                                                                                => PrivacyPolicyLocation.NoneProvided
   }
+
   lazy val termsAndConditionsLocation = access match {
     case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _)), _) => termsAndConditionsLocation
-    case Standard(_, Some(url), _, _, _) => TermsAndConditionsLocation.Url(url)
-    case _ => TermsAndConditionsLocation.NoneProvided
+    case Standard(_, Some(url), _, _, _)                                                       => TermsAndConditionsLocation.Url(url)
+    case _                                                                                     => TermsAndConditionsLocation.NoneProvided
   }
 }
 
@@ -63,21 +65,22 @@ object NewApplication {
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
-  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatStandard   = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc = Json.format[Ropc]
-  implicit val formAccessType = Union.from[Access]("accessType")
+  private implicit val formatRopc       = Json.format[Ropc]
+
+  implicit val formAccessType           = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
 
-  implicit val formatRole = Json.formatEnum(CollaboratorRole)
-  implicit val formatCollaborator = Json.format[Collaborator]
+  implicit val formatRole             = Json.formatEnum(CollaboratorRole)
+  implicit val formatCollaborator     = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
-  implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
-  implicit val formatGrantLength = Json.formatEnum(GrantLength)
-  implicit val applicationFormat = Json.format[NewApplication]
+  implicit val formatRateLimitTier    = Json.formatEnum(RateLimitTier)
+  implicit val formatGrantLength      = Json.formatEnum(GrantLength)
+  implicit val applicationFormat      = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)
 }

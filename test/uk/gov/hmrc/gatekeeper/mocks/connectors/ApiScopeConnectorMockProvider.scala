@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.models.ApiScope
 trait ApiScopeConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val mockSandboxApiScopeConnector = mock[SandboxApiScopeConnector]
+  val mockSandboxApiScopeConnector    = mock[SandboxApiScopeConnector]
   val mockProductionApiScopeConnector = mock[ProductionApiScopeConnector]
 
   trait ApiScopeConnectorMock {
@@ -35,8 +35,9 @@ trait ApiScopeConnectorMockProvider {
     }
 
   }
-  
+
   object ApiScopeConnectorMock {
+
     object Prod extends ApiScopeConnectorMock {
       val mock = mockProductionApiScopeConnector
     }

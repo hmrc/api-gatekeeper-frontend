@@ -27,7 +27,7 @@ import scala.concurrent.Future
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import scala.concurrent.Future.{failed, successful}
-import uk.gov.hmrc.auth.core.{InvalidBearerToken}
+import uk.gov.hmrc.auth.core.InvalidBearerToken
 
 trait StrideAuthorisationServiceMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -36,34 +36,29 @@ trait StrideAuthorisationServiceMockModule {
     def aMock: StrideAuthorisationService
 
     object Auth {
+
       private def wrap[A](fn: MessagesRequest[A] => Future[Either[Result, LoggedInRequest[A]]]) = {
         when(aMock.refineStride[A](*)).thenReturn(fn)
       }
-      def succeeds[A](role: GatekeeperStrideRole) = {
-        wrap[A](
-          (msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), role, msg)))
-        )
+
+      def succeeds[A](role: GatekeeperStrideRole)                                               = {
+        wrap[A]((msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), role, msg))))
       }
 
-      def invalidBearerToken[A] = {
-        wrap[A](
-          (msg) => failed(new InvalidBearerToken)
-        )
+      def invalidBearerToken[A]        = {
+        wrap[A]((msg) => failed(new InvalidBearerToken))
       }
+
       def hasInsufficientEnrolments[A] = {
-        wrap[A](
-          (msg) => successful(Left(Forbidden("You do not have permission")))
-        )
+        wrap[A]((msg) => successful(Left(Forbidden("You do not have permission"))))
       }
 
       def sessionRecordNotFound[A] = {
-        wrap[A](
-          (msg) => successful(Left(Redirect("http://example.com")))
-        )
+        wrap[A]((msg) => successful(Left(Redirect("http://example.com"))))
       }
     }
   }
-  
+
   object StrideAuthorisationServiceMock extends BaseStrideAuthorisationServiceMock {
     val aMock = mock[StrideAuthorisationService]
   }

@@ -38,11 +38,11 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
   }
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias]  = {
+  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
     apmConnector.getAllFieldDefinitions(environment)
   }
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]]  = {
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     apmConnector.fetchAllCombinedApis()
   }
 

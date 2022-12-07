@@ -29,19 +29,19 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
 
-class ApiPlatformEventsConnectorSpec 
+class ApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding {
-  
+
   private val applicationId = ApplicationId.random
 
   trait Setup {
-    val authToken = "Bearer Token"
+    val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient                                    = app.injector.instanceOf[HttpClient]
     val mockConfig: ApiPlatformEventsConnector.Config = mock[ApiPlatformEventsConnector.Config]
     when(mockConfig.baseUrl).thenReturn(wireMockUrl)
 

@@ -26,20 +26,24 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeveloperService @Inject()(appConfig: AppConfig,
-                                 developerConnector: DeveloperConnector,
-                                 sandboxApplicationConnector: SandboxApplicationConnector,
-                                 productionApplicationConnector: ProductionApplicationConnector,
-                                 xmlService: XmlService)(implicit ec: ExecutionContext) {
+class DeveloperService @Inject() (
+    appConfig: AppConfig,
+    developerConnector: DeveloperConnector,
+    sandboxApplicationConnector: SandboxApplicationConnector,
+    productionApplicationConnector: ProductionApplicationConnector,
+    xmlService: XmlService
+  )(implicit ec: ExecutionContext
+  ) {
+
   def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
-      case (emailFilter, None) => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
+      case (emailFilter, None)                 => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybeEmailFilter, Some(apiFilter)) => {
         for {
-          collaboratorEmails <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybeEmailFilter, apiFilter)
-          users <- developerConnector.fetchByEmails(collaboratorEmails)
-          filteredRegisteredUsers <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
+          collaboratorEmails             <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybeEmailFilter, apiFilter)
+          users                          <- developerConnector.fetchByEmails(collaboratorEmails)
+          filteredRegisteredUsers        <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
           filteredByDeveloperStatusUsers <- Future.successful(filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch))
         } yield filteredByDeveloperStatusUsers
       }
@@ -50,15 +54,17 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     } yield results.sortBy(_.email)
   }
 
-  private def getCollaboratorsByApplicationEnvironments(environmentFilter: ApiSubscriptionInEnvironmentFilter,
-                                                        maybeEmailFilter: Option[String],
-                                                        apiFilter: ApiContextVersion)
-                                                       (implicit hc: HeaderCarrier): Future[Set[String]] = {
+  private def getCollaboratorsByApplicationEnvironments(
+      environmentFilter: ApiSubscriptionInEnvironmentFilter,
+      maybeEmailFilter: Option[String],
+      apiFilter: ApiContextVersion
+    )(implicit hc: HeaderCarrier
+    ): Future[Set[String]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
       case ProductionEnvironment => List(productionApplicationConnector)
-      case SandboxEnvironment => List(sandboxApplicationConnector)
-      case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
+      case SandboxEnvironment    => List(sandboxApplicationConnector)
+      case AnyEnvironment        => List(productionApplicationConnector, sandboxApplicationConnector)
     }
 
     val allCollaboratorEmailsFutures: List[Future[List[String]]] = environmentApplicationConnectors
@@ -67,8 +73,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }
 
-  def filterUsersBy(filter: ApiFilter[String], apps: List[Application])
-                   (users: List[Developer]): List[Developer] = {
+  def filterUsersBy(filter: ApiFilter[String], apps: List[Application])(users: List[Developer]): List[Developer] = {
 
     val registeredEmails = users.map(_.user.email)
 
@@ -83,7 +88,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
         appResp.collaborators.foldLeft(uMap)((m, c) => {
           val userApps = m.getOrElse(asKey(c), Set.empty[Application]) + appResp
           m + (asKey(c) -> userApps)
-        }))
+        })
+      )
     }
 
     lazy val unregisteredCollaborators: Map[KEY, Set[Application]] =
@@ -97,8 +103,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     lazy val (usersWithoutApps, usersWithApps) = users.partition(_.applications.isEmpty)
 
     filter match {
-      case AllUsers => users ++ unregistered
-      case NoApplications => usersWithoutApps
+      case AllUsers                                                                       => users ++ unregistered
+      case NoApplications                                                                 => usersWithoutApps
       case NoSubscriptions | OneOrMoreSubscriptions | OneOrMoreApplications | Value(_, _) => usersWithApps ++ unregistered
     }
   }
@@ -106,7 +112,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
   def filterUsersBy(filter: StatusFilter)(developers: List[Developer]): List[Developer] = {
     filter match {
       case AnyStatus => developers
-      case _ => developers.filter(d => filter == User.status(d.user))
+      case _         => developers.filter(d => filter == User.status(d.user))
     }
   }
 
@@ -139,7 +145,8 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = fetchDeveloper(UuidIdentifier(userId), includingDeleted)
+  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] =
+    fetchDeveloper(UuidIdentifier(userId), includingDeleted)
 
   def fetchDeveloper(developerId: DeveloperIdentifier, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
 
@@ -151,13 +158,13 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     }
 
     for {
-      user <- developerConnector.fetchById(developerId)
-      xmlServiceNames <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
-      xmlOrganisations <- xmlService.findOrganisationsByUserId(user.userId)
-      sandboxApplications <- fetchApplicationsByUserId(sandboxApplicationConnector, user.userId, includingDeleted)
+      user                   <- developerConnector.fetchById(developerId)
+      xmlServiceNames        <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
+      xmlOrganisations       <- xmlService.findOrganisationsByUserId(user.userId)
+      sandboxApplications    <- fetchApplicationsByUserId(sandboxApplicationConnector, user.userId, includingDeleted)
       productionApplications <- fetchApplicationsByUserId(productionApplicationConnector, user.userId, includingDeleted)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations)
-  }  
+  }
 
   def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
@@ -171,10 +178,15 @@ class DeveloperService @Inject()(appConfig: AppConfig,
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }
 
-  def fetchDevelopersBySpecificAPIEmailPreferences(topic: TopicOptionChoice, apiCategories: List[APICategory], apiNames: List[String], privateApiMatch: Boolean)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificAPIEmailPreferences(
+      topic: TopicOptionChoice,
+      apiCategories: List[APICategory],
+      apiNames: List[String],
+      privateApiMatch: Boolean
+    )(implicit hc: HeaderCarrier
+    ) = {
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct), privateApiMatch)
   }
-
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(developerId, loggedInUser)
@@ -188,7 +200,7 @@ class DeveloperService @Inject()(appConfig: AppConfig,
       } else {
         val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
         for {
-          users <- fetchDevelopersByEmails(appAdmins)
+          users        <- fetchDevelopersByEmails(appAdmins)
           verifiedUsers = users.toSet.filter(_.verified)
           adminsToEmail = verifiedUsers.map(_.email)
         } yield adminsToEmail
@@ -200,17 +212,17 @@ class DeveloperService @Inject()(appConfig: AppConfig,
 
       for {
         adminsToEmail <- fetchAdminsToEmail(email)(app)
-        result <- connector.removeCollaborator(app.id, email, gatekeeperUserId, adminsToEmail)
+        result        <- connector.removeCollaborator(app.id, email, gatekeeperUserId, adminsToEmail)
       } yield result
     }
 
     fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
-      val email = developer.email
+      val email                               = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {
         for {
-          _ <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(email))
+          _      <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(email))
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
         } yield (result, developer)
       } else {
